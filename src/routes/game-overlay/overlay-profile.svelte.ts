@@ -4,6 +4,8 @@ import {
   ensureBuffUptimeActiveIndicators,
   ensureBuffUptimeAliases,
   ensureBuffUptimeColors,
+  ensureBuffUptimeMinStacks,
+  ensureBuffUptimeMinStacksEnabled,
   ensureBuffUptimeTextStyle,
   ensureBuffUptimeTrackingModes,
   type BuffUptimeTextStyle,
@@ -99,6 +101,12 @@ const _buffUptimeTrackingModes = $derived.by(() =>
 );
 const _buffUptimeActiveIndicators = $derived.by(() =>
   ensureBuffUptimeActiveIndicators(_activeProfile?.buffUptimeActiveIndicators),
+);
+const _buffUptimeMinStacksEnabled = $derived.by(() =>
+  ensureBuffUptimeMinStacksEnabled(_activeProfile?.buffUptimeMinStacksEnabled),
+);
+const _buffUptimeMinStacks = $derived.by(() =>
+  ensureBuffUptimeMinStacks(_activeProfile?.buffUptimeMinStacks),
 );
 const _buffUptimeTextStyle = $derived.by<BuffUptimeTextStyle>(() =>
   ensureBuffUptimeTextStyle(_activeProfile?.buffUptimeTextStyle),
@@ -211,6 +219,14 @@ export function buffUptimeTrackingModes() {
 
 export function buffUptimeActiveIndicators() {
   return _buffUptimeActiveIndicators;
+}
+
+export function buffUptimeMinStacksEnabled() {
+  return _buffUptimeMinStacksEnabled;
+}
+
+export function buffUptimeMinStacks() {
+  return _buffUptimeMinStacks;
 }
 
 export function buffUptimeTextStyle() {

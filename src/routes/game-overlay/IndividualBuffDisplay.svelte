@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { uiT } from "$lib/i18n";
-  import { SETTINGS } from "$lib/settings-store";
   import BuffGroupGrid from "./BuffGroupGrid.svelte";
   import IconBuffCell from "./IconBuffCell.svelte";
+  import { uiT } from "$lib/i18n";
+  import { SETTINGS } from "$lib/settings-store";
   import {
     getDisplayIconPosition,
     getDisplayIconSize,
@@ -18,11 +18,11 @@
     startResize,
   } from "./overlay-state.svelte.js";
 
-  const t = uiT("skill-monitor/buff-monitor", () => SETTINGS.live.general.state.language);
   const editing = $derived(isEditing());
   const individualBuffs = $derived(individualModeIconBuffs());
   const allGroup = $derived(individualMonitorAllGroup());
   const allGroupBuffs = $derived(individualAllGroupBuffs());
+  const t = uiT("skill-monitor/buff-monitor", () => SETTINGS.live.general.state.language);
 
   $effect(() => {
     const buffs = individualBuffs;

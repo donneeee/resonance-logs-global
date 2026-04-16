@@ -1214,6 +1214,14 @@ impl AppStateManager {
         );
 
         state.event_manager.emit_live_data(payload);
+        self.emit_monster_overlay_events_with_state(state);
+    }
+
+    /// Emits monster overlay updates independently from the main live-data cadence.
+    ///
+    /// This keeps boss buff and hate list panels feeling responsive without forcing
+    /// the full live meter payload to emit as frequently.
+    pub fn emit_monster_overlay_events_with_state(&self, state: &mut AppState) {
         let mut boss_buff_snapshot = state
             .boss_buff_monitors
             .build_all_buff_snapshots(state.server_clock_offset);

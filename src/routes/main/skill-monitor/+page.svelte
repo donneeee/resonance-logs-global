@@ -18,7 +18,6 @@
     resolveBuffDisplayName,
     saveBuffOverlayAlias,
     searchBuffsByName,
-    searchIconBuffsByName,
     type BuffCategoryKey,
     type BuffCategoryDefinition,
     type BuffDefinition,
@@ -32,6 +31,8 @@
     ensureBuffUptimeActiveIndicators,
     ensureBuffUptimeAliases,
     ensureBuffUptimeColors,
+    ensureBuffUptimeMinStacks,
+    ensureBuffUptimeMinStacksEnabled,
     ensureBuffUptimeTextStyle,
     ensureBuffUptimeTrackingModes,
     SETTINGS,
@@ -124,6 +125,12 @@
   const uptimeBuffTrackingModes = $derived.by(() => ensureBuffUptimeTrackingModes(activeProfile.buffUptimeTrackingModes));
   const uptimeBuffActiveIndicators = $derived.by(() =>
     ensureBuffUptimeActiveIndicators(activeProfile.buffUptimeActiveIndicators),
+  );
+  const uptimeBuffMinStacksEnabled = $derived.by(() =>
+    ensureBuffUptimeMinStacksEnabled(activeProfile.buffUptimeMinStacksEnabled),
+  );
+  const uptimeBuffMinStacks = $derived.by(() =>
+    ensureBuffUptimeMinStacks(activeProfile.buffUptimeMinStacks),
   );
   const buffUptimeTextStyle = $derived.by(() =>
     ensureBuffUptimeTextStyle(activeProfile.buffUptimeTextStyle),
@@ -606,6 +613,27 @@
     }));
   }
 
+  function setBuffUptimeMinStacksEnabled(buffId: number, value: boolean) {
+    updateActiveProfile((profile) => ({
+      ...profile,
+      buffUptimeMinStacksEnabled: {
+        ...ensureBuffUptimeMinStacksEnabled(profile.buffUptimeMinStacksEnabled),
+        [String(buffId)]: value,
+      },
+    }));
+  }
+
+  function setBuffUptimeMinStacks(buffId: number, value: number) {
+    const nextValue = Math.max(1, Math.min(999, Math.round(Number.isFinite(value) ? value : 1)));
+    updateActiveProfile((profile) => ({
+      ...profile,
+      buffUptimeMinStacks: {
+        ...ensureBuffUptimeMinStacks(profile.buffUptimeMinStacks),
+        [String(buffId)]: nextValue,
+      },
+    }));
+  }
+
   function setBuffUptimeOutlineEnabled(value: boolean) {
     updateActiveProfile((profile) => ({
       ...profile,
@@ -868,19 +896,19 @@
   );
 
   $effect(() => {
-    buffSearchResults = searchIconBuffsByName(buffSearch, buffAliases);
+    buffSearchResults = searchBuffsByName(buffSearch, buffAliases);
   });
 
   $effect(() => {
-    globalPrioritySearchResults = searchIconBuffsByName(globalPrioritySearch, buffAliases);
+    globalPrioritySearchResults = searchBuffsByName(globalPrioritySearch, buffAliases);
   });
 
   $effect(() => {
-    inlineBuffSearchResults = searchIconBuffsByName(inlineBuffSearch, buffAliases);
+    inlineBuffSearchResults = searchBuffsByName(inlineBuffSearch, buffAliases);
   });
 
   $effect(() => {
-    buffAliasSearchResults = searchIconBuffsByName(buffAliasSearch, buffAliases);
+    buffAliasSearchResults = searchBuffsByName(buffAliasSearch, buffAliases);
   });
 
   $effect(() => {
@@ -1428,7 +1456,7 @@
     }
     groupSearchResults = {
       ...groupSearchResults,
-      [groupId]: searchIconBuffsByName(keyword, buffAliases),
+      [groupId]: searchBuffsByName(keyword, buffAliases),
     };
   }
 
@@ -1445,7 +1473,7 @@
     }
     groupPrioritySearchResults = {
       ...groupPrioritySearchResults,
-      [groupId]: searchIconBuffsByName(keyword, buffAliases),
+      [groupId]: searchBuffsByName(keyword, buffAliases),
     };
   }
 
@@ -1741,6 +1769,8 @@
       {uptimeBuffAliases}
       {uptimeBuffTrackingModes}
       {uptimeBuffActiveIndicators}
+      {uptimeBuffMinStacksEnabled}
+      {uptimeBuffMinStacks}
       {buffUptimeTextStyle}
       {showTrueUptime}
       {buffUptimeGap}
@@ -1762,6 +1792,8 @@
       {setBuffUptimeTrackingMode}
       {setBuffUptimeActiveIndicator}
       {setBuffUptimeColor}
+      {setBuffUptimeMinStacksEnabled}
+      {setBuffUptimeMinStacks}
       {setBuffUptimeOutlineEnabled}
       {setBuffUptimeOutlineColor}
       {setBuffUptimeOutlineStrength}

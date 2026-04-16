@@ -13,6 +13,10 @@ import {
   setMonsterEditMode,
   setMonsterOverlayWindow,
 } from "./monster-layout.svelte.js";
+import {
+  buildMonitorRuntimeSnapshot,
+  saveAndApplyMonitorRuntimeSnapshot,
+} from "$lib/runtime-monitor-sync";
 import { updateMonsterDisplay } from "./monster-display.svelte.js";
 import { monsterRuntime } from "./monster-runtime.svelte.js";
 
@@ -74,6 +78,14 @@ export function initMonsterOverlay() {
   window.addEventListener("pointermove", onGlobalPointerMove);
   window.addEventListener("pointerup", onGlobalPointerUp);
   monsterRuntime.rafId = requestAnimationFrame(updateMonsterDisplay);
+
+  void (async () => {
+    try {
+      await saveAndApplyMonitorRuntimeSnapshot(buildMonitorRuntimeSnapshot());
+    } catch (error) {
+      console.error("Failed to refresh monster overlay state:", error);
+    }
+  })();
 
   monsterRuntime.cleanup = () => {
     monsterRuntime.isMounted = false;

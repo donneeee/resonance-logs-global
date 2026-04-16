@@ -22,6 +22,7 @@ const QUEUE_DEPTH_WARN_THRESHOLD: usize = 100;
 const QUEUE_DEPTH_ERROR_THRESHOLD: usize = 500;
 const QUEUE_DEPTH_CRITICAL_THRESHOLD: usize = 2000;
 const QUEUE_DEPTH_LOG_INTERVAL: Duration = Duration::from_millis(500);
+const MONSTER_OVERLAY_UPDATE_INTERVAL: Duration = Duration::from_millis(50);
 
 fn log_queue_depth_if_needed(
     queue_depth: &std::sync::atomic::AtomicUsize,
@@ -243,6 +244,9 @@ pub async fn start(
 
     // Throttling for events - rate is read dynamically from state each iteration
     let mut last_emit_time = Instant::now();
+    let mut last_monster_emit_time = Instant::now()
+        .checked_sub(MONSTER_OVERLAY_UPDATE_INTERVAL)
+        .unwrap_or_else(Instant::now);
 
     // Heartbeat: ensure we emit events periodically even during idle periods
     // to prevent frontend from thinking the connection is dead
@@ -267,6 +271,8 @@ pub async fn start(
             Some(command) = control_rx.recv() => {
                 state_manager.apply_control_command(&mut state, command);
                 state_manager.drain_control_commands(&mut state, &mut control_rx);
+                state_manager.emit_monster_overlay_events_with_state(&mut state);
+                last_monster_emit_time = Instant::now();
                 flush_outbound_events(&app_handle, &mut state);
             }
             packet = rx.recv() => match packet {
@@ -329,11 +335,17 @@ pub async fn start(
                 state_manager.drain_control_commands(&mut state, &mut control_rx);
                 flush_outbound_events(&app_handle, &mut state);
 
+                let now = Instant::now();
+                if now.duration_since(last_monster_emit_time) >= MONSTER_OVERLAY_UPDATE_INTERVAL {
+                    last_monster_emit_time = now;
+                    state_manager.emit_monster_overlay_events_with_state(&mut state);
+                }
+                flush_outbound_events(&app_handle, &mut state);
+
                 // Check if we should emit events (throttling)
                 // Read current event update rate from state dynamically
                 let emit_rate_ms = state.event_update_rate_ms;
                 let emit_throttle_duration = Duration::from_millis(emit_rate_ms);
-                let now = Instant::now();
                 if now.duration_since(last_emit_time) >= emit_throttle_duration {
                     last_emit_time = now;
                     state_manager.update_and_emit_events_with_state(&mut state);
@@ -349,10 +361,16 @@ pub async fn start(
             }
             },
             _ = tokio::time::sleep(heartbeat_duration) => {
+                let now = Instant::now();
+                if now.duration_since(last_monster_emit_time) >= MONSTER_OVERLAY_UPDATE_INTERVAL {
+                    last_monster_emit_time = now;
+                    state_manager.emit_monster_overlay_events_with_state(&mut state);
+                }
+                flush_outbound_events(&app_handle, &mut state);
+
                 // Timeout occurred - read rate dynamically
                 let emit_rate_ms = state.event_update_rate_ms;
                 let emit_throttle_duration = Duration::from_millis(emit_rate_ms);
-                let now = Instant::now();
                 if now.duration_since(last_emit_time) >= emit_throttle_duration {
                     last_emit_time = now;
                     state_manager.update_and_emit_events_with_state(&mut state);

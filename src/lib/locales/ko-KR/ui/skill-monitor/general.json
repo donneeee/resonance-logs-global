@@ -47,5 +47,5 @@
   "overlay.edit.done": "편집 완료",
   "overlay.edit.dragWindow": "여기를 드래그해 Game Overlay 창 이동",
   "overlay.buffUptime": "버프 가동률 구역",
-  "tab.buffUptime": "버프 가동률"
+  "tab.buffUptime": "Buff Uptime"
 }

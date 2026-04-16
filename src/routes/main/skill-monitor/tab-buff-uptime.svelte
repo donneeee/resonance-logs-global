@@ -13,6 +13,8 @@
     uptimeBuffAliases: Record<string, string>;
     uptimeBuffTrackingModes: Record<string, BuffUptimeTrackingMode>;
     uptimeBuffActiveIndicators: Record<string, boolean>;
+    uptimeBuffMinStacksEnabled: Record<string, boolean>;
+    uptimeBuffMinStacks: Record<string, number>;
     buffUptimeTextStyle: BuffUptimeTextStyle;
     showTrueUptime: boolean;
     buffUptimeGap: number;
@@ -34,6 +36,8 @@
     setBuffUptimeTrackingMode: (buffId: number, value: BuffUptimeTrackingMode) => void;
     setBuffUptimeActiveIndicator: (buffId: number, value: boolean) => void;
     setBuffUptimeColor: (buffId: number, color: string) => void;
+    setBuffUptimeMinStacksEnabled: (buffId: number, value: boolean) => void;
+    setBuffUptimeMinStacks: (buffId: number, value: number) => void;
     setBuffUptimeOutlineEnabled: (value: boolean) => void;
     setBuffUptimeOutlineColor: (color: string) => void;
     setBuffUptimeOutlineStrength: (value: number) => void;
@@ -59,12 +63,6 @@
     sourceText?: string;
   };
 
-  type PreviewSample = {
-    encounterText: string;
-    trueText?: string;
-    sourceText?: string;
-  };
-
   const t = uiT("skill-monitor/buff-monitor", () => SETTINGS.live.general.state.language);
   let searchSectionExpanded = $state(true);
   let colorSectionExpanded = $state(true);
@@ -78,6 +76,8 @@
     uptimeBuffAliases,
     uptimeBuffTrackingModes,
     uptimeBuffActiveIndicators,
+    uptimeBuffMinStacksEnabled,
+    uptimeBuffMinStacks,
     buffUptimeTextStyle,
     showTrueUptime,
     buffUptimeGap,
@@ -99,6 +99,8 @@
     setBuffUptimeTrackingMode,
     setBuffUptimeActiveIndicator,
     setBuffUptimeColor,
+    setBuffUptimeMinStacksEnabled,
+    setBuffUptimeMinStacks,
     setBuffUptimeOutlineEnabled,
     setBuffUptimeOutlineColor,
     setBuffUptimeOutlineStrength,
@@ -131,41 +133,32 @@
     return `#${r.toString(16).padStart(2, "0")}${g.toString(16).padStart(2, "0")}${b.toString(16).padStart(2, "0")}`;
   }
 
-  function createPreviewRow({
-    key,
-    label,
-    color,
-    showIndicator,
-    encounterText,
-    trueText,
-    sourceText,
-  }: {
-    key: string;
-    label: string;
-    color: string;
-    showIndicator: boolean;
-    encounterText: string;
-    trueText: string | undefined;
-    sourceText: string | undefined;
-  }): PreviewRow {
+  function buildPreviewRow(
+    key: string,
+    base: { label: string; color: string; showIndicator: boolean },
+    sample: { encounterText: string; trueText?: string; sourceText?: string },
+  ): PreviewRow {
     return {
       key,
-      label,
-      color,
-      showIndicator,
-      encounterText,
-      ...(trueText !== undefined ? { trueText } : {}),
-      ...(sourceText !== undefined ? { sourceText } : {}),
+      label: base.label,
+      color: base.color,
+      showIndicator: base.showIndicator,
+      encounterText: sample.encounterText,
+      ...(sample.trueText !== undefined ? { trueText: sample.trueText } : {}),
+      ...(sample.sourceText !== undefined ? { sourceText: sample.sourceText } : {}),
     };
   }
 
   const previewRows = $derived.by<PreviewRow[]>(() => {
-    const sourcePrefix = t("uptime.sourcePrefix", "Src");
-    const previewSourceName = t("uptime.previewSourceName", "Party");
-    const samples: PreviewSample[] = [
+    const sourcePrefix = t("uptime.sourcePrefix", "From");
+    const samples = [
       { encounterText: "9%", trueText: "[9%]" },
       { encounterText: "99%", trueText: "[99%]" },
-      { encounterText: "100%", trueText: "[100%]", sourceText: `${sourcePrefix}: ${previewSourceName}` },
+      {
+        encounterText: "100%",
+        trueText: "[100%]",
+        sourceText: `${sourcePrefix}: ${t("uptime.previewSourceParty", "Party")}`,
+      },
     ];
 
     const fallback = [
@@ -176,33 +169,29 @@
 
     return samples
       .map((sample, index) => {
-        const fallbackRow = fallback[index];
-        if (!fallbackRow) return null;
+        const base = fallback[index];
+        if (!base) return null;
 
         const buffId = monitoredUptimeBuffIds[index];
         if (buffId === undefined) {
-          return createPreviewRow({
-            key: `fallback-${index}`,
-            label: fallbackRow.label,
-            color: fallbackRow.color,
-            showIndicator: fallbackRow.showIndicator,
+          return buildPreviewRow(`fallback-${index}`, base, {
             encounterText: sample.encounterText,
-            trueText: showTrueUptime ? sample.trueText : undefined,
-            sourceText: index === 2 ? sample.sourceText : undefined,
+            ...(showTrueUptime && sample.trueText !== undefined ? { trueText: sample.trueText } : {}),
+            ...(index === 2 && sample.sourceText !== undefined ? { sourceText: sample.sourceText } : {}),
           });
         }
 
         const alias = uptimeBuffAliases[String(buffId)]?.trim();
         const label = alias || getBuffDisplayName(buffId);
         const trackingMode = uptimeBuffTrackingModes[String(buffId)] ?? "self";
-        return createPreviewRow({
-          key: `tracked-${buffId}-${index}`,
+        return buildPreviewRow(`tracked-${buffId}-${index}`, {
           label,
-          color: uptimeBuffColors[String(buffId)] ?? fallbackRow.color,
-          showIndicator: uptimeBuffActiveIndicators[String(buffId)] ?? fallbackRow.showIndicator,
+          color: uptimeBuffColors[String(buffId)] ?? base.color,
+          showIndicator: uptimeBuffActiveIndicators[String(buffId)] ?? true,
+        }, {
           encounterText: sample.encounterText,
-          trueText: showTrueUptime ? sample.trueText : undefined,
-          sourceText: trackingMode === "global" && index > 0 ? sample.sourceText : undefined,
+          ...(showTrueUptime && sample.trueText !== undefined ? { trueText: sample.trueText } : {}),
+          ...(trackingMode === "global" && index > 0 && sample.sourceText !== undefined ? { sourceText: sample.sourceText } : {}),
         });
       })
       .filter((row): row is PreviewRow => row !== null);
@@ -390,6 +379,25 @@
                   />
                   {t("uptime.activeShort", "Active")}
                 </label>
+                <label class="flex items-center gap-1 text-xs text-foreground whitespace-nowrap">
+                  <input
+                    type="checkbox"
+                    checked={uptimeBuffMinStacksEnabled[String(buffId)] === true}
+                    onchange={(event) => setBuffUptimeMinStacksEnabled(buffId, (event.currentTarget as HTMLInputElement).checked)}
+                  />
+                  {t("uptime.minStacksEnabled", "Min Stacks")}
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  max="999"
+                  step="1"
+                  value={uptimeBuffMinStacks[String(buffId)] ?? 1}
+                  disabled={uptimeBuffMinStacksEnabled[String(buffId)] !== true}
+                  title={t("uptime.minStacksValue", "Stacks")}
+                  class="w-20 rounded border border-border/60 bg-background/50 px-2 py-1 text-xs text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
+                  onchange={(event) => setBuffUptimeMinStacks(buffId, Number((event.currentTarget as HTMLInputElement).value || 1))}
+                />
                 <input
                   type="color"
                   value={uptimeBuffColors[String(buffId)] ?? '#ffffff'}
@@ -576,7 +584,7 @@
 
   .uptime-setting-row {
     display: grid;
-    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto auto auto;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) auto auto auto auto auto;
     align-items: center;
     gap: 12px;
   }

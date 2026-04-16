@@ -361,6 +361,9 @@ export type BuffUptimeTextStyle = {
 
 export type BuffUptimeTrackingMode = "self" | "global";
 
+export type BuffUptimeMinStacksEnabledMap = Record<string, boolean>;
+export type BuffUptimeMinStacksMap = Record<string, number>;
+
 export type BuffDisplayMode = "individual" | "grouped";
 
 export type BuffAliasMap = Record<string, string>;
@@ -432,6 +435,8 @@ export type SkillMonitorProfile = {
   buffUptimeAliases?: Record<string, string>;
   buffUptimeTrackingModes?: Record<string, BuffUptimeTrackingMode>;
   buffUptimeActiveIndicators?: Record<string, boolean>;
+  buffUptimeMinStacksEnabled?: BuffUptimeMinStacksEnabledMap;
+  buffUptimeMinStacks?: BuffUptimeMinStacksMap;
   buffUptimeTextStyle?: BuffUptimeTextStyle;
   textBuffMaxVisible: number;
   showTrueUptime?: boolean;
@@ -612,6 +617,8 @@ export function createDefaultSkillMonitorProfile(
     buffUptimeAliases: {},
     buffUptimeTrackingModes: {},
     buffUptimeActiveIndicators: {},
+    buffUptimeMinStacksEnabled: {},
+    buffUptimeMinStacks: {},
     buffUptimeTextStyle: createDefaultBuffUptimeTextStyle(),
     textBuffMaxVisible: 10,
     showTrueUptime: true,
@@ -667,6 +674,29 @@ export function ensureBuffUptimeActiveIndicators(
   }
   return next;
 }
+
+export function ensureBuffUptimeMinStacksEnabled(
+  enabledMap: BuffUptimeMinStacksEnabledMap | null | undefined,
+): BuffUptimeMinStacksEnabledMap {
+  const next: BuffUptimeMinStacksEnabledMap = {};
+  for (const [buffId, enabled] of Object.entries(enabledMap ?? {})) {
+    next[buffId] = enabled === true;
+  }
+  return next;
+}
+
+export function ensureBuffUptimeMinStacks(
+  minStacksMap: BuffUptimeMinStacksMap | null | undefined,
+): BuffUptimeMinStacksMap {
+  const next: BuffUptimeMinStacksMap = {};
+  for (const [buffId, value] of Object.entries(minStacksMap ?? {})) {
+    const num = typeof value === "number" ? value : Number(value);
+    if (!Number.isFinite(num)) continue;
+    next[buffId] = Math.max(1, Math.min(999, Math.round(num)));
+  }
+  return next;
+}
+
 export function ensureBuffUptimeTextStyle(
   style: BuffUptimeTextStyle | null | undefined,
 ): BuffUptimeTextStyle {
