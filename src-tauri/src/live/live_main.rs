@@ -141,6 +141,200 @@ fn logger_find_i64_field(value: &serde_json::Value, field_names: &[&str]) -> Opt
     }
 }
 
+fn dungeon_state_label(state: i32) -> String {
+    blueprotobuf::EDungeonState::try_from(state)
+        .map(|value| value.as_str_name().trim_start_matches("DungeonState").to_string())
+        .unwrap_or_else(|_| format!("Unknown({state})"))
+}
+
+fn summarize_dungeon_targets(target: Option<&blueprotobuf::DungeonTarget>) -> Option<String> {
+    let target = target?;
+    if target.target_data.is_empty() {
+        return None;
+    }
+
+    let total = target.target_data.len();
+    let completed = target
+        .target_data
+        .values()
+        .filter(|entry| entry.complete.unwrap_or_default() > 0)
+        .count();
+
+    Some(format!("targets={completed}/{total}"))
+}
+
+fn build_sync_dungeon_data_logger_entry(
+    ts_ms: i64,
+    sync_dungeon_data: blueprotobuf::SyncDungeonData,
+) -> EventLoggerEntry {
+    let mut summary_parts = Vec::new();
+    let mut value = None;
+    let mut uid = None;
+    let mut name_hint = Some("SyncDungeonData".to_string());
+
+    if let Some(v_data) = sync_dungeon_data.v_data.as_ref() {
+        uid = v_data.scene_uuid;
+
+        if let Some(flow_info) = v_data.flow_info.as_ref() {
+            if let Some(state) = flow_info.state {
+                let state_label = dungeon_state_label(state);
+                summary_parts.push(format!("state={state_label}"));
+                value = Some(state_label.clone());
+                name_hint = Some(format!("SyncDungeonData · {state_label}"));
+            }
+            if let Some(ready_time) = flow_info.ready_time {
+                summary_parts.push(format!("readyTime={ready_time}"));
+            }
+            if let Some(active_time) = flow_info.active_time {
+                summary_parts.push(format!("activeTime={active_time}"));
+            }
+            if let Some(play_time) = flow_info.play_time {
+                summary_parts.push(format!("playTime={play_time}"));
+            }
+            if let Some(result) = flow_info.result {
+                summary_parts.push(format!("result={result}"));
+            }
+        }
+
+        if let Some(target_summary) = summarize_dungeon_targets(v_data.target.as_ref()) {
+            summary_parts.push(target_summary);
+        }
+
+        if let Some(vote) = v_data.vote.as_ref() {
+            let yes_votes = vote.vote.values().filter(|&&value| value > 0).count();
+            summary_parts.push(format!("votes={}/{}", yes_votes, vote.vote.len()));
+        }
+
+        if let Some(player_list) = v_data.dungeon_player_list.as_ref() {
+            summary_parts.push(format!("players={}", player_list.player_infos.len()));
+        }
+
+        if let Some(hero_key) = v_data.hero_key.as_ref() {
+            let use_item = hero_key
+                .use_item
+                .as_ref()
+                .and_then(|item| item.config_id)
+                .map(|config_id| format!("useItem={config_id}"));
+            summary_parts.push(format!(
+                "heroKeyItems={} awards={}{}",
+                hero_key.hero_key_item.len(),
+                hero_key.hero_key_award_item.len(),
+                use_item
+                    .map(|value| format!(" {value}"))
+                    .unwrap_or_default()
+            ));
+        }
+
+        if let Some(revive_info) = v_data.revive_info.as_ref() {
+            summary_parts.push(format!(
+                "reviveIds={} reviveMap={}",
+                revive_info.revive_ids.len(),
+                revive_info.revive_map.len()
+            ));
+        }
+    } else {
+        summary_parts.push("vData=missing".to_string());
+    }
+
+    EventLoggerEntry {
+        ts_ms,
+        category: "dungeon_probe".into(),
+        action: "sync_data".into(),
+        uid,
+        target_uid: None,
+        source_uid: None,
+        source_label: None,
+        target_label: None,
+        name_hint,
+        summary: Some(summary_parts.join(" ")),
+        stacks: None,
+        duration_ms: None,
+        remaining_ms: None,
+        value,
+        raw: serde_json::to_string_pretty(&sync_dungeon_data)
+            .unwrap_or_else(|_| "null".to_string()),
+    }
+}
+
+fn build_sync_dungeon_dirty_data_logger_entry(
+    ts_ms: i64,
+    sync_dungeon_dirty_data: blueprotobuf::SyncDungeonDirtyData,
+) -> EventLoggerEntry {
+    let mut summary_parts = Vec::new();
+    let mut raw_json = serde_json::json!({
+        "packet": "SyncDungeonDirtyData",
+        "vData": "missing",
+    });
+    let mut value = None;
+    let mut name_hint = Some("SyncDungeonDirtyData".to_string());
+
+    if let Some(v_data) = sync_dungeon_dirty_data.v_data.as_ref() {
+        if let Some(buffer) = v_data.buffer.as_ref() {
+            summary_parts.push(format!("bufferLen={}B", buffer.len()));
+            match crate::live::dungeon_dirty_blob::parse_dirty_dungeon_data(buffer.as_slice()) {
+                Ok(parsed) => {
+                    if let Some(state) = parsed.flow_state {
+                        let state_label = dungeon_state_label(state);
+                        summary_parts.push(format!("state={state_label}"));
+                        value = Some(state_label.clone());
+                        name_hint = Some(format!("SyncDungeonDirtyData · {state_label}"));
+                    }
+                    summary_parts.push(format!("targets={}", parsed.targets.len()));
+                    raw_json = serde_json::json!({
+                        "packet": "SyncDungeonDirtyData",
+                        "bufferLen": buffer.len(),
+                        "parsed": {
+                            "flowState": parsed.flow_state,
+                            "flowStateLabel": parsed.flow_state.map(dungeon_state_label),
+                            "targets": parsed.targets.iter().map(|target| serde_json::json!({
+                                "targetId": target.target_id,
+                                "nums": target.nums,
+                                "complete": target.complete,
+                            })).collect::<Vec<_>>(),
+                        }
+                    });
+                }
+                Err(error) => {
+                    summary_parts.push(format!("parseError={error}"));
+                    raw_json = serde_json::json!({
+                        "packet": "SyncDungeonDirtyData",
+                        "bufferLen": buffer.len(),
+                        "parseError": error,
+                    });
+                }
+            }
+        } else {
+            summary_parts.push("buffer=missing".to_string());
+            raw_json = serde_json::json!({
+                "packet": "SyncDungeonDirtyData",
+                "vData": {
+                    "buffer": "missing",
+                }
+            });
+        }
+    } else {
+        summary_parts.push("vData=missing".to_string());
+    }
+
+    EventLoggerEntry {
+        ts_ms,
+        category: "dungeon_probe".into(),
+        action: "dirty_sync_data".into(),
+        uid: None,
+        target_uid: None,
+        source_uid: None,
+        source_label: None,
+        target_label: None,
+        name_hint,
+        summary: Some(summary_parts.join(" ")),
+        stacks: None,
+        duration_ms: None,
+        remaining_ms: None,
+        value,
+        raw: serde_json::to_string_pretty(&raw_json).unwrap_or_else(|_| "null".to_string()),
+    }
+}
+
 fn build_sync_log_logger_entry(ts_ms: i64, sync_log: blueprotobuf::SyncLog) -> Option<EventLoggerEntry> {
     let raw_log = sync_log.log.unwrap_or_default();
     let trimmed = raw_log.trim();
@@ -281,6 +475,20 @@ fn decode_auxiliary_logger_entries(op: &packets::opcodes::Pkt, data: Bytes) -> V
                 .collect(),
             Err(error) => {
                 warn!("Error decoding SyncLog.. ignoring: {error}");
+                Vec::new()
+            }
+        },
+        packets::opcodes::Pkt::SyncDungeonData => match blueprotobuf::SyncDungeonData::decode(data) {
+            Ok(sync_dungeon_data) => vec![build_sync_dungeon_data_logger_entry(now_ms(), sync_dungeon_data)],
+            Err(error) => {
+                warn!("Error decoding SyncDungeonData for logger probe.. ignoring: {error}");
+                Vec::new()
+            }
+        },
+        packets::opcodes::Pkt::SyncDungeonDirtyData => match blueprotobuf::SyncDungeonDirtyData::decode(data) {
+            Ok(sync_dungeon_dirty_data) => vec![build_sync_dungeon_dirty_data_logger_entry(now_ms(), sync_dungeon_dirty_data)],
+            Err(error) => {
+                warn!("Error decoding SyncDungeonDirtyData for logger probe.. ignoring: {error}");
                 Vec::new()
             }
         },
@@ -1303,20 +1511,13 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                 emit_auxiliary_entries(app_handle, entries);
             }
             OutboundEvent::BossBuffUpdate(boss_buffs) => {
-                let payload = BossBuffUpdatePayload {
-                    boss_buffs: boss_buffs.clone(),
-                };
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "boss-buff-update",
-                    payload.clone(),
-                );
-                safe_emit_to(
-                    app_handle,
-                    crate::WINDOW_GAME_OVERLAY_LABEL,
-                    "boss-buff-update",
-                    payload,
+                    BossBuffUpdatePayload {
+                        boss_buffs: boss_buffs.clone(),
+                    },
                 );
                 let mut entries = Vec::new();
                 for (boss_uid, buffs) in boss_buffs {
@@ -1344,20 +1545,13 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                 emit_auxiliary_entries(app_handle, entries);
             }
             OutboundEvent::HateListUpdate(hate_lists) => {
-                let payload = HateListUpdatePayload {
-                    hate_lists: hate_lists.clone(),
-                };
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "hate-list-update",
-                    payload.clone(),
-                );
-                safe_emit_to(
-                    app_handle,
-                    crate::WINDOW_GAME_OVERLAY_LABEL,
-                    "hate-list-update",
-                    payload,
+                    HateListUpdatePayload {
+                        hate_lists: hate_lists.clone(),
+                    },
                 );
                 let mut entries = Vec::new();
                 for (boss_uid, entries_for_boss) in hate_lists {
@@ -1385,20 +1579,13 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                 emit_auxiliary_entries(app_handle, entries);
             }
             OutboundEvent::EntityNameMap { names } => {
-                let payload = EntityNameMapPayload {
-                    names: names.clone(),
-                };
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "entity-names",
-                    payload.clone(),
-                );
-                safe_emit_to(
-                    app_handle,
-                    crate::WINDOW_GAME_OVERLAY_LABEL,
-                    "entity-names",
-                    payload,
+                    EntityNameMapPayload {
+                        names: names.clone(),
+                    },
                 );
                 emit_auxiliary_entries(
                     app_handle,

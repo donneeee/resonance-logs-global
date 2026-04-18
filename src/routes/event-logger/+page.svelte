@@ -123,6 +123,8 @@
     SETTINGS.customTriggers.state.loggerVisibleColumns ??= { ...defaultColumnVisibility };
     SETTINGS.customTriggers.state.loggerStartWithMeter ??= false;
     SETTINGS.customTriggers.state.loggerReduceClutter ??= true;
+    SETTINGS.customTriggers.state.loggerCaptureEvents ??= true;
+    SETTINGS.customTriggers.state.loggerCaptureSnapshots ??= true;
   }
 
   ensureLoggerSettingsShape();
@@ -441,6 +443,14 @@
     return deduped;
   }
 
+  function matchesCaptureVisibility(row: EventLoggerEntry | DisplayRow): boolean {
+    if (row.action === "snapshot") {
+      return SETTINGS.customTriggers.state.loggerCaptureSnapshots !== false;
+    }
+
+    return SETTINGS.customTriggers.state.loggerCaptureEvents !== false;
+  }
+
   function isColumnVisible(columnKey: ColumnKey): boolean {
     return SETTINGS.customTriggers.state.loggerVisibleColumns?.[columnKey] !== false;
   }
@@ -568,16 +578,19 @@
     knownSelections = { known: nextValue, unknown: nextValue };
   }
 
-  const selectedRow = $derived(rows.find((row) => row.localId === selectedRowId) ?? null);
-
   const allCategoriesSelected = $derived(
     loggerCategories.every((item) => categorySelections[item.key] !== false),
   );
 
   const availableActions = $derived.by(() =>
-    Array.from(new Set(rows.map((row) => normalizeText(row.action)).filter(Boolean))).sort((a, b) =>
-      a.localeCompare(b, undefined, { sensitivity: "base" }),
-    ),
+    Array.from(
+      new Set(
+        rows
+          .filter((row) => matchesCaptureVisibility(row))
+          .map((row) => normalizeText(row.action))
+          .filter(Boolean),
+      ),
+    ).sort((a, b) => a.localeCompare(b, undefined, { sensitivity: "base" })),
   );
 
   const allActionsSelected = $derived(
@@ -592,6 +605,10 @@
     const keyword = searchText.trim().toLowerCase();
 
     const nextRows = rows.filter((row) => {
+      if (!matchesCaptureVisibility(row)) {
+        return false;
+      }
+
       if (categorySelections[row.category] === false) {
         return false;
       }
@@ -646,6 +663,9 @@
     return sortState.direction === "asc" ? sorted : sorted.reverse();
   });
 
+
+  const selectedRow = $derived(filteredRows.find((row) => row.localId === selectedRowId) ?? null);
+
   const selectedRowRaw = $derived.by(() => {
     if (!selectedRow) return "";
     const raw = selectedRow.raw ?? selectedRow;
@@ -656,6 +676,89 @@
   const tableMinWidth = $derived.by(() =>
     visibleColumns.reduce((sum, columnKey) => sum + columnWidths[columnKey], 0),
   );
+
+  function getColumnCellText(row: DisplayRow, columnKey: ColumnKey): string {
+    switch (columnKey) {
+      case "time":
+        return formatTime(row.tsMs);
+      case "category":
+        return getCategoryLabel(row.category);
+      case "action":
+        return normalizeText(row.action) || t("meta.none", "—");
+      case "name": {
+        const nameText = getNameCellText(row);
+        const uidText = shouldShowUidChip(row) ? String(row.uid ?? "") : "";
+        return [nameText, uidText].filter(Boolean).join(" ") || t("meta.none", "—");
+      }
+      case "known":
+        return getKnownLabel(row);
+      case "uid":
+        return Number.isFinite(Number(row.uid)) ? String(row.uid) : t("meta.none", "—");
+      case "source":
+        return getSourceText(row);
+      case "target":
+        return getTargetText(row);
+      case "stacks":
+        return Number.isFinite(Number(row.stacks)) ? String(row.stacks) : t("meta.none", "—");
+      case "duration":
+        return formatDuration(row.durationMs);
+      case "summary":
+        return getSummary(row);
+    }
+  }
+
+  function getColumnAutoWidth(columnKey: ColumnKey): number {
+    if (typeof document === "undefined") {
+      return columnWidths[columnKey];
+    }
+
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
+    if (!context) {
+      return columnWidths[columnKey];
+    }
+
+    const bodySample = document.querySelector("tbody td") as HTMLElement | null;
+    const headerSample = document.querySelector("thead th") as HTMLElement | null;
+    const bodyFont = bodySample ? getComputedStyle(bodySample).font : "13px system-ui";
+    const headerFont = headerSample ? getComputedStyle(headerSample).font : bodyFont;
+
+    context.font = headerFont;
+    let maxWidth = context.measureText(getColumnLabel(columnKey)).width;
+
+    context.font = bodyFont;
+    for (const row of filteredRows) {
+      const nextWidth = context.measureText(getColumnCellText(row, columnKey)).width;
+      if (nextWidth > maxWidth) {
+        maxWidth = nextWidth;
+      }
+    }
+
+    return Math.max(columnMinimumWidths[columnKey], Math.ceil(maxWidth + 28));
+  }
+
+  function autoFitColumn(columnKey: ColumnKey, event?: MouseEvent) {
+    event?.preventDefault();
+    event?.stopPropagation();
+
+    columnWidths = {
+      ...columnWidths,
+      [columnKey]: getColumnAutoWidth(columnKey),
+    };
+  }
+
+  const selectedRowSummary = $derived(selectedRow ? getSummary(selectedRow) : t("meta.none", "—"));
+
+  async function syncEventLoggerCaptureOptions() {
+    try {
+      await invoke("set_event_logger_capture_options", {
+        captureEvents: SETTINGS.customTriggers.state.loggerCaptureEvents,
+        captureSnapshots: SETTINGS.customTriggers.state.loggerCaptureSnapshots,
+      });
+    } catch (error) {
+      console.error("[event-logger] failed to sync capture options", error);
+    }
+  }
 
   function showToast(message: string, x?: number, y?: number) {
     if (copyToastTimer) {
@@ -827,6 +930,7 @@
     void (async () => {
       await loadCustomDefinitions();
       await setEventLoggerAlwaysOnTop(SETTINGS.customTriggers.state.loggerAlwaysOnTop);
+      await syncEventLoggerCaptureOptions();
       await hydrateFromBuffer();
       unlisten = await listen<EventLoggerBatchPayload>("event-logger-batch", (event) => {
         if (Array.isArray(event.payload?.entries)) {
@@ -931,7 +1035,9 @@
                     type="button"
                     class="absolute top-0 right-0 h-full w-3 cursor-col-resize opacity-0 transition-opacity group-hover:opacity-100"
                     aria-label={`Resize ${getColumnLabel(columnKey)} column`}
+                    title={t("context.resizeColumn", "Drag to resize. Double-click to auto-fit.")}
                     onmousedown={(event) => startColumnResize(columnKey, event)}
+                    ondblclick={(event) => autoFitColumn(columnKey, event)}
                   >
                     <span class="mx-auto block h-full w-px bg-border/70"></span>
                   </button>
@@ -1004,7 +1110,7 @@
       </div>
     </section>
 
-    <aside class="min-h-0 overflow-auto bg-card/40 p-4">
+    <aside class="flex min-h-0 flex-col overflow-hidden bg-card/40 p-4">
       <div class="mb-4 border-b border-border/60 pb-3">
         <div class="mb-3 flex items-center gap-2">
           <Button size="sm" variant={detailsTab === "details" ? "default" : "outline"} onclick={() => (detailsTab = "details")}>{t("tabs.details", "Details")}</Button>
@@ -1053,7 +1159,7 @@
 
       {#if detailsTab === "details"}
         {#if selectedRow}
-          <div class="space-y-3">
+          <div class="flex min-h-0 flex-1 flex-col gap-3">
             <div class="grid gap-3 sm:grid-cols-2">
               <div class="rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
                 <div class="text-xs uppercase tracking-wide text-muted-foreground">{t("table.category", "Category")}</div>
@@ -1073,19 +1179,27 @@
               </div>
             </div>
 
-            <textarea
-              readonly
-              class="min-h-[420px] w-full rounded-lg border border-border/60 bg-background/60 p-3 font-mono text-xs leading-5"
-              value={selectedRowRaw}
-            ></textarea>
+            <section class="rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
+              <div class="text-xs uppercase tracking-wide text-muted-foreground">{t("details.summary", "Summary")}</div>
+              <div class="mt-2 whitespace-pre-wrap break-words text-sm leading-6">{selectedRowSummary}</div>
+            </section>
+
+            <section class="flex min-h-0 flex-1 flex-col rounded-lg border border-border/60 bg-background/60 p-3 text-sm">
+              <div class="mb-2 text-xs uppercase tracking-wide text-muted-foreground">{t("details.detailedSummary", "Detailed Summary")}</div>
+              <textarea
+                readonly
+                class="h-full min-h-[260px] w-full flex-1 resize-none rounded-md border border-border/50 bg-background/70 p-3 font-mono text-xs leading-5"
+                value={selectedRowRaw}
+              ></textarea>
+            </section>
           </div>
         {:else}
-          <div class="rounded-lg border border-dashed border-border/60 bg-background/40 px-4 py-10 text-center text-sm text-muted-foreground">
-            {t("details.empty", "Select an event to inspect its payload.")}
+          <div class="flex flex-1 items-center rounded-lg border border-dashed border-border/60 bg-background/40 px-4 py-10 text-center text-sm text-muted-foreground">
+            <div class="w-full">{t("details.empty", "Select an event to inspect its payload.")}</div>
           </div>
         {/if}
       {:else if detailsTab === "filters"}
-        <div class="space-y-4">
+        <div class="flex-1 space-y-4 overflow-auto pr-1">
           <section class="rounded-lg border border-border/60 bg-background/50 p-4">
             <div class="mb-3 flex items-center justify-between gap-3">
               <h3 class="text-sm font-semibold">{t("filters.categories", "Categories")}</h3>
@@ -1182,7 +1296,7 @@
           </section>
         </div>
       {:else}
-        <div class="space-y-4">
+        <div class="flex-1 space-y-4 overflow-auto pr-1">
           <section class="rounded-lg border border-border/60 bg-background/50 p-4">
             <h3 class="mb-3 text-sm font-semibold">{t("settings.behavior", "Behavior")}</h3>
             <div class="space-y-2">
@@ -1210,6 +1324,42 @@
                 <div>
                   <div>{t("settings.startWithMeter", "Start with App")}</div>
                   <div class="text-xs text-muted-foreground">{t("settings.startWithMeterDescription", "Open the event logger automatically when the app starts.")}</div>
+                </div>
+              </label>
+            </div>
+          </section>
+
+          <section class="rounded-lg border border-border/60 bg-background/50 p-4">
+            <h3 class="mb-3 text-sm font-semibold">{t("settings.eventCapture", "Event Capture")}</h3>
+            <div class="grid gap-2 sm:grid-cols-2">
+              <label class="flex items-center gap-3 rounded-md border border-border/50 bg-card/40 px-3 py-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={SETTINGS.customTriggers.state.loggerCaptureEvents}
+                  onchange={(event) => {
+                    SETTINGS.customTriggers.state.loggerCaptureEvents = (event.currentTarget as HTMLInputElement).checked;
+                    void syncEventLoggerCaptureOptions();
+                  }}
+                  class="h-4 w-4"
+                />
+                <div>
+                  <div>{t("settings.eventCapture.events", "Events")}</div>
+                  <div class="text-xs text-muted-foreground">{t("settings.eventCapture.eventsDescription", "Capture non-snapshot event rows in the logger.")}</div>
+                </div>
+              </label>
+              <label class="flex items-center gap-3 rounded-md border border-border/50 bg-card/40 px-3 py-2 text-sm">
+                <input
+                  type="checkbox"
+                  checked={SETTINGS.customTriggers.state.loggerCaptureSnapshots}
+                  onchange={(event) => {
+                    SETTINGS.customTriggers.state.loggerCaptureSnapshots = (event.currentTarget as HTMLInputElement).checked;
+                    void syncEventLoggerCaptureOptions();
+                  }}
+                  class="h-4 w-4"
+                />
+                <div>
+                  <div>{t("settings.eventCapture.snapshots", "Snapshots")}</div>
+                  <div class="text-xs text-muted-foreground">{t("settings.eventCapture.snapshotsDescription", "Capture state snapshot rows such as live totals and entity snapshots.")}</div>
                 </div>
               </label>
             </div>

@@ -78,6 +78,21 @@ pub struct EventLoggerBatchPayload {
     pub entries: Vec<EventLoggerEntry>,
 }
 
+#[derive(specta::Type, Serialize, Deserialize, Debug, Clone, Copy)]
+#[serde(rename_all = "camelCase")]
+pub struct EventLoggerCaptureOptions {
+    pub capture_events: bool,
+    pub capture_snapshots: bool,
+}
+
+impl Default for EventLoggerCaptureOptions {
+    fn default() -> Self {
+        Self {
+            capture_events: true,
+            capture_snapshots: true,
+        }
+    }
+}
 
 pub const EVENT_LOGGER_BUFFER_LIMIT: usize = 5000;
 
@@ -95,6 +110,12 @@ fn event_logger_snapshot_signatures() -> &'static Mutex<HashMap<String, String>>
     static EVENT_LOGGER_SNAPSHOT_SIGNATURES: OnceLock<Mutex<HashMap<String, String>>> =
         OnceLock::new();
     EVENT_LOGGER_SNAPSHOT_SIGNATURES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn event_logger_capture_options() -> &'static Mutex<EventLoggerCaptureOptions> {
+    static EVENT_LOGGER_CAPTURE_OPTIONS: OnceLock<Mutex<EventLoggerCaptureOptions>> =
+        OnceLock::new();
+    EVENT_LOGGER_CAPTURE_OPTIONS.get_or_init(|| Mutex::new(EventLoggerCaptureOptions::default()))
 }
 
 fn clear_snapshot_signatures() {
@@ -183,6 +204,15 @@ fn filter_redundant_snapshot_entries(entries: Vec<EventLoggerEntry>) -> Vec<Even
     filtered
 }
 
+pub fn get_event_logger_capture_options() -> EventLoggerCaptureOptions {
+    *event_logger_capture_options().lock()
+}
+
+pub fn set_event_logger_capture_options(capture_options: EventLoggerCaptureOptions) {
+    *event_logger_capture_options().lock() = capture_options;
+}
+
+
 pub fn get_logger_buffer_entries() -> Vec<EventLoggerEntry> {
     event_logger_buffer().lock().clone()
 }
@@ -251,7 +281,17 @@ pub fn logger_window_visible(app_handle: &AppHandle) -> bool {
 }
 
 pub fn emit_logger_entries(app_handle: &AppHandle, entries: Vec<EventLoggerEntry>) {
-    let entries = filter_redundant_snapshot_entries(entries);
+    let capture_options = *event_logger_capture_options().lock();
+    let entries = filter_redundant_snapshot_entries(entries)
+        .into_iter()
+        .filter(|entry| {
+            if entry.action == "snapshot" {
+                capture_options.capture_snapshots
+            } else {
+                capture_options.capture_events
+            }
+        })
+        .collect::<Vec<_>>();
     if entries.is_empty() {
         return;
     }

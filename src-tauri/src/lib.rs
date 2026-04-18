@@ -100,20 +100,15 @@ fn toggle_game_overlay_edit_mode(app: tauri::AppHandle) -> Result<(), String> {
         return Err("Game overlay window not found".into());
     };
 
-    let was_visible_before_edit = overlay_window.is_visible().map_err(|e| e.to_string())?;
-
     let _ = overlay_window.set_ignore_cursor_events(false);
 
-    if !was_visible_before_edit {
+    if !overlay_window.is_visible().map_err(|e| e.to_string())? {
         overlay_window.show().map_err(|e| e.to_string())?;
         overlay_window.unminimize().map_err(|e| e.to_string())?;
     }
 
-    app.emit(
-        "overlay-edit-toggle",
-        json!({ "visibleBeforeEdit": was_visible_before_edit }),
-    )
-    .map_err(|e| e.to_string())?;
+    app.emit("overlay-edit-toggle", json!({}))
+        .map_err(|e| e.to_string())?;
     let _ = overlay_window.set_focus();
 
     Ok(())
@@ -225,6 +220,8 @@ pub fn run() {
             debug_commands::hide_event_logger_window,
             debug_commands::toggle_event_logger_window,
             debug_commands::set_event_logger_window_always_on_top,
+            debug_commands::get_event_logger_capture_options,
+            debug_commands::set_event_logger_capture_options,
             debug_commands::get_event_logger_session_directory,
             debug_commands::set_event_logger_save_directory,
             debug_commands::open_event_logger_session_dir,
@@ -653,6 +650,26 @@ mod debug_commands {
             .set_always_on_top(always_on_top)
             .map_err(|e| format!("Failed to update event logger always-on-top: {}", e))?;
         Ok(())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn get_event_logger_capture_options() -> crate::live::event_logger::EventLoggerCaptureOptions {
+        crate::live::event_logger::get_event_logger_capture_options()
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn set_event_logger_capture_options(
+        capture_events: bool,
+        capture_snapshots: bool,
+    ) -> crate::live::event_logger::EventLoggerCaptureOptions {
+        let capture_options = crate::live::event_logger::EventLoggerCaptureOptions {
+            capture_events,
+            capture_snapshots,
+        };
+        crate::live::event_logger::set_event_logger_capture_options(capture_options);
+        capture_options
     }
 
     #[tauri::command]

@@ -383,6 +383,12 @@ async setEventLoggerWindowAlwaysOnTop(alwaysOnTop: boolean) : Promise<Result<nul
     else return { status: "error", error: e  as any };
 }
 },
+async getEventLoggerCaptureOptions() : Promise<EventLoggerCaptureOptions> {
+    return await TAURI_INVOKE("get_event_logger_capture_options");
+},
+async setEventLoggerCaptureOptions(captureEvents: boolean, captureSnapshots: boolean) : Promise<EventLoggerCaptureOptions> {
+    return await TAURI_INVOKE("set_event_logger_capture_options", { captureEvents, captureSnapshots });
+},
 async getEventLoggerSessionDirectory() : Promise<Result<EventLoggerSessionDirectoryPayload, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("get_event_logger_session_directory") };
@@ -747,6 +753,7 @@ remoteEncounterId: number | null;
  */
 isFavorite: boolean }
 export type EventLoggerBatchPayload = { entries: EventLoggerEntry[] }
+export type EventLoggerCaptureOptions = { captureEvents: boolean; captureSnapshots: boolean }
 export type EventLoggerEntry = { tsMs: number; category: string; action: string; uid: number | null; targetUid: number | null; sourceUid: number | null; sourceLabel: string | null; targetLabel: string | null; nameHint: string | null; summary: string | null; stacks: number | null; durationMs: number | null; remainingMs: number | null; value: string | null; raw: string }
 export type EventLoggerSessionDirectoryPayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean }
 export type GpuSupport = { cuda_available: boolean; opencl_available: boolean }

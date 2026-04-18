@@ -21,9 +21,29 @@
   let loadingLoggerSessionDir = $state(false);
   let loggerSessionDirectory = $state<EventLoggerSessionDirectoryPayload | null>(null);
 
+  function ensureLoggerSettingsShape() {
+    SETTINGS.customTriggers.state.loggerCaptureEvents ??= true;
+    SETTINGS.customTriggers.state.loggerCaptureSnapshots ??= true;
+  }
+
+  ensureLoggerSettingsShape();
+
   onMount(() => {
     void refreshEventLoggerSessionDirectory();
+    void syncEventLoggerCaptureOptions();
   });
+
+
+  async function syncEventLoggerCaptureOptions() {
+    try {
+      await invoke("set_event_logger_capture_options", {
+        captureEvents: SETTINGS.customTriggers.state.loggerCaptureEvents,
+        captureSnapshots: SETTINGS.customTriggers.state.loggerCaptureSnapshots,
+      });
+    } catch (error) {
+      console.error("Failed to sync event logger capture options", error);
+    }
+  }
 
   async function refreshEventLoggerSessionDirectory() {
     loadingLoggerSessionDir = true;
@@ -126,7 +146,7 @@
         </div>
       </div>
 
-      <div class="grid gap-4 md:grid-cols-3">
+      <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <label class="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
@@ -173,6 +193,31 @@
               {tCustom("displayMode.uid", "UID")}
             </Button>
           </div>
+        </div>
+        <div class="space-y-2 rounded-lg border border-border/60 bg-background/40 p-3 text-sm">
+          <div class="font-medium">{tCustom("eventCapture", "Event Capture")}</div>
+          <label class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={SETTINGS.customTriggers.state.loggerCaptureEvents}
+              onchange={(event) => {
+                SETTINGS.customTriggers.state.loggerCaptureEvents = (event.currentTarget as HTMLInputElement).checked;
+                void syncEventLoggerCaptureOptions();
+              }}
+            />
+            <span>{tCustom("eventCapture.events", "Events")}</span>
+          </label>
+          <label class="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={SETTINGS.customTriggers.state.loggerCaptureSnapshots}
+              onchange={(event) => {
+                SETTINGS.customTriggers.state.loggerCaptureSnapshots = (event.currentTarget as HTMLInputElement).checked;
+                void syncEventLoggerCaptureOptions();
+              }}
+            />
+            <span>{tCustom("eventCapture.snapshots", "Snapshots")}</span>
+          </label>
         </div>
       </div>
 

@@ -1102,6 +1102,8 @@ const DEFAULT_SETTINGS = {
     loggerAlwaysOnTop: false,
     loggerStartWithMeter: false,
     loggerReduceClutter: true,
+    loggerCaptureEvents: true,
+    loggerCaptureSnapshots: true,
     loggerDisplayMode: "name_uid" as "name" | "name_uid" | "uid",
     loggerBufferSize: 1000,
     loggerVisibleColumns: {
