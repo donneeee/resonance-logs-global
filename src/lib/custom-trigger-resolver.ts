@@ -3,7 +3,8 @@ import { getCustomDefinition, type CustomDefinitionsFile } from "$lib/custom-def
 import { resolveBuffNameInfo } from "$lib/config/buff-name-table";
 import type { EventLoggerEntry, LoggerDisplayMode } from "$lib/event-logger-types";
 import { resolveSkillTranslation, type LocaleCode } from "$lib/i18n";
-import { getLocalizedMonsterName } from "$lib/monster-mappings";
+import { localizeRawMonsterName } from "$lib/monster-mappings";
+import { getLocalizedSceneName, localizeRawSceneName } from "$lib/scene-mappings";
 
 function normalizeText(value: string | null | undefined): string {
   return value?.trim() ?? "";
@@ -27,8 +28,22 @@ export function loggerCategoryToDefinitionType(category: string): CustomDefiniti
 }
 
 function resolveBuiltInName(entry: EventLoggerEntry, locale: LocaleCode): string {
+  const rawNameHint = normalizeText(entry.nameHint);
+
+  if (entry.category === "scene" || entry.category === "live_totals") {
+    if (Number.isFinite(Number(entry.uid))) {
+      return getLocalizedSceneName(Number(entry.uid), rawNameHint || undefined);
+    }
+
+    return localizeRawSceneName(rawNameHint, rawNameHint);
+  }
+
+  if (entry.category === "boss_hp" || entry.category === "mob") {
+    return localizeRawMonsterName(rawNameHint, rawNameHint);
+  }
+
   if (!Number.isFinite(Number(entry.uid))) {
-    return normalizeText(entry.nameHint);
+    return rawNameHint;
   }
 
   const uid = Number(entry.uid);
@@ -46,18 +61,14 @@ function resolveBuiltInName(entry: EventLoggerEntry, locale: LocaleCode): string
     entry.category === "player_target_skill_damage" ||
     entry.category === "player_target_skill_heal"
   ) {
-    return resolveSkillTranslation(uid, locale, normalizeText(entry.nameHint) || String(uid));
-  }
-
-  if (entry.category === "scene") {
-    return getLocalizedMonsterName(uid, entry.nameHint);
+    return resolveSkillTranslation(uid, locale, rawNameHint || String(uid));
   }
 
   if (entry.category === "chat" || entry.category === "item_drop") {
-    return normalizeText(entry.nameHint);
+    return rawNameHint;
   }
 
-  return normalizeText(entry.nameHint);
+  return rawNameHint;
 }
 
 export function resolveLoggerEntryName(

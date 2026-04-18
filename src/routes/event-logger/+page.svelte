@@ -24,6 +24,8 @@
     LoggerDisplayMode,
     LoggerCategory,
   } from "$lib/event-logger-types";
+  import { localizeRawMonsterName } from "$lib/monster-mappings";
+  import { getLocalizedSceneName, localizeRawSceneName } from "$lib/scene-mappings";
   import { uiT } from "$lib/i18n";
   import { SETTINGS } from "$lib/settings-store";
 
@@ -183,6 +185,85 @@
     return trimmed;
   }
 
+  function replaceLiteral(value: string, search: string, replacement: string): string {
+    if (!search || search === replacement) return value;
+    return value.split(search).join(replacement);
+  }
+
+  function getLocalizedNameHint(row: DisplayRow): string {
+    const rawNameHint = normalizeLabel(row.nameHint);
+    if (!rawNameHint) return "";
+
+    if (row.category === "scene" || row.category === "live_totals") {
+      return Number.isFinite(Number(row.uid))
+        ? getLocalizedSceneName(Number(row.uid), rawNameHint)
+        : localizeRawSceneName(rawNameHint, rawNameHint);
+    }
+
+    if (row.category === "boss_hp" || row.category === "mob") {
+      return localizeRawMonsterName(rawNameHint, rawNameHint);
+    }
+
+    return rawNameHint;
+  }
+
+  function getLocalizedSourceLabel(row: DisplayRow): string {
+    const rawSource = normalizeLabel(row.sourceLabel);
+    if (!rawSource) return "";
+
+    return rawSource;
+  }
+
+  function getLocalizedTargetLabel(row: DisplayRow): string {
+    const rawTarget = normalizeLabel(row.targetLabel);
+    if (!rawTarget) return "";
+
+    if (
+      row.category === "live_totals" ||
+      row.category === "player" ||
+      row.category === "boss_hp" ||
+      row.category === "mob" ||
+      row.category === "scene"
+    ) {
+      return localizeRawSceneName(rawTarget, rawTarget);
+    }
+
+    if (
+      row.category === "player_target_damage" ||
+      row.category === "player_target_skill_damage" ||
+      row.category === "player_target_skill_heal"
+    ) {
+      return localizeRawMonsterName(rawTarget, rawTarget);
+    }
+
+    return rawTarget;
+  }
+
+  function localizeSummaryText(row: DisplayRow, summary: string): string {
+    let nextSummary = summary;
+
+    const rawNameHint = normalizeLabel(row.nameHint);
+    const localizedNameHint = getLocalizedNameHint(row);
+    const rawSource = normalizeLabel(row.sourceLabel);
+    const localizedSource = getLocalizedSourceLabel(row);
+    const rawTarget = normalizeLabel(row.targetLabel);
+    const localizedTarget = getLocalizedTargetLabel(row);
+
+    if (rawNameHint && localizedNameHint) {
+      nextSummary = replaceLiteral(nextSummary, rawNameHint, localizedNameHint);
+    }
+
+    if (rawSource && localizedSource) {
+      nextSummary = replaceLiteral(nextSummary, rawSource, localizedSource);
+    }
+
+    if (rawTarget && localizedTarget) {
+      nextSummary = replaceLiteral(nextSummary, rawTarget, localizedTarget);
+    }
+
+    return nextSummary;
+  }
+
   function formatTime(tsMs: number): string {
     const date = new Date(tsMs);
     const time = date.toLocaleTimeString([], {
@@ -249,12 +330,14 @@
   }
 
   function getSummary(row: DisplayRow): string {
-    return (
+    const summary =
       normalizeText(row.summary) ||
       normalizeText(row.value) ||
+      getLocalizedNameHint(row) ||
       normalizeText(row.nameHint) ||
-      t("meta.none", "—")
-    );
+      t("meta.none", "—");
+
+    return localizeSummaryText(row, summary);
   }
 
   function getKnownLabel(row: DisplayRow): string {
@@ -263,14 +346,14 @@
 
   function getSourceText(row: DisplayRow): string {
     return (
-      normalizeLabel(row.sourceLabel) ||
+      getLocalizedSourceLabel(row) ||
       (Number.isFinite(Number(row.sourceUid)) ? String(row.sourceUid) : t("meta.none", "—"))
     );
   }
 
   function getTargetText(row: DisplayRow): string {
     return (
-      normalizeLabel(row.targetLabel) ||
+      getLocalizedTargetLabel(row) ||
       (Number.isFinite(Number(row.targetUid)) ? String(row.targetUid) : t("meta.none", "—"))
     );
   }

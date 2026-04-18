@@ -1,6 +1,7 @@
 use crate::live::event_manager::safe_emit_to;
 use parking_lot::Mutex;
 use serde::{Deserialize, Serialize};
+use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
@@ -90,12 +91,105 @@ fn event_logger_session_state() -> &'static Mutex<EventLoggerSessionState> {
     EVENT_LOGGER_SESSION_STATE.get_or_init(|| Mutex::new(EventLoggerSessionState::default()))
 }
 
+fn event_logger_snapshot_signatures() -> &'static Mutex<HashMap<String, String>> {
+    static EVENT_LOGGER_SNAPSHOT_SIGNATURES: OnceLock<Mutex<HashMap<String, String>>> =
+        OnceLock::new();
+    EVENT_LOGGER_SNAPSHOT_SIGNATURES.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn clear_snapshot_signatures() {
+    event_logger_snapshot_signatures().lock().clear();
+}
+
+fn snapshot_cache_key(entry: &EventLoggerEntry) -> Option<String> {
+    if entry.action != "snapshot" {
+        return None;
+    }
+
+    Some(format!(
+        "{}|{}|{}|{}|{}|{}|{}",
+        entry.category,
+        entry.uid.map(|value| value.to_string()).unwrap_or_else(|| "na".to_string()),
+        entry.target_uid
+            .map(|value| value.to_string())
+            .unwrap_or_else(|| "na".to_string()),
+        entry.source_uid
+            .map(|value| value.to_string())
+            .unwrap_or_else(|| "na".to_string()),
+        entry.source_label.as_deref().unwrap_or_default(),
+        entry.target_label.as_deref().unwrap_or_default(),
+        entry.name_hint.as_deref().unwrap_or_default(),
+    ))
+}
+
+fn normalized_snapshot_summary(entry: &EventLoggerEntry) -> Option<String> {
+    let summary = entry.summary.as_deref()?.trim();
+
+    if entry.category != "live_totals" {
+        return Some(summary.to_string());
+    }
+
+    let Some((prefix, suffix)) = summary.split_once(" active=") else {
+        return Some(summary.to_string());
+    };
+    let Some((_, paused)) = suffix.split_once(" paused=") else {
+        return Some(summary.to_string());
+    };
+
+    Some(format!("{} paused={}", prefix.trim_end(), paused.trim()))
+}
+
+fn snapshot_signature(entry: &EventLoggerEntry) -> Option<String> {
+    let _ = snapshot_cache_key(entry)?;
+
+    Some(format!(
+        "{}|{}|{}|{}|{}",
+        entry.category,
+        normalized_snapshot_summary(entry).unwrap_or_default(),
+        entry.stacks
+            .map(|value| value.to_string())
+            .unwrap_or_else(|| "na".to_string()),
+        entry.remaining_ms
+            .map(|value| value.to_string())
+            .unwrap_or_else(|| "na".to_string()),
+        entry.value.as_deref().unwrap_or_default(),
+    ))
+}
+
+fn filter_redundant_snapshot_entries(entries: Vec<EventLoggerEntry>) -> Vec<EventLoggerEntry> {
+    if entries.is_empty() {
+        return entries;
+    }
+
+    let mut snapshot_signatures = event_logger_snapshot_signatures().lock();
+    let mut filtered = Vec::with_capacity(entries.len());
+
+    for entry in entries {
+        let Some(cache_key) = snapshot_cache_key(&entry) else {
+            filtered.push(entry);
+            continue;
+        };
+
+        let signature = snapshot_signature(&entry).unwrap_or_default();
+        let previous_signature = snapshot_signatures.get(&cache_key);
+        let should_emit = previous_signature != Some(&signature);
+        snapshot_signatures.insert(cache_key, signature);
+
+        if should_emit {
+            filtered.push(entry);
+        }
+    }
+
+    filtered
+}
+
 pub fn get_logger_buffer_entries() -> Vec<EventLoggerEntry> {
     event_logger_buffer().lock().clone()
 }
 
 pub fn clear_logger_buffer_entries() {
     event_logger_buffer().lock().clear();
+    clear_snapshot_signatures();
 }
 
 fn infer_scene_name(entry: &EventLoggerEntry) -> Option<String> {
@@ -157,6 +251,7 @@ pub fn logger_window_visible(app_handle: &AppHandle) -> bool {
 }
 
 pub fn emit_logger_entries(app_handle: &AppHandle, entries: Vec<EventLoggerEntry>) {
+    let entries = filter_redundant_snapshot_entries(entries);
     if entries.is_empty() {
         return;
     }
@@ -329,6 +424,7 @@ pub fn flush_current_session_to_file(
             .clone()
             .or_else(|| context.scene_name.clone());
         session.current_scene_name = context.scene_name.clone().or(scene_name.clone());
+        clear_snapshot_signatures();
         (entries, started_at_ms, scene_name)
     };
 
