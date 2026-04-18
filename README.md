@@ -4,6 +4,8 @@
 
 本项目修改自 [resonance-logs](https://github.com/resonance-logs/resonance-logs)
 
+TODO: DELETE THIS
+
 ## 功能特性
 
 - **DPS 检测**：实时秒伤统计、全局活跃时间、历史记录
