@@ -1,1 +1,8 @@
-node_modules
+node_modules/
+
+src-tauri/target/*
+!src-tauri/target/debug/
+
+src-tauri/target/debug/*
+!src-tauri/target/debug/WinDivert.dll
+!src-tauri/target/debug/Windivert64.sys
