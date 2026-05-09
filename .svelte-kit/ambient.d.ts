@@ -121,7 +121,6 @@ declare module '$env/static/private' {
 	export const SystemRoot: string;
 	export const TAURI_CLI_VERBOSITY: string;
 	export const TAURI_ENV_ARCH: string;
-	export const TAURI_ENV_DEBUG: string;
 	export const TAURI_ENV_FAMILY: string;
 	export const TAURI_ENV_PLATFORM: string;
 	export const TAURI_ENV_PLATFORM_VERSION: string;
@@ -312,7 +311,6 @@ declare module '$env/dynamic/private' {
 		SystemRoot: string;
 		TAURI_CLI_VERBOSITY: string;
 		TAURI_ENV_ARCH: string;
-		TAURI_ENV_DEBUG: string;
 		TAURI_ENV_FAMILY: string;
 		TAURI_ENV_PLATFORM: string;
 		TAURI_ENV_PLATFORM_VERSION: string;

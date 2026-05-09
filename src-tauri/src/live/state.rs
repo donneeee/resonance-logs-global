@@ -74,6 +74,8 @@ pub struct AppState {
     pub local_monitor: EntityMonitor,
     /// Player buff state observed from nearby-player deltas for modifier history.
     pub modifier_buff_monitor: BuffMonitor,
+    /// Whether WIP modifier evidence capture is enabled for live/history reports.
+    pub modifier_capture_enabled: bool,
     /// Boss buff monitoring state and configuration.
     pub boss_buff_monitors: BossBuffMonitors,
     /// Whether we've already handled the first scene change after startup.
@@ -137,6 +139,7 @@ pub enum LiveControlCommand {
     },
     StopTrainingDummy,
     SetEventUpdateRateMs(u64),
+    SetModifierCaptureEnabled(bool),
     SetMonitoredBuffs(Vec<i32>),
     SetBossMonitoredBuffs {
         global_ids: Vec<i32>,
@@ -159,6 +162,7 @@ impl AppState {
             event_manager: EventManager::new(),
             local_monitor: EntityMonitor::new(0),
             modifier_buff_monitor: BuffMonitor::new(),
+            modifier_capture_enabled: false,
             boss_buff_monitors: BossBuffMonitors::new(),
             initial_scene_change_handled: false,
             event_update_rate_ms: 200,
@@ -473,11 +477,25 @@ fn collect_observed_effect_buffs(
 }
 
 fn combined_modifier_active_buffs(state: &AppState) -> HashMap<i32, ActiveBuff> {
-    let mut active_buffs = state.modifier_buff_monitor.active_buffs.clone();
+    let mut active_buffs = if state.modifier_capture_enabled {
+        state.modifier_buff_monitor.active_buffs.clone()
+    } else {
+        HashMap::new()
+    };
     for (&buff_uuid, buff) in &state.local_monitor.buff_monitor.active_buffs {
         active_buffs.insert(buff_uuid, buff.clone());
     }
     active_buffs
+}
+
+fn clear_modifier_capture_state(state: &mut AppState) {
+    state.modifier_buff_monitor.active_buffs.clear();
+    for entity in state.encounter.entity_uid_to_entity.values_mut() {
+        entity.modifier_windows.clear();
+        entity.modifier_hit_buckets.clear();
+        entity.modifier_replay_hits.clear();
+        entity.observed_damage_hits.clear();
+    }
 }
 
 fn sync_active_buffs_to_encounter(state: &mut AppState) {
@@ -607,6 +625,9 @@ fn apply_modifier_buff_changes(
     changes: &[BuffChangeEvent],
     fallback_host_uid: i64,
 ) {
+    if !state.modifier_capture_enabled {
+        return;
+    }
     let local_player_uid = state.encounter.local_player_uid;
     let fallback_host_uid = if fallback_host_uid > 0 {
         fallback_host_uid
@@ -699,6 +720,9 @@ fn apply_temp_attr_modifier_changes(
     state: &mut AppState,
     changes: &[crate::live::opcodes_process::TempAttrModifierChange],
 ) {
+    if !state.modifier_capture_enabled {
+        return;
+    }
     let host_uid = state.encounter.local_player_uid;
     if host_uid <= 0 || changes.is_empty() {
         return;
@@ -775,6 +799,9 @@ fn seed_open_modifier_windows_from_active_buffs(
     encounter_start_ms: i64,
     encounter_end_ms: i64,
 ) {
+    if !state.modifier_capture_enabled {
+        return;
+    }
     let local_player_uid = state.encounter.local_player_uid;
     if local_player_uid <= 0 {
         return;
@@ -830,6 +857,12 @@ fn seed_open_modifier_windows_from_active_buffs(
 }
 
 fn finalize_modifier_windows_for_save(state: &mut AppState, encounter_end_ms: i64) {
+    if !state.modifier_capture_enabled {
+        for entity in state.encounter.entity_uid_to_entity.values_mut() {
+            entity.modifier_windows.clear();
+        }
+        return;
+    }
     let encounter_start_ms = if state.encounter.time_fight_start_ms > 0 {
         state.encounter.time_fight_start_ms as i64
     } else {
@@ -1134,7 +1167,10 @@ fn build_modifier_replay_hits(
         active_modifiers.sort_by(|left, right| {
             left.modifier_base_id
                 .cmp(&right.modifier_base_id)
-                .then_with(|| left.modifier_source_config_id.cmp(&right.modifier_source_config_id))
+                .then_with(|| {
+                    left.modifier_source_config_id
+                        .cmp(&right.modifier_source_config_id)
+                })
                 .then_with(|| left.modifier_source_uid.cmp(&right.modifier_source_uid))
                 .then_with(|| left.modifier_host_uid.cmp(&right.modifier_host_uid))
         });
@@ -1176,6 +1212,14 @@ fn build_modifier_replay_hits(
 }
 
 fn finalize_modifier_hit_buckets_for_save(state: &mut AppState) {
+    if !state.modifier_capture_enabled {
+        for entity in state.encounter.entity_uid_to_entity.values_mut() {
+            entity.modifier_hit_buckets.clear();
+            entity.modifier_replay_hits.clear();
+            entity.observed_damage_hits.clear();
+        }
+        return;
+    }
     let mut windows_by_host_uid = HashMap::<i64, Vec<ObservedModifierWindow>>::new();
     for (&entity_uid, entity) in &state.encounter.entity_uid_to_entity {
         for window in &entity.modifier_windows {
@@ -1459,6 +1503,11 @@ impl AppStateManager {
                 // No need to maintain a separate cache anymore
             }
             StateEvent::ResetEncounter { is_manual } => {
+                info!(
+                    target: "app::live",
+                    "ResetEncounter state event received is_manual={}",
+                    is_manual
+                );
                 state.pending_auto_reset = None;
                 self.reset_encounter(state, is_manual);
             }
@@ -1486,6 +1535,11 @@ impl AppStateManager {
             }
             LiveControlCommand::StartTrainingDummy { monster_id } => {
                 let previous = build_training_dummy_state(&state.training_dummy);
+                info!(
+                    target: "app::live",
+                    "training_dummy_start requested monster_id={}",
+                    monster_id.id()
+                );
                 state.training_dummy.arm(monster_id);
                 emit_training_dummy_update_if_changed(state, previous);
             }
@@ -1494,6 +1548,10 @@ impl AppStateManager {
                 if state.training_dummy.locked_target_uid.is_some()
                     && encounter_has_stats(&state.encounter)
                 {
+                    info!(
+                        target: "app::live",
+                        "training_dummy_stop resetting active training dummy encounter"
+                    );
                     self.reset_encounter(state, false);
                 }
                 state.training_dummy.clear();
@@ -1501,6 +1559,14 @@ impl AppStateManager {
             }
             LiveControlCommand::SetEventUpdateRateMs(rate_ms) => {
                 state.event_update_rate_ms = rate_ms;
+            }
+            LiveControlCommand::SetModifierCaptureEnabled(enabled) => {
+                if state.modifier_capture_enabled != enabled {
+                    state.modifier_capture_enabled = enabled;
+                    if !enabled {
+                        clear_modifier_capture_state(state);
+                    }
+                }
             }
             LiveControlCommand::SetMonitoredBuffs(buff_base_ids) => {
                 state.local_monitor.buff_monitor.monitored_buff_ids =
@@ -1566,8 +1632,9 @@ impl AppStateManager {
 
         info!(
             target: "app::live",
-            "[runtime-monitor] applying snapshot: event_update_rate_ms={} skill_enabled={} monster_enabled={}",
+            "[runtime-monitor] applying snapshot: event_update_rate_ms={} modifier_reports_enabled={} skill_enabled={} monster_enabled={}",
             live.event_update_rate_ms,
+            live.modifier_reports_enabled,
             skill.enabled,
             monster.enabled
         );
@@ -1606,6 +1673,10 @@ impl AppStateManager {
         self.apply_control_command(
             state,
             LiveControlCommand::SetEventUpdateRateMs(live.event_update_rate_ms),
+        );
+        self.apply_control_command(
+            state,
+            LiveControlCommand::SetModifierCaptureEnabled(live.modifier_reports_enabled),
         );
         self.apply_control_command(
             state,
@@ -1870,13 +1941,16 @@ impl AppStateManager {
             sync_to_me_delta_info,
             &state.local_monitor.monitored_panel_attr_ids,
             combat_target_filter,
+            state.modifier_capture_enabled,
         );
 
         if state.local_monitor.uid != state.encounter.local_player_uid {
             state.local_monitor.uid = state.encounter.local_player_uid;
         }
 
-        apply_temp_attr_modifier_changes(state, &result.temp_attr_modifier_changes);
+        if state.modifier_capture_enabled {
+            apply_temp_attr_modifier_changes(state, &result.temp_attr_modifier_changes);
+        }
 
         if !result.skill_cds.is_empty() {
             let ids: Vec<i32> = result
@@ -1945,11 +2019,13 @@ impl AppStateManager {
             if let Some(payload) = buff_process_result.update_payload {
                 state.event_manager.emit_buff_update(payload);
             }
-            apply_modifier_buff_changes(
-                state,
-                &buff_process_result.changes,
-                state.encounter.local_player_uid,
-            );
+            if state.modifier_capture_enabled {
+                apply_modifier_buff_changes(
+                    state,
+                    &buff_process_result.changes,
+                    state.encounter.local_player_uid,
+                );
+            }
             counter_dirty |= state
                 .local_monitor
                 .counter_tracker
@@ -1993,6 +2069,7 @@ impl AppStateManager {
                 &mut state.attr_store,
                 aoi_sync_delta,
                 combat_target_filter,
+                state.modifier_capture_enabled,
             ) {
                 aggregated_damage_events.extend(events);
             }
@@ -2009,7 +2086,9 @@ impl AppStateManager {
                                 .is_some_and(monster_registry::is_extra_buff_monitored_monster)
                     })
                     .unwrap_or(false);
-                if matches!(target_entity_type, Some(EEntityType::EntChar)) {
+                if state.modifier_capture_enabled
+                    && matches!(target_entity_type, Some(EEntityType::EntChar))
+                {
                     let local_player_uid = state.encounter.local_player_uid;
                     let buff_process_result =
                         state.modifier_buff_monitor.process_buff_effect_bytes(
@@ -2149,29 +2228,42 @@ impl AppStateManager {
     fn reset_encounter(&self, state: &mut AppState, is_manual: bool) {
         persist_and_save_encounter(state, is_manual, "reset");
         state.encounter.reset_combat_state();
+        if is_manual && state.encounter.is_encounter_paused {
+            info!(
+                target: "app::live",
+                "manual reset cleared paused state so parsing can resume"
+            );
+            state.encounter.is_encounter_paused = false;
+            state.event_manager.emit_encounter_pause(false);
+        }
         state.modifier_buff_monitor.active_buffs.clear();
         state.death_snapshot_dirty = false;
 
-        if state.event_manager.should_emit_events() {
-            state.event_manager.emit_encounter_reset();
+        state.event_manager.emit_encounter_reset();
 
-            // Emit an encounter update with cleared state so frontend updates immediately
-            use crate::live::commands_models::HeaderInfo;
-            let cleared_header = HeaderInfo {
-                total_dps: 0.0,
-                total_dmg: 0,
-                elapsed_ms: 0,
-                active_combat_time_ms: 0,
-                fight_start_timestamp_ms: 0,
-                bosses: vec![],
-                scene_id: state.encounter.current_scene_id,
-                scene_name: state.encounter.current_scene_name.clone(),
-                training_dummy: build_training_dummy_state(&state.training_dummy),
-            };
-            state
-                .event_manager
-                .emit_encounter_update(cleared_header, false);
-        }
+        // Reset is a user/control event, so do not gate it behind the normal live
+        // update throttle. The frontend must clear immediately even if a combat
+        // update was emitted a few milliseconds earlier.
+        use crate::live::commands_models::HeaderInfo;
+        let cleared_header = HeaderInfo {
+            total_dps: 0.0,
+            total_dmg: 0,
+            elapsed_ms: 0,
+            active_combat_time_ms: 0,
+            fight_start_timestamp_ms: 0,
+            bosses: vec![],
+            scene_id: state.encounter.current_scene_id,
+            scene_name: state.encounter.current_scene_name.clone(),
+            training_dummy: build_training_dummy_state(&state.training_dummy),
+        };
+        state
+            .event_manager
+            .emit_encounter_update(cleared_header, state.encounter.is_encounter_paused);
+        let cleared_live_data = crate::live::event_manager::generate_live_data_payload(
+            &state.encounter,
+            &state.attr_store,
+        );
+        state.event_manager.emit_live_data(cleared_live_data);
         if is_manual {
             state.battle_state = BattleStateMachine::default();
             if state.training_dummy.has_selection() {

@@ -1,11 +1,13 @@
 use crate::live::counter_tracker::CounterRule;
 use log::{info, warn};
 use serde::{Deserialize, Serialize};
+use std::io::Write;
 use std::path::PathBuf;
 use tauri::AppHandle;
 use tauri::Manager;
 
 const SNAPSHOT_FILE_NAME: &str = "monitorRuntime.json";
+const MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION: &str = "1.0.6-beta.4";
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase", default)]
@@ -28,6 +30,25 @@ impl Default for MonitorRuntimeSnapshot {
 impl MonitorRuntimeSnapshot {
     pub fn normalize(mut self) -> Result<Self, String> {
         self.live.event_update_rate_ms = self.live.event_update_rate_ms.clamp(50, 2000);
+        if self.live.modifier_reports_enabled {
+            let accepted = self.live.modifier_reports_opt_in_version.as_deref()
+                == Some(MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION);
+            if accepted {
+                self.live.modifier_reports_opt_in_version =
+                    Some(MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION.to_string());
+            } else {
+                warn!(
+                    target: "app::startup",
+                    "disabled stale modifier report runtime snapshot (opt_in_version={:?}, required={})",
+                    self.live.modifier_reports_opt_in_version,
+                    MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION
+                );
+                self.live.modifier_reports_enabled = false;
+                self.live.modifier_reports_opt_in_version = None;
+            }
+        } else {
+            self.live.modifier_reports_opt_in_version = None;
+        }
 
         dedup_and_sort_i32(&mut self.skill.monitored_skill_ids);
         if self.skill.monitored_skill_ids.len() > 10 {
@@ -65,12 +86,16 @@ impl MonitorRuntimeSnapshot {
 #[serde(rename_all = "camelCase", default)]
 pub struct LiveRuntimeSnapshot {
     pub event_update_rate_ms: u64,
+    pub modifier_reports_enabled: bool,
+    pub modifier_reports_opt_in_version: Option<String>,
 }
 
 impl Default for LiveRuntimeSnapshot {
     fn default() -> Self {
         Self {
             event_update_rate_ms: 200,
+            modifier_reports_enabled: false,
+            modifier_reports_opt_in_version: None,
         }
     }
 }
@@ -98,6 +123,7 @@ pub(crate) fn save_monitor_runtime_snapshot(
     app_handle: &AppHandle,
     snapshot: &MonitorRuntimeSnapshot,
 ) -> Result<(), String> {
+    let bytes = serde_json::to_vec_pretty(snapshot).map_err(|error| error.to_string())?;
     let app_data_dirs = [
         app_handle.path().app_data_dir(),
         app_handle.path().app_local_data_dir(),
@@ -116,16 +142,15 @@ pub(crate) fn save_monitor_runtime_snapshot(
         }
 
         let path = target_dir.join(SNAPSHOT_FILE_NAME);
-        match std::fs::write(
-            &path,
-            serde_json::to_vec_pretty(snapshot).map_err(|error| error.to_string())?,
-        ) {
+        match write_snapshot_atomic(&path, &bytes) {
             Ok(_) => {
                 info!(
                     target: "app::startup",
-                    "saved monitor runtime snapshot to {} (event_update_rate_ms={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
+                    "saved monitor runtime snapshot to {} (event_update_rate_ms={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
                     path.display(),
                     snapshot.live.event_update_rate_ms,
+                    snapshot.live.modifier_reports_enabled,
+                    snapshot.live.modifier_reports_opt_in_version.as_deref().unwrap_or("-"),
                     snapshot.skill.enabled,
                     snapshot.skill.monitored_skill_ids.len(),
                     snapshot.skill.monitored_buff_ids.len(),
@@ -184,9 +209,11 @@ pub(crate) fn load_monitor_runtime_snapshot(
             Ok(snapshot) => {
                 info!(
                     target: "app::startup",
-                    "loaded monitor runtime snapshot from {} (event_update_rate_ms={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
+                    "loaded monitor runtime snapshot from {} (event_update_rate_ms={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
                     path.display(),
                     snapshot.live.event_update_rate_ms,
+                    snapshot.live.modifier_reports_enabled,
+                    snapshot.live.modifier_reports_opt_in_version.as_deref().unwrap_or("-"),
                     snapshot.skill.enabled,
                     snapshot.skill.monitored_skill_ids.len(),
                     snapshot.skill.monitored_buff_ids.len(),
@@ -228,4 +255,25 @@ fn snapshot_path_candidates(app_handle: &AppHandle) -> Vec<PathBuf> {
 fn dedup_and_sort_i32(values: &mut Vec<i32>) {
     values.sort_unstable();
     values.dedup();
+}
+
+fn write_snapshot_atomic(path: &PathBuf, bytes: &[u8]) -> Result<(), std::io::Error> {
+    let temp_path = path.with_extension(format!(
+        "json.tmp.{}",
+        std::process::id()
+    ));
+
+    {
+        let mut file = std::fs::File::create(&temp_path)?;
+        file.write_all(bytes)?;
+        file.sync_all()?;
+    }
+
+    match std::fs::remove_file(path) {
+        Ok(_) => {}
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+        Err(error) => return Err(error),
+    }
+
+    std::fs::rename(temp_path, path)
 }

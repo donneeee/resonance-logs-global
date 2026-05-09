@@ -313,6 +313,10 @@ export const getEncounterEntitiesCompactRaw = (
   encounterId: number,
 ): Promise<Result<RawEntityData[], string>> =>
   commands.getEncounterEntitiesCompactRaw(encounterId);
+export const getEncounterEntitiesTargetDetailsRaw = (
+  encounterId: number,
+): Promise<Result<RawEntityData[], string>> =>
+  commands.getEncounterEntitiesTargetDetailsRaw(encounterId);
 export const getEncounterModifierEntitiesRaw = (
   encounterId: number,
   entityUid: number,

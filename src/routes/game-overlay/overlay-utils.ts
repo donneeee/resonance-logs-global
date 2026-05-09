@@ -160,11 +160,17 @@ export function buildBuffTextRow(
   buff: BuffUpdateState,
   now: number,
   isPlaceholder = false,
+  allowPassiveSingleStack = false,
 ): TextBuffDisplay | null {
   const active = isBuffActive(buff, now);
   if (!active && !isPlaceholder) return null;
 
-  if (buff.durationMs <= 0 && buff.layer <= 1 && !isPlaceholder) {
+  if (
+    buff.durationMs <= 0 &&
+    buff.layer <= 1 &&
+    !isPlaceholder &&
+    !allowPassiveSingleStack
+  ) {
     return null;
   }
 
@@ -198,6 +204,8 @@ export function getCustomPanelDisplayRow(
       resolveBuffName(entry.sourceId),
       buff,
       now,
+      false,
+      true,
     );
   }
 

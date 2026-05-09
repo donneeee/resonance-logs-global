@@ -3,7 +3,8 @@ use crate::live::opcodes_models::{
     CombatStats, ObservedActiveBuff, ObservedEffectBuff, ObservedEffectSource, ObservedFactorBuff,
     ObservedFactorItem, ObservedFormulaAttr, ObservedModifierHitBucket, ObservedModifierReplayHit,
     ObservedModifierReplaySource, ObservedModifierWindow, ObservedPassiveSkill,
-    ObservedProfessionTalent, ObservedSkillCastEvent, ObservedSkillCooldownEvent, Skill,
+    ObservedProfessionSkill, ObservedProfessionTalent, ObservedSkillCastEvent,
+    ObservedSkillCooldownEvent, Skill,
 };
 use crate::live::training_dummy::TrainingDummyPhase;
 use std::collections::HashMap;
@@ -102,6 +103,7 @@ pub struct RawEntityData {
     pub active_effect_sources: Vec<ActiveEffectSourceState>,
     pub active_factor_items: Vec<ActiveFactorItemState>,
     pub active_passive_skills: Vec<ActivePassiveSkillState>,
+    pub active_profession_skills: Vec<ActiveProfessionSkillState>,
     pub active_profession_talents: Vec<ActiveProfessionTalentState>,
 }
 
@@ -134,6 +136,7 @@ pub struct HistoryEntityData {
     pub active_effect_sources: Vec<ActiveEffectSourceState>,
     pub active_factor_items: Vec<ActiveFactorItemState>,
     pub active_passive_skills: Vec<ActivePassiveSkillState>,
+    pub active_profession_skills: Vec<ActiveProfessionSkillState>,
     pub active_profession_talents: Vec<ActiveProfessionTalentState>,
     #[serde(default)]
     pub modifier_source_actors: Vec<ModifierSourceActorState>,
@@ -379,6 +382,21 @@ pub struct ActivePassiveSkillState {
     pub skill_id: Option<i32>,
     pub skill_level: Option<i32>,
     pub skill_stage: Option<i32>,
+    pub runtime_source: String,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct ActiveProfessionSkillState {
+    pub skill_id: i32,
+    pub base_skill_id: Option<i32>,
+    pub skill_level_id: Option<i32>,
+    pub level: Option<i32>,
+    pub remodel_level: Option<i32>,
+    pub slot: Option<i32>,
+    pub equipped: Option<bool>,
+    pub source_kind: String,
+    pub replace_skill_ids: Vec<i32>,
     pub runtime_source: String,
 }
 
@@ -698,6 +716,23 @@ pub fn to_active_passive_skill_state(skill: &ObservedPassiveSkill) -> ActivePass
     }
 }
 
+pub fn to_active_profession_skill_state(
+    skill: &ObservedProfessionSkill,
+) -> ActiveProfessionSkillState {
+    ActiveProfessionSkillState {
+        skill_id: skill.skill_id,
+        base_skill_id: skill.base_skill_id,
+        skill_level_id: skill.skill_level_id,
+        level: skill.level,
+        remodel_level: skill.remodel_level,
+        slot: skill.slot,
+        equipped: skill.equipped,
+        source_kind: skill.source_kind.clone(),
+        replace_skill_ids: skill.replace_skill_ids.clone(),
+        runtime_source: skill.runtime_source.clone(),
+    }
+}
+
 pub fn to_active_profession_talent_state(
     talent: &ObservedProfessionTalent,
 ) -> ActiveProfessionTalentState {
@@ -761,6 +796,59 @@ pub fn build_per_target_stats(
             if let Some(entry) = grouped.get_mut(target_uid) {
                 entry.total_value = *target_total;
             }
+        }
+    }
+
+    let mut rows: Vec<PerTargetStats> = grouped.into_values().collect();
+    rows.sort_by(|a, b| b.total_value.cmp(&a.total_value));
+    rows
+}
+
+pub fn build_per_target_summary_stats(
+    stats_by_skill_target: &HashMap<(i64, i64), SkillTargetStats>,
+    totals_by_target: Option<&HashMap<i64, u128>>,
+) -> Vec<PerTargetStats> {
+    let mut grouped = HashMap::<i64, PerTargetStats>::new();
+
+    for (&(_, target_uid), stats) in stats_by_skill_target {
+        let entry = grouped.entry(target_uid).or_insert_with(|| PerTargetStats {
+            target_uid,
+            target_name: stats
+                .monster_name
+                .clone()
+                .unwrap_or_else(|| format!("#{}", target_uid)),
+            total_value: 0,
+            damage: RawCombatStats::default(),
+            skills: HashMap::new(),
+        });
+
+        if entry.target_name.starts_with('#') && stats.monster_name.is_some() {
+            entry.target_name = stats.monster_name.clone().unwrap_or_default();
+        }
+
+        entry.total_value += stats.total_value;
+        entry.damage.total += stats.total_value;
+        entry.damage.effective_total += stats.effective_total_value;
+        entry.damage.hits += stats.hits;
+        entry.damage.crit_hits += stats.crit_hits;
+        entry.damage.crit_total += stats.crit_total;
+        entry.damage.lucky_hits += stats.lucky_hits;
+        entry.damage.lucky_total += stats.lucky_total;
+    }
+
+    if let Some(totals) = totals_by_target {
+        for (target_uid, target_total) in totals {
+            let entry = grouped
+                .entry(*target_uid)
+                .or_insert_with(|| PerTargetStats {
+                    target_uid: *target_uid,
+                    target_name: format!("#{}", target_uid),
+                    total_value: 0,
+                    damage: RawCombatStats::default(),
+                    skills: HashMap::new(),
+                });
+            entry.total_value = *target_total;
+            entry.damage.total = *target_total;
         }
     }
 

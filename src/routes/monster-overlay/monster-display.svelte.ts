@@ -57,6 +57,7 @@ function buildPlaceholderRows(now: number): TextBuffDisplay[] {
         },
         now,
         true,
+        true,
       ))
     .filter((row): row is TextBuffDisplay => row !== null);
 
@@ -181,6 +182,8 @@ export function updateMonsterDisplay() {
           resolveBuffOverlayDisplayName(buff.baseId, aliases),
           buff,
           now,
+          false,
+          true,
         ))
       .filter((row): row is TextBuffDisplay => row !== null);
 

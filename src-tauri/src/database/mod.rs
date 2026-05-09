@@ -18,8 +18,8 @@ use crate::live::opcodes_models::class::ClassSpec;
 use crate::live::opcodes_models::{
     AttrType, AttrValue, CombatStats, Encounter, Entity, ObservedActiveBuff, ObservedEffectBuff,
     ObservedEffectSource, ObservedFactorBuff, ObservedFactorItem, ObservedModifierWindow,
-    ObservedPassiveSkill, ObservedProfessionTalent, ObservedSkillCastEvent,
-    ObservedSkillCooldownEvent, Skill, SkillTargetStats,
+    ObservedPassiveSkill, ObservedProfessionSkill, ObservedProfessionTalent,
+    ObservedSkillCastEvent, ObservedSkillCooldownEvent, Skill, SkillTargetStats,
 };
 use blueprotobuf_lib::blueprotobuf::EEntityType;
 
@@ -105,6 +105,8 @@ struct EntityActiveFieldsBeforeMonsterWithItems {
     #[serde(default)]
     active_passive_skills: Vec<ObservedPassiveSkill>,
     #[serde(default)]
+    active_profession_skills: Vec<ObservedProfessionSkill>,
+    #[serde(default)]
     active_profession_talents: Vec<ObservedProfessionTalent>,
     monster_type_id: Option<i32>,
     dmg_to_target: HashMap<i64, u128>,
@@ -149,6 +151,8 @@ struct EntityActiveFieldsBeforeMonsterNoItems {
     #[serde(default)]
     active_passive_skills: Vec<ObservedPassiveSkill>,
     #[serde(default)]
+    active_profession_skills: Vec<ObservedProfessionSkill>,
+    #[serde(default)]
     active_profession_talents: Vec<ObservedProfessionTalent>,
     monster_type_id: Option<i32>,
     dmg_to_target: HashMap<i64, u128>,
@@ -192,6 +196,7 @@ impl From<EntityActiveFieldsBeforeMonsterWithItems> for Entity {
             active_effect_sources: value.active_effect_sources,
             active_factor_items: value.active_factor_items,
             active_passive_skills: value.active_passive_skills,
+            active_profession_skills: value.active_profession_skills,
             active_profession_talents: value.active_profession_talents,
             recent_taken_events: Default::default(),
             deaths: Vec::new(),
@@ -234,6 +239,7 @@ impl From<EntityActiveFieldsBeforeMonsterNoItems> for Entity {
             active_effect_sources: value.active_effect_sources,
             active_factor_items: Vec::new(),
             active_passive_skills: value.active_passive_skills,
+            active_profession_skills: value.active_profession_skills,
             active_profession_talents: value.active_profession_talents,
             recent_taken_events: Default::default(),
             deaths: Vec::new(),

@@ -36,7 +36,11 @@
     type HeaderLayoutComponentId,
   } from "$lib/live-header-layout";
   import { resolveUiTranslation, type LocaleCode } from "$lib/i18n";
-  import { getLiveData, getTrainingDummyState } from "$lib/stores/live-meter-store.svelte";
+  import {
+    clearMeterData,
+    getLiveData,
+    getTrainingDummyState,
+  } from "$lib/stores/live-meter-store.svelte";
   import { localizeRawSceneName } from "$lib/scene-mappings";
   import { localizeRawMonsterName } from "$lib/monster-mappings";
 
@@ -155,6 +159,7 @@
 
   function handleResetEncounter() {
     resetTimer();
+    clearMeterData();
     void resetEncounter();
   }
 

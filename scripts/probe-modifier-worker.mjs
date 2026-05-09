@@ -224,8 +224,12 @@ const RUNTIME_WINDOW_GROUPS = new Set([
   "baseattack",
   "critical",
   "elemental",
+  "finaldamage",
   "genericdamage",
   "hittiming",
+  "physicalmagicenhancement",
+  "seasondamage",
+  "seasonsuppression",
   "targetmitigation",
   "versatility",
 ]);

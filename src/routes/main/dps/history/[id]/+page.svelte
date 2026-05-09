@@ -118,6 +118,10 @@
     hitsHeal: number;
   };
 
+  type BuildHistoryPlayersOptions = {
+    includeBossTargetAggregate?: boolean;
+  };
+
   type FlatSkillRow =
     | { kind: "group"; key: string; depth: 0; row: RecountGroup }
     | { kind: "skill"; key: string; depth: 0 | 1; row: SkillDisplayRow };
@@ -224,6 +228,9 @@
   let localPlayerUid = $state<number | null>(null);
   let rawEntities = $state<HistoryEntityData[]>([]);
   let encounterEntitiesLoading = $state(false);
+  let targetDetailsLoading = $state(false);
+  let targetDetailsRequestedEncounterId = $state<number | null>(null);
+  let targetDetailsLoadedEncounterId = $state<number | null>(null);
   let modifierEntityCache = $state<Record<string, HistoryEntityData[]>>({});
   let modifierReportCache = $state<Record<string, ModifierActivityRow[]>>({});
   let modifierEntitiesLoading = $state(false);
@@ -247,6 +254,7 @@
   let modifierActorFilter = $state<ModifierActorFilter>("all");
   let modifierHideFullCoverage = $state(false);
   let encounterLoadToken = 0;
+  let targetDetailsLoadToken = 0;
   let modifierEntitiesLoadToken = 0;
   let modifierReportLoadToken = 0;
   let modifierReportWorker: Worker | null = null;
@@ -272,15 +280,18 @@
     if (typeof Worker === "undefined") {
       throw new Error("Modifier report worker is unavailable in this WebView.");
     }
-    modifierReportWorker?.terminate();
-    modifierReportWorker = null;
+    terminateModifierReportWorker();
     modifierReportWorker = createHistoryModifierReportWorker();
     return modifierReportWorker;
   }
 
-  onDestroy(() => {
+  function terminateModifierReportWorker() {
     modifierReportWorker?.terminate();
     modifierReportWorker = null;
+  }
+
+  onDestroy(() => {
+    terminateModifierReportWorker();
   });
 
   function modifierReportEntityShell(entity: HistoryEntityData): HistoryEntityData {
@@ -311,6 +322,7 @@
       activeEffectSources: [],
       activeFactorItems: [],
       activePassiveSkills: [],
+      activeProfessionSkills: [],
       activeProfessionTalents: [],
       modifierSourceActors: [],
       dmgPerTarget: [],
@@ -638,6 +650,9 @@
   let activeTab = $state<HistoryOverviewTab>("damage");
 
   const t = uiT("dps/history", () => SETTINGS.live.general.state.language);
+  let modifierReportsEnabled = $derived.by(() =>
+    SETTINGS.live.general.state.modifierReportsEnabled === true,
+  );
 
   function historyPerfNow(): number {
     return typeof performance !== "undefined" ? performance.now() : Date.now();
@@ -657,6 +672,9 @@
   }
 
   function modifierLoadingText(): string {
+    if (!modifierReportsEnabled) {
+      return t("detail.modifierDisabled", "Modifier analysis is disabled in Meter Settings.");
+    }
     if (modifierEntitiesLoading && modifierEntitiesLoadingKey === selectedModifierCacheKey) {
       return t("detail.loadingModifierEntities", "Loading modifier encounter data...");
     }
@@ -699,19 +717,24 @@
     durationSeconds: number,
     activeCombatDurationSeconds: number | null | undefined,
     localUid: number | null,
+    options: BuildHistoryPlayersOptions = {},
   ): HistoryPlayerRow[] {
     const elapsedMs = Math.max(1, Math.floor(durationSeconds * 1000));
     const activeCombatMs = Math.max(
       1,
       Math.floor((activeCombatDurationSeconds ?? durationSeconds) * 1000),
     );
+    const includeBossTargetAggregate = options.includeBossTargetAggregate !== false;
+    const displayEntities = includeBossTargetAggregate
+      ? entities.map((entity) => entityWithBossTargetAggregate(entity))
+      : entities;
     const source = {
-      entities,
+      entities: displayEntities,
       elapsedMs,
       activeCombatTimeMs: activeCombatMs,
-      totalDmg: entities.reduce((sum, entity) => sum + (entity.damage?.total ?? 0), 0),
-      totalHeal: entities.reduce((sum, entity) => sum + (entity.healing?.total ?? 0), 0),
-      totalDmgBossOnly: entities.reduce((sum, entity) => sum + (entity.damageBossOnly?.total ?? 0), 0),
+      totalDmg: displayEntities.reduce((sum, entity) => sum + (entity.damage?.total ?? 0), 0),
+      totalHeal: displayEntities.reduce((sum, entity) => sum + (entity.healing?.total ?? 0), 0),
+      totalDmgBossOnly: displayEntities.reduce((sum, entity) => sum + (entity.damageBossOnly?.total ?? 0), 0),
     };
 
     const dpsRows = computePlayerRowsFromEntities(source, "dps");
@@ -721,7 +744,7 @@
     const healByUid = new Map(healRows.map((row) => [row.uid, row]));
     const tankByUid = new Map(tankRows.map((row) => [row.uid, row]));
 
-    return entities
+    return displayEntities
       .map((entity) => {
         const dps = dpsByUid.get(entity.uid);
         const heal = healByUid.get(entity.uid);
@@ -780,6 +803,49 @@
       critTotal: 0,
       luckyHits: 0,
       luckyTotal: 0,
+    };
+  }
+
+  function addCombatStats(left: RawCombatStats, right: RawCombatStats): RawCombatStats {
+    return {
+      total: left.total + right.total,
+      effectiveTotal: left.effectiveTotal + right.effectiveTotal,
+      hits: left.hits + right.hits,
+      critHits: left.critHits + right.critHits,
+      critTotal: left.critTotal + right.critTotal,
+      luckyHits: left.luckyHits + right.luckyHits,
+      luckyTotal: left.luckyTotal + right.luckyTotal,
+    };
+  }
+
+  function isBossOrEliteTargetName(targetName: string): boolean {
+    const name = targetName.trim();
+    if (!name) return false;
+    const lowerName = name.toLowerCase();
+    return (
+      /^(boss|elite)\s*[:：-]/.test(lowerName) ||
+      name.startsWith("首领") ||
+      name.startsWith("精英") ||
+      name.startsWith("ボス") ||
+      name.startsWith("エリート")
+    );
+  }
+
+  function bossOrEliteTargetStats(entity: HistoryEntityData): RawCombatStats {
+    let stats = zeroCombatStats();
+    for (const target of entity.dmgPerTarget ?? []) {
+      if (!isBossOrEliteTargetName(target.targetName)) continue;
+      stats = addCombatStats(stats, target.damage ?? zeroCombatStats());
+    }
+    return stats;
+  }
+
+  function entityWithBossTargetAggregate(entity: HistoryEntityData): HistoryEntityData {
+    const targetStats = bossOrEliteTargetStats(entity);
+    if (targetStats.total <= 0) return entity;
+    return {
+      ...entity,
+      damageBossOnly: targetStats,
     };
   }
 
@@ -854,7 +920,7 @@
         return {
           ...entity,
           damage,
-          damageBossOnly: damage,
+          damageBossOnly: zeroCombatStats(),
           healing: zeroCombatStats(),
           taken: zeroCombatStats(),
         };
@@ -864,6 +930,7 @@
         encounterDurationSeconds,
         encounter?.activeCombatDuration ?? null,
         localPlayerUid,
+        { includeBossTargetAggregate: false },
       )
         .sort((a, b) => b.totalDmg - a.totalDmg);
     } else if (activeTab === "tanked") {
@@ -1027,12 +1094,13 @@
       || entity.activeEffectSources?.length
       || entity.activeFactorItems?.length
       || entity.activePassiveSkills?.length
+      || entity.activeProfessionSkills?.length
       || entity.activeProfessionTalents?.length,
     );
   }
 
   let modifierPlayers = $derived.by(() =>
-    activeTab === "modifiers"
+    activeTab === "modifiers" && modifierReportsEnabled
       ? [...players]
           .filter((player) =>
             player.totalDmg > 0
@@ -1059,7 +1127,7 @@
   });
 
   let selectedModifierCacheKey = $derived.by(() =>
-    encounterId !== null && selectedModifierPlayer
+    modifierReportsEnabled && encounterId !== null && selectedModifierPlayer
       ? modifierCacheKey(encounterId, selectedModifierPlayer.uid)
       : null,
   );
@@ -1082,7 +1150,7 @@
   });
 
   let modifierRows = $derived.by(() =>
-    !charId && activeTab === "modifiers" && selectedModifierReportKey
+    modifierReportsEnabled && !charId && activeTab === "modifiers" && selectedModifierReportKey
       ? (modifierReportCache[selectedModifierReportKey] ?? [])
       : [],
   );
@@ -1345,6 +1413,7 @@
     }
     return historyDpsPlayerColumns.filter((col) => {
       if (col.key === "effectiveTotal" || col.key === "effectiveDps") return false;
+      if (overviewTargetUid !== null && (col.key === "bossDmg" || col.key === "bossDps")) return false;
       const defaultValue = DEFAULT_HISTORY_STATS[col.key as keyof typeof DEFAULT_HISTORY_STATS] ?? true;
       const setting = settings.state.history.dps.players[col.key as keyof typeof settings.state.history.dps.players];
       return setting ?? defaultValue;
@@ -1685,6 +1754,9 @@
       model.formulaTermIds?.length
         ? `${t("detail.modifierTitleFormulaTerms", "Formula terms")}: ${model.formulaTermIds.join(", ")}`
         : "",
+      model.formulaZoneIds?.length
+        ? `${t("detail.modifierTitleFormulaZones", "Formula zones")}: ${model.formulaZoneIds.join(", ")}`
+        : "",
       model.contributionGroups?.length
         ? `${t("detail.modifierTitleContributionGroups", "Contribution groups")}: ${model.contributionGroups.join(", ")}`
         : "",
@@ -1784,6 +1856,10 @@
     if (formulaTerm === "genericDamagePct") return "DMG";
     if (formulaTerm === "elementalDamagePct") return "Element DMG";
     if (formulaTerm === "versatilityDamagePct") return "Versatility";
+    if (formulaTerm === "physicalMagicEnhancementPct") return "Phys/Magic";
+    if (formulaTerm === "finalDamagePct") return "Final DMG";
+    if (formulaTerm === "seasonDamagePct") return "Season DMG";
+    if (formulaTerm === "seasonSuppressionPct") return "Season Suppression";
     if (formulaTerm === "resistance") return "Resistance";
     if (formulaTerm === "armor") return "Armor";
     if (component.effectClass?.trim()) {
@@ -2078,6 +2154,9 @@
     const startedAt = historyPerfNow();
     error = null;
     encounterEntitiesLoading = false;
+    targetDetailsLoading = false;
+    targetDetailsRequestedEncounterId = null;
+    targetDetailsLoadedEncounterId = null;
     expandedGroups = new Set<number>();
     expandedModifierRows = new Set<string>();
     modifierExpansionSeed = "";
@@ -2090,6 +2169,7 @@
     modifierReportLoading = false;
     modifierEntitiesLoadingKey = null;
     modifierReportLoadingKey = null;
+    targetDetailsLoadToken++;
     modifierEntitiesLoadToken++;
     modifierReportLoadToken++;
     try {
@@ -2174,7 +2254,55 @@
     }
   }
 
+  async function loadTargetDetailEntities() {
+    const currentEncounterId = encounterId;
+    if (!currentEncounterId || targetDetailsLoading) return;
+    const token = ++targetDetailsLoadToken;
+    const startedAt = historyPerfNow();
+    targetDetailsRequestedEncounterId = currentEncounterId;
+    targetDetailsLoading = true;
+    try {
+      const entitiesRes = await commands.getEncounterEntitiesTargetDetailsRaw(currentEncounterId).then((result) => {
+        logHistoryTiming("encounter target detail entities loaded", {
+          encounterId: currentEncounterId,
+          ms: historyLoadMs(startedAt),
+          status: result.status,
+          rows: result.status === "ok" ? result.data.length : 0,
+        });
+        return result;
+      });
+      if (token !== targetDetailsLoadToken || currentEncounterId !== encounterId) return;
+      if (entitiesRes.status !== "ok") {
+        console.warn("[history] target detail entity load failed", {
+          encounterId: currentEncounterId,
+          error: String(entitiesRes.error),
+        });
+        return;
+      }
+
+      rawEntities = entitiesRes.data;
+      players = buildHistoryPlayers(
+        rawEntities,
+        encounterDurationSeconds,
+        encounter?.activeCombatDuration ?? null,
+        localPlayerUid,
+      );
+      targetDetailsLoadedEncounterId = currentEncounterId;
+    } catch (err) {
+      console.warn("[history] target detail entity load failed", {
+        encounterId: currentEncounterId,
+        ms: historyLoadMs(startedAt),
+        error: err instanceof Error ? err.message : String(err),
+      });
+    } finally {
+      if (token === targetDetailsLoadToken) {
+        targetDetailsLoading = false;
+      }
+    }
+  }
+
   async function loadModifierEntities() {
+    if (!modifierReportsEnabled) return;
     const currentEncounterId = encounterId;
     const selectedUid = selectedModifierPlayer?.uid ?? null;
     if (!currentEncounterId || selectedUid === null) return;
@@ -2234,6 +2362,7 @@
   }
 
   async function loadModifierReport() {
+    if (!modifierReportsEnabled) return;
     if (charId || activeTab !== "modifiers") return;
     if (!selectedModifierCacheKey || !selectedModifierReportKey) return;
     const detailedEntities = modifierEntityCache[selectedModifierCacheKey];
@@ -2556,6 +2685,20 @@
   });
 
   $effect(() => {
+    if (!charId || skillType !== "dps" || selectedSkillTargetUid === null) return;
+    if (targetDetailsLoadedEncounterId === encounterId) return;
+    if (targetDetailsRequestedEncounterId === encounterId) return;
+    const playerUid = Number(charId);
+    if (!Number.isFinite(playerUid)) return;
+    const targetStats = perTargetByUid
+      .get(playerUid)
+      ?.dmgTargets.find((target) => target.targetUid === selectedSkillTargetUid);
+    if (!targetStats) return;
+    if (Object.keys(targetStats.skills ?? {}).length > 0) return;
+    void loadTargetDetailEntities();
+  });
+
+  $effect(() => {
     activeTab;
     if (activeTab !== "damage") {
       overviewTargetUid = null;
@@ -2569,12 +2712,12 @@
   });
 
   $effect(() => {
-    if (charId || activeTab !== "modifiers") return;
+    if (charId || activeTab !== "modifiers" || !modifierReportsEnabled) return;
     void loadModifierEntities();
   });
 
   $effect(() => {
-    if (charId || activeTab !== "modifiers") return;
+    if (charId || activeTab !== "modifiers" || !modifierReportsEnabled) return;
     selectedModifierReportKey;
     selectedModifierEntity;
     modifierEntityCache;
@@ -2582,7 +2725,7 @@
   });
 
   $effect(() => {
-    if (activeTab !== "modifiers") return;
+    if (activeTab !== "modifiers" || !modifierReportsEnabled) return;
     if (modifierPlayers.length === 0) {
       modifierPlayerUid = null;
       return;
@@ -2601,6 +2744,17 @@
 
   $effect(() => {
     if (activeTab !== "modifiers") return;
+    if (!modifierReportsEnabled) {
+      modifierPlayerUid = null;
+      modifierEntitiesLoading = false;
+      modifierReportLoading = false;
+      modifierEntitiesLoadingKey = null;
+      modifierReportLoadingKey = null;
+      modifierEntitiesLoadToken++;
+      modifierReportLoadToken++;
+      terminateModifierReportWorker();
+      return;
+    }
     const seed = [
       encounterId ?? "",
       selectedModifierPlayer?.uid ?? "",
@@ -2680,7 +2834,7 @@
 
           <div class="flex flex-col items-end gap-2 shrink-0 self-stretch justify-between h-full">
             <div class="flex items-center gap-1.5">
-              {#if activeTab === "modifiers"}
+              {#if activeTab === "modifiers" && modifierReportsEnabled}
                 <label
                   class="inline-flex items-center gap-1.5 rounded border border-border bg-muted/30 px-2 py-1 text-xs text-muted-foreground hover:text-foreground"
                   title={modifierViewMode === "by-modifier"
@@ -2819,6 +2973,11 @@
       />
     {:else if activeTab === "modifiers"}
       {@const language = SETTINGS.live.general.state.language as LocaleCode}
+      {#if !modifierReportsEnabled}
+        <div class="rounded border border-border/60 bg-card/30 px-3 py-6 text-center text-sm text-muted-foreground">
+          {t("detail.modifierDisabled", "Modifier analysis is disabled in Meter Settings.")}
+        </div>
+      {:else}
       <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div class="flex flex-wrap gap-1.5">
           {#each modifierPlayers as player (player.uid)}
@@ -3247,6 +3406,7 @@
           </tbody>
         </table>
       </div>
+      {/if}
     {:else}
     <div class="overflow-x-auto rounded border border-border/60 bg-card/30">
         <table class="w-full border-collapse">
@@ -3526,6 +3686,16 @@
           </tr>
         </thead>
         <tbody class="bg-background/40">
+          {#if targetDetailsLoading && selectedSkillTargetUid !== null && flatSkillRows.length === 0}
+            <tr class="border-t border-border/40">
+              <td
+                class="px-3 py-8 text-center text-sm text-muted-foreground"
+                colspan={visibleSkillColumns.length + 1}
+              >
+                {t("detail.loadingTargetSkillRows", "Loading target skill rows...")}
+              </td>
+            </tr>
+          {:else}
           {#each flatSkillRows as item (item.key)}
             {@const skillIconPath = historySkillIconPath(item)}
             <tr
@@ -3672,6 +3842,7 @@
               />
             </tr>
           {/each}
+          {/if}
         </tbody>
       </table>
     </div>

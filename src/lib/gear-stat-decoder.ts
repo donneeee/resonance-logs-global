@@ -391,12 +391,14 @@ export function decodeGearStatLineByPairId(input: GearStatDecoderInput): GearSta
   const pairId = toInteger(input.pairId);
   if (pairId === null) return null;
 
-  let candidates = gearStatsByPair.get(pairId);
+  const allCandidates = gearStatsByPair.get(pairId);
+  let candidates = allCandidates;
   if (!candidates?.length) return null;
 
   const itemId = toInteger(input.itemId);
   if (itemId !== null) {
-    candidates = candidates.filter((line) => line.itemId === itemId);
+    const itemCandidates = candidates.filter((line) => line.itemId === itemId);
+    candidates = itemCandidates.length ? itemCandidates : compatiblePairFallbackCandidates(candidates);
     if (!candidates.length) return null;
   }
 
@@ -412,6 +414,18 @@ export function decodeGearStatLineByPairId(input: GearStatDecoderInput): GearSta
   if (!selected) return null;
 
   return toGearStatLine(selected);
+}
+
+function compatiblePairFallbackCandidates(candidates: GearStatSeedLine[]): GearStatSeedLine[] {
+  if (candidates.length <= 1) return candidates;
+
+  const normalizedLabel = normalizeGearStatLabelForPairFallback(candidates[0]?.label ?? "");
+  if (!normalizedLabel) return [];
+
+  const sameLabel = candidates.every((line) => normalizeGearStatLabelForPairFallback(line.label) === normalizedLabel);
+  if (!sameLabel) return [];
+
+  return candidates;
 }
 
 export function decodeGearStatLinesForItem(itemIdInput: number | string | null | undefined): GearStatLine[] {
@@ -594,6 +608,20 @@ function englishItemNameScore(name: string, index: number): number {
   }
 
   return score;
+}
+
+function normalizeGearStatLabelForPairFallback(label: string): string {
+  const normalized = label.trim().toLowerCase().replace(/\s+/g, " ");
+  if (!normalized || normalized === "locked") return "";
+  if (normalized === "crit") return "crit";
+  if (normalized === "crit dmg" || normalized === "crit damage") return "crit damage";
+  if (normalized === "haste") return "haste";
+  if (normalized === "luck") return "luck";
+  if (normalized === "mastery") return "mastery";
+  if (normalized === "versatility") return "versatility";
+  if (normalized === "attack spd") return "attack speed";
+  if (normalized === "all resistance") return "all element resistance";
+  return normalized;
 }
 
 function gearStatCandidateRank(line: GearStatSeedLine): number {

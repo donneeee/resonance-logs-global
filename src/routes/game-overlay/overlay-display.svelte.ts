@@ -102,6 +102,7 @@ const _counterRuleMap = $derived.by(() => {
 const _buffSnapshot = $derived.by(() => {
   const now = overlayNow();
   const explicitSelectedBuffIds = monitoredBuffIds();
+  const expandedSelectedBuffIds = new Set(expandedMonitoredBuffIds());
   const priorityIds = buffPriorityIds();
   const buffDefinitionsMap = buffDefinitions();
   const panelGroups = customPanelGroups();
@@ -137,8 +138,9 @@ const _buffSnapshot = $derived.by(() => {
       continue;
     }
 
-    // Filter passive/infinite single-stack buffs from both icon and text displays.
-    if (buff.durationMs <= 0 && buff.layer <= 1) continue;
+    // Keep monitor-all quiet, but allow explicitly selected state buffs with no timer.
+    const allowPassiveSingleStack = expandedSelectedBuffIds.has(baseId);
+    if (buff.durationMs <= 0 && buff.layer <= 1 && !allowPassiveSingleStack) continue;
 
     const definition = buffDefinitionsMap.get(baseId);
     const name = resolveBuffOverlayDisplayName(baseId, currentBuffAliases);
@@ -165,7 +167,14 @@ const _buffSnapshot = $derived.by(() => {
         ...(specialImages.length > 0 ? { specialImages } : {}),
       });
     } else {
-      const row = buildBuffTextRow(`buff_${baseId}`, name, buff, now);
+      const row = buildBuffTextRow(
+        `buff_${baseId}`,
+        name,
+        buff,
+        now,
+        false,
+        allowPassiveSingleStack,
+      );
       if (row) nextTextBuffs.push(row);
     }
   }
@@ -207,6 +216,7 @@ const _buffSnapshot = $derived.by(() => {
             sourceUid: 0,
           },
           now,
+          true,
           true,
         );
         if (row) nextTextBuffs.push(row);

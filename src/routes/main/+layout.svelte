@@ -31,27 +31,35 @@
   let lastSharedOverlayEnabled: boolean | null = null;
   let overlayStartupHandled = false;
 
+  function queueRuntimeSnapshotSync(
+    runtimeSnapshot: ReturnType<typeof buildMonitorRuntimeSnapshot>,
+    runtimeSnapshotKey: string,
+    delayMs = 50,
+  ) {
+    if (runtimeSyncTimer) {
+      clearTimeout(runtimeSyncTimer);
+    }
+    runtimeSyncTimer = setTimeout(() => {
+      void (async () => {
+        try {
+          lastRuntimeSnapshotKey = runtimeSnapshotKey;
+          await saveAndApplyMonitorRuntimeSnapshot(runtimeSnapshot);
+        } catch (error) {
+          console.error("[runtime-monitor] failed to sync runtime snapshot", error);
+        }
+      })();
+    }, delayMs);
+  }
+
   $effect(() => {
     const runtimeSnapshot = buildMonitorRuntimeSnapshot();
     const runtimeSnapshotKey = createMonitorRuntimeSnapshotSignature(runtimeSnapshot);
 
     if (!runtimeSnapshotInitialized) {
       runtimeSnapshotInitialized = true;
-      lastRuntimeSnapshotKey = runtimeSnapshotKey;
+      queueRuntimeSnapshotSync(runtimeSnapshot, runtimeSnapshotKey, 250);
     } else if (runtimeSnapshotKey !== lastRuntimeSnapshotKey) {
-      if (runtimeSyncTimer) {
-        clearTimeout(runtimeSyncTimer);
-      }
-      runtimeSyncTimer = setTimeout(() => {
-        void (async () => {
-          try {
-            lastRuntimeSnapshotKey = runtimeSnapshotKey;
-            await saveAndApplyMonitorRuntimeSnapshot(runtimeSnapshot);
-          } catch (error) {
-            console.error("[runtime-monitor] failed to sync runtime snapshot", error);
-          }
-        })();
-      }, 50);
+      queueRuntimeSnapshotSync(runtimeSnapshot, runtimeSnapshotKey);
     }
 
     const sharedOverlayEnabled =

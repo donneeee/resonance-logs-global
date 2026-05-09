@@ -217,6 +217,11 @@
             step={50}
             unit="ms"
           />
+          <SettingsSwitch
+            bind:checked={SETTINGS.live.general.state.modifierReportsEnabled}
+            label={t("modifierReportsEnabled", "Enable Modifier (WIP) Analysis")}
+            description={t("modifierReportsEnabledDescription", "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.")}
+          />
         </div>
       {/if}
     </div>

@@ -10,7 +10,8 @@ use crate::live::opcodes_models::class::{
 };
 use crate::live::opcodes_models::{
     AttrType, AttrValue, Encounter, Entity, ObservedDamageHit, ObservedEffectSource,
-    ObservedFormulaAttr, ObservedPassiveSkill, ObservedProfessionTalent, Skill, attr_type,
+    ObservedFormulaAttr, ObservedPassiveSkill, ObservedProfessionSkill, ObservedProfessionTalent,
+    Skill, attr_type,
 };
 use blueprotobuf_lib::blueprotobuf;
 use blueprotobuf_lib::blueprotobuf::{Attr, EDamageType, EEntityType};
@@ -90,6 +91,21 @@ const FORMULA_ATTACKER_ATTRS: &[(AttrType, &str)] = &[
     (AttrType::AttackPower, "AttackPower"),
     (AttrType::PhysicalAttack, "PhysicalAttack"),
     (AttrType::MagicAttack, "MagicAttack"),
+    (AttrType::Unknown(11010), "PanelStrength"),
+    (AttrType::Unknown(11020), "PanelIntelligence"),
+    (AttrType::Unknown(11030), "PanelAgility"),
+    (AttrType::MinEnergy, "PanelPhysicalAttack"),
+    (AttrType::Unknown(11340), "PanelMagicAttack"),
+    (AttrType::Unknown(11710), "PanelCritRate"),
+    (AttrType::Unknown(11730), "PanelCastSpeed"),
+    (AttrType::Unknown(11780), "PanelLucky"),
+    (AttrType::Unknown(11930), "PanelHaste"),
+    (AttrType::Unknown(11940), "PanelMastery"),
+    (AttrType::Unknown(11950), "PanelVersatility"),
+    (AttrType::Unknown(11970), "PanelBlock"),
+    (AttrType::Unknown(12510), "PanelCritDamage"),
+    (AttrType::Unknown(12530), "PanelLuckyDamageMultiplier"),
+    (AttrType::Unknown(12540), "PanelBlockDamageReduction"),
     (AttrType::Crit, "Crit"),
     (AttrType::Lucky, "Lucky"),
     (AttrType::Haste, "Haste"),
@@ -528,6 +544,7 @@ pub fn process_sync_container_data(
     );
     target_entity.active_effect_sources = selected_season_medal_effect_sources(&v_data);
     target_entity.active_factor_items = observed_season_phantom_factor_items(&v_data);
+    target_entity.active_profession_skills = selected_profession_skills(&v_data);
     target_entity.active_profession_talents = selected_profession_talents(&v_data);
 
     // Note: HP data comes from attribute packets (ATTR_CURRENT_HP, ATTR_MAX_HP)
@@ -676,34 +693,191 @@ fn selected_profession_talents(
     talents
 }
 
+fn selected_profession_skills(
+    v_data: &blueprotobuf::CharSerialize,
+) -> Vec<ObservedProfessionSkill> {
+    let Some(profession_list) = v_data.profession_list.as_ref() else {
+        return Vec::new();
+    };
+    let Some(current_profession_id) = profession_list.cur_profession_id else {
+        return Vec::new();
+    };
+    let Some(info) = profession_list.profession_list.get(&current_profession_id) else {
+        return Vec::new();
+    };
+
+    let mut skills = Vec::new();
+    let mut seen_skill_ids = Vec::new();
+
+    for (skill_id, skill_info) in &info.skill_info_map {
+        seen_skill_ids.push(*skill_id);
+        let slot = slot_for_profession_skill(info, *skill_id, skill_info);
+        let equipped = Some(profession_skill_is_equipped(info, *skill_id, skill_info));
+        skills.push(observed_profession_skill(
+            *skill_id,
+            skill_info,
+            slot,
+            equipped,
+            "profession-skill",
+            "CharSerialize.profession_list.cur_profession_id.profession_list.skill_info_map",
+        ));
+    }
+
+    for skill_id in info
+        .active_skill_ids
+        .iter()
+        .chain(info.slot_skill_info_map.values())
+    {
+        if seen_skill_ids.contains(skill_id) {
+            continue;
+        }
+        skills.push(ObservedProfessionSkill {
+            skill_id: *skill_id,
+            base_skill_id: None,
+            skill_level_id: None,
+            level: None,
+            remodel_level: None,
+            slot: info
+                .slot_skill_info_map
+                .iter()
+                .find_map(|(slot, slot_skill_id)| (*slot_skill_id == *skill_id).then_some(*slot)),
+            equipped: Some(true),
+            source_kind: "profession-skill".to_string(),
+            replace_skill_ids: Vec::new(),
+            runtime_source:
+                "CharSerialize.profession_list.cur_profession_id.profession_list.active_skill_ids"
+                    .to_string(),
+        });
+    }
+
+    for (skill_id, skill_info) in &profession_list.aoyi_skill_info_map {
+        skills.push(observed_profession_skill(
+            *skill_id,
+            skill_info,
+            None,
+            None,
+            "battle-imagine",
+            "CharSerialize.profession_list.aoyi_skill_info_map",
+        ));
+    }
+
+    skills.sort_by_key(|skill| {
+        (
+            skill.source_kind.clone(),
+            skill.skill_id,
+            skill.slot.unwrap_or(-1),
+        )
+    });
+    skills
+}
+
+fn observed_profession_skill(
+    skill_id: i32,
+    skill_info: &blueprotobuf::ProfessionSkillInfo,
+    slot: Option<i32>,
+    equipped: Option<bool>,
+    source_kind: &str,
+    runtime_source: &str,
+) -> ObservedProfessionSkill {
+    let level = skill_info.level.filter(|level| *level > 0);
+    ObservedProfessionSkill {
+        skill_id,
+        base_skill_id: skill_info.skill_id.filter(|id| *id > 0),
+        skill_level_id: level.and_then(|level| skill_id.checked_mul(100)?.checked_add(level)),
+        level,
+        remodel_level: skill_info.remodel_level.filter(|level| *level >= 0),
+        slot,
+        equipped,
+        source_kind: source_kind.to_string(),
+        replace_skill_ids: skill_info
+            .replace_skill_ids
+            .iter()
+            .copied()
+            .filter(|id| *id > 0)
+            .collect(),
+        runtime_source: runtime_source.to_string(),
+    }
+}
+
+fn profession_skill_is_equipped(
+    info: &blueprotobuf::ProfessionInfo,
+    skill_id: i32,
+    skill_info: &blueprotobuf::ProfessionSkillInfo,
+) -> bool {
+    info.active_skill_ids.contains(&skill_id)
+        || skill_info
+            .skill_id
+            .is_some_and(|base_skill_id| info.active_skill_ids.contains(&base_skill_id))
+        || skill_info
+            .replace_skill_ids
+            .iter()
+            .any(|replacement| info.active_skill_ids.contains(replacement))
+        || slot_for_profession_skill(info, skill_id, skill_info).is_some()
+}
+
+fn slot_for_profession_skill(
+    info: &blueprotobuf::ProfessionInfo,
+    skill_id: i32,
+    skill_info: &blueprotobuf::ProfessionSkillInfo,
+) -> Option<i32> {
+    for (slot, slot_skill_id) in &info.slot_skill_info_map {
+        if *slot_skill_id == skill_id
+            || skill_info.skill_id == Some(*slot_skill_id)
+            || skill_info
+                .replace_skill_ids
+                .iter()
+                .any(|replacement| replacement == slot_skill_id)
+        {
+            return Some(*slot);
+        }
+    }
+    None
+}
+
 fn observed_season_phantom_factor_items(
     v_data: &blueprotobuf::CharSerialize,
 ) -> Vec<crate::live::opcodes_models::ObservedFactorItem> {
     let Some(item_package) = v_data.item_package.as_ref() else {
         return Vec::new();
     };
+    let Some(equip) = v_data.equip.as_ref() else {
+        return Vec::new();
+    };
 
     let mut items = Vec::new();
-    for (package_key, package) in &item_package.packages {
-        for item in package.items.values() {
-            let Some(config_id) = item.config_id else {
-                continue;
-            };
-            let Some(factor_grade) =
-                crate::live::season_phantom_factors::factor_grade_item_for_config_id(config_id)
-            else {
-                continue;
-            };
-            items.push(crate::live::opcodes_models::ObservedFactorItem {
-                factor_buff_id: factor_grade.factor_buff_id,
-                item_config_id: factor_grade.item_config_id,
-                item_uuid: item.uuid,
-                package_key: *package_key,
-                package_type: package.r#type,
-                grade: factor_grade.grade,
-                family_id: factor_grade.family_id,
-                runtime_source: "CharSerialize.item_package.packages.items.config_id".to_string(),
-            });
+    for info in equip.equip_list.values() {
+        let Some(equipped_uuid) = info.item_uuid else {
+            continue;
+        };
+        for (package_key, package) in &item_package.packages {
+            for item in package.items.values() {
+                let Some(item_uuid) = item.uuid.and_then(|uuid| u64::try_from(uuid).ok()) else {
+                    continue;
+                };
+                if item_uuid != equipped_uuid {
+                    continue;
+                }
+                let Some(config_id) = item.config_id else {
+                    continue;
+                };
+                let Some(factor_grade) =
+                    crate::live::season_phantom_factors::factor_grade_item_for_config_id(config_id)
+                else {
+                    continue;
+                };
+                items.push(crate::live::opcodes_models::ObservedFactorItem {
+                    factor_buff_id: factor_grade.factor_buff_id,
+                    item_config_id: factor_grade.item_config_id,
+                    item_uuid: item.uuid,
+                    package_key: *package_key,
+                    package_type: package.r#type,
+                    grade: factor_grade.grade,
+                    family_id: factor_grade.family_id,
+                    runtime_source:
+                        "CharSerialize.equip.equip_list.item_uuid->item_package.config_id"
+                            .to_string(),
+                });
+            }
         }
     }
 
@@ -849,6 +1023,7 @@ pub fn process_sync_to_me_delta_info(
     sync_to_me_delta_info: blueprotobuf::SyncToMeDeltaInfo,
     monitored_panel_attr_ids: &[i32],
     combat_target_filter: Option<i64>,
+    capture_modifier_evidence: bool,
 ) -> SyncToMeDeltaResult {
     use crate::live::opcodes_models::attr_type::{ATTR_FIGHT_RESOURCES, ATTR_SKILL_ID};
 
@@ -920,9 +1095,13 @@ pub fn process_sync_to_me_delta_info(
                 }
             }
         }
-        if let Some(events) =
-            process_aoi_sync_delta(encounter, attr_store, base_delta, combat_target_filter)
-        {
+        if let Some(events) = process_aoi_sync_delta(
+            encounter,
+            attr_store,
+            base_delta,
+            combat_target_filter,
+            capture_modifier_evidence,
+        ) {
             result.local_damage_events = events;
         }
     }
@@ -1123,6 +1302,7 @@ pub fn process_aoi_sync_delta(
     attr_store: &mut EntityAttrStore,
     aoi_sync_delta: blueprotobuf::AoiSyncDelta,
     combat_target_filter: Option<i64>,
+    capture_modifier_evidence: bool,
 ) -> Option<Vec<LocalDamageEvent>> {
     let target_uuid = aoi_sync_delta.uuid?; // UUID =/= uid (have to >> 16)
     let target_uid = target_uuid >> 16;
@@ -1221,20 +1401,20 @@ pub fn process_aoi_sync_delta(
             .unwrap_or(attacker_uid);
         let top_summoner_uid = sync_damage_info.top_summoner_id.map(|uuid| uuid >> 16);
         let capture_formula_evidence = attribution_census::is_attribution_census_enabled()
-            || encounter
-                .entity_uid_to_entity
-                .get(&attacker_uid)
-                .map(|entity| entity.entity_type == EEntityType::EntChar)
-                .unwrap_or(false);
-        let (attacker_formula_attrs, target_formula_attrs) =
-            if capture_formula_evidence {
-                (
-                    formula_attr_snapshot(attr_store, attacker_uid, FORMULA_ATTACKER_ATTRS),
-                    formula_attr_snapshot(attr_store, target_uid, FORMULA_TARGET_ATTRS),
-                )
-            } else {
-                (Vec::new(), Vec::new())
-            };
+            || (capture_modifier_evidence
+                && encounter
+                    .entity_uid_to_entity
+                    .get(&attacker_uid)
+                    .map(|entity| entity.entity_type == EEntityType::EntChar)
+                    .unwrap_or(false));
+        let (attacker_formula_attrs, target_formula_attrs) = if capture_formula_evidence {
+            (
+                formula_attr_snapshot(attr_store, attacker_uid, FORMULA_ATTACKER_ATTRS),
+                formula_attr_snapshot(attr_store, target_uid, FORMULA_TARGET_ATTRS),
+            )
+        } else {
+            (Vec::new(), Vec::new())
+        };
 
         // Local copies of fields needed later (avoid holding map borrows across operations)
         let owner_id = sync_damage_info.owner_id?;
@@ -1252,11 +1432,11 @@ pub fn process_aoi_sync_delta(
             });
         }
         let flag = sync_damage_info.type_flag.unwrap_or_default();
-        // Pre-calculate whether this target is recognized as a boss and local player id
+        // DPS boss aggregate columns count both boss and elite targets.
         let is_boss_target = encounter
             .entity_uid_to_entity
             .get(&target_uid)
-            .map(|e| e.is_boss())
+            .map(|e| e.is_elite_or_boss())
             .unwrap_or(false);
         let target_monster_type_id = encounter
             .entity_uid_to_entity
@@ -1373,7 +1553,8 @@ pub fn process_aoi_sync_delta(
                     target_formula_attrs.clone(),
                     attacker_entity,
                 );
-                if attacker_entity.entity_type == EEntityType::EntChar {
+                if capture_modifier_evidence && attacker_entity.entity_type == EEntityType::EntChar
+                {
                     record_observed_damage_hit(
                         timestamp_ms,
                         skill_key,
@@ -1514,7 +1695,8 @@ pub fn process_aoi_sync_delta(
                     target_formula_attrs.clone(),
                     attacker_entity,
                 );
-                if attacker_entity.entity_type == EEntityType::EntChar {
+                if capture_modifier_evidence && attacker_entity.entity_type == EEntityType::EntChar
+                {
                     record_observed_damage_hit(
                         timestamp_ms,
                         skill_key,

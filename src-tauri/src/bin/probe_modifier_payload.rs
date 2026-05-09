@@ -1,6 +1,6 @@
+use blueprotobuf_lib::blueprotobuf::EEntityType;
 use diesel::prelude::*;
 use diesel::sql_types::{Binary, Integer};
-use blueprotobuf_lib::blueprotobuf::EEntityType;
 use resonance_logs_lib::live::commands_models as lc;
 use resonance_logs_lib::live::opcodes_models::{Entity, ObservedModifierHitBucket};
 use serde::Serialize;
@@ -366,7 +366,9 @@ fn build_modifier_source_actor_refs(
                 name: source_actor_display_name(bucket.modifier_source_uid, source_entity),
                 entity_type: source_actor_entity_type(source_entity),
                 owner_uid: owner_hint.as_ref().map(|(owner_uid, _)| *owner_uid),
-                owner_name: owner_hint.as_ref().map(|(_, owner_name)| owner_name.clone()),
+                owner_name: owner_hint
+                    .as_ref()
+                    .map(|(_, owner_name)| owner_name.clone()),
                 source_config_ids: Vec::new(),
                 base_ids: Vec::new(),
             }
@@ -472,6 +474,11 @@ fn build_report_entity(
             .active_passive_skills
             .iter()
             .map(lc::to_active_passive_skill_state)
+            .collect(),
+        active_profession_skills: entity
+            .active_profession_skills
+            .iter()
+            .map(lc::to_active_profession_skill_state)
             .collect(),
         active_profession_talents: entity
             .active_profession_talents

@@ -77,10 +77,10 @@ pub fn disable_blur(app: tauri::AppHandle) {
 #[tauri::command]
 #[specta::specta]
 pub fn reset_encounter(state_manager: tauri::State<'_, AppStateManager>) -> Result<(), String> {
+    info!(target: "app::live", "reset_encounter command received");
     state_manager
         .inner()
         .send_state_event(StateEvent::ResetEncounter { is_manual: true })?;
-    info!("encounter reset via command");
     Ok(())
 }
 

@@ -83,6 +83,91 @@ struct ItemExtendDataOut {
     value: Option<i32>,
 }
 
+#[derive(Clone, Debug, Serialize)]
+struct AttrMapEntry {
+    key: i64,
+    value: i64,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct EquipAttrSetOut {
+    basic_attr: Vec<AttrMapEntry>,
+    advance_attr: Vec<AttrMapEntry>,
+    recast_attr: Vec<AttrMapEntry>,
+    rare_quality_attr: Vec<AttrMapEntry>,
+}
+
+#[derive(Clone, Debug, Serialize)]
+struct EquipAttrOut {
+    base_attrs: Vec<AttrMapEntry>,
+    perfection_value: Option<i32>,
+    recast_count: Option<i32>,
+    total_recast_count: Option<i32>,
+    basic_attr: Vec<AttrMapEntry>,
+    advance_attr: Vec<AttrMapEntry>,
+    recast_attr: Vec<AttrMapEntry>,
+    rare_quality_attr: Vec<AttrMapEntry>,
+    perfection_level: Option<i32>,
+    max_perfection_value: Option<i32>,
+    break_through_time: Option<i32>,
+    equip_attr_set: Option<EquipAttrSetOut>,
+}
+
+#[derive(Debug, Serialize)]
+struct EquippedItemOut {
+    equip_slot: Option<i32>,
+    item_uuid: Option<u64>,
+    item_config_id: Option<i32>,
+    package_key: Option<i32>,
+    package_item_key: Option<i64>,
+    count: Option<i64>,
+    quality: Option<i32>,
+    equip_slot_refine_level: Option<u32>,
+    equip_slot_refine_failed_count: Option<u32>,
+    item_equip_attr: Option<EquipAttrOut>,
+    recast_attr: Option<EquipAttrOut>,
+    enchant: Option<EquipEnchantOut>,
+}
+
+#[derive(Debug, Serialize)]
+struct EquipEnchantOut {
+    enchant_item_type_id: Option<i32>,
+    enchant_level: Option<i32>,
+    enchant_type: Option<i32>,
+}
+
+#[derive(Debug, Serialize)]
+struct EquipSuitInfoOut {
+    map_key: i32,
+    attr_type: Option<i32>,
+    suit_attr: Vec<AttrMapEntry>,
+}
+
+#[derive(Debug, Serialize)]
+struct RecastAttrOut {
+    item_uuid: u64,
+    attr: EquipAttrOut,
+}
+
+#[derive(Debug, Serialize)]
+struct EquipmentSnapshotOut {
+    equipped_items: Vec<EquippedItemOut>,
+    aggregate_attr: Option<EquipAttrOut>,
+    equip_recast_info: Vec<RecastAttrOut>,
+    suit_info: Vec<EquipSuitInfoOut>,
+    notes: Vec<&'static str>,
+}
+
+#[derive(Clone, Debug)]
+struct PackageItemSnapshot {
+    package_key: i32,
+    package_item_key: i64,
+    config_id: Option<i32>,
+    count: Option<i64>,
+    quality: Option<i32>,
+    equip_attr: Option<EquipAttrOut>,
+}
+
 #[derive(Debug, Serialize)]
 struct EquippedItemMatch {
     equip_slot: Option<i32>,
@@ -141,7 +226,38 @@ struct Report {
     equipped_factor_item_matches: Vec<EquippedItemMatch>,
     buff_db_factor_matches: Vec<BuffDbMatch>,
     season_medal: SeasonMedalOut,
+    profession_skills: ProfessionSkillsOut,
+    equipment_snapshot: EquipmentSnapshotOut,
     conclusion: ReportConclusion,
+}
+
+#[derive(Debug, Serialize)]
+struct ProfessionSkillsOut {
+    current_profession_id: Option<i32>,
+    active_skill_ids: Vec<i32>,
+    slot_skill_info: Vec<ProfessionSkillSlotOut>,
+    profession_skills: Vec<ProfessionSkillOut>,
+    battle_imagine_skills: Vec<ProfessionSkillOut>,
+    notes: Vec<&'static str>,
+}
+
+#[derive(Debug, Serialize)]
+struct ProfessionSkillSlotOut {
+    slot: i32,
+    skill_id: i32,
+}
+
+#[derive(Debug, Serialize)]
+struct ProfessionSkillOut {
+    skill_id: i32,
+    base_skill_id: Option<i32>,
+    skill_level_id: Option<i32>,
+    level: Option<i32>,
+    remodel_level: Option<i32>,
+    slot: Option<i32>,
+    equipped: Option<bool>,
+    source_kind: &'static str,
+    replace_skill_ids: Vec<i32>,
 }
 
 #[derive(Debug, Serialize)]
@@ -166,6 +282,7 @@ fn main() -> Result<(), String> {
     let factors_path = arg_value(&args, "--factors")
         .map(PathBuf::from)
         .unwrap_or_else(default_factors_path);
+    let out_json_path = arg_value(&args, "--out-json").map(PathBuf::from);
 
     let factors = read_factors(&factors_path)?;
     let (factor_grade_items, factor_by_item) = index_factor_items(&factors);
@@ -185,6 +302,8 @@ fn main() -> Result<(), String> {
         collect_equipped_factor_item_matches(&v_data, &factor_item_matches);
     let buff_db_factor_matches = collect_buff_db_factor_matches(&v_data, &factor_buff_ids);
     let season_medal = collect_season_medal(&v_data);
+    let profession_skills = collect_profession_skills(&v_data);
+    let equipment_snapshot = collect_equipment_snapshot(&v_data);
     let conclusion = build_conclusion(
         &factor_item_matches,
         &equipped_factor_item_matches,
@@ -204,14 +323,26 @@ fn main() -> Result<(), String> {
         equipped_factor_item_matches,
         buff_db_factor_matches,
         season_medal,
+        profession_skills,
+        equipment_snapshot,
         conclusion,
     };
 
-    println!(
-        "{}",
-        serde_json::to_string_pretty(&report)
-            .map_err(|err| format!("Failed to serialize report: {err}"))?
-    );
+    let report_json = serde_json::to_string_pretty(&report)
+        .map_err(|err| format!("Failed to serialize report: {err}"))?;
+
+    if let Some(path) = out_json_path {
+        if let Some(parent) = path.parent() {
+            if !parent.as_os_str().is_empty() {
+                std::fs::create_dir_all(parent)
+                    .map_err(|err| format!("Failed to create {}: {err}", parent.display()))?;
+            }
+        }
+        std::fs::write(&path, report_json.as_bytes())
+            .map_err(|err| format!("Failed to write {}: {err}", path.display()))?;
+    }
+
+    println!("{report_json}");
     Ok(())
 }
 
@@ -414,6 +545,312 @@ fn collect_equipped_factor_item_matches(
     }
     matches.sort_by_key(|row| (row.equip_slot.unwrap_or(0), row.matched_config_id));
     matches
+}
+
+fn collect_profession_skills(v_data: &blueprotobuf::CharSerialize) -> ProfessionSkillsOut {
+    let Some(profession_list) = v_data.profession_list.as_ref() else {
+        return ProfessionSkillsOut {
+            current_profession_id: None,
+            active_skill_ids: Vec::new(),
+            slot_skill_info: Vec::new(),
+            profession_skills: Vec::new(),
+            battle_imagine_skills: Vec::new(),
+            notes: vec!["No profession_list was present in latest CharSerialize vdata."],
+        };
+    };
+    let current_profession_id = profession_list.cur_profession_id;
+    let Some(current_profession_id) = current_profession_id else {
+        return ProfessionSkillsOut {
+            current_profession_id: None,
+            active_skill_ids: Vec::new(),
+            slot_skill_info: Vec::new(),
+            profession_skills: Vec::new(),
+            battle_imagine_skills: collect_aoyi_skill_rows(profession_list),
+            notes: vec!["profession_list exists, but cur_profession_id is missing."],
+        };
+    };
+    let Some(info) = profession_list.profession_list.get(&current_profession_id) else {
+        return ProfessionSkillsOut {
+            current_profession_id: Some(current_profession_id),
+            active_skill_ids: Vec::new(),
+            slot_skill_info: Vec::new(),
+            profession_skills: Vec::new(),
+            battle_imagine_skills: collect_aoyi_skill_rows(profession_list),
+            notes: vec!["cur_profession_id had no matching profession_info entry."],
+        };
+    };
+
+    let mut slot_skill_info: Vec<_> = info
+        .slot_skill_info_map
+        .iter()
+        .map(|(slot, skill_id)| ProfessionSkillSlotOut {
+            slot: *slot,
+            skill_id: *skill_id,
+        })
+        .collect();
+    slot_skill_info.sort_by_key(|row| (row.slot, row.skill_id));
+
+    let mut profession_skills = Vec::new();
+    for (skill_id, skill_info) in &info.skill_info_map {
+        profession_skills.push(profession_skill_out(
+            *skill_id,
+            skill_info,
+            slot_for_profession_skill(info, *skill_id, skill_info),
+            Some(profession_skill_is_equipped(info, *skill_id, skill_info)),
+            "profession-skill",
+        ));
+    }
+    profession_skills.sort_by_key(|row| (row.slot.unwrap_or(-1), row.skill_id));
+
+    let mut active_skill_ids = info.active_skill_ids.clone();
+    active_skill_ids.sort_unstable();
+
+    ProfessionSkillsOut {
+        current_profession_id: Some(current_profession_id),
+        active_skill_ids,
+        slot_skill_info,
+        profession_skills,
+        battle_imagine_skills: collect_aoyi_skill_rows(profession_list),
+        notes: vec![
+            "profession_skills come from CharSerialize.profession_list.profession_list[current].skill_info_map.",
+            "battle_imagine_skills come from CharSerialize.profession_list.aoyi_skill_info_map.",
+            "level maps to SkillFightLevelTable skillLevelId as skillId * 100 + level when present; remodel_level is the 0-5 tier/remodel stage candidate.",
+        ],
+    }
+}
+
+fn collect_aoyi_skill_rows(
+    profession_list: &blueprotobuf::ProfessionList,
+) -> Vec<ProfessionSkillOut> {
+    let mut rows: Vec<_> = profession_list
+        .aoyi_skill_info_map
+        .iter()
+        .map(|(skill_id, skill_info)| {
+            profession_skill_out(*skill_id, skill_info, None, None, "battle-imagine")
+        })
+        .collect();
+    rows.sort_by_key(|row| row.skill_id);
+    rows
+}
+
+fn profession_skill_out(
+    skill_id: i32,
+    skill_info: &blueprotobuf::ProfessionSkillInfo,
+    slot: Option<i32>,
+    equipped: Option<bool>,
+    source_kind: &'static str,
+) -> ProfessionSkillOut {
+    let level = skill_info.level.filter(|level| *level > 0);
+    ProfessionSkillOut {
+        skill_id,
+        base_skill_id: skill_info.skill_id.filter(|id| *id > 0),
+        skill_level_id: level.and_then(|level| skill_id.checked_mul(100)?.checked_add(level)),
+        level,
+        remodel_level: skill_info.remodel_level.filter(|level| *level >= 0),
+        slot,
+        equipped,
+        source_kind,
+        replace_skill_ids: skill_info
+            .replace_skill_ids
+            .iter()
+            .copied()
+            .filter(|id| *id > 0)
+            .collect(),
+    }
+}
+
+fn profession_skill_is_equipped(
+    info: &blueprotobuf::ProfessionInfo,
+    skill_id: i32,
+    skill_info: &blueprotobuf::ProfessionSkillInfo,
+) -> bool {
+    info.active_skill_ids.contains(&skill_id)
+        || skill_info
+            .skill_id
+            .is_some_and(|base_skill_id| info.active_skill_ids.contains(&base_skill_id))
+        || skill_info
+            .replace_skill_ids
+            .iter()
+            .any(|replacement| info.active_skill_ids.contains(replacement))
+        || slot_for_profession_skill(info, skill_id, skill_info).is_some()
+}
+
+fn slot_for_profession_skill(
+    info: &blueprotobuf::ProfessionInfo,
+    skill_id: i32,
+    skill_info: &blueprotobuf::ProfessionSkillInfo,
+) -> Option<i32> {
+    for (slot, slot_skill_id) in &info.slot_skill_info_map {
+        if *slot_skill_id == skill_id
+            || skill_info.skill_id == Some(*slot_skill_id)
+            || skill_info
+                .replace_skill_ids
+                .iter()
+                .any(|replacement| replacement == slot_skill_id)
+        {
+            return Some(*slot);
+        }
+    }
+    None
+}
+
+fn collect_equipment_snapshot(v_data: &blueprotobuf::CharSerialize) -> EquipmentSnapshotOut {
+    let Some(equip) = v_data.equip.as_ref() else {
+        return EquipmentSnapshotOut {
+            equipped_items: Vec::new(),
+            aggregate_attr: None,
+            equip_recast_info: Vec::new(),
+            suit_info: Vec::new(),
+            notes: vec!["No equip list was present in latest CharSerialize vdata."],
+        };
+    };
+
+    let item_by_uuid = collect_package_items_by_uuid(v_data);
+    let mut equipped_items = Vec::new();
+    for info in equip.equip_list.values() {
+        let package_item = info
+            .item_uuid
+            .and_then(|uuid| item_by_uuid.get(&uuid).cloned());
+        let recast_attr = info
+            .item_uuid
+            .and_then(|uuid| equip.equip_recast_info.get(&uuid))
+            .map(equip_attr_out);
+        let enchant = info
+            .item_uuid
+            .and_then(|uuid| i64::try_from(uuid).ok())
+            .and_then(|uuid| equip.equip_enchant.get(&uuid))
+            .map(|enchant| EquipEnchantOut {
+                enchant_item_type_id: enchant.enchant_item_type_id,
+                enchant_level: enchant.enchant_level,
+                enchant_type: enchant.enchant_type,
+            });
+
+        equipped_items.push(EquippedItemOut {
+            equip_slot: info.equip_slot,
+            item_uuid: info.item_uuid,
+            item_config_id: package_item.as_ref().and_then(|item| item.config_id),
+            package_key: package_item.as_ref().map(|item| item.package_key),
+            package_item_key: package_item.as_ref().map(|item| item.package_item_key),
+            count: package_item.as_ref().and_then(|item| item.count),
+            quality: package_item.as_ref().and_then(|item| item.quality),
+            equip_slot_refine_level: info.equip_slot_refine_level,
+            equip_slot_refine_failed_count: info.equip_slot_refine_failed_count,
+            item_equip_attr: package_item.and_then(|item| item.equip_attr),
+            recast_attr,
+            enchant,
+        });
+    }
+    equipped_items
+        .sort_by_key(|row| (row.equip_slot.unwrap_or(0), row.item_config_id.unwrap_or(0)));
+
+    let mut equip_recast_info: Vec<_> = equip
+        .equip_recast_info
+        .iter()
+        .map(|(item_uuid, attr)| RecastAttrOut {
+            item_uuid: *item_uuid,
+            attr: equip_attr_out(attr),
+        })
+        .collect();
+    equip_recast_info.sort_by_key(|row| row.item_uuid);
+
+    let mut suit_info: Vec<_> = equip
+        .suit_info_dict
+        .iter()
+        .map(|(map_key, suit)| EquipSuitInfoOut {
+            map_key: *map_key,
+            attr_type: suit.attr_type,
+            suit_attr: map_i32_i32(&suit.suit_attr),
+        })
+        .collect();
+    suit_info.sort_by_key(|row| (row.map_key, row.attr_type.unwrap_or(0)));
+
+    EquipmentSnapshotOut {
+        equipped_items,
+        aggregate_attr: equip.equip_attr.as_ref().map(equip_attr_out),
+        equip_recast_info,
+        suit_info,
+        notes: vec![
+            "equip.equip_attr is the aggregate equipment stat payload saved in detailed_playerdata.",
+            "equipped_items joins equip.equip_list UUIDs back to item_package config IDs, counts, quality, per-item equip_attr, recast attrs, and enchant info.",
+            "Use this as proof of selected equipment state before attributing always-on gear multipliers in formula replay.",
+        ],
+    }
+}
+
+fn collect_package_items_by_uuid(
+    v_data: &blueprotobuf::CharSerialize,
+) -> HashMap<u64, PackageItemSnapshot> {
+    let mut items = HashMap::new();
+    let Some(item_package) = v_data.item_package.as_ref() else {
+        return items;
+    };
+
+    for (package_key, package) in &item_package.packages {
+        for (item_key, item) in &package.items {
+            let Some(uuid) = item.uuid.and_then(|value| u64::try_from(value).ok()) else {
+                continue;
+            };
+            items.insert(
+                uuid,
+                PackageItemSnapshot {
+                    package_key: *package_key,
+                    package_item_key: *item_key,
+                    config_id: item.config_id,
+                    count: item.count,
+                    quality: item.quality,
+                    equip_attr: item.equip_attr.as_ref().map(equip_attr_out),
+                },
+            );
+        }
+    }
+
+    items
+}
+
+fn equip_attr_out(attr: &blueprotobuf::EquipAttr) -> EquipAttrOut {
+    EquipAttrOut {
+        base_attrs: map_u32_u32(&attr.base_attrs),
+        perfection_value: attr.perfection_value,
+        recast_count: attr.recast_count,
+        total_recast_count: attr.total_recast_count,
+        basic_attr: map_i32_i32(&attr.basic_attr),
+        advance_attr: map_i32_i32(&attr.advance_attr),
+        recast_attr: map_i32_i32(&attr.recast_attr),
+        rare_quality_attr: map_i32_i32(&attr.rare_quality_attr),
+        perfection_level: attr.perfection_level,
+        max_perfection_value: attr.max_perfection_value,
+        break_through_time: attr.break_through_time,
+        equip_attr_set: attr.equip_attr_set.as_ref().map(|set| EquipAttrSetOut {
+            basic_attr: map_i32_i32(&set.basic_attr),
+            advance_attr: map_i32_i32(&set.advance_attr),
+            recast_attr: map_i32_i32(&set.recast_attr),
+            rare_quality_attr: map_i32_i32(&set.rare_quality_attr),
+        }),
+    }
+}
+
+fn map_i32_i32(map: &HashMap<i32, i32>) -> Vec<AttrMapEntry> {
+    let mut entries: Vec<_> = map
+        .iter()
+        .map(|(key, value)| AttrMapEntry {
+            key: i64::from(*key),
+            value: i64::from(*value),
+        })
+        .collect();
+    entries.sort_by_key(|entry| entry.key);
+    entries
+}
+
+fn map_u32_u32(map: &HashMap<u32, u32>) -> Vec<AttrMapEntry> {
+    let mut entries: Vec<_> = map
+        .iter()
+        .map(|(key, value)| AttrMapEntry {
+            key: i64::from(*key),
+            value: i64::from(*value),
+        })
+        .collect();
+    entries.sort_by_key(|entry| entry.key);
+    entries
 }
 
 fn collect_buff_db_factor_matches(

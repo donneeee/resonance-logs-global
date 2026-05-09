@@ -3528,6 +3528,7 @@ fn build_live_snapshot_logger_entries(
                     "activeEffectSources": &entity.active_effect_sources,
                     "activeFactorItems": &entity.active_factor_items,
                     "activePassiveSkills": &entity.active_passive_skills,
+                    "activeProfessionSkills": &entity.active_profession_skills,
                     "activeProfessionTalents": &entity.active_profession_talents,
                 }))
                 .unwrap_or_else(|_| "null".to_string()),

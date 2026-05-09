@@ -568,6 +568,20 @@ pub struct ObservedPassiveSkill {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct ObservedProfessionSkill {
+    pub skill_id: i32,
+    pub base_skill_id: Option<i32>,
+    pub skill_level_id: Option<i32>,
+    pub level: Option<i32>,
+    pub remodel_level: Option<i32>,
+    pub slot: Option<i32>,
+    pub equipped: Option<bool>,
+    pub source_kind: String,
+    pub replace_skill_ids: Vec<i32>,
+    pub runtime_source: String,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ObservedProfessionTalent {
     pub profession_id: i32,
     pub talent_node_id: u32,
@@ -635,6 +649,8 @@ pub struct Entity {
     pub active_factor_items: Vec<ObservedFactorItem>,
     #[serde(default)]
     pub active_passive_skills: Vec<ObservedPassiveSkill>,
+    #[serde(default)]
+    pub active_profession_skills: Vec<ObservedProfessionSkill>,
     #[serde(default)]
     pub active_profession_talents: Vec<ObservedProfessionTalent>,
     /// Rolling 2s window of damage taken events; used to build death-replay snapshots.
@@ -724,6 +740,8 @@ impl Encounter {
             entity.active_effect_sources.clear();
             entity.active_factor_items.clear();
             entity.active_passive_skills.clear();
+            entity.active_profession_skills.clear();
+            entity.active_profession_talents.clear();
             entity.recent_taken_events.clear();
             entity.deaths.clear();
         }
@@ -955,6 +973,18 @@ impl Entity {
         self.monster_type_id
             .and_then(monster_registry::monster_type)
             .map(|monster_type| monster_type == MonsterType::Boss)
+            .unwrap_or(false)
+    }
+
+    /// Determine whether this entity should count for DPS boss aggregate columns.
+    pub fn is_elite_or_boss(&self) -> bool {
+        if self.entity_type != EEntityType::EntMonster {
+            return false;
+        }
+
+        self.monster_type_id
+            .and_then(monster_registry::monster_type)
+            .map(|monster_type| matches!(monster_type, MonsterType::Elite | MonsterType::Boss))
             .unwrap_or(false)
     }
 }

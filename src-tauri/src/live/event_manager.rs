@@ -3,8 +3,9 @@ use crate::live::commands_models::{
     HeaderInfo, LiveDataPayload, PanelAttrState, RawEntityData, ShieldDetailEntry, SkillCdState,
     TrainingDummyState, to_active_buff_state, to_active_effect_buff_state,
     to_active_effect_source_state, to_active_factor_buff_state, to_active_factor_item_state,
-    to_active_passive_skill_state, to_active_profession_talent_state, to_modifier_window_state,
-    to_raw_combat_stats, to_raw_skill_stats,
+    to_active_passive_skill_state, to_active_profession_skill_state,
+    to_active_profession_talent_state, to_modifier_window_state, to_raw_combat_stats,
+    to_raw_skill_stats,
 };
 use crate::live::entity_attr_store::EntityAttrStore;
 use crate::live::opcodes_models::{AttrType, Encounter, class};
@@ -70,6 +71,14 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
         );
         return false;
     };
+
+    if target_label != crate::WINDOW_LIVE_LABEL && !window.is_visible().unwrap_or(false) {
+        trace!(
+            "Skipping emit for '{}': target window '{}' is hidden",
+            event, target_label
+        );
+        return false;
+    }
 
     match window.emit(event, payload) {
         Ok(_) => true,
@@ -389,6 +398,11 @@ pub fn generate_live_data_payload(
                 .active_passive_skills
                 .iter()
                 .map(to_active_passive_skill_state)
+                .collect(),
+            active_profession_skills: entity
+                .active_profession_skills
+                .iter()
+                .map(to_active_profession_skill_state)
                 .collect(),
             active_profession_talents: entity
                 .active_profession_talents

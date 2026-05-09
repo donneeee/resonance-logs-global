@@ -443,7 +443,7 @@
     const decoded = getItemDropDecoded(row);
     if (!decoded) return null;
 
-    return getItemDropActualGearItemId(decoded);
+    return getItemDropActualGearItemId(decoded, row);
   }
 
   function getGearStatSummary(row: DisplayRow): string {
@@ -531,19 +531,25 @@
     const itemKind = typeof decoded["itemKind"] === "string" ? decoded["itemKind"].trim().toLowerCase() : "";
     if (itemKind && itemKind !== "gear") return false;
 
-    const gearItemId = getItemDropActualGearItemId(decoded);
+    const gearItemId = getItemDropActualGearItemId(decoded, row);
     if (!gearItemId) return false;
 
     return decoded["isGear"] === true || itemKind === "gear" || getItemDropPairIds(decoded).length > 0;
   }
 
-  function getItemDropActualGearItemId(decoded: Record<string, unknown>): number | null {
-    const candidates = [
+  function getItemDropActualGearItemId(decoded: Record<string, unknown>, row?: DisplayRow): number | null {
+    return getItemDropCandidateItemIds(decoded, row).find(itemIdLooksLikeGearItem) ?? null;
+  }
+
+  function getItemDropCandidateItemIds(decoded: Record<string, unknown>, row?: DisplayRow): number[] {
+    return dedupeNumbers([
       parsePositiveUid(decoded["detailGearInstanceId"]),
       parsePositiveUid(decoded["instanceId"]),
-    ];
-
-    return candidates.find((candidate) => candidate !== null && itemIdLooksLikeGearItem(candidate)) ?? null;
+      parsePositiveUid(decoded["detailGearConfigId"]),
+      parsePositiveUid(decoded["configId"]),
+      parsePositiveUid(row?.targetUid),
+      parsePositiveUid(row?.uid),
+    ].filter((candidate): candidate is number => candidate !== null));
   }
 
   function itemIdLooksLikeGearItem(itemId: number): boolean {
@@ -558,11 +564,7 @@
     const decoded = getItemDropDecoded(row);
     if (!decoded) return "";
 
-    const itemIds = [
-      parsePositiveUid(decoded["detailGearInstanceId"]),
-      parsePositiveUid(decoded["instanceId"]),
-      parsePositiveUid(row.uid),
-    ];
+    const itemIds = getItemDropCandidateItemIds(decoded, row);
 
     if (itemIds.some(isLegendaryRewardBoxItemId)) return "Legendary";
 
@@ -571,7 +573,7 @@
       .find((name) => typeof name === "string" && name.trim());
     if (itemName && /\blegendary\b/i.test(itemName)) return "Legendary";
 
-    const gearItemId = getItemDropActualGearItemId(decoded);
+    const gearItemId = getItemDropActualGearItemId(decoded, row);
     const qualityTier = parseFiniteInteger(decoded["qualityTier"]);
     const rawQualityLabel = typeof decoded["qualityLabel"] === "string" ? decoded["qualityLabel"].trim() : "";
     const displayQualityLabel =
@@ -595,14 +597,10 @@
     const decoded = getItemDropDecoded(row);
     if (!decoded) return "";
 
-    const itemIds = [
-      parsePositiveUid(decoded["detailGearInstanceId"]),
-      parsePositiveUid(decoded["instanceId"]),
-      parsePositiveUid(row.uid),
-    ];
+    const itemIds = getItemDropCandidateItemIds(decoded, row);
     if (itemIds.some(isLegendaryRewardBoxItemId)) return "Legendary gift box";
 
-    if (!getItemDropActualGearItemId(decoded) && /^(?:Gold|Quality 5)\s+item\b/i.test(normalizeText(row.summary))) {
+    if (!getItemDropActualGearItemId(decoded, row) && /^(?:Gold|Quality 5)\s+item\b/i.test(normalizeText(row.summary))) {
       return formatItemDropTechnicalSummary(decoded);
     }
 
@@ -666,6 +664,7 @@
   type GearSubStatSummaryLine = {
     label: string;
     pairSlot: number;
+    pairId: number;
     hasDetail: boolean;
     value: number | null;
   };
@@ -746,7 +745,7 @@
       ? statLines
           .filter(isGearSpecialStatLine)
           .sort((left, right) => left.pairSlot - right.pairSlot)
-          .map(formatGearSpecialStatLine)
+          .map((line) => formatGearSpecialStatLine(line, detailLines))
           .filter(Boolean)
       : [];
 
@@ -756,19 +755,15 @@
   }
 
   function formatGearSubStatDetails(statLines: GearStatLine[], detailLines: ItemDropDetailStatLine[]): string {
-    const detailPairIds = new Set(detailLines.map((line) => line.pairId));
     const subStats = statLines
       .filter((line) => isGearSubStatLabel(line.label))
       .map((line): GearSubStatSummaryLine => {
-        const decodedValue =
-          typeof line.value === "number" && line.valueKind !== "unknown" && line.valueKind !== "locked"
-            ? line.value
-            : null;
         return {
           label: canonicalGearSubStatLabel(line.label),
           pairSlot: line.pairSlot,
-          hasDetail: detailPairIds.has(line.pairId),
-          value: decodedValue,
+          pairId: line.pairId,
+          hasDetail: Boolean(findItemDropDetailLine(line, detailLines)),
+          value: getGearStatDisplayValue(line, detailLines),
         };
       })
       .sort(compareGearSubStatsForSummary);
@@ -793,9 +788,34 @@
     return line.lane === "legendary-affix" && !isGearSubStatLabel(line.label) && line.canDisplayValue;
   }
 
-  function formatGearSpecialStatLine(line: GearStatLine): string {
-    if (!line.valueText) return "";
-    return `${canonicalGearSpecialStatLabel(line.label)} +${line.valueText}`;
+  function formatGearSpecialStatLine(line: GearStatLine, detailLines: ItemDropDetailStatLine[]): string {
+    const valueText = getGearStatDisplayValueText(line, detailLines);
+    if (!valueText) return "";
+    return `${canonicalGearSpecialStatLabel(line.label)} +${valueText}`;
+  }
+
+  function findItemDropDetailLine(line: GearStatLine, detailLines: ItemDropDetailStatLine[]): ItemDropDetailStatLine | null {
+    return (
+      detailLines.find((detailLine) => detailLine.slot === line.pairSlot && detailLine.pairId === line.pairId) ??
+      detailLines.find((detailLine) => detailLine.pairId === line.pairId) ??
+      null
+    );
+  }
+
+  function getGearStatDisplayValue(line: GearStatLine, detailLines: ItemDropDetailStatLine[]): number | null {
+    const detailLine = findItemDropDetailLine(line, detailLines);
+    if (detailLine) return detailLine.value;
+    if (typeof line.value === "number" && line.valueKind !== "unknown" && line.valueKind !== "locked") {
+      return line.value;
+    }
+    return null;
+  }
+
+  function getGearStatDisplayValueText(line: GearStatLine, detailLines: ItemDropDetailStatLine[]): string | null {
+    const value = getGearStatDisplayValue(line, detailLines);
+    if (value === null) return line.valueText;
+    const valueText = Number.isInteger(value) ? value.toString() : value.toFixed(2).replace(/\.?0+$/, "");
+    return line.valueKind === "percent" ? `${valueText}%` : valueText;
   }
 
   function canonicalGearSpecialStatLabel(label: string): string {
@@ -807,11 +827,11 @@
 
   function canonicalGearSubStatLabel(label: string): string {
     const normalized = label.trim().toLowerCase();
-    if (normalized.includes("crit")) return "Crit";
-    if (normalized.includes("haste")) return "Haste";
-    if (normalized.includes("luck")) return "Luck";
-    if (normalized.includes("mastery")) return "Mastery";
-    if (normalized.includes("versatility")) return "Versatility";
+    if (normalized === "crit") return "Crit";
+    if (normalized === "haste") return "Haste";
+    if (normalized === "luck") return "Luck";
+    if (normalized === "mastery") return "Mastery";
+    if (normalized === "versatility") return "Versatility";
     return label.trim();
   }
 

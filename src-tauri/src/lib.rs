@@ -273,6 +273,7 @@ pub fn run() {
             database::commands::get_encounter_by_id,
             database::commands::get_encounter_entities_raw,
             database::commands::get_encounter_entities_compact_raw,
+            database::commands::get_encounter_entities_target_details_raw,
             database::commands::get_encounter_modifier_entities_raw,
             database::commands::delete_encounter,
             database::commands::delete_encounters,

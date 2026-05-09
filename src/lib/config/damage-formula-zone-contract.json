@@ -1,0 +1,237 @@
+{
+  "schemaVersion": 1,
+  "sourceNote": "Manual formula-zone contract from user-provided damage formula screenshots on 2026-05-07. This is a dev/proof contract, not proof that every runtime value is already captured.",
+  "hitTypes": [
+    {
+      "id": "skillDamage",
+      "label": "Skill damage",
+      "formula": "((PanelAttack * ResistanceReduction + RefinedAttack + ElementalAttack) * SkillMultiplier + FixedDamage) * GeneralDamage * ElementalDamage * AllRoundDamage * Critical * PhysicalMagicEnhancement * FinalDamage * SeasonDamage * SeasonSuppression",
+      "notes": [
+        "Use realized hit flags for packet replay when the packet says whether the hit crit/lucky occurred.",
+        "Expected value math is only for probability sources when there is no exact emitted child damage row."
+      ]
+    },
+    {
+      "id": "luckyStrikeDamage",
+      "label": "Lucky Strike damage",
+      "formula": "(PanelAttack + RefinedAttack + ElementalAttack) * LuckyStrikeMultiplier * LuckyGeneralDamage * ElementalDamage * AllRoundDamage * Critical * PhysicalMagicEnhancement * FinalDamage * SeasonDamage * SeasonSuppression",
+      "notes": [
+        "The screenshot omits resistance reduction for the primary Lucky Strike damage form.",
+        "Exact Lucky damage packet rows remain exact emitted damage contribution when available."
+      ]
+    },
+    {
+      "id": "luckyEffectDamage",
+      "label": "Other lucky effect damage",
+      "formula": "(PanelAttack * ResistanceReduction + RefinedAttack + CorrespondingElementalAttack) * LuckyEffectMultiplier * LuckyGeneralDamage * CorrespondingElementalDamage * AllRoundDamage * Critical * PhysicalMagicEnhancement * FinalDamage * SeasonDamage * SeasonSuppression",
+      "notes": [
+        "This is for lucky effects that produce a separate damage effect rather than scaling the original hit directly."
+      ]
+    },
+    {
+      "id": "luckyExpectedValue",
+      "label": "Lucky expected value",
+      "formula": "LuckyChance * (0.4 + 0.25 * LuckyChance) * (1 + LuckyChance + OtherGeneralDamageIncreases)",
+      "notes": [
+        "Use only for expected-value estimates. It should not replace exact observed Lucky damage rows."
+      ]
+    }
+  ],
+  "zones": [
+    {
+      "id": "baseAttackTerm",
+      "order": 10,
+      "label": "Base attack term",
+      "formula": "PanelAttack * ResistanceReduction + RefinedAttack + ElementalAttack",
+      "appliesTo": ["skillDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["attack-base", "resistance-or-defense", "refined-or-elemental-atk"],
+      "runtimeTerms": ["panelAttack", "resistanceReduction", "refinedAttack", "elementalAttack"],
+      "contributionMath": "marginal-replay",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "luckyStrikeBaseTerm",
+      "order": 11,
+      "label": "Lucky Strike base term",
+      "formula": "PanelAttack + RefinedAttack + ElementalAttack",
+      "appliesTo": ["luckyStrikeDamage"],
+      "formulaBuckets": ["attack-base", "refined-or-elemental-atk"],
+      "runtimeTerms": ["panelAttack", "refinedAttack", "elementalAttack"],
+      "contributionMath": "marginal-replay",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "skillMultiplier",
+      "order": 20,
+      "label": "Skill multiplier",
+      "formula": "SkillMultiplier",
+      "appliesTo": ["skillDamage"],
+      "formulaBuckets": ["skill-multiplier"],
+      "runtimeTerms": ["skillMultiplier"],
+      "contributionMath": "skill-base-replay",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "fixedDamage",
+      "order": 25,
+      "label": "Fixed damage",
+      "formula": "FixedDamage",
+      "appliesTo": ["skillDamage"],
+      "formulaBuckets": ["flat-damage"],
+      "runtimeTerms": ["fixedDamage"],
+      "contributionMath": "additive-before-multipliers",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "generalDamage",
+      "order": 30,
+      "label": "General damage zone",
+      "formula": "1 + specialSkillDamage + masterySkillDamage + rangedOrMeleeDamage + vulnerability + petDamage + otherGeneralDamage",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["generic-dmg"],
+      "runtimeTerms": ["genericDamagePct", "meleeDamagePct", "rangedDamagePct", "vulnerabilityPct"],
+      "contributionMath": "additive-zone-share",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "elementalDamage",
+      "order": 40,
+      "label": "Elemental damage zone",
+      "formula": "1 + singleElementFixedConvertedPct + singleElementDamagePct + allElementFixedConvertedPct + allElementDamagePct",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["elemental-dmg"],
+      "runtimeTerms": ["elementalDamagePct", "allElementDamagePct", "physicalDamagePct", "magicDamagePct"],
+      "contributionMath": "additive-zone-share",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "allRoundDamage",
+      "order": 50,
+      "label": "All-round damage zone",
+      "formula": "1 + VersatilityPct * 0.35",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["versatility-dmg"],
+      "runtimeTerms": ["versatilityPct", "allRoundDamagePct"],
+      "conversion": "Versatility fixed value converts to VersatilityPct; multiplier contribution is VersatilityPct * 0.35.",
+      "contributionMath": "converted-stat-zone-share",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "critical",
+      "order": 60,
+      "label": "Critical zone",
+      "formula": "1 + CriticalHitChance * AdditionalCriticalHitDamageMultiplier",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage", "luckyExpectedValue"],
+      "formulaBuckets": ["crit-rate", "crit-damage"],
+      "runtimeTerms": ["isCrit", "critChancePct", "critMultiplier"],
+      "contributionMath": "realized-hit-or-expected-value",
+      "captureStatus": "partially-captured",
+      "notes": [
+        "For packet replay, realized crit/non-crit and crit multiplier snapshots are stronger than expected crit chance."
+      ]
+    },
+    {
+      "id": "physicalMagicEnhancement",
+      "order": 70,
+      "label": "Physical/Magic enhancement zone",
+      "formula": "1 + fixedPhysicalMagicEnhancementConvertedPct + physicalMagicEnhancementPct",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["physical-magic-enhancement"],
+      "runtimeTerms": ["physicalEnhancementPct", "magicEnhancementPct", "physicalEnhancementFlatConvertedPct", "magicEnhancementFlatConvertedPct"],
+      "contributionMath": "converted-stat-zone-share",
+      "captureStatus": "classifier-gap"
+    },
+    {
+      "id": "finalDamage",
+      "order": 80,
+      "label": "Final damage zone",
+      "formula": "1 + FinalDamageBonus",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["final-dmg"],
+      "runtimeTerms": ["finalDamagePct"],
+      "contributionMath": "multiplicative-zone-share",
+      "captureStatus": "classifier-gap"
+    },
+    {
+      "id": "seasonDamage",
+      "order": 90,
+      "label": "Season damage zone",
+      "formula": "1 + SeasonDamageMultiplier",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["season-dmg"],
+      "runtimeTerms": ["seasonDamagePct"],
+      "contributionMath": "multiplicative-zone-share",
+      "captureStatus": "classifier-gap"
+    },
+    {
+      "id": "seasonSuppression",
+      "order": 100,
+      "label": "Season suppression zone",
+      "formula": "1 + SeasonSuppression",
+      "appliesTo": ["skillDamage", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["season-suppression"],
+      "runtimeTerms": ["seasonSuppressionPct"],
+      "contributionMath": "multiplicative-zone-share",
+      "captureStatus": "classifier-gap"
+    },
+    {
+      "id": "luckyChance",
+      "order": 110,
+      "label": "Lucky chance",
+      "formula": "LuckyChance",
+      "appliesTo": ["luckyExpectedValue"],
+      "formulaBuckets": ["luck-proc"],
+      "luckyTerms": ["luckChancePct", "luckyChancePct", "luckStatPct", "guaranteedLucky"],
+      "runtimeTerms": ["isLucky", "luckyChancePct"],
+      "contributionMath": "expected-value-only",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "luckyMultiplier",
+      "order": 120,
+      "label": "Lucky multiplier",
+      "formula": "0.4 + 0.25 * LuckyChance",
+      "appliesTo": ["luckyExpectedValue", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["luck-proc"],
+      "luckyTerms": ["luckyMultiplierPct", "luckToLuckyScaling", "luckStatDamageScaling"],
+      "runtimeTerms": ["luckyMultiplier"],
+      "contributionMath": "expected-value-or-replay",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "luckyEnhancement",
+      "order": 130,
+      "label": "Lucky enhancement",
+      "formula": "1 + LuckyChance + LuckyDamageBonus + LuckyEffectDamageBonus + otherGeneralDamageIncreases",
+      "appliesTo": ["luckyExpectedValue", "luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["luck-proc", "generic-dmg"],
+      "luckyTerms": ["luckyDamagePct", "luckyFinalDamagePct", "luckEntryDamageScaling", "luckStatDamageScaling"],
+      "runtimeTerms": ["luckyDamagePct", "luckyEffectDamagePct", "genericDamagePct"],
+      "contributionMath": "additive-zone-share",
+      "captureStatus": "partially-captured"
+    },
+    {
+      "id": "exactLuckyProducedDamage",
+      "order": 140,
+      "label": "Exact produced Lucky damage",
+      "formula": "Observed emitted Lucky damage packet value",
+      "appliesTo": ["luckyStrikeDamage", "luckyEffectDamage"],
+      "formulaBuckets": ["luck-proc", "proc-extra-hit"],
+      "luckyTerms": ["exactLuckyDamage"],
+      "runtimeTerms": ["damageId", "targetDamageId", "isLucky", "observedFinalDamage"],
+      "contributionMath": "exact-produced-damage",
+      "captureStatus": "captured-when-emitted"
+    },
+    {
+      "id": "timingCadence",
+      "order": 200,
+      "label": "Timing/cadence",
+      "formula": "DPS frequency, not per-hit damage",
+      "appliesTo": [],
+      "formulaBuckets": ["haste-cadence"],
+      "runtimeTerms": ["cooldown", "castTime", "duration", "hitFrequency"],
+      "contributionMath": "separate-activity-model",
+      "captureStatus": "out-of-hit-formula"
+    }
+  ]
+}

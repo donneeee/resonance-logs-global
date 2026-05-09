@@ -642,6 +642,7 @@ fn entity_has_modifier_state(entity: &Entity) -> bool {
         || !entity.active_effect_sources.is_empty()
         || !entity.active_factor_items.is_empty()
         || !entity.active_passive_skills.is_empty()
+        || !entity.active_profession_skills.is_empty()
         || !entity.active_profession_talents.is_empty()
 }
 
@@ -652,11 +653,36 @@ fn entity_has_history_surface(entity: &Entity, include_modifier_details: bool) -
         || (include_modifier_details && entity_has_modifier_state(entity))
 }
 
+#[derive(Debug, Clone, Copy)]
+enum HistoryTargetDetailMode {
+    Summary,
+    Full,
+}
+
 fn to_history_entity_data(
     uid: i64,
     entity: &Entity,
     include_modifier_details: bool,
+    target_detail_mode: HistoryTargetDetailMode,
 ) -> lc::HistoryEntityData {
+    let dmg_per_target = match target_detail_mode {
+        HistoryTargetDetailMode::Summary => lc::build_per_target_summary_stats(
+            &entity.skill_dmg_to_target,
+            Some(&entity.dmg_to_target),
+        ),
+        HistoryTargetDetailMode::Full => {
+            lc::build_per_target_stats(&entity.skill_dmg_to_target, Some(&entity.dmg_to_target))
+        }
+    };
+    let heal_per_target = match target_detail_mode {
+        HistoryTargetDetailMode::Summary => {
+            lc::build_per_target_summary_stats(&entity.skill_heal_to_target, None)
+        }
+        HistoryTargetDetailMode::Full => {
+            lc::build_per_target_stats(&entity.skill_heal_to_target, None)
+        }
+    };
+
     lc::HistoryEntityData {
         uid,
         name: entity.name.clone(),
@@ -785,6 +811,15 @@ fn to_history_entity_data(
         } else {
             Vec::new()
         },
+        active_profession_skills: if include_modifier_details {
+            entity
+                .active_profession_skills
+                .iter()
+                .map(lc::to_active_profession_skill_state)
+                .collect()
+        } else {
+            Vec::new()
+        },
         active_profession_talents: if include_modifier_details {
             entity
                 .active_profession_talents
@@ -795,11 +830,8 @@ fn to_history_entity_data(
             Vec::new()
         },
         modifier_source_actors: Vec::new(),
-        dmg_per_target: lc::build_per_target_stats(
-            &entity.skill_dmg_to_target,
-            Some(&entity.dmg_to_target),
-        ),
-        heal_per_target: lc::build_per_target_stats(&entity.skill_heal_to_target, None),
+        dmg_per_target,
+        heal_per_target,
         deaths: entity.deaths.clone(),
     }
 }
@@ -1044,7 +1076,9 @@ fn build_modifier_source_actor_refs(
                 name: source_actor_display_name(source_uid, source_entity),
                 entity_type: source_actor_entity_type(source_entity),
                 owner_uid: owner_hint.as_ref().map(|(owner_uid, _)| *owner_uid),
-                owner_name: owner_hint.as_ref().map(|(_, owner_name)| owner_name.clone()),
+                owner_name: owner_hint
+                    .as_ref()
+                    .map(|(_, owner_name)| owner_name.clone()),
                 source_config_ids: Vec::new(),
                 base_ids: Vec::new(),
             });
@@ -1150,6 +1184,11 @@ fn to_history_modifier_primary_entity_data(
             .active_passive_skills
             .iter()
             .map(lc::to_active_passive_skill_state)
+            .collect(),
+        active_profession_skills: entity
+            .active_profession_skills
+            .iter()
+            .map(lc::to_active_profession_skill_state)
             .collect(),
         active_profession_talents: entity
             .active_profession_talents
@@ -1459,6 +1498,11 @@ fn to_history_modifier_support_entity_data(
             .iter()
             .map(lc::to_active_passive_skill_state)
             .collect(),
+        active_profession_skills: entity
+            .active_profession_skills
+            .iter()
+            .map(lc::to_active_profession_skill_state)
+            .collect(),
         active_profession_talents: entity
             .active_profession_talents
             .iter()
@@ -1474,6 +1518,7 @@ fn to_history_modifier_support_entity_data(
 fn get_encounter_entities_raw_inner(
     encounter_id: i32,
     include_modifier_details: bool,
+    target_detail_mode: HistoryTargetDetailMode,
 ) -> Result<Vec<lc::HistoryEntityData>, String> {
     let started = Instant::now();
     let entities = crate::database::load_encounter_data_cached(encounter_id)?;
@@ -1491,14 +1536,16 @@ fn get_encounter_entities_raw_inner(
             uid,
             entity,
             include_modifier_details,
+            target_detail_mode,
         ));
     }
     rows.sort_by_key(|row| row.uid);
     log::info!(
         target: "app::history",
-        "history_entities_built encounter_id={} include_modifier_details={} entities={} rows={} load_ms={} build_ms={} total_ms={}",
+        "history_entities_built encounter_id={} include_modifier_details={} target_detail_mode={:?} entities={} rows={} load_ms={} build_ms={} total_ms={}",
         encounter_id,
         include_modifier_details,
+        target_detail_mode,
         entities.len(),
         rows.len(),
         loaded_ms,
@@ -1512,7 +1559,7 @@ fn get_encounter_entities_raw_inner(
 #[tauri::command]
 #[specta::specta]
 pub fn get_encounter_entities_raw(encounter_id: i32) -> Result<Vec<lc::HistoryEntityData>, String> {
-    get_encounter_entities_raw_inner(encounter_id, true)
+    get_encounter_entities_raw_inner(encounter_id, true, HistoryTargetDetailMode::Full)
 }
 
 /// Gets compact historical entities without modifier ledgers for fast overview/skill pages.
@@ -1521,7 +1568,16 @@ pub fn get_encounter_entities_raw(encounter_id: i32) -> Result<Vec<lc::HistoryEn
 pub fn get_encounter_entities_compact_raw(
     encounter_id: i32,
 ) -> Result<Vec<lc::HistoryEntityData>, String> {
-    get_encounter_entities_raw_inner(encounter_id, false)
+    get_encounter_entities_raw_inner(encounter_id, false, HistoryTargetDetailMode::Summary)
+}
+
+/// Gets compact historical entities plus full per-target skill maps for target drill-down pages.
+#[tauri::command]
+#[specta::specta]
+pub fn get_encounter_entities_target_details_raw(
+    encounter_id: i32,
+) -> Result<Vec<lc::HistoryEntityData>, String> {
+    get_encounter_entities_raw_inner(encounter_id, false, HistoryTargetDetailMode::Full)
 }
 
 /// Gets modifier details scoped to one historical player plus hosted external state.

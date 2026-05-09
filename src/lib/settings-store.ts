@@ -800,6 +800,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   abbreviationStyle: 'western' | 'cn';
   abbreviatedDecimalPlaces: number;
   eventUpdateRateMs: number;
+  modifierReportsEnabled: boolean;
   language: LocaleCode;
   skillIdDisplayMode: SkillIdDisplayMode;
   showHoverDescriptions: boolean;
@@ -822,10 +823,14 @@ const DEFAULT_GENERAL_SETTINGS: {
   abbreviationStyle: 'western',
   abbreviatedDecimalPlaces: 1,
   eventUpdateRateMs: 200,
+  modifierReportsEnabled: false,
   language: 'zh-CN',
   skillIdDisplayMode: 'off',
   showHoverDescriptions: true,
 };
+
+export const MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION = "1.0.6-beta.4";
+const MODIFIER_REPORTS_RESET_VERSION = "1.0.6-beta.4";
 
 export const DEFAULT_CLASS_COLORS: Record<string, string> = {
   Stormblade: "#674598",
@@ -1566,6 +1571,12 @@ export function normalizePersistedSettings(): void {
   normalizeColumnOrder(SETTINGS.live.columnOrder.healSkills.state, DEFAULT_HEAL_SKILL_COLUMN_ORDER);
   normalizeColumnOrder(SETTINGS.live.columnOrder.tankedPlayers.state, DEFAULT_TANKED_PLAYER_COLUMN_ORDER);
   normalizeColumnOrder(SETTINGS.live.columnOrder.tankedSkills.state, DEFAULT_TANKED_SKILL_COLUMN_ORDER);
+
+  const appMetadata = SETTINGS.appVersion.state as MutableRecord;
+  if (appMetadata["modifierReportsResetVersion"] !== MODIFIER_REPORTS_RESET_VERSION) {
+    SETTINGS.live.general.state.modifierReportsEnabled = false;
+    appMetadata["modifierReportsResetVersion"] = MODIFIER_REPORTS_RESET_VERSION;
+  }
 }
 
 normalizePersistedSettings();

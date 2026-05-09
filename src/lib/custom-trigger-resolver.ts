@@ -45,6 +45,7 @@ function itemDropItemName(entry: EventLoggerEntry, locale: LocaleCode): string |
   const itemIds = [
     parsePositiveInteger(decodedObject["detailGearInstanceId"]),
     parsePositiveInteger(decodedObject["instanceId"]),
+    parsePositiveInteger(decodedObject["detailGearConfigId"]),
     parsePositiveInteger(decodedObject["configId"]),
     parsePositiveInteger(entry.targetUid),
     parsePositiveInteger(entry.uid),

@@ -1,0 +1,2668 @@
+{
+  "schemaVersion": 1,
+  "generatedBy": "ModifierObservedUidBridge.gen",
+  "generatedAt": "2026-05-08T21:28:09.653Z",
+  "inputs": {
+    "auditPath": "C:\\Users\\dbcas\\Desktop\\resonancelogs-cn-gh\\BETA\\resonance-logs-global\\DEV_exports\\unresolved-modifier-uids-audit.json",
+    "auditMissing": false,
+    "buffNameRows": 8588
+  },
+  "aliasesByBuffId": {
+    "999": [
+      {
+        "parentBuffIds": [
+          701010
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:999->701010",
+          "BuffName:701010",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "1522": [
+      {
+        "parentBuffIds": [
+          21404
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 9147,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:1522"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2231": [
+      {
+        "parentBuffIds": [
+          55223
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 8151,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2231"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2233": [
+      {
+        "parentBuffIds": [
+          55230
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 2477,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2233"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2234": [
+      {
+        "parentBuffIds": [
+          55230
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 933,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2234"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2307": [
+      {
+        "parentBuffIds": [
+          55302
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 75,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2307"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2309": [
+      {
+        "parentBuffIds": [
+          55301
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 439,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2309"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2314": [
+      {
+        "parentBuffIds": [
+          55315,
+          55344,
+          55346
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 148,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2314"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2315": [
+      {
+        "parentBuffIds": [
+          55333
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 654,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2315"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2361": [
+      {
+        "parentBuffIds": [
+          55302
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 56,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2361"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2362": [
+      {
+        "parentBuffIds": [
+          55304
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 286,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2362"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3612": [
+      {
+        "parentBuffIds": [
+          2100402
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3612->2100402",
+          "BuffName:2100402",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "3923": [
+      {
+        "parentBuffIds": [
+          2110095
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 6826,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3923"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "21408": [
+      {
+        "parentBuffIds": [
+          21414
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 864,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:21408",
+          "BuffName:21408",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "21413": [
+      {
+        "parentBuffIds": [
+          21406
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 4970,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:21413",
+          "BuffName:21413",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "31602": [
+      {
+        "parentBuffIds": [
+          31601
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 404,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:31602",
+          "BuffName:31602",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "55232": [
+      {
+        "parentBuffIds": [
+          55231
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 3065,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:55232",
+          "BuffName:55232",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "55233": [
+      {
+        "parentBuffIds": [
+          55231
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 1229,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:55233",
+          "BuffName:55233",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "55303": [
+      {
+        "parentBuffIds": [
+          55304
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 302,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:55303",
+          "BuffName:55303",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "55338": [
+      {
+        "parentBuffIds": [
+          55339
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 132,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:55338",
+          "BuffName:55338",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "55406": [
+      {
+        "parentBuffIds": [
+          55407
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:55406->55407",
+          "BuffName:55406",
+          "BuffName:display-name",
+          "BuffName:55407",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "230101": [
+      {
+        "parentBuffIds": [
+          55314
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 26,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:230101"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "230106": [
+      {
+        "parentBuffIds": [
+          2207141
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 433,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:230106"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "500112": [
+      {
+        "parentBuffIds": [
+          500113
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:500112->500113",
+          "BuffName:500113",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "683114": [
+      {
+        "parentBuffIds": [
+          683115
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:683114->683115",
+          "BuffName:683114",
+          "BuffName:display-name",
+          "BuffName:683115",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "883212": [
+      {
+        "parentBuffIds": [
+          883205
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 516,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:883212",
+          "BuffName:883212",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "883236": [
+      {
+        "parentBuffIds": [
+          883235
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 68,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:883236",
+          "BuffName:883236",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "883242": [
+      {
+        "parentBuffIds": [
+          883246
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:883242->883246",
+          "BuffName:883242",
+          "BuffName:display-name",
+          "BuffName:883246",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "1700440": [
+      {
+        "parentBuffIds": [
+          2110093
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 312,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:1700440"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2100411": [
+      {
+        "parentBuffIds": [
+          2100409
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 75,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2100411",
+          "BuffName:2100411",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2110014": [
+      {
+        "parentBuffIds": [
+          2110012
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 386,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2110014",
+          "BuffName:2110014",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2110124": [
+      {
+        "parentBuffIds": [
+          2110050,
+          2110125
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 4300,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2110124",
+          "BuffName:2110124",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2202261": [
+      {
+        "parentBuffIds": [
+          2202260
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 5814,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2202261",
+          "BuffName:2202261",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2202263": [
+      {
+        "parentBuffIds": [
+          2202260
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 7377,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2202263",
+          "BuffName:2202263",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2203011": [
+      {
+        "parentBuffIds": [
+          2203010
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:2203011->2203010",
+          "BuffName:2203011",
+          "BuffName:display-name",
+          "BuffName:2203010",
+          "BuffName:NameIdSource=CTB:3345237628",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "2203012": [
+      {
+        "parentBuffIds": [
+          2203010
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 15484,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2203012",
+          "BuffName:2203012",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2203182": [
+      {
+        "parentBuffIds": [
+          2203180,
+          2203520
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 6134,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2203182",
+          "BuffName:2203182",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2203292": [
+      {
+        "parentBuffIds": [
+          2203290
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 2278,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2203292",
+          "BuffName:2203292",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2204471": [
+      {
+        "parentBuffIds": [
+          2204470
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 6790,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2204471",
+          "BuffName:2204471",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2207121": [
+      {
+        "parentBuffIds": [
+          2207120
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 2717,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2207121",
+          "BuffName:2207121",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2207122": [
+      {
+        "parentBuffIds": [
+          2207120
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 1425,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2207122",
+          "BuffName:2207122",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2207251": [
+      {
+        "parentBuffIds": [
+          2207252
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:2207251->2207252",
+          "BuffName:2207251",
+          "BuffName:display-name",
+          "BuffName:2207252",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "2302121": [
+      {
+        "parentBuffIds": [
+          2302120
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:2302121->2302120",
+          "BuffName:2302121",
+          "BuffName:display-name",
+          "BuffName:2302120",
+          "BuffName:NameIdSource=ModEffectTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "2404260": [
+      {
+        "parentBuffIds": [
+          2404261
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:2404260->2404261",
+          "BuffName:2404260",
+          "BuffName:display-name",
+          "BuffName:2404261",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "2404270": [
+      {
+        "parentBuffIds": [
+          2404271
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 4180,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2404270",
+          "BuffName:2404270",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2900340": [
+      {
+        "parentBuffIds": [
+          2110034,
+          2110056
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 15692,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2900340"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2900640": [
+      {
+        "parentBuffIds": [
+          2110055,
+          2110061
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 2071,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2900640"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "2900840": [
+      {
+        "parentBuffIds": [
+          2110093
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 212,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:2900840"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3003013": [
+      {
+        "parentBuffIds": [
+          3003041
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 232,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3003013",
+          "BuffName:3003013",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3003053": [
+      {
+        "parentBuffIds": [
+          3003052
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 5660,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3003053",
+          "BuffName:3003053",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3003071": [
+      {
+        "parentBuffIds": [
+          3003041
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 2331,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3003071",
+          "BuffName:3003071",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3003411": [
+      {
+        "parentBuffIds": [
+          3003410
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 4045,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3003411",
+          "BuffName:3003411",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3053101": [
+      {
+        "parentBuffIds": [
+          3053100
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 13979,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3053101",
+          "BuffName:3053101",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3059061": [
+      {
+        "parentBuffIds": [
+          3059060
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 13207,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3059061",
+          "BuffName:3059061",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3210100": [
+      {
+        "parentBuffIds": [
+          3210101
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 8860,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3210100",
+          "BuffName:3210100",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3350111": [
+      {
+        "parentBuffIds": [
+          883252
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3350111->883252",
+          "BuffName:883252",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "3350113": [
+      {
+        "parentBuffIds": [
+          883205
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 374,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:3350113"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "3350121": [
+      {
+        "parentBuffIds": [
+          883204
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3350121->883204",
+          "BuffName:883204",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "3350123": [
+      {
+        "parentBuffIds": [
+          883204
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3350123->883204",
+          "BuffName:883204",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "3350133": [
+      {
+        "parentBuffIds": [
+          883213
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3350133->883213",
+          "BuffName:883213",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "3350151": [
+      {
+        "parentBuffIds": [
+          883210
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3350151->883210",
+          "BuffName:883210",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "3350152": [
+      {
+        "parentBuffIds": [
+          883209
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3350152->883209",
+          "BuffName:883209",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "3350153": [
+      {
+        "parentBuffIds": [
+          883252
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:3350153->883252",
+          "BuffName:883252",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "10300107": [
+      {
+        "parentBuffIds": [
+          828147
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 13,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:10300107"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ],
+    "10300205": [
+      {
+        "parentBuffIds": [
+          828124
+        ],
+        "relationshipKind": "observed-sibling-alias",
+        "confidence": "high",
+        "evidence": [
+          "manual-sibling-alias:10300205->828124",
+          "BuffName:828124",
+          "BuffName:display-name"
+        ],
+        "notes": [
+          "Helper/child observed UID is tied to a promoted localized sibling UID."
+        ]
+      }
+    ],
+    "10300352": [
+      {
+        "parentBuffIds": [
+          828123
+        ],
+        "relationshipKind": "observed-paired-alias",
+        "confidence": "high",
+        "observedHits": 175,
+        "observedDamage": null,
+        "evidence": [
+          "unresolved-audit:observed-paired-alias:10300352"
+        ],
+        "notes": [
+          "Observed UID appeared on the same runtime bucket as already reportable source UID(s)."
+        ]
+      }
+    ]
+  },
+  "promotedSourcesByBuffId": {
+    "55407": [
+      {
+        "sourceId": "observed-buff:55407",
+        "sourceKind": "runtime-buff",
+        "sourceType": "holy-domain-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 55407,
+        "sourceName": "Holy Domain Protection",
+        "sourceNames": {
+          "design": "神圣领域的庇护",
+          "en": "Holy Domain Protection"
+        },
+        "iconPath": null,
+        "buffIds": [
+          55407
+        ],
+        "sourceBuffIds": [
+          55407
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 55407,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:55407",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:55407"
+        ],
+        "notes": [
+          "Source-config/base pair observed from encounter-local source UIDs; source actor names are not always available in saved exports."
+        ]
+      }
+    ],
+    "683115": [
+      {
+        "sourceId": "observed-buff:683115",
+        "sourceKind": "runtime-buff",
+        "sourceType": "observed-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 683115,
+        "sourceName": "Power of Unity",
+        "sourceNames": {
+          "en": "Power of Unity",
+          "zh-CN": "团结之力",
+          "zh-TW": "團結之力",
+          "ja": "団結の力",
+          "ko-KR": "단결의 힘",
+          "fr": "Pouvoir de l'unité",
+          "de": "Macht der Einheit",
+          "es": "Poder de la unidad",
+          "pt-BR": "Poder da União",
+          "th": "Power of Unity",
+          "id": "Power of Unity",
+          "design": "团结之力"
+        },
+        "iconPath": "ui/atlas/buff/buff_talent_skill_300001",
+        "buffIds": [
+          683115
+        ],
+        "sourceBuffIds": [
+          683115
+        ],
+        "runtimeDetection": "active-buff",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetUidEdges": [
+          {
+            "kind": "source-buff",
+            "value": 683115,
+            "label": "Power of Unity",
+            "evidence": [
+              "observed-uid-bridge:promoted-source-buff"
+            ]
+          }
+        ],
+        "evidence": [
+          "BuffName:683115",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon",
+          "observed-uid-bridge:promoted:683115"
+        ],
+        "notes": [
+          "Localized buff row observed in encounter modifier windows. Numeric contribution still needs stat-state proof."
+        ]
+      }
+    ],
+    "828114": [
+      {
+        "sourceId": "observed-buff:828114",
+        "sourceKind": "runtime-buff",
+        "sourceType": "encounter-aura-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 828114,
+        "sourceName": "Prayer Fountain - Twins (Nightmare)",
+        "sourceNames": {
+          "design": "祝祷之泉buff-双子-噩梦",
+          "en": "Prayer Fountain - Twins (Nightmare)"
+        },
+        "iconPath": null,
+        "buffIds": [
+          828114
+        ],
+        "sourceBuffIds": [
+          828114
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 828114,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:828114",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:828114"
+        ],
+        "notes": [
+          "Design-only encounter aura observed on player damage windows. Kept as uptime evidence until formula role is proven."
+        ]
+      }
+    ],
+    "828120": [
+      {
+        "sourceId": "observed-buff:828120",
+        "sourceKind": "runtime-buff",
+        "sourceType": "encounter-aura-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 828120,
+        "sourceName": "Prayer Fountain - Armor (Nightmare)",
+        "sourceNames": {
+          "design": "祝祷之泉buff-铠甲-噩梦",
+          "en": "Prayer Fountain - Armor (Nightmare)"
+        },
+        "iconPath": null,
+        "buffIds": [
+          828120
+        ],
+        "sourceBuffIds": [
+          828120
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 828120,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:828120",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:828120"
+        ],
+        "notes": [
+          "Design-only encounter aura observed on player damage windows. Kept as uptime evidence until formula role is proven."
+        ]
+      }
+    ],
+    "883213": [
+      {
+        "sourceId": "observed-buff:883213",
+        "sourceKind": "runtime-buff",
+        "sourceType": "encounter-debuff",
+        "sourceCategory": "defensive",
+        "sourceEntityId": 883213,
+        "sourceName": "Drowsiness",
+        "sourceNames": {
+          "en": "Drowsiness",
+          "zh-CN": "困倦",
+          "zh-TW": "睏倦",
+          "ja": "倦怠",
+          "ko-KR": "졸림",
+          "fr": "Somnolence",
+          "de": "Schläfrigkeit",
+          "es": "Somnolencia",
+          "pt-BR": "Sonolência",
+          "th": "ง่วงงุน",
+          "id": "Drowsy",
+          "design": "机制-困倦降低玩家伤害"
+        },
+        "iconPath": "ui/atlas/debuff/debuff_icon_18",
+        "buffIds": [
+          883213
+        ],
+        "sourceBuffIds": [
+          883213
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "defensive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 883213,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:883213",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "BuffName:icon",
+          "observed-uid-bridge:promoted:883213"
+        ],
+        "notes": [
+          "Localized encounter debuff; design text indicates player damage reduction. Kept as factual uptime evidence."
+        ]
+      }
+    ],
+    "2010012": [
+      {
+        "sourceId": "observed-buff:2010012",
+        "sourceKind": "consumable",
+        "sourceType": "guild-food-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2010012,
+        "sourceName": "Guild Buff - Meat +1",
+        "sourceNames": {
+          "design": "肉类+1 协会buff",
+          "en": "Guild Buff - Meat +1"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2010012
+        ],
+        "sourceBuffIds": [
+          2010012
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2010012,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2010012",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2010012"
+        ],
+        "notes": [
+          "Design-only guild food buff observed as a self-owned runtime modifier window."
+        ]
+      }
+    ],
+    "2031009": [
+      {
+        "sourceId": "observed-buff:2031009",
+        "sourceKind": "runtime-buff",
+        "sourceType": "class-passive-buff",
+        "sourceCategory": "offensive",
+        "sourceEntityId": 2031009,
+        "sourceName": "Bow - Dexterity",
+        "sourceNames": {
+          "design": "弓箭-敏捷",
+          "en": "Bow - Dexterity"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2031009
+        ],
+        "sourceBuffIds": [
+          2031009
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "offensive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2031009,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2031009",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2031009"
+        ],
+        "notes": [
+          "Design-only Falconeer/Bow passive observed as a self-owned runtime modifier window."
+        ]
+      }
+    ],
+    "2033070": [
+      {
+        "sourceId": "observed-buff:2033070",
+        "sourceKind": "consumable",
+        "sourceType": "elemental-strength-buff",
+        "sourceCategory": "offensive",
+        "sourceEntityId": 2033070,
+        "sourceName": "Elemental Strength - Light",
+        "sourceNames": {
+          "design": "元素强度·光",
+          "en": "Elemental Strength - Light"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2033070
+        ],
+        "sourceBuffIds": [
+          2033070
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "offensive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2033070,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2033070",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2033070"
+        ],
+        "notes": [
+          "Observed source-config row for light elemental strength. The paired potion action UID remains unresolved because it is too broad to alias globally."
+        ]
+      }
+    ],
+    "2100402": [
+      {
+        "sourceId": "observed-buff:2100402",
+        "sourceKind": "runtime-buff",
+        "sourceType": "skill-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2100402,
+        "sourceName": "Unyielding Spirit",
+        "sourceNames": {
+          "en": "Unyielding Spirit",
+          "zh-CN": "不屈斗志",
+          "zh-TW": "不屈鬥志",
+          "ja": "不屈の闘志",
+          "ko-KR": "불굴의 투지",
+          "fr": "Esprit indomptable",
+          "de": "Unnachgiebiger Geist",
+          "es": "Espíritu Implacable",
+          "pt-BR": "Espírito Indomável",
+          "th": "จิตวิญญาณไม่ย่อท้อ",
+          "id": "Unbending Will",
+          "design": "不屈斗志效果"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2100402
+        ],
+        "sourceBuffIds": [
+          2100402
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2100402,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2100402",
+          "BuffName:NameIdSource=BuffTable",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2100402"
+        ],
+        "notes": [
+          "Localized skill buff row paired with source skill 3612. Numeric contribution still needs formula replay."
+        ]
+      }
+    ],
+    "2207252": [
+      {
+        "sourceId": "observed-buff:2207252",
+        "sourceKind": "runtime-buff",
+        "sourceType": "party-support-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2207252,
+        "sourceName": "Audio Domain Expansion - Main Attribute",
+        "sourceNames": {
+          "design": "音域扩充添加主属性",
+          "en": "Audio Domain Expansion - Main Attribute"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2207252
+        ],
+        "sourceBuffIds": [
+          2207252
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2207252,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2207252",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2207252"
+        ],
+        "notes": [
+          "Observed external support buff with source-config/base pair. Provider must remain encounter-local."
+        ]
+      }
+    ],
+    "2302120": [
+      {
+        "sourceId": "observed-buff:2302120",
+        "sourceKind": "module-buff",
+        "sourceType": "module-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2302120,
+        "sourceName": "Team Luck & Crit",
+        "sourceNames": {
+          "en": "Team Luck & Crit",
+          "zh-CN": "极·全队幸暴",
+          "zh-TW": "極·全隊幸暴",
+          "ja": "極・幸運会心",
+          "ko-KR": "극・팀 전체 행운 치명타",
+          "fr": "Chance et critique d'équipe",
+          "de": "Team-Glück & Krit",
+          "es": "Crítico y suerte grupal",
+          "pt-BR": "Sorte e Crítico da Equipe",
+          "th": "Team Luck & Crit",
+          "id": "Ultimate - Team Crit",
+          "design": "【同调】"
+        },
+        "iconPath": "ui/atlas/mod_effect/mod_effect_icon_017",
+        "buffIds": [
+          2302120
+        ],
+        "sourceBuffIds": [
+          2302120
+        ],
+        "runtimeDetection": "active-buff",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetUidEdges": [
+          {
+            "kind": "source-buff",
+            "value": 2302120,
+            "label": "Team Luck & Crit",
+            "evidence": [
+              "observed-uid-bridge:promoted-source-buff"
+            ]
+          }
+        ],
+        "evidence": [
+          "BuffName:2302120",
+          "BuffName:NameIdSource=ModEffectTable",
+          "BuffName:display-name",
+          "BuffName:icon",
+          "observed-uid-bridge:promoted:2302120"
+        ],
+        "notes": [
+          "ModEffect-backed module buff observed in encounter modifier windows. Effect text is not captured yet."
+        ]
+      }
+    ],
+    "2404261": [
+      {
+        "sourceId": "observed-buff:2404261",
+        "sourceKind": "set-effect",
+        "sourceType": "equipment-set-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2404261,
+        "sourceName": "S2 Set 2B",
+        "sourceNames": {
+          "design": "【S2套装2B】-子BUFF",
+          "en": "S2 Set 2B"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2404261
+        ],
+        "sourceBuffIds": [
+          2404261
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2404261,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2404261",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2404261"
+        ],
+        "notes": [
+          "Observed external S2 set buff child/base row. Provider must remain encounter-local and source-uid split."
+        ]
+      }
+    ],
+    "2405150": [
+      {
+        "sourceId": "observed-buff:2405150",
+        "sourceKind": "set-effect",
+        "sourceType": "equipment-set-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2405150,
+        "sourceName": "S2 Set 2A",
+        "sourceNames": {
+          "design": "【S2套装2A】",
+          "en": "S2 Set 2A"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2405150
+        ],
+        "sourceBuffIds": [
+          2405150
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2405150,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2405150",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2405150"
+        ],
+        "notes": [
+          "Design-only S2 set buff observed in saved exports with zero hit contribution so far; promoted to prevent future raw labels."
+        ]
+      }
+    ],
+    "2405160": [
+      {
+        "sourceId": "observed-buff:2405160",
+        "sourceKind": "set-effect",
+        "sourceType": "equipment-set-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2405160,
+        "sourceName": "S2 Set 4A",
+        "sourceNames": {
+          "design": "【S2套装4A】",
+          "en": "S2 Set 4A"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2405160
+        ],
+        "sourceBuffIds": [
+          2405160
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2405160,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2405160",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2405160"
+        ],
+        "notes": [
+          "Design-only S2 set buff observed in saved exports with zero hit contribution so far; promoted to prevent future raw labels."
+        ]
+      }
+    ],
+    "2405250": [
+      {
+        "sourceId": "observed-buff:2405250",
+        "sourceKind": "set-effect",
+        "sourceType": "equipment-set-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2405250,
+        "sourceName": "S2 Set 2B",
+        "sourceNames": {
+          "design": "【S2套装2B】",
+          "en": "S2 Set 2B"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2405250
+        ],
+        "sourceBuffIds": [
+          2405250
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2405250,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2405250",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2405250"
+        ],
+        "notes": [
+          "Design-only S2 set buff observed as a self-owned runtime modifier window. Numeric contribution still needs formula replay."
+        ]
+      }
+    ],
+    "2405260": [
+      {
+        "sourceId": "observed-buff:2405260",
+        "sourceKind": "set-effect",
+        "sourceType": "equipment-set-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 2405260,
+        "sourceName": "S2 Set 4B",
+        "sourceNames": {
+          "design": "【S2套装4B】",
+          "en": "S2 Set 4B"
+        },
+        "iconPath": null,
+        "buffIds": [
+          2405260
+        ],
+        "sourceBuffIds": [
+          2405260
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 2405260,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:2405260",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:2405260"
+        ],
+        "notes": [
+          "Design-only S2 set buff observed as a self-owned runtime modifier window. Numeric contribution still needs formula replay."
+        ]
+      }
+    ],
+    "3003690": [
+      {
+        "sourceId": "observed-buff:3003690",
+        "sourceKind": "runtime-buff",
+        "sourceType": "board-bond-buff",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 3003690,
+        "sourceName": "Board 4 - Bond",
+        "sourceNames": {
+          "design": "4板-羁绊",
+          "en": "Board 4 - Bond"
+        },
+        "iconPath": null,
+        "buffIds": [
+          3003690
+        ],
+        "sourceBuffIds": [
+          3003690
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 3003690,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:3003690",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:3003690"
+        ],
+        "notes": [
+          "Design-only board/bond buff observed as a self-owned runtime modifier window."
+        ]
+      }
+    ],
+    "3210030": [
+      {
+        "sourceId": "observed-buff:3210030",
+        "sourceKind": "imagine",
+        "sourceType": "battle-imagine-passive",
+        "sourceCategory": "supportive",
+        "sourceEntityId": 3210030,
+        "sourceName": "Thunder Ogre - Passive",
+        "sourceNames": {
+          "design": "雷电食人魔-被动",
+          "en": "Thunder Ogre - Passive"
+        },
+        "iconPath": null,
+        "buffIds": [
+          3210030
+        ],
+        "sourceBuffIds": [
+          3210030
+        ],
+        "runtimeDetection": "active-buff",
+        "providerAggregation": "source-uid",
+        "reportPolicy": "include",
+        "rowPolicy": "uptime",
+        "role": "supportive",
+        "contributionStatus": "uptime-only",
+        "contributionGroups": [],
+        "formulaZoneIds": [],
+        "targetDamageIds": [],
+        "targetRecountIds": [],
+        "predicateTags": [],
+        "componentClasses": [],
+        "uidEdges": [
+          {
+            "edgeKind": "source-buff",
+            "uidKind": "buff",
+            "uid": 3210030,
+            "role": "source",
+            "source": "ModifierObservedUidBridge.promotedSourcesByBuffId",
+            "status": "observed",
+            "contributionScope": "uptime-only"
+          }
+        ],
+        "evidence": [
+          "BuffName:3210030",
+          "BuffName:display-name",
+          "observed-uid-bridge:promoted:3210030"
+        ],
+        "notes": [
+          "Design-only battle imagine passive observed as a runtime modifier window."
+        ]
+      }
+    ]
+  },
+  "ignoredBuffIds": [
+    {
+      "buffId": 999,
+      "reason": "season-marker-source-config",
+      "confidence": "high",
+      "displayName": "buff:999",
+      "evidence": [
+        "manual-ignore:season-marker-source-config:999"
+      ],
+      "notes": [
+        "Observed only as source-config paired with 701010, whose design name is a current-season marker. Not a reportable modifier source."
+      ]
+    },
+    {
+      "buffId": 31601,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 404,
+      "observedDamage": null,
+      "displayName": "激励寻找目标",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:31601",
+        "BuffName:31601",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 500111,
+      "reason": "revive-state",
+      "confidence": "high",
+      "displayName": "buff:500111",
+      "evidence": [
+        "manual-ignore:revive-state:500111"
+      ],
+      "notes": [
+        "Observed revive-family state with no damage modifier evidence."
+      ]
+    },
+    {
+      "buffId": 500113,
+      "reason": "revive-state",
+      "confidence": "high",
+      "displayName": "Revive invincibility",
+      "evidence": [
+        "BuffName:500113",
+        "BuffName:NameIdSource=BuffTable",
+        "BuffName:display-name",
+        "BuffName:icon",
+        "manual-ignore:revive-state:500113"
+      ],
+      "notes": [
+        "Localized revive invincibility row, not a damage modifier source."
+      ]
+    },
+    {
+      "buffId": 501401,
+      "reason": "weapon-switch-state",
+      "confidence": "high",
+      "displayName": "武器使切换武器溶解BUFF",
+      "evidence": [
+        "BuffName:501401",
+        "BuffName:display-name",
+        "manual-ignore:weapon-switch-state:501401"
+      ],
+      "notes": [
+        "Design name identifies a weapon-switch dissolve state with zero hit contribution in saved exports."
+      ]
+    },
+    {
+      "buffId": 600001,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 858,
+      "observedDamage": null,
+      "displayName": "可叠层空BUFF(ID引用过多)",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:600001",
+        "BuffName:600001",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 620701,
+      "reason": "monster-spawn-state",
+      "confidence": "high",
+      "displayName": "通用怪物出生Buff",
+      "evidence": [
+        "BuffName:620701",
+        "BuffName:display-name",
+        "manual-ignore:monster-spawn-state:620701"
+      ],
+      "notes": [
+        "Design name identifies a generic monster spawn buff with zero hit contribution in saved exports."
+      ]
+    },
+    {
+      "buffId": 683116,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 2,
+      "observedDamage": null,
+      "displayName": "武器使团结之力检测",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:683116",
+        "BuffName:683116",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 701010,
+      "reason": "season-marker",
+      "confidence": "high",
+      "displayName": "英雄本赛季标记用-M",
+      "evidence": [
+        "BuffName:701010",
+        "BuffName:display-name",
+        "manual-ignore:season-marker:701010"
+      ],
+      "notes": [
+        "Design name identifies this as a current-season marker row, not a damage contribution modifier."
+      ]
+    },
+    {
+      "buffId": 823238,
+      "reason": "skill-lockout-state",
+      "confidence": "high",
+      "displayName": "禁止释放技能",
+      "evidence": [
+        "BuffName:823238",
+        "BuffName:display-name",
+        "manual-ignore:skill-lockout-state:823238"
+      ],
+      "notes": [
+        "Design name identifies a skill-release lockout state, not a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 828124,
+      "reason": "encounter-target-marker",
+      "confidence": "high",
+      "displayName": "蚀花残影-绯红剑影点名玩家P2",
+      "evidence": [
+        "BuffName:828124",
+        "BuffName:display-name",
+        "manual-ignore:encounter-target-marker:828124"
+      ],
+      "notes": [
+        "Design-only Erosion Bloom target marker row, not a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 828128,
+      "reason": "encounter-screen-effect",
+      "confidence": "high",
+      "displayName": "蚀花残影-P1转P2屏幕效果",
+      "evidence": [
+        "BuffName:828128",
+        "BuffName:display-name",
+        "manual-ignore:encounter-screen-effect:828128"
+      ],
+      "notes": [
+        "Design name identifies an Erosion Bloom screen transition effect, not a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 828133,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 7,
+      "observedDamage": null,
+      "displayName": "蚀花残影-P2平台传送表现",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:828133",
+        "BuffName:828133",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 828147,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 13,
+      "observedDamage": null,
+      "displayName": "蚀花残影-迷乱效果中转",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:828147",
+        "BuffName:828147",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 880010,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 9604,
+      "observedDamage": null,
+      "displayName": "【暴击】buff机被激活逻辑",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:880010",
+        "BuffName:880010",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 882272,
+      "reason": "encounter-difficulty-marker",
+      "confidence": "high",
+      "displayName": "标记buff-噩梦难度",
+      "evidence": [
+        "BuffName:882272",
+        "BuffName:display-name",
+        "manual-ignore:encounter-difficulty-marker:882272"
+      ],
+      "notes": [
+        "Design name identifies a Nightmare difficulty marker buff, not a player modifier source."
+      ]
+    },
+    {
+      "buffId": 883204,
+      "reason": "encounter-visual-mechanic",
+      "confidence": "high",
+      "displayName": "Disorientation",
+      "evidence": [
+        "BuffName:883204",
+        "BuffName:NameIdSource=BuffTable",
+        "BuffName:display-name",
+        "BuffName:icon",
+        "manual-ignore:encounter-visual-mechanic:883204"
+      ],
+      "notes": [
+        "Localized Disorientation row, but design name identifies a screen/effect mechanic rather than a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 883209,
+      "reason": "encounter-target-marker",
+      "confidence": "high",
+      "displayName": "填充-迷途分散圈点名",
+      "evidence": [
+        "BuffName:883209",
+        "BuffName:display-name",
+        "manual-ignore:encounter-target-marker:883209"
+      ],
+      "notes": [
+        "Design-only target marker/filler row, not a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 883210,
+      "reason": "encounter-target-marker",
+      "confidence": "high",
+      "displayName": "填充-迷途分摊圈点名",
+      "evidence": [
+        "BuffName:883210",
+        "BuffName:display-name",
+        "manual-ignore:encounter-target-marker:883210"
+      ],
+      "notes": [
+        "Design-only target marker/filler row, not a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 883211,
+      "reason": "encounter-visual-mechanic",
+      "confidence": "high",
+      "displayName": "Disorientation",
+      "evidence": [
+        "BuffName:883211",
+        "BuffName:NameIdSource=BuffTable",
+        "BuffName:display-name",
+        "BuffName:icon",
+        "manual-ignore:encounter-visual-mechanic:883211"
+      ],
+      "notes": [
+        "Localized Disorientation row, but design name identifies a screen-loop visual mechanic rather than a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 883235,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 68,
+      "observedDamage": null,
+      "displayName": "迷宫-Boss查找玩家分发传送point",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:883235",
+        "BuffName:883235",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 883243,
+      "reason": "encounter-link-mechanic",
+      "confidence": "high",
+      "displayName": "迷宫-梦灵连线",
+      "evidence": [
+        "BuffName:883243",
+        "BuffName:display-name",
+        "manual-ignore:encounter-link-mechanic:883243"
+      ],
+      "notes": [
+        "Design-only Dreamling link mechanic, not a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 883246,
+      "reason": "encounter-movement-mechanic",
+      "confidence": "high",
+      "displayName": "Heavy Shackles",
+      "evidence": [
+        "BuffName:883246",
+        "BuffName:NameIdSource=BuffTable",
+        "BuffName:display-name",
+        "BuffName:icon",
+        "manual-ignore:encounter-movement-mechanic:883246"
+      ],
+      "notes": [
+        "Localized Heavy Shackles row, but design name identifies a stacking slow mechanic rather than a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 883252,
+      "reason": "encounter-movement-mechanic",
+      "confidence": "high",
+      "displayName": "Oppression",
+      "evidence": [
+        "BuffName:883252",
+        "BuffName:NameIdSource=BuffTable",
+        "BuffName:display-name",
+        "BuffName:icon",
+        "manual-ignore:encounter-movement-mechanic:883252"
+      ],
+      "notes": [
+        "Localized Oppression row, but design name identifies a no-dodge mechanic rather than a damage contribution source."
+      ]
+    },
+    {
+      "buffId": 902901,
+      "reason": "dungeon-end-invincibility",
+      "confidence": "high",
+      "displayName": "大秘境结束无敌buff",
+      "evidence": [
+        "BuffName:902901",
+        "BuffName:display-name",
+        "manual-ignore:dungeon-end-invincibility:902901"
+      ],
+      "notes": [
+        "Design name identifies an end-of-dungeon invincibility state, not a damage modifier source."
+      ]
+    },
+    {
+      "buffId": 2032001,
+      "reason": "generic-consumable-action",
+      "confidence": "high",
+      "displayName": "喝药通用动作",
+      "evidence": [
+        "BuffName:2032001",
+        "BuffName:display-name",
+        "manual-ignore:generic-consumable-action:2032001"
+      ],
+      "notes": [
+        "Generic potion/drink action row. Kept out of the report while paired source-config rows carry the real consumable buff identity."
+      ]
+    },
+    {
+      "buffId": 2032002,
+      "reason": "healing-action",
+      "confidence": "high",
+      "displayName": "回血通用效果",
+      "evidence": [
+        "BuffName:2032002",
+        "BuffName:display-name",
+        "manual-ignore:healing-action:2032002"
+      ],
+      "notes": [
+        "Generic healing effect row, not a damage modifier source."
+      ]
+    },
+    {
+      "buffId": 2033000,
+      "reason": "healing-action",
+      "confidence": "high",
+      "displayName": "回血",
+      "evidence": [
+        "BuffName:2033000",
+        "BuffName:display-name",
+        "manual-ignore:healing-action:2033000"
+      ],
+      "notes": [
+        "Generic healing row, not a damage modifier source."
+      ]
+    },
+    {
+      "buffId": 2110093,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 524,
+      "observedDamage": null,
+      "displayName": "共鸣飘灵魂特效",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:2110093",
+        "BuffName:2110093",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 3003041,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 2563,
+      "observedDamage": null,
+      "displayName": "止境延界找目标",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:3003041",
+        "BuffName:3003041",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 3059062,
+      "reason": "helper-or-internal-observed-state",
+      "confidence": "high",
+      "observedHits": 7466,
+      "observedDamage": null,
+      "displayName": "稳态G6-叠层",
+      "evidence": [
+        "unresolved-audit:unmapped-observed-buff:3059062",
+        "BuffName:3059062",
+        "BuffName:display-name"
+      ]
+    },
+    {
+      "buffId": 10300108,
+      "reason": "encounter-screen-effect-source",
+      "confidence": "high",
+      "displayName": "buff:10300108",
+      "evidence": [
+        "manual-ignore:encounter-screen-effect-source:10300108"
+      ],
+      "notes": [
+        "Source-config skill paired with the ignored Erosion Bloom screen transition effect."
+      ]
+    }
+  ],
+  "worklist": [],
+  "stats": {
+    "aliases": 66,
+    "aliasBuffIds": 66,
+    "promotedSources": 18,
+    "promotedBuffIds": 18,
+    "ignoredBuffIds": 32,
+    "remainingWorklist": 0
+  }
+}

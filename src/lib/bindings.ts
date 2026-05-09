@@ -221,6 +221,17 @@ async getEncounterEntitiesCompactRaw(encounterId: number) : Promise<Result<Histo
 }
 },
 /**
+ * Gets compact historical entities plus full per-target skill maps for target drill-down pages.
+ */
+async getEncounterEntitiesTargetDetailsRaw(encounterId: number) : Promise<Result<HistoryEntityData[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_encounter_entities_target_details_raw", { encounterId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+/**
  * Gets modifier details scoped to one historical player plus hosted external state.
  */
 async getEncounterModifierEntitiesRaw(encounterId: number, entityUid: number) : Promise<Result<HistoryEntityData[], string>> {
@@ -643,6 +654,7 @@ export type ActiveEffectSourceState = { sourceId: string; runtimeSource: string;
 export type ActiveFactorBuffState = { factorBuffId: number; observedBuffId: number; buffLevel: number | null; partId: number | null; count: number | null; fightSourceType: number | null; sourceConfigId: number | null; layer: number; durationMs: number; createTimeMs: number; receivedTimeMs: number; hostUid: number; sourceUid: number }
 export type ActiveFactorItemState = { factorBuffId: number; itemConfigId: number; itemUuid: number | null; packageKey: number; packageType: number | null; grade: number | null; familyId: number | null; runtimeSource: string }
 export type ActivePassiveSkillState = { passiveUuid: number | null; targetUid: number | null; stageBeginTime: number | null; beginTime: number | null; stagePlayNum: number | null; skillId: number | null; skillLevel: number | null; skillStage: number | null; runtimeSource: string }
+export type ActiveProfessionSkillState = { skillId: number; baseSkillId: number | null; skillLevelId: number | null; level: number | null; remodelLevel: number | null; slot: number | null; equipped: boolean | null; sourceKind: string; replaceSkillIds: number[]; runtimeSource: string }
 export type ActiveProfessionTalentState = { professionId: number; talentNodeId: number; usedTalentPoints: number | null; talentStageCfgId: number | null; runtimeSource: string }
 export type AltFreezeConfig = { conditionBuffId: number; freezeDurationMs: number }
 /**
@@ -778,8 +790,8 @@ export type EventLoggerEntry = { tsMs: number; category: string; action: string;
 export type EventLoggerFileStoragePayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean; storeLogFiles: boolean; includeRepeatedSnapshotRows: boolean; deleteOlderThanDays: number | null; captureCensusEnabled: boolean; attributionCensusEnabled: boolean }
 export type EventLoggerSessionDirectoryPayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean }
 export type GpuSupport = { cuda_available: boolean; opencl_available: boolean }
-export type HistoryEntityData = { uid: number; name: string; classId: number; classSpec: number; className: string; classSpecName: string; abilityScore: number; seasonStrength: number; damage: RawCombatStats; damageBossOnly: RawCombatStats; healing: RawCombatStats; taken: RawCombatStats; dmgSkills: Partial<{ [key in number]: RawSkillStats }>; healSkills: Partial<{ [key in number]: RawSkillStats }>; takenSkills: Partial<{ [key in number]: RawSkillStats }>; activeBuffs: ActiveBuffState[]; activeFactorBuffs: ActiveFactorBuffState[]; activeEffectBuffs: ActiveEffectBuffState[]; modifierWindows: ModifierWindowState[]; modifierHitBuckets: ModifierHitBucketState[]; modifierReplayHits: ModifierReplayHitState[]; skillCastEvents: SkillCastEventState[]; skillCooldownEvents: SkillCooldownEventState[]; activeEffectSources: ActiveEffectSourceState[]; activeFactorItems: ActiveFactorItemState[]; activePassiveSkills: ActivePassiveSkillState[]; activeProfessionTalents: ActiveProfessionTalentState[]; modifierSourceActors?: ModifierSourceActorState[]; dmgPerTarget: PerTargetStats[]; healPerTarget: PerTargetStats[]; deaths: DeathRecord[] }
-export type LiveRuntimeSnapshot = { eventUpdateRateMs: number }
+export type HistoryEntityData = { uid: number; name: string; classId: number; classSpec: number; className: string; classSpecName: string; abilityScore: number; seasonStrength: number; damage: RawCombatStats; damageBossOnly: RawCombatStats; healing: RawCombatStats; taken: RawCombatStats; dmgSkills: Partial<{ [key in number]: RawSkillStats }>; healSkills: Partial<{ [key in number]: RawSkillStats }>; takenSkills: Partial<{ [key in number]: RawSkillStats }>; activeBuffs: ActiveBuffState[]; activeFactorBuffs: ActiveFactorBuffState[]; activeEffectBuffs: ActiveEffectBuffState[]; modifierWindows: ModifierWindowState[]; modifierHitBuckets: ModifierHitBucketState[]; modifierReplayHits: ModifierReplayHitState[]; skillCastEvents: SkillCastEventState[]; skillCooldownEvents: SkillCooldownEventState[]; activeEffectSources: ActiveEffectSourceState[]; activeFactorItems: ActiveFactorItemState[]; activePassiveSkills: ActivePassiveSkillState[]; activeProfessionSkills: ActiveProfessionSkillState[]; activeProfessionTalents: ActiveProfessionTalentState[]; modifierSourceActors?: ModifierSourceActorState[]; dmgPerTarget: PerTargetStats[]; healPerTarget: PerTargetStats[]; deaths: DeathRecord[] }
+export type LiveRuntimeSnapshot = { eventUpdateRateMs: number; modifierReportsEnabled: boolean; modifierReportsOptInVersion?: string | null }
 export type ModifierHitBucketState = { modifierBuffUuid: number; modifierBaseId: number; modifierBuffLevel: number | null; modifierPartId: number | null; modifierCount: number | null; modifierFightSourceType: number | null; modifierSourceConfigId: number | null; modifierLayer: number; modifierDurationMs: number; modifierStartTimeMs: number; modifierEndTimeMs: number | null; modifierHostUid: number; modifierSourceUid: number; skillKey: number; damageId: number; ownerId: number; ownerLevel: number | null; hitEventId: number | null; damageSource: number | null; property: number | null; damageMode: number | null; attackerUid: number; originalAttackerUid: number; topSummonerUid: number | null; targetUid: number; targetMonsterTypeId: number | null; isHeal: boolean; hits: number; totalValue: number; effectiveTotalValue: number; critHits: number; critTotalValue: number; luckyHits: number; luckyTotalValue: number; hpLossTotal: number; shieldLossTotal: number; firstHitTimeMs: number; lastHitTimeMs: number }
 export type ModifierReplayAttrState = { attrId: number; valueInt: number | null; valueFloat: number | null; valueBool: boolean | null }
 export type ModifierReplayHitState = { timestampMs: number; skillKey: number; damageId: number; ownerId: number; ownerLevel: number | null; hitEventId: number | null; damageSource: number | null; property: number | null; damageMode: number | null; attackerUid: number; originalAttackerUid: number; topSummonerUid: number | null; targetUid: number; targetMonsterTypeId: number | null; isHeal: boolean; isCrit: boolean; isLucky: boolean; value: number; effectiveValue: number; hpLossValue: number; shieldLossValue: number; activeModifiers: ModifierReplaySourceState[]; attackerAttrs: ModifierReplayAttrState[]; targetAttrs: ModifierReplayAttrState[] }
@@ -849,4 +861,3 @@ import {
 export type Result<T, E> =
 	| { status: "ok"; data: T }
 	| { status: "error"; error: E };
-

@@ -34,12 +34,24 @@ pub fn locate_file(relative_path: impl AsRef<Path>) -> Option<PathBuf> {
         candidates.push(exe_dir.join(PARSER_DATA_DIR).join(relative_path));
         candidates.push(
             exe_dir
+                .join("_up_")
+                .join(PARSER_DATA_DIR)
+                .join(relative_path),
+        );
+        candidates.push(
+            exe_dir
                 .join("resources")
                 .join(PARSER_DATA_DIR)
                 .join(relative_path),
         );
         if let Some(parent) = exe_dir.parent() {
             candidates.push(parent.join(PARSER_DATA_DIR).join(relative_path));
+            candidates.push(
+                parent
+                    .join("_up_")
+                    .join(PARSER_DATA_DIR)
+                    .join(relative_path),
+            );
             candidates.push(
                 parent
                     .join("resources")

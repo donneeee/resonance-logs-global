@@ -91,6 +91,8 @@
         hadAnyEvent = true;
         if (event.payload.fightStartTimestampMs > 0) {
           setLiveData(event.payload);
+        } else if (event.payload.totalDmg === 0 && event.payload.totalHeal === 0) {
+          clearMeterData();
         }
       });
 
@@ -129,6 +131,12 @@ t("live.resetToast", "战斗记录已重置"),
         const elapsedMs = event.payload.headerInfo.elapsedMs;
         // update the store regardless
         isPaused.set(newPaused);
+        if (
+          event.payload.headerInfo.fightStartTimestampMs <= 0 &&
+          event.payload.headerInfo.totalDmg === 0
+        ) {
+          clearMeterData();
+        }
         // only show a toast if the pause state actually changed AND we've started receiving combat data
         // Note: do NOT show a toast on the initial listener attach (lastPauseState === null)
         // to avoid spurious "Encounter resumed" messages when reattaching listeners

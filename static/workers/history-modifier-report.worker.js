@@ -112,12 +112,42 @@
     return value.trim().toLowerCase().replace(/\s+/g, " ");
   }
 
+  const UNMAPPED_BUFF_LABEL_PREFIXES = [
+    "Unmapped Buff",
+    "\u672a\u6620\u5c04\u589e\u76ca",
+    "\u672a\u5c0d\u61c9\u589e\u76ca",
+    "\u672a\u30de\u30c3\u30d4\u30f3\u30b0\u30d0\u30d5",
+    "\ub9e4\ud551\ub418\uc9c0 \uc54a\uc740 \ubc84\ud504",
+    "Buff non mapp\u00e9",
+    "Nicht zugeordneter Buff",
+    "Mejora sin asignar",
+    "B\u00f4nus n\u00e3o mapeado",
+    "\u0e1a\u0e31\u0e1f\u0e17\u0e35\u0e48\u0e22\u0e31\u0e07\u0e44\u0e21\u0e48\u0e41\u0e21\u0e1b",
+    "Buff belum dipetakan",
+  ];
+
+  function isGeneratedUnmappedBuffLabel(value, buffId) {
+    const text = value?.trim() ?? "";
+    if (!text) return false;
+    if (/^Unknown Modifier$/i.test(text)) return true;
+    if (/^(?:Unmapped Buff|Buff) \d+$/i.test(text)) return true;
+    if (!Number.isFinite(buffId)) return false;
+    return UNMAPPED_BUFF_LABEL_PREFIXES.some((prefix) => text === `${prefix} ${buffId}`);
+  }
+
   function localizedCatalogName(entry) {
-    return entry.sourceNames?.en?.trim()
-      || entry.sourceNames?.["zh-CN"]?.trim()
-      || entry.sourceNames?.design?.trim()
-      || entry.sourceName?.trim()
-      || entry.sourceId;
+    const placeholderBuffId = typeof entry.sourceEntityId === "number" ? entry.sourceEntityId : entry.buffIds?.[0];
+    for (const value of [
+      entry.sourceNames?.en,
+      entry.sourceNames?.["zh-CN"],
+      entry.sourceNames?.design,
+      entry.sourceName,
+      ...Object.values(entry.sourceNames ?? {}),
+    ]) {
+      const text = value?.trim() ?? "";
+      if (text && !isGeneratedUnmappedBuffLabel(text, placeholderBuffId)) return text;
+    }
+    return entry.sourceName?.trim() || entry.sourceId;
   }
 
   function sourceGroupKeyForEntry(entry) {
@@ -424,8 +454,12 @@
     "baseattack",
     "critical",
     "elemental",
+    "finaldamage",
     "genericdamage",
     "hittiming",
+    "physicalmagicenhancement",
+    "seasondamage",
+    "seasonsuppression",
     "targetmitigation",
     "versatility",
   ]);
@@ -613,10 +647,7 @@
     return entries;
   }
 
-  function sourceMatchesForBucket(entity, catalog, ignoredBuffIds, scope, bucket, preferredId, skillId, damageIds) {
-    const observedIds = [preferredId, ...bucketBuffIds(bucket)];
-    if (observedIds.some((buffId) => ignoredBuffIds.has(buffId))) return [];
-
+  function sourceMatchesForBucket(entity, catalog, scope, bucket, preferredId, skillId, damageIds) {
     const entries = catalogEntriesForBucket(catalog, bucket, preferredId)
       .filter(entryAllowedForDamageReport)
       .filter((entry) => entryAllowedForBucketOwner(entity, catalog, entry, bucket))
@@ -1018,6 +1049,7 @@
       mixedLuckyBucketCount: skill.mixedLuckyBucketCount,
       hitCount: skill.hits,
       ...(model?.formulaTermIds?.length ? { formulaTermIds: model.formulaTermIds } : {}),
+      ...(model?.formulaZoneIds?.length ? { formulaZoneIds: model.formulaZoneIds } : {}),
       ...(model?.contributionGroups?.length ? { contributionGroups: model.contributionGroups } : {}),
       ...(model?.predicateTags?.length ? { predicateTags: model.predicateTags } : {}),
       ...(componentValues.length ? { componentValues } : {}),
@@ -1106,7 +1138,6 @@
     const actorFilter = options?.actorFilter ?? "all";
     const scope = options?.scope ?? "all-active";
     const catalog = catalogForEntity(entity);
-    const ignoredBuffIds = new Set((catalog?.ignoredBuffIds ?? []).map(Number).filter(Number.isFinite));
     const reportableBuffIds = reportableBuffIdsForCatalog(catalog);
     const sources = new Map();
     const playerTotal = Math.max(Number(entity.damage?.total) || 0, 0);
@@ -1127,7 +1158,7 @@
 
       const damageIds = damageIdsForBucket(bucket, skillId);
       const actorSummary = actorSummaryForBucket(entity.uid, bucket, sourceActorIndex);
-      for (const sourceMatch of sourceMatchesForBucket(entity, catalog, ignoredBuffIds, scope, bucket, preferredId, skillId, damageIds)) {
+      for (const sourceMatch of sourceMatchesForBucket(entity, catalog, scope, bucket, preferredId, skillId, damageIds)) {
         const { entry, match } = sourceMatch;
         const sourceKey = sourceKeyForEntry(entity.uid, bucket, entry, sourceActorIndex);
         let source = sources.get(sourceKey);

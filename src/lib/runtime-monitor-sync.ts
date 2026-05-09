@@ -5,7 +5,7 @@ import {
 } from "$lib/bindings";
 import { expandBuffSelection } from "$lib/config/buff-name-table";
 import { activeProfile as getActiveProfile } from "$lib/skill-monitor-profile.svelte.js";
-import { SETTINGS } from "$lib/settings-store";
+import { MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION, SETTINGS } from "$lib/settings-store";
 import {
   getCounterRules,
   getDefaultMonitoredBuffIds,
@@ -155,6 +155,11 @@ export function buildMonitorRuntimeSnapshot(): MonitorRuntimeSnapshot {
   return {
     live: {
       eventUpdateRateMs: SETTINGS.live.general.state.eventUpdateRateMs,
+      modifierReportsEnabled: SETTINGS.live.general.state.modifierReportsEnabled === true,
+      modifierReportsOptInVersion:
+        SETTINGS.live.general.state.modifierReportsEnabled === true
+          ? MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION
+          : null,
     },
     skill: buildSkillRuntimeSnapshot(),
     monster: buildMonsterRuntimeSnapshot(),

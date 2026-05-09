@@ -35,6 +35,7 @@ export type ModifierSourceCatalogEntry = {
   runtimeBaseIds?: number[];
   rowPolicy?: "static-target" | "formula" | "timing" | "proc" | "uptime" | "defensive" | "unknown";
   contributionStatus?: string;
+  formulaZoneIds?: string[];
   contributionGroups?: string[];
   predicateTags?: string[];
   relationshipKinds?: string[];
@@ -245,8 +246,12 @@ const RUNTIME_WINDOW_GROUPS = new Set([
   "baseattack",
   "critical",
   "elemental",
+  "finaldamage",
   "genericdamage",
   "hittiming",
+  "physicalmagicenhancement",
+  "seasondamage",
+  "seasonsuppression",
   "targetmitigation",
   "versatility",
 ]);
