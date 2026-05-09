@@ -126,8 +126,17 @@ export default defineConfig(async () => ({
     host: host || false,
     hmr: host ? { protocol: "ws", host, port: 1421 } : undefined,
     watch: {
-      // 3. tell vite to ignore watching `src-tauri`
-      ignored: ["**/src-tauri/**"],
+      // 3. keep Vite focused on frontend sources; local Rust/audit outputs can be huge.
+      ignored: [
+        "**/src-tauri/**",
+        "**/target/**",
+        "**/target-check/**",
+        "**/target-codex-check/**",
+        "**/DEV_exports/**",
+        "**/recovery_snapshots/**",
+        "**/tmp-*/**",
+        "**/TODO.md",
+      ],
     },
   },
   optimizeDeps: {
