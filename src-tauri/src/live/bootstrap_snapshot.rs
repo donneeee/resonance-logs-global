@@ -7,7 +7,7 @@ use tauri::AppHandle;
 use tauri::Manager;
 
 const SNAPSHOT_FILE_NAME: &str = "monitorRuntime.json";
-const MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION: &str = "1.0.6-beta.4";
+const MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION: &str = "1.0.6-beta.5";
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase", default)]
@@ -86,14 +86,21 @@ impl MonitorRuntimeSnapshot {
 #[serde(rename_all = "camelCase", default)]
 pub struct LiveRuntimeSnapshot {
     pub event_update_rate_ms: u64,
+    #[serde(default = "default_auto_clear_on_scene_change")]
+    pub auto_clear_on_scene_change: bool,
     pub modifier_reports_enabled: bool,
     pub modifier_reports_opt_in_version: Option<String>,
+}
+
+fn default_auto_clear_on_scene_change() -> bool {
+    true
 }
 
 impl Default for LiveRuntimeSnapshot {
     fn default() -> Self {
         Self {
             event_update_rate_ms: 200,
+            auto_clear_on_scene_change: true,
             modifier_reports_enabled: false,
             modifier_reports_opt_in_version: None,
         }
@@ -146,9 +153,10 @@ pub(crate) fn save_monitor_runtime_snapshot(
             Ok(_) => {
                 info!(
                     target: "app::startup",
-                    "saved monitor runtime snapshot to {} (event_update_rate_ms={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
+                    "saved monitor runtime snapshot to {} (event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
                     path.display(),
                     snapshot.live.event_update_rate_ms,
+                    snapshot.live.auto_clear_on_scene_change,
                     snapshot.live.modifier_reports_enabled,
                     snapshot.live.modifier_reports_opt_in_version.as_deref().unwrap_or("-"),
                     snapshot.skill.enabled,
@@ -209,9 +217,10 @@ pub(crate) fn load_monitor_runtime_snapshot(
             Ok(snapshot) => {
                 info!(
                     target: "app::startup",
-                    "loaded monitor runtime snapshot from {} (event_update_rate_ms={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
+                    "loaded monitor runtime snapshot from {} (event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
                     path.display(),
                     snapshot.live.event_update_rate_ms,
+                    snapshot.live.auto_clear_on_scene_change,
                     snapshot.live.modifier_reports_enabled,
                     snapshot.live.modifier_reports_opt_in_version.as_deref().unwrap_or("-"),
                     snapshot.skill.enabled,
@@ -258,10 +267,7 @@ fn dedup_and_sort_i32(values: &mut Vec<i32>) {
 }
 
 fn write_snapshot_atomic(path: &PathBuf, bytes: &[u8]) -> Result<(), std::io::Error> {
-    let temp_path = path.with_extension(format!(
-        "json.tmp.{}",
-        std::process::id()
-    ));
+    let temp_path = path.with_extension(format!("json.tmp.{}", std::process::id()));
 
     {
         let mut file = std::fs::File::create(&temp_path)?;

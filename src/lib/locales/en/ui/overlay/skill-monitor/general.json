@@ -52,5 +52,9 @@
   "shieldDetail.healShield": "Heal Shield",
   "shieldDetail.shield": "Shield",
   "shieldDetail.shieldLabel": "SHD",
+  "shieldDetail.unknownShield": "Shield",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
   "tab.buffUptime": "Buff Uptime"
 }

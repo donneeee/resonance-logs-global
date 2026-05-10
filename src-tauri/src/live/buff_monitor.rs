@@ -83,6 +83,22 @@ impl BuffMonitor {
         server_clock_offset: &mut i64,
         local_player_uid: i64,
     ) -> BuffProcessResult {
+        self.process_buff_effect_bytes_with_self_source_filter(
+            raw_bytes,
+            server_clock_offset,
+            |_, source_uid, _, _| source_uid == local_player_uid,
+        )
+    }
+
+    pub(crate) fn process_buff_effect_bytes_with_self_source_filter<F>(
+        &mut self,
+        raw_bytes: &[u8],
+        server_clock_offset: &mut i64,
+        mut is_self_source: F,
+    ) -> BuffProcessResult
+    where
+        F: FnMut(i32, i64, Option<i32>, Option<i32>) -> bool,
+    {
         let mut changes = Vec::new();
         let Ok(buff_effect_sync) = BuffEffectSync::decode(raw_bytes) else {
             return BuffProcessResult::default();
@@ -110,13 +126,6 @@ impl BuffMonitor {
                         };
                         let host_uid = buff_info.host_uuid.unwrap_or(0) >> 16;
                         let source_uid = buff_info.fire_uuid.unwrap_or(0) >> 16;
-                        let in_self_list = self.self_applied_buff_ids.contains(&base_id);
-                        if in_self_list && source_uid != local_player_uid {
-                            continue;
-                        }
-                        let layer = buff_info.layer.unwrap_or(1);
-                        let duration = buff_info.duration.unwrap_or(0);
-                        let create_time = buff_info.create_time.unwrap_or(now);
                         let source_config_id = buff_info
                             .fight_source_info
                             .as_ref()
@@ -125,6 +134,20 @@ impl BuffMonitor {
                             .fight_source_info
                             .as_ref()
                             .and_then(|info| info.fight_source_type);
+                        let in_self_list = self.self_applied_buff_ids.contains(&base_id);
+                        if in_self_list
+                            && !is_self_source(
+                                base_id,
+                                source_uid,
+                                source_config_id,
+                                fight_source_type,
+                            )
+                        {
+                            continue;
+                        }
+                        let layer = buff_info.layer.unwrap_or(1);
+                        let duration = buff_info.duration.unwrap_or(0);
+                        let create_time = buff_info.create_time.unwrap_or(now);
                         if buff_info.create_time.is_some() {
                             *server_clock_offset = now - create_time;
                         }

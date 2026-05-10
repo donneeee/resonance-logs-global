@@ -873,6 +873,18 @@
   });
 
   let pushedUidSet = $derived.by(() => new Set(rawEntities.map((row) => row.uid)));
+  let playerTargetUidSet = $derived.by(() =>
+    new Set(
+      rawEntities
+        .filter((row) =>
+          row.uid === localPlayerUid ||
+          row.classId > 0 ||
+          row.classSpec > 0 ||
+          row.className.trim().length > 0 ||
+          row.classSpecName.trim().length > 0)
+        .map((row) => row.uid),
+    ),
+  );
 
   function isNumericLikeName(name: string): boolean {
     return /^#?\d+$/.test(name.trim());
@@ -901,6 +913,7 @@
       .filter(
         (target) =>
           target.targetName.trim().length > 0 &&
+          !playerTargetUidSet.has(target.targetUid) &&
           !isNumericLikeName(target.targetName),
       )
       .sort((a, b) => b.totalValue - a.totalValue);

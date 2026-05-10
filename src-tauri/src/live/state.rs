@@ -78,10 +78,16 @@ pub struct AppState {
     pub modifier_capture_enabled: bool,
     /// Boss buff monitoring state and configuration.
     pub boss_buff_monitors: BossBuffMonitors,
+    /// Non-player/proxy source UIDs observed acting on behalf of the local player.
+    pub local_owned_source_uids: HashSet<i64>,
+    /// Source config IDs observed through local-owned proxy buff sources.
+    pub local_owned_source_config_ids: HashSet<i32>,
     /// Whether we've already handled the first scene change after startup.
     pub initial_scene_change_handled: bool,
     /// Event update rate in milliseconds (default: 200ms). Controls how often events are emitted to frontend.
     pub event_update_rate_ms: u64,
+    /// Whether the meter auto-saves and clears the encounter when the game scene/server changes.
+    pub auto_clear_on_scene_change: bool,
     /// Centralized store for all parsed Attr / TempAttr values.
     pub attr_store: EntityAttrStore,
     /// Estimated offset: local_ms - server_ms. Used to convert server buff
@@ -139,6 +145,7 @@ pub enum LiveControlCommand {
     },
     StopTrainingDummy,
     SetEventUpdateRateMs(u64),
+    SetAutoClearOnSceneChange(bool),
     SetModifierCaptureEnabled(bool),
     SetMonitoredBuffs(Vec<i32>),
     SetBossMonitoredBuffs {
@@ -164,8 +171,11 @@ impl AppState {
             modifier_buff_monitor: BuffMonitor::new(),
             modifier_capture_enabled: false,
             boss_buff_monitors: BossBuffMonitors::new(),
+            local_owned_source_uids: HashSet::new(),
+            local_owned_source_config_ids: HashSet::new(),
             initial_scene_change_handled: false,
             event_update_rate_ms: 200,
+            auto_clear_on_scene_change: true,
             attr_store: EntityAttrStore::with_capacity(256),
             server_clock_offset: 0,
             battle_state: BattleStateMachine::default(),
@@ -284,17 +294,48 @@ fn collect_player_names(encounter: &Encounter) -> Vec<PlayerNameEntry> {
             .iter()
             .filter(|(_, entity)| {
                 entity.entity_type == EEntityType::EntChar
-                    && !entity.name.is_empty()
                     && (entity.damage.hits > 0 || entity.healing.hits > 0 || entity.taken.hits > 0)
             })
-            .map(|(_, entity)| PlayerNameEntry {
-                name: entity.name.clone(),
+            .map(|(uid, entity)| PlayerNameEntry {
+                name: if entity.name.trim().is_empty() {
+                    format!("#{uid}")
+                } else {
+                    entity.name.clone()
+                },
                 class_id: entity.class_id,
             }),
     );
     player_names.sort_by(|a, b| a.name.cmp(&b.name));
     player_names.dedup_by(|a, b| a.name == b.name);
     player_names
+}
+
+fn infer_scene_id_from_scene_uuid(scene_uuid: i64) -> Option<i32> {
+    if scene_uuid <= 0 {
+        return None;
+    }
+
+    let mut candidates = Vec::new();
+    for candidate in [
+        i32::try_from(scene_uuid).ok(),
+        i32::try_from(scene_uuid >> 16).ok(),
+        i32::try_from(scene_uuid & 0xffff).ok(),
+    ]
+    .into_iter()
+    .flatten()
+    {
+        if candidate > 0
+            && crate::live::scene_names::contains(candidate)
+            && !candidates.contains(&candidate)
+        {
+            candidates.push(candidate);
+        }
+    }
+
+    match candidates.as_slice() {
+        [scene_id] => Some(*scene_id),
+        _ => None,
+    }
 }
 
 fn encounter_has_stats(encounter: &Encounter) -> bool {
@@ -310,6 +351,97 @@ fn build_training_dummy_state(runtime: &TrainingDummyRuntime) -> TrainingDummySt
     TrainingDummyState {
         phase: runtime.phase,
     }
+}
+
+fn is_known_other_player_source(state: &AppState, source_uid: i64) -> bool {
+    let local_player_uid = state.encounter.local_player_uid;
+    source_uid > 0
+        && source_uid != local_player_uid
+        && state
+            .encounter
+            .entity_uid_to_entity
+            .get(&source_uid)
+            .map(|entity| entity.entity_type == EEntityType::EntChar)
+            .unwrap_or(false)
+}
+
+fn remember_local_owned_source_uid(state: &mut AppState, source_uid: i64) -> bool {
+    let local_player_uid = state.encounter.local_player_uid;
+    if source_uid <= 0
+        || source_uid == local_player_uid
+        || is_known_other_player_source(state, source_uid)
+    {
+        return false;
+    }
+    state.local_owned_source_uids.insert(source_uid);
+    true
+}
+
+fn remember_local_owned_sources_from_buff_changes(
+    state: &mut AppState,
+    changes: &[BuffChangeEvent],
+) {
+    let local_player_uid = state.encounter.local_player_uid;
+    if local_player_uid <= 0 {
+        return;
+    }
+
+    for change in changes {
+        if !matches!(
+            change.change_type,
+            BuffChangeType::Added | BuffChangeType::Changed
+        ) {
+            continue;
+        }
+        if change.host_uid != 0 && change.host_uid != local_player_uid {
+            continue;
+        }
+
+        let source_uid = change.source_uid;
+        let source_is_proxy = remember_local_owned_source_uid(state, source_uid);
+        if source_is_proxy {
+            if let Some(source_config_id) = change.source_config_id.filter(|id| *id > 0) {
+                state.local_owned_source_config_ids.insert(source_config_id);
+            }
+            if change.base_id > 0 {
+                state.local_owned_source_config_ids.insert(change.base_id);
+            }
+        }
+    }
+}
+
+fn remember_local_owned_sources_from_damage_events(
+    state: &mut AppState,
+    events: &[crate::live::opcodes_process::LocalDamageEvent],
+) {
+    let local_player_uid = state.encounter.local_player_uid;
+    if local_player_uid <= 0 {
+        return;
+    }
+
+    for event in events {
+        if event.attacker_uid != local_player_uid
+            && event.top_summoner_uid != Some(local_player_uid)
+        {
+            continue;
+        }
+        remember_local_owned_source_uid(state, event.original_attacker_uid);
+    }
+}
+
+fn monster_buff_source_matches_local(
+    source_uid: i64,
+    source_config_id: Option<i32>,
+    local_player_uid: i64,
+    local_owned_source_uids: &HashSet<i64>,
+    local_owned_source_config_ids: &HashSet<i32>,
+) -> bool {
+    source_uid == local_player_uid
+        || (source_uid > 0 && local_owned_source_uids.contains(&source_uid))
+        || (source_uid <= 0
+            && source_config_id
+                .filter(|id| *id > 0)
+                .is_some_and(|id| local_owned_source_config_ids.contains(&id)))
 }
 
 fn emit_training_dummy_update_if_changed(state: &mut AppState, previous: TrainingDummyState) {
@@ -1341,7 +1473,7 @@ fn persist_and_save_encounter(state: &mut AppState, is_manual: bool, source: &st
         .encounter
         .entity_uid_to_entity
         .values()
-        .filter(|entity| entity.is_boss())
+        .filter(|entity| entity.is_boss_metric_target())
         .filter_map(|entity| {
             if entity.name.is_empty() {
                 None
@@ -1560,6 +1692,9 @@ impl AppStateManager {
             LiveControlCommand::SetEventUpdateRateMs(rate_ms) => {
                 state.event_update_rate_ms = rate_ms;
             }
+            LiveControlCommand::SetAutoClearOnSceneChange(enabled) => {
+                state.auto_clear_on_scene_change = enabled;
+            }
             LiveControlCommand::SetModifierCaptureEnabled(enabled) => {
                 if state.modifier_capture_enabled != enabled {
                     state.modifier_capture_enabled = enabled;
@@ -1632,8 +1767,9 @@ impl AppStateManager {
 
         info!(
             target: "app::live",
-            "[runtime-monitor] applying snapshot: event_update_rate_ms={} modifier_reports_enabled={} skill_enabled={} monster_enabled={}",
+            "[runtime-monitor] applying snapshot: event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} skill_enabled={} monster_enabled={}",
             live.event_update_rate_ms,
+            live.auto_clear_on_scene_change,
             live.modifier_reports_enabled,
             skill.enabled,
             monster.enabled
@@ -1676,6 +1812,10 @@ impl AppStateManager {
         );
         self.apply_control_command(
             state,
+            LiveControlCommand::SetAutoClearOnSceneChange(live.auto_clear_on_scene_change),
+        );
+        self.apply_control_command(
+            state,
             LiveControlCommand::SetModifierCaptureEnabled(live.modifier_reports_enabled),
         );
         self.apply_control_command(
@@ -1713,10 +1853,18 @@ impl AppStateManager {
         let previous = build_training_dummy_state(&state.training_dummy);
         state.training_dummy.clear();
         emit_training_dummy_update_if_changed(state, previous);
+        state.modifier_buff_monitor.active_buffs.clear();
+        state.boss_buff_monitors.clear();
+        state.local_owned_source_uids.clear();
+        state.local_owned_source_config_ids.clear();
+
+        if !state.auto_clear_on_scene_change {
+            info!(target: "app::live", "server_change_auto_clear_skipped");
+            return;
+        }
 
         persist_and_save_encounter(state, false, "server_change");
         on_server_change(&mut state.encounter);
-        state.modifier_buff_monitor.active_buffs.clear();
         state.battle_state = BattleStateMachine::default();
     }
 
@@ -1795,6 +1943,8 @@ impl AppStateManager {
         state.local_monitor.clear_runtime_state();
         state.modifier_buff_monitor.active_buffs.clear();
         state.boss_buff_monitors.clear();
+        state.local_owned_source_uids.clear();
+        state.local_owned_source_config_ids.clear();
         state.sent_overlay_uids.clear();
         state.battle_state = BattleStateMachine::default();
         state.pending_auto_reset = None;
@@ -1834,30 +1984,53 @@ impl AppStateManager {
         use crate::live::opcodes_process::process_sync_dungeon_data;
         use crate::live::scene_names;
 
+        let scene_uuid = sync_dungeon_data.v_data.as_ref().and_then(|v| v.scene_uuid);
         let difficulty = sync_dungeon_data
             .v_data
             .as_ref()
             .and_then(|v| v.dungeon_scene_info.as_ref())
             .and_then(|info| info.difficulty);
+        let inferred_scene_id = scene_uuid.and_then(infer_scene_id_from_scene_uuid);
 
         if let Some(difficulty) = difficulty {
             state.encounter.current_dungeon_difficulty = Some(difficulty);
+        }
 
-            if let Some(scene_id) = state.encounter.current_scene_id {
-                let scene_name = scene_names::lookup_with_difficulty(scene_id, Some(difficulty));
-                let should_emit = state
-                    .encounter
-                    .current_scene_name
-                    .as_ref()
-                    .map(|name| name != &scene_name)
-                    .unwrap_or(true);
+        let scene_id_to_refresh = inferred_scene_id.or(state.encounter.current_scene_id);
+        if let Some(scene_id) = scene_id_to_refresh {
+            let scene_name = scene_names::lookup_with_difficulty(
+                scene_id,
+                state.encounter.current_dungeon_difficulty,
+            );
+            let should_emit = state
+                .encounter
+                .current_scene_name
+                .as_ref()
+                .map(|name| name != &scene_name)
+                .unwrap_or(true);
 
-                state.encounter.current_scene_name = Some(scene_name.clone());
+            state.encounter.current_scene_id = Some(scene_id);
+            state.encounter.current_scene_name = Some(scene_name.clone());
 
-                if should_emit && state.event_manager.should_emit_events() {
-                    state.event_manager.emit_scene_change(scene_name.clone());
-                }
+            if inferred_scene_id.is_some() {
+                info!(
+                    target: "app::live",
+                    "Scene inferred from SyncDungeonData scene_uuid={:?}: {} (ID: {})",
+                    scene_uuid,
+                    scene_name,
+                    scene_id
+                );
             }
+
+            if should_emit && state.event_manager.should_emit_events() {
+                state.event_manager.emit_scene_change(scene_name.clone());
+            }
+        } else if let Some(scene_uuid) = scene_uuid {
+            info!(
+                target: "app::live",
+                "SyncDungeonData scene_uuid={} did not resolve to a known scene id",
+                scene_uuid
+            );
         }
 
         let encounter_has_stats = encounter_has_stats(&state.encounter);
@@ -1987,6 +2160,7 @@ impl AppStateManager {
 
         let mut counter_dirty = false;
         if !result.local_damage_events.is_empty() {
+            remember_local_owned_sources_from_damage_events(state, &result.local_damage_events);
             counter_dirty |= state.local_monitor.counter_tracker.on_damage_events(
                 &result.local_damage_events,
                 state.encounter.local_player_uid,
@@ -2016,6 +2190,7 @@ impl AppStateManager {
                 &mut state.server_clock_offset,
                 state.encounter.local_player_uid,
             );
+            remember_local_owned_sources_from_buff_changes(state, &buff_process_result.changes);
             if let Some(payload) = buff_process_result.update_payload {
                 state.event_manager.emit_buff_update(payload);
             }
@@ -2055,6 +2230,14 @@ impl AppStateManager {
             let target_uuid = aoi_sync_delta.uuid;
             let target_uid = target_uuid.map(|uuid| uuid >> 16);
             let target_entity_type = target_uuid.map(EEntityType::from);
+            let raw_extra_buff_monitored_target = inspect_aoi_delta(
+                &state.encounter,
+                &aoi_sync_delta,
+                state.encounter.local_player_uid,
+            )
+            .is_some_and(|matched| {
+                monster_registry::is_extra_buff_monitored_monster(matched.monster_id.id())
+            });
             let buff_bytes = aoi_sync_delta.buff_effect.take();
             let combat_target_filter = self.prepare_training_dummy_for_delta(
                 state,
@@ -2071,10 +2254,13 @@ impl AppStateManager {
                 combat_target_filter,
                 state.modifier_capture_enabled,
             ) {
+                remember_local_owned_sources_from_damage_events(state, &events);
                 aggregated_damage_events.extend(events);
             }
 
             if let (Some(target_uid), Some(raw_bytes)) = (target_uid, buff_bytes) {
+                let is_non_player_target = target_uid != state.encounter.local_player_uid
+                    && !matches!(target_entity_type, Some(EEntityType::EntChar));
                 let should_monitor_monster_buffs = state
                     .encounter
                     .entity_uid_to_entity
@@ -2085,7 +2271,8 @@ impl AppStateManager {
                                 .monster_type_id
                                 .is_some_and(monster_registry::is_extra_buff_monitored_monster)
                     })
-                    .unwrap_or(false);
+                    .unwrap_or(false)
+                    || (is_non_player_target && raw_extra_buff_monitored_target);
                 if state.modifier_capture_enabled
                     && matches!(target_entity_type, Some(EEntityType::EntChar))
                 {
@@ -2100,12 +2287,33 @@ impl AppStateManager {
                 }
                 if should_monitor_monster_buffs {
                     let local_player_uid = state.encounter.local_player_uid;
+                    let local_owned_source_uids = state.local_owned_source_uids.clone();
+                    let local_owned_source_config_ids = state.local_owned_source_config_ids.clone();
                     let monitor = state.boss_buff_monitors.monitor_for(target_uid);
-                    monitor.process_buff_effect_bytes(
-                        &raw_bytes,
-                        &mut state.server_clock_offset,
-                        local_player_uid,
-                    );
+                    let buff_process_result = monitor
+                        .process_buff_effect_bytes_with_self_source_filter(
+                            &raw_bytes,
+                            &mut state.server_clock_offset,
+                            |_, source_uid, source_config_id, _| {
+                                monster_buff_source_matches_local(
+                                    source_uid,
+                                    source_config_id,
+                                    local_player_uid,
+                                    &local_owned_source_uids,
+                                    &local_owned_source_config_ids,
+                                )
+                            },
+                        );
+                    if !buff_process_result.changes.is_empty() {
+                        info!(
+                            target: "app::live",
+                            "[boss-buff] processed target_uid={} changes={} entity_type={:?} extra_target={}",
+                            target_uid,
+                            buff_process_result.changes.len(),
+                            target_entity_type,
+                            raw_extra_buff_monitored_target
+                        );
+                    }
                 }
             }
         }
@@ -2237,6 +2445,8 @@ impl AppStateManager {
             state.event_manager.emit_encounter_pause(false);
         }
         state.modifier_buff_monitor.active_buffs.clear();
+        state.local_owned_source_uids.clear();
+        state.local_owned_source_config_ids.clear();
         state.death_snapshot_dirty = false;
 
         state.event_manager.emit_encounter_reset();
@@ -2392,14 +2602,14 @@ impl AppStateManager {
             .encounter
             .entity_uid_to_entity
             .values()
-            .filter(|entity| entity.is_boss())
+            .filter(|entity| entity.is_boss_metric_target())
             .count();
         let mut all_hate_lists = HashMap::with_capacity(boss_count);
         let mut new_names =
             HashMap::with_capacity(boss_count.saturating_add(boss_buff_snapshot.len()));
 
         for (&boss_uid, entity) in &state.encounter.entity_uid_to_entity {
-            if !entity.is_boss() {
+            if !entity.is_boss_metric_target() {
                 continue;
             }
             if state.attr_store.is_dead(boss_uid) {

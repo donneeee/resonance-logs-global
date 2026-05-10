@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.0.6_beta5 - Global Beta
+
+- Stabilized monitor runtime startup so saved monitor settings apply even when the backend snapshot is corrupt or stale.
+- Hardened live reset behavior so parsing resumes cleanly and stale meter totals clear immediately.
+- Improved history responsiveness with compact persisted entity summaries and lighter default history loads.
+- Fixed boss/elite aggregate display and filtered Rock Serpent crystal mechanics out of boss metrics.
+- Restored monster-monitor event routing in the embedded game overlay.
+- Fixed the health and shield overlay area localization and HP refresh behavior.
+- Kept WIP modifier analysis behind the explicit opt-in switch.
+
 ## v1.0.6_beta4 - Global Beta
 
 - Disabled WIP modifier analysis by default to reduce live/history CPU cost while modifier attribution work continues.

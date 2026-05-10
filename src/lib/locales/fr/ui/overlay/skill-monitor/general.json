@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "Zone de santé et bouclier",
   "shieldDetail.healShield": "Bouclier de soin",
   "shieldDetail.shield": "Bouclier",
-  "shieldDetail.shieldLabel": "BCL"
+  "shieldDetail.shieldLabel": "BCL",
+  "shieldDetail.unknownShield": "Bouclier",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}"
 }

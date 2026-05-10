@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "พื้นที่ HP และโล่",
   "shieldDetail.healShield": "โล่จากการฮีล",
   "shieldDetail.shield": "โล่",
-  "shieldDetail.shieldLabel": "โล่"
+  "shieldDetail.shieldLabel": "โล่",
+  "shieldDetail.unknownShield": "โล่",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}"
 }

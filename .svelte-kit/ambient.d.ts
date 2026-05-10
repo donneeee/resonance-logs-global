@@ -75,7 +75,9 @@ declare module '$env/static/private' {
 	export const NDI_RUNTIME_DIR_V5: string;
 	export const NODE: string;
 	export const NODE_ENV: string;
+	export const NODE_EXE: string;
 	export const NODE_OPTIONS: string;
+	export const NPM_CLI_JS: string;
 	export const npm_command: string;
 	export const npm_config_cache: string;
 	export const npm_config_globalconfig: string;
@@ -95,6 +97,8 @@ declare module '$env/static/private' {
 	export const npm_package_json: string;
 	export const npm_package_name: string;
 	export const npm_package_version: string;
+	export const NPM_PREFIX_JS: string;
+	export const NPM_PREFIX_NPM_CLI_JS: string;
 	export const NUMBER_OF_PROCESSORS: string;
 	export const NVVFX_MODEL_DIR: string;
 	export const OculusBase: string;
@@ -119,6 +123,13 @@ declare module '$env/static/private' {
 	export const RUST_LOG: string;
 	export const SystemDrive: string;
 	export const SystemRoot: string;
+	export const TAURI_CLI_VERBOSITY: string;
+	export const TAURI_ENV_ARCH: string;
+	export const TAURI_ENV_FAMILY: string;
+	export const TAURI_ENV_PLATFORM: string;
+	export const TAURI_ENV_PLATFORM_VERSION: string;
+	export const TAURI_ENV_TARGET_TRIPLE: string;
+	export const TAURI_UPDATER_PLUGIN_CONFIG: string;
 	export const TEMP: string;
 	export const TMP: string;
 	export const USERDOMAIN: string;
@@ -258,7 +269,9 @@ declare module '$env/dynamic/private' {
 		NDI_RUNTIME_DIR_V5: string;
 		NODE: string;
 		NODE_ENV: string;
+		NODE_EXE: string;
 		NODE_OPTIONS: string;
+		NPM_CLI_JS: string;
 		npm_command: string;
 		npm_config_cache: string;
 		npm_config_globalconfig: string;
@@ -278,6 +291,8 @@ declare module '$env/dynamic/private' {
 		npm_package_json: string;
 		npm_package_name: string;
 		npm_package_version: string;
+		NPM_PREFIX_JS: string;
+		NPM_PREFIX_NPM_CLI_JS: string;
 		NUMBER_OF_PROCESSORS: string;
 		NVVFX_MODEL_DIR: string;
 		OculusBase: string;
@@ -302,6 +317,13 @@ declare module '$env/dynamic/private' {
 		RUST_LOG: string;
 		SystemDrive: string;
 		SystemRoot: string;
+		TAURI_CLI_VERBOSITY: string;
+		TAURI_ENV_ARCH: string;
+		TAURI_ENV_FAMILY: string;
+		TAURI_ENV_PLATFORM: string;
+		TAURI_ENV_PLATFORM_VERSION: string;
+		TAURI_ENV_TARGET_TRIPLE: string;
+		TAURI_UPDATER_PLUGIN_CONFIG: string;
 		TEMP: string;
 		TMP: string;
 		USERDOMAIN: string;

@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "Área de salud y escudo",
   "shieldDetail.healShield": "Escudo de curación",
   "shieldDetail.shield": "Escudo",
-  "shieldDetail.shieldLabel": "ESC"
+  "shieldDetail.shieldLabel": "ESC",
+  "shieldDetail.unknownShield": "Escudo",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}"
 }

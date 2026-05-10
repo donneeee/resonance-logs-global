@@ -21,6 +21,7 @@ pub struct MonsterInfo {
 
 const MONSTER_ID_NAME_TYPE_RELATIVE: &str = "generated/monsternames.json";
 const EXTRA_BUFF_MONITORED_MONSTERS_RELATIVE: &str = "logic/ExtraBuffMonitoredMonsters.json";
+const BOSS_METRIC_EXCLUDED_MONSTERS_RELATIVE: &str = "logic/BossMetricExcludedMonsters.json";
 
 static MONSTER_REGISTRY: LazyLock<HashMap<i32, MonsterInfo>> = LazyLock::new(|| {
     #[derive(Deserialize)]
@@ -69,7 +70,7 @@ static MONSTER_REGISTRY: LazyLock<HashMap<i32, MonsterInfo>> = LazyLock::new(|| 
 });
 
 static EXTRA_BUFF_MONITORED_MONSTER_IDS: LazyLock<HashSet<i32>> = LazyLock::new(|| {
-    load_extra_buff_monitored_monster_ids().unwrap_or_else(|err| {
+    load_monster_id_list(EXTRA_BUFF_MONITORED_MONSTERS_RELATIVE).unwrap_or_else(|err| {
         warn!(
             "[monster-registry] failed to load {}: {}",
             EXTRA_BUFF_MONITORED_MONSTERS_RELATIVE, err
@@ -78,24 +79,44 @@ static EXTRA_BUFF_MONITORED_MONSTER_IDS: LazyLock<HashSet<i32>> = LazyLock::new(
     })
 });
 
+static BOSS_METRIC_EXCLUDED_MONSTER_IDS: LazyLock<HashSet<i32>> = LazyLock::new(|| {
+    load_monster_id_list(BOSS_METRIC_EXCLUDED_MONSTERS_RELATIVE).unwrap_or_else(|err| {
+        warn!(
+            "[monster-registry] failed to load {}: {}",
+            BOSS_METRIC_EXCLUDED_MONSTERS_RELATIVE, err
+        );
+        HashSet::new()
+    })
+});
+
+static BOSS_METRIC_EXCLUDED_MONSTER_NAMES: LazyLock<HashSet<String>> = LazyLock::new(|| {
+    BOSS_METRIC_EXCLUDED_MONSTER_IDS
+        .iter()
+        .filter_map(|id| MONSTER_REGISTRY.get(id))
+        .map(|info| normalize_monster_name(&info.name))
+        .filter(|name| !name.is_empty())
+        .collect()
+});
+
 #[derive(Debug, Deserialize)]
-struct RawExtraBuffMonitoredMonsters {
+struct RawMonsterIdList {
     #[serde(rename = "monsterIds")]
     monster_ids: Vec<i32>,
 }
 
-fn parse_extra_buff_monitored_monster_ids(
-    contents: &str,
-) -> Result<HashSet<i32>, serde_json::Error> {
-    let raw: RawExtraBuffMonitoredMonsters = serde_json::from_str(contents)?;
+fn normalize_monster_name(name: &str) -> String {
+    name.trim().to_ascii_lowercase()
+}
+
+fn parse_monster_id_list(contents: &str) -> Result<HashSet<i32>, serde_json::Error> {
+    let raw: RawMonsterIdList = serde_json::from_str(contents)?;
     Ok(raw.monster_ids.into_iter().filter(|id| *id > 0).collect())
 }
 
-fn load_extra_buff_monitored_monster_ids() -> Result<HashSet<i32>> {
-    let contents = parser_data::read_to_string(EXTRA_BUFF_MONITORED_MONSTERS_RELATIVE)
-        .with_context(|| format!("failed to read {}", EXTRA_BUFF_MONITORED_MONSTERS_RELATIVE))?;
-    parse_extra_buff_monitored_monster_ids(&contents)
-        .with_context(|| format!("failed to parse {}", EXTRA_BUFF_MONITORED_MONSTERS_RELATIVE))
+fn load_monster_id_list(relative_path: &str) -> Result<HashSet<i32>> {
+    let contents = parser_data::read_to_string(relative_path)
+        .with_context(|| format!("failed to read {}", relative_path))?;
+    parse_monster_id_list(&contents).with_context(|| format!("failed to parse {}", relative_path))
 }
 
 pub fn monster_name(id: i32) -> Option<&'static str> {
@@ -108,4 +129,30 @@ pub fn monster_type(id: i32) -> Option<MonsterType> {
 
 pub fn is_extra_buff_monitored_monster(id: i32) -> bool {
     EXTRA_BUFF_MONITORED_MONSTER_IDS.contains(&id)
+}
+
+pub fn counts_as_boss_metric_monster(id: i32) -> bool {
+    monster_type(id)
+        .map(|monster_type| {
+            monster_type == MonsterType::Boss && !BOSS_METRIC_EXCLUDED_MONSTER_IDS.contains(&id)
+        })
+        .unwrap_or(false)
+}
+
+pub fn counts_as_elite_or_boss_metric_monster(id: i32) -> bool {
+    monster_type(id)
+        .map(|monster_type| {
+            matches!(monster_type, MonsterType::Elite)
+                || (monster_type == MonsterType::Boss
+                    && !BOSS_METRIC_EXCLUDED_MONSTER_IDS.contains(&id))
+        })
+        .unwrap_or(false)
+}
+
+pub fn is_boss_metric_excluded_monster_name(name: &str) -> bool {
+    let normalized = normalize_monster_name(name);
+    !normalized.is_empty()
+        && (BOSS_METRIC_EXCLUDED_MONSTER_NAMES.contains(&normalized)
+            || normalized.ends_with("_coordinate")
+            || normalized.ends_with("_coordinates"))
 }

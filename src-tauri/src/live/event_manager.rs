@@ -416,7 +416,7 @@ pub fn generate_live_data_payload(
         .entity_uid_to_entity
         .iter()
         .filter_map(|(&uid, entity)| {
-            if !entity.is_boss() {
+            if !entity.is_boss_metric_target() {
                 return None;
             }
 

@@ -3480,7 +3480,7 @@ fn build_live_snapshot_logger_entries(
         let has_combat = entity.damage.hits > 0 || entity.healing.hits > 0 || entity.taken.hits > 0;
         let has_hp = current_hp.is_some() || max_hp.is_some();
         let is_player = entity.entity_type == blueprotobuf::EEntityType::EntChar;
-        let is_boss = entity.is_boss();
+        let is_boss = entity.is_boss_metric_target();
 
         if is_player && (has_combat || uid == local_player_uid) {
             entries.push(EventLoggerEntry {
@@ -4392,13 +4392,20 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                 emit_auxiliary_entries(app_handle, entries);
             }
             OutboundEvent::BossBuffUpdate(boss_buffs) => {
+                let payload = BossBuffUpdatePayload {
+                    boss_buffs: boss_buffs.clone(),
+                };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "boss-buff-update",
+                    payload.clone(),
+                );
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "boss-buff-update",
-                    BossBuffUpdatePayload {
-                        boss_buffs: boss_buffs.clone(),
-                    },
+                    payload,
                 );
                 let mut entries = Vec::new();
                 for (boss_uid, buffs) in boss_buffs {
@@ -4426,13 +4433,20 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                 emit_auxiliary_entries(app_handle, entries);
             }
             OutboundEvent::HateListUpdate(hate_lists) => {
+                let payload = HateListUpdatePayload {
+                    hate_lists: hate_lists.clone(),
+                };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "hate-list-update",
+                    payload.clone(),
+                );
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "hate-list-update",
-                    HateListUpdatePayload {
-                        hate_lists: hate_lists.clone(),
-                    },
+                    payload,
                 );
                 let mut entries = Vec::new();
                 for (boss_uid, entries_for_boss) in hate_lists {
@@ -4460,13 +4474,20 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                 emit_auxiliary_entries(app_handle, entries);
             }
             OutboundEvent::EntityNameMap { names } => {
+                let payload = EntityNameMapPayload {
+                    names: names.clone(),
+                };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "entity-names",
+                    payload.clone(),
+                );
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "entity-names",
-                    EntityNameMapPayload {
-                        names: names.clone(),
-                    },
+                    payload,
                 );
                 emit_auxiliary_entries(
                     app_handle,

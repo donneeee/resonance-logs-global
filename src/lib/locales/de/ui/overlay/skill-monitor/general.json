@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "Lebens- und Schildbereich",
   "shieldDetail.healShield": "Heilschild",
   "shieldDetail.shield": "Schild",
-  "shieldDetail.shieldLabel": "SCH"
+  "shieldDetail.shieldLabel": "SCH",
+  "shieldDetail.unknownShield": "Schild",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}"
 }

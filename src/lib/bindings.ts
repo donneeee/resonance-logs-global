@@ -620,6 +620,14 @@ async toggleGameOverlayWindow() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async setHideMainWindowToTray(enabled: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_hide_main_window_to_tray", { enabled }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async toggleGameOverlayEditMode() : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("toggle_game_overlay_edit_mode") };
@@ -791,7 +799,7 @@ export type EventLoggerFileStoragePayload = { configuredDirectory: string | null
 export type EventLoggerSessionDirectoryPayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean }
 export type GpuSupport = { cuda_available: boolean; opencl_available: boolean }
 export type HistoryEntityData = { uid: number; name: string; classId: number; classSpec: number; className: string; classSpecName: string; abilityScore: number; seasonStrength: number; damage: RawCombatStats; damageBossOnly: RawCombatStats; healing: RawCombatStats; taken: RawCombatStats; dmgSkills: Partial<{ [key in number]: RawSkillStats }>; healSkills: Partial<{ [key in number]: RawSkillStats }>; takenSkills: Partial<{ [key in number]: RawSkillStats }>; activeBuffs: ActiveBuffState[]; activeFactorBuffs: ActiveFactorBuffState[]; activeEffectBuffs: ActiveEffectBuffState[]; modifierWindows: ModifierWindowState[]; modifierHitBuckets: ModifierHitBucketState[]; modifierReplayHits: ModifierReplayHitState[]; skillCastEvents: SkillCastEventState[]; skillCooldownEvents: SkillCooldownEventState[]; activeEffectSources: ActiveEffectSourceState[]; activeFactorItems: ActiveFactorItemState[]; activePassiveSkills: ActivePassiveSkillState[]; activeProfessionSkills: ActiveProfessionSkillState[]; activeProfessionTalents: ActiveProfessionTalentState[]; modifierSourceActors?: ModifierSourceActorState[]; dmgPerTarget: PerTargetStats[]; healPerTarget: PerTargetStats[]; deaths: DeathRecord[] }
-export type LiveRuntimeSnapshot = { eventUpdateRateMs: number; modifierReportsEnabled: boolean; modifierReportsOptInVersion: string | null }
+export type LiveRuntimeSnapshot = { eventUpdateRateMs: number; autoClearOnSceneChange?: boolean; modifierReportsEnabled: boolean; modifierReportsOptInVersion: string | null }
 export type ModifierHitBucketState = { modifierBuffUuid: number; modifierBaseId: number; modifierBuffLevel: number | null; modifierPartId: number | null; modifierCount: number | null; modifierFightSourceType: number | null; modifierSourceConfigId: number | null; modifierLayer: number; modifierDurationMs: number; modifierStartTimeMs: number; modifierEndTimeMs: number | null; modifierHostUid: number; modifierSourceUid: number; skillKey: number; damageId: number; ownerId: number; ownerLevel: number | null; hitEventId: number | null; damageSource: number | null; property: number | null; damageMode: number | null; attackerUid: number; originalAttackerUid: number; topSummonerUid: number | null; targetUid: number; targetMonsterTypeId: number | null; isHeal: boolean; hits: number; totalValue: number; effectiveTotalValue: number; critHits: number; critTotalValue: number; luckyHits: number; luckyTotalValue: number; hpLossTotal: number; shieldLossTotal: number; firstHitTimeMs: number; lastHitTimeMs: number }
 export type ModifierReplayAttrState = { attrId: number; valueInt: number | null; valueFloat: number | null; valueBool: boolean | null }
 export type ModifierReplayHitState = { timestampMs: number; skillKey: number; damageId: number; ownerId: number; ownerLevel: number | null; hitEventId: number | null; damageSource: number | null; property: number | null; damageMode: number | null; attackerUid: number; originalAttackerUid: number; topSummonerUid: number | null; targetUid: number; targetMonsterTypeId: number | null; isHeal: boolean; isCrit: boolean; isLucky: boolean; value: number; effectiveValue: number; hpLossValue: number; shieldLossValue: number; activeModifiers: ModifierReplaySourceState[]; attackerAttrs: ModifierReplayAttrState[]; targetAttrs: ModifierReplayAttrState[] }

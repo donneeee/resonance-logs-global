@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "Area HP dan Shield",
   "shieldDetail.healShield": "Shield Heal",
   "shieldDetail.shield": "Shield",
-  "shieldDetail.shieldLabel": "SHD"
+  "shieldDetail.shieldLabel": "SHD",
+  "shieldDetail.unknownShield": "Shield",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}"
 }

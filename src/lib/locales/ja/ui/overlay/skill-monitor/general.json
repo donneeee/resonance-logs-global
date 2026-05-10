@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "HP とシールド領域",
   "shieldDetail.healShield": "回復シールド",
   "shieldDetail.shield": "シールド",
-  "shieldDetail.shieldLabel": "SHD"
+  "shieldDetail.shieldLabel": "SHD",
+  "shieldDetail.unknownShield": "シールド",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}"
 }

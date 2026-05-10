@@ -800,6 +800,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   abbreviationStyle: 'western' | 'cn';
   abbreviatedDecimalPlaces: number;
   eventUpdateRateMs: number;
+  autoClearOnSceneChange: boolean;
   modifierReportsEnabled: boolean;
   language: LocaleCode;
   skillIdDisplayMode: SkillIdDisplayMode;
@@ -823,14 +824,15 @@ const DEFAULT_GENERAL_SETTINGS: {
   abbreviationStyle: 'western',
   abbreviatedDecimalPlaces: 1,
   eventUpdateRateMs: 200,
+  autoClearOnSceneChange: true,
   modifierReportsEnabled: false,
   language: 'zh-CN',
   skillIdDisplayMode: 'off',
   showHoverDescriptions: true,
 };
 
-export const MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION = "1.0.6-beta.4";
-const MODIFIER_REPORTS_RESET_VERSION = "1.0.6-beta.4";
+export const MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION = "1.0.6-beta.5";
+const MODIFIER_REPORTS_RESET_VERSION = "1.0.6-beta.5";
 
 export const DEFAULT_CLASS_COLORS: Record<string, string> = {
   Stormblade: "#674598",
@@ -1207,6 +1209,9 @@ const DEFAULT_SETTINGS = {
     defaultMonsterId: 122 as 115 | 122,
     showHeaderControl: true,
   },
+  appBehavior: {
+    hideMainWindowToTray: false,
+  },
   live: {
     general: { ...DEFAULT_GENERAL_SETTINGS },
     dpsPlayers: { ...DEFAULT_STATS },
@@ -1310,6 +1315,11 @@ export const SETTINGS = {
   trainingDummy: new RuneStore(
     "trainingDummy",
     DEFAULT_SETTINGS.trainingDummy,
+    RUNE_STORE_OPTIONS,
+  ),
+  appBehavior: new RuneStore(
+    "appBehavior",
+    DEFAULT_SETTINGS.appBehavior,
     RUNE_STORE_OPTIONS,
   ),
   live: {
@@ -1493,6 +1503,7 @@ export const settings = {
     customTriggers: SETTINGS.customTriggers.state,
     monsterMonitor: SETTINGS.monsterMonitor.state,
     trainingDummy: SETTINGS.trainingDummy.state,
+    appBehavior: SETTINGS.appBehavior.state,
     live: {
       general: SETTINGS.live.general.state,
       dps: {
@@ -1548,6 +1559,7 @@ export const settings = {
 
 
 export function normalizePersistedSettings(): void {
+  mergeFlatDefaults(SETTINGS.appBehavior.state as MutableRecord, DEFAULT_SETTINGS.appBehavior);
   mergeFlatDefaults(SETTINGS.live.general.state as MutableRecord, DEFAULT_SETTINGS.live.general);
   mergeFlatDefaults(SETTINGS.live.tableCustomization.state as MutableRecord, DEFAULT_SETTINGS.live.tableCustomization);
   mergeFlatDefaults(SETTINGS.live.headerCustomization.state as MutableRecord, DEFAULT_SETTINGS.live.headerCustomization);

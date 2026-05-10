@@ -5,6 +5,8 @@
   "abbreviatedDecimalPlaces.option3": "3 digits (1.234m)",
   "abbreviatedDecimalPlaces.option4": "4 digits (1.2345m)",
   "abbreviatedDecimalPlacesDescription": "Set how many decimal places abbreviated DPS/HPS/TPS values keep in player and skill tables",
+  "autoClearOnSceneChange": "Clear Meter on Scene Change",
+  "autoClearOnSceneChangeDescription": "Automatically save and clear the current meter when the game changes scene or server. Turn this off to keep the current meter running across scene changes.",
   "defaultTargetDummy": "Default Dummy Target",
   "defaultTargetDummyDescription": "The header target-dummy button will use this default target directly",
   "generalSettings": "General Settings",

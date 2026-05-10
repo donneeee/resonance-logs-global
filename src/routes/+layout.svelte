@@ -6,6 +6,7 @@
   import "../app.css";
   import { onMount } from "svelte";
   import { getCurrentWebviewWindow } from "@tauri-apps/api/webviewWindow";
+  import { commands } from "$lib/bindings";
   import { hideEventLoggerWindow, showEventLoggerWindow } from "$lib/event-logger-window";
   import { SETTINGS } from "$lib/settings-store";
   // Only allow warnings and errors to be printed to console in production builds
@@ -17,6 +18,8 @@
   }
 
   let { children } = $props();
+  let isMainWindow = $state(false);
+  let lastSyncedHideMainWindowToTray: boolean | null = null;
 
   const customThemeKeyToCssVar: Record<string, string | string[]> = {
     backgroundMain: "--background-main",
@@ -62,6 +65,7 @@
   onMount(() => {
     const currentWindow = getCurrentWebviewWindow();
     if (currentWindow.label !== "main") return;
+    isMainWindow = true;
 
     void (async () => {
       if (SETTINGS.customTriggers.state.loggerStartWithMeter) {
@@ -71,6 +75,13 @@
       }
     })();
   });
+
+  async function syncHideMainWindowToTray(enabled: boolean) {
+    const result = await commands.setHideMainWindowToTray(enabled);
+    if (result.status === "error") {
+      console.error("Failed to sync main-window tray behavior", result.error);
+    }
+  }
 
   // Remove custom theme inline styles
   function clearCustomThemeColors() {
@@ -108,6 +119,14 @@
 })()}
 
 {(() => {
+  $effect(() => {
+    if (!isMainWindow) return;
+
+    const enabled = SETTINGS.appBehavior.state.hideMainWindowToTray === true;
+    if (lastSyncedHideMainWindowToTray === enabled) return;
+    lastSyncedHideMainWindowToTray = enabled;
+    void syncHideMainWindowToTray(enabled);
+  });
 })()}
 
 {@render children()}

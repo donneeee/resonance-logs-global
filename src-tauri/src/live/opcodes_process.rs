@@ -76,6 +76,9 @@ pub struct SyncToMeDeltaResult {
 pub struct LocalDamageEvent {
     pub skill_key: i64,
     pub target_uid: i64,
+    pub attacker_uid: i64,
+    pub original_attacker_uid: i64,
+    pub top_summoner_uid: Option<i64>,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -1336,6 +1339,7 @@ pub fn process_aoi_sync_delta(
             entity_type: target_entity_type,
             ..Default::default()
         });
+    target_entity.entity_type = target_entity_type;
 
     if let Some(attrs_collection) = aoi_sync_delta.attrs {
         match target_entity_type {
@@ -1429,6 +1433,9 @@ pub fn process_aoi_sync_delta(
             local_damage_events.push(LocalDamageEvent {
                 skill_key,
                 target_uid,
+                attacker_uid,
+                original_attacker_uid,
+                top_summoner_uid,
             });
         }
         let flag = sync_damage_info.type_flag.unwrap_or_default();
@@ -1436,7 +1443,7 @@ pub fn process_aoi_sync_delta(
         let is_boss_target = encounter
             .entity_uid_to_entity
             .get(&target_uid)
-            .map(|e| e.is_elite_or_boss())
+            .map(|e| e.is_elite_or_boss_metric_target())
             .unwrap_or(false);
         let target_monster_type_id = encounter
             .entity_uid_to_entity

@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "체력 및 보호막 영역",
   "shieldDetail.healShield": "회복 보호막",
   "shieldDetail.shield": "보호막",
-  "shieldDetail.shieldLabel": "보호막"
+  "shieldDetail.shieldLabel": "보호막",
+  "shieldDetail.unknownShield": "보호막",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}"
 }

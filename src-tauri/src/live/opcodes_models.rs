@@ -976,6 +976,17 @@ impl Entity {
             .unwrap_or(false)
     }
 
+    /// Determine whether this entity should appear in boss HP and boss aggregate metrics.
+    pub fn is_boss_metric_target(&self) -> bool {
+        if self.entity_type != EEntityType::EntMonster {
+            return false;
+        }
+
+        self.monster_type_id
+            .map(monster_registry::counts_as_boss_metric_monster)
+            .unwrap_or(false)
+    }
+
     /// Determine whether this entity should count for DPS boss aggregate columns.
     pub fn is_elite_or_boss(&self) -> bool {
         if self.entity_type != EEntityType::EntMonster {
@@ -985,6 +996,17 @@ impl Entity {
         self.monster_type_id
             .and_then(monster_registry::monster_type)
             .map(|monster_type| matches!(monster_type, MonsterType::Elite | MonsterType::Boss))
+            .unwrap_or(false)
+    }
+
+    /// Determine whether this entity should count for displayed boss aggregate columns.
+    pub fn is_elite_or_boss_metric_target(&self) -> bool {
+        if self.entity_type != EEntityType::EntMonster {
+            return false;
+        }
+
+        self.monster_type_id
+            .map(monster_registry::counts_as_elite_or_boss_metric_monster)
             .unwrap_or(false)
     }
 }

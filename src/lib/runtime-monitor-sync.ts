@@ -155,6 +155,7 @@ export function buildMonitorRuntimeSnapshot(): MonitorRuntimeSnapshot {
   return {
     live: {
       eventUpdateRateMs: SETTINGS.live.general.state.eventUpdateRateMs,
+      autoClearOnSceneChange: SETTINGS.live.general.state.autoClearOnSceneChange !== false,
       modifierReportsEnabled: SETTINGS.live.general.state.modifierReportsEnabled === true,
       modifierReportsOptInVersion:
         SETTINGS.live.general.state.modifierReportsEnabled === true

@@ -52,5 +52,9 @@
   "overlay.shieldDetail": "生命与护盾区域",
   "shieldDetail.healShield": "治疗护盾",
   "shieldDetail.shield": "护盾",
-  "shieldDetail.shieldLabel": "盾"
+  "shieldDetail.shieldLabel": "盾",
+  "shieldDetail.unknownShield": "护盾",
+  "shieldDetail.hp": "HP",
+  "shieldDetail.seconds": "{value}s",
+  "shieldDetail.entryTitle": "UUID：{uuid} - baseId：{baseId}"
 }

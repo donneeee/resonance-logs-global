@@ -79,6 +79,11 @@ impl EntityAttrStore {
         {
             self.cd_dirty = true;
         }
+        if uid == self.local_player_uid
+            && matches!(attr_type, AttrType::CurrentHp | AttrType::MaxHp)
+        {
+            self.shield_detail_dirty = true;
+        }
         if matches!(attr_type, AttrType::ActorState) {
             let is_dead_now = self.is_dead(uid);
             if !was_dead && is_dead_now {
@@ -225,6 +230,7 @@ impl EntityAttrStore {
         self.attrs.clear();
         self.hate_lists.clear();
         self.fight_resource_ids.clear();
+        self.temp_attrs.clear();
         self.panel_dirty_attrs
             .extend(self.panel_attr_values.keys().map(|attr_id| PanelAttrState {
                 attr_id: *attr_id,

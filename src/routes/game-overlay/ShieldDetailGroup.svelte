@@ -1,7 +1,12 @@
 <script lang="ts">
   import { resolveBuffDisplayName } from "$lib/config/buff-name-table";
   import { SETTINGS } from "$lib/settings-store";
-  import { uiT } from "$lib/i18n";
+  import {
+    PRIMARY_FALLBACK_LOCALE,
+    isLocaleCode,
+    uiT,
+    type LocaleCode,
+  } from "$lib/i18n";
   import { untrack } from "svelte";
   import {
     buffAliases,
@@ -24,7 +29,8 @@
   const style = $derived(shieldDetailStyle());
   const now = $derived(overlayNow());
   const aliases = $derived(buffAliases());
-  const t = uiT("overlay/skill-monitor/general", () => SETTINGS.live.general.state.language);
+  const locale = $derived(normalizeLocale(SETTINGS.live.general.state.language));
+  const t = uiT("overlay/skill-monitor/general", () => locale);
 
   const totalShield = $derived(
     entries.reduce((sum, e) => sum + e.current, 0),
@@ -77,6 +83,20 @@
     return v.toLocaleString();
   }
 
+  function normalizeLocale(value: unknown): LocaleCode {
+    return typeof value === "string" && isLocaleCode(value)
+      ? value
+      : PRIMARY_FALLBACK_LOCALE;
+  }
+
+  function formatMessage(template: string, values: Record<string, string | number>): string {
+    return template.replace(/\{(\w+)\}/g, (match, key) =>
+      Object.prototype.hasOwnProperty.call(values, key)
+        ? String(values[key])
+        : match,
+    );
+  }
+
   function hpPct(current: number, max: number): number {
     return max > 0 ? Math.min(100, (current / max) * 100) : 0;
   }
@@ -91,19 +111,29 @@
 
   function entryName(baseId: number, buffUuid: number, displayType: number): string {
     if (baseId > 0) {
-      return resolveBuffDisplayName(baseId, aliases);
+      return resolveBuffDisplayName(baseId, aliases, locale);
     }
     const typeSuffix = displayType === 12
       ? t("shieldDetail.healShield", "Heal Shield")
-      : t("shieldDetail.shield", "Shield");
+      : t("shieldDetail.unknownShield", "Shield");
     return `${typeSuffix}#${buffUuid}`;
+  }
+
+  function entryTitle(buffUuid: number, baseId: number): string {
+    return formatMessage(
+      t("shieldDetail.entryTitle", "UUID: {uuid} - baseId: {baseId}"),
+      { uuid: buffUuid, baseId },
+    );
   }
 
   function remainingText(expireTimeMs: number): string {
     if (expireTimeMs <= 0) return "";
     const remaining = Math.max(0, expireTimeMs - now);
     if (remaining <= 0) return "";
-    return `${(remaining / 1000).toFixed(1)}s`;
+    return formatMessage(
+      t("shieldDetail.seconds", "{value}s"),
+      { value: (remaining / 1000).toFixed(1) },
+    );
   }
 </script>
 
@@ -126,7 +156,7 @@
       {#if hasData}
         {@const hpPercent = hpPct(hp.current, hp.max)}
         <div class="detail-row">
-          <span class="row-label hp-label">HP</span>
+          <span class="row-label hp-label">{t("shieldDetail.hp", "HP")}</span>
           <div class="bar-container" style:width={`${style.barWidth}px`}>
             <div class="bar-bg hp-bar-bg">
               <div class="bar-fill" style:width={`${hpPercent}%`} style:background={style.hpColor}></div>
@@ -175,7 +205,7 @@
           {@const name = entryName(entry.baseId, entry.buffUuid, entry.displayType)}
           {@const timeText = remainingText(entry.expireTimeMs)}
           <div class="detail-row entry-row">
-            <span class="row-label entry-label" title={`UUID: ${entry.buffUuid} - baseId: ${entry.baseId}`}>
+            <span class="row-label entry-label" title={entryTitle(entry.buffUuid, entry.baseId)}>
               {name}
             </span>
             <div class="bar-container" style:width={`${style.barWidth}px`}>

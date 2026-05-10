@@ -7,6 +7,7 @@
   import { setEventLoggerAlwaysOnTop, showEventLoggerWindow } from "$lib/event-logger-window";
   import { uiT } from "$lib/i18n";
   import { SETTINGS } from "$lib/settings-store";
+  import SettingsSwitch from "../../dps/settings/settings-switch.svelte";
   import ProfileSwitcher from "../../skill-monitor/profile-switcher.svelte";
 
   type EventLoggerSessionDirectoryPayload = {
@@ -120,6 +121,31 @@
       </div>
 
       <ProfileSwitcher />
+    </div>
+  </div>
+
+  <div class="overflow-hidden rounded-lg border border-border/60 bg-card/40 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
+    <div class="space-y-4 px-4 py-3">
+      <div>
+        <h2 class="text-base font-semibold text-foreground">
+          {tShell("settings.appBehavior", "Application Behavior")}
+        </h2>
+        <p class="mt-1 text-sm text-muted-foreground">
+          {tShell(
+            "settings.appBehavior.subtitle",
+            "Control process-wide app behavior that is not tied to a single overlay or meter view.",
+          )}
+        </p>
+      </div>
+
+      <SettingsSwitch
+        bind:checked={SETTINGS.appBehavior.state.hideMainWindowToTray}
+        label={tShell("settings.hideMainWindowToTray", "Hide main window to tray")}
+        description={tShell(
+          "settings.hideMainWindowToTrayDescription",
+          "When enabled, closing the main window hides it instead of exiting. Use the tray icon to restore it or Quit to fully exit.",
+        )}
+      />
     </div>
   </div>
 

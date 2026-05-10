@@ -1,4 +1,5 @@
 use std::collections::{HashMap, HashSet};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::Instant;
 
 use diesel::prelude::*;
@@ -8,8 +9,14 @@ use crate::database::PlayerNameEntry;
 use crate::database::db_exec;
 use crate::database::schema as sch;
 use crate::live::commands_models as lc;
+use crate::live::monster_registry;
 use crate::live::opcodes_models::{Entity, class};
 use blueprotobuf_lib::blueprotobuf::EEntityType;
+
+const HISTORY_ENTITY_SUMMARY_VERSION: i32 = 1;
+const HISTORY_ENTITY_SUMMARY_CACHE_MAX: usize = 16;
+type HistoryEntitySummaryCache = Vec<(i32, Arc<Vec<lc::HistoryEntityData>>)>;
+static HISTORY_ENTITY_SUMMARY_CACHE: OnceLock<Mutex<HistoryEntitySummaryCache>> = OnceLock::new();
 
 /// A summary of a player in an encounter.
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
@@ -151,11 +158,58 @@ fn parse_player_entries(json: &Option<String>) -> Vec<PlayerSummaryDto> {
         .collect()
 }
 
+fn parse_boss_name_strings(json: &Option<String>) -> Vec<String> {
+    json.as_ref()
+        .and_then(|j| serde_json::from_str::<Vec<String>>(j).ok())
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|name| {
+            let trimmed = name.trim();
+            (!trimmed.is_empty()
+                && !monster_registry::is_boss_metric_excluded_monster_name(trimmed))
+            .then(|| trimmed.to_string())
+        })
+        .collect()
+}
+
+fn parse_boss_summary_entries(json: &Option<String>) -> Vec<BossSummaryDto> {
+    parse_boss_name_strings(json)
+        .into_iter()
+        .map(|name| BossSummaryDto {
+            monster_name: name,
+            max_hp: None,
+            is_defeated: true,
+        })
+        .collect()
+}
+
 fn extract_player_names_from_json(json: &Option<String>) -> Vec<String> {
     parse_player_entries(json)
         .into_iter()
         .map(|player| player.name)
         .collect()
+}
+
+fn has_active_encounter_filters(filter: &EncounterFiltersDto) -> bool {
+    filter.is_favorite == Some(true)
+        || filter
+            .boss_names
+            .as_ref()
+            .is_some_and(|values| !values.is_empty())
+        || filter
+            .encounter_names
+            .as_ref()
+            .is_some_and(|values| !values.is_empty())
+        || filter
+            .player_names
+            .as_ref()
+            .is_some_and(|values| !values.is_empty())
+        || filter
+            .player_name
+            .as_ref()
+            .is_some_and(|value| !value.trim().is_empty())
+        || filter.date_from_ms.is_some()
+        || filter.date_to_ms.is_some()
 }
 
 /// Gets a list of unique boss names.
@@ -175,13 +229,9 @@ pub fn get_unique_boss_names() -> Result<BossNamesResult, String> {
             .load::<Option<String>>(conn)
             .map_err(|e| e.to_string())?;
         let mut set = HashSet::new();
-        for json in rows.into_iter().flatten() {
-            if let Ok(names) = serde_json::from_str::<Vec<String>>(&json) {
-                for name in names {
-                    if !name.is_empty() {
-                        set.insert(name);
-                    }
-                }
+        for json in rows {
+            for name in parse_boss_name_strings(&json) {
+                set.insert(name);
             }
         }
         let boss_names: Vec<String> = set.into_iter().collect();
@@ -278,7 +328,7 @@ pub fn get_recent_encounters_filtered(
 ) -> Result<RecentEncountersResult, String> {
     with_db(move |conn| {
         use sch::encounters::dsl as e;
-        let mut rows: Vec<(
+        type EncounterSummaryRow = (
             i32,
             i64,
             Option<i64>,
@@ -289,29 +339,62 @@ pub fn get_recent_encounters_filtered(
             f64,
             Option<f64>,
             Option<i64>,
+            Option<i64>,
             i32,
             Option<String>,
             Option<String>,
-        )> = e::encounters
-            .filter(e::ended_at_ms.is_not_null())
-            .order(e::started_at_ms.desc())
-            .select((
-                e::id,
-                e::started_at_ms,
-                e::ended_at_ms,
-                e::total_dmg,
-                e::total_heal,
-                e::scene_id,
-                e::scene_name,
-                e::duration,
-                e::active_combat_duration,
-                e::remote_encounter_id,
-                e::is_favorite,
-                e::boss_names,
-                e::player_names,
-            ))
-            .load(conn)
-            .map_err(|er| er.to_string())?;
+        );
+        let filters = filters.filter(has_active_encounter_filters);
+        let has_filters = filters.is_some();
+        let page_limit = limit.max(0) as i64;
+        let page_offset = offset.max(0) as i64;
+        let mut rows: Vec<EncounterSummaryRow> = if has_filters {
+            e::encounters
+                .filter(e::ended_at_ms.is_not_null())
+                .order(e::started_at_ms.desc())
+                .select((
+                    e::id,
+                    e::started_at_ms,
+                    e::ended_at_ms,
+                    e::total_dmg,
+                    e::total_heal,
+                    e::scene_id,
+                    e::scene_name,
+                    e::duration,
+                    e::active_combat_duration,
+                    e::local_player_id,
+                    e::remote_encounter_id,
+                    e::is_favorite,
+                    e::boss_names,
+                    e::player_names,
+                ))
+                .load(conn)
+                .map_err(|er| er.to_string())?
+        } else {
+            e::encounters
+                .filter(e::ended_at_ms.is_not_null())
+                .order(e::started_at_ms.desc())
+                .limit(page_limit)
+                .offset(page_offset)
+                .select((
+                    e::id,
+                    e::started_at_ms,
+                    e::ended_at_ms,
+                    e::total_dmg,
+                    e::total_heal,
+                    e::scene_id,
+                    e::scene_name,
+                    e::duration,
+                    e::active_combat_duration,
+                    e::local_player_id,
+                    e::remote_encounter_id,
+                    e::is_favorite,
+                    e::boss_names,
+                    e::player_names,
+                ))
+                .load(conn)
+                .map_err(|er| er.to_string())?
+        };
         if let Some(filter) = filters {
             rows.retain(
                 |(
@@ -322,6 +405,7 @@ pub fn get_recent_encounters_filtered(
                     _,
                     _,
                     scene_name,
+                    _,
                     _,
                     _,
                     _,
@@ -356,10 +440,7 @@ pub fn get_recent_encounters_filtered(
                     }
                     if let Some(ref boss_names) = filter.boss_names {
                         if !boss_names.is_empty() {
-                            let stored: Vec<String> = boss_names_json
-                                .as_ref()
-                                .and_then(|j| serde_json::from_str(j).ok())
-                                .unwrap_or_default();
+                            let stored = parse_boss_name_strings(boss_names_json);
                             if !boss_names.iter().any(|b| stored.contains(b)) {
                                 return false;
                             }
@@ -386,11 +467,23 @@ pub fn get_recent_encounters_filtered(
                 },
             );
         }
-        let total_count = rows.len() as i64;
-        let paged_rows = rows
-            .into_iter()
-            .skip(offset.max(0) as usize)
-            .take(limit.max(0) as usize);
+        let total_count = if has_filters {
+            rows.len() as i64
+        } else {
+            e::encounters
+                .filter(e::ended_at_ms.is_not_null())
+                .count()
+                .get_result::<i64>(conn)
+                .map_err(|er| er.to_string())?
+        };
+        let paged_rows: Vec<EncounterSummaryRow> = if has_filters {
+            rows.into_iter()
+                .skip(page_offset as usize)
+                .take(page_limit as usize)
+                .collect()
+        } else {
+            rows
+        };
 
         // Collect boss and player data for each encounter
         let mut mapped: Vec<EncounterSummaryDto> = Vec::new();
@@ -405,23 +498,14 @@ pub fn get_recent_encounters_filtered(
             scene_name,
             duration,
             active_combat_duration,
+            local_player_id,
             remote_id,
             is_fav,
             boss_json,
             player_json,
         ) in paged_rows
         {
-            let boss_entries: Vec<BossSummaryDto> = boss_json
-                .as_ref()
-                .and_then(|j| serde_json::from_str::<Vec<String>>(j).ok())
-                .unwrap_or_default()
-                .into_iter()
-                .map(|name| BossSummaryDto {
-                    monster_name: name,
-                    max_hp: None,
-                    is_defeated: true,
-                })
-                .collect();
+            let boss_entries = parse_boss_summary_entries(&boss_json);
             let player_entries = parse_player_entries(&player_json);
 
             mapped.push(EncounterSummaryDto {
@@ -434,7 +518,7 @@ pub fn get_recent_encounters_filtered(
                 scene_name,
                 duration,
                 active_combat_duration,
-                local_player_id: None,
+                local_player_id,
                 bosses: boss_entries,
                 players: player_entries,
                 remote_encounter_id: remote_id,
@@ -598,18 +682,7 @@ pub fn get_encounter_by_id(encounter_id: i32) -> Result<EncounterSummaryDto, Str
             .map_err(|er| er.to_string())
     })?;
 
-    let boss_names: Vec<BossSummaryDto> = row
-        .12
-        .as_ref()
-        .and_then(|j| serde_json::from_str::<Vec<String>>(j).ok())
-        .unwrap_or_default()
-        .into_iter()
-        .map(|name| BossSummaryDto {
-            monster_name: name,
-            max_hp: None,
-            is_defeated: true,
-        })
-        .collect();
+    let boss_names = parse_boss_summary_entries(&row.12);
     let player_entries = parse_player_entries(&row.13);
 
     Ok(EncounterSummaryDto {
@@ -651,6 +724,147 @@ fn entity_has_history_surface(entity: &Entity, include_modifier_details: bool) -
     has_combat
         || !entity.deaths.is_empty()
         || (include_modifier_details && entity_has_modifier_state(entity))
+}
+
+fn history_entity_summary_cache() -> &'static Mutex<HistoryEntitySummaryCache> {
+    HISTORY_ENTITY_SUMMARY_CACHE.get_or_init(|| Mutex::new(Vec::new()))
+}
+
+fn remember_history_entity_summary_cache(
+    encounter_id: i32,
+    rows: Vec<lc::HistoryEntityData>,
+) -> Arc<Vec<lc::HistoryEntityData>> {
+    let cached_rows = Arc::new(rows);
+    let Ok(mut cache) = history_entity_summary_cache().lock() else {
+        return cached_rows;
+    };
+
+    cache.retain(|(cached_id, _)| *cached_id != encounter_id);
+    cache.insert(0, (encounter_id, Arc::clone(&cached_rows)));
+    cache.truncate(HISTORY_ENTITY_SUMMARY_CACHE_MAX);
+    cached_rows
+}
+
+fn load_history_entity_summary_cache(encounter_id: i32) -> Option<Arc<Vec<lc::HistoryEntityData>>> {
+    let Ok(mut cache) = history_entity_summary_cache().lock() else {
+        return None;
+    };
+
+    let position = cache
+        .iter()
+        .position(|(cached_id, _)| *cached_id == encounter_id)?;
+    let (_, cached_rows) = cache.remove(position);
+    let result = Arc::clone(&cached_rows);
+    cache.insert(0, (encounter_id, cached_rows));
+    Some(result)
+}
+
+fn invalidate_history_entity_summary_cache(encounter_id: i32) {
+    let Some(cache) = HISTORY_ENTITY_SUMMARY_CACHE.get() else {
+        return;
+    };
+    if let Ok(mut cache) = cache.lock() {
+        cache.retain(|(cached_id, _)| *cached_id != encounter_id);
+    }
+}
+
+fn invalidate_history_entity_summary_cache_many(encounter_ids: &[i32]) {
+    let Some(cache) = HISTORY_ENTITY_SUMMARY_CACHE.get() else {
+        return;
+    };
+    if let Ok(mut cache) = cache.lock() {
+        cache.retain(|(cached_id, _)| !encounter_ids.contains(cached_id));
+    }
+}
+
+fn encode_history_entity_summary(rows: &[lc::HistoryEntityData]) -> Result<Vec<u8>, String> {
+    let mut encoded = Vec::new();
+    {
+        let mut serializer = rmp_serde::Serializer::new(&mut encoded).with_struct_map();
+        rows.serialize(&mut serializer).map_err(|e| e.to_string())?;
+    }
+    zstd::encode_all(&encoded[..], 3).map_err(|e| e.to_string())
+}
+
+fn decode_history_entity_summary(bytes: &[u8]) -> Result<Vec<lc::HistoryEntityData>, String> {
+    let decoded = zstd::decode_all(bytes).map_err(|e| e.to_string())?;
+    rmp_serde::from_slice::<Vec<lc::HistoryEntityData>>(&decoded).map_err(|e| e.to_string())
+}
+
+fn load_history_entity_summary(
+    encounter_id: i32,
+) -> Result<Option<Vec<lc::HistoryEntityData>>, String> {
+    if let Some(rows) = load_history_entity_summary_cache(encounter_id) {
+        log::info!(
+            target: "app::history",
+            "history_entity_summary_cache_hit encounter_id={} rows={}",
+            encounter_id,
+            rows.len()
+        );
+        return Ok(Some((*rows).clone()));
+    }
+
+    use sch::encounter_entity_summaries::dsl as es;
+    let started = Instant::now();
+    let row = db_exec(move |conn| {
+        es::encounter_entity_summaries
+            .filter(es::encounter_id.eq(encounter_id))
+            .filter(es::version.eq(HISTORY_ENTITY_SUMMARY_VERSION))
+            .select(es::data)
+            .first::<Vec<u8>>(conn)
+            .optional()
+            .map_err(|e| e.to_string())
+    })?;
+
+    let Some(bytes) = row else {
+        return Ok(None);
+    };
+    let rows = decode_history_entity_summary(&bytes)?;
+    log::info!(
+        target: "app::history",
+        "history_entity_summary_loaded encounter_id={} rows={} bytes={} total_ms={}",
+        encounter_id,
+        rows.len(),
+        bytes.len(),
+        started.elapsed().as_millis()
+    );
+    remember_history_entity_summary_cache(encounter_id, rows.clone());
+    Ok(Some(rows))
+}
+
+fn save_history_entity_summary(
+    encounter_id: i32,
+    rows: &[lc::HistoryEntityData],
+) -> Result<(), String> {
+    use sch::encounter_entity_summaries::dsl as es;
+
+    let encoded = encode_history_entity_summary(rows)?;
+    let encoded_len = encoded.len();
+    db_exec(move |conn| {
+        conn.transaction::<(), diesel::result::Error, _>(|conn| {
+            diesel::delete(
+                es::encounter_entity_summaries.filter(es::encounter_id.eq(encounter_id)),
+            )
+            .execute(conn)?;
+            diesel::insert_into(es::encounter_entity_summaries)
+                .values((
+                    es::encounter_id.eq(encounter_id),
+                    es::version.eq(HISTORY_ENTITY_SUMMARY_VERSION),
+                    es::data.eq(&encoded),
+                ))
+                .execute(conn)?;
+            Ok(())
+        })
+        .map_err(|e| e.to_string())
+    })?;
+    log::info!(
+        target: "app::history",
+        "history_entity_summary_saved encounter_id={} rows={} bytes={}",
+        encounter_id,
+        rows.len(),
+        encoded_len
+    );
+    Ok(())
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -1521,6 +1735,21 @@ fn get_encounter_entities_raw_inner(
     target_detail_mode: HistoryTargetDetailMode,
 ) -> Result<Vec<lc::HistoryEntityData>, String> {
     let started = Instant::now();
+    let is_compact_summary =
+        !include_modifier_details && matches!(target_detail_mode, HistoryTargetDetailMode::Summary);
+    if is_compact_summary {
+        if let Some(rows) = load_history_entity_summary(encounter_id)? {
+            log::info!(
+                target: "app::history",
+                "history_entities_loaded_from_summary encounter_id={} rows={} total_ms={}",
+                encounter_id,
+                rows.len(),
+                started.elapsed().as_millis()
+            );
+            return Ok(rows);
+        }
+    }
+
     let entities = crate::database::load_encounter_data_cached(encounter_id)?;
     let loaded_ms = started.elapsed().as_millis();
     let build_started = Instant::now();
@@ -1552,6 +1781,17 @@ fn get_encounter_entities_raw_inner(
         build_started.elapsed().as_millis(),
         started.elapsed().as_millis()
     );
+    if is_compact_summary {
+        remember_history_entity_summary_cache(encounter_id, rows.clone());
+        if let Err(err) = save_history_entity_summary(encounter_id, &rows) {
+            log::warn!(
+                target: "app::history",
+                "history_entity_summary_save_failed encounter_id={} error={}",
+                encounter_id,
+                err
+            );
+        }
+    }
     Ok(rows)
 }
 
@@ -1679,9 +1919,14 @@ pub fn get_encounter_modifier_entities_raw(
 pub fn delete_encounter(encounter_id: i32) -> Result<(), String> {
     with_db(move |conn| {
         use sch::encounter_data::dsl as ed;
+        use sch::encounter_entity_summaries::dsl as es;
         use sch::encounters::dsl as e;
 
         conn.transaction::<(), diesel::result::Error, _>(|conn| {
+            diesel::delete(
+                es::encounter_entity_summaries.filter(es::encounter_id.eq(encounter_id)),
+            )
+            .execute(conn)?;
             diesel::delete(ed::encounter_data.filter(ed::encounter_id.eq(encounter_id)))
                 .execute(conn)?;
             diesel::delete(e::encounters.filter(e::id.eq(encounter_id))).execute(conn)?;
@@ -1689,6 +1934,7 @@ pub fn delete_encounter(encounter_id: i32) -> Result<(), String> {
         })
         .map_err(|e| e.to_string())?;
         crate::database::invalidate_encounter_data_cache(encounter_id);
+        invalidate_history_entity_summary_cache(encounter_id);
         Ok(())
     })
 }
@@ -1707,11 +1953,17 @@ pub fn delete_encounter(encounter_id: i32) -> Result<(), String> {
 pub fn delete_encounters(ids: Vec<i32>) -> Result<(), String> {
     let deleted_ids = ids.clone();
     with_db(move |conn| {
+        use sch::encounter_entity_summaries::dsl as es;
         use sch::encounters::dsl as e;
-        diesel::delete(e::encounters.filter(e::id.eq_any(ids)))
-            .execute(conn)
-            .map_err(|er| er.to_string())?;
+        conn.transaction::<(), diesel::result::Error, _>(|conn| {
+            diesel::delete(es::encounter_entity_summaries.filter(es::encounter_id.eq_any(&ids)))
+                .execute(conn)?;
+            diesel::delete(e::encounters.filter(e::id.eq_any(ids))).execute(conn)?;
+            Ok(())
+        })
+        .map_err(|er| er.to_string())?;
         crate::database::invalidate_encounter_data_cache_many(&deleted_ids);
+        invalidate_history_entity_summary_cache_many(&deleted_ids);
         Ok(())
     })
 }

@@ -47,6 +47,18 @@ diesel::table! {
     }
 }
 
+// Represents compact history rows derived from the full encounter payload.
+diesel::table! {
+    encounter_entity_summaries (encounter_id) {
+        // The encounter ID that owns this encoded compact summary.
+        encounter_id -> Integer,
+        // Summary schema version, used so stale compact rows can be ignored.
+        version -> Integer,
+        // The compressed MessagePack payload for compact history rows.
+        data -> Binary,
+    }
+}
+
 // Represents the `encounters` table.
 diesel::table! {
     encounters (id) {
@@ -96,10 +108,12 @@ diesel::table! {
 }
 
 diesel::joinable!(encounter_data -> encounters (encounter_id));
+diesel::joinable!(encounter_entity_summaries -> encounters (encounter_id));
 diesel::allow_tables_to_appear_in_same_query!(
     entities,
     encounters,
     encounter_data,
+    encounter_entity_summaries,
     detailed_playerdata,
     app_config,
 );

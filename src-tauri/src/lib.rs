@@ -12,7 +12,10 @@ use specta_typescript::{BigIntExportBehavior, Typescript};
 use std::process::{Command, Stdio};
 
 use std::path::{Path, PathBuf};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{
+    Mutex, OnceLock,
+    atomic::{AtomicBool, Ordering},
+};
 
 use tauri::menu::MenuBuilder;
 use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
@@ -39,6 +42,8 @@ pub const WINDOW_EVENT_LOGGER_LABEL: &str = "event-logger";
 const LEGACY_APP_IDENTIFIER: &str = "com.resonance-logs-cn";
 const LOG_FILE_PREFIX: &str = "resonance-logs-global_v";
 const LEGACY_LOG_FILE_PREFIX: &str = "resonance-logs-cn_v";
+
+static HIDE_MAIN_WINDOW_TO_TRAY: AtomicBool = AtomicBool::new(false);
 
 #[cfg(debug_assertions)]
 fn clean_generated_bindings(bindings_path: &Path) {
@@ -97,6 +102,13 @@ fn toggle_game_overlay_window(app: tauri::AppHandle) -> Result<(), String> {
     )
     .map_err(|e| e.to_string())?;
 
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+fn set_hide_main_window_to_tray(enabled: bool) -> Result<(), String> {
+    HIDE_MAIN_WINDOW_TO_TRAY.store(enabled, Ordering::Relaxed);
     Ok(())
 }
 
@@ -317,6 +329,7 @@ pub fn run() {
             translation_runtime::generate_ui_translation_scaffold,
             translation_runtime::generate_all_ui_translation_scaffolds,
             toggle_game_overlay_window,
+            set_hide_main_window_to_tray,
             toggle_game_overlay_edit_mode,
             sync_monster_overlay_window_to_game_overlay,
         ]);
@@ -1356,9 +1369,16 @@ fn on_window_event_fn(window: &Window, event: &WindowEvent) {
         // when you click the X button to close a window
         WindowEvent::CloseRequested { api, .. } => {
             if window.label() == WINDOW_MAIN_LABEL {
-                // Main window close = exit entire app
-                stop_windivert();
-                window.app_handle().exit(0);
+                if HIDE_MAIN_WINDOW_TO_TRAY.load(Ordering::Relaxed) {
+                    api.prevent_close();
+                    if let Err(e) = window.hide() {
+                        warn!("failed to hide main window to tray: {}", e);
+                    }
+                } else {
+                    // Main window close = exit entire app
+                    stop_windivert();
+                    window.app_handle().exit(0);
+                }
             } else {
                 // Other windows (like live) just hide
                 api.prevent_close();
