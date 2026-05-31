@@ -9,6 +9,7 @@ import { writeText } from '@tauri-apps/plugin-clipboard-manager';
 // import { writeImage } from '@tauri-apps/plugin-clipboard-manager';
 // import { image } from '@tauri-apps/api';
 import { WebviewWindow } from '@tauri-apps/api/webviewWindow';
+import { emit } from '@tauri-apps/api/event';
 
 import classSpecIconsData from '$parserData/generated/class-spec-icons.json';
 import { resolveStaticIconUrl } from '$lib/config/static-icon-resolver';
@@ -175,19 +176,67 @@ export async function copyToClipboard(error: MouseEvent & { currentTarget: Event
 // }
 
 let isClickthrough = false;
+const LIVE_WINDOW_FOCUS_RESTORE_DELAY_MS = 80;
+export const LIVE_WINDOW_MANUAL_SHOW_EVENT = "live-window-manual-show";
+
+type LiveWindowHandle = {
+  setFocusable(focusable: boolean): Promise<void>;
+  setIgnoreCursorEvents(ignore: boolean): Promise<void>;
+  show(): Promise<void>;
+  unminimize(): Promise<void>;
+};
+
+function shouldIgnoreLiveWindowCursorEvents(): boolean {
+  return SETTINGS.accessibility.state.clickthrough === true;
+}
+
+function wait(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export function getClickthroughState(): boolean {
   return isClickthrough;
 }
 
+export async function restoreLiveWindowInteractivity(liveWindow?: LiveWindowHandle | null): Promise<void> {
+  const windowHandle = liveWindow ?? await WebviewWindow.getByLabel("live");
+  if (!windowHandle) return;
+
+  await windowHandle.setFocusable(true);
+  await windowHandle.setIgnoreCursorEvents(shouldIgnoreLiveWindowCursorEvents());
+}
+
+export async function showLiveWindowWithoutFocus(liveWindow?: LiveWindowHandle | null): Promise<void> {
+  const windowHandle = liveWindow ?? await WebviewWindow.getByLabel("live");
+  if (!windowHandle) return;
+
+  const ignoreCursorEvents = shouldIgnoreLiveWindowCursorEvents();
+  await windowHandle.setFocusable(false);
+  await windowHandle.setIgnoreCursorEvents(ignoreCursorEvents);
+  await windowHandle.show();
+  await windowHandle.unminimize();
+  await wait(LIVE_WINDOW_FOCUS_RESTORE_DELAY_MS);
+  await windowHandle.setFocusable(true);
+  await windowHandle.setIgnoreCursorEvents(ignoreCursorEvents);
+  await emit(LIVE_WINDOW_MANUAL_SHOW_EVENT).catch((error) => {
+    console.warn("Failed to notify live window manual show:", error);
+  });
+}
+
 export async function setClickthrough(bool: boolean) {
   const liveWindow = await WebviewWindow.getByLabel("live");
   await liveWindow?.setIgnoreCursorEvents(bool);
+  if (!bool) {
+    await liveWindow?.setFocusable(true);
+  }
   isClickthrough = bool;
 }
 
 export async function toggleClickthrough() {
   const liveWindow = await WebviewWindow.getByLabel("live");
   await liveWindow?.setIgnoreCursorEvents(!isClickthrough);
+  if (isClickthrough) {
+    await liveWindow?.setFocusable(true);
+  }
   isClickthrough = !isClickthrough;
 }

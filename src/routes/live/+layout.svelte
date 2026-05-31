@@ -10,7 +10,13 @@
    */
   import { onMount } from "svelte";
   import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
+  import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import { SETTINGS } from "$lib/settings-store";
+  import {
+    LIVE_WINDOW_MANUAL_SHOW_EVENT,
+    restoreLiveWindowInteractivity,
+    showLiveWindowWithoutFocus,
+  } from "$lib/utils.svelte";
   import { resolveUiTranslation } from "$lib/i18n";
   import {
     onLiveData,
@@ -87,6 +93,7 @@
   let autoHideHiddenByFeature = false;
   let autoHideOperation: Promise<void> = Promise.resolve();
   let autoHideTimer: ReturnType<typeof setTimeout> | null = null;
+  let manualShowUnlisten: UnlistenFn | null = null;
 
   function damageNumber(value: unknown): number {
     const numberValue = Number(value);
@@ -137,16 +144,11 @@
     return Math.max(0, Math.min(60, seconds)) * 1000;
   }
 
-  function configuredClickthroughEnabled(): boolean {
-    return SETTINGS.accessibility.state.clickthrough === true;
-  }
-
   async function restoreLiveWindowCursorMode(
     liveWindow = getCurrentWindow(),
   ): Promise<void> {
     try {
-      await liveWindow.setFocusable(false);
-      await liveWindow.setIgnoreCursorEvents(configuredClickthroughEnabled());
+      await restoreLiveWindowInteractivity(liveWindow);
     } catch (error) {
       console.warn("Failed to restore live window clickthrough state:", error);
     }
@@ -158,13 +160,21 @@
     const liveWindow = getCurrentWindow();
 
     try {
+      await liveWindow.setFocusable(false);
       await liveWindow.setIgnoreCursorEvents(true);
       await liveWindow.hide();
+      await liveWindow.setIgnoreCursorEvents(true);
       autoHideHiddenByFeature = true;
     } catch (error) {
       console.warn("Failed to hide live window after auto-hide delay:", error);
       await restoreLiveWindowCursorMode(liveWindow);
     }
+  }
+
+  function reconcileManualLiveWindowShow(): void {
+    clearAutoHideTimer();
+    autoHideHiddenByFeature = false;
+    void syncAutoHideLiveWindow(autoHideRecentlyDamaged, true);
   }
 
   function queueAutoHideAfterDelay(): void {
@@ -207,8 +217,7 @@
         clearAutoHideTimer();
         if (autoHideHiddenByFeature) {
           autoHideHiddenByFeature = false;
-          await liveWindow.show();
-          await liveWindow.unminimize();
+          await showLiveWindowWithoutFocus(liveWindow);
         }
         await restoreLiveWindowCursorMode(liveWindow);
         return;
@@ -218,8 +227,7 @@
         clearAutoHideTimer();
         if (autoHideHiddenByFeature) {
           autoHideHiddenByFeature = false;
-          await liveWindow.show();
-          await liveWindow.unminimize();
+          await showLiveWindowWithoutFocus(liveWindow);
         }
         await restoreLiveWindowCursorMode(liveWindow);
         return;
@@ -571,6 +579,17 @@ t("live.resumeToast", "战斗已继续"),
     isDestroyed = false;
     autoHideLastObservedDamageTotal = 0;
     void syncAutoHideLiveWindow(false);
+    void listen(LIVE_WINDOW_MANUAL_SHOW_EVENT, reconcileManualLiveWindowShow)
+      .then((unlistenManualShow) => {
+        if (isDestroyed) {
+          unlistenManualShow();
+          return;
+        }
+        manualShowUnlisten = unlistenManualShow;
+      })
+      .catch((error) => {
+        console.warn("Failed to listen for live window manual show:", error);
+      });
     setupEventListeners();
     startReconnectCheck();
     resizeObserver = new ResizeObserver(() => scheduleDynamicResize());
@@ -584,6 +603,7 @@ t("live.resumeToast", "战斗已继续"),
       void clearDynamicWindowHeightConstraint();
       resizeObserver?.disconnect();
       if (reconnectInterval) clearInterval(reconnectInterval);
+      manualShowUnlisten?.();
       if (unlisten) unlisten();
       cleanupStores();
     };

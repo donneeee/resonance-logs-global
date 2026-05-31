@@ -9,6 +9,7 @@
   import { LOCALE_OPTIONS, uiT, type LocaleCode } from "$lib/i18n";
   import { commands } from "$lib/bindings";
   import { toggleEventLoggerWindow } from "$lib/event-logger-window";
+  import { showLiveWindowWithoutFocus } from "$lib/utils.svelte";
   import MonitorUpIcon from "virtual:icons/lucide/monitor-up";
   import PanelBottomOpenIcon from "virtual:icons/lucide/panel-bottom-open";
   import ClipboardListIcon from "virtual:icons/lucide/clipboard-list";
@@ -77,9 +78,7 @@
         if (isVisible) {
           await liveWindow.hide();
         } else {
-          await liveWindow.setFocusable(false);
-          await liveWindow.show();
-          await liveWindow.unminimize();
+          await showLiveWindowWithoutFocus(liveWindow);
         }
       }
     } catch (error) {

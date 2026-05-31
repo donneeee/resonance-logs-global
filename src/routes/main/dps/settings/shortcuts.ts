@@ -8,7 +8,7 @@ import {
   stopCustomTrigger,
 } from "$lib/custom-trigger-runtime.svelte";
 import { SETTINGS } from "$lib/settings-store";
-import { setClickthrough, toggleClickthrough } from "$lib/utils.svelte";
+import { setClickthrough, showLiveWindowWithoutFocus, toggleClickthrough } from "$lib/utils.svelte";
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { register, unregister, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 
@@ -42,14 +42,6 @@ export const CUSTOM_TRIGGER_SHORTCUTS = [
   { id: "clearSelectedGroup", labelKey: "hotkeys.shortcuts.clearSelectedGroup", fallbackLabel: "Clear selected group" },
   { id: "resetAllRuntimeState", labelKey: "hotkeys.shortcuts.resetAllRuntimeState", fallbackLabel: "Reset all runtime state" },
 ] as const;
-
-async function showLiveMeterWithoutFocus() {
-  const liveWindow = await WebviewWindow.getByLabel("live");
-  if (!liveWindow) return;
-  await liveWindow.setFocusable(false);
-  await liveWindow.show();
-  await liveWindow.unminimize();
-}
 
 export function normalizeShortcut(shortcutKey: string): string {
   return shortcutKey
@@ -116,7 +108,7 @@ export async function registerShortcut(
       case "showLiveMeter":
         await register(shortcutKey, async (event) => {
           if (event.state === "Pressed") {
-            await showLiveMeterWithoutFocus();
+            await showLiveWindowWithoutFocus();
           }
         });
         return;
@@ -138,7 +130,7 @@ export async function registerShortcut(
             if (isVisible) {
               await liveWindow?.hide();
             } else {
-              await showLiveMeterWithoutFocus();
+              await showLiveWindowWithoutFocus(liveWindow);
             }
           }
         });

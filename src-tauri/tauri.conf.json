@@ -21,7 +21,6 @@
         "minWidth": 410,
         "minHeight": 120,
         "alwaysOnTop": true,
-        "focusable": false,
         "skipTaskbar": true
       },
       {

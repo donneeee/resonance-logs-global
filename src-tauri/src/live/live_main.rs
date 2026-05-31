@@ -5157,6 +5157,10 @@ pub async fn start(
             &mut queue_depth_warn_counter,
             &mut queue_depth_last_log_at,
         );
+        let idle_sleep_duration =
+            Duration::from_millis(state.event_update_rate_ms.clamp(50, 2_000))
+                .min(heartbeat_duration);
+
         tokio::select! {
             biased;
 
@@ -5255,7 +5259,7 @@ pub async fn start(
                 break;
             }
             },
-            _ = tokio::time::sleep(heartbeat_duration) => {
+            _ = tokio::time::sleep(idle_sleep_duration) => {
                 // Timeout occurred - read rate dynamically
                 let emit_rate_ms = state.event_update_rate_ms;
                 let emit_throttle_duration = Duration::from_millis(emit_rate_ms);

@@ -131,26 +131,27 @@ fn toggle_game_overlay_edit_mode(app: tauri::AppHandle) -> Result<(), String> {
         return Err("Game overlay window not found".into());
     };
 
+    let visible_before_edit = overlay_window.is_visible().map_err(|e| e.to_string())?;
+
     let _ = overlay_window.set_focusable(false);
     let _ = overlay_window.set_ignore_cursor_events(false);
 
-    if !overlay_window.is_visible().map_err(|e| e.to_string())? {
+    if !visible_before_edit {
         overlay_window.show().map_err(|e| e.to_string())?;
         overlay_window.unminimize().map_err(|e| e.to_string())?;
     }
 
-    app.emit("overlay-edit-toggle", json!({}))
-        .map_err(|e| e.to_string())?;
+    app.emit(
+        "overlay-edit-toggle",
+        json!({ "visibleBeforeEdit": visible_before_edit }),
+    )
+    .map_err(|e| e.to_string())?;
 
     Ok(())
 }
 
 fn keep_passive_overlay_windows_non_focusable(app: &tauri::AppHandle) {
-    for label in [
-        WINDOW_LIVE_LABEL,
-        WINDOW_GAME_OVERLAY_LABEL,
-        WINDOW_MONSTER_OVERLAY_LABEL,
-    ] {
+    for label in [WINDOW_GAME_OVERLAY_LABEL, WINDOW_MONSTER_OVERLAY_LABEL] {
         let Some(window) = app.get_webview_window(label) else {
             continue;
         };
@@ -1296,6 +1297,13 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
             if let Err(e) = window.set_focusable(false) {
                 warn!("failed to set live window non-focusable: {}", e);
             }
+            if let Err(e) = window.set_ignore_cursor_events(false) {
+                warn!(
+                    "failed to set ignore_cursor_events for {}: {}",
+                    window.label(),
+                    e
+                );
+            }
         }
         if let Err(e) = window.show() {
             warn!("failed to show window {}: {}", window.label(), e);
@@ -1307,15 +1315,12 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
             if let Err(e) = window.set_focus() {
                 warn!("failed to focus window {}: {}", window.label(), e);
             }
+        } else if let Err(e) = window.set_focusable(true) {
+            warn!("failed to restore live window focusable state: {}", e);
         }
-        // Always disable clickthrough when showing window from tray
         if is_live_window {
             if let Err(e) = window.set_ignore_cursor_events(false) {
-                warn!(
-                    "failed to set ignore_cursor_events for {}: {}",
-                    window.label(),
-                    e
-                );
+                warn!("failed to restore live window cursor events: {}", e);
             }
         }
     }
@@ -1355,6 +1360,9 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                 let Some(live_meter_window) = tray_app.get_webview_window(WINDOW_LIVE_LABEL) else {
                     return;
                 };
+                if let Err(e) = live_meter_window.set_focusable(false) {
+                    warn!("failed to set live window non-focusable: {}", e);
+                }
                 if let Err(e) = live_meter_window.set_size(Size::Logical(LogicalSize {
                     width: 500.0,
                     height: 350.0,
@@ -1372,8 +1380,8 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                 if let Err(e) = live_meter_window.unminimize() {
                     warn!("failed to unminimize live window: {}", e);
                 }
-                if let Err(e) = live_meter_window.set_focusable(false) {
-                    warn!("failed to set live window non-focusable: {}", e);
+                if let Err(e) = live_meter_window.set_focusable(true) {
+                    warn!("failed to restore live window focusable state: {}", e);
                 }
                 if let Err(e) = live_meter_window.set_ignore_cursor_events(false) {
                     warn!("failed to set ignore_cursor_events for live window: {}", e);
@@ -1385,6 +1393,9 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                 };
                 if let Err(e) = live_meter_window.set_ignore_cursor_events(false) {
                     warn!("failed to set ignore_cursor_events for live window: {}", e);
+                }
+                if let Err(e) = live_meter_window.set_focusable(true) {
+                    warn!("failed to restore live window focusable state: {}", e);
                 }
             }
             "quit" => {

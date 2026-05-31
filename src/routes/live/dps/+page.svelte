@@ -1,8 +1,10 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
+  import { tick } from "svelte";
   import { settings, SETTINGS, DEFAULT_STATS } from "$lib/settings-store";
   import { getLiveData } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
+  import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import { historyDpsPlayerColumns } from "$lib/column-data";
@@ -64,12 +66,43 @@
   let compactMode = $derived(tableSettings.compactMode);
   let compactDpsKey = $derived(tableSettings.compactDpsKey ?? "dps");
   let dynamicWindowSettings = $derived(SETTINGS.live.dynamicWindow.state);
+  let playerTableFrameElement: HTMLDivElement | undefined = undefined;
+  let playerTableMeasurementFrame = 0;
+  let measuredPlayerTableMaxHeight = $state(0);
   let dynamicMaxPlayerRows = $derived(
     Math.min(20, Math.max(5, Math.round(Number(dynamicWindowSettings.maxPlayerRows) || 10))),
   );
+  function fallbackPlayerTableMaxHeight(): number {
+    return ((tableSettings.showTableHeader && !compactMode) ? tableSettings.tableHeaderHeight : 0)
+      + tableSettings.playerRowHeight * dynamicMaxPlayerRows;
+  }
+
+  function schedulePlayerTableMeasurement(): void {
+    if (playerTableMeasurementFrame) cancelAnimationFrame(playerTableMeasurementFrame);
+
+    void tick().then(() => {
+      playerTableMeasurementFrame = requestAnimationFrame(() => {
+        playerTableMeasurementFrame = 0;
+        if (!dynamicWindowSettings.enabled) {
+          measuredPlayerTableMaxHeight = 0;
+          return;
+        }
+
+        measuredPlayerTableMaxHeight = measurePlayerTableMaxHeight(
+          playerTableFrameElement,
+          {
+            maxRows: dynamicMaxPlayerRows,
+            fallbackRowHeight: tableSettings.playerRowHeight,
+            fallbackHeaderHeight: tableSettings.tableHeaderHeight,
+            includeHeader: tableSettings.showTableHeader && !compactMode,
+          },
+        );
+      });
+    });
+  }
+
   let playerTableMaxHeight = $derived(
-    ((tableSettings.showTableHeader && !compactMode) ? tableSettings.tableHeaderHeight : 0)
-      + tableSettings.playerRowHeight * dynamicMaxPlayerRows,
+    measuredPlayerTableMaxHeight || fallbackPlayerTableMaxHeight(),
   );
   let playerTableFrameStyle = $derived(
     dynamicWindowSettings.enabled ? `max-height: ${playerTableMaxHeight}px;` : "",
@@ -120,6 +153,21 @@
     return [...dpsData].sort((a, b) => b.totalDmg - a.totalDmg);
   });
 
+  $effect(() => {
+    dynamicWindowSettings.enabled;
+    dynamicMaxPlayerRows;
+    tableSettings.playerRowHeight;
+    tableSettings.tableHeaderHeight;
+    tableSettings.playerFontSize;
+    tableSettings.playerIconSize;
+    tableSettings.showTableHeader;
+    compactMode;
+    dpsData.length;
+    compactDpsData.length;
+    visiblePlayerColumns.length;
+    schedulePlayerTableMeasurement();
+  });
+
 
 function t(key: string, fallback: string): string {
   return resolveUiTranslation(
@@ -141,25 +189,26 @@ function thLabel(col: { headerKey?: string; header: string }): string {
 </script>
 
 <div
+  bind:this={playerTableFrameElement}
   class="relative flex flex-col gap-2 {dynamicWindowSettings.enabled ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'} rounded-lg ring-1 ring-border/60 bg-card/30"
   style={playerTableFrameStyle}
 >
-  <table class="w-full border-collapse overflow-hidden">
+  <table class="w-full border-separate border-spacing-0 overflow-hidden">
     {#if tableSettings.showTableHeader && !compactMode}
-      <thead>
+      <thead class="sticky top-0 z-30">
         <tr
-          class="bg-popover/60"
+          class="bg-popover/95 backdrop-blur-sm"
           style="height: {tableSettings.tableHeaderHeight}px;"
         >
           <th
             data-tauri-drag-region
-            class="px-3 py-1 text-left font-medium uppercase tracking-wide"
+            class="sticky top-0 z-30 bg-popover/95 px-3 py-1 text-left font-medium uppercase tracking-wide"
             style="font-size: {tableSettings.tableHeaderFontSize}px; color: {tableSettings.tableHeaderTextColor};"
             >{t("historyDetail.player", "玩家")}</th
           >
           {#each visiblePlayerColumns as col (col.key)}
             <th
-              class="px-3 py-1 text-right font-medium uppercase tracking-wide cursor-pointer select-none hover:bg-muted/40 transition-colors"
+              class="sticky top-0 z-30 bg-popover/95 px-3 py-1 text-right font-medium uppercase tracking-wide cursor-pointer select-none hover:bg-muted/40 transition-colors"
               style="font-size: {tableSettings.tableHeaderFontSize}px; color: {tableSettings.tableHeaderTextColor};"
               onclick={() => handleSort(col.key)}
             >

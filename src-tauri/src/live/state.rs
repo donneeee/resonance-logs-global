@@ -2209,7 +2209,7 @@ impl AppStateManager {
                 emit_training_dummy_update_if_changed(state, previous);
             }
             LiveControlCommand::SetEventUpdateRateMs(rate_ms) => {
-                state.event_update_rate_ms = rate_ms;
+                state.event_update_rate_ms = rate_ms.clamp(50, 2_000);
             }
             LiveControlCommand::SetAutoClearOnSceneChange(enabled) => {
                 state.auto_clear_on_scene_change = enabled;
