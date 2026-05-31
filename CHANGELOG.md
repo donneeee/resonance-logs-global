@@ -1,11 +1,22 @@
 # Changelog
 
+## v1.1.0_beta1 - Global Beta
+
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta1` beta release.
+- Fixed live meter hotkey/sidebar/tray show behavior so the live window can appear without stealing game focus, while still becoming clickable afterward.
+- Restored overlay edit-mode exit behavior so the overlay returns to its previous visible/hidden state instead of staying on after editing.
+- Fixed Dynamic Live Window row capping by measuring actual rendered live-table rows, preventing the player list from clipping before the configured visible-player count.
+- Kept live table column headers pinned at the top while scrolling beyond the Dynamic Live Window row cap.
+- Made the live refresh-rate setting affect the backend idle update loop as well as active packet updates, reducing cases where live stats felt stuck on a coarse delay.
+- Reconciled Auto-hide Live Window with manual show/toggle actions so auto-hidden windows no longer require a double toggle to reappear.
+- Forced auto-hidden live windows into cursor-ignore mode before hiding so an invisible live meter cannot block game clicks.
+
 ## v1.0.9 - Global
 
 - Kept Skill CD hover cards inside the app window and widened them so longer descriptions are readable without clipping offscreen.
 - Replaced native `title` hover text with persistent app-rendered tooltips globally, so pressing keys such as Ctrl no longer dismisses hover text during screenshots.
 - Added fallback descriptions for Rage Cleave variant IDs and a no-source notice for Lethal Shot when the game data exposes the skill name but no standalone tooltip text.
-- Localized the Shield Knight Shattered Illusion child buff damage row so Yumiko parses no longer show the raw `虚妄裁定-子BUFF技能` label in skill details.
+- Localized the Shield Knight Shattered Illusion child buff damage row so user parses no longer show the raw `虚妄裁定-子BUFF技能` label in skill details.
 - Added an optional Dynamic Live Window setting under Settings > Themes > Live with enable/disable and a 5-20 visible-player cap; live tables grow to the cap and the player table becomes scrollable beyond it.
 - Added Live-only General settings to auto-hide the live window until damage is detected, show it when live damage appears, and hide it again after a configurable no-new-damage delay.
 - Localized the new live parser UI settings for Dynamic Live Window, Clear Meter on Scene Change, Auto-hide Live Window, and Auto-hide Delay across supported UI locales.
