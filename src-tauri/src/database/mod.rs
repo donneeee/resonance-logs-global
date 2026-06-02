@@ -14,6 +14,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::database::models as m;
 use crate::database::schema as sch;
+use crate::live::entity_id::uid_from_uuid;
 use crate::live::opcodes_models::class::ClassSpec;
 use crate::live::opcodes_models::{
     AttrType, AttrValue, CombatStats, Encounter, Entity, ObservedActiveBuff, ObservedEffectBuff,
@@ -48,6 +49,8 @@ pub enum DbInitError {
 pub struct PlayerNameEntry {
     #[serde(default)]
     pub uid: i64,
+    #[serde(default)]
+    pub uuid: Option<i64>,
     #[serde(default)]
     pub name: String,
     #[serde(default)]
@@ -169,6 +172,7 @@ struct EntityActiveFieldsBeforeMonsterNoItems {
 impl From<EntityActiveFieldsBeforeMonsterWithItems> for Entity {
     fn from(value: EntityActiveFieldsBeforeMonsterWithItems) -> Self {
         Entity {
+            uuid: None,
             name: value.name,
             entity_type: value.entity_type,
             class_id: value.class_id,
@@ -184,6 +188,7 @@ impl From<EntityActiveFieldsBeforeMonsterWithItems> for Entity {
             skill_uid_to_heal_skill: value.skill_uid_to_heal_skill,
             taken: value.taken,
             skill_uid_to_taken_skill: value.skill_uid_to_taken_skill,
+            skill_taken_from_source: HashMap::new(),
             monster_type_id: value.monster_type_id,
             dmg_to_target: value.dmg_to_target,
             skill_dmg_to_target: value.skill_dmg_to_target,
@@ -212,6 +217,7 @@ impl From<EntityActiveFieldsBeforeMonsterWithItems> for Entity {
 impl From<EntityActiveFieldsBeforeMonsterNoItems> for Entity {
     fn from(value: EntityActiveFieldsBeforeMonsterNoItems) -> Self {
         Entity {
+            uuid: None,
             name: value.name,
             entity_type: value.entity_type,
             class_id: value.class_id,
@@ -227,6 +233,7 @@ impl From<EntityActiveFieldsBeforeMonsterNoItems> for Entity {
             skill_uid_to_heal_skill: value.skill_uid_to_heal_skill,
             taken: value.taken,
             skill_uid_to_taken_skill: value.skill_uid_to_taken_skill,
+            skill_taken_from_source: HashMap::new(),
             monster_type_id: value.monster_type_id,
             dmg_to_target: value.dmg_to_target,
             skill_dmg_to_target: value.skill_dmg_to_target,
@@ -254,28 +261,57 @@ impl From<EntityActiveFieldsBeforeMonsterNoItems> for Entity {
 
 fn decode_encounter_entities(bytes: &[u8]) -> Result<HashMap<i64, Entity>, String> {
     match rmp_serde::from_slice::<HashMap<i64, Entity>>(bytes) {
-        Ok(entities) => return Ok(entities),
+        Ok(entities) => return Ok(normalize_history_entity_map(entities)),
         Err(primary_error) => {
             if let Ok(entities) = rmp_serde::from_slice::<
                 HashMap<i64, EntityActiveFieldsBeforeMonsterWithItems>,
             >(bytes)
             {
-                return Ok(entities
-                    .into_iter()
-                    .map(|(uid, entity)| (uid, entity.into()))
-                    .collect());
+                return Ok(normalize_history_entity_map(
+                    entities
+                        .into_iter()
+                        .map(|(uid, entity)| (uid, entity.into()))
+                        .collect(),
+                ));
             }
             if let Ok(entities) =
                 rmp_serde::from_slice::<HashMap<i64, EntityActiveFieldsBeforeMonsterNoItems>>(bytes)
             {
-                return Ok(entities
-                    .into_iter()
-                    .map(|(uid, entity)| (uid, entity.into()))
-                    .collect());
+                return Ok(normalize_history_entity_map(
+                    entities
+                        .into_iter()
+                        .map(|(uid, entity)| (uid, entity.into()))
+                        .collect(),
+                ));
             }
             Err(primary_error.to_string())
         }
     }
+}
+
+fn entity_uuid(entity: &Entity) -> Option<i64> {
+    entity.uuid.filter(|uuid| *uuid > 0)
+}
+
+fn history_entity_key(fallback_key: i64, entity: &Entity) -> i64 {
+    entity_uuid(entity).unwrap_or(fallback_key)
+}
+
+fn history_entity_display_uid(fallback_key: i64, entity: &Entity) -> i64 {
+    entity_uuid(entity)
+        .map(uid_from_uuid)
+        .unwrap_or(fallback_key)
+}
+
+fn normalize_history_entity_map(entities: HashMap<i64, Entity>) -> HashMap<i64, Entity> {
+    let mut normalized = HashMap::with_capacity(entities.len());
+    for (key, entity) in entities {
+        let identity_key = history_entity_key(key, &entity);
+        if identity_key > 0 {
+            normalized.entry(identity_key).or_insert(entity);
+        }
+    }
+    normalized
 }
 
 fn encounter_data_cache() -> &'static Mutex<EncounterDataCache> {
@@ -654,12 +690,13 @@ pub fn save_encounter(encounter: &Encounter, metadata: &EncounterMetadata) {
     let metadata = metadata.clone();
     db_send(move |conn| {
         let persisted_entities: HashMap<i64, Entity> = encounter
-            .entity_uid_to_entity
-            .iter()
-            .filter_map(|(uid, entity)| {
-                (entity_has_combat_surface(entity)
-                    || entity_has_player_identity_surface(*uid, entity, encounter.local_player_uid))
-                .then_some((*uid, entity.clone()))
+            .history_entity_map()
+            .into_iter()
+            .filter_map(|(identity_key, entity)| {
+                let uid = history_entity_display_uid(identity_key, &entity);
+                (entity_has_combat_surface(&entity)
+                    || entity_has_player_identity_surface(uid, &entity, encounter.local_player_uid))
+                .then_some((history_entity_key(identity_key, &entity), entity))
             })
             .collect();
 

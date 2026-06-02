@@ -5,6 +5,7 @@
   import GhostOverlay from "./GhostOverlay.svelte";
   import MonsterBuffPanel from "./MonsterBuffPanel.svelte";
   import MonsterHatePanel from "./MonsterHatePanel.svelte";
+  import MonsterTeammateBuffPanel from "./MonsterTeammateBuffPanel.svelte";
   import { initMonsterOverlay, isMonsterEditing } from "./monster-state.svelte.js";
 
   const editing = $derived(isMonsterEditing());
@@ -20,6 +21,9 @@
   {/if}
 
   <MonsterBuffPanel />
+  {#if (SETTINGS.monsterMonitor.state.overlayVisibility?.showTeammateBuffPanel ?? true)}
+    <MonsterTeammateBuffPanel />
+  {/if}
   {#if hateEnabled}
     <MonsterHatePanel />
   {/if}

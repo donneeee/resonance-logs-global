@@ -50,5 +50,9 @@
   "update.downloadGithub": "Baixar pelo GitHub",
   "update.emptyNotes": "Não há notas de lançamento disponíveis para esta versão.",
   "update.title": "Nova versão disponível",
-  "update.versionLine": "Versão atual v{currentVersion}, versão mais recente v{latestVersion}"
+  "update.versionLine": "Versão atual v{currentVersion}, versão mais recente v{latestVersion}",
+  "settings.appBehavior": "Comportamento do aplicativo",
+  "settings.appBehavior.subtitle": "Controla o comportamento geral do aplicativo que não está ligado a uma sobreposição ou visualização de medidor.",
+  "settings.hideMainWindowToTray": "Ocultar a janela principal na bandeja",
+  "settings.hideMainWindowToTrayDescription": "Quando ativado, fechar a janela principal a oculta em vez de sair. Use o icone da bandeja para restaurar ou Sair para fechar completamente."
 }

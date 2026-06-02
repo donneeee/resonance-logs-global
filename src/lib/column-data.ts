@@ -102,6 +102,8 @@ export const liveHealPlayerColumns = [
 ] as const satisfies readonly ColumnDefinition[];
 
 export const liveTankedPlayerColumns = [
+  makeColumn("columns.liveTankedPlayers", "blockRate", "Block%", "Block%", "Show the player's chance to block incoming hits", percent1),
+  makeColumn("columns.liveTankedPlayers", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the player's chance to trigger a lucky block", percent1),
   makeColumn("columns.liveTankedPlayers", "totalDmg", "承伤", "承伤", "显示玩家承受的总伤害", integer),
   makeColumn("columns.liveTankedPlayers", "dps", "秒承伤", "秒承伤", "显示玩家每秒承受的伤害 (TPS)", fixed1),
   makeColumn("columns.liveTankedPlayers", "effectiveTotal", "有效承伤", "有效承伤", "显示玩家承受的有效伤害", integer),
@@ -116,6 +118,8 @@ export const liveTankedPlayerColumns = [
 ] as const satisfies readonly ColumnDefinition[];
 
 export const liveTankedSkillColumns = [
+  makeColumn("columns.liveTankedSkills", "blockRate", "Block%", "Block%", "Show the chance that this incoming skill was blocked", percent1),
+  makeColumn("columns.liveTankedSkills", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the chance that this incoming skill triggered a lucky block", percent1),
   makeColumn("columns.liveTankedSkills", "totalDmg", "承伤", "承伤", "显示技能造成的总承伤", integer),
   makeColumn("columns.liveTankedSkills", "dps", "秒承伤", "秒承伤", "显示技能每秒造成的承伤 (DTPS)", fixed1),
   makeColumn("columns.liveTankedSkills", "effectiveTotal", "有效承伤", "有效承伤", "显示技能造成的有效承伤", integer),
@@ -132,6 +136,8 @@ export const liveTankedSkillColumns = [
 ] as const satisfies readonly ColumnDefinition[];
 
 export const historyTankedPlayerColumns = [
+  makeColumn("columns.historyTankedPlayers", "blockRate", "Block%", "Block%", "Show the player's chance to block incoming hits", percent1),
+  makeColumn("columns.historyTankedPlayers", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the player's chance to trigger a lucky block", percent1),
   makeColumn("columns.historyTankedPlayers", "damageTaken", "承伤", "承伤", "显示玩家承受的总伤害", integer),
   makeColumn("columns.historyTankedPlayers", "tankedPS", "秒承伤", "秒承伤", "显示玩家每秒承受的伤害 (TPS)", fixed1),
   makeColumn("columns.historyTankedPlayers", "tankedPct", "占比%", "占比%", "显示玩家承伤占比", percent1),
@@ -144,6 +150,8 @@ export const historyTankedPlayerColumns = [
 ] as const satisfies readonly ColumnDefinition[];
 
 export const historyTankedSkillColumns = [
+  makeColumn("columns.historyTankedSkills", "blockRate", "Block%", "Block%", "Show the chance that this incoming skill was blocked", percent1),
+  makeColumn("columns.historyTankedSkills", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the chance that this incoming skill triggered a lucky block", percent1),
   makeColumn("columns.historyTankedSkills", "totalDmg", "承伤", "承伤", "显示技能造成的总承伤", integer),
   makeColumn("columns.historyTankedSkills", "dps", "秒承伤", "秒承伤", "显示技能每秒造成的承伤 (DTPS)", fixed1),
   makeColumn("columns.historyTankedSkills", "dmgPct", "占比%", "占比%", "显示技能承伤占比", percent1),

@@ -221,13 +221,11 @@ function formatCounterCountText(
   slotState: CounterSlotState,
   slotConfig?: CounterRulePreset["effectSlots"][number],
 ): string {
-  const slotWithEffective = slotState as CounterSlotState & {
-    effectiveThreshold?: number | null;
-  };
+  const threshold = resolveCounterThreshold(slotState);
+  const countText = `${Math.max(0, slotState.currentCount)}`;
   const slotWithDisplay = slotConfig as
     | (CounterRulePreset["effectSlots"][number] & { displayMode?: string })
     | undefined;
-  const threshold = slotWithEffective.effectiveThreshold ?? slotState.threshold;
   if (
     slotWithDisplay?.displayMode === "percentOfThreshold" &&
     threshold !== null &&
@@ -243,7 +241,39 @@ function formatCounterCountText(
   ) {
     return `${Math.max(0, threshold - slotState.currentCount)}`;
   }
-  return `${Math.max(0, slotState.currentCount)}`;
+  if (threshold !== null && threshold > 0) {
+    return `${countText}/${threshold}`;
+  }
+  return countText;
+}
+
+function resolveCounterThreshold(
+  slotState: CounterSlotState,
+): number | null {
+  const slotWithEffective = slotState as CounterSlotState & {
+    effectiveThreshold?: number | null;
+  };
+  return slotWithEffective.effectiveThreshold ?? slotState.threshold ?? null;
+}
+
+function getCounterThresholdProgressPercent(
+  slotState: CounterSlotState,
+): number {
+  const threshold = resolveCounterThreshold(slotState);
+  if (threshold === null || threshold <= 0) return 0;
+  return Math.max(0, Math.min(100, (slotState.currentCount / threshold) * 100));
+}
+
+function getLinkedBuffProgress(
+  linkedBuff: BuffUpdateState | undefined,
+  now: number,
+): { active: boolean; progressPercent: number; showProgress: boolean } {
+  const active = isBuffActive(linkedBuff, now);
+  return {
+    active,
+    progressPercent: getBuffRemainPercent(linkedBuff, now),
+    showProgress: active && Boolean(linkedBuff && linkedBuff.durationMs > 0),
+  };
 }
 
 export function getCustomPanelDisplayRow(
@@ -279,6 +309,7 @@ export function getCustomPanelDisplayRow(
   const slotConfig = rule?.effectSlots.find((slot) => slot.slotId === selectedSlotId)
     ?? rule?.effectSlots[0];
   const linkedBuff = buffMap.get(slotConfig?.resetBuffId ?? -1);
+  const factorDisplay = entry.counterDisplayMode === "factor";
   if (!counter || !selectedSlot) {
     return {
       key: `counter_${entry.id}`,
@@ -289,13 +320,21 @@ export function getCustomPanelDisplayRow(
     };
   }
   if (selectedSlot.isCounting) {
+    const linkedProgress = getLinkedBuffProgress(linkedBuff, now);
+    const thresholdProgressPercent = getCounterThresholdProgressPercent(
+      selectedSlot,
+    );
     return {
       key: `inline_counter_${entry.id}`,
       label: entry.label,
       valueText: formatCounterCountText(selectedSlot, slotConfig),
       metaText: undefined,
-      progressPercent: 0,
-      showProgress: false,
+      progressPercent: factorDisplay && linkedProgress.showProgress
+        ? linkedProgress.progressPercent
+        : thresholdProgressPercent,
+      showProgress: factorDisplay
+        ? linkedProgress.showProgress || thresholdProgressPercent > 0
+        : false,
     };
   }
   const fixedFreezeUntilMs = selectedSlot.freezeUntilMs;
@@ -316,6 +355,16 @@ export function getCustomPanelDisplayRow(
       freezeDurationMs > 0
         ? Math.max(0, Math.min(100, (fixedRemainingMs / freezeDurationMs) * 100))
         : 0;
+    if (factorDisplay) {
+      return {
+        key: `inline_counter_${entry.id}`,
+        label: entry.label,
+        valueText: formatCounterCountText(selectedSlot, slotConfig),
+        metaText: undefined,
+        progressPercent,
+        showProgress: freezeDurationMs > 0,
+      };
+    }
     return {
       key: `inline_counter_${entry.id}`,
       label: entry.label,
@@ -327,6 +376,16 @@ export function getCustomPanelDisplayRow(
   }
   const active = selectedSlot.resetBuffActive ?? isBuffActive(linkedBuff, now);
   const remainingMs = getBuffRemainingMs(linkedBuff, now);
+  if (factorDisplay) {
+    return {
+      key: `inline_counter_${entry.id}`,
+      label: entry.label,
+      valueText: formatCounterCountText(selectedSlot, slotConfig),
+      metaText: undefined,
+      progressPercent: getBuffRemainPercent(linkedBuff, now),
+      showProgress: active && Boolean(linkedBuff && linkedBuff.durationMs > 0),
+    };
+  }
   return {
     key: `inline_counter_${entry.id}`,
     label: entry.label,

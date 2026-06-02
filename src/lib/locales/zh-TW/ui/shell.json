@@ -50,5 +50,9 @@
   "update.downloadGithub": "從 GitHub 下載",
   "update.emptyNotes": "此版本沒有發布說明。",
   "update.title": "有新版本可用",
-  "update.versionLine": "目前版本 v{currentVersion}，最新版本 v{latestVersion}"
+  "update.versionLine": "目前版本 v{currentVersion}，最新版本 v{latestVersion}",
+  "settings.appBehavior": "應用程式行為",
+  "settings.appBehavior.subtitle": "控制不綁定到單一懸浮窗或儀表檢視的全域應用程式行為。",
+  "settings.hideMainWindowToTray": "關閉時將主視窗隱藏到系統匣",
+  "settings.hideMainWindowToTrayDescription": "啟用後，關閉主視窗會將其隱藏而不是結束。使用系統匣圖示還原，或選擇結束以完全關閉。"
 }

@@ -43,6 +43,10 @@ struct FormulaHitSample {
     damage_source: Option<i32>,
     property: Option<i32>,
     damage_mode: Option<i32>,
+    attacker_uuid: Option<i64>,
+    original_attacker_uuid: Option<i64>,
+    top_summoner_uuid: Option<i64>,
+    target_uuid: Option<i64>,
     attacker_uid: i64,
     original_attacker_uid: i64,
     top_summoner_uid: Option<i64>,
@@ -51,6 +55,7 @@ struct FormulaHitSample {
     attacker_attrs: Vec<FormulaAttrSnapshot>,
     target_attrs: Vec<FormulaAttrSnapshot>,
     active_buff_base_ids: Vec<i32>,
+    active_buff_source_uuids: Vec<i64>,
     active_buff_source_uids: Vec<i64>,
     active_factor_buff_ids: Vec<i32>,
     active_effect_buff_ids: Vec<i32>,
@@ -74,6 +79,10 @@ pub struct AttributionDamageEvent {
     pub damage_source: Option<i32>,
     pub property: Option<i32>,
     pub damage_mode: Option<i32>,
+    pub attacker_uuid: Option<i64>,
+    pub original_attacker_uuid: Option<i64>,
+    pub top_summoner_uuid: Option<i64>,
+    pub target_uuid: Option<i64>,
     pub attacker_uid: i64,
     pub original_attacker_uid: i64,
     pub top_summoner_uid: Option<i64>,
@@ -89,6 +98,7 @@ pub struct AttributionDamageEvent {
     pub attacker_class_id: i32,
     pub attacker_class_spec: String,
     pub active_buff_base_ids: Vec<i32>,
+    pub active_buff_source_uuids: Vec<i64>,
     pub active_buff_source_uids: Vec<i64>,
     pub active_factor_buff_ids: Vec<i32>,
     pub active_effect_buff_ids: Vec<i32>,
@@ -129,12 +139,17 @@ struct AttributionCensusAggregate {
     properties: Vec<i32>,
     damage_modes: Vec<i32>,
     skill_keys: Vec<i64>,
+    attacker_uuids: Vec<i64>,
+    original_attacker_uuids: Vec<i64>,
+    top_summoner_uuids: Vec<i64>,
+    target_uuids: Vec<i64>,
     original_attacker_uids: Vec<i64>,
     top_summoner_uids: Vec<i64>,
     target_monster_type_ids: Vec<i32>,
     attacker_class_ids: Vec<i32>,
     attacker_class_specs: Vec<String>,
     active_buff_base_ids: Vec<i32>,
+    active_buff_source_uuids: Vec<i64>,
     active_buff_source_uids: Vec<i64>,
     active_factor_buff_ids: Vec<i32>,
     active_effect_buff_ids: Vec<i32>,
@@ -149,7 +164,9 @@ struct AttributionCensusAggregate {
     #[serde(skip)]
     formula_sample_signatures: HashSet<String>,
     last_attacker_uid: i64,
+    last_attacker_uuid: Option<i64>,
     last_target_uid: i64,
+    last_target_uuid: Option<i64>,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -303,6 +320,13 @@ pub fn record_damage_event(event: AttributionDamageEvent) {
     push_unique_option_i32(&mut row.properties, event.property);
     push_unique_option_i32(&mut row.damage_modes, event.damage_mode);
     push_unique_i64(&mut row.skill_keys, event.skill_key);
+    push_unique_option_i64(&mut row.attacker_uuids, event.attacker_uuid);
+    push_unique_option_i64(
+        &mut row.original_attacker_uuids,
+        event.original_attacker_uuid,
+    );
+    push_unique_option_i64(&mut row.top_summoner_uuids, event.top_summoner_uuid);
+    push_unique_option_i64(&mut row.target_uuids, event.target_uuid);
     push_unique_i64(&mut row.original_attacker_uids, event.original_attacker_uid);
     push_unique_option_i64(&mut row.top_summoner_uids, event.top_summoner_uid);
     push_unique_option_i32(
@@ -317,6 +341,10 @@ pub fn record_damage_event(event: AttributionDamageEvent) {
     push_unique_i32_values(
         &mut row.active_buff_base_ids,
         event.active_buff_base_ids.clone(),
+    );
+    push_unique_i64_values(
+        &mut row.active_buff_source_uuids,
+        event.active_buff_source_uuids.clone(),
     );
     push_unique_i64_values(
         &mut row.active_buff_source_uids,
@@ -359,7 +387,9 @@ pub fn record_damage_event(event: AttributionDamageEvent) {
         event.active_profession_talent_stage_cfg_ids.clone(),
     );
     row.last_attacker_uid = event.attacker_uid;
+    row.last_attacker_uuid = event.attacker_uuid;
     row.last_target_uid = event.target_uid;
+    row.last_target_uuid = event.target_uuid;
 
     maybe_push_formula_sample(row, event);
 }
@@ -483,6 +513,10 @@ fn maybe_push_formula_sample(row: &mut AttributionCensusAggregate, event: Attrib
         damage_source: event.damage_source,
         property: event.property,
         damage_mode: event.damage_mode,
+        attacker_uuid: event.attacker_uuid,
+        original_attacker_uuid: event.original_attacker_uuid,
+        top_summoner_uuid: event.top_summoner_uuid,
+        target_uuid: event.target_uuid,
         attacker_uid: event.attacker_uid,
         original_attacker_uid: event.original_attacker_uid,
         top_summoner_uid: event.top_summoner_uid,
@@ -491,6 +525,7 @@ fn maybe_push_formula_sample(row: &mut AttributionCensusAggregate, event: Attrib
         attacker_attrs: event.attacker_attr_snapshot,
         target_attrs: event.target_attr_snapshot,
         active_buff_base_ids: event.active_buff_base_ids,
+        active_buff_source_uuids: event.active_buff_source_uuids,
         active_buff_source_uids: event.active_buff_source_uids,
         active_factor_buff_ids: event.active_factor_buff_ids,
         active_effect_buff_ids: event.active_effect_buff_ids,
@@ -510,7 +545,7 @@ fn maybe_push_formula_sample(row: &mut AttributionCensusAggregate, event: Attrib
 
 fn formula_sample_signature(sample: &FormulaHitSample) -> String {
     format!(
-        "skill={};value={};effective={};heal={};crit={};lucky={};owner={};level={:?};hit={:?};source={:?};property={:?};mode={:?};attacker={};original_attacker={};top_summoner={:?};target={};monster={:?};attacker_attrs={:?};target_attrs={:?};buffs={:?};buff_sources={:?};factor_buffs={:?};effect_buffs={:?};effect_sources={:?};factor_items={:?};factor_grades={:?};passive_skills={:?};passive_uuids={:?};talent_nodes={:?};talent_stages={:?}",
+        "skill={};value={};effective={};heal={};crit={};lucky={};owner={};level={:?};hit={:?};source={:?};property={:?};mode={:?};attacker_uuid={:?};original_attacker_uuid={:?};top_summoner_uuid={:?};target_uuid={:?};attacker={};original_attacker={};top_summoner={:?};target={};monster={:?};attacker_attrs={:?};target_attrs={:?};buffs={:?};buff_source_uuids={:?};buff_sources={:?};factor_buffs={:?};effect_buffs={:?};effect_sources={:?};factor_items={:?};factor_grades={:?};passive_skills={:?};passive_uuids={:?};talent_nodes={:?};talent_stages={:?}",
         sample.skill_key,
         sample.value,
         sample.effective_value,
@@ -523,6 +558,10 @@ fn formula_sample_signature(sample: &FormulaHitSample) -> String {
         sample.damage_source,
         sample.property,
         sample.damage_mode,
+        sample.attacker_uuid,
+        sample.original_attacker_uuid,
+        sample.top_summoner_uuid,
+        sample.target_uuid,
         sample.attacker_uid,
         sample.original_attacker_uid,
         sample.top_summoner_uid,
@@ -531,6 +570,7 @@ fn formula_sample_signature(sample: &FormulaHitSample) -> String {
         sample.attacker_attrs,
         sample.target_attrs,
         sample.active_buff_base_ids,
+        sample.active_buff_source_uuids,
         sample.active_buff_source_uids,
         sample.active_factor_buff_ids,
         sample.active_effect_buff_ids,

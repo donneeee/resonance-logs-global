@@ -4,6 +4,7 @@ import { spawn } from "node:child_process";
 
 const cliArgs = process.argv.slice(2);
 const verboseRequested = cliArgs.includes("--verbose");
+const energyProbesRequested = !cliArgs.includes("--no-energy-probes");
 const rawServiceProbesRequested = cliArgs.includes("--raw-service-probes");
 const rawServiceProbesAllRequested = cliArgs.includes("--raw-service-probes-all");
 
@@ -34,6 +35,10 @@ if (verboseRequested) {
   env.RESONANCE_ENABLE_CONTAINER_PROBES_VERBOSE = "0";
 }
 
+if (energyProbesRequested) {
+  env.RESONANCE_ENABLE_FACTOR_ENERGY_PROBES = "1";
+}
+
 if (rawServiceProbesRequested || rawServiceProbesAllRequested) {
   env.RESONANCE_ENABLE_RAW_SERVICE_PROBES = "1";
   env.RESONANCE_RAW_SERVICE_PROBE_HEX_LIMIT = argValue(
@@ -57,6 +62,7 @@ if (rawServiceProbesAllRequested) {
 console.log("Starting tauri dev with seasonal factor container probes enabled.");
 console.log("Set RESONANCE_ENABLE_CONTAINER_PROBES_VERBOSE=1 before running for larger raw probe payloads.");
 console.log(`Container probe verbose mode: ${env.RESONANCE_ENABLE_CONTAINER_PROBES_VERBOSE}`);
+console.log(`Factor energy probes: ${env.RESONANCE_ENABLE_FACTOR_ENERGY_PROBES ?? "0"}`);
 console.log(`Raw service probes: ${env.RESONANCE_ENABLE_RAW_SERVICE_PROBES ?? "0"}`);
 console.log(
   `Raw service probe payload hex limit: ${env.RESONANCE_RAW_SERVICE_PROBE_HEX_LIMIT ?? "4096"}`,

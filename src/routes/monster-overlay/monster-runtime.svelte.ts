@@ -4,6 +4,8 @@ import type {
   MonsterBossBuffSection,
   MonsterDragState,
   MonsterHateSection,
+  MonsterTeammateBuffColumn,
+  MonsterTeammateBuffRow,
   MonsterResizeState,
 } from "./monster-types";
 
@@ -15,10 +17,15 @@ export const monsterRuntime = $state({
   rafId: null as number | null,
   nameCache: new Map<number, string>(),
   playerNameCache: new Map<number, string>(),
+  playerNameByEntityKey: new Map<string, string>(),
   monsterIdCache: new Map<number, number>(),
+  monsterIdByEntityKey: new Map<string, number>(),
   bossBuffMap: new Map<number, Map<number, BuffUpdateState>>(),
+  teammateBuffMap: new Map<string, Map<number, BuffUpdateState>>(),
   bossHateMap: new Map<number, HateEntry[]>(),
   bossSections: [] as MonsterBossBuffSection[],
+  teammateColumns: [] as MonsterTeammateBuffColumn[],
+  teammateRows: [] as MonsterTeammateBuffRow[],
   hateSections: [] as MonsterHateSection[],
   isEditing: false,
   dragState: null as MonsterDragState | null,
@@ -31,6 +38,14 @@ export function monsterBossSections() {
 
 export function monsterHateSections() {
   return monsterRuntime.hateSections;
+}
+
+export function monsterTeammateColumns() {
+  return monsterRuntime.teammateColumns;
+}
+
+export function monsterTeammateRows() {
+  return monsterRuntime.teammateRows;
 }
 
 export function isMonsterEditing() {

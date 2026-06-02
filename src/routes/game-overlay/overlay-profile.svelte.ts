@@ -135,6 +135,7 @@ const _customPanelGroups = $derived.by(() => {
   if (!_activeProfile) return [];
   return ensureCustomPanelGroups(_activeProfile);
 });
+const _factorSlotLabels = $derived.by(() => _activeProfile?.factorSlotLabels ?? {});
 const _inlineBuffEntries = $derived.by<InlineBuffEntry[]>(() => {
   return _customPanelGroups.flatMap((group) => group.entries);
 });
@@ -264,6 +265,10 @@ export function enabledPanelAttrs() {
 
 export function customPanelGroups() {
   return _customPanelGroups;
+}
+
+export function factorSlotLabels() {
+  return _factorSlotLabels;
 }
 
 export function inlineBuffEntries() {

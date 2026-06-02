@@ -50,5 +50,9 @@
   "update.downloadGithub": "GitHub에서 다운로드",
   "update.emptyNotes": "이 버전에 대한 릴리스 노트가 없습니다.",
   "update.title": "새 버전 사용 가능",
-  "update.versionLine": "현재 버전 v{currentVersion}, 최신 버전 v{latestVersion}"
+  "update.versionLine": "현재 버전 v{currentVersion}, 최신 버전 v{latestVersion}",
+  "settings.appBehavior": "앱 동작",
+  "settings.appBehavior.subtitle": "단일 오버레이나 미터 화면에 연결되지 않는 앱 전체 동작을 제어합니다.",
+  "settings.hideMainWindowToTray": "닫을 때 메인 창을 트레이로 숨기기",
+  "settings.hideMainWindowToTrayDescription": "활성화하면 메인 창을 닫아도 종료하지 않고 트레이로 숨깁니다. 복원하려면 트레이 아이콘을 사용하고 완전히 종료하려면 종료를 선택하세요."
 }

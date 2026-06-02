@@ -83,5 +83,12 @@
   "gpuChecking": "正在檢查 GPU 可用性...",
   "gpuDisabledDescription": "GPU 加速計算已停用。",
   "gpuEnabledDescription": "GPU 加速計算已啟用。",
-  "requiresAtLeastModules": "需要至少 {count} 個模組"
+  "requiresAtLeastModules": "需要至少 {count} 個模組",
+  "gpuCheckUnavailable": "GPU 可用性無法取得。",
+  "gpuCheckDeferred": "GPU 檢查為手動模式。",
+  "gpuDeferredDescription": "使用「檢查 GPU」確認驅動程式可用性。",
+  "gpuRecheck": "檢查 GPU",
+  "checkingModuleData": "正在檢查模組資料...",
+  "moduleDataUnavailable": "模組資料尚未同步。請在擁有模組的角色上開啟遊戲，然後重新整理資料。",
+  "calculationTimedOut": "計算逾時。請減少篩選條件或切換到 CPU 模式，然後重新開始。"
 }

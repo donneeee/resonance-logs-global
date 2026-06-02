@@ -1,3 +1,4 @@
+use crate::live::entity_id::uid_from_uuid;
 use crate::live::opcodes_models::{Encounter, attr_type};
 use blueprotobuf_lib::blueprotobuf::{AoiSyncDelta, EDamageType};
 use std::time::{Duration, Instant};
@@ -13,7 +14,15 @@ pub enum TrainingDummyPhase {
     Idle,
     Armed,
     Running,
-    PendingRollover,
+    Finished,
+}
+
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq)]
+pub enum CombatGate {
+    #[default]
+    AllowAll,
+    Only(i64),
+    BlockAll,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -48,6 +57,7 @@ impl TryFrom<i32> for TrainingDummyMonsterId {
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct TrainingDummyMatch {
     pub target_uid: i64,
+    pub target_entity_uuid: i64,
     pub monster_id: TrainingDummyMonsterId,
     pub has_local_player_damage: bool,
 }
@@ -55,94 +65,94 @@ pub struct TrainingDummyMatch {
 #[derive(Debug, Clone, Default)]
 pub struct TrainingDummyRuntime {
     pub phase: TrainingDummyPhase,
-    pub selected_monster_id: Option<TrainingDummyMonsterId>,
-    pub locked_target_uid: Option<i64>,
+    pub locked_target_uuid: Option<i64>,
     pub rollover_ready_at: Option<Instant>,
+    pub segment_saved: bool,
 }
 
 impl TrainingDummyRuntime {
-    pub fn arm(&mut self, monster_id: TrainingDummyMonsterId) {
+    pub fn arm(&mut self) {
         self.phase = TrainingDummyPhase::Armed;
-        self.selected_monster_id = Some(monster_id);
-        self.locked_target_uid = None;
+        self.locked_target_uuid = None;
         self.rollover_ready_at = None;
+        self.segment_saved = false;
     }
 
     pub fn clear(&mut self) {
         *self = Self::default();
     }
 
-    pub fn has_selection(&self) -> bool {
-        self.selected_monster_id.is_some()
+    pub fn is_active(&self) -> bool {
+        self.phase != TrainingDummyPhase::Idle
     }
 
-    pub fn rearm_selected(&mut self) {
-        if let Some(monster_id) = self.selected_monster_id {
-            self.arm(monster_id);
+    pub fn rearm(&mut self) {
+        if self.is_active() {
+            self.arm();
         } else {
             self.clear();
         }
     }
 
-    pub fn combat_target_filter(&self) -> Option<i64> {
+    pub fn combat_gate(&self) -> CombatGate {
         match self.phase {
-            TrainingDummyPhase::Running | TrainingDummyPhase::PendingRollover => {
-                self.locked_target_uid
-            }
-            TrainingDummyPhase::Idle | TrainingDummyPhase::Armed => None,
+            TrainingDummyPhase::Idle | TrainingDummyPhase::Armed => CombatGate::AllowAll,
+            TrainingDummyPhase::Running => self
+                .locked_target_uuid
+                .map_or(CombatGate::AllowAll, CombatGate::Only),
+            TrainingDummyPhase::Finished => CombatGate::BlockAll,
         }
     }
 
-    pub fn maybe_enter_pending_rollover(&mut self) {
+    pub fn maybe_finish(&mut self) -> bool {
         if self.phase != TrainingDummyPhase::Running {
-            return;
+            return false;
         }
         if self
             .rollover_ready_at
             .is_some_and(|trigger_at| Instant::now() >= trigger_at)
         {
-            self.phase = TrainingDummyPhase::PendingRollover;
+            self.phase = TrainingDummyPhase::Finished;
+            return true;
         }
+        false
     }
 
     pub fn should_lock_on_match(&self, matched: TrainingDummyMatch) -> bool {
-        self.phase == TrainingDummyPhase::Armed
-            && self.selected_monster_id == Some(matched.monster_id)
-            && matched.has_local_player_damage
-    }
-
-    pub fn should_rollover_on_match(&self, matched: TrainingDummyMatch) -> bool {
-        self.phase == TrainingDummyPhase::PendingRollover
-            && self.locked_target_uid == Some(matched.target_uid)
-            && matched.has_local_player_damage
+        self.phase == TrainingDummyPhase::Armed && matched.has_local_player_damage
     }
 
     pub fn lock_target(&mut self, matched: TrainingDummyMatch) {
         let now = Instant::now();
         self.phase = TrainingDummyPhase::Running;
-        self.selected_monster_id = Some(matched.monster_id);
-        self.locked_target_uid = Some(matched.target_uid);
+        self.locked_target_uuid = Some(matched.target_entity_uuid);
         self.rollover_ready_at = Some(now + TRAINING_SEGMENT_DURATION);
+        self.segment_saved = false;
     }
 }
 
 pub fn inspect_aoi_delta(
     encounter: &Encounter,
     delta: &AoiSyncDelta,
-    local_player_uid: i64,
+    local_player_uuid: i64,
 ) -> Option<TrainingDummyMatch> {
     let target_uuid = delta.uuid?;
-    let target_uid = target_uuid >> 16;
-    let monster_id = resolve_target_monster_id(encounter, delta, target_uid)?;
+    let target_uid = encounter
+        .entity_uuid_to_uid
+        .get(&target_uuid)
+        .copied()
+        .unwrap_or_else(|| uid_from_uuid(target_uuid));
+    let monster_id = resolve_target_monster_id(encounter, delta, target_uuid, target_uid)?;
     let has_local_player_damage = delta.skill_effects.as_ref().is_some_and(|effects| {
         effects
             .damages
             .iter()
-            .any(|damage| is_local_player_damage(damage, local_player_uid))
+            .any(|damage| is_local_player_damage(damage, local_player_uuid))
     });
 
     Some(TrainingDummyMatch {
         target_uid,
+        target_entity_uuid: target_uuid,
         monster_id,
         has_local_player_damage,
     })
@@ -151,6 +161,7 @@ pub fn inspect_aoi_delta(
 fn resolve_target_monster_id(
     encounter: &Encounter,
     delta: &AoiSyncDelta,
+    target_uuid: i64,
     target_uid: i64,
 ) -> Option<TrainingDummyMonsterId> {
     let attrs_monster_id = delta.attrs.as_ref().and_then(|attrs| {
@@ -167,9 +178,14 @@ fn resolve_target_monster_id(
 
     attrs_monster_id
         .or_else(|| {
+            let resolved_uid = encounter
+                .entity_uuid_to_uid
+                .get(&target_uuid)
+                .copied()
+                .unwrap_or(target_uid);
             encounter
-                .entity_uid_to_entity
-                .get(&target_uid)
+                .entity_by_uuid(target_uuid)
+                .or_else(|| encounter.entity_by_uid(resolved_uid))
                 .and_then(|entity| entity.monster_type_id)
         })
         .and_then(|monster_id| TrainingDummyMonsterId::try_from(monster_id).ok())
@@ -184,9 +200,9 @@ fn decode_attr_id(raw: Option<&[u8]>) -> Option<i32> {
 
 fn is_local_player_damage(
     damage: &blueprotobuf_lib::blueprotobuf::SyncDamageInfo,
-    local_player_uid: i64,
+    local_player_uuid: i64,
 ) -> bool {
-    if local_player_uid <= 0 {
+    if local_player_uuid <= 0 {
         return false;
     }
     if damage.r#type.unwrap_or(0) == EDamageType::Heal as i32 {
@@ -202,6 +218,6 @@ fn is_local_player_damage(
     damage
         .top_summoner_id
         .or(damage.attacker_uuid)
-        .map(|uuid| (uuid >> 16) == local_player_uid)
+        .map(|uuid| uuid == local_player_uuid)
         .unwrap_or(false)
 }

@@ -1,6 +1,12 @@
 import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import { findAnySkillByBaseId } from "$lib/skill-mappings";
+import {
+  findAnySkillByBaseId,
+  getSeasonCultivateFactorItemSlotTemplateMap,
+  getSeasonCultivateFactorProcBuffItemIdsMap,
+  getSeasonCultivateFactorRuleId,
+  getSeasonCultivateFactorSourceIncrementMap,
+} from "$lib/skill-mappings";
 import {
   ensureBuffUptimeActiveIndicators,
   ensureBuffUptimeAliases,
@@ -20,6 +26,7 @@ import {
   onLiveData,
   onPanelAttrUpdate,
   onResetEncounter,
+  onSeasonCultivateFactorCounterUpdate,
   onShieldDetailUpdate,
   onSkillCdUpdate,
   type BuffUpdateState,
@@ -69,6 +76,92 @@ type TrackedUptimeRow = {
   sourceConfigId: number | null;
   isActive: boolean;
 };
+
+function filterSeasonCultivateSlotItemIds(
+  itemIds: number[],
+  activeRuleIds?: Set<number>,
+) {
+  const slotTemplateMap = getSeasonCultivateFactorItemSlotTemplateMap();
+  const seen = new Set<number>();
+  const result: number[] = [];
+  for (const itemId of itemIds) {
+    if (!Number.isInteger(itemId) || !slotTemplateMap.has(itemId) || seen.has(itemId)) {
+      continue;
+    }
+    const ruleId = getSeasonCultivateFactorRuleId(itemId);
+    if (activeRuleIds && !activeRuleIds.has(ruleId)) {
+      continue;
+    }
+    seen.add(itemId);
+    result.push(itemId);
+  }
+  return result;
+}
+
+function getFactorProcBuffKey(buff: BuffUpdateState): string {
+  return String(buff.baseId);
+}
+
+function updateObservedSeasonCultivateFactorProcCounts(
+  buffs: BuffUpdateState[],
+) {
+  const procBuffItemIdsMap = getSeasonCultivateFactorProcBuffItemIdsMap();
+  if (procBuffItemIdsMap.size === 0) return;
+  const sourceIncrementMap = getSeasonCultivateFactorSourceIncrementMap();
+  const activeFactorItemIds = new Set([
+    ...overlayRuntime.seasonCultivateFactorSlotItemIds,
+    ...overlayRuntime.seasonCultivateFactorCandidateSlotItemIds,
+  ]);
+  if (activeFactorItemIds.size === 0) return;
+
+  const now = Date.now();
+  const previousLayers = overlayRuntime.seasonCultivateFactorProcBuffLayers;
+  const initialized =
+    overlayRuntime.seasonCultivateFactorProcBuffLayersInitialized;
+  const nextLayers = new Map<string, number>();
+  const nextCounts = new Map(overlayRuntime.seasonCultivateFactorProcCounts);
+
+  for (const buff of buffs) {
+    const itemIds = procBuffItemIdsMap.get(buff.baseId);
+    if (!itemIds || itemIds.length === 0) continue;
+    if (buff.durationMs <= 0) continue;
+    if (!isBuffActive(buff, now)) continue;
+
+    const layer = Math.max(1, buff.layer);
+    const key = getFactorProcBuffKey(buff);
+    nextLayers.set(key, layer);
+
+    const previousLayer = previousLayers.get(key);
+    const recentActivationWindowMs = Math.max(
+      5_000,
+      Math.min(Math.max(0, buff.durationMs), 10_000),
+    );
+    const isRecentActivation =
+      buff.createTimeMs > 0
+      && Math.abs(now - buff.createTimeMs) <= recentActivationWindowMs;
+    let procDelta = 0;
+    if (previousLayer === undefined) {
+      procDelta = initialized || isRecentActivation ? 1 : 0;
+    } else {
+      procDelta = Math.max(0, layer - previousLayer);
+    }
+    if (procDelta <= 0) continue;
+
+    for (const itemId of itemIds) {
+      if (!activeFactorItemIds.has(itemId)) continue;
+      const sourceIncrement = sourceIncrementMap.get(itemId);
+      if (sourceIncrement && sourceIncrement > 0) {
+        continue;
+      } else {
+        nextCounts.set(itemId, (nextCounts.get(itemId) ?? 0) + procDelta);
+      }
+    }
+  }
+
+  overlayRuntime.seasonCultivateFactorProcBuffLayers = nextLayers;
+  overlayRuntime.seasonCultivateFactorProcCounts = nextCounts;
+  overlayRuntime.seasonCultivateFactorProcBuffLayersInitialized = true;
+}
 
 function buildLatestBuffMap(buffs: BuffUpdateState[]) {
   const next = new Map<number, BuffUpdateState>();
@@ -179,6 +272,7 @@ export function initOverlay() {
   const unlistenBuff = onBuffUpdate((event) => {
     overlayRuntime.localBuffs = event.payload.buffs;
     overlayRuntime.buffMap = buildLatestBuffMap(event.payload.buffs);
+    updateObservedSeasonCultivateFactorProcCounts(event.payload.buffs);
   });
   const unlistenBossBuff = onBossBuffUpdate((event) => {
     const next = new Map<number, BuffUpdateState[]>();
@@ -200,6 +294,24 @@ export function initOverlay() {
       next.set(counter.ruleId, counter);
     }
     overlayRuntime.counterMap = next;
+  });
+  const unlistenFactorCounter = onSeasonCultivateFactorCounterUpdate((event) => {
+    const next = new Map<number, CounterUpdateState>();
+    const activeRuleIds = new Set<number>();
+    for (const counter of event.payload.counters) {
+      next.set(counter.ruleId, counter);
+      activeRuleIds.add(counter.ruleId);
+    }
+    overlayRuntime.factorCounterMap = next;
+    overlayRuntime.seasonCultivateFactorSourceItemIds = event.payload.sourceItemIds;
+    overlayRuntime.seasonCultivateFactorCandidateSlotItemIds =
+      filterSeasonCultivateSlotItemIds(event.payload.slotItemIds);
+    overlayRuntime.seasonCultivateFactorSlotItemIds =
+      filterSeasonCultivateSlotItemIds(event.payload.slotItemIds, activeRuleIds);
+    overlayRuntime.seasonCultivateFactorActiveAreaIds = event.payload.activeAreaIds;
+    overlayRuntime.seasonCultivateFactorActiveItemIds = event.payload.activeItemIds;
+    overlayRuntime.seasonCultivateFactorActiveFantasyIds =
+      event.payload.activeFantasyIds;
   });
   const unlistenCd = onSkillCdUpdate((event) => {
     const next = new Map(overlayRuntime.cdMap);
@@ -268,6 +380,9 @@ export function initOverlay() {
     if (shouldReset) {
       overlayRuntime.uptimeTotals = new Map();
       overlayRuntime.activeUptimeRowKeys = new Set();
+      overlayRuntime.seasonCultivateFactorProcCounts = new Map();
+      overlayRuntime.seasonCultivateFactorProcBuffLayers = new Map();
+      overlayRuntime.seasonCultivateFactorProcBuffLayersInitialized = false;
       overlayRuntime.uptimeFightStartTimestampMs = data.fightStartTimestampMs;
       if (data.elapsedMs === 0) {
         overlayRuntime.uptimeLastElapsedMs = 0;
@@ -324,6 +439,16 @@ export function initOverlay() {
     overlayRuntime.shieldDetailEntries = [];
     overlayRuntime.uptimeTotals = new Map();
     overlayRuntime.activeUptimeRowKeys = new Set();
+    overlayRuntime.factorCounterMap = new Map();
+    overlayRuntime.seasonCultivateFactorSourceItemIds = [];
+    overlayRuntime.seasonCultivateFactorSlotItemIds = [];
+    overlayRuntime.seasonCultivateFactorCandidateSlotItemIds = [];
+    overlayRuntime.seasonCultivateFactorActiveAreaIds = [];
+    overlayRuntime.seasonCultivateFactorActiveItemIds = [];
+    overlayRuntime.seasonCultivateFactorActiveFantasyIds = [];
+    overlayRuntime.seasonCultivateFactorProcCounts = new Map();
+    overlayRuntime.seasonCultivateFactorProcBuffLayers = new Map();
+    overlayRuntime.seasonCultivateFactorProcBuffLayersInitialized = false;
     overlayRuntime.uptimeFightStartTimestampMs = 0;
     overlayRuntime.uptimeLastElapsedMs = 0;
     overlayRuntime.uptimeLastActiveCombatTimeMs = 0;
@@ -342,11 +467,22 @@ export function initOverlay() {
     overlayRuntime.nameCache = new Map();
     overlayRuntime.localBuffs = [];
     overlayRuntime.bossBuffLists = new Map();
+    overlayRuntime.factorCounterMap = new Map();
+    overlayRuntime.seasonCultivateFactorSourceItemIds = [];
+    overlayRuntime.seasonCultivateFactorSlotItemIds = [];
+    overlayRuntime.seasonCultivateFactorCandidateSlotItemIds = [];
+    overlayRuntime.seasonCultivateFactorActiveAreaIds = [];
+    overlayRuntime.seasonCultivateFactorActiveItemIds = [];
+    overlayRuntime.seasonCultivateFactorActiveFantasyIds = [];
+    overlayRuntime.seasonCultivateFactorProcCounts = new Map();
+    overlayRuntime.seasonCultivateFactorProcBuffLayers = new Map();
+    overlayRuntime.seasonCultivateFactorProcBuffLayersInitialized = false;
     unlistenEditToggle.then((fn) => fn());
     unlistenBuff.then((fn) => fn());
     unlistenBossBuff.then((fn) => fn());
     unlistenNames.then((fn) => fn());
     unlistenCounter.then((fn) => fn());
+    unlistenFactorCounter.then((fn) => fn());
     unlistenCd.then((fn) => fn());
     unlistenRes.then((fn) => fn());
     unlistenPanelAttr.then((fn) => fn());

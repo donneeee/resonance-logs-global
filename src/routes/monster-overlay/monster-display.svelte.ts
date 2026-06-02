@@ -1,4 +1,9 @@
-import { resolveBuffOverlayDisplayName } from "$lib/config/buff-name-table";
+import {
+  getBuffCategoryLabel,
+  getBuffIdsByCategory,
+  resolveBuffOverlayDisplayName,
+  type BuffCategoryKey,
+} from "$lib/config/buff-name-table";
 import { localizeMonsterName, localizeRawMonsterName } from "$lib/monster-mappings";
 import { resolveMonsterMonitorTranslation } from "$lib/i18n";
 import {
@@ -6,7 +11,7 @@ import {
   ensureBuffAliases,
   ensureBuffAlerts,
 } from "$lib/settings-store";
-import type { HateEntry } from "$lib/api";
+import type { BuffUpdateState, HateEntry } from "$lib/api";
 import {
   buildBuffTextRow,
   resolveAlertState,
@@ -16,7 +21,24 @@ import { monsterRuntime } from "./monster-runtime.svelte.js";
 import type {
   MonsterBossBuffSection,
   MonsterHateSection,
+  MonsterTeammateBuffColumn,
+  MonsterTeammateBuffRow,
 } from "./monster-types";
+
+type TeammateColumnDefinition =
+  | {
+      key: string;
+      label: string;
+      kind: "buff";
+      buffId: number;
+    }
+  | {
+      key: string;
+      label: string;
+      kind: "category";
+      categoryKey: BuffCategoryKey;
+      buffIds: number[];
+    };
 
 
 function tMonster(key: string, fallback: string): string {
@@ -148,6 +170,133 @@ function buildHatePlaceholderRows(): TextBuffDisplay[] {
   ];
 }
 
+function buildTeammatePlaceholderRows(
+  columns: MonsterTeammateBuffColumn[],
+): MonsterTeammateBuffRow[] {
+  const effectiveColumns =
+    columns.length > 0
+      ? columns
+      : [
+          {
+            key: "placeholder",
+            label: tMonster("placeholder.buffName", "Buff"),
+            buffIds: [0],
+          },
+        ];
+
+  return [
+    {
+      teammateEntityUuid: "teammate_preview_1",
+      teammateName: tMonster("placeholder.teammate", "Teammate Preview"),
+      isPlaceholder: true,
+      cells: effectiveColumns.map((column, index) => ({
+        key: `teammate_preview_cell_${index + 1}`,
+        buffId: column.buffIds[0] ?? 0,
+        buffName: column.label,
+        valueText: index === 0 ? "12s" : "--",
+        metaText: index === 0 ? "x2" : undefined,
+        progressPercent: index === 0 ? 60 : 0,
+        hasBuff: true,
+        categoryKey: column.categoryKey,
+      })),
+    },
+  ];
+}
+
+function buildTeammateColumnDefinitions(
+  aliases: ReturnType<typeof ensureBuffAliases>,
+): TeammateColumnDefinition[] {
+  const state = SETTINGS.monsterMonitor.state;
+  const teammateBuffIds = state.teammateBuffIds ?? [];
+  const teammateBuffCategories = state.teammateBuffCategories ?? [];
+  const columns: TeammateColumnDefinition[] = teammateBuffIds.map((buffId) => ({
+    key: `buff:${buffId}`,
+    label: resolveBuffOverlayDisplayName(buffId, aliases),
+    kind: "buff",
+    buffId,
+  }));
+
+  for (const categoryKey of teammateBuffCategories) {
+    columns.push({
+      key: `category:${categoryKey}`,
+      label: getBuffCategoryLabel(categoryKey),
+      kind: "category",
+      categoryKey,
+      buffIds: getBuffIdsByCategory(categoryKey),
+    });
+  }
+
+  return columns;
+}
+
+function toTeammateDisplayColumns(
+  columns: TeammateColumnDefinition[],
+): MonsterTeammateBuffColumn[] {
+  return columns.map((column) => ({
+    key: column.key,
+    buffIds: column.kind === "buff" ? [column.buffId] : [...column.buffIds],
+    label: column.label,
+    categoryKey: column.kind === "category" ? column.categoryKey : undefined,
+  }));
+}
+
+function filterInactiveTeammateColumns(
+  columns: MonsterTeammateBuffColumn[],
+  rows: MonsterTeammateBuffRow[],
+): {
+  columns: MonsterTeammateBuffColumn[];
+  rows: MonsterTeammateBuffRow[];
+} {
+  const activeColumnIndexes = columns
+    .map((_, index) => index)
+    .filter((index) => rows.some((row) => row.cells[index]?.hasBuff === true));
+
+  return {
+    columns: activeColumnIndexes.map((index) => columns[index]!),
+    rows: rows
+      .map((row) => ({
+        ...row,
+        cells: activeColumnIndexes
+          .map((index) => row.cells[index])
+          .filter((cell) => cell !== undefined),
+      }))
+      .filter((row) => row.cells.some((cell) => cell.hasBuff)),
+  };
+}
+
+function pickLatestBuff(
+  buffMap: Map<number, BuffUpdateState>,
+  buffIds: number[],
+): BuffUpdateState | undefined {
+  let latest: BuffUpdateState | undefined;
+  for (const buffId of buffIds) {
+    const buff = buffMap.get(buffId);
+    if (!buff) continue;
+    if (!latest || buff.createTimeMs >= latest.createTimeMs) {
+      latest = buff;
+    }
+  }
+  return latest;
+}
+
+function uidFromEntityKey(entityKey: string): number {
+  const numeric = Number(entityKey);
+  if (Number.isSafeInteger(numeric) && numeric > 0 && numeric < 1_000_000_000) {
+    return numeric;
+  }
+  try {
+    return Number(BigInt(entityKey) >> 16n);
+  } catch {
+    return 0;
+  }
+}
+
+function resolveTeammateDisplayName(entityKey: string): string {
+  const playerName = monsterRuntime.playerNameByEntityKey.get(entityKey)?.trim();
+  if (playerName) return playerName;
+  return `UID ${uidFromEntityKey(entityKey) || entityKey}`;
+}
+
 function buildHateRows(entries: HateEntry[], maxDisplay: number): TextBuffDisplay[] {
   const sortedEntries = [...entries].sort((left, right) => {
     if (right.hateVal !== left.hateVal) {
@@ -211,6 +360,8 @@ export function updateMonsterDisplay() {
     durationMs: number,
   ) => resolveAlertState(alertMap[String(baseId)], remainingMs, durationMs);
   const selectedIds = selectedMonsterBuffIds();
+  const teammateColumns = buildTeammateColumnDefinitions(aliases);
+  const fullTeammateDisplayColumns = toTeammateDisplayColumns(teammateColumns);
   const priorityIds = SETTINGS.monsterMonitor.state.buffPriorityIds ?? [];
   const priorityIndex = new Map<number, number>();
   priorityIds.forEach((id, index) => priorityIndex.set(id, index));
@@ -221,6 +372,7 @@ export function updateMonsterDisplay() {
     }
   });
   const nextSections: MonsterBossBuffSection[] = [];
+  const nextTeammateRows: MonsterTeammateBuffRow[] = [];
   const nextHateSections: MonsterHateSection[] = [];
 
   const sortedBossUids = Array.from(monsterRuntime.bossBuffMap.keys())
@@ -251,6 +403,120 @@ export function updateMonsterDisplay() {
       bossUid,
       title: resolveMonsterSectionTitle(bossUid),
       rows: buffRows,
+    });
+  }
+
+  const sortedTeammateUuids = Array.from(
+    monsterRuntime.teammateBuffMap.keys(),
+  ).sort();
+
+  for (const teammateUuid of sortedTeammateUuids) {
+    const buffMap =
+      monsterRuntime.teammateBuffMap.get(teammateUuid) ?? new Map();
+    const cells = teammateColumns.map((column) => {
+      if (column.kind === "buff") {
+        const buff = buffMap.get(column.buffId);
+        const buffName = resolveBuffOverlayDisplayName(column.buffId, aliases);
+        if (!buff) {
+          return {
+            key: `teammate_${teammateUuid}_${column.key}_empty`,
+            buffId: column.buffId,
+            buffName,
+            valueText: "",
+            progressPercent: 0,
+            hasBuff: false,
+          };
+        }
+
+        const row = buildBuffTextRow(
+          `teammate_${teammateUuid}_${column.key}`,
+          buffName,
+          buff,
+          now,
+          false,
+          true,
+          resolveAlert,
+        );
+        if (!row) {
+          return {
+            key: `teammate_${teammateUuid}_${column.key}_empty`,
+            buffId: column.buffId,
+            buffName,
+            valueText: "",
+            progressPercent: 0,
+            hasBuff: false,
+          };
+        }
+
+        return {
+          key: `teammate_${teammateUuid}_${column.key}`,
+          buffId: column.buffId,
+          buffName,
+          valueText: row.valueText,
+          metaText: row.metaText,
+          progressPercent: row.progressPercent,
+          hasBuff: true,
+          alert: row.alert,
+        };
+      }
+
+      const buff = pickLatestBuff(buffMap, column.buffIds);
+      const buffName = buff
+        ? resolveBuffOverlayDisplayName(buff.baseId, aliases)
+        : column.label;
+      if (!buff) {
+        return {
+          key: `teammate_${teammateUuid}_${column.key}_empty`,
+          buffId: column.buffIds[0] ?? 0,
+          buffName: column.label,
+          valueText: "",
+          progressPercent: 0,
+          hasBuff: false,
+          categoryKey: column.categoryKey,
+        };
+      }
+
+      const row = buildBuffTextRow(
+        `teammate_${teammateUuid}_${column.key}`,
+        buffName,
+        buff,
+        now,
+        false,
+        true,
+        resolveAlert,
+      );
+      if (!row) {
+        return {
+          key: `teammate_${teammateUuid}_${column.key}_empty`,
+          buffId: buff.baseId,
+          buffName,
+          valueText: "",
+          progressPercent: 0,
+          hasBuff: false,
+          categoryKey: column.categoryKey,
+          matchedBuffId: buff.baseId,
+        };
+      }
+
+      return {
+        key: `teammate_${teammateUuid}_${column.key}`,
+        buffId: buff.baseId,
+        buffName,
+        valueText: row.valueText,
+        metaText: row.metaText,
+        progressPercent: row.progressPercent,
+        hasBuff: true,
+        alert: row.alert,
+        categoryKey: column.categoryKey,
+        matchedBuffId: buff.baseId,
+      };
+    });
+
+    if (!cells.some((cell) => cell.hasBuff)) continue;
+    nextTeammateRows.push({
+      teammateEntityUuid: teammateUuid,
+      teammateName: resolveTeammateDisplayName(teammateUuid),
+      cells,
     });
   }
 
@@ -296,6 +562,19 @@ export function updateMonsterDisplay() {
   }
 
   monsterRuntime.bossSections = nextSections;
+  if (nextTeammateRows.length > 0) {
+    const filteredTeammates = filterInactiveTeammateColumns(
+      fullTeammateDisplayColumns,
+      nextTeammateRows,
+    );
+    monsterRuntime.teammateColumns = filteredTeammates.columns;
+    monsterRuntime.teammateRows = filteredTeammates.rows;
+  } else {
+    monsterRuntime.teammateColumns = fullTeammateDisplayColumns;
+    monsterRuntime.teammateRows = monsterRuntime.isEditing
+      ? buildTeammatePlaceholderRows(fullTeammateDisplayColumns)
+      : [];
+  }
   monsterRuntime.hateSections = nextHateSections;
   monsterRuntime.rafId = requestAnimationFrame(updateMonsterDisplay);
 }

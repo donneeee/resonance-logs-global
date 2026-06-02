@@ -80,6 +80,17 @@
         monsterOverlaySizes.hatePanelScale,
       );
     }
+    if (monsterMonitor.overlayVisibility?.showTeammateBuffPanel ?? true) {
+      pushArea(
+        "monsterTeammateBuffPanel",
+        tMonster("overlay.teammateBuff", "Teammate Buff Area"),
+        monsterOverlayPositions.teammateBuffPanel.x,
+        monsterOverlayPositions.teammateBuffPanel.y,
+        320,
+        160,
+        monsterOverlaySizes.teammateBuffPanelScale,
+      );
+    }
 
     if (profile.buffDisplayMode === "grouped") {
       for (const group of profile.buffGroups) {

@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "不明な発生源",
+  "tanked.monster.source": "発生源",
+  "tanked.monster.total": "合計",
   "columns.historyHealPlayers.critDmgRate.description": "回復量のうちクリティカル回復が占める割合を表示",
   "columns.historyHealPlayers.critDmgRate.header": "クリ回復%",
   "columns.historyHealPlayers.critDmgRate.label": "クリ回復%",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "寄与グループ",
   "detail.modifierTitlePredicates": "条件",
   "detail.modifierTitleRequiredEvidence": "必要な証拠",
-  "detail.modifierTitleAttributionNotes": "帰属メモ"
+  "detail.modifierTitleAttributionNotes": "帰属メモ",
+  "columns.historyTankedPlayers.blockRate.description": "被弾時にブロックした割合を表示",
+  "columns.historyTankedPlayers.blockRate.header": "ブロック%",
+  "columns.historyTankedPlayers.blockRate.label": "ブロック%",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "被弾時にラッキーブロックが発生した割合を表示",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "ラッキーブロック%",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "ラッキーブロック%",
+  "columns.historyTankedSkills.blockRate.description": "この被弾スキルがブロックされた割合を表示",
+  "columns.historyTankedSkills.blockRate.header": "ブロック%",
+  "columns.historyTankedSkills.blockRate.label": "ブロック%",
+  "columns.historyTankedSkills.luckyBlockRate.description": "この被弾スキルでラッキーブロックが発生した割合を表示",
+  "columns.historyTankedSkills.luckyBlockRate.header": "ラッキーブロック%",
+  "columns.historyTankedSkills.luckyBlockRate.label": "ラッキーブロック%"
 }

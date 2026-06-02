@@ -73,6 +73,16 @@
     return col.header;
   }
 
+  function openTankedDetails(playerUid: number): void {
+    const entity = liveData?.entities.find((row) => row.uid === playerUid);
+    const hasSources = (entity?.takenPerSource?.length ?? 0) > 0;
+    goto(
+      hasSources
+        ? `/live/tanked/monsters?playerUid=${playerUid}`
+        : `/live/tanked/skills?playerUid=${playerUid}`,
+    );
+  }
+
   // Sorted player data based on settings
   let tankedData = $derived.by(() => {
     const data = [...rawTankedData];
@@ -266,7 +276,7 @@
           <tr
             class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
             style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-            onclick={() => goto(`/live/tanked/skills?playerUid=${player.uid}`)}
+            onclick={() => openTankedDetails(player.uid)}
           >
             <td
               colspan={visiblePlayerColumns.length + 1}
@@ -364,8 +374,9 @@
           isLocalPlayer,
         })}
         <tr
-          class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-default group"
+          class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
           style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
+          onclick={() => openTankedDetails(player.uid)}
         >
           <td class="px-3 py-1 relative z-10">
             <div class="flex items-center h-full gap-2">
@@ -445,7 +456,7 @@
                   suffixFontSize={tableSettings.abbreviatedFontSize}
                   suffixColor={customThemeColors.tableAbbreviatedColor}
                 />
-              {:else if col.key === "critRate" || col.key === "critDmgRate" || col.key === "luckyRate" || col.key === "luckyDmgRate"}
+              {:else if col.key === "critRate" || col.key === "critDmgRate" || col.key === "luckyRate" || col.key === "luckyDmgRate" || col.key === "blockRate" || col.key === "luckyBlockRate"}
                 <PercentFormat
                   val={player[col.key]}
                   suffixFontSize={tableSettings.abbreviatedFontSize}

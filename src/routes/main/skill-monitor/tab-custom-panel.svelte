@@ -3,6 +3,7 @@
   import type { BuffDefinition, BuffNameInfo } from "$lib/config/buff-name-table";
   import type {
     CustomPanelGroup,
+    CustomPanelGroupKind,
     CustomPanelStyle,
     InlineBuffEntry,
   } from "$lib/settings-store";
@@ -21,8 +22,10 @@
     inlineBuffSearch: string;
     filteredInlineBuffSearchResults: BuffNameInfo[];
     customPanelGroups: CustomPanelGroup[];
+    factorSlotLabels: Record<string, string>;
+    setFactorSlotLabel: (slotTemplateId: string, name: string) => void;
     setInlineBuffSearch: (value: string) => void;
-    addCustomPanelGroup: () => void;
+    addCustomPanelGroup: (kind?: CustomPanelGroupKind) => void;
     removeCustomPanelGroup: (groupId: string) => void;
     renameCustomPanelGroup: (groupId: string, name: string) => void;
     updateCustomPanelGroupStyle: (
@@ -57,6 +60,8 @@
     inlineBuffSearch,
     filteredInlineBuffSearchResults,
     customPanelGroups,
+    factorSlotLabels,
+    setFactorSlotLabel,
     setInlineBuffSearch,
     addCustomPanelGroup,
     removeCustomPanelGroup,
@@ -75,6 +80,7 @@
   let draftRuleName = $state("");
   let draftSourceRefs = $state<string[]>([]);
   let draftSlotRefs = $state<string[]>([]);
+  let factorSlotSearch = $state("");
 
   $effect(() => {
     if (customPanelGroups.length === 0) {
@@ -89,6 +95,33 @@
   const selectedGroup = $derived.by(
     () => customPanelGroups.find((group) => group.id === selectedGroupId) ?? null,
   );
+  const isSelectedManualGroup = $derived(selectedGroup?.kind !== "seasonCultivateFactor");
+  const slotTemplateMap = $derived.by(
+    () => new Map(slotTemplates.map((template) => [template.slotTemplateId, template])),
+  );
+  const customizedFactorSlots = $derived.by(() =>
+    Object.entries(factorSlotLabels)
+      .map(([slotTemplateId, label]) => ({
+        slotTemplateId,
+        label,
+        template: slotTemplateMap.get(slotTemplateId) ?? null,
+      }))
+      .sort((left, right) =>
+        (left.template?.name ?? left.slotTemplateId).localeCompare(
+          right.template?.name ?? right.slotTemplateId,
+        ),
+      ),
+  );
+  const filteredSlotTemplates = $derived.by(() => {
+    const keyword = factorSlotSearch.trim().toLowerCase();
+    if (!keyword) return [] as SlotTemplate[];
+    return slotTemplates.filter(
+      (template) =>
+        template.name.toLowerCase().includes(keyword) ||
+        template.description.toLowerCase().includes(keyword) ||
+        template.slotTemplateId.toLowerCase().includes(keyword),
+    );
+  });
   const canSaveDraftRule = $derived(
     draftRuleName.trim().length > 0 && draftSourceRefs.length > 0 && draftSlotRefs.length > 0,
   );
@@ -99,6 +132,7 @@
     counterSlotId?: number,
   ): { groupId: string; groupName: string } | null {
     for (const group of customPanelGroups) {
+      if (group.kind === "seasonCultivateFactor") continue;
       if (group.entries.some((entry) =>
         entry.sourceType === sourceType
         && entry.sourceId === sourceId
@@ -181,7 +215,6 @@
 </script>
 
 <div class="space-y-6">
-  {#if selectedGroup}
   <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-4">
     <div>
       <h2 class="text-base font-semibold text-foreground">{t("customPanel.title", "自定义监控区")}</h2>
@@ -194,9 +227,16 @@
       <button
         type="button"
         class="min-h-11 rounded-lg border border-border/60 bg-muted/20 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 cursor-pointer"
-        onclick={addCustomPanelGroup}
+        onclick={() => addCustomPanelGroup("manual")}
       >
         {t("customPanel.newGroup", "新建监控区")}
+      </button>
+      <button
+        type="button"
+        class="min-h-11 rounded-lg border border-border/60 bg-muted/20 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 cursor-pointer"
+        onclick={() => addCustomPanelGroup("seasonCultivateFactor")}
+      >
+        {t("customPanel.newFactor", "New Factor Area")}
       </button>
       <div class="text-xs text-muted-foreground" role="status" aria-live="polite">
         {#if selectedGroup}
@@ -223,7 +263,11 @@
             >
               <div class="text-sm font-medium text-foreground">{group.name}</div>
               <div class="mt-1 text-xs text-muted-foreground">
-                {t("entries", "条目")} {group.entries.length}
+                {#if group.kind === "seasonCultivateFactor"}
+                  {t("customPanel.newFactor", "New Factor Area")}
+                {:else}
+                  {t("entries", "条目")} {group.entries.length}
+                {/if}
               </div>
             </button>
             <button
@@ -258,6 +302,7 @@
       </label>
     </div>
 
+    {#if isSelectedManualGroup}
     <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-3">
       <div class="space-y-1">
         <div class="text-sm font-medium text-foreground">{t("customPanel.addBuff", "添加 Buff")}</div>
@@ -516,12 +561,88 @@
         </div>
       {/each}
     </div>
+    {:else}
+    <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-4">
+      <div class="space-y-1">
+        <div class="text-sm font-medium text-foreground">{t("customPanel.factorSlots.title", "Factor Display Names")}</div>
+        <p class="text-xs text-muted-foreground">{t("customPanel.factorSlots.description", "Set custom display names for factor slots. Names are saved per slot template, so they persist across build switches whenever that slot is shown.")}</p>
+      </div>
+
+      {#if customizedFactorSlots.length > 0}
+        <div class="space-y-2">
+          <div class="text-xs font-medium text-muted-foreground">{t("customPanel.factorSlots.currentList", "Configured")}</div>
+          {#each customizedFactorSlots as item (item.slotTemplateId)}
+            <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
+              <div class="text-xs text-muted-foreground">
+                {t("customPanel.factorSlots.defaultName", "Default: {name}").replace(
+                  "{name}",
+                  item.template?.name ?? item.slotTemplateId,
+                )}
+              </div>
+              <div class="flex items-center gap-2">
+                <input
+                  class="flex-1 rounded border border-border/60 bg-muted/30 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  value={item.label}
+                  placeholder={t("customPanel.factorSlots.customNamePlaceholder", "Custom display name")}
+                  oninput={(event) =>
+                    setFactorSlotLabel(item.slotTemplateId, (event.currentTarget as HTMLInputElement).value)}
+                />
+                <button
+                  type="button"
+                  class="min-h-11 rounded-md border border-border/60 px-3 py-1.5 text-xs text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
+                  onclick={() => setFactorSlotLabel(item.slotTemplateId, "")}
+                >
+                  {t("customPanel.factorSlots.clear", "Clear")}
+                </button>
+              </div>
+            </div>
+          {/each}
+        </div>
+      {/if}
+
+      <div class="space-y-2 border-t border-border/60 pt-4">
+        <div class="text-xs font-medium text-muted-foreground">{t("customPanel.factorSlots.searchTitle", "Search & set")}</div>
+        <input
+          class="w-full sm:w-80 rounded border border-border/60 bg-muted/30 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+          placeholder={t("customPanel.factorSlots.searchPlaceholder", "Search factor slots (name / description)")}
+          value={factorSlotSearch}
+          oninput={(event) => (factorSlotSearch = (event.currentTarget as HTMLInputElement).value)}
+        />
+        {#if factorSlotSearch.trim().length > 0}
+          {#if filteredSlotTemplates.length === 0}
+            <div class="rounded-lg border border-dashed border-border/60 bg-muted/10 px-3 py-6 text-center text-sm text-muted-foreground">
+              {t("customPanel.factorSlots.noMatch", "No matching factor slot")}
+            </div>
+          {:else}
+            <div class="grid grid-cols-1 gap-2">
+              {#each filteredSlotTemplates as template (template.slotTemplateId)}
+                <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
+                  <div class="text-sm font-medium text-foreground">{template.name}</div>
+                  {#if template.description}
+                    <div class="text-xs text-muted-foreground">{template.description}</div>
+                  {/if}
+                  <input
+                    class="w-full rounded border border-border/60 bg-muted/30 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    value={factorSlotLabels[template.slotTemplateId] ?? ""}
+                    placeholder={t("customPanel.factorSlots.customNamePlaceholder", "Custom display name")}
+                    oninput={(event) =>
+                      setFactorSlotLabel(template.slotTemplateId, (event.currentTarget as HTMLInputElement).value)}
+                  />
+                </div>
+              {/each}
+            </div>
+          {/if}
+        {/if}
+      </div>
+    </div>
+    {/if}
   {:else}
     <div class="rounded-lg border border-border/60 bg-card/40 p-6 text-sm text-muted-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
       {t("customPanel.emptyState", "还没有任何自定义监控区。先点击上方“新建监控区”，再向其中添加 Buff 或计数器。")}
     </div>
   {/if}
 
+  {#if selectedGroup}
   <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-4">
     <div>
       <h2 class="text-base font-semibold text-foreground">{t("customPanel.sharedStyleTitle", "共享样式")}</h2>

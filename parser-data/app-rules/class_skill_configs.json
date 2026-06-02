@@ -455,9 +455,17 @@
       510072,
       2207241,
       55332,
-      2207011
+      2207011,
+      2207171
     ],
     "derivations": [
+      {
+        "sourceSkillId": 2309,
+        "derivedSkillId": 2309,
+        "triggerBuffBaseId": 2207171,
+        "derivedName": "Restart",
+        "derivedImagePath": "/images/beat_performer/skill/weapon_jt-01_kx02_-3177198704358744543.png"
+      },
       {
         "sourceSkillId": 2313,
         "derivedSkillId": 2313,
@@ -494,7 +502,8 @@
       {
         "skillId": 2308,
         "name": "Harmonic Anthem",
-        "imagePath": "/images/beat_performer/skill/weapon_jt-01_kx01_6790195387100573474.png"
+        "imagePath": "/images/beat_performer/skill/weapon_jt-01_kx01_6790195387100573474.png",
+        "maxCharges": 2
       },
       {
         "skillId": 2310,

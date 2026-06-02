@@ -2,11 +2,15 @@
   import BuffSearchResultGrid from "$lib/components/BuffSearchResultGrid.svelte";
   import {
     getAvailableBuffDefinitions,
+    getBuffCategoryDefinitions,
+    getBuffCategoryLabel,
+    getBuffIdsByCategory,
     getDirectBuffOverlayAlias,
     lookupResolvedBuffBaseName,
     resolveBuffSearchDisplayName,
     saveBuffOverlayAlias,
     searchBuffsByName,
+    type BuffCategoryKey,
     type BuffDefinition,
     type BuffNameInfo,
   } from "$lib/config/buff-name-table";
@@ -22,16 +26,18 @@
   import { toast } from "svelte-sonner";
 
   type SearchTarget = "global" | "self";
-  type MonsterMonitorTab = "buff" | "hate";
+  type MonsterMonitorTab = "buff" | "teammate" | "hate";
 
   const availableBuffs = getAvailableBuffDefinitions();
   const availableBuffMap = new Map<number, BuffDefinition>(
     availableBuffs.map((buff) => [buff.baseId, buff]),
   );
+  const buffCategoryDefinitions = getBuffCategoryDefinitions();
 
   let searchKeyword = $state("");
   let prioritySearchKeyword = $state("");
   let alertSearchKeyword = $state("");
+  let teammateSearchKeyword = $state("");
   let searchTarget = $state<SearchTarget>("self");
   let activeTab = $state<MonsterMonitorTab>("buff");
 
@@ -42,6 +48,9 @@
   const hatePanelStyle = $derived.by(() =>
     monsterMonitor.hatePanelStyle ?? monsterMonitor.panelStyle,
   );
+  const teammatePanelStyle = $derived.by(() =>
+    monsterMonitor.teammatePanelStyle ?? monsterMonitor.panelStyle,
+  );
   const globalBuffIds = $derived(monsterMonitor.monitoredBuffIds);
   const selfAppliedBuffIds = $derived(monsterMonitor.selfAppliedBuffIds);
   const combinedBuffIds = $derived.by(() =>
@@ -51,6 +60,13 @@
     (monsterMonitor.buffPriorityIds ?? []).filter((buffId) => combinedBuffIds.includes(buffId)),
   );
   const buffAlerts = $derived.by(() => ensureBuffAlerts(monsterMonitor.buffAlerts));
+  const teammateBuffIds = $derived(monsterMonitor.teammateBuffIds ?? []);
+  const teammateBuffCategories = $derived(monsterMonitor.teammateBuffCategories ?? []);
+  const selectedTeammateBuffCategories = $derived.by(() =>
+    buffCategoryDefinitions.filter((category) =>
+      teammateBuffCategories.includes(category.key),
+    ),
+  );
   const configuredAlertBuffIds = $derived.by(() =>
     Object.keys(buffAlerts)
       .map((baseId) => Number(baseId))
@@ -70,6 +86,11 @@
   const alertSearchResults = $derived.by(() =>
     alertSearchKeyword.trim().length > 0
       ? searchBuffsByName(alertSearchKeyword, buffAliases)
+      : ([] as BuffNameInfo[]),
+  );
+  const teammateSearchResults = $derived.by(() =>
+    teammateSearchKeyword.trim().length > 0
+      ? searchBuffsByName(teammateSearchKeyword, buffAliases)
       : ([] as BuffNameInfo[]),
   );
 
@@ -183,6 +204,19 @@
     }));
   }
 
+  function updateTeammatePanelStyle<K extends keyof typeof teammatePanelStyle>(
+    key: K,
+    value: (typeof teammatePanelStyle)[K],
+  ) {
+    updateMonsterMonitor((state) => ({
+      ...state,
+      teammatePanelStyle: {
+        ...(state.teammatePanelStyle ?? state.panelStyle),
+        [key]: value,
+      },
+    }));
+  }
+
   function isSelectedInCurrentTarget(buffId: number) {
     return searchTarget === "global"
       ? globalBuffIds.includes(buffId)
@@ -198,6 +232,58 @@
     if (selfAppliedBuffIds.includes(buffId)) return t("status.addedSelf", "Added to Self Only");
     if (globalBuffIds.includes(buffId)) return t("status.currentlyGlobal", "Currently in Global");
     return null;
+  }
+
+  function toggleTeammateBuff(buffId: number) {
+    updateMonsterMonitor((state) => {
+      const current = state.teammateBuffIds ?? [];
+      const exists = current.includes(buffId);
+      return {
+        ...state,
+        teammateBuffIds: exists
+          ? current.filter((id) => id !== buffId)
+          : [...current, buffId],
+      };
+    });
+  }
+
+  function toggleTeammateBuffCategory(categoryKey: BuffCategoryKey) {
+    updateMonsterMonitor((state) => {
+      const current = state.teammateBuffCategories ?? [];
+      const exists = current.includes(categoryKey);
+      return {
+        ...state,
+        teammateBuffCategories: exists
+          ? current.filter((key) => key !== categoryKey)
+          : [...current, categoryKey],
+      };
+    });
+  }
+
+  function removeTeammateBuff(buffId: number) {
+    updateMonsterMonitor((state) => ({
+      ...state,
+      teammateBuffIds: (state.teammateBuffIds ?? []).filter((id) => id !== buffId),
+    }));
+  }
+
+  function removeTeammateBuffCategory(categoryKey: BuffCategoryKey) {
+    updateMonsterMonitor((state) => ({
+      ...state,
+      teammateBuffCategories: (state.teammateBuffCategories ?? []).filter(
+        (key) => key !== categoryKey,
+      ),
+    }));
+  }
+
+  function isSelectedTeammateBuff(buffId: number) {
+    return teammateBuffIds.includes(buffId);
+  }
+
+  function teammateSearchStatusLabel(buffId: number): string | null {
+    return teammateBuffIds.includes(buffId)
+      ? t("status.addedTeammate", "Added to teammate buffs")
+      : null;
   }
 
   function getFilteredPrioritySearchResults(): BuffNameInfo[] {
@@ -313,6 +399,17 @@
         }}
       >
         {t("tab.hate", "Hate List")}
+      </button>
+      <button
+        type="button"
+        class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors {activeTab === 'teammate'
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/30 text-foreground border-border/60 hover:bg-muted/50'}"
+        onclick={() => {
+          activeTab = "teammate";
+        }}
+      >
+        {t("tab.teammate", "Teammate Buffs")}
       </button>
     </div>
   </section>
@@ -724,6 +821,206 @@
           <strong>{Math.round((monsterMonitor.panelStyle.progressOpacity ?? 0.4) * 100)}%</strong>
         </label>
       </div>
+    </section>
+  {:else if activeTab === "teammate"}
+    <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">
+      <div class="space-y-1">
+        <h2 class="text-base font-semibold text-foreground">{t("teammate.title", "Teammate Buff Monitor")}</h2>
+        <p class="text-sm text-muted-foreground">{t("teammate.description", "Show selected buffs for teammates currently reported by the team UUID stream.")}</p>
+      </div>
+
+      <div class="space-y-3">
+        <input
+          type="text"
+          bind:value={teammateSearchKeyword}
+          placeholder={t("teammate.placeholder", "Search and add teammate buffs")}
+          class="w-full px-3 py-2.5 rounded-lg border border-border bg-background text-sm outline-none focus:border-primary"
+        />
+
+        {#if teammateSearchKeyword.trim().length > 0}
+          <BuffSearchResultGrid
+            items={teammateSearchResults}
+            {availableBuffMap}
+            onSelect={toggleTeammateBuff}
+            isSelected={isSelectedTeammateBuff}
+            getStatusLabel={teammateSearchStatusLabel}
+            emptyMessage={t("teammate.emptySearch", "No matching teammate buffs")}
+          />
+        {/if}
+      </div>
+
+      <div class="space-y-3">
+        <div class="text-sm font-semibold text-foreground">{t("teammate.categoryTitle", "Category Shortcuts")}</div>
+        <div class="flex flex-wrap gap-2">
+          {#each buffCategoryDefinitions as category (category.key)}
+            <button
+              type="button"
+              class="rounded-lg border px-3 py-2 text-sm font-medium transition-colors {teammateBuffCategories.includes(category.key)
+                ? 'border-primary bg-primary text-primary-foreground'
+                : 'border-border/60 bg-muted/30 text-foreground hover:bg-muted/50'}"
+              onclick={() => toggleTeammateBuffCategory(category.key)}
+              title={`${getBuffCategoryLabel(category.key)} (${getBuffIdsByCategory(category.key).length})`}
+            >
+              {getBuffCategoryLabel(category.key)}
+            </button>
+          {/each}
+        </div>
+      </div>
+
+      <div class="rounded-lg border border-border/60 bg-background/50 p-4 space-y-3">
+        <div>
+          <div class="text-sm font-semibold text-foreground">{t("teammate.groupTitle", "Monitored Teammate Buffs")}</div>
+          <div class="text-xs text-muted-foreground">{t("teammate.groupDescription", "Individual buffs and categories become columns in the teammate matrix.")}</div>
+        </div>
+        {#if teammateBuffIds.length > 0 || selectedTeammateBuffCategories.length > 0}
+          <div class="flex flex-wrap gap-2">
+            {#each teammateBuffIds as buffId (buffId)}
+              {@const iconBuff = availableBuffMap.get(buffId)}
+              <button
+                type="button"
+                class="selected-buff"
+                onclick={() => removeTeammateBuff(buffId)}
+                title={t("removeHint", "Click to remove")}
+              >
+                {#if iconBuff}
+                  <img
+                    src={`/images/buff/${iconBuff.spriteFile}`}
+                    alt={buffName(buffId)}
+                    class="w-8 h-8 rounded object-contain bg-muted/20"
+                  />
+                {/if}
+                <span>{buffName(buffId)}</span>
+              </button>
+            {/each}
+            {#each selectedTeammateBuffCategories as category (category.key)}
+              <button
+                type="button"
+                class="selected-buff"
+                onclick={() => removeTeammateBuffCategory(category.key)}
+                title={t("removeHint", "Click to remove")}
+              >
+                <span>{getBuffCategoryLabel(category.key)}</span>
+              </button>
+            {/each}
+          </div>
+        {:else}
+          <div class="text-xs text-muted-foreground">{t("noneSelected", "No buffs selected yet")}</div>
+        {/if}
+      </div>
+
+      <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-foreground">{t("teammate.styleTitle", "Teammate Buff Matrix Style")}</h2>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-3">
+          <label class="style-field">
+            <span>{t("rowGap", "Row Gap")}</span>
+            <input
+              type="range"
+              min="0"
+              max="24"
+              value={teammatePanelStyle.gap}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "gap",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{teammatePanelStyle.gap}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("columnGap", "Column Gap")}</span>
+            <input
+              type="range"
+              min="0"
+              max="40"
+              value={teammatePanelStyle.columnGap}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "columnGap",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{teammatePanelStyle.columnGap}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("fontSize", "Font Size")}</span>
+            <input
+              type="range"
+              min="10"
+              max="28"
+              value={teammatePanelStyle.fontSize}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "fontSize",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{teammatePanelStyle.fontSize}px</strong>
+          </label>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <label class="color-field">
+            <span>{t("nameColor", "Name Color")}</span>
+            <input
+              type="color"
+              value={teammatePanelStyle.nameColor}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "nameColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("valueColor", "Value Color")}</span>
+            <input
+              type="color"
+              value={teammatePanelStyle.valueColor}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "valueColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("progressColor", "Progress Bar Color")}</span>
+            <input
+              type="color"
+              value={teammatePanelStyle.progressColor}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "progressColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("progressOpacity", "Progress Bar Opacity")}</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={teammatePanelStyle.progressOpacity ?? 0.4}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "progressOpacity",
+                  Number((event.currentTarget as HTMLInputElement).value),
+                )}
+            />
+            <strong>{Math.round((teammatePanelStyle.progressOpacity ?? 0.4) * 100)}%</strong>
+          </label>
+        </div>
+      </section>
     </section>
   {:else}
     <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">

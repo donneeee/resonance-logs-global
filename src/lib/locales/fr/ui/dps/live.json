@@ -222,6 +222,7 @@
   "header.training.disableMode": "Désactiver le mode mannequin d'entraînement",
   "header.training.enableMode": "Activer le mode mannequin d'entraînement",
   "header.training.ready": "Mannequin d'entraînement prêt",
+  "header.training.finished": "Segment terminé",
   "header.training.waitSegment": "Changement de segment en attente",
   "historyDetail.classIcon": "Icône de classe",
   "historyDetail.player": "Joueur",
@@ -231,5 +232,17 @@
   "live.resetToast": "Combat réinitialisé",
   "live.resumeToast": "Combat repris",
   "live.unknownClass": "Classe inconnue",
-  "table.skill": "Compétence"
+  "table.skill": "Compétence",
+  "columns.liveTankedPlayers.blockRate.description": "Affiche la chance de bloquer les coups reçus",
+  "columns.liveTankedPlayers.blockRate.header": "Blocage %",
+  "columns.liveTankedPlayers.blockRate.label": "Blocage %",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "Affiche la chance de déclencher un blocage chanceux",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "Blocage chanceux %",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "Blocage chanceux %",
+  "columns.liveTankedSkills.blockRate.description": "Affiche la chance que cette compétence reçue soit bloquée",
+  "columns.liveTankedSkills.blockRate.header": "Blocage %",
+  "columns.liveTankedSkills.blockRate.label": "Blocage %",
+  "columns.liveTankedSkills.luckyBlockRate.description": "Affiche la chance que cette compétence reçue déclenche un blocage chanceux",
+  "columns.liveTankedSkills.luckyBlockRate.header": "Blocage chanceux %",
+  "columns.liveTankedSkills.luckyBlockRate.label": "Blocage chanceux %"
 }

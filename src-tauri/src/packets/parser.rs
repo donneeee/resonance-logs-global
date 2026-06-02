@@ -1,13 +1,10 @@
+pub use crate::packets::opcodes::{
+    CHIT_CHAT_NTF_SERVICE_ID, GRPC_TEAM_NTF_SERVICE_ID, MATCH_NTF_SERVICE_ID,
+    SOCIAL_NTF_SERVICE_ID, UNION_NTF_SERVICE_ID, WORLD_NTF_SERVICE_ID,
+};
 use crate::packets::opcodes::{FragmentType, Pkt};
 use bytes::Bytes;
 use log::debug;
-
-pub const WORLD_NTF_SERVICE_ID: u64 = 0x0000000063335342;
-pub const CHIT_CHAT_NTF_SERVICE_ID: u64 = 164931432;
-pub const GRPC_TEAM_NTF_SERVICE_ID: u64 = 0x00000000399fca69;
-pub const SOCIAL_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff01;
-pub const UNION_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff02;
-pub const MATCH_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff03;
 
 #[derive(Clone, Debug)]
 pub struct ParsedNotifyFragment {

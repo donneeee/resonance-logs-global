@@ -264,21 +264,6 @@
       </button>
       {#if expandedSections.trainingDummy}
         <div class="px-4 pb-3 space-y-1">
-          <SettingsSelect
-            bind:selected={SETTINGS.trainingDummy.state.defaultMonsterId}
-            values={[
-              {
-                label: t("targetDummy.enemyElite", "精英敌方木桩"),
-                value: 115,
-              },
-              {
-                label: t("targetDummy.guardianElite", "精英守护木桩"),
-                value: 122,
-              },
-            ]}
-            label={t("defaultTargetDummy", "默认木桩目标")}
-            description={t("defaultTargetDummyDescription", "头部打桩按钮会直接使用这里的默认目标")}
-          />
           <SettingsSwitch
             bind:checked={SETTINGS.trainingDummy.state.showHeaderControl}
             label={t("showHeaderTargetDummyButton", "显示头部打桩按钮")}

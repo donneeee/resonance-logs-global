@@ -47,5 +47,19 @@
   "overlay.hateSuffix": " - Hate",
   "placeholder.selectBuff": "Select buffs in Monster Monitor",
   "placeholder.preview": "Preview",
-  "placeholder.targetPrefix": "Target"
+  "placeholder.targetPrefix": "Target",
+  "status.addedTeammate": "Added to teammate buffs",
+  "tab.teammate": "Teammate Buffs",
+  "teammate.title": "Teammate Buff Monitor",
+  "teammate.description": "Show selected buffs for teammates currently reported by the team UUID stream.",
+  "teammate.placeholder": "Search and add teammate buffs",
+  "teammate.emptySearch": "No matching teammate buffs",
+  "teammate.categoryTitle": "Category Shortcuts",
+  "teammate.groupTitle": "Monitored Teammate Buffs",
+  "teammate.groupDescription": "Individual buffs and categories become columns in the teammate matrix.",
+  "teammate.styleTitle": "Teammate Buff Matrix Style",
+  "overlay.teammateBuff": "Teammate Buff Area",
+  "placeholder.buffName": "Buff",
+  "placeholder.teammate": "Teammate Preview",
+  "teammate.nameHeader": "Teammate"
 }

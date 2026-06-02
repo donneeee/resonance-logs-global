@@ -1,5 +1,6 @@
 use crate::database::now_ms;
 use crate::live::commands_models::BuffUpdateState;
+use crate::live::entity_id::uid_from_uuid;
 use blueprotobuf_lib::blueprotobuf::{
     BuffChange, BuffEffectSync, BuffInfo, EBuffEffectLogicPbType, EBuffEventType,
 };
@@ -16,6 +17,8 @@ pub struct ActiveBuff {
     pub duration: i32,
     pub create_time: i64,
     pub received_time_ms: i64,
+    pub host_uuid: Option<i64>,
+    pub source_uuid: Option<i64>,
     pub host_uid: i64,
     pub source_uid: i64,
     pub fight_source_type: Option<i32>,
@@ -45,6 +48,10 @@ pub struct BuffChangeEvent {
     pub fight_source_type: Option<i32>,
     pub source_config_id: Option<i32>,
     pub layer: i32,
+    pub previous_layer: Option<i32>,
+    pub current_layer: Option<i32>,
+    pub host_uuid: Option<i64>,
+    pub source_uuid: Option<i64>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -82,11 +89,18 @@ impl BuffMonitor {
         raw_bytes: &[u8],
         server_clock_offset: &mut i64,
         local_player_uid: i64,
+        local_player_uuid: i64,
     ) -> BuffProcessResult {
         self.process_buff_effect_bytes_with_self_source_filter(
             raw_bytes,
             server_clock_offset,
-            |_, source_uid, _, _| source_uid == local_player_uid,
+            |_, source_uid, source_uuid, _, _| {
+                if local_player_uuid != 0 {
+                    source_uuid == Some(local_player_uuid)
+                } else {
+                    source_uid == local_player_uid
+                }
+            },
         )
     }
 
@@ -97,7 +111,7 @@ impl BuffMonitor {
         mut is_self_source: F,
     ) -> BuffProcessResult
     where
-        F: FnMut(i32, i64, Option<i32>, Option<i32>) -> bool,
+        F: FnMut(i32, i64, Option<i64>, Option<i32>, Option<i32>) -> bool,
     {
         let mut changes = Vec::new();
         let Ok(buff_effect_sync) = BuffEffectSync::decode(raw_bytes) else {
@@ -124,8 +138,10 @@ impl BuffMonitor {
                         let Some(base_id) = buff_info.base_id else {
                             continue;
                         };
-                        let host_uid = buff_info.host_uuid.unwrap_or(0) >> 16;
-                        let source_uid = buff_info.fire_uuid.unwrap_or(0) >> 16;
+                        let host_uuid = buff_info.host_uuid.filter(|uuid| *uuid != 0);
+                        let source_uuid = buff_info.fire_uuid.filter(|uuid| *uuid != 0);
+                        let host_uid = host_uuid.map_or(0, uid_from_uuid);
+                        let source_uid = source_uuid.map_or(0, uid_from_uuid);
                         let source_config_id = buff_info
                             .fight_source_info
                             .as_ref()
@@ -139,6 +155,7 @@ impl BuffMonitor {
                             && !is_self_source(
                                 base_id,
                                 source_uid,
+                                source_uuid,
                                 source_config_id,
                                 fight_source_type,
                             )
@@ -163,6 +180,8 @@ impl BuffMonitor {
                                 duration,
                                 create_time,
                                 received_time_ms: now,
+                                host_uuid,
+                                source_uuid,
                                 host_uid,
                                 source_uid,
                                 fight_source_type,
@@ -182,6 +201,10 @@ impl BuffMonitor {
                             fight_source_type,
                             source_config_id,
                             layer,
+                            previous_layer: None,
+                            current_layer: Some(layer),
+                            host_uuid,
+                            source_uuid,
                             host_uid,
                             source_uid,
                         });
@@ -191,7 +214,9 @@ impl BuffMonitor {
                         if let Some(entry) = self.active_buffs.get_mut(&buff_uuid) {
                             let base_id = entry.base_id;
                             let source_config_id = entry.source_config_id;
-                            if let Some(layer) = change_info.layer {
+                            let previous_layer = change_info.layer.map(|_| entry.layer);
+                            let current_layer = change_info.layer;
+                            if let Some(layer) = current_layer {
                                 entry.layer = layer;
                             }
                             if let Some(duration) = change_info.duration {
@@ -213,6 +238,10 @@ impl BuffMonitor {
                                 fight_source_type: entry.fight_source_type,
                                 source_config_id,
                                 layer: entry.layer,
+                                previous_layer,
+                                current_layer,
+                                host_uuid: entry.host_uuid,
+                                source_uuid: entry.source_uuid,
                                 host_uid: entry.host_uid,
                                 source_uid: entry.source_uid,
                             });
@@ -237,6 +266,10 @@ impl BuffMonitor {
                         fight_source_type: removed_buff.fight_source_type,
                         source_config_id: removed_buff.source_config_id,
                         layer: removed_buff.layer,
+                        previous_layer: Some(removed_buff.layer),
+                        current_layer: None,
+                        host_uuid: removed_buff.host_uuid,
+                        source_uuid: removed_buff.source_uuid,
                         host_uid: removed_buff.host_uid,
                         source_uid: removed_buff.source_uid,
                     });
@@ -289,6 +322,7 @@ pub struct BossBuffMonitors {
     pub monitors: HashMap<i64, BuffMonitor>,
     pub monitored_buff_ids: HashSet<i32>,
     pub self_applied_buff_ids: HashSet<i32>,
+    pub monitor_all_buff: bool,
 }
 
 impl BossBuffMonitors {
@@ -301,23 +335,36 @@ impl BossBuffMonitors {
     }
 
     pub(crate) fn set_config(&mut self, global_ids: Vec<i32>, self_applied_ids: Vec<i32>) {
+        self.set_config_with_monitor_all(global_ids, self_applied_ids, false);
+    }
+
+    pub(crate) fn set_config_with_monitor_all(
+        &mut self,
+        global_ids: Vec<i32>,
+        self_applied_ids: Vec<i32>,
+        monitor_all: bool,
+    ) {
         self.monitored_buff_ids = global_ids.into_iter().collect();
         self.self_applied_buff_ids = self_applied_ids.into_iter().collect();
+        self.monitor_all_buff = monitor_all;
 
         for monitor in self.monitors.values_mut() {
             monitor.monitored_buff_ids = self.monitored_buff_ids.clone();
             monitor.self_applied_buff_ids = self.self_applied_buff_ids.clone();
+            monitor.monitor_all_buff = self.monitor_all_buff;
         }
     }
 
     pub(crate) fn monitor_for(&mut self, boss_uid: i64) -> &mut BuffMonitor {
         let monitored_buff_ids = self.monitored_buff_ids.clone();
         let self_applied_buff_ids = self.self_applied_buff_ids.clone();
+        let monitor_all_buff = self.monitor_all_buff;
 
         self.monitors.entry(boss_uid).or_insert_with(|| {
             let mut monitor = BuffMonitor::new();
             monitor.monitored_buff_ids = monitored_buff_ids;
             monitor.self_applied_buff_ids = self_applied_buff_ids;
+            monitor.monitor_all_buff = monitor_all_buff;
             monitor
         })
     }

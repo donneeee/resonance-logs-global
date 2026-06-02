@@ -3,13 +3,14 @@
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
   import { SvelteSet } from "svelte/reactivity";
-  import { uiT } from "$lib/i18n";
+  import { resolveNavigationTranslation, uiT } from "$lib/i18n";
   import { SETTINGS } from "$lib/settings-store";
   import {
     buildSkillContributionNote,
     resolveSkillContributionLabel,
     type SkillContributionAttribution,
   } from "$lib/config/recount-table";
+  import { damageModeLabelKey, propertyLabelKey } from "$lib/damage-type";
   import type {
     RawSkillStatsLike,
     RecountGroup,
@@ -24,6 +25,8 @@
     label: string;
     description: string;
     format: (value: number | null) => string;
+    headerKey?: string;
+    labelKey?: string;
   };
 
   type GroupedSkills = {
@@ -124,6 +127,9 @@
       critTotalValue: group.raw.critTotalValue,
       luckyHits: group.raw.luckyHits,
       luckyTotalValue: group.raw.luckyTotalValue,
+      triggerHits: group.raw.triggerHits ?? 0,
+      blockHits: group.raw.blockHits ?? 0,
+      luckyBlockHits: group.raw.luckyBlockHits ?? 0,
       property: group.property,
       damageMode: group.damageMode,
     };
@@ -147,6 +153,42 @@
   function toggleGroup(groupId: number) {
     if (expandedGroups.has(groupId)) expandedGroups.delete(groupId);
     else expandedGroups.add(groupId);
+  }
+
+  function columnHeader(col: SkillColumn): string {
+    const language = SETTINGS.live.general.state.language;
+
+    if (col.headerKey) {
+      const translatedHeader = resolveNavigationTranslation(col.headerKey, language, "");
+      if (translatedHeader?.trim()) return translatedHeader;
+    }
+
+    if (col.labelKey) {
+      const translatedLabel = resolveNavigationTranslation(
+        col.labelKey,
+        language,
+        col.label ?? col.header,
+      );
+      if (translatedLabel?.trim()) return translatedLabel;
+    }
+
+    return col.header;
+  }
+
+  function localizedDamageColumnValue(col: SkillColumn, rawValue: unknown): string {
+    const value = typeof rawValue === "number" ? rawValue : null;
+    const fallback = col.format(value);
+    const labelKey = col.key === "property"
+      ? propertyLabelKey(value)
+      : col.key === "damageMode"
+        ? damageModeLabelKey(value)
+        : undefined;
+    if (!labelKey) return fallback;
+    return resolveNavigationTranslation(
+      labelKey,
+      SETTINGS.live.general.state.language,
+      fallback,
+    );
   }
 
   const flatRows = $derived.by(() => {
@@ -191,6 +233,8 @@
         critDmgRate: group.critDmgRate,
         luckyRate: group.luckyRate,
         luckyDmgRate: group.luckyDmgRate,
+        blockRate: group.blockRate,
+        luckyBlockRate: group.luckyBlockRate,
         hits: group.hits,
         hitsPerMinute: group.hitsPerMinute,
         property: group.property,
@@ -247,7 +291,7 @@
               onclick={() => onSort(col.key)}
             >
               <span class="inline-flex items-center gap-1 justify-end">
-                {col.header}
+                {columnHeader(col)}
                 {#if sortKey === col.key}
                   <span class="text-primary">{sortDesc ? "▼" : "▲"}</span>
                 {/if}
@@ -440,14 +484,14 @@
                   suffixFontSize={tableSettings.skillAbbreviatedFontSize}
                   suffixColor={customThemeColors.tableAbbreviatedColor}
                 />
-              {:else if col.key === "critRate" || col.key === "critDmgRate" || col.key === "luckyRate" || col.key === "luckyDmgRate"}
+              {:else if col.key === "critRate" || col.key === "critDmgRate" || col.key === "luckyRate" || col.key === "luckyDmgRate" || col.key === "blockRate" || col.key === "luckyBlockRate"}
                 <PercentFormat
                   val={skill[col.key]}
                   suffixFontSize={tableSettings.skillAbbreviatedFontSize}
                   suffixColor={customThemeColors.tableAbbreviatedColor}
                 />
               {:else if col.key === "property" || col.key === "damageMode"}
-                {col.format(skill[col.key] ?? null)}
+                {localizedDamageColumnValue(col, skill[col.key] ?? null)}
               {:else}
                 {col.format(columnValue(skill, col.key))}
               {/if}

@@ -138,5 +138,11 @@
   "debug.currentFolder": "Current folder",
   "debug.unavailable": "Unavailable",
   "debug.filePattern": "File pattern",
-  "debug.sceneChangeNotice": "Files are written automatically when the scene changes, the encounter resets, or the live loop exits. Each day is stored in its own YYYY.MM.DD subfolder."
+  "debug.sceneChangeNotice": "Files are written automatically when the scene changes, the encounter resets, or the live loop exits. Each day is stored in its own YYYY.MM.DD subfolder.",
+  "controls.category.factor_energy_probe": "因子能量探測",
+  "action.fight_resource_update": "戰鬥資源更新",
+  "action.factor_counter_update": "因子計數器更新",
+  "action.sync_to_me_delta_attrs": "SyncToMe 差分屬性",
+  "action.sync_near_delta_attrs": "SyncNear 差分屬性",
+  "action.fight_resource_tuple_candidate": "戰鬥資源元組候選"
 }

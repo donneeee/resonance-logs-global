@@ -35,6 +35,9 @@ export type RawSkillStatsLike = {
   critTotalValue: number;
   luckyHits: number;
   luckyTotalValue: number;
+  triggerHits?: number;
+  blockHits?: number;
+  luckyBlockHits?: number;
   property?: number | null;
   damageMode?: number | null;
 };
@@ -176,6 +179,12 @@ export type ActiveEffectSourceLike = {
 
 export type SkillGroupingOptions = {
   includeContributionSources?: boolean;
+  runtimeSourceBySkillId?: Map<number, SkillRuntimeSourceFallback>;
+};
+
+export type SkillRuntimeSourceFallback = {
+  sourceName: string;
+  sourceNames?: LocalizedTextMap;
 };
 
 export type ActiveSkillFactor = {
@@ -266,6 +275,8 @@ export type SkillDisplayRow = {
   sourceFactorId?: number;
   sourceName?: string;
   sourceNames?: LocalizedTextMap;
+  runtimeSourceName?: string;
+  runtimeSourceNames?: LocalizedTextMap;
   attribution: SkillContributionAttribution;
   details?: SkillBreakdownDetail;
   activeFactors?: ActiveSkillFactor[];
@@ -280,6 +291,8 @@ export type SkillDisplayRow = {
   critDmgRate: number;
   luckyRate: number;
   luckyDmgRate: number;
+  blockRate: number;
+  luckyBlockRate: number;
   hits: number;
   hitsPerMinute: number;
   property: number | null;
@@ -299,6 +312,8 @@ export type RecountGroup = {
   critDmgRate: number;
   luckyRate: number;
   luckyDmgRate: number;
+  blockRate: number;
+  luckyBlockRate: number;
   hits: number;
   hitsPerMinute: number;
   property: number | null;
@@ -508,6 +523,20 @@ const PHANTOM_FALCON_AOE_NAMES: LocalizedTextMap = {
   id: "Phantom Falcon AoE",
 };
 
+const RADIANCE_BARRAGE_NAMES: LocalizedTextMap = {
+  en: "Radiance Barrage",
+  "zh-CN": "光能轰炸",
+  "zh-TW": "光能轟炸",
+  ja: "エナジーショット",
+  "ko-KR": "라이트 봄버",
+  fr: "Déluge de radiance",
+  de: "Strahlungskanonade",
+  es: "Aluvión de Resplandor",
+  "pt-BR": "Rajada de Radiância",
+  th: "Radiance Barrage",
+  id: "Light Bombard",
+};
+
 const EFFECT_SOURCE_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
   // 2208181 is the Burn damage/buff source. It is linked to the Inferno
   // Explosion family icon, but should not inherit Explosion as its row name.
@@ -519,6 +548,8 @@ const EFFECT_SOURCE_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
 
 const DAMAGE_ID_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
   "11013510101": DRAGON_SCORCHING_GROUND_NAMES,
+  "25524003": RADIANCE_BARRAGE_NAMES,
+  "25524004": RADIANCE_BARRAGE_NAMES,
   "2220353101": PHANTOM_FALCON_AOE_NAMES,
   "2220818103": BURN_EFFECT_NAMES,
   "2220270501": MOONLIGHT_SOLACE_SHIELD_NAMES,
@@ -756,7 +787,7 @@ export function lookupChildDamageIdName(damageId: number): string {
   return lookupDamageIdName(damageId);
 }
 
-function lookupLocalizedDamageIdName(damageId: number | string, locale: string): string {
+export function lookupLocalizedDamageIdName(damageId: number | string, locale: string): string {
   const overrideName = resolveDamageIdNameOverride(damageId, locale);
   if (overrideName) return overrideName;
 
@@ -777,7 +808,6 @@ function lookupLocalizedDamageIdName(damageId: number | string, locale: string):
   ) {
     return sameIdRecountName;
   }
-
   return resolveDamageAttrName(damageEntry, locale) ?? `Unknown (${damageId})`;
 }
 
@@ -2213,10 +2243,33 @@ export function resolveActiveEffectDetailName(
     || formatActiveFactorNames(factors, locale);
 }
 
+export function resolveSkillRuntimeSourceFallbackName(
+  skillId: number | string,
+  locale: string,
+  fallbackName = "",
+  runtimeSource?: SkillRuntimeSourceFallback,
+): string {
+  if (!runtimeSource?.sourceName && !runtimeSource?.sourceNames) return "";
+  const detail = lookupSkillBreakdownDetail(skillId);
+  if (!detail?.DisplayNames || !isDesignOnlyTextMap(detail.DisplayNames)) return "";
+
+  const displayed = resolveLocalizedText(detail.DisplayNames, locale, fallbackName);
+  if (!displayed || hasCjkText(displayed)) {
+    return resolveLocalizedText(runtimeSource.sourceNames, locale, runtimeSource.sourceName);
+  }
+  return "";
+}
+
 export function resolveSkillBreakdownName(
   row: Pick<
     SkillDisplayRow,
-    "skillId" | "name" | "names" | "details" | "sourceRowKind"
+    | "skillId"
+    | "name"
+    | "names"
+    | "details"
+    | "sourceRowKind"
+    | "runtimeSourceName"
+    | "runtimeSourceNames"
   >,
   locale: string,
 ): string {
@@ -2227,6 +2280,19 @@ export function resolveSkillBreakdownName(
   if (overrideName) return overrideName;
 
   const detail = row.details ?? lookupSkillBreakdownDetail(row.skillId);
+  let runtimeSource: SkillRuntimeSourceFallback | undefined;
+  if (row.runtimeSourceName || row.runtimeSourceNames) {
+    runtimeSource = { sourceName: row.runtimeSourceName ?? "" };
+    if (row.runtimeSourceNames) runtimeSource.sourceNames = row.runtimeSourceNames;
+  }
+  const runtimeSourceName = resolveSkillRuntimeSourceFallbackName(
+    row.skillId,
+    locale,
+    row.name,
+    runtimeSource,
+  );
+  if (runtimeSourceName) return runtimeSourceName;
+
   const damageName = lookupLocalizedDamageIdName(row.skillId, locale);
   if (
     detail?.DisplayNames &&
@@ -2256,6 +2322,7 @@ export function resolveSkillBreakdownDetailName(
     | "sourceNames"
   >,
   locale: string,
+  options: { baseSkillLabel?: string } = {},
 ): string {
   if (row.sourceRowKind === "factor") {
     return resolveLocalizedText(row.sourceNames, locale, row.sourceName ?? "");
@@ -2265,7 +2332,7 @@ export function resolveSkillBreakdownDetailName(
   const variantName = resolveLocalizedText(detail?.DisplayVariantNames, locale, detail?.DisplayVariantName ?? "");
   const effectNames = resolveActiveEffectDetailName(row.activeEffects, row.activeFactors, locale);
   const baseSkillLabel = detail?.Category === "base-skill" && !detailName && !variantName
-    ? "Base skill"
+    ? (options.baseSkillLabel ?? "Base skill")
     : "";
   return compactDisplayParts([detailName, variantName, effectNames, baseSkillLabel]);
 }
@@ -2460,6 +2527,7 @@ export function buildSkillDisplayRow(
   const totalDmg = Number(stats.totalValue || 0);
   const effectiveTotal = Number(stats.effectiveTotalValue || 0);
   const hits = Number(stats.hits || 0);
+  const triggerHits = Number(stats.triggerHits || stats.hits || 0);
   const details = lookupSkillBreakdownDetail(skillId);
   const activeFactors = resolveObservedSkillFactors(
     skillId,
@@ -2487,8 +2555,10 @@ export function buildSkillDisplayRow(
     dmgPct: pct(totalDmg, parentTotal),
     critRate: rate(Number(stats.critHits || 0), hits),
     critDmgRate: pct(Number(stats.critTotalValue || 0), totalDmg),
-    luckyRate: rate(Number(stats.luckyHits || 0), hits),
+    luckyRate: rate(Number(stats.luckyHits || 0), triggerHits),
     luckyDmgRate: pct(Number(stats.luckyTotalValue || 0), totalDmg),
+    blockRate: rate(Number(stats.blockHits || 0), hits),
+    luckyBlockRate: rate(Number(stats.luckyBlockHits || 0), hits),
     hits,
     hitsPerMinute: perMinute(hits, elapsedSecs),
     property: stats.property ?? null,
@@ -2642,8 +2712,13 @@ function mergeSkillRows(
   target.dmgPct = pct(target.totalDmg, parentTotal);
   target.critRate = rate(Number(mergedRaw.critHits || 0), target.hits);
   target.critDmgRate = pct(Number(mergedRaw.critTotalValue || 0), target.totalDmg);
-  target.luckyRate = rate(Number(mergedRaw.luckyHits || 0), target.hits);
+  target.luckyRate = rate(
+    Number(mergedRaw.luckyHits || 0),
+    Number(mergedRaw.triggerHits || mergedRaw.hits || 0),
+  );
   target.luckyDmgRate = pct(Number(mergedRaw.luckyTotalValue || 0), target.totalDmg);
+  target.blockRate = rate(Number(mergedRaw.blockHits || 0), target.hits);
+  target.luckyBlockRate = rate(Number(mergedRaw.luckyBlockHits || 0), target.hits);
   target.hitsPerMinute = perMinute(target.hits, elapsedSecs);
   if (!target.sourceRowKind && incoming.sourceRowKind) {
     target.sourceRowKind = incoming.sourceRowKind;
@@ -2694,6 +2769,10 @@ function mergeRawStats(
     luckyHits: Number(left.luckyHits || 0) + Number(right.luckyHits || 0),
     luckyTotalValue:
       Number(left.luckyTotalValue || 0) + Number(right.luckyTotalValue || 0),
+    triggerHits: Number(left.triggerHits || 0) + Number(right.triggerHits || 0),
+    blockHits: Number(left.blockHits || 0) + Number(right.blockHits || 0),
+    luckyBlockHits:
+      Number(left.luckyBlockHits || 0) + Number(right.luckyBlockHits || 0),
   };
 }
 
@@ -2737,6 +2816,9 @@ function buildFactorSourceOnlyRow(
     critTotalValue: 0,
     luckyHits: 0,
     luckyTotalValue: 0,
+    triggerHits: 0,
+    blockHits: 0,
+    luckyBlockHits: 0,
   };
   return {
     skillId: -Math.abs(factor.factorBuffId),
@@ -2758,6 +2840,8 @@ function buildFactorSourceOnlyRow(
     critDmgRate: 0,
     luckyRate: 0,
     luckyDmgRate: 0,
+    blockRate: 0,
+    luckyBlockRate: 0,
     hits: 0,
     hitsPerMinute: 0,
     property: null,
@@ -2796,6 +2880,11 @@ export function groupSkillsByRecount(
       activeEffectSources,
       activeFactorItems,
     );
+    const runtimeSource = options.runtimeSourceBySkillId?.get(skillId);
+    if (runtimeSource) {
+      row.runtimeSourceName = runtimeSource.sourceName;
+      if (runtimeSource.sourceNames) row.runtimeSourceNames = runtimeSource.sourceNames;
+    }
     const mapping = DAMAGE_TO_RECOUNT.get(skillId);
     if (!mapping) {
       ungrouped.push(row);
@@ -2839,6 +2928,8 @@ export function groupSkillsByRecount(
         critDmgRate: 0,
         luckyRate: 0,
         luckyDmgRate: 0,
+        blockRate: 0,
+        luckyBlockRate: 0,
         hits: 0,
         hitsPerMinute: 0,
         property: null,
@@ -2851,6 +2942,9 @@ export function groupSkillsByRecount(
           critTotalValue: 0,
           luckyHits: 0,
           luckyTotalValue: 0,
+          triggerHits: 0,
+          blockHits: 0,
+          luckyBlockHits: 0,
           property: null,
           damageMode: null,
         },
@@ -2919,8 +3013,13 @@ export function groupSkillsByRecount(
     group.dmgPct = pct(group.totalDmg, parentTotal);
     group.critRate = rate(Number(group.raw.critHits || 0), group.hits);
     group.critDmgRate = pct(Number(group.raw.critTotalValue || 0), group.totalDmg);
-    group.luckyRate = rate(Number(group.raw.luckyHits || 0), group.hits);
+    group.luckyRate = rate(
+      Number(group.raw.luckyHits || 0),
+      Number(group.raw.triggerHits || group.raw.hits || 0),
+    );
     group.luckyDmgRate = pct(Number(group.raw.luckyTotalValue || 0), group.totalDmg);
+    group.blockRate = rate(Number(group.raw.blockHits || 0), group.hits);
+    group.luckyBlockRate = rate(Number(group.raw.luckyBlockHits || 0), group.hits);
     group.hitsPerMinute = perMinute(group.hits, elapsedSecs);
     const nameCount = new Map<string, number>();
     for (const skill of group.skills) {

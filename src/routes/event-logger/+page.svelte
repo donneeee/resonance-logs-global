@@ -118,6 +118,7 @@
     { key: "encounter", label: "Encounter", enabledByDefault: true },
     { key: "scene", label: "Scene", enabledByDefault: true },
     { key: "system", label: "System", enabledByDefault: false },
+    { key: "factor_energy_probe", label: "Factor Energy Probe", enabledByDefault: true },
     { key: "hate", label: "Hate", enabledByDefault: true },
     { key: "chat", label: "Chat", enabledByDefault: true },
     { key: "item_drop", label: "Item Drop", enabledByDefault: true },

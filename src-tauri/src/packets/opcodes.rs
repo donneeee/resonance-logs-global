@@ -1,6 +1,28 @@
 #[derive(Debug)]
 pub struct ParseError;
 
+pub const WORLD_NTF_SERVICE_ID: u64 = 0x0000000063335342;
+pub const CHIT_CHAT_NTF_SERVICE_ID: u64 = 164931432;
+pub const GRPC_TEAM_NTF_SERVICE_ID: u64 = 0x00000000399fca69;
+pub const SOCIAL_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff01;
+pub const UNION_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff02;
+pub const MATCH_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff03;
+
+pub mod grpc_team_method {
+    pub const NOTICE_UPDATE_TEAM_INFO: u32 = 0x1;
+    pub const NOTICE_UPDATE_TEAM_MEMBER_INFO: u32 = 0x2;
+    pub const NOTIFY_JOIN_TEAM: u32 = 0x3;
+    pub const NOTIFY_LEAVE_TEAM: u32 = 0x4;
+    pub const NOTIFY_BE_TRANSFER_LEADER: u32 = 0x0b;
+    pub const NOTICE_TEAM_DISSOLVE: u32 = 0x0d;
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct NotifyKey {
+    pub service_id: u64,
+    pub method_id: u32,
+}
+
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Pkt {

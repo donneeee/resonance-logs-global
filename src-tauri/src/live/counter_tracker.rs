@@ -59,6 +59,20 @@ pub enum CounterSource {
         units_required: u32,
         increment: u32,
     },
+    BuffAdded {
+        #[serde(rename = "buffId")]
+        buff_id: i32,
+        #[serde(default, rename = "sourceConfigId")]
+        source_config_id: Option<i32>,
+        increment: u32,
+    },
+    BuffLayerSpent {
+        #[serde(rename = "buffId")]
+        buff_id: i32,
+        #[serde(rename = "unitsRequired")]
+        units_required: u32,
+        increment: u32,
+    },
     BuffDurationTick {
         #[serde(rename = "buffId")]
         buff_id: i32,
@@ -170,6 +184,7 @@ pub(crate) struct CounterModelState {
     pub skill_tick_states: Vec<SkillCastTickState>,
     pub skill_complete_states: Vec<SkillCastCompleteState>,
     pub fight_resource_spent_states: Vec<FightResourceSpentState>,
+    pub buff_layer_spent_states: Vec<BuffLayerSpentState>,
     pub movement_distance_states: Vec<MovementDistanceState>,
     pub damage_hit_accumulators: Vec<u32>,
 }
@@ -220,6 +235,14 @@ pub(crate) struct SkillCastCompleteState {
 pub(crate) struct FightResourceSpentState {
     pub resource_id: i32,
     pub previous_value: Option<i64>,
+    pub accumulated_spent: u32,
+    pub units_required: u32,
+    pub increment: u32,
+}
+
+#[derive(Debug, Clone)]
+pub(crate) struct BuffLayerSpentState {
+    pub buff_id: i32,
     pub accumulated_spent: u32,
     pub units_required: u32,
     pub increment: u32,
@@ -398,6 +421,23 @@ impl BuffCounterTracker {
                     _ => None,
                 })
                 .collect();
+            let buff_layer_spent_states = rule
+                .sources
+                .iter()
+                .filter_map(|source| match source {
+                    CounterSource::BuffLayerSpent {
+                        buff_id,
+                        units_required,
+                        increment,
+                    } => Some(BuffLayerSpentState {
+                        buff_id: *buff_id,
+                        accumulated_spent: 0,
+                        units_required: (*units_required).max(1),
+                        increment: *increment,
+                    }),
+                    _ => None,
+                })
+                .collect();
             let movement_distance_states = rule
                 .sources
                 .iter()
@@ -428,6 +468,7 @@ impl BuffCounterTracker {
                     skill_tick_states,
                     skill_complete_states,
                     fight_resource_spent_states,
+                    buff_layer_spent_states,
                     movement_distance_states,
                     damage_hit_accumulators: vec![0; rule.sources.len()],
                 },
@@ -442,11 +483,17 @@ impl BuffCounterTracker {
         &mut self,
         events: &[LocalDamageEvent],
         local_player_uid: i64,
+        local_player_uuid: i64,
         attr_store: &EntityAttrStore,
     ) -> bool {
         if events.is_empty() {
             return false;
         }
+        let local_attr_id = if local_player_uuid != 0 {
+            local_player_uuid
+        } else {
+            local_player_uid
+        };
 
         let mut changed = false;
         let (rules, states) = (&self.rules, &mut self.states);
@@ -485,7 +532,11 @@ impl BuffCounterTracker {
                             .iter()
                             .filter(|event| {
                                 skill_keys.contains(&event.skill_key)
-                                    && event.target_uid == local_player_uid
+                                    && if local_player_uuid != 0 {
+                                        event.target_uuid == Some(local_player_uuid)
+                                    } else {
+                                        event.target_uid == local_player_uid
+                                    }
                             })
                             .count(),
                     ),
@@ -523,7 +574,7 @@ impl BuffCounterTracker {
                     slot_config.on_reset_skill,
                     None,
                     attr_store,
-                    local_player_uid,
+                    local_attr_id,
                 );
             }
         }
@@ -534,6 +585,7 @@ impl BuffCounterTracker {
         &mut self,
         events: &[LocalDamageTakenEvent],
         local_player_uid: i64,
+        local_player_uuid: i64,
     ) -> bool {
         if events.is_empty() {
             return false;
@@ -557,7 +609,12 @@ impl BuffCounterTracker {
                 let matches = events
                     .iter()
                     .filter(|event| {
-                        event.attacker_uid != local_player_uid
+                        let is_self_source = if local_player_uuid != 0 {
+                            event.attacker_uuid == Some(local_player_uuid)
+                        } else {
+                            event.attacker_uid == local_player_uid
+                        };
+                        !is_self_source
                             && skill_keys
                                 .as_ref()
                                 .is_none_or(|keys| keys.contains(&event.skill_key))
@@ -677,8 +734,14 @@ impl BuffCounterTracker {
         changes: &[BuffChangeEvent],
         attr_store: &EntityAttrStore,
         local_player_uid: i64,
+        local_player_uuid: i64,
     ) -> bool {
         let mut changed = false;
+        let local_attr_id = if local_player_uuid != 0 {
+            local_player_uuid
+        } else {
+            local_player_uid
+        };
         let (rules, states) = (&self.rules, &mut self.states);
         for change in changes {
             for rule in rules {
@@ -693,6 +756,31 @@ impl BuffCounterTracker {
                 }
                 for movement_state in &mut state.movement_distance_states {
                     apply_movement_buff_change(movement_state, change);
+                }
+                let mut pending_increment = 0u32;
+                for source in &rule.sources {
+                    let CounterSource::BuffAdded {
+                        buff_id,
+                        source_config_id,
+                        increment,
+                    } = source
+                    else {
+                        continue;
+                    };
+                    if change.change_type == BuffChangeType::Added
+                        && change.base_id == *buff_id
+                        && source_config_id
+                            .map_or(true, |required| change.source_config_id == Some(required))
+                    {
+                        pending_increment = pending_increment.saturating_add(*increment);
+                    }
+                }
+                for layer_spent_state in &mut state.buff_layer_spent_states {
+                    pending_increment = pending_increment
+                        .saturating_add(apply_buff_layer_spent(layer_spent_state, change));
+                }
+                if pending_increment > 0 {
+                    changed |= add_increment_to_slots(state, pending_increment);
                 }
                 for (slot_config, slot_state) in
                     rule.effect_slots.iter().zip(&mut state.slot_states)
@@ -749,7 +837,7 @@ impl BuffCounterTracker {
                         action,
                         change.create_time_ms,
                         attr_store,
-                        local_player_uid,
+                        local_attr_id,
                     );
                 }
             }
@@ -1148,6 +1236,26 @@ fn apply_fight_resource_spent(state: &mut FightResourceSpentState, current_value
     state.accumulated_spent = state.accumulated_spent.saturating_add(spent);
     let triggers = state.accumulated_spent / state.units_required.max(1);
     state.accumulated_spent %= state.units_required.max(1);
+    state.increment.saturating_mul(triggers)
+}
+
+fn apply_buff_layer_spent(state: &mut BuffLayerSpentState, change: &BuffChangeEvent) -> u32 {
+    if change.change_type != BuffChangeType::Changed || change.base_id != state.buff_id {
+        return 0;
+    }
+    let (Some(previous_layer), Some(current_layer)) = (change.previous_layer, change.current_layer)
+    else {
+        return 0;
+    };
+    if previous_layer <= current_layer {
+        return 0;
+    }
+
+    let spent = u32::try_from(previous_layer.saturating_sub(current_layer)).unwrap_or(u32::MAX);
+    state.accumulated_spent = state.accumulated_spent.saturating_add(spent);
+    let units_required = state.units_required.max(1);
+    let triggers = state.accumulated_spent / units_required;
+    state.accumulated_spent %= units_required;
     state.increment.saturating_mul(triggers)
 }
 

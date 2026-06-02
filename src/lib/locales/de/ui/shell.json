@@ -50,5 +50,9 @@
   "update.downloadGithub": "Von GitHub herunterladen",
   "update.emptyNotes": "Für diese Version sind keine Versionshinweise verfügbar.",
   "update.title": "Neue Version verfügbar",
-  "update.versionLine": "Aktuelle Version v{currentVersion}, neueste Version v{latestVersion}"
+  "update.versionLine": "Aktuelle Version v{currentVersion}, neueste Version v{latestVersion}",
+  "settings.appBehavior": "Anwendungsverhalten",
+  "settings.appBehavior.subtitle": "Steuert anwendungsweites Verhalten, das nicht an ein einzelnes Overlay oder eine Meter-Ansicht gebunden ist.",
+  "settings.hideMainWindowToTray": "Hauptfenster beim Schließen in den Infobereich ausblenden",
+  "settings.hideMainWindowToTrayDescription": "Wenn aktiviert, wird das Hauptfenster beim Schließen ausgeblendet, statt die App zu beenden. Verwende das Symbol im Infobereich zum Wiederherstellen oder Beenden zum vollständigen Schließen."
 }

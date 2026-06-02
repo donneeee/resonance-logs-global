@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "Sumber tidak dikenal",
+  "tanked.monster.source": "Sumber",
+  "tanked.monster.total": "Total",
   "columns.historyHealPlayers.critDmgRate.description": "Tampilkan proporsi healing yang menjadi critical healing",
   "columns.historyHealPlayers.critDmgRate.header": "Heal Kritis %",
   "columns.historyHealPlayers.critDmgRate.label": "Heal Kritis %",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "Grup kontribusi",
   "detail.modifierTitlePredicates": "Predikat",
   "detail.modifierTitleRequiredEvidence": "Bukti yang dibutuhkan",
-  "detail.modifierTitleAttributionNotes": "Catatan atribusi"
+  "detail.modifierTitleAttributionNotes": "Catatan atribusi",
+  "columns.historyTankedPlayers.blockRate.description": "Menampilkan peluang memblokir serangan yang diterima",
+  "columns.historyTankedPlayers.blockRate.header": "Blok %",
+  "columns.historyTankedPlayers.blockRate.label": "Blok %",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "Menampilkan peluang memicu blok beruntung",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "Blok Beruntung %",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "Blok Beruntung %",
+  "columns.historyTankedSkills.blockRate.description": "Menampilkan peluang skill masuk ini diblokir",
+  "columns.historyTankedSkills.blockRate.header": "Blok %",
+  "columns.historyTankedSkills.blockRate.label": "Blok %",
+  "columns.historyTankedSkills.luckyBlockRate.description": "Menampilkan peluang skill masuk ini memicu blok beruntung",
+  "columns.historyTankedSkills.luckyBlockRate.header": "Blok Beruntung %",
+  "columns.historyTankedSkills.luckyBlockRate.label": "Blok Beruntung %"
 }

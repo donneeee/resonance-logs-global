@@ -7,6 +7,7 @@ export type LoggerCategory =
   | "encounter"
   | "scene"
   | "system"
+  | "factor_energy_probe"
   | "hate"
   | "chat"
   | "item_drop"

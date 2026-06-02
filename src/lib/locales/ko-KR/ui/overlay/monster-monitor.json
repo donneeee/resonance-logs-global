@@ -47,5 +47,19 @@
   "overlay.hateSuffix": " - 어그로",
   "placeholder.selectBuff": "몬스터 모니터에서 버프를 선택하세요",
   "placeholder.preview": "미리보기",
-  "placeholder.targetPrefix": "대상"
+  "placeholder.targetPrefix": "대상",
+  "status.addedTeammate": "Added to teammate buffs",
+  "tab.teammate": "Teammate Buffs",
+  "teammate.title": "Teammate Buff Monitor",
+  "teammate.description": "Show selected buffs for teammates currently reported by the team UUID stream.",
+  "teammate.placeholder": "Search and add teammate buffs",
+  "teammate.emptySearch": "No matching teammate buffs",
+  "teammate.categoryTitle": "Category Shortcuts",
+  "teammate.groupTitle": "Monitored Teammate Buffs",
+  "teammate.groupDescription": "Individual buffs and categories become columns in the teammate matrix.",
+  "teammate.styleTitle": "Teammate Buff Matrix Style",
+  "overlay.teammateBuff": "Teammate Buff Area",
+  "placeholder.buffName": "Buff",
+  "placeholder.teammate": "Teammate Preview",
+  "teammate.nameHeader": "Teammate"
 }

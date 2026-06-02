@@ -83,5 +83,12 @@
   "gpuChecking": "Checking GPU availability...",
   "gpuDisabledDescription": "GPU-accelerated calculations are disabled.",
   "gpuEnabledDescription": "GPU-accelerated calculations are enabled.",
-  "requiresAtLeastModules": "需要至少 {count} 个模组"
+  "requiresAtLeastModules": "需要至少 {count} 个模组",
+  "gpuCheckUnavailable": "GPU 可用性不可用。",
+  "gpuCheckDeferred": "GPU 检查为手动模式。",
+  "gpuDeferredDescription": "使用“检查 GPU”验证驱动可用性。",
+  "gpuRecheck": "检查 GPU",
+  "checkingModuleData": "正在检查模块数据...",
+  "moduleDataUnavailable": "模块数据尚未同步。请在拥有模块的角色上打开游戏，然后刷新数据。",
+  "calculationTimedOut": "计算超时。请减少筛选条件或切换到 CPU 模式，然后重新开始。"
 }

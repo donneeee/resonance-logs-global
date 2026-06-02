@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "แหล่งที่มาไม่ทราบ",
+  "tanked.monster.source": "แหล่งที่มา",
+  "tanked.monster.total": "รวม",
   "columns.historyHealPlayers.critDmgRate.description": "แสดงสัดส่วนการฮีลที่เป็นคริติคอล",
   "columns.historyHealPlayers.critDmgRate.header": "คริติคอลฮีล %",
   "columns.historyHealPlayers.critDmgRate.label": "คริติคอลฮีล %",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "Contribution groups",
   "detail.modifierTitlePredicates": "Predicates",
   "detail.modifierTitleRequiredEvidence": "Required evidence",
-  "detail.modifierTitleAttributionNotes": "Attribution notes"
+  "detail.modifierTitleAttributionNotes": "Attribution notes",
+  "columns.historyTankedPlayers.blockRate.description": "แสดงโอกาสบล็อกการโจมตีที่ได้รับ",
+  "columns.historyTankedPlayers.blockRate.header": "บล็อก %",
+  "columns.historyTankedPlayers.blockRate.label": "บล็อก %",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "แสดงโอกาสเกิดบล็อกโชคดี",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "บล็อกโชคดี %",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "บล็อกโชคดี %",
+  "columns.historyTankedSkills.blockRate.description": "แสดงโอกาสที่สกิลที่ได้รับนี้ถูกบล็อก",
+  "columns.historyTankedSkills.blockRate.header": "บล็อก %",
+  "columns.historyTankedSkills.blockRate.label": "บล็อก %",
+  "columns.historyTankedSkills.luckyBlockRate.description": "แสดงโอกาสที่สกิลที่ได้รับนี้เกิดบล็อกโชคดี",
+  "columns.historyTankedSkills.luckyBlockRate.header": "บล็อกโชคดี %",
+  "columns.historyTankedSkills.luckyBlockRate.label": "บล็อกโชคดี %"
 }

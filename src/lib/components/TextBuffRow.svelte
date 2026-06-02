@@ -3,6 +3,7 @@
 
   interface Props {
     label: string;
+    prefixText?: string | undefined;
     valueText: string;
     metaText?: string | undefined;
     progressPercent: number;
@@ -19,6 +20,7 @@
 
   let {
     label,
+    prefixText,
     valueText,
     metaText,
     progressPercent,
@@ -57,6 +59,15 @@
   {/if}
 
   <div class="text-buff-main" style:gap={`${columnGap}px`}>
+    {#if prefixText}
+      <span
+        class="text-buff-prefix"
+        style:color={alert?.highlightColor ?? valueColor}
+        style:font-size={`${fontSize}px`}
+      >
+        {prefixText}
+      </span>
+    {/if}
     <span
       class="text-buff-name"
       style:color={alert?.highlightColor ?? nameColor}
@@ -136,6 +147,15 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .text-buff-prefix {
+    flex: 0 0 2.2em;
+    line-height: 1.1;
+    text-align: right;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
   }
 
   .text-buff-right {

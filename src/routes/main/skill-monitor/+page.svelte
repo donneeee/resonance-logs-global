@@ -42,6 +42,7 @@
     type BuffDisplayMode,
     type BuffGroup,
     type CustomPanelGroup,
+    type CustomPanelGroupKind,
     type CustomPanelStyle,
     type InlineBuffEntry,
     type OverlayVisibility,
@@ -75,6 +76,7 @@
   type CounterRuleOption = CounterRulePreset & { origin: "preset" | "user" };
 
   const t = uiT("overlay/skill-monitor/general", () => SETTINGS.live.general.state.language);
+  const customPanelT = uiT("overlay/skill-monitor/custom-panel", () => SETTINGS.live.general.state.language);
 
   const availableBuffs = getAvailableBuffDefinitions();
   const buffCategoryDefinitions = getBuffCategoryDefinitions();
@@ -202,6 +204,7 @@
     ...resolvedUserCounterRules,
   ]);
   const customPanelGroups = $derived.by(() => ensureCustomPanelGroups(activeProfile));
+  const factorSlotLabels = $derived.by(() => activeProfile.factorSlotLabels ?? {});
   const panelAreaRowOrder = $derived.by(() => ensurePanelAreaRowOrder(activeProfile));
   const filteredInlineBuffSearchResults = $derived.by(() => {
     const ids = new Set<number>();
@@ -330,7 +333,11 @@
       return groups.map((group, idx) => ({
         id: group.id ?? `custom_panel_group_${idx + 1}`,
         name: group.name ?? `${t("monitorAreaDefault", "监控区")} ${idx + 1}`,
-        entries: ensureCustomPanelEntries(group.entries),
+        kind: group.kind === "seasonCultivateFactor" ? "seasonCultivateFactor" : "manual",
+        entries:
+          group.kind === "seasonCultivateFactor"
+            ? []
+            : ensureCustomPanelEntries(group.entries),
         position: group.position ?? {
           x: legacyPosition.x + idx * 40,
           y: legacyPosition.y + idx * 40,
@@ -348,6 +355,7 @@
       {
         id: "custom_panel_group_1",
         name: `${t("monitorAreaDefault", "监控区")} 1`,
+        kind: "manual",
         entries: legacyEntries,
         position: legacyPosition,
         scale: legacyScale,
@@ -1208,6 +1216,7 @@
     groups: CustomPanelGroup[],
   ): { groupId: string; groupName: string } | null {
     for (const group of groups) {
+      if (group.kind === "seasonCultivateFactor") continue;
       if (group.entries.some((entry) =>
         entry.sourceType === sourceType
         && entry.sourceId === sourceId
@@ -1233,11 +1242,39 @@
     }));
   }
 
-  function addCustomPanelGroup() {
+  function addCustomPanelGroup(kind: CustomPanelGroupKind = "manual") {
+    if (kind === "seasonCultivateFactor") {
+      updateCustomPanelGroups((groups) => [
+        ...groups,
+        createDefaultCustomPanelGroup(
+          customPanelT("customPanel.newFactor", "New Factor Area"),
+          groups.length + 1,
+          kind,
+        ),
+      ]);
+      return;
+    }
     updateCustomPanelGroups((groups) => [
       ...groups,
       createDefaultCustomPanelGroup(`${t("monitorAreaDefault", "监控区")} ${groups.length + 1}`, groups.length + 1),
     ]);
+  }
+
+  function setFactorSlotLabel(slotTemplateId: string, name: string) {
+    const nextName = name.trim();
+    updateActiveProfile((profile) => {
+      const current = profile.factorSlotLabels ?? {};
+      const next = { ...current };
+      if (nextName) {
+        next[slotTemplateId] = nextName;
+      } else {
+        delete next[slotTemplateId];
+      }
+      return {
+        ...profile,
+        factorSlotLabels: next,
+      };
+    });
   }
 
   function removeCustomPanelGroup(groupId: string) {
@@ -1920,6 +1957,8 @@
       {inlineBuffSearch}
       {filteredInlineBuffSearchResults}
       {customPanelGroups}
+      {factorSlotLabels}
+      {setFactorSlotLabel}
       {setInlineBuffSearch}
       {addCustomPanelGroup}
       {removeCustomPanelGroup}

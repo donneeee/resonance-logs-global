@@ -78,6 +78,8 @@ pub struct TrainingDummyState {
 #[serde(rename_all = "camelCase")]
 pub struct RawEntityData {
     pub uid: i64,
+    #[serde(default)]
+    pub uuid: Option<i64>,
     pub name: String,
     pub class_id: i32,
     pub class_spec: i32,
@@ -92,6 +94,8 @@ pub struct RawEntityData {
     pub dmg_skills: HashMap<i64, RawSkillStats>,
     pub heal_skills: HashMap<i64, RawSkillStats>,
     pub taken_skills: HashMap<i64, RawSkillStats>,
+    #[serde(default)]
+    pub taken_per_source: Vec<PerSourceStats>,
     pub active_buffs: Vec<ActiveBuffState>,
     pub active_factor_buffs: Vec<ActiveFactorBuffState>,
     pub active_effect_buffs: Vec<ActiveEffectBuffState>,
@@ -111,6 +115,8 @@ pub struct RawEntityData {
 #[serde(rename_all = "camelCase")]
 pub struct HistoryEntityData {
     pub uid: i64,
+    #[serde(default)]
+    pub uuid: Option<i64>,
     pub name: String,
     pub class_id: i32,
     pub class_spec: i32,
@@ -125,6 +131,8 @@ pub struct HistoryEntityData {
     pub dmg_skills: HashMap<i64, RawSkillStats>,
     pub heal_skills: HashMap<i64, RawSkillStats>,
     pub taken_skills: HashMap<i64, RawSkillStats>,
+    #[serde(default)]
+    pub taken_per_source: Vec<PerSourceStats>,
     pub active_buffs: Vec<ActiveBuffState>,
     pub active_factor_buffs: Vec<ActiveFactorBuffState>,
     pub active_effect_buffs: Vec<ActiveEffectBuffState>,
@@ -149,9 +157,13 @@ pub struct HistoryEntityData {
 #[serde(rename_all = "camelCase")]
 pub struct ModifierSourceActorState {
     pub uid: i64,
+    #[serde(default)]
+    pub uuid: Option<i64>,
     pub name: String,
     pub entity_type: String,
     pub owner_uid: Option<i64>,
+    #[serde(default)]
+    pub owner_uuid: Option<i64>,
     pub owner_name: Option<String>,
     pub source_config_ids: Vec<i32>,
     pub base_ids: Vec<i32>,
@@ -171,6 +183,10 @@ pub struct ActiveBuffState {
     pub duration_ms: i32,
     pub create_time_ms: i64,
     pub received_time_ms: i64,
+    #[serde(default)]
+    pub host_uuid: Option<i64>,
+    #[serde(default)]
+    pub source_uuid: Option<i64>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -189,6 +205,10 @@ pub struct ActiveFactorBuffState {
     pub duration_ms: i32,
     pub create_time_ms: i64,
     pub received_time_ms: i64,
+    #[serde(default)]
+    pub host_uuid: Option<i64>,
+    #[serde(default)]
+    pub source_uuid: Option<i64>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -207,6 +227,10 @@ pub struct ActiveEffectBuffState {
     pub duration_ms: i32,
     pub create_time_ms: i64,
     pub received_time_ms: i64,
+    #[serde(default)]
+    pub host_uuid: Option<i64>,
+    #[serde(default)]
+    pub source_uuid: Option<i64>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -225,6 +249,10 @@ pub struct ModifierWindowState {
     pub duration_ms: i32,
     pub start_time_ms: i64,
     pub end_time_ms: Option<i64>,
+    #[serde(default)]
+    pub host_uuid: Option<i64>,
+    #[serde(default)]
+    pub source_uuid: Option<i64>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -243,6 +271,10 @@ pub struct ModifierHitBucketState {
     pub modifier_duration_ms: i32,
     pub modifier_start_time_ms: i64,
     pub modifier_end_time_ms: Option<i64>,
+    #[serde(default)]
+    pub modifier_host_uuid: Option<i64>,
+    #[serde(default)]
+    pub modifier_source_uuid: Option<i64>,
     pub modifier_host_uid: i64,
     pub modifier_source_uid: i64,
     pub skill_key: i64,
@@ -253,6 +285,14 @@ pub struct ModifierHitBucketState {
     pub damage_source: Option<i32>,
     pub property: Option<i32>,
     pub damage_mode: Option<i32>,
+    #[serde(default)]
+    pub attacker_uuid: Option<i64>,
+    #[serde(default)]
+    pub original_attacker_uuid: Option<i64>,
+    #[serde(default)]
+    pub top_summoner_uuid: Option<i64>,
+    #[serde(default)]
+    pub target_uuid: Option<i64>,
     pub attacker_uid: i64,
     pub original_attacker_uid: i64,
     pub top_summoner_uid: Option<i64>,
@@ -289,6 +329,10 @@ pub struct ModifierReplaySourceState {
     pub modifier_buff_level: Option<i32>,
     pub modifier_count: Option<i32>,
     pub modifier_layer: i32,
+    #[serde(default)]
+    pub modifier_host_uuid: Option<i64>,
+    #[serde(default)]
+    pub modifier_source_uuid: Option<i64>,
     pub modifier_host_uid: i64,
     pub modifier_source_uid: i64,
 }
@@ -305,6 +349,14 @@ pub struct ModifierReplayHitState {
     pub damage_source: Option<i32>,
     pub property: Option<i32>,
     pub damage_mode: Option<i32>,
+    #[serde(default)]
+    pub attacker_uuid: Option<i64>,
+    #[serde(default)]
+    pub original_attacker_uuid: Option<i64>,
+    #[serde(default)]
+    pub top_summoner_uuid: Option<i64>,
+    #[serde(default)]
+    pub target_uuid: Option<i64>,
     pub attacker_uid: i64,
     pub original_attacker_uid: i64,
     pub top_summoner_uid: Option<i64>,
@@ -423,6 +475,9 @@ pub struct RawCombatStats {
     pub crit_total: u128,
     pub lucky_hits: u128,
     pub lucky_total: u128,
+    pub trigger_hits: u128,
+    pub block_hits: u128,
+    pub lucky_block_hits: u128,
 }
 
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
@@ -437,15 +492,29 @@ pub struct RawSkillStats {
     pub lucky_total_value: u128,
     pub property: Option<i32>,
     pub damage_mode: Option<i32>,
+    pub trigger_hits: u128,
+    pub block_hits: u128,
+    pub lucky_block_hits: u128,
 }
 
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct PerTargetStats {
     pub target_uid: i64,
+    #[serde(default)]
+    pub target_uuid: Option<i64>,
     pub target_name: String,
     pub total_value: u128,
     pub damage: RawCombatStats,
+    pub skills: HashMap<i64, RawSkillStats>,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct PerSourceStats {
+    pub source_monster_id: Option<i32>,
+    pub total_value: u128,
+    pub taken: RawCombatStats,
     pub skills: HashMap<i64, RawSkillStats>,
 }
 
@@ -458,6 +527,9 @@ pub fn to_raw_combat_stats(stats: &CombatStats) -> RawCombatStats {
         crit_total: stats.crit_total,
         lucky_hits: stats.lucky_hits,
         lucky_total: stats.lucky_total,
+        trigger_hits: stats.trigger_hits,
+        block_hits: stats.block_hits,
+        lucky_block_hits: stats.lucky_block_hits,
     }
 }
 
@@ -472,6 +544,9 @@ pub fn to_raw_skill_stats(skill: &Skill) -> RawSkillStats {
         lucky_total_value: skill.lucky_total_value,
         property: skill.property,
         damage_mode: skill.damage_mode,
+        trigger_hits: skill.trigger_hits,
+        block_hits: skill.block_hits,
+        lucky_block_hits: skill.lucky_block_hits,
     }
 }
 
@@ -488,6 +563,8 @@ pub fn to_active_buff_state(buff: &ObservedActiveBuff) -> ActiveBuffState {
         duration_ms: buff.duration,
         create_time_ms: buff.create_time,
         received_time_ms: buff.received_time_ms,
+        host_uuid: buff.host_uuid,
+        source_uuid: buff.source_uuid,
         host_uid: buff.host_uid,
         source_uid: buff.source_uid,
     }
@@ -506,6 +583,8 @@ pub fn to_active_factor_buff_state(buff: &ObservedFactorBuff) -> ActiveFactorBuf
         duration_ms: buff.duration,
         create_time_ms: buff.create_time,
         received_time_ms: buff.received_time_ms,
+        host_uuid: buff.host_uuid,
+        source_uuid: buff.source_uuid,
         host_uid: buff.host_uid,
         source_uid: buff.source_uid,
     }
@@ -524,6 +603,8 @@ pub fn to_active_effect_buff_state(buff: &ObservedEffectBuff) -> ActiveEffectBuf
         duration_ms: buff.duration,
         create_time_ms: buff.create_time,
         received_time_ms: buff.received_time_ms,
+        host_uuid: buff.host_uuid,
+        source_uuid: buff.source_uuid,
         host_uid: buff.host_uid,
         source_uid: buff.source_uid,
     }
@@ -542,6 +623,8 @@ pub fn to_modifier_window_state(window: &ObservedModifierWindow) -> ModifierWind
         duration_ms: window.duration,
         start_time_ms: window.start_time_ms,
         end_time_ms: window.end_time_ms,
+        host_uuid: window.host_uuid,
+        source_uuid: window.source_uuid,
         host_uid: window.host_uid,
         source_uid: window.source_uid,
     }
@@ -560,6 +643,8 @@ pub fn to_modifier_hit_bucket_state(bucket: &ObservedModifierHitBucket) -> Modif
         modifier_duration_ms: bucket.modifier_duration,
         modifier_start_time_ms: bucket.modifier_start_time_ms,
         modifier_end_time_ms: bucket.modifier_end_time_ms,
+        modifier_host_uuid: bucket.modifier_host_uuid,
+        modifier_source_uuid: bucket.modifier_source_uuid,
         modifier_host_uid: bucket.modifier_host_uid,
         modifier_source_uid: bucket.modifier_source_uid,
         skill_key: bucket.skill_key,
@@ -570,6 +655,10 @@ pub fn to_modifier_hit_bucket_state(bucket: &ObservedModifierHitBucket) -> Modif
         damage_source: bucket.damage_source,
         property: bucket.property,
         damage_mode: bucket.damage_mode,
+        attacker_uuid: bucket.attacker_uuid,
+        original_attacker_uuid: bucket.original_attacker_uuid,
+        top_summoner_uuid: bucket.top_summoner_uuid,
+        target_uuid: bucket.target_uuid,
         attacker_uid: bucket.attacker_uid,
         original_attacker_uid: bucket.original_attacker_uid,
         top_summoner_uid: bucket.top_summoner_uid,
@@ -608,6 +697,8 @@ pub fn to_modifier_replay_source_state(
         modifier_buff_level: source.modifier_buff_level,
         modifier_count: source.modifier_count,
         modifier_layer: source.modifier_layer,
+        modifier_host_uuid: source.modifier_host_uuid,
+        modifier_source_uuid: source.modifier_source_uuid,
         modifier_host_uid: source.modifier_host_uid,
         modifier_source_uid: source.modifier_source_uid,
     }
@@ -624,6 +715,10 @@ pub fn to_modifier_replay_hit_state(hit: &ObservedModifierReplayHit) -> Modifier
         damage_source: hit.damage_source,
         property: hit.property,
         damage_mode: hit.damage_mode,
+        attacker_uuid: hit.attacker_uuid,
+        original_attacker_uuid: hit.original_attacker_uuid,
+        top_summoner_uuid: hit.top_summoner_uuid,
+        target_uuid: hit.target_uuid,
         attacker_uid: hit.attacker_uid,
         original_attacker_uid: hit.original_attacker_uid,
         top_summoner_uid: hit.top_summoner_uid,
@@ -760,6 +855,7 @@ pub fn build_per_target_stats(
     for (&(skill_id, target_uid), stats) in stats_by_skill_target {
         let entry = grouped.entry(target_uid).or_insert_with(|| PerTargetStats {
             target_uid,
+            target_uuid: stats.target_uuid,
             target_name: stats
                 .monster_name
                 .clone()
@@ -771,6 +867,9 @@ pub fn build_per_target_stats(
 
         if entry.target_name.starts_with('#') && stats.monster_name.is_some() {
             entry.target_name = stats.monster_name.clone().unwrap_or_default();
+        }
+        if entry.target_uuid.is_none() {
+            entry.target_uuid = stats.target_uuid;
         }
 
         entry.skills.insert(
@@ -785,6 +884,9 @@ pub fn build_per_target_stats(
                 lucky_total_value: stats.lucky_total,
                 property: None,
                 damage_mode: None,
+                trigger_hits: stats.trigger_hits,
+                block_hits: 0,
+                lucky_block_hits: 0,
             },
         );
         entry.total_value += stats.total_value;
@@ -795,6 +897,7 @@ pub fn build_per_target_stats(
         entry.damage.crit_total += stats.crit_total;
         entry.damage.lucky_hits += stats.lucky_hits;
         entry.damage.lucky_total += stats.lucky_total;
+        entry.damage.trigger_hits += stats.trigger_hits;
     }
 
     if let Some(totals) = totals_by_target {
@@ -819,6 +922,7 @@ pub fn build_per_target_summary_stats(
     for (&(_, target_uid), stats) in stats_by_skill_target {
         let entry = grouped.entry(target_uid).or_insert_with(|| PerTargetStats {
             target_uid,
+            target_uuid: stats.target_uuid,
             target_name: stats
                 .monster_name
                 .clone()
@@ -831,6 +935,9 @@ pub fn build_per_target_summary_stats(
         if entry.target_name.starts_with('#') && stats.monster_name.is_some() {
             entry.target_name = stats.monster_name.clone().unwrap_or_default();
         }
+        if entry.target_uuid.is_none() {
+            entry.target_uuid = stats.target_uuid;
+        }
 
         entry.total_value += stats.total_value;
         entry.damage.total += stats.total_value;
@@ -840,6 +947,7 @@ pub fn build_per_target_summary_stats(
         entry.damage.crit_total += stats.crit_total;
         entry.damage.lucky_hits += stats.lucky_hits;
         entry.damage.lucky_total += stats.lucky_total;
+        entry.damage.trigger_hits += stats.trigger_hits;
     }
 
     if let Some(totals) = totals_by_target {
@@ -848,6 +956,7 @@ pub fn build_per_target_summary_stats(
                 .entry(*target_uid)
                 .or_insert_with(|| PerTargetStats {
                     target_uid: *target_uid,
+                    target_uuid: None,
                     target_name: format!("#{}", target_uid),
                     total_value: 0,
                     damage: RawCombatStats::default(),
@@ -859,6 +968,38 @@ pub fn build_per_target_summary_stats(
     }
 
     let mut rows: Vec<PerTargetStats> = grouped.into_values().collect();
+    rows.sort_by(|a, b| b.total_value.cmp(&a.total_value));
+    rows
+}
+
+pub fn build_taken_per_source(by_skill_source: &HashMap<(i64, i32), Skill>) -> Vec<PerSourceStats> {
+    let mut grouped = HashMap::<i32, PerSourceStats>::new();
+
+    for (&(skill_id, source_monster_id), skill) in by_skill_source {
+        let entry = grouped
+            .entry(source_monster_id)
+            .or_insert_with(|| PerSourceStats {
+                source_monster_id: (source_monster_id != 0).then_some(source_monster_id),
+                total_value: 0,
+                taken: RawCombatStats::default(),
+                skills: HashMap::new(),
+            });
+
+        entry.skills.insert(skill_id, to_raw_skill_stats(skill));
+        entry.total_value += skill.total_value;
+        entry.taken.total += skill.total_value;
+        entry.taken.effective_total += skill.effective_total_value;
+        entry.taken.hits += skill.hits;
+        entry.taken.crit_hits += skill.crit_hits;
+        entry.taken.crit_total += skill.crit_total_value;
+        entry.taken.lucky_hits += skill.lucky_hits;
+        entry.taken.lucky_total += skill.lucky_total_value;
+        entry.taken.trigger_hits += skill.trigger_hits;
+        entry.taken.block_hits += skill.block_hits;
+        entry.taken.lucky_block_hits += skill.lucky_block_hits;
+    }
+
+    let mut rows: Vec<PerSourceStats> = grouped.into_values().collect();
     rows.sort_by(|a, b| b.total_value.cmp(&a.total_value));
     rows
 }
@@ -908,12 +1049,20 @@ pub struct BuffUpdatePayload {
 #[derive(serde::Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BossBuffUpdatePayload {
-    pub boss_buffs: HashMap<i64, Vec<BuffUpdateState>>,
+    pub boss_buffs: HashMap<String, Vec<BuffUpdateState>>,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TeammateBuffUpdatePayload {
+    pub teammate_buffs: HashMap<String, Vec<BuffUpdateState>>,
 }
 
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct HateEntry {
+    #[serde(default)]
+    pub entity_uuid: Option<i64>,
     pub uid: i64,
     pub hate_val: u32,
 }
@@ -921,7 +1070,7 @@ pub struct HateEntry {
 #[derive(serde::Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct HateListUpdatePayload {
-    pub hate_lists: HashMap<i64, Vec<HateEntry>>,
+    pub hate_lists: HashMap<String, Vec<HateEntry>>,
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -933,8 +1082,8 @@ pub struct EntityNameMapPayload {
 #[derive(serde::Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct EntityIdentityMapPayload {
-    pub player_names: HashMap<i64, String>,
-    pub monster_ids: HashMap<i64, i32>,
+    pub player_names: HashMap<String, String>,
+    pub monster_ids: HashMap<String, i32>,
 }
 
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone)]
@@ -961,6 +1110,17 @@ pub struct SlotUpdateState {
 #[derive(serde::Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct BuffCounterUpdatePayload {
+    pub counters: Vec<CounterUpdateState>,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SeasonCultivateFactorCounterUpdatePayload {
+    pub source_item_ids: Vec<i32>,
+    pub slot_item_ids: Vec<i32>,
+    pub active_area_ids: Vec<i32>,
+    pub active_item_ids: Vec<i32>,
+    pub active_fantasy_ids: Vec<i32>,
     pub counters: Vec<CounterUpdateState>,
 }
 

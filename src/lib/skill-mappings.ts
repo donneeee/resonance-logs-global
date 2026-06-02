@@ -2,6 +2,7 @@ import classResourcesRaw from "$parserData/app-rules/class_resources.json";
 import classSkillConfigsRaw from "$parserData/app-rules/class_skill_configs.json";
 import classSpecialBuffDisplaysRaw from "$parserData/app-rules/class_special_buff_displays.json";
 import counterRulesRaw from "$parserData/app-rules/counter_rules.json";
+import seasonCultivateFactorSkillLabelsRaw from "$parserData/app-rules/season_cultivate_factor_skill_labels.json";
 import counterSlotTemplatesRaw from "$parserData/app-rules/counter_slot_templates.json";
 import counterSourceTemplatesRaw from "$parserData/app-rules/counter_source_templates.json";
 import resonanceSkillIcons from "$parserData/generated/skill_aoyi_icons.json";
@@ -15,7 +16,11 @@ import {
 } from "$lib/i18n";
 import { settings } from "$lib/settings-store";
 import type { UserCounterRule } from "$lib/settings-store";
-import type { CounterAction, CounterSource } from "$lib/bindings";
+import type {
+  CounterAction,
+  CounterSource,
+  FactorCounterTemplate,
+} from "$lib/bindings";
 
 export type SkillDisplayInfo = {
   skillId: number;
@@ -81,6 +86,17 @@ type ResonanceSkillSearchRaw = {
 };
 
 type MultiLangValue = Partial<Record<LocaleCode, string>>;
+
+type SeasonCultivateFactorSkillLabelEntry = {
+  label?: MultiLangValue;
+  evidence?: Record<string, unknown>;
+};
+
+type SeasonCultivateFactorSkillLabels = {
+  version?: number;
+  sources?: Record<string, SeasonCultivateFactorSkillLabelEntry>;
+  slots?: Record<string, SeasonCultivateFactorSkillLabelEntry>;
+};
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -271,6 +287,7 @@ export type CounterEffectSlotPreset = {
 
 export type SourceTemplate = {
   sourceId: string;
+  itemIds: number[];
   name: string;
   description: string;
   source: CounterSource;
@@ -278,6 +295,8 @@ export type SourceTemplate = {
 
 export type SlotTemplate = {
   slotTemplateId: string;
+  itemIds: number[];
+  effectBuffIds?: number[];
   name: string;
   description: string;
   slot: Omit<CounterEffectSlotPreset, "slotId">;
@@ -368,6 +387,35 @@ export const SOURCE_TEMPLATES: SourceTemplate[] =
   counterSourceTemplatesRaw as SourceTemplate[];
 export const SLOT_TEMPLATES: SlotTemplate[] =
   counterSlotTemplatesRaw as SlotTemplate[];
+
+const SEASON_CULTIVATE_FACTOR_SKILL_LABELS =
+  seasonCultivateFactorSkillLabelsRaw as SeasonCultivateFactorSkillLabels;
+const FACTOR_RULE_ID_BASE = 900_000_000;
+
+function resolveSeasonCultivateFactorSkillLabel(
+  entry: SeasonCultivateFactorSkillLabelEntry | undefined,
+): string | null {
+  const label = resolveMultiLangName(entry?.label, "").trim();
+  return label || null;
+}
+
+export function resolveSeasonCultivateSourceSkillLabel(
+  sourceId: string | null | undefined,
+): string | null {
+  if (!sourceId) return null;
+  return resolveSeasonCultivateFactorSkillLabel(
+    SEASON_CULTIVATE_FACTOR_SKILL_LABELS.sources?.[sourceId],
+  );
+}
+
+export function resolveSeasonCultivateSlotSkillLabel(
+  slotTemplateId: string | null | undefined,
+): string | null {
+  if (!slotTemplateId) return null;
+  return resolveSeasonCultivateFactorSkillLabel(
+    SEASON_CULTIVATE_FACTOR_SKILL_LABELS.slots?.[slotTemplateId],
+  );
+}
 
 function localizeSkillDefinition(classKey: string, skill: SkillDefinition): SkillDefinition {
   return {
@@ -482,6 +530,198 @@ export function getSourceTemplates(): SourceTemplate[] {
 
 export function getSlotTemplates(): SlotTemplate[] {
   return SLOT_TEMPLATES.map((template) => localizeSlotTemplate(template));
+}
+
+export function getSeasonCultivateFactorRuleId(itemId: number): number {
+  return FACTOR_RULE_ID_BASE + itemId;
+}
+
+function normalizeTemplateItemIds(item: { itemIds?: number[] }): number[] {
+  return Array.from(
+    new Set(
+      (item.itemIds ?? []).filter(
+        (itemId) => Number.isInteger(itemId) && itemId > 0,
+      ),
+    ),
+  ).sort((left, right) => left - right);
+}
+
+function normalizeTemplateEffectBuffIds(item: {
+  effectBuffIds?: number[];
+}): number[] {
+  const result: number[] = [];
+  const seen = new Set<number>();
+  for (const buffId of item.effectBuffIds ?? []) {
+    if (!Number.isInteger(buffId) || buffId <= 0 || seen.has(buffId)) continue;
+    seen.add(buffId);
+    result.push(buffId);
+  }
+  return result;
+}
+
+export function getSeasonCultivateFactorTemplates(): FactorCounterTemplate[] {
+  return [
+    ...SOURCE_TEMPLATES.map((template) => ({
+      itemIds: normalizeTemplateItemIds(template),
+      sources: [template.source],
+      effectSlots: [],
+    })),
+    ...SLOT_TEMPLATES.map((template) => ({
+      itemIds: normalizeTemplateItemIds(template),
+      sources: [],
+      effectSlots: resolveCounterEffectSlots([template.slotTemplateId]),
+    })),
+  ];
+}
+
+export function getSeasonCultivateFactorRuleMap(): Map<number, CounterRulePreset> {
+  const map = new Map<number, CounterRulePreset>();
+  for (const template of getSlotTemplates()) {
+    const itemIds = normalizeTemplateItemIds(template);
+    const effectSlots = resolveCounterEffectSlots([template.slotTemplateId]);
+    for (const itemId of itemIds) {
+      map.set(getSeasonCultivateFactorRuleId(itemId), {
+        ruleId: getSeasonCultivateFactorRuleId(itemId),
+        name: template.name,
+        sources: [],
+        effectSlots,
+      });
+    }
+  }
+  return map;
+}
+
+export function getSeasonCultivateFactorItemSlotTemplateMap(): Map<
+  number,
+  string
+> {
+  const map = new Map<number, string>();
+  for (const template of SLOT_TEMPLATES) {
+    for (const itemId of normalizeTemplateItemIds(template)) {
+      map.set(itemId, template.slotTemplateId);
+    }
+  }
+  return map;
+}
+
+export function getSeasonCultivateFactorEffectBuffIdMap(): Map<
+  number,
+  number[]
+> {
+  const map = new Map<number, number[]>();
+  for (const template of SLOT_TEMPLATES) {
+    const effectBuffIds = normalizeTemplateEffectBuffIds(template);
+    if (effectBuffIds.length === 0) continue;
+    for (const itemId of normalizeTemplateItemIds(template)) {
+      map.set(itemId, effectBuffIds);
+    }
+  }
+  return map;
+}
+
+export function getSeasonCultivateFactorProcBuffItemIdsMap(): Map<
+  number,
+  number[]
+> {
+  const map = new Map<number, number[]>();
+  for (const template of SLOT_TEMPLATES) {
+    const itemIds = normalizeTemplateItemIds(template);
+    if (itemIds.length === 0) continue;
+    const buffIds = new Set(normalizeTemplateEffectBuffIds(template));
+    const resetBuffId = template.slot.resetBuffId;
+    if (Number.isInteger(resetBuffId) && resetBuffId > 0) {
+      buffIds.add(resetBuffId);
+    }
+    for (const buffId of buffIds) {
+      const existing = map.get(buffId) ?? [];
+      const merged = new Set([...existing, ...itemIds]);
+      map.set(buffId, Array.from(merged).sort((left, right) => left - right));
+    }
+  }
+  return map;
+}
+
+function getCounterSourceIncrement(source: CounterSource): number | null {
+  if ("damageBySkillKey" in source) return source.damageBySkillKey.increment;
+  if ("damageBySkillKeyOnce" in source) {
+    return source.damageBySkillKeyOnce.increment;
+  }
+  if ("damageBySkillKeySelfTarget" in source) {
+    return source.damageBySkillKeySelfTarget.increment;
+  }
+  if ("anyDamage" in source) return source.anyDamage.increment;
+  if ("damageTaken" in source) return source.damageTaken.increment;
+  if ("fightResourceSpent" in source) {
+    return source.fightResourceSpent.increment;
+  }
+  if ("buffAdded" in source) return source.buffAdded.increment;
+  if ("buffLayerSpent" in source) return source.buffLayerSpent.increment;
+  if ("buffDurationTick" in source) {
+    return source.buffDurationTick.increment;
+  }
+  if ("skillCast" in source) return source.skillCast.increment;
+  if ("skillDurationTick" in source) {
+    return source.skillDurationTick.increment;
+  }
+  if ("skillCastComplete" in source) {
+    return source.skillCastComplete.increment;
+  }
+  if ("movementDistance" in source) {
+    return source.movementDistance.increment;
+  }
+  return null;
+}
+
+export function getSeasonCultivateFactorSourceIncrementMap(): Map<
+  number,
+  number
+> {
+  const map = new Map<number, number>();
+  const conflicts = new Set<number>();
+  for (const template of SOURCE_TEMPLATES) {
+    const increment = getCounterSourceIncrement(template.source);
+    if (!Number.isFinite(increment) || increment === null || increment <= 0) {
+      continue;
+    }
+    for (const itemId of normalizeTemplateItemIds(template)) {
+      const existing = map.get(itemId);
+      if (existing === undefined) {
+        map.set(itemId, increment);
+      } else if (existing !== increment) {
+        conflicts.add(itemId);
+      }
+    }
+  }
+  for (const itemId of conflicts) {
+    map.delete(itemId);
+  }
+  return map;
+}
+
+export function getSeasonCultivateFactorEffectBuffLabelMap(): Map<number, string> {
+  const map = new Map<number, string>();
+  for (const template of getSlotTemplates()) {
+    const effectBuffIds = new Set(normalizeTemplateEffectBuffIds(template));
+    if (Number.isInteger(template.slot.resetBuffId) && template.slot.resetBuffId > 0) {
+      effectBuffIds.add(template.slot.resetBuffId);
+    }
+    for (const buffId of effectBuffIds) {
+      if (!map.has(buffId)) {
+        map.set(buffId, template.name);
+      }
+    }
+  }
+  return map;
+}
+
+export function getSeasonCultivateFactorConfiguredEffectBuffIds(): number[] {
+  return Array.from(
+    new Set(
+      SLOT_TEMPLATES.flatMap((template) =>
+        normalizeTemplateEffectBuffIds(template),
+      ),
+    ),
+  ).sort((left, right) => left - right);
 }
 
 export function resolveCounterSources(sourceRefs: string[]): CounterSource[] {

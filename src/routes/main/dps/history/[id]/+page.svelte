@@ -36,6 +36,7 @@
     lookupDamageIdName,
     type RecountGroup,
     type SkillDisplayRow,
+    type SkillGroupingOptions,
   } from "$lib/config/recount-table";
   import { lookupBuffLocalizedNames, lookupBuffMeta, lookupDefaultBuffName } from "$lib/config/buff-name-table";
   import { resolveStaticIconUrl } from "$lib/config/static-icon-resolver";
@@ -56,7 +57,9 @@
   import DeathList from "$lib/components/death-replay/death-list.svelte";
   import DeathReplayDetail from "$lib/components/death-replay/death-replay-detail.svelte";
   import { formatClassSpecLabel } from "$lib/class-labels";
-  import { uiT, resolveSkillNote, resolveSkillTranslation, type LocaleCode } from "$lib/i18n";
+  import { uiT, resolveNavigationTranslation, resolveSkillNote, resolveSkillTranslation, type LocaleCode } from "$lib/i18n";
+  import { damageModeLabelKey, propertyLabelKey } from "$lib/damage-type";
+  import { buildUniqueSkillSourceFallbacks } from "$lib/tanked-source-derived";
 
   type HistorySkillType = "dps" | "heal" | "tanked" | "death";
   type HistoryOverviewTab = "damage" | "tanked" | "healing" | "modifiers" | "death";
@@ -82,6 +85,7 @@
 
   type HistoryPlayerRow = {
     uid: number;
+    uuid?: number | null;
     name: string;
     isLocalPlayer: boolean;
     className: string;
@@ -109,6 +113,8 @@
     tankedPS: number;
     tankedPct: number;
     critTakenRate: number;
+    blockRate: number;
+    luckyBlockRate: number;
     hitsTaken: number;
     healDealt: number;
     effectiveHeal: number;
@@ -202,6 +208,7 @@
 
   type PerTargetStats = {
     targetUid: number;
+    targetUuid?: number | null;
     targetName: string;
     totalValue: number;
     damage: RawCombatStats;
@@ -210,12 +217,14 @@
 
   type EntityPerTargetData = {
     uid: number;
+    uuid?: number | null;
     dmgTargets: PerTargetStats[];
     healTargets: PerTargetStats[];
   };
 
   type OverviewTargetOption = {
     targetUid: number;
+    targetUuid?: number | null;
     targetName: string;
     totalValue: number;
   };
@@ -223,10 +232,14 @@
   // Get encounter ID from URL params
   let encounterId = $derived($page.params.id ? parseInt($page.params.id) : null);
   let charId = $derived($page.url.searchParams.get("charId"));
+  let charUuid = $derived(finitePositiveReportId($page.url.searchParams.get("charUuid")));
+  let selectedCharUid = $derived(finitePositiveReportId(charId));
+  let hasSelectedChar = $derived(selectedCharUid !== null || charUuid !== null);
   let skillType = $derived(($page.url.searchParams.get("skillType") ?? "dps") as HistorySkillType);
 
   let encounter = $state<EncounterSummaryDto | null>(null);
   let localPlayerUid = $state<number | null>(null);
+  let localPlayerUuid = $state<number | null>(null);
   let rawEntities = $state<HistoryEntityData[]>([]);
   let encounterEntitiesLoading = $state(false);
   let targetDetailsLoading = $state(false);
@@ -249,7 +262,9 @@
   let expandedModifierRows = $state<Set<string>>(new Set<string>());
   let modifierExpansionSeed = $state("");
   let overviewTargetUid = $state<number | null>(null);
+  let overviewTargetUuid = $state<number | null>(null);
   let modifierPlayerUid = $state<number | null>(null);
+  let modifierPlayerUuid = $state<number | null>(null);
   let modifierViewMode = $state<ModifierViewMode>("by-modifier");
   let modifierScope = $state<ModifierActivityScope>("all-active");
   let modifierActorFilter = $state<ModifierActorFilter>("all");
@@ -263,8 +278,8 @@
   const MODIFIER_REPORT_WORKER_BUILD_TIMEOUT_MS = 90_000;
   const MODIFIER_REPORT_CACHE_SCHEMA = "modifier-report-v2-buff-source-labels";
 
-  function modifierCacheKey(encounterUid: number, playerUid: number): string {
-    return `${encounterUid}:${playerUid}`;
+  function modifierCacheKey(encounterUid: number, playerUid: number, playerUuid?: number | null): string {
+    return `${encounterUid}:${playerUuid ? `uuid:${playerUuid}` : `uid:${playerUid}`}`;
   }
 
   function modifierReportCacheKey(entityCacheKey: string): string {
@@ -343,6 +358,9 @@
       critTotal: Number(stats?.critTotal) || 0,
       luckyHits: Number(stats?.luckyHits) || 0,
       luckyTotal: Number(stats?.luckyTotal) || 0,
+      triggerHits: Number(stats?.triggerHits) || 0,
+      blockHits: Number(stats?.blockHits) || 0,
+      luckyBlockHits: Number(stats?.luckyBlockHits) || 0,
     };
   }
 
@@ -357,12 +375,48 @@
       luckyTotalValue: Number(stats?.luckyTotalValue) || 0,
       property: stats?.property ?? null,
       damageMode: stats?.damageMode ?? null,
+      triggerHits: Number(stats?.triggerHits) || 0,
+      blockHits: Number(stats?.blockHits) || 0,
+      luckyBlockHits: Number(stats?.luckyBlockHits) || 0,
     };
   }
 
   function finitePositiveReportId(value: unknown): number | null {
     const number = typeof value === "number" ? value : Number(value);
     return Number.isFinite(number) && number > 0 ? number : null;
+  }
+
+  function playerIdentityKey(player: { uid: number; uuid?: number | null }): string {
+    const uuid = finitePositiveReportId(player.uuid);
+    return uuid !== null ? `uuid:${uuid}` : `uid:${player.uid}`;
+  }
+
+  function entityIdentityKey(entity: HistoryEntityData): string {
+    const uuid = finitePositiveReportId(entity.uuid);
+    return uuid !== null ? `uuid:${uuid}` : `uid:${entity.uid}`;
+  }
+
+  function targetIdentityKey(target: { targetUid: number; targetUuid?: number | null }): string {
+    const uuid = finitePositiveReportId(target.targetUuid);
+    return uuid !== null ? `uuid:${uuid}` : `uid:${target.targetUid}`;
+  }
+
+  function playerMatchesIdentity(player: { uid: number; uuid?: number | null }, uid: number | null, uuid: number | null): boolean {
+    const playerUuid = finitePositiveReportId(player.uuid);
+    if (uuid !== null && playerUuid !== null) return playerUuid === uuid;
+    return uid !== null && player.uid === uid;
+  }
+
+  function entityMatchesIdentity(entity: HistoryEntityData, uid: number | null, uuid: number | null): boolean {
+    const entityUuid = finitePositiveReportId(entity.uuid);
+    if (uuid !== null && entityUuid !== null) return entityUuid === uuid;
+    return uid !== null && entity.uid === uid;
+  }
+
+  function targetMatchesIdentity(target: { targetUid: number; targetUuid?: number | null }, uid: number | null, uuid: number | null): boolean {
+    const targetUuid = finitePositiveReportId(target.targetUuid);
+    if (uuid !== null && targetUuid !== null) return targetUuid === uuid;
+    return uid !== null && target.targetUid === uid;
   }
 
   type ModifierReportCatalogGate = {
@@ -432,6 +486,8 @@
         modifierBuffLevel: source.modifierBuffLevel ?? null,
         modifierCount: source.modifierCount ?? null,
         modifierLayer: Number(source.modifierLayer) || 0,
+        modifierHostUuid: source.modifierHostUuid ?? null,
+        modifierSourceUuid: source.modifierSourceUuid ?? null,
         modifierHostUid: Number(source.modifierHostUid) || 0,
         modifierSourceUid: Number(source.modifierSourceUid) || 0,
       }));
@@ -446,6 +502,10 @@
       damageSource: hit.damageSource ?? null,
       property: hit.property ?? null,
       damageMode: hit.damageMode ?? null,
+      attackerUuid: hit.attackerUuid ?? null,
+      originalAttackerUuid: hit.originalAttackerUuid ?? null,
+      topSummonerUuid: hit.topSummonerUuid ?? null,
+      targetUuid: hit.targetUuid ?? null,
       attackerUid: Number(hit.attackerUid) || 0,
       originalAttackerUid: Number(hit.originalAttackerUid) || 0,
       topSummonerUid: hit.topSummonerUid ?? null,
@@ -476,33 +536,61 @@
 
   type ModifierSourceOwnerHint = {
     ownerUid: number;
+    ownerUuid?: number | null;
     ownerName: string;
     entityType: string;
   };
 
-  function isModifierStateHostedOnTarget(hostUid: unknown, fallbackUid: number, targetUid: number): boolean {
+  function isModifierStateHostedOnTarget(
+    hostUid: unknown,
+    hostUuid: unknown,
+    fallbackUid: number,
+    fallbackUuid: unknown,
+    targetUid: number,
+    targetUuid: unknown,
+  ): boolean {
+    const resolvedTargetUuid = finitePositiveReportId(targetUuid);
+    const resolvedHostUuid = finitePositiveReportId(hostUuid) ?? finitePositiveReportId(fallbackUuid);
+    if (resolvedTargetUuid !== null && resolvedHostUuid !== null) {
+      return resolvedHostUuid === resolvedTargetUuid;
+    }
+
     const resolvedHostUid = finitePositiveReportId(hostUid) ?? fallbackUid;
     return resolvedHostUid === targetUid;
   }
 
   function collectModifierSourceOwnerHints(
     targetUid: number,
+    targetUuid: number | null,
     neededSourceUids: Set<number>,
     encounterEntities: HistoryEntityData[],
   ): Map<number, ModifierSourceOwnerHint> {
     const owners = new Map<number, ModifierSourceOwnerHint>();
     const ambiguousSourceUids = new Set<number>();
 
-    function remember(sourceUidValue: unknown, ownerEntity: HistoryEntityData, hostUidValue: unknown) {
+    function remember(
+      sourceUidValue: unknown,
+      ownerEntity: HistoryEntityData,
+      hostUidValue: unknown,
+      hostUuidValue: unknown,
+    ) {
       const sourceUid = finitePositiveReportId(sourceUidValue);
       if (sourceUid === null || !neededSourceUids.has(sourceUid) || sourceUid === ownerEntity.uid) return;
-      if (!isModifierStateHostedOnTarget(hostUidValue, ownerEntity.uid, targetUid)) return;
+      if (!isModifierStateHostedOnTarget(hostUidValue, hostUuidValue, ownerEntity.uid, ownerEntity.uuid, targetUid, targetUuid)) return;
       if (ambiguousSourceUids.has(sourceUid)) return;
 
       const ownerUid = finitePositiveReportId(ownerEntity.uid);
+      const ownerUuid = finitePositiveReportId(ownerEntity.uuid);
       if (ownerUid === null) return;
       const existing = owners.get(sourceUid);
-      if (existing && existing.ownerUid !== ownerUid) {
+      const existingOwnerUuid = finitePositiveReportId(existing?.ownerUuid);
+      if (
+        existing
+        && (
+          existing.ownerUid !== ownerUid
+          || (existingOwnerUuid !== null && ownerUuid !== null && existingOwnerUuid !== ownerUuid)
+        )
+      ) {
         owners.delete(sourceUid);
         ambiguousSourceUids.add(sourceUid);
         return;
@@ -510,16 +598,17 @@
 
       owners.set(sourceUid, {
         ownerUid,
+        ownerUuid,
         ownerName: ownerEntity.name || `#${ownerUid}`,
         entityType: "EntChar",
       });
     }
 
     for (const ownerEntity of encounterEntities) {
-      for (const state of ownerEntity.activeBuffs ?? []) remember(state.sourceUid, ownerEntity, state.hostUid);
-      for (const state of ownerEntity.activeFactorBuffs ?? []) remember(state.sourceUid, ownerEntity, state.hostUid);
-      for (const state of ownerEntity.activeEffectBuffs ?? []) remember(state.sourceUid, ownerEntity, state.hostUid);
-      for (const state of ownerEntity.modifierWindows ?? []) remember(state.sourceUid, ownerEntity, state.hostUid);
+      for (const state of ownerEntity.activeBuffs ?? []) remember(state.sourceUid, ownerEntity, state.hostUid, state.hostUuid);
+      for (const state of ownerEntity.activeFactorBuffs ?? []) remember(state.sourceUid, ownerEntity, state.hostUid, state.hostUuid);
+      for (const state of ownerEntity.activeEffectBuffs ?? []) remember(state.sourceUid, ownerEntity, state.hostUid, state.hostUuid);
+      for (const state of ownerEntity.modifierWindows ?? []) remember(state.sourceUid, ownerEntity, state.hostUid, state.hostUuid);
     }
 
     return owners;
@@ -536,10 +625,13 @@
       .map((bucket) => ({
         modifierBaseId: Number(bucket.modifierBaseId) || 0,
         modifierSourceConfigId: bucket.modifierSourceConfigId ?? null,
+        modifierHostUuid: bucket.modifierHostUuid ?? null,
+        modifierSourceUuid: bucket.modifierSourceUuid ?? null,
         modifierHostUid: Number(bucket.modifierHostUid) || 0,
         modifierSourceUid: Number(bucket.modifierSourceUid) || 0,
         skillKey: Number(bucket.skillKey) || 0,
         damageId: Number(bucket.damageId) || 0,
+        targetUuid: bucket.targetUuid ?? null,
         targetUid: Number(bucket.targetUid) || 0,
         isHeal: Boolean(bucket.isHeal),
         hits: Number(bucket.hits) || 0,
@@ -586,7 +678,7 @@
       if (sourceConfigId !== null) ids.sourceConfigIds.add(sourceConfigId);
       if (baseId !== null) ids.baseIds.add(baseId);
     }
-    const sourceOwnerHints = collectModifierSourceOwnerHints(entity.uid, neededSourceUids, encounterEntities);
+    const sourceOwnerHints = collectModifierSourceOwnerHints(entity.uid, entity.uuid ?? null, neededSourceUids, encounterEntities);
     const modifierSourceActors = (entity.modifierSourceActors ?? [])
       .filter((actor) => neededSourceUids.has(Number(actor.uid)))
       .map((actor) => {
@@ -594,9 +686,11 @@
         const ownerHint = sourceOwnerHints.get(uid);
         return {
           uid,
+          uuid: actor.uuid ?? null,
           name: actor.name || `#${actor.uid}`,
           entityType: actor.entityType || ownerHint?.entityType || "Unknown",
           ownerUid: actor.ownerUid ?? ownerHint?.ownerUid ?? null,
+          ownerUuid: actor.ownerUuid ?? ownerHint?.ownerUuid ?? null,
           ownerName: actor.ownerName ?? ownerHint?.ownerName ?? null,
           sourceConfigIds: (actor.sourceConfigIds ?? []).map(Number).filter((id) => Number.isFinite(id) && id > 0),
           baseIds: (actor.baseIds ?? []).map(Number).filter((id) => Number.isFinite(id) && id > 0),
@@ -607,9 +701,11 @@
       if (!neededSourceUids.has(sourceEntity.uid) || modifierSourceActorUids.has(sourceEntity.uid)) continue;
       modifierSourceActors.push({
         uid: sourceEntity.uid,
+        uuid: sourceEntity.uuid ?? null,
         name: sourceEntity.name || `#${sourceEntity.uid}`,
         entityType: "EntChar",
         ownerUid: null,
+        ownerUuid: null,
         ownerName: null,
         sourceConfigIds: [],
         baseIds: [],
@@ -621,9 +717,11 @@
       const ids = sourceIdsByUid.get(sourceUid);
       modifierSourceActors.push({
         uid: sourceUid,
+        uuid: null,
         name: `#${sourceUid}`,
         entityType: "Unknown",
         ownerUid: ownerHint.ownerUid,
+        ownerUuid: ownerHint.ownerUuid ?? null,
         ownerName: ownerHint.ownerName,
         sourceConfigIds: [...(ids?.sourceConfigIds ?? [])].sort((a, b) => a - b),
         baseIds: [...(ids?.baseIds ?? [])].sort((a, b) => a - b),
@@ -647,6 +745,8 @@
         durationMs: Number(buff.durationMs) || 0,
         createTimeMs: Number(buff.createTimeMs) || 0,
         receivedTimeMs: Number(buff.receivedTimeMs) || 0,
+        hostUuid: buff.hostUuid ?? null,
+        sourceUuid: buff.sourceUuid ?? null,
         hostUid: Number(buff.hostUid) || 0,
         sourceUid: Number(buff.sourceUid) || 0,
       })),
@@ -669,6 +769,7 @@
       ...(modifierSourceCatalog ? { modifierSourceCatalog } : {}),
       dmgPerTarget: (entity.dmgPerTarget ?? []).map((target) => ({
         targetUid: target.targetUid,
+        targetUuid: target.targetUuid ?? null,
         targetName: target.targetName,
         totalValue: 0,
         damage: zeroCombatStats(),
@@ -748,6 +849,7 @@
     durationSeconds: number,
     activeCombatDurationSeconds: number | null | undefined,
     localUid: number | null,
+    localUuid: number | null,
     options: BuildHistoryPlayersOptions = {},
   ): HistoryPlayerRow[] {
     const elapsedMs = Math.max(1, Math.floor(durationSeconds * 1000));
@@ -774,18 +876,26 @@
     const dpsByUid = new Map(dpsRows.map((row) => [row.uid, row]));
     const healByUid = new Map(healRows.map((row) => [row.uid, row]));
     const tankByUid = new Map(tankRows.map((row) => [row.uid, row]));
+    const dpsByIdentity = new Map(dpsRows.map((row) => [playerIdentityKey(row), row]));
+    const healByIdentity = new Map(healRows.map((row) => [playerIdentityKey(row), row]));
+    const tankByIdentity = new Map(tankRows.map((row) => [playerIdentityKey(row), row]));
 
     return displayEntities
       .map((entity) => {
-        const dps = dpsByUid.get(entity.uid);
-        const heal = healByUid.get(entity.uid);
-        const tank = tankByUid.get(entity.uid);
+        const identityKey = entityIdentityKey(entity);
+        const dps = dpsByIdentity.get(identityKey) ?? dpsByUid.get(entity.uid);
+        const heal = healByIdentity.get(identityKey) ?? healByUid.get(entity.uid);
+        const tank = tankByIdentity.get(identityKey) ?? tankByUid.get(entity.uid);
         const className = entity.className || "";
         const classSpecName = entity.classSpecName || "";
+        const entityUuid = finitePositiveReportId(entity.uuid);
         return {
           uid: entity.uid,
+          uuid: entityUuid,
           name: entity.name || `#${entity.uid}`,
-          isLocalPlayer: localUid !== null && entity.uid === localUid,
+          isLocalPlayer: localUuid !== null && entityUuid !== null
+            ? entityUuid === localUuid
+            : localUid !== null && entity.uid === localUid,
           className,
           classSpecName,
           classDisplay: formatClassSpecLabel(className, classSpecName) || t("detail.unknownClass", "未知职业"),
@@ -811,6 +921,8 @@
           tankedPS: tank?.dps ?? 0,
           tankedPct: tank?.dmgPct ?? 0,
           critTakenRate: tank?.critRate ?? 0,
+          blockRate: tank?.blockRate ?? 0,
+          luckyBlockRate: tank?.luckyBlockRate ?? 0,
           hitsTaken: tank?.hits ?? 0,
           healDealt: heal?.totalDmg ?? 0,
           hps: heal?.dps ?? 0,
@@ -834,6 +946,9 @@
       critTotal: 0,
       luckyHits: 0,
       luckyTotal: 0,
+      triggerHits: 0,
+      blockHits: 0,
+      luckyBlockHits: 0,
     };
   }
 
@@ -846,6 +961,9 @@
       critTotal: left.critTotal + right.critTotal,
       luckyHits: left.luckyHits + right.luckyHits,
       luckyTotal: left.luckyTotal + right.luckyTotal,
+      triggerHits: (left.triggerHits || 0) + (right.triggerHits || 0),
+      blockHits: (left.blockHits || 0) + (right.blockHits || 0),
+      luckyBlockHits: (left.luckyBlockHits || 0) + (right.luckyBlockHits || 0),
     };
   }
 
@@ -886,6 +1004,20 @@
         row.uid,
         {
           uid: row.uid,
+          uuid: row.uuid ?? null,
+          dmgTargets: row.dmgPerTarget ?? [],
+          healTargets: row.healPerTarget ?? [],
+        } satisfies EntityPerTargetData,
+      ]),
+    ),
+  );
+  let perTargetByIdentity = $derived.by(() =>
+    new Map(
+      rawEntities.map((row) => [
+        entityIdentityKey(row),
+        {
+          uid: row.uid,
+          uuid: row.uuid ?? null,
           dmgTargets: row.dmgPerTarget ?? [],
           healTargets: row.healPerTarget ?? [],
         } satisfies EntityPerTargetData,
@@ -902,38 +1034,60 @@
     }
     return mapping;
   });
+  let entityNameByIdentity = $derived.by(() => {
+    const mapping = new Map<string, string>();
+    for (const entity of rawEntities) {
+      if (entity.name && entity.name.trim().length > 0) {
+        mapping.set(entityIdentityKey(entity), entity.name);
+      }
+    }
+    return mapping;
+  });
 
   let pushedUidSet = $derived.by(() => new Set(rawEntities.map((row) => row.uid)));
-  let playerTargetUidSet = $derived.by(() =>
-    new Set(
-      rawEntities
-        .filter((row) =>
-          row.uid === localPlayerUid ||
-          row.classId > 0 ||
-          row.classSpec > 0 ||
-          row.className.trim().length > 0 ||
-          row.classSpecName.trim().length > 0)
-        .map((row) => row.uid),
+  let pushedIdentitySet = $derived.by(() => new Set(rawEntities.map((row) => entityIdentityKey(row))));
+  let pushedPlayerEntities = $derived.by(() =>
+    rawEntities.filter((row) =>
+      entityMatchesIdentity(row, localPlayerUid, localPlayerUuid) ||
+      row.classId > 0 ||
+      row.classSpec > 0 ||
+      row.className.trim().length > 0 ||
+      row.classSpecName.trim().length > 0
     ),
   );
+  let playerTargetUidSet = $derived.by(() => new Set(pushedPlayerEntities.map((row) => row.uid)));
+  let playerTargetIdentitySet = $derived.by(() => new Set(pushedPlayerEntities.map((row) => entityIdentityKey(row))));
+
+  function perTargetForPlayer(player: { uid: number; uuid?: number | null } | null): EntityPerTargetData | undefined {
+    if (!player) return undefined;
+    return perTargetByIdentity.get(playerIdentityKey(player)) ?? perTargetByUid.get(player.uid);
+  }
+
+  function targetDisplayName(target: { targetUid: number; targetUuid?: number | null; targetName: string }): string {
+    return entityNameByIdentity.get(targetIdentityKey(target))
+      ?? entityNameByUid.get(target.targetUid)
+      ?? target.targetName;
+  }
 
   function isNumericLikeName(name: string): boolean {
     return /^#?\d+$/.test(name.trim());
   }
 
   let overviewTargets = $derived.by(() => {
-    const merged = new Map<number, OverviewTargetOption>();
+    const merged = new Map<string, OverviewTargetOption>();
     for (const row of rawEntities) {
       for (const target of row.dmgPerTarget ?? []) {
-        const existing = merged.get(target.targetUid);
+        const key = targetIdentityKey(target);
+        const existing = merged.get(key);
         if (existing) {
           existing.totalValue += target.totalValue;
           if (existing.targetName.startsWith("#") && target.targetName) {
             existing.targetName = target.targetName;
           }
         } else {
-          merged.set(target.targetUid, {
+          merged.set(key, {
             targetUid: target.targetUid,
+            targetUuid: target.targetUuid ?? null,
             targetName: target.targetName,
             totalValue: target.totalValue,
           });
@@ -944,6 +1098,7 @@
       .filter(
         (target) =>
           target.targetName.trim().length > 0 &&
+          !playerTargetIdentitySet.has(targetIdentityKey(target)) &&
           !playerTargetUidSet.has(target.targetUid) &&
           !isNumericLikeName(target.targetName),
       )
@@ -952,15 +1107,16 @@
 
   let displayedPlayers = $derived.by(() => {
     if (activeTab === "damage") {
-      if (overviewTargetUid === null) {
+      if (overviewTargetUid === null && overviewTargetUuid === null) {
         return [...players].sort((a, b) => b.totalDmg - a.totalDmg);
       }
 
       const targetEntities = rawEntities.map((entity) => {
-        const perTarget = perTargetByUid
-          .get(entity.uid)
-          ?.dmgTargets.find((target) => target.targetUid === overviewTargetUid);
-        const damage = perTarget?.damage ?? zeroCombatStats();
+        const perTarget = perTargetByIdentity.get(entityIdentityKey(entity)) ?? perTargetByUid.get(entity.uid);
+        const targetStats = perTarget?.dmgTargets.find((target) =>
+          targetMatchesIdentity(target, overviewTargetUid, overviewTargetUuid),
+        );
+        const damage = targetStats?.damage ?? zeroCombatStats();
         return {
           ...entity,
           damage,
@@ -974,6 +1130,7 @@
         encounterDurationSeconds,
         encounter?.activeCombatDuration ?? null,
         localPlayerUid,
+        localPlayerUuid,
         { includeBossTargetAggregate: false },
       )
         .sort((a, b) => b.totalDmg - a.totalDmg);
@@ -990,25 +1147,19 @@
   });
 
   let selectedPlayer = $derived.by(() => {
-    if (!charId) return null;
-    const playerUid = Number(charId);
-    if (!Number.isFinite(playerUid)) return null;
-    return players.find((p) => p.uid === playerUid) ?? null;
+    if (!hasSelectedChar) return null;
+    return players.find((p) => playerMatchesIdentity(p, selectedCharUid, charUuid)) ?? null;
   });
 
   let selectedEntity = $derived.by(() => {
-    if (!charId) return null;
-    const playerUid = Number(charId);
-    if (!Number.isFinite(playerUid)) return null;
-    return rawEntities.find((entity) => entity.uid === playerUid) ?? null;
+    if (!hasSelectedChar) return null;
+    return rawEntities.find((entity) => entityMatchesIdentity(entity, selectedCharUid, charUuid)) ?? null;
   });
 
   let selectedSkillTargetUid = $derived.by(() => {
-    const raw = $page.url.searchParams.get("targetUid");
-    if (!raw) return null;
-    const parsed = Number(raw);
-    return Number.isFinite(parsed) ? parsed : null;
+    return finitePositiveReportId($page.url.searchParams.get("targetUid"));
   });
+  let selectedSkillTargetUuid = $derived(finitePositiveReportId($page.url.searchParams.get("targetUuid")));
 
   let selectedDeathTs = $derived.by(() => {
     const raw = $page.url.searchParams.get("deathTs");
@@ -1086,10 +1237,11 @@
   let skillGrouping = $derived.by(() => {
     if (!selectedEntity) return { groups: [], ungrouped: [] };
     const durationSecs = Math.max(1, encounterDurationSeconds);
-    if (skillType === "dps" && selectedSkillTargetUid !== null && selectedPlayer) {
-      const targetStats = perTargetByUid
-        .get(selectedPlayer.uid)
-        ?.dmgTargets.find((target) => target.targetUid === selectedSkillTargetUid);
+    if (skillType === "dps" && (selectedSkillTargetUid !== null || selectedSkillTargetUuid !== null) && selectedPlayer) {
+      const targetStats = perTargetForPlayer(selectedPlayer)
+        ?.dmgTargets.find((target) =>
+          targetMatchesIdentity(target, selectedSkillTargetUid, selectedSkillTargetUuid),
+        );
       if (!targetStats) return { groups: [], ungrouped: [] };
       return groupSkillsByRecount(
         targetStats.skills,
@@ -1114,6 +1266,13 @@
         : skillType === "tanked"
           ? selectedEntity.taken.total
           : selectedEntity.damage.total;
+    const groupingOptions: SkillGroupingOptions = { includeContributionSources: false };
+    if (skillType === "tanked") {
+      groupingOptions.runtimeSourceBySkillId = buildUniqueSkillSourceFallbacks(
+        selectedEntity.takenPerSource,
+        SETTINGS.live.general.state.language as LocaleCode,
+      );
+    }
     return groupSkillsByRecount(
       skills,
       durationSecs,
@@ -1122,7 +1281,7 @@
       [],
       [],
       [],
-      { includeContributionSources: false },
+      groupingOptions,
     );
   });
 
@@ -1148,7 +1307,9 @@
       ? [...players]
           .filter((player) =>
             player.totalDmg > 0
-            || hasModifierState(rawEntities.find((entity) => entity.uid === player.uid))
+            || hasModifierState(rawEntities.find((entity) =>
+              entityMatchesIdentity(entity, player.uid, player.uuid ?? null),
+            ))
           )
           .sort((left, right) => {
             if (left.isLocalPlayer !== right.isLocalPlayer) return left.isLocalPlayer ? -1 : 1;
@@ -1159,12 +1320,16 @@
 
   let selectedModifierPlayer = $derived.by(() => {
     if (modifierPlayers.length === 0) return null;
-    if (modifierPlayerUid !== null) {
-      const selected = modifierPlayers.find((player) => player.uid === modifierPlayerUid);
+    if (modifierPlayerUid !== null || modifierPlayerUuid !== null) {
+      const selected = modifierPlayers.find((player) =>
+        playerMatchesIdentity(player, modifierPlayerUid, modifierPlayerUuid),
+      );
       if (selected) return selected;
     }
-    if (localPlayerUid !== null) {
-      const local = modifierPlayers.find((player) => player.uid === localPlayerUid);
+    if (localPlayerUid !== null || localPlayerUuid !== null) {
+      const local = modifierPlayers.find((player) =>
+        playerMatchesIdentity(player, localPlayerUid, localPlayerUuid),
+      );
       if (local) return local;
     }
     return modifierPlayers[0] ?? null;
@@ -1172,7 +1337,7 @@
 
   let selectedModifierCacheKey = $derived.by(() =>
     modifierReportsEnabled && encounterId !== null && selectedModifierPlayer
-      ? modifierCacheKey(encounterId, selectedModifierPlayer.uid)
+      ? modifierCacheKey(encounterId, selectedModifierPlayer.uid, selectedModifierPlayer.uuid ?? null)
       : null,
   );
 
@@ -1190,11 +1355,13 @@
 
   let selectedModifierEntity = $derived.by(() => {
     if (!selectedModifierPlayer) return null;
-    return modifierEntitySource.find((entity) => entity.uid === selectedModifierPlayer.uid) ?? null;
+    return modifierEntitySource.find((entity) =>
+      entityMatchesIdentity(entity, selectedModifierPlayer.uid, selectedModifierPlayer.uuid ?? null),
+    ) ?? null;
   });
 
   let modifierRows = $derived.by(() =>
-    modifierReportsEnabled && !charId && activeTab === "modifiers" && selectedModifierReportKey
+    modifierReportsEnabled && !hasSelectedChar && activeTab === "modifiers" && selectedModifierReportKey
       ? (modifierReportCache[selectedModifierReportKey] ?? [])
       : [],
   );
@@ -1410,9 +1577,9 @@
 
   let healTargetSummary = $derived.by(() => {
     if (!selectedPlayer || skillType !== "heal") return [] as PerTargetStats[];
-    return [...(perTargetByUid.get(selectedPlayer.uid)?.healTargets ?? [])]
+    return [...(perTargetForPlayer(selectedPlayer)?.healTargets ?? [])]
       .map((target) => {
-        const resolvedName = entityNameByUid.get(target.targetUid);
+        const resolvedName = targetDisplayName(target);
         return resolvedName
           ? { ...target, targetName: resolvedName }
           : target;
@@ -1420,7 +1587,9 @@
       .filter(
         (target) =>
           target.totalValue > 0 &&
-          (!isNumericLikeName(target.targetName) || pushedUidSet.has(target.targetUid)),
+          (!isNumericLikeName(target.targetName) ||
+            pushedIdentitySet.has(targetIdentityKey(target)) ||
+            pushedUidSet.has(target.targetUid)),
       )
       .sort((a, b) => b.totalValue - a.totalValue);
   });
@@ -1572,9 +1741,13 @@
   function emptyModifierActorSummary(): ModifierActorSummary {
     return {
       hostUids: [],
+      hostUuids: [],
       sourceUids: [],
+      sourceUuids: [],
       externalSourceUids: [],
+      externalSourceUuids: [],
       selfSourceUids: [],
+      selfSourceUuids: [],
       sourceActors: [],
       externalSourceActors: [],
       selfSourceActors: [],
@@ -1582,34 +1755,46 @@
   }
 
   function mergeModifierActors(left: ModifierSourceActor[], right: ModifierSourceActor[]): ModifierSourceActor[] {
-    const byUid = new Map<number, ModifierSourceActor>();
+    const byIdentity = new Map<string, ModifierSourceActor>();
     for (const actor of [...left, ...right]) {
       const uid = finitePositiveReportId(actor.uid);
       if (uid === null) continue;
-      const previous = byUid.get(uid);
+      const uuid = finitePositiveReportId(actor.uuid);
+      const identity = uuid !== null ? `uuid:${uuid}` : `uid:${uid}`;
+      const previous = byIdentity.get(identity);
       const merged: ModifierSourceActor = {
         uid,
+        ...(uuid !== null ? { uuid } : previous?.uuid !== undefined ? { uuid: previous.uuid } : {}),
         name: previous?.name && previous.name !== `#${uid}` ? previous.name : (actor.name || `#${uid}`),
         sourceConfigIds: [...new Set([...(previous?.sourceConfigIds ?? []), ...(actor.sourceConfigIds ?? [])])].sort((a, b) => a - b),
         baseIds: [...new Set([...(previous?.baseIds ?? []), ...(actor.baseIds ?? [])])].sort((a, b) => a - b),
       };
       const entityType = previous?.entityType ?? actor.entityType;
       const ownerUid = previous?.ownerUid ?? actor.ownerUid;
+      const ownerUuid = previous?.ownerUuid ?? actor.ownerUuid;
       const ownerName = previous?.ownerName ?? actor.ownerName;
       if (entityType) merged.entityType = entityType;
       if (ownerUid !== undefined) merged.ownerUid = ownerUid;
+      if (ownerUuid !== undefined) merged.ownerUuid = ownerUuid;
       if (ownerName) merged.ownerName = ownerName;
-      byUid.set(uid, merged);
+      byIdentity.set(identity, merged);
     }
-    return [...byUid.values()].sort((leftActor, rightActor) => leftActor.uid - rightActor.uid);
+    return [...byIdentity.values()].sort((leftActor, rightActor) =>
+      leftActor.uid - rightActor.uid
+      || (finitePositiveReportId(leftActor.uuid) ?? 0) - (finitePositiveReportId(rightActor.uuid) ?? 0)
+    );
   }
 
   function mergeModifierActorSummaries(summaries: ModifierActorSummary[]): ModifierActorSummary {
     return summaries.reduce((summary, next) => ({
       hostUids: [...new Set([...summary.hostUids, ...(next.hostUids ?? [])])].sort((a, b) => a - b),
+      hostUuids: [...new Set([...summary.hostUuids, ...(next.hostUuids ?? [])])].sort((a, b) => a - b),
       sourceUids: [...new Set([...summary.sourceUids, ...(next.sourceUids ?? [])])].sort((a, b) => a - b),
+      sourceUuids: [...new Set([...summary.sourceUuids, ...(next.sourceUuids ?? [])])].sort((a, b) => a - b),
       externalSourceUids: [...new Set([...summary.externalSourceUids, ...(next.externalSourceUids ?? [])])].sort((a, b) => a - b),
+      externalSourceUuids: [...new Set([...summary.externalSourceUuids, ...(next.externalSourceUuids ?? [])])].sort((a, b) => a - b),
       selfSourceUids: [...new Set([...summary.selfSourceUids, ...(next.selfSourceUids ?? [])])].sort((a, b) => a - b),
+      selfSourceUuids: [...new Set([...summary.selfSourceUuids, ...(next.selfSourceUuids ?? [])])].sort((a, b) => a - b),
       sourceActors: mergeModifierActors(summary.sourceActors ?? [], next.sourceActors ?? []),
       externalSourceActors: mergeModifierActors(summary.externalSourceActors ?? [], next.externalSourceActors ?? []),
       selfSourceActors: mergeModifierActors(summary.selfSourceActors ?? [], next.selfSourceActors ?? []),
@@ -1617,7 +1802,9 @@
   }
 
   function modifierHasExternalSources(summary: ModifierActorSummary): boolean {
-    return (summary.externalSourceUids?.length ?? 0) > 0 || (summary.externalSourceActors?.length ?? 0) > 0;
+    return (summary.externalSourceUids?.length ?? 0) > 0
+      || (summary.externalSourceUuids?.length ?? 0) > 0
+      || (summary.externalSourceActors?.length ?? 0) > 0;
   }
 
   function modifierSourceActorLabel(actor: ModifierSourceActor): string {
@@ -1663,6 +1850,14 @@
         names.push(name);
       }
     }
+    if (names.length === 0) {
+      for (const uuid of summary.externalSourceUuids ?? []) {
+        const name = `uuid:${uuid}`;
+        if (seen.has(name)) continue;
+        seen.add(name);
+        names.push(name);
+      }
+    }
     if (names.length <= maxNames) return names;
     return [
       ...names.slice(0, maxNames),
@@ -1687,7 +1882,10 @@
     const actors = summary.externalSourceActors ?? [];
     const lines = actors.length > 0
       ? actors.map(modifierSourceActorLabel)
-      : (summary.externalSourceUids ?? []).map((uid) => `${t("detail.modifierLocalActor", "Local actor")} #${uid}`);
+      : [
+          ...(summary.externalSourceUids ?? []).map((uid) => `${t("detail.modifierLocalActor", "Local actor")} #${uid}`),
+          ...(summary.externalSourceUuids ?? []).map((uuid) => `${t("detail.modifierLocalActor", "Local actor")} uuid:${uuid}`),
+        ];
     return `${t("detail.modifierTitleExternalSources", "External sources")}:\n${lines.join("\n")}`;
   }
 
@@ -2102,21 +2300,48 @@
     return resolveSkillTranslation(row.skillId, language, row.name);
   }
 
+  function sharedDpsLabel(key: string, language: LocaleCode, fallback: string): string {
+    return resolveNavigationTranslation(key, language, fallback);
+  }
+
   function normalizeDisplayLabel(value: string): string {
     return value.replace(/[\u200B-\u200D\uFEFF]/g, "").trim().toLowerCase();
   }
 
   function historySkillDetailLabel(row: SkillDisplayRow, language: LocaleCode): string {
     if (!row.details) return "";
-    const detail = resolveSkillBreakdownDetailName(row, language).trim();
+    const detail = resolveSkillBreakdownDetailName(row, language, {
+      baseSkillLabel: sharedDpsLabel("detail.skillBreakdown.baseSkill", language, "Base skill"),
+    }).trim();
     const label = historySkillLabel(row, language);
     if (!detail || normalizeDisplayLabel(detail) === normalizeDisplayLabel(label)) return "";
     return detail;
   }
 
   function historyHitCountLabel(hits: number): string {
-    const count = Math.round(Number(hits) || 0).toLocaleString();
-    return t("detail.skillHitCount", "{count} hits").replace("{count}", count);
+    const language = SETTINGS.live.general.state.language as LocaleCode;
+    const roundedCount = Math.round(Number(hits) || 0);
+    const count = roundedCount.toLocaleString(language);
+    const fallback = sharedDpsLabel("detail.skillHitCount", language, "{count} hits");
+    const key = roundedCount === 1
+      ? "detail.skillHitCount.one"
+      : "detail.skillHitCount.other";
+    return sharedDpsLabel(key, language, fallback).replace("{count}", count);
+  }
+
+  function localizedDamageColumnValue(
+    col: { key: string; format: (value: number | null) => string },
+    rawValue: unknown,
+  ): string {
+    const value = typeof rawValue === "number" ? rawValue : null;
+    const fallback = col.format(value);
+    const labelKey = col.key === "property"
+      ? propertyLabelKey(value)
+      : col.key === "damageMode"
+        ? damageModeLabelKey(value)
+        : undefined;
+    if (!labelKey) return fallback;
+    return sharedDpsLabel(labelKey, SETTINGS.live.general.state.language as LocaleCode, fallback);
   }
 
   function modifierSkillTitle(row: Pick<ModifierBreakdownRow, "name" | "names" | "recountId" | "skillId" | "damageIds" | "match">, language: LocaleCode): string {
@@ -2225,6 +2450,8 @@
     const token = ++encounterLoadToken;
     const startedAt = historyPerfNow();
     error = null;
+    localPlayerUid = null;
+    localPlayerUuid = null;
     encounterEntitiesLoading = false;
     targetDetailsLoading = false;
     targetDetailsRequestedEncounterId = null;
@@ -2265,6 +2492,7 @@
       localPlayerUid =
         (encounterRes.data as { localPlayerId?: number | null }).localPlayerId ??
         null;
+      localPlayerUuid = encounterRes.data.localPlayerUuid ?? null;
       rawEntities = [];
       players = [];
       encounterEntitiesLoading = true;
@@ -2302,6 +2530,7 @@
         durationSeconds,
         encounterRes.data.activeCombatDuration ?? null,
         localPlayerUid,
+        localPlayerUuid,
       );
       encounterEntitiesLoading = false;
       logHistoryTiming("encounter load complete", {
@@ -2358,6 +2587,7 @@
         encounterDurationSeconds,
         encounter?.activeCombatDuration ?? null,
         localPlayerUid,
+        localPlayerUuid,
       );
       targetDetailsLoadedEncounterId = currentEncounterId;
     } catch (err) {
@@ -2377,8 +2607,9 @@
     if (!modifierReportsEnabled) return;
     const currentEncounterId = encounterId;
     const selectedUid = selectedModifierPlayer?.uid ?? null;
+    const selectedUuid = selectedModifierPlayer?.uuid ?? null;
     if (!currentEncounterId || selectedUid === null) return;
-    const cacheKey = modifierCacheKey(currentEncounterId, selectedUid);
+    const cacheKey = modifierCacheKey(currentEncounterId, selectedUid, selectedUuid);
     if (modifierEntityCache[cacheKey]?.length) {
       return;
     }
@@ -2391,14 +2622,16 @@
       logHistoryTiming("modifier entities load start", {
         encounterId: currentEncounterId,
         playerUid: selectedUid,
+        playerUuid: selectedUuid,
       });
-      const entitiesRes = await commands.getEncounterModifierEntitiesRaw(currentEncounterId, selectedUid);
+      const entitiesRes = await commands.getEncounterModifierEntitiesRaw(currentEncounterId, selectedUid, selectedUuid);
       if (token !== modifierEntitiesLoadToken) return;
       if (entitiesRes.status !== "ok") {
         modifierEntitiesError = String(entitiesRes.error);
         console.warn("[history] modifier entities load returned error", {
           encounterId: currentEncounterId,
           playerUid: selectedUid,
+          playerUuid: selectedUuid,
           ms: historyLoadMs(startedAt),
           error: modifierEntitiesError,
         });
@@ -2407,6 +2640,7 @@
       logHistoryTiming("modifier entities load complete", {
         encounterId: currentEncounterId,
         playerUid: selectedUid,
+        playerUuid: selectedUuid,
         ms: historyLoadMs(startedAt),
         rows: entitiesRes.data.length,
         primaryBuckets: entitiesRes.data[0]?.modifierHitBuckets?.length ?? 0,
@@ -2422,6 +2656,7 @@
       console.warn("[history] modifier entities load failed", {
         encounterId: currentEncounterId,
         playerUid: selectedUid,
+        playerUuid: selectedUuid,
         ms: historyLoadMs(startedAt),
         error: modifierEntitiesError,
       });
@@ -2435,7 +2670,7 @@
 
   async function loadModifierReport() {
     if (!modifierReportsEnabled) return;
-    if (charId || activeTab !== "modifiers") return;
+    if (hasSelectedChar || activeTab !== "modifiers") return;
     if (!selectedModifierCacheKey || !selectedModifierReportKey) return;
     const detailedEntities = modifierEntityCache[selectedModifierCacheKey];
     if (!detailedEntities?.length || !selectedModifierEntity) return;
@@ -2626,34 +2861,65 @@
     });
   }
 
-  function viewPlayerSkills(playerUid: number, type = "dps", targetUid?: number | null) {
-
+  function viewPlayerSkills(
+    playerUid: number,
+    type = "dps",
+    targetUid?: number | null,
+    playerUuid?: number | null,
+    targetUuid?: number | null,
+  ) {
     const sp = new URLSearchParams($page.url.searchParams);
+    const resolvedPlayerUuid = finitePositiveReportId(
+      playerUuid ?? players.find((player) => player.uid === playerUid)?.uuid ?? null,
+    );
+    const resolvedTargetUuid = finitePositiveReportId(targetUuid);
     sp.set("charId", String(playerUid));
+    if (resolvedPlayerUuid !== null) {
+      sp.set("charUuid", String(resolvedPlayerUuid));
+    } else {
+      sp.delete("charUuid");
+    }
     sp.set("skillType", type);
     if (type === "dps" && targetUid != null) {
       sp.set("targetUid", String(targetUid));
+      if (resolvedTargetUuid !== null) {
+        sp.set("targetUuid", String(resolvedTargetUuid));
+      } else {
+        sp.delete("targetUuid");
+      }
     } else {
       sp.delete("targetUid");
+      sp.delete("targetUuid");
     }
     sp.delete("deathTs");
     goto(`/main/dps/history/${encounterId}?${sp.toString()}`);
   }
 
-  function viewDeathReplay(playerUid: number, deathTs: number) {
+  function viewDeathReplay(playerUid: number, deathTs: number, playerUuid?: number | null) {
     const sp = new URLSearchParams($page.url.searchParams);
+    const resolvedPlayerUuid = finitePositiveReportId(
+      playerUuid ?? players.find((player) => player.uid === playerUid)?.uuid ?? null,
+    );
     sp.set("charId", String(playerUid));
+    if (resolvedPlayerUuid !== null) {
+      sp.set("charUuid", String(resolvedPlayerUuid));
+    } else {
+      sp.delete("charUuid");
+    }
     sp.set("skillType", "death");
     sp.set("deathTs", String(deathTs));
     sp.delete("targetUid");
+    sp.delete("targetUuid");
     goto(`/main/dps/history/${encounterId}?${sp.toString()}`);
   }
 
   function backToDeathPlayerList() {
     const sp = new URLSearchParams($page.url.searchParams);
     sp.delete("charId");
+    sp.delete("charUuid");
     sp.delete("deathTs");
     sp.delete("targetUid");
+    sp.delete("targetUuid");
     sp.set("skillType", "death");
     goto(`/main/dps/history/${encounterId}?${sp.toString()}`);
   }
@@ -2662,6 +2928,7 @@
     const sp = new URLSearchParams($page.url.searchParams);
     sp.delete("deathTs");
     sp.delete("targetUid");
+    sp.delete("targetUuid");
     sp.set("skillType", "death");
     goto(`/main/dps/history/${encounterId}?${sp.toString()}`);
   }
@@ -2670,15 +2937,17 @@
 
     const sp = new URLSearchParams($page.url.searchParams);
     sp.delete("charId");
+    sp.delete("charUuid");
     sp.delete("skillType");
     sp.delete("targetUid");
+    sp.delete("targetUuid");
     sp.delete("deathTs");
     const qs = sp.toString();
     goto(`/main/dps/history/${encounterId}${qs ? `?${qs}` : ""}`);
   }
 
   function handleHistoryContextMenu(event: MouseEvent) {
-    if (!charId) return;
+    if (!hasSelectedChar) return;
 
     event.preventDefault();
     backToEncounter();
@@ -2689,8 +2958,10 @@
     // Return to the history list while preserving list state.
     const sp = new URLSearchParams($page.url.searchParams);
     sp.delete("charId");
+    sp.delete("charUuid");
     sp.delete("skillType");
     sp.delete("targetUid");
+    sp.delete("targetUuid");
     sp.delete("deathTs");
     if (resetPage) sp.set("page", "0");
     const qs = sp.toString();
@@ -2762,18 +3033,18 @@
 
   $effect(() => {
     charId;
+    charUuid;
     expandedGroups = new Set<number>();
   });
 
   $effect(() => {
-    if (!charId || skillType !== "dps" || selectedSkillTargetUid === null) return;
+    if (!hasSelectedChar || skillType !== "dps" || (selectedSkillTargetUid === null && selectedSkillTargetUuid === null)) return;
     if (targetDetailsLoadedEncounterId === encounterId) return;
     if (targetDetailsRequestedEncounterId === encounterId) return;
-    const playerUid = Number(charId);
-    if (!Number.isFinite(playerUid)) return;
-    const targetStats = perTargetByUid
-      .get(playerUid)
-      ?.dmgTargets.find((target) => target.targetUid === selectedSkillTargetUid);
+    const targetStats = perTargetForPlayer(selectedPlayer)
+      ?.dmgTargets.find((target) =>
+        targetMatchesIdentity(target, selectedSkillTargetUid, selectedSkillTargetUuid),
+      );
     if (!targetStats) return;
     if (Object.keys(targetStats.skills ?? {}).length > 0) return;
     void loadTargetDetailEntities();
@@ -2783,6 +3054,7 @@
     activeTab;
     if (activeTab !== "damage") {
       overviewTargetUid = null;
+      overviewTargetUuid = null;
     }
   });
 
@@ -2793,12 +3065,12 @@
   });
 
   $effect(() => {
-    if (charId || activeTab !== "modifiers" || !modifierReportsEnabled) return;
+    if (hasSelectedChar || activeTab !== "modifiers" || !modifierReportsEnabled) return;
     void loadModifierEntities();
   });
 
   $effect(() => {
-    if (charId || activeTab !== "modifiers" || !modifierReportsEnabled) return;
+    if (hasSelectedChar || activeTab !== "modifiers" || !modifierReportsEnabled) return;
     selectedModifierReportKey;
     selectedModifierEntity;
     modifierEntityCache;
@@ -2809,17 +3081,27 @@
     if (activeTab !== "modifiers" || !modifierReportsEnabled) return;
     if (modifierPlayers.length === 0) {
       modifierPlayerUid = null;
+      modifierPlayerUuid = null;
       return;
     }
-    if (modifierPlayerUid !== null && modifierPlayers.some((player) => player.uid === modifierPlayerUid)) {
+    const selectedPlayer = modifierPlayers.find((player) =>
+      playerMatchesIdentity(player, modifierPlayerUid, modifierPlayerUuid),
+    );
+    if (selectedPlayer) {
+      modifierPlayerUid = selectedPlayer.uid;
+      modifierPlayerUuid = selectedPlayer.uuid ?? null;
       return;
     }
-    const localPlayer = localPlayerUid !== null
-      ? modifierPlayers.find((player) => player.uid === localPlayerUid)
-      : null;
+    const localPlayer = modifierPlayers.find((player) =>
+      playerMatchesIdentity(player, localPlayerUid, localPlayerUuid),
+    );
     const fallbackPlayer = localPlayer ?? modifierPlayers[0];
     if (fallbackPlayer) {
       modifierPlayerUid = fallbackPlayer.uid;
+      modifierPlayerUuid = fallbackPlayer.uuid ?? null;
+    } else {
+      modifierPlayerUid = null;
+      modifierPlayerUuid = null;
     }
   });
 
@@ -2827,6 +3109,7 @@
     if (activeTab !== "modifiers") return;
     if (!modifierReportsEnabled) {
       modifierPlayerUid = null;
+      modifierPlayerUuid = null;
       modifierEntitiesLoading = false;
       modifierReportLoading = false;
       modifierEntitiesLoadingKey = null;
@@ -2839,6 +3122,7 @@
     const seed = [
       encounterId ?? "",
       selectedModifierPlayer?.uid ?? "",
+      selectedModifierPlayer?.uuid ?? "",
       modifierViewMode,
       modifierScope,
       modifierActorFilter,
@@ -2858,7 +3142,7 @@
     <div class="text-red-400 mb-3">{error}</div>
   {/if}
 
-  {#if !charId && encounter}
+  {#if !hasSelectedChar && encounter}
     <!-- Encounter Overview -->
     <div class="mb-4">
       <div class="flex flex-col gap-3 rounded-lg border border-border bg-card/50 p-4">
@@ -3028,20 +3312,26 @@
     {#if activeTab === "damage" && overviewTargets.length > 0}
       <div class="mb-3 flex flex-wrap gap-1.5">
         <button
-          class="px-3 py-1 text-xs rounded border border-border transition-colors {overviewTargetUid === null
+          class="px-3 py-1 text-xs rounded border border-border transition-colors {overviewTargetUid === null && overviewTargetUuid === null
             ? 'bg-muted/40 text-foreground'
             : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
-          onclick={() => (overviewTargetUid = null)}
+          onclick={() => {
+            overviewTargetUid = null;
+            overviewTargetUuid = null;
+          }}
         >
           {t("detail.total", "总计")}
         </button>
-        {#each overviewTargets as target (target.targetUid)}
+        {#each overviewTargets as target (targetIdentityKey(target))}
           <button
-            class="px-3 py-1 text-xs rounded border border-border transition-colors {overviewTargetUid === target.targetUid
+            class="px-3 py-1 text-xs rounded border border-border transition-colors {targetMatchesIdentity(target, overviewTargetUid, overviewTargetUuid)
               ? 'bg-muted/40 text-foreground'
               : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
-            onclick={() => (overviewTargetUid = target.targetUid)}
-            title={`${t("detail.target", "目标")} #${target.targetUid}`}
+            onclick={() => {
+              overviewTargetUid = target.targetUid;
+              overviewTargetUuid = target.targetUuid ?? null;
+            }}
+            title={`${t("detail.target", "目标")} #${target.targetUid}${target.targetUuid ? ` / UUID: ${target.targetUuid}` : ""}`}
           >
             {localizeRawMonsterName(target.targetName, target.targetName)}
           </button>
@@ -3066,13 +3356,16 @@
       {:else}
       <div class="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div class="flex flex-wrap gap-1.5">
-          {#each modifierPlayers as player (player.uid)}
+          {#each modifierPlayers as player (playerIdentityKey(player))}
             <button
-              class="px-3 py-1 text-xs rounded border border-border transition-colors {selectedModifierPlayer?.uid === player.uid
+              class="px-3 py-1 text-xs rounded border border-border transition-colors {selectedModifierPlayer && playerMatchesIdentity(selectedModifierPlayer, player.uid, player.uuid ?? null)
                 ? 'bg-muted/40 text-foreground'
                 : 'text-muted-foreground hover:text-foreground hover:bg-muted/40'}"
-              onclick={() => (modifierPlayerUid = player.uid)}
-              title={`UID: #${player.uid}`}
+              onclick={() => {
+                modifierPlayerUid = player.uid;
+                modifierPlayerUuid = player.uuid ?? null;
+              }}
+              title={`UID: #${player.uid}${player.uuid ? ` / UUID: ${player.uuid}` : ""}`}
             >
               {getDisplayName({
                 player: {
@@ -3521,7 +3814,7 @@
                 </td>
               </tr>
             {:else}
-            {#each displayedPlayers as p (p.uid)}
+            {#each displayedPlayers as p (playerIdentityKey(p))}
               {@const iconSpecName = getDisplayIconSpecName({
                 classSpecName: p.classSpecName,
                 showYourNameSetting: settings.state.history.general.showYourName,
@@ -3540,6 +3833,8 @@
                         ? "tanked"
                         : "dps",
                     activeTab === "damage" ? overviewTargetUid : null,
+                    p.uuid ?? null,
+                    activeTab === "damage" ? overviewTargetUuid : null,
                   )}
               >
                 <td
@@ -3643,7 +3938,7 @@
         </table>
     </div>
     {/if}
-  {:else if charId && selectedPlayer && selectedEntity && skillType === "death"}
+  {:else if hasSelectedChar && selectedPlayer && selectedEntity && skillType === "death"}
     <div class="mb-4">
       {#if selectedDeathTs == null}
         <DeathList
@@ -3663,7 +3958,7 @@
           isLocalPlayer={selectedPlayer.isLocalPlayer}
           deaths={selectedEntity.deaths ?? []}
           fightStartTimestampMs={encounter?.startedAtMs ?? null}
-          onSelect={(ts) => viewDeathReplay(selectedPlayer.uid, ts)}
+          onSelect={(ts) => viewDeathReplay(selectedPlayer.uid, ts, selectedPlayer.uuid ?? null)}
           onBack={backToDeathPlayerList}
           variant="history"
         />
@@ -3693,7 +3988,7 @@
         </div>
       {/if}
     </div>
-  {:else if charId && selectedPlayer && selectedEntity}
+  {:else if hasSelectedChar && selectedPlayer && selectedEntity}
     <!-- Player Skills View -->
     <div class="mb-4">
       <div class="flex items-center gap-3 mb-2">
@@ -3746,7 +4041,7 @@
           <div class="text-sm text-muted-foreground">{t("detail.noHealTargetData", "暂无治疗目标数据")}</div>
         {:else}
           <div class="space-y-1.5">
-            {#each healTargetSummary as target (target.targetUid)}
+            {#each healTargetSummary as target (targetIdentityKey(target))}
               {@const pct = healTargetTotal > 0 ? (target.totalValue / healTargetTotal) * 100 : 0}
               <div class="text-sm">
                 <div class="flex items-center justify-between gap-2 text-muted-foreground">
@@ -3782,7 +4077,7 @@
           </tr>
         </thead>
         <tbody class="bg-background/40">
-          {#if targetDetailsLoading && selectedSkillTargetUid !== null && flatSkillRows.length === 0}
+          {#if targetDetailsLoading && (selectedSkillTargetUid !== null || selectedSkillTargetUuid !== null) && flatSkillRows.length === 0}
             <tr class="border-t border-border/40">
               <td
                 class="px-3 py-8 text-center text-sm text-muted-foreground"
@@ -3913,7 +4208,7 @@
                       decimalPlaces={abbreviatedDecimalPlaces}
                     />
                   {:else if col.key === "property" || col.key === "damageMode"}
-                    {col.format(item.row[col.key] ?? null)}
+                    {localizedDamageColumnValue(col, item.row[col.key] ?? null)}
                   {:else}
                     {col.format(skillCellValue(item, col.key))}
                   {/if}

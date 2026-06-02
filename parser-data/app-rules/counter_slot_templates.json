@@ -1,17 +1,5 @@
 [
   {
-    "slotTemplateId": "stormablade_x2",
-    "name": "雷影真实因子X2, 额外获得雷之印",
-    "description": "额外获得雷之印",
-    "slot": {
-      "threshold": 93,
-      "resetBuffId": 3050411,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
-    }
-  },
-  {
     "slotTemplateId": "stormablade_x1",
     "name": "雷影真实因子X1, 释放居合斩时附加1记雷切刀气",
     "description": "释放居合斩时附加1记雷切刀气",
@@ -21,7 +9,130 @@
       "onBuffAdd": "freeze",
       "onBuffChange": "noOp",
       "onBuffRemove": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3050401
+    ],
+    "itemIds": [
+      20021731,
+      20021732,
+      20021733,
+      20021734,
+      20021735,
+      20021736,
+      20021737,
+      20021738,
+      20021739,
+      20021740
+    ]
+  },
+  {
+    "slotTemplateId": "stormablade_x2",
+    "name": "雷影真实因子X2, 额外获得雷之印",
+    "description": "额外获得雷之印",
+    "slot": {
+      "threshold": 93,
+      "resetBuffId": 3050411,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050411
+    ],
+    "itemIds": [
+      20021741,
+      20021742,
+      20021743,
+      20021744,
+      20021745,
+      20021746,
+      20021747,
+      20021748,
+      20021749,
+      20021750
+    ]
+  },
+  {
+    "slotTemplateId": "stormablade_s3_x3",
+    "name": "雷影真实因子X3, 下一次终极大招必定暴击且伤害提升",
+    "description": "下一次终极大招必定暴击且虚妄伤害提升",
+    "slot": {
+      "threshold": 1028,
+      "resetBuffId": 3050421,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050421
+    ],
+    "itemIds": [
+      20021751,
+      20021752,
+      20021753,
+      20021754,
+      20021755,
+      20021756,
+      20021757,
+      20021758,
+      20021759,
+      20021760
+    ]
+  },
+  {
+    "slotTemplateId": "stormablade_s3_x5",
+    "name": "雷影真实因子X5, 幸运一击倍率和月刃幸运几率提升",
+    "description": "10秒内自身幸运一击倍率提升，月刃获取的幸运几率提升",
+    "slot": {
+      "threshold": 276,
+      "resetBuffId": 3050441,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050441
+    ],
+    "itemIds": [
+      20021771,
+      20021772,
+      20021773,
+      20021774,
+      20021775,
+      20021776,
+      20021777,
+      20021778,
+      20021779,
+      20021780
+    ]
+  },
+  {
+    "slotTemplateId": "stormablade_s3_x6",
+    "name": "雷影真实因子X6, 触发雷霆之镰",
+    "description": "触发雷霆之镰",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050451,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050451
+    ],
+    "itemIds": [
+      20021781,
+      20021782,
+      20021783,
+      20021784,
+      20021785,
+      20021786,
+      20021787,
+      20021788,
+      20021789,
+      20021790
+    ]
   },
   {
     "slotTemplateId": "flame_berserker_x1",
@@ -33,7 +144,22 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3060401
+    ],
+    "itemIds": [
+      20022211,
+      20022212,
+      20022213,
+      20022214,
+      20022215,
+      20022216,
+      20022217,
+      20022218,
+      20022219,
+      20022220
+    ]
   },
   {
     "slotTemplateId": "flame_berserker_x2",
@@ -45,7 +171,22 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3060411
+    ],
+    "itemIds": [
+      20022221,
+      20022222,
+      20022223,
+      20022224,
+      20022225,
+      20022226,
+      20022227,
+      20022228,
+      20022229,
+      20022230
+    ]
   },
   {
     "slotTemplateId": "flame_berserker_x3",
@@ -57,7 +198,22 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3060421
+    ],
+    "itemIds": [
+      20022231,
+      20022232,
+      20022233,
+      20022234,
+      20022235,
+      20022236,
+      20022237,
+      20022238,
+      20022239,
+      20022240
+    ]
   },
   {
     "slotTemplateId": "flame_berserker_x4",
@@ -71,7 +227,22 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 5000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3060431
+    ],
+    "itemIds": [
+      20022241,
+      20022242,
+      20022243,
+      20022244,
+      20022245,
+      20022246,
+      20022247,
+      20022248,
+      20022249,
+      20022250
+    ]
   },
   {
     "slotTemplateId": "flame_berserker_x5",
@@ -83,7 +254,49 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3060441
+    ],
+    "itemIds": [
+      20022251,
+      20022252,
+      20022253,
+      20022254,
+      20022255,
+      20022256,
+      20022257,
+      20022258,
+      20022259,
+      20022260
+    ]
+  },
+  {
+    "slotTemplateId": "beat_performer_s3_x2",
+    "name": "灵魂真实因子X2, 下一次聚合乐章消耗热情并增伤",
+    "description": "下一次聚合乐章消耗所有演奏热情，每消耗1个演奏热情聚合乐章最终伤害提升",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057411,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057411
+    ],
+    "itemIds": [
+      20022161,
+      20022162,
+      20022163,
+      20022164,
+      20022165,
+      20022166,
+      20022167,
+      20022168,
+      20022169,
+      20022170
+    ]
   },
   {
     "slotTemplateId": "beat_performer_x3",
@@ -97,7 +310,51 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 2000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3057421
+    ],
+    "itemIds": [
+      20022171,
+      20022172,
+      20022173,
+      20022174,
+      20022175,
+      20022176,
+      20022177,
+      20022178,
+      20022179,
+      20022180
+    ]
+  },
+  {
+    "slotTemplateId": "beat_performer_s3_x4",
+    "name": "灵魂真实因子X4, 触发激涌治疗",
+    "description": "触发一次激涌治疗",
+    "slot": {
+      "threshold": 360,
+      "resetBuffId": 3057431,
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 3000,
+      "onFreezeExpire": "resetAndStartCount"
+    },
+    "effectBuffIds": [
+      3057431
+    ],
+    "itemIds": [
+      20022181,
+      20022182,
+      20022183,
+      20022184,
+      20022185,
+      20022186,
+      20022187,
+      20022188,
+      20022189,
+      20022190
+    ]
   },
   {
     "slotTemplateId": "beat_performer_x5",
@@ -111,7 +368,49 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 15000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3057261
+    ],
+    "itemIds": [
+      20022191,
+      20022192,
+      20022193,
+      20022194,
+      20022195,
+      20022196,
+      20022197,
+      20022198,
+      20022199,
+      20022200
+    ]
+  },
+  {
+    "slotTemplateId": "beat_performer_s3_x6",
+    "name": "灵魂真实因子X6, 消耗演奏热情时回复演奏热情",
+    "description": "下一次消耗演奏热情时回复1个演奏热情",
+    "slot": {
+      "threshold": 240,
+      "resetBuffId": 3057451,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057451
+    ],
+    "itemIds": [
+      20022201,
+      20022202,
+      20022203,
+      20022204,
+      20022205,
+      20022206,
+      20022207,
+      20022208,
+      20022209,
+      20022210
+    ]
   },
   {
     "slotTemplateId": "marksman_x1",
@@ -125,7 +424,22 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 30000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3053401
+    ],
+    "itemIds": [
+      20021911,
+      20021912,
+      20021913,
+      20021914,
+      20021915,
+      20021916,
+      20021917,
+      20021918,
+      20021919,
+      20021920
+    ]
   },
   {
     "slotTemplateId": "marksman_x2",
@@ -139,7 +453,77 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 12000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3053411,
+      3053412
+    ],
+    "itemIds": [
+      20021921,
+      20021922,
+      20021923,
+      20021924,
+      20021925,
+      20021926,
+      20021927,
+      20021928,
+      20021929,
+      20021930
+    ]
+  },
+  {
+    "slotTemplateId": "marksman_s3_x3",
+    "name": "神射真实因子X3, 暴风箭矢必定暴击并增伤",
+    "description": "10秒内暴风箭矢必定暴击，同时暴风箭矢虚妄伤害提升",
+    "slot": {
+      "threshold": 360,
+      "resetBuffId": 3053421,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053421
+    ],
+    "itemIds": [
+      20021931,
+      20021932,
+      20021933,
+      20021934,
+      20021935,
+      20021936,
+      20021937,
+      20021938,
+      20021939,
+      20021940
+    ]
+  },
+  {
+    "slotTemplateId": "marksman_x4",
+    "name": "神射真实因子X4, 触发聚能射击",
+    "description": "虚妄能量充能达到 100 点后，触发聚能射击；若聚能射击处于冷却则缩减剩余冷却时间",
+    "slot": {
+      "threshold": 100,
+      "resetBuffId": 3053431,
+      "onBuffAdd": "reset",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053431
+    ],
+    "itemIds": [
+      20021941,
+      20021942,
+      20021943,
+      20021944,
+      20021945,
+      20021946,
+      20021947,
+      20021948,
+      20021949,
+      20021950
+    ]
   },
   {
     "slotTemplateId": "marksman_x5",
@@ -153,7 +537,22 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 30000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3053441
+    ],
+    "itemIds": [
+      20021951,
+      20021952,
+      20021953,
+      20021954,
+      20021955,
+      20021956,
+      20021957,
+      20021958,
+      20021959,
+      20021960
+    ]
   },
   {
     "slotTemplateId": "marksman_x6",
@@ -165,7 +564,22 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3053451
+    ],
+    "itemIds": [
+      20021961,
+      20021962,
+      20021963,
+      20021964,
+      20021965,
+      20021966,
+      20021967,
+      20021968,
+      20021969,
+      20021970
+    ]
   },
   {
     "slotTemplateId": "frost_mage_x1",
@@ -177,7 +591,23 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3052401,
+      3052402
+    ],
+    "itemIds": [
+      20021851,
+      20021852,
+      20021853,
+      20021854,
+      20021855,
+      20021856,
+      20021857,
+      20021858,
+      20021859,
+      20021860
+    ]
   },
   {
     "slotTemplateId": "frost_mage_x2",
@@ -191,7 +621,23 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 8000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3052411,
+      3052412
+    ],
+    "itemIds": [
+      20021861,
+      20021862,
+      20021863,
+      20021864,
+      20021865,
+      20021866,
+      20021867,
+      20021868,
+      20021869,
+      20021870
+    ]
   },
   {
     "slotTemplateId": "frost_mage_x3",
@@ -206,7 +652,22 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 10000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3052421
+    ],
+    "itemIds": [
+      20021871,
+      20021872,
+      20021873,
+      20021874,
+      20021875,
+      20021876,
+      20021877,
+      20021878,
+      20021879,
+      20021880
+    ]
   },
   {
     "slotTemplateId": "frost_mage_x4",
@@ -221,7 +682,22 @@
       "onBuffRemove": "noOp",
       "freezeDurationMs": 7000,
       "onFreezeExpire": "resetAndStartCount"
-    }
+    },
+    "effectBuffIds": [
+      3052431
+    ],
+    "itemIds": [
+      20021881,
+      20021882,
+      20021883,
+      20021884,
+      20021885,
+      20021886,
+      20021887,
+      20021888,
+      20021889,
+      20021890
+    ]
   },
   {
     "slotTemplateId": "frost_mage_x5",
@@ -233,19 +709,106 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3052441
+    ],
+    "itemIds": [
+      20021891,
+      20021892,
+      20021893,
+      20021894,
+      20021895,
+      20021896,
+      20021897,
+      20021898,
+      20021899,
+      20021900
+    ]
+  },
+  {
+    "slotTemplateId": "frost_mage_s3_x6",
+    "name": "冰魔真实因子X6, 冰箭可触发幸运一击并增伤",
+    "description": "下一次冰之灌注期间引导寒冰射线时冰箭可触发幸运一击，且幸运一击最终伤害提升",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052451,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052451,
+      3052452
+    ],
+    "itemIds": [
+      20021901,
+      20021902,
+      20021903,
+      20021904,
+      20021905,
+      20021906,
+      20021907,
+      20021908,
+      20021909,
+      20021910
+    ]
+  },
+  {
+    "slotTemplateId": "wind_knight_s3_x2",
+    "name": "青岚真实因子X2, 触发龙击炮",
+    "description": "触发龙击炮",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051411,
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
+    },
+    "effectBuffIds": [
+      3051411
+    ],
+    "itemIds": [
+      20021801,
+      20021802,
+      20021803,
+      20021804,
+      20021805,
+      20021806,
+      20021807,
+      20021808,
+      20021809,
+      20021810
+    ]
   },
   {
     "slotTemplateId": "wind_knight_x4",
     "name": "青岚真实因子X4, 15s 内特殊攻击暴击提升",
-    "description": "15s 内玄冰上限 + 3",
+    "description": "15s 内特殊攻击暴击提升",
     "slot": {
       "threshold": 360,
       "resetBuffId": 3051431,
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3051431
+    ],
+    "itemIds": [
+      20021821,
+      20021822,
+      20021823,
+      20021824,
+      20021825,
+      20021826,
+      20021827,
+      20021828,
+      20021829,
+      20021830
+    ]
   },
   {
     "slotTemplateId": "wind_knight_x5",
@@ -257,6 +820,5131 @@
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
       "onBuffRemove": "noOp"
-    }
+    },
+    "effectBuffIds": [
+      3051441
+    ],
+    "itemIds": [
+      20021831,
+      20021832,
+      20021833,
+      20021834,
+      20021835,
+      20021836,
+      20021837,
+      20021838,
+      20021839,
+      20021840
+    ]
+  },
+  {
+    "slotTemplateId": "holy_shield_s3_x2",
+    "name": "神盾真实因子X2, 下一个圣环大小翻倍",
+    "description": "下一个圣环大小翻倍，治疗附加当前最大生命值",
+    "slot": {
+      "threshold": 400,
+      "resetBuffId": 3054411,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054411,
+      3054412
+    ],
+    "itemIds": [
+      20021981,
+      20021982,
+      20021983,
+      20021984,
+      20021985,
+      20021986,
+      20021987,
+      20021988,
+      20021989,
+      20021990
+    ]
+  },
+  {
+    "slotTemplateId": "holy_shield_s3_x4",
+    "name": "神盾真实因子X4, 受到伤害增加，伤害增加",
+    "description": "一段时间内受到伤害增加，造成伤害增加",
+    "slot": {
+      "threshold": 360,
+      "resetBuffId": 3054431,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054431
+    ],
+    "itemIds": [
+      20022001,
+      20022002,
+      20022003,
+      20022004,
+      20022005,
+      20022006,
+      20022007,
+      20022008,
+      20022009,
+      20022010
+    ]
+  },
+  {
+    "slotTemplateId": "holy_shield_s3_x5",
+    "name": "神盾真实因子X5, 触发圣剑",
+    "description": "下次造成伤害时触发圣剑，圣剑附加生命百分比伤害",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054441,
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 3000,
+      "onFreezeExpire": "resetAndStartCount"
+    },
+    "effectBuffIds": [
+      3054441
+    ],
+    "itemIds": [
+      20022011,
+      20022012,
+      20022013,
+      20022014,
+      20022015,
+      20022016,
+      20022017,
+      20022018,
+      20022019,
+      20022020
+    ]
+  },
+  {
+    "slotTemplateId": "giant_blade_s3_x1",
+    "name": "巨刃真实因子X1, 下一次添加护盾时最终护盾提升",
+    "description": "下一次添加护盾时最终护盾提升",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055361,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055361
+    ],
+    "itemIds": [
+      20022031,
+      20022032,
+      20022033,
+      20022034,
+      20022035,
+      20022036,
+      20022037,
+      20022038,
+      20022039,
+      20022040
+    ]
+  },
+  {
+    "slotTemplateId": "giant_blade_s3_x2",
+    "name": "巨刃真实因子X2, 触发地崩山摧",
+    "description": "触发地崩山摧，地崩山摧伤害提升",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055371,
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 3000,
+      "onFreezeExpire": "resetAndStartCount"
+    },
+    "effectBuffIds": [
+      3055371
+    ],
+    "itemIds": [
+      20022041,
+      20022042,
+      20022043,
+      20022044,
+      20022045,
+      20022046,
+      20022047,
+      20022048,
+      20022049,
+      20022050
+    ]
+  },
+  {
+    "slotTemplateId": "giant_blade_s3_x4",
+    "name": "巨刃真实因子X4, 生命上限提升",
+    "description": "生命上限提升，可叠加",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055391,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055391
+    ],
+    "itemIds": [
+      20022061,
+      20022062,
+      20022063,
+      20022064,
+      20022065,
+      20022066,
+      20022067,
+      20022068,
+      20022069,
+      20022070
+    ]
+  },
+  {
+    "slotTemplateId": "giant_blade_s3_x5",
+    "name": "巨刃真实因子X5, 触发格挡反击",
+    "description": "触发格挡反击，格挡反击伤害提升",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055401,
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
+    },
+    "effectBuffIds": [
+      3055401
+    ],
+    "itemIds": [
+      20022071,
+      20022072,
+      20022073,
+      20022074,
+      20022075,
+      20022076,
+      20022077,
+      20022078,
+      20022079,
+      20022080
+    ]
+  },
+  {
+    "slotTemplateId": "giant_blade_s3_x6",
+    "name": "巨刃真实因子X6, 格挡减伤降低，职业技能最终伤害提升",
+    "description": "一段时间内格挡减伤降低，所有职业技能最终伤害提升",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055411,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055411
+    ],
+    "itemIds": [
+      20022081,
+      20022082,
+      20022083,
+      20022084,
+      20022085,
+      20022086,
+      20022087,
+      20022088,
+      20022089,
+      20022090
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050011",
+    "name": "Beat Performer Rhapsody X4",
+    "description": "This Factor has expired for the current season. It can be recycled at the Recycling Shop.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050012,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050012
+    ],
+    "itemIds": [
+      20011551,
+      20011552,
+      20011553,
+      20011554,
+      20011555,
+      20011556,
+      20011557,
+      20011558,
+      20011559,
+      20011560
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050010",
+    "name": "Stormblade X1",
+    "description": "Iaido Slash Illusion-Breaking DMG +. Casting Iaido Slash grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050011
+    ],
+    "itemIds": [
+      20020001,
+      20020002,
+      20020003,
+      20020004,
+      20020005,
+      20020006,
+      20020007,
+      20020008,
+      20020009,
+      20020010
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050020",
+    "name": "Stormblade X2",
+    "description": "Flash Strike, Raijin Dash Illusion-Breaking DMG +. Casting Flash Strike or Raijin Dash grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050021
+    ],
+    "itemIds": [
+      20020011,
+      20020012,
+      20020013,
+      20020014,
+      20020015,
+      20020016,
+      20020017,
+      20020018,
+      20020019,
+      20020020
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050030",
+    "name": "Stormblade X3",
+    "description": "Dracoflash, Phantom Slash Illusion-Breaking DMG +. Casting Dracoflash or Phantom Slash grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050031
+    ],
+    "itemIds": [
+      20020021,
+      20020022,
+      20020023,
+      20020024,
+      20020025,
+      20020026,
+      20020027,
+      20020028,
+      20020029,
+      20020030
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050040",
+    "name": "Stormblade X4",
+    "description": "Thunder Cut Illusion-Breaking DMG +; Increases the Casting SPD of Thunder Cut. Casting Thunder Cut grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050041
+    ],
+    "itemIds": [
+      20020031,
+      20020032,
+      20020033,
+      20020034,
+      20020035,
+      20020036,
+      20020037,
+      20020038,
+      20020039,
+      20020040
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050050",
+    "name": "Stormblade X5",
+    "description": "Volt Surge charge count +1; Ultimate Illusion-Breaking DMG +. While Volt Surge is active, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050051
+    ],
+    "itemIds": [
+      20020041,
+      20020042,
+      20020043,
+      20020044,
+      20020045,
+      20020046,
+      20020047,
+      20020048,
+      20020049,
+      20020050
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050060",
+    "name": "Stormblade X6",
+    "description": "Thundercut, Thundercleave Illusion-Breaking DMG +. Casting Thundercut grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050061
+    ],
+    "itemIds": [
+      20020051,
+      20020052,
+      20020053,
+      20020054,
+      20020055,
+      20020056,
+      20020057,
+      20020058,
+      20020059,
+      20020060
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050070",
+    "name": "Stormblade X7",
+    "description": "Storm Scythe, Divine Sickle Illusion-Breaking DMG +. Every 10 Charge Seeds consumed grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050071
+    ],
+    "itemIds": [
+      20020061,
+      20020062,
+      20020063,
+      20020064,
+      20020065,
+      20020066,
+      20020067,
+      20020068,
+      20020069,
+      20020070
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050080",
+    "name": "Stormblade X8",
+    "description": "Moonblades Illusion-Breaking DMG +. While in combat and standing still, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050081
+    ],
+    "itemIds": [
+      20020071,
+      20020072,
+      20020073,
+      20020074,
+      20020075,
+      20020076,
+      20020077,
+      20020078,
+      20020079,
+      20020080
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050090",
+    "name": "Stormblade X9",
+    "description": "Moonstrike attack count +; Moonstrike Illusion-Breaking DMG +. Casting Moonstrike grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050091
+    ],
+    "itemIds": [
+      20020081,
+      20020082,
+      20020083,
+      20020084,
+      20020085,
+      20020086,
+      20020087,
+      20020088,
+      20020089,
+      20020090
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050100",
+    "name": "Stormblade X10",
+    "description": "Stormflash duration +; Moonstrike and Luck effect Illusion-Breaking DMG +. While Stormflash is active, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050101
+    ],
+    "itemIds": [
+      20020091,
+      20020092,
+      20020093,
+      20020094,
+      20020095,
+      20020096,
+      20020097,
+      20020098,
+      20020099,
+      20020100
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050110",
+    "name": "Stormblade X11",
+    "description": "Every while Volt Surge is not active, gains 1 Thunder Sigil, and when Iaido Slash deals damage to the current target, there is a fixed chance to trigger Piercing Slash. When Volt Surge is not active, every 5 Thunder Sigils consumed grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050111
+    ],
+    "itemIds": [
+      20020101,
+      20020102,
+      20020103,
+      20020104,
+      20020105,
+      20020106,
+      20020107,
+      20020108,
+      20020109,
+      20020110
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051010",
+    "name": "Wind Knight X1",
+    "description": "Valor Cyclone Illusion-Breaking DMG +. Dealing damage with Valor Cyclone grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051011
+    ],
+    "itemIds": [
+      20020111,
+      20020112,
+      20020113,
+      20020114,
+      20020115,
+      20020116,
+      20020117,
+      20020118,
+      20020119,
+      20020120
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051020",
+    "name": "Wind Knight X2",
+    "description": "Spiral Thrust, Breach Pursuit Illusion-Breaking DMG +. Casting Spiral Thrust or Breach Pursuit grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051021
+    ],
+    "itemIds": [
+      20020121,
+      20020122,
+      20020123,
+      20020124,
+      20020125,
+      20020126,
+      20020127,
+      20020128,
+      20020129,
+      20020130
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051030",
+    "name": "Wind Knight X3",
+    "description": "Triggers Vortex Strike upon entering battle state; Vortex Strike Illusion-Breaking DMG +. Dealing damage with Vortex Strike grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051031
+    ],
+    "itemIds": [
+      20020131,
+      20020132,
+      20020133,
+      20020134,
+      20020135,
+      20020136,
+      20020137,
+      20020138,
+      20020139,
+      20020140
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051040",
+    "name": "Wind Knight X4",
+    "description": "Drake Cannon Illusion-Breaking DMG +. Dealing damage with Drake Cannon grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051041
+    ],
+    "itemIds": [
+      20020141,
+      20020142,
+      20020143,
+      20020144,
+      20020145,
+      20020146,
+      20020147,
+      20020148,
+      20020149,
+      20020150
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051050",
+    "name": "Wind Knight X5",
+    "description": "Valor Cyclone can trigger Lucky Strike; Valor Cyclone Illusion-Breaking DMG +. Triggering Lucky Strike with Valor Cyclone grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051051
+    ],
+    "itemIds": [
+      20020151,
+      20020152,
+      20020153,
+      20020154,
+      20020155,
+      20020156,
+      20020157,
+      20020158,
+      20020159,
+      20020160
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051060",
+    "name": "Wind Knight X6",
+    "description": "Galeform duration +. While Galeform is active, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051061
+    ],
+    "itemIds": [
+      20020161,
+      20020162,
+      20020163,
+      20020164,
+      20020165,
+      20020166,
+      20020167,
+      20020168,
+      20020169,
+      20020170
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051070",
+    "name": "Wind Knight X7",
+    "description": "Instant Edge Illusion-Breaking DMG + (does not affect Instant Edge Combo). Every 5 points of Sharp consumed grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051071
+    ],
+    "itemIds": [
+      20020171,
+      20020172,
+      20020173,
+      20020174,
+      20020175,
+      20020176,
+      20020177,
+      20020178,
+      20020179,
+      20020180
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051080",
+    "name": "Wind Knight X8",
+    "description": "Falcon Toss, Instant Edge Combo Illusion-Breaking DMG +. While in battle state, moving 5 meters grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051081
+    ],
+    "itemIds": [
+      20020181,
+      20020182,
+      20020183,
+      20020184,
+      20020185,
+      20020186,
+      20020187,
+      20020188,
+      20020189,
+      20020190
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051090",
+    "name": "Wind Knight X9",
+    "description": "Tornado can trigger Lucky Strike; Tornado Illusion-Breaking DMG +. Dealing damage with Tornado grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051091
+    ],
+    "itemIds": [
+      20020191,
+      20020192,
+      20020193,
+      20020194,
+      20020195,
+      20020196,
+      20020197,
+      20020198,
+      20020199,
+      20020200
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051100",
+    "name": "Wind Knight X10",
+    "description": "Azure Sever always triggers Crit; Azure Sever Illusion-Breaking DMG +. Casting Falcon Toss or Azure Sever grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051101
+    ],
+    "itemIds": [
+      20020201,
+      20020202,
+      20020203,
+      20020204,
+      20020205,
+      20020206,
+      20020207,
+      20020208,
+      20020209,
+      20020210
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051110",
+    "name": "Wind Knight X11",
+    "description": "Every , Sharp Impact gains 5% charge (affected by CD Boost); Sharp Impact, Typhoon: Sharp Impact Illusion-Breaking DMG +. Casting Sharp Impact grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051111
+    ],
+    "itemIds": [
+      20020211,
+      20020212,
+      20020213,
+      20020214,
+      20020215,
+      20020216,
+      20020217,
+      20020218,
+      20020219,
+      20020220
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052010",
+    "name": "Frost Mage X1",
+    "description": "Frost Lance Illusion-Breaking DMG +. Casting Frost Lance grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052011
+    ],
+    "itemIds": [
+      20020221,
+      20020222,
+      20020223,
+      20020224,
+      20020225,
+      20020226,
+      20020227,
+      20020228,
+      20020229,
+      20020230
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052020",
+    "name": "Frost Mage X2",
+    "description": "Meteor Storm Illusion-Breaking DMG +. Casting Meteor Storm grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052021
+    ],
+    "itemIds": [
+      20020231,
+      20020232,
+      20020233,
+      20020234,
+      20020235,
+      20020236,
+      20020237,
+      20020238,
+      20020239,
+      20020240
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052030",
+    "name": "Frost Mage X3",
+    "description": "Ice Arrow Illusion-Breaking DMG +. Every 5 times Ice Arrow deals damage grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052031
+    ],
+    "itemIds": [
+      20020241,
+      20020242,
+      20020243,
+      20020244,
+      20020245,
+      20020246,
+      20020247,
+      20020248,
+      20020249,
+      20020250
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052040",
+    "name": "Frost Mage X4",
+    "description": "Piercing Ice Lance, Frost Comet Illusion-Breaking DMG +. Dealing damage with Piercing Ice Lance or Frost Comet grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052041
+    ],
+    "itemIds": [
+      20020251,
+      20020252,
+      20020253,
+      20020254,
+      20020255,
+      20020256,
+      20020257,
+      20020258,
+      20020259,
+      20020260
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052050",
+    "name": "Frost Mage X5",
+    "description": "Blizzard Illusion-Breaking DMG +; If only one target is hit, Illusion-Breaking DMG increases by an additional . Dealing damage with Blizzard (triggers only once when hitting multiple targets) grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052051
+    ],
+    "itemIds": [
+      20020261,
+      20020262,
+      20020263,
+      20020264,
+      20020265,
+      20020266,
+      20020267,
+      20020268,
+      20020269,
+      20020270
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052060",
+    "name": "Frost Mage X6",
+    "description": "Frostbeam Illusion-Breaking DMG +. While casting Frostbeam, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052061
+    ],
+    "itemIds": [
+      20020271,
+      20020272,
+      20020273,
+      20020274,
+      20020275,
+      20020276,
+      20020277,
+      20020278,
+      20020279,
+      20020280
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052070",
+    "name": "Frost Mage X7",
+    "description": "While channeling Frostbeam, repeatedly tap the skill to generate Tidepool at the current target spot; Tidepool Illusion-Breaking DMG +. Dealing damage with Tidepool grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052071
+    ],
+    "itemIds": [
+      20020281,
+      20020282,
+      20020283,
+      20020284,
+      20020285,
+      20020286,
+      20020287,
+      20020288,
+      20020289,
+      20020290
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052080",
+    "name": "Frost Mage X8",
+    "description": "Against targets inside Blizzard, the talent Icicle Spec's chance to trigger Ice Arrow increases by . Triggering Ice Arrow grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052081
+    ],
+    "itemIds": [
+      20020291,
+      20020292,
+      20020293,
+      20020294,
+      20020295,
+      20020296,
+      20020297,
+      20020298,
+      20020299,
+      20020300
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052090",
+    "name": "Frost Mage X9",
+    "description": "Frozen Gale Illusion-Breaking DMG +. For every 50 Ice Energy consumed in the past 15s, increases by an additional . Dealing damage with Frozen Gale grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052091
+    ],
+    "itemIds": [
+      20020301,
+      20020302,
+      20020303,
+      20020304,
+      20020305,
+      20020306,
+      20020307,
+      20020308,
+      20020309,
+      20020310
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052100",
+    "name": "Frost Mage X10",
+    "description": "While Permafrost is active, Lucky Strike Illusion-Breaking DMG +. Casting Permafrost grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052101
+    ],
+    "itemIds": [
+      20020311,
+      20020312,
+      20020313,
+      20020314,
+      20020315,
+      20020316,
+      20020317,
+      20020318,
+      20020319,
+      20020320
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052110",
+    "name": "Frost Mage X11",
+    "description": "Frost Lance deals an additional area hit against targets inside Blizzard. This hit deals Blizzard DMG. Summoning Blizzard grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052111
+    ],
+    "itemIds": [
+      20020321,
+      20020322,
+      20020323,
+      20020324,
+      20020325,
+      20020326,
+      20020327,
+      20020328,
+      20020329,
+      20020330
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053010",
+    "name": "Marksman X1",
+    "description": "Storm Arrow Illusion-Breaking DMG +. Casting Storm Arrow grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053011
+    ],
+    "itemIds": [
+      20020331,
+      20020332,
+      20020333,
+      20020334,
+      20020335,
+      20020336,
+      20020337,
+      20020338,
+      20020339,
+      20020340
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053020",
+    "name": "Marksman X2",
+    "description": "Wild Wolf - Tail Sweep Illusion-Breaking DMG +. Casting Arrow Rain grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053021
+    ],
+    "itemIds": [
+      20020341,
+      20020342,
+      20020343,
+      20020344,
+      20020345,
+      20020346,
+      20020347,
+      20020348,
+      20020349,
+      20020350
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053030",
+    "name": "Marksman X3",
+    "description": "Wild Wolf - Bite Illusion-Breaking DMG +. Dealing damage with Wild Wolf grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053031
+    ],
+    "itemIds": [
+      20020351,
+      20020352,
+      20020353,
+      20020354,
+      20020355,
+      20020356,
+      20020357,
+      20020358,
+      20020359,
+      20020360
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053040",
+    "name": "Marksman X4",
+    "description": "Lightseeker Arrow Illusion-Breaking DMG +. The Crit DMG of Lightseeker Arrow is always calculated at . Dealing damage with Lightseeker Arrow grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053041
+    ],
+    "itemIds": [
+      20020361,
+      20020362,
+      20020363,
+      20020364,
+      20020365,
+      20020366,
+      20020367,
+      20020368,
+      20020369,
+      20020370
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053050",
+    "name": "Marksman X5",
+    "description": "Double Arrow, Quadraflare Illusion-Breaking DMG +. Casting Double Arrow grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053051
+    ],
+    "itemIds": [
+      20020371,
+      20020372,
+      20020373,
+      20020374,
+      20020375,
+      20020376,
+      20020377,
+      20020378,
+      20020379,
+      20020380
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053060",
+    "name": "Marksman X6",
+    "description": "Falcon Strike Illusion-Breaking DMG +. Dealing Crit DMG with the Falcon grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053061
+    ],
+    "itemIds": [
+      20020381,
+      20020382,
+      20020383,
+      20020384,
+      20020385,
+      20020386,
+      20020387,
+      20020388,
+      20020389,
+      20020390
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053070",
+    "name": "Marksman X7",
+    "description": "Lightning Strike Illusion-Breaking DMG +. Dealing damage with Lightning Strike grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053071
+    ],
+    "itemIds": [
+      20020391,
+      20020392,
+      20020393,
+      20020394,
+      20020395,
+      20020396,
+      20020397,
+      20020398,
+      20020399,
+      20020400
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053080",
+    "name": "Marksman X8",
+    "description": "During Torrent Volley, Focus duration is paused; Torrent Volley Illusion-Breaking DMG +. Dealing damage with Torrent Volley grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053081
+    ],
+    "itemIds": [
+      20020401,
+      20020402,
+      20020403,
+      20020404,
+      20020405,
+      20020406,
+      20020407,
+      20020408,
+      20020409,
+      20020410
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053090",
+    "name": "Marksman X9",
+    "description": "Each Haste increases Radiance Barrage hit count by 1; Radiance Barrage Illusion-Breaking DMG increases by . Dealing damage with Radiance Barrage (triggers only once when hitting multiple targets) grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053091
+    ],
+    "itemIds": [
+      20020411,
+      20020412,
+      20020413,
+      20020414,
+      20020415,
+      20020416,
+      20020417,
+      20020418,
+      20020419,
+      20020420
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053100",
+    "name": "Marksman X10",
+    "description": "For the next 10s after Blast Shot is cast, Falcon (Strike, Lightning Strike, Phantom Falcon) Illusion-Breaking DMG +. Casting Explosive Arrow grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053101
+    ],
+    "itemIds": [
+      20020421,
+      20020422,
+      20020423,
+      20020424,
+      20020425,
+      20020426,
+      20020427,
+      20020428,
+      20020429,
+      20020430
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053110",
+    "name": "Marksman X11",
+    "description": "Powerdraw hit count + (Total DMG unchanged); Powerdraw Illusion-Breaking DMG +. Casting Powerdraw grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053111
+    ],
+    "itemIds": [
+      20020431,
+      20020432,
+      20020433,
+      20020434,
+      20020435,
+      20020436,
+      20020437,
+      20020438,
+      20020439,
+      20020440
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054010",
+    "name": "Shield Knight X1",
+    "description": "Valor Bash Illusion-Breaking DMG +. Casting Valor Bash grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054011
+    ],
+    "itemIds": [
+      20020441,
+      20020442,
+      20020443,
+      20020444,
+      20020445,
+      20020446,
+      20020447,
+      20020448,
+      20020449,
+      20020450
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054020",
+    "name": "Shield Knight X2",
+    "description": "Reckoning, Inferno Reckon Illusion-Breaking DMG +. Dealing Crit DMG with Reckoning grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054021
+    ],
+    "itemIds": [
+      20020451,
+      20020452,
+      20020453,
+      20020454,
+      20020455,
+      20020456,
+      20020457,
+      20020458,
+      20020459,
+      20020460
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054030",
+    "name": "Shield Knight X3",
+    "description": "Judgment, Scorching Judgment Illusion-Breaking DMG +. Casting Expertise Skill grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054031
+    ],
+    "itemIds": [
+      20020461,
+      20020462,
+      20020463,
+      20020464,
+      20020465,
+      20020466,
+      20020467,
+      20020468,
+      20020469,
+      20020470
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054040",
+    "name": "Shield Knight X4",
+    "description": "When in the Divine Circle, All-Element DMG +. While in combat and standing still, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054041
+    ],
+    "itemIds": [
+      20020471,
+      20020472,
+      20020473,
+      20020474,
+      20020475,
+      20020476,
+      20020477,
+      20020478,
+      20020479,
+      20020480
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054050",
+    "name": "Shield Knight X5",
+    "description": "Aegis Ward duration +; Basic Attack, Condemn Illusion-Breaking DMG +. While Aegis Ward is active, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054051
+    ],
+    "itemIds": [
+      20020481,
+      20020482,
+      20020483,
+      20020484,
+      20020485,
+      20020486,
+      20020487,
+      20020488,
+      20020489,
+      20020490
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054060",
+    "name": "Shield Knight X6",
+    "description": "Each 1% Mastery grants ATK. Casting Ultimate grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054061
+    ],
+    "itemIds": [
+      20020491,
+      20020492,
+      20020493,
+      20020494,
+      20020495,
+      20020496,
+      20020497,
+      20020498,
+      20020499,
+      20020500
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054070",
+    "name": "Shield Knight X7",
+    "description": "Vanguard Strike, Vanguard Hunt Illusion-Breaking DMG +. Consuming Holy Sigil grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054071
+    ],
+    "itemIds": [
+      20020501,
+      20020502,
+      20020503,
+      20020504,
+      20020505,
+      20020506,
+      20020507,
+      20020508,
+      20020509,
+      20020510
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054080",
+    "name": "Shield Knight X8",
+    "description": "Sacred Blade Illusion-Breaking DMG +. Casting Sacred Blade grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054081
+    ],
+    "itemIds": [
+      20020511,
+      20020512,
+      20020513,
+      20020514,
+      20020515,
+      20020516,
+      20020517,
+      20020518,
+      20020519,
+      20020520
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054090",
+    "name": "Shield Knight X9",
+    "description": "Zeal Crusade Illusion-Breaking DMG + (does not affect Zeal Rupture). While in combat and standing still, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054091
+    ],
+    "itemIds": [
+      20020521,
+      20020522,
+      20020523,
+      20020524,
+      20020525,
+      20020526,
+      20020527,
+      20020528,
+      20020529,
+      20020530
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054100",
+    "name": "Shield Knight X10",
+    "description": "Radiance charge count +1; Radiance Illusion-Breaking DMG +. Grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054101
+    ],
+    "itemIds": [
+      20020531,
+      20020532,
+      20020533,
+      20020534,
+      20020535,
+      20020536,
+      20020537,
+      20020538,
+      20020539,
+      20020540
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054110",
+    "name": "Shield Knight X11",
+    "description": "When in the Divine Circle, ATK +. While in combat and standing still, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054111
+    ],
+    "itemIds": [
+      20020541,
+      20020542,
+      20020543,
+      20020544,
+      20020545,
+      20020546,
+      20020547,
+      20020548,
+      20020549,
+      20020550
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055010",
+    "name": "Heavy Guardian X1",
+    "description": "While in Shield Bash state, All-Element DMG +. While in Shield Bash state, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055011
+    ],
+    "itemIds": [
+      20020551,
+      20020552,
+      20020553,
+      20020554,
+      20020555,
+      20020556,
+      20020557,
+      20020558,
+      20020559,
+      20020560
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055020",
+    "name": "Heavy Guardian X2",
+    "description": "Shield Bash Illusion-Breaking DMG +. Casting Shield Bash grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055021
+    ],
+    "itemIds": [
+      20020561,
+      20020562,
+      20020563,
+      20020564,
+      20020565,
+      20020566,
+      20020567,
+      20020568,
+      20020569,
+      20020570
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055030",
+    "name": "Heavy Guardian X3",
+    "description": "Rage Burst, Terra Sunder Illusion-Breaking DMG +. Casting Rage Burst or Terra Sunder grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055031
+    ],
+    "itemIds": [
+      20020571,
+      20020572,
+      20020573,
+      20020574,
+      20020575,
+      20020576,
+      20020577,
+      20020578,
+      20020579,
+      20020580
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055040",
+    "name": "Heavy Guardian X4",
+    "description": "Sandgrip charge count +1; Basic Attack Illusion-Breaking DMG +. Casting Sandgrip grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055041
+    ],
+    "itemIds": [
+      20020581,
+      20020582,
+      20020583,
+      20020584,
+      20020585,
+      20020586,
+      20020587,
+      20020588,
+      20020589,
+      20020590
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055050",
+    "name": "Heavy Guardian X5",
+    "description": "Each 1% Mastery grants ATK. Casting Ultimate grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055051
+    ],
+    "itemIds": [
+      20020591,
+      20020592,
+      20020593,
+      20020594,
+      20020595,
+      20020596,
+      20020597,
+      20020598,
+      20020599,
+      20020600
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055060",
+    "name": "Heavy Guardian X6",
+    "description": "While in Countercrush state, All-Element DMG +. While in Countercrush state, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055061
+    ],
+    "itemIds": [
+      20020601,
+      20020602,
+      20020603,
+      20020604,
+      20020605,
+      20020606,
+      20020607,
+      20020608,
+      20020609,
+      20020610
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055070",
+    "name": "Heavy Guardian X7",
+    "description": "Granite Fury, Stone Fist Illusion-Breaking DMG +. Casting Granite Fury or Stone Fist grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055071
+    ],
+    "itemIds": [
+      20020611,
+      20020612,
+      20020613,
+      20020614,
+      20020615,
+      20020616,
+      20020617,
+      20020618,
+      20020619,
+      20020620
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055080",
+    "name": "Heavy Guardian X8",
+    "description": "For 15s after each successful Block, ATK increases by , stacking up to 4 times. A successful Block grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055081
+    ],
+    "itemIds": [
+      20020621,
+      20020622,
+      20020623,
+      20020624,
+      20020625,
+      20020626,
+      20020627,
+      20020628,
+      20020629,
+      20020630
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055090",
+    "name": "Heavy Guardian X9",
+    "description": "For 10s after each successful Block, Max HP increases by , stacking up to 4 times. A successful Block grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055091
+    ],
+    "itemIds": [
+      20020631,
+      20020632,
+      20020633,
+      20020634,
+      20020635,
+      20020636,
+      20020637,
+      20020638,
+      20020639,
+      20020640
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055100",
+    "name": "Heavy Guardian X10",
+    "description": "Countercrush can trigger Lucky Strike; Countercrush Illusion-Breaking DMG +. Triggering Countercrush grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055101
+    ],
+    "itemIds": [
+      20020641,
+      20020642,
+      20020643,
+      20020644,
+      20020645,
+      20020646,
+      20020647,
+      20020648,
+      20020649,
+      20020650
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055110",
+    "name": "Heavy Guardian X11",
+    "description": "When Stone Fist hits only one target, its damage and healing are doubled; Stone Fist Illusion-Breaking DMG +. Gaining Rock Heart grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055111
+    ],
+    "itemIds": [
+      20020651,
+      20020652,
+      20020653,
+      20020654,
+      20020655,
+      20020656,
+      20020657,
+      20020658,
+      20020659,
+      20020660
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056010",
+    "name": "Verdant Oracle X1",
+    "description": "Wild Bloom, Stag Charge Illusion-Breaking DMG +. Casting Wild Bloom or Stag Charge grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056011
+    ],
+    "itemIds": [
+      20020661,
+      20020662,
+      20020663,
+      20020664,
+      20020665,
+      20020666,
+      20020667,
+      20020668,
+      20020669,
+      20020670
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056020",
+    "name": "Verdant Oracle X2",
+    "description": "Gains Super Armor when casting Infusion; Infusion Illusion-Breaking DMG +. Dealing damage with Infusion grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056021
+    ],
+    "itemIds": [
+      20020671,
+      20020672,
+      20020673,
+      20020674,
+      20020675,
+      20020676,
+      20020677,
+      20020678,
+      20020679,
+      20020680
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056030",
+    "name": "Verdant Oracle X3",
+    "description": "Regen Pulse becomes instant cast; Regen Pulse Illusion-Breaking DMG +. Triggering Regen Pulse grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056031
+    ],
+    "itemIds": [
+      20020681,
+      20020682,
+      20020683,
+      20020684,
+      20020685,
+      20020686,
+      20020687,
+      20020688,
+      20020689,
+      20020690
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056040",
+    "name": "Verdant Oracle X4",
+    "description": "When affected by Symbiotic Mark, MATK +. While in Symbiotic Mark state, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056041
+    ],
+    "itemIds": [
+      20020691,
+      20020692,
+      20020693,
+      20020694,
+      20020695,
+      20020696,
+      20020697,
+      20020698,
+      20020699,
+      20020700
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056050",
+    "name": "Verdant Oracle X5",
+    "description": "Feral Seed drops one additional seed; Feral Seed Illusion-Breaking DMG +. Casting Feral Seed grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056051
+    ],
+    "itemIds": [
+      20020701,
+      20020702,
+      20020703,
+      20020704,
+      20020705,
+      20020706,
+      20020707,
+      20020708,
+      20020709,
+      20020710
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056060",
+    "name": "Verdant Oracle X6",
+    "description": "Nature Ward Shield Amount +, and for every 1% Luck or Crit, it gains an additional +1%; Nature Ward grants an additional All Element Resistance for 8s. While in Nature Ward state, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056061
+    ],
+    "itemIds": [
+      20020711,
+      20020712,
+      20020713,
+      20020714,
+      20020715,
+      20020716,
+      20020717,
+      20020718,
+      20020719,
+      20020720
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056070",
+    "name": "Verdant Oracle X7",
+    "description": "Within 10s after casting Fast Growth or Nature Ward, MATK +. While in this state, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056071
+    ],
+    "itemIds": [
+      20020721,
+      20020722,
+      20020723,
+      20020724,
+      20020725,
+      20020726,
+      20020727,
+      20020728,
+      20020729,
+      20020730
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056080",
+    "name": "Verdant Oracle X8",
+    "description": "Casting Blossom Charge grants Super Armor for ; Blossom Charge Illusion-Breaking DMG +, Control duration +1.5s. Casting Blossom Charge grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056081
+    ],
+    "itemIds": [
+      20020731,
+      20020732,
+      20020733,
+      20020734,
+      20020735,
+      20020736,
+      20020737,
+      20020738,
+      20020739,
+      20020740
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056090",
+    "name": "Verdant Oracle X9",
+    "description": "Wild Seed Illusion-Breaking DMG +; Nourishing Seed Healing Strength +. Triggering Wild Seed or Nourishing Seed grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056091
+    ],
+    "itemIds": [
+      20020741,
+      20020742,
+      20020743,
+      20020744,
+      20020745,
+      20020746,
+      20020747,
+      20020748,
+      20020749,
+      20020750
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056100",
+    "name": "Verdant Oracle X10",
+    "description": "Grove Wish deals Magic DMG equal to ATK. Dealing damage or healing with Grove Wish grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056101
+    ],
+    "itemIds": [
+      20020751,
+      20020752,
+      20020753,
+      20020754,
+      20020755,
+      20020756,
+      20020757,
+      20020758,
+      20020759,
+      20020760
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056110",
+    "name": "Verdant Oracle X11",
+    "description": "Lucky Strike Illusion-Breaking DMG +, but Symbiotic Mark converted healing is reduced by . Triggering Lucky Strike grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056111
+    ],
+    "itemIds": [
+      20020761,
+      20020762,
+      20020763,
+      20020764,
+      20020765,
+      20020766,
+      20020767,
+      20020768,
+      20020769,
+      20020770
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057010",
+    "name": "Beat Performer X1",
+    "description": "Amplified Beat Illusion-Breaking DMG +. Casting Amplified Beat grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057011
+    ],
+    "itemIds": [
+      20020771,
+      20020772,
+      20020773,
+      20020774,
+      20020775,
+      20020776,
+      20020777,
+      20020778,
+      20020779,
+      20020780
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057020",
+    "name": "Beat Performer X2",
+    "description": "Harmonic Anthem Illusion-Breaking DMG +. Casting Harmonic Anthem grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057021
+    ],
+    "itemIds": [
+      20020781,
+      20020782,
+      20020783,
+      20020784,
+      20020785,
+      20020786,
+      20020787,
+      20020788,
+      20020789,
+      20020790
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057030",
+    "name": "Beat Performer X3",
+    "description": "Rhapsody of Flame Illusion-Breaking DMG +. Casting Rhapsody of Flame grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057031
+    ],
+    "itemIds": [
+      20020791,
+      20020792,
+      20020793,
+      20020794,
+      20020795,
+      20020796,
+      20020797,
+      20020798,
+      20020799,
+      20020800
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057040",
+    "name": "Beat Performer X4",
+    "description": "MATK +; but Peaceful Tune converted healing is reduced by . While Heroic Melody is active, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057041
+    ],
+    "itemIds": [
+      20020801,
+      20020802,
+      20020803,
+      20020804,
+      20020805,
+      20020806,
+      20020807,
+      20020808,
+      20020809,
+      20020810
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057050",
+    "name": "Beat Performer X5",
+    "description": "Passion Burst, Passion Fury Illusion-Breaking DMG +. Casting Passion Burst or Passion Fury grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057051
+    ],
+    "itemIds": [
+      20020811,
+      20020812,
+      20020813,
+      20020814,
+      20020815,
+      20020816,
+      20020817,
+      20020818,
+      20020819,
+      20020820
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057060",
+    "name": "Beat Performer X6",
+    "description": "Increases Encore Illusion-Breaking DMG triggered by self or allies by . Casting Encore grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057061
+    ],
+    "itemIds": [
+      20020821,
+      20020822,
+      20020823,
+      20020824,
+      20020825,
+      20020826,
+      20020827,
+      20020828,
+      20020829,
+      20020830
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057070",
+    "name": "Beat Performer X7",
+    "description": "Flame Note Illusion-Breaking DMG +. Dealing damage with Flame Note grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057071
+    ],
+    "itemIds": [
+      20020831,
+      20020832,
+      20020833,
+      20020834,
+      20020835,
+      20020836,
+      20020837,
+      20020838,
+      20020839,
+      20020840
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057080",
+    "name": "Beat Performer X8",
+    "description": "While under Healing Melody and Rhapsody of Flame, increases All Element Bonus by . While Heroic Melody or Healing Melody is active, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057081
+    ],
+    "itemIds": [
+      20020841,
+      20020842,
+      20020843,
+      20020844,
+      20020845,
+      20020846,
+      20020847,
+      20020848,
+      20020849,
+      20020850
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057090",
+    "name": "Beat Performer X9",
+    "description": "Increases Healing Strength of Healing Melody by , but also increases its Performance Energy cost by . While Healing Melody is active, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057091
+    ],
+    "itemIds": [
+      20020851,
+      20020852,
+      20020853,
+      20020854,
+      20020855,
+      20020856,
+      20020857,
+      20020858,
+      20020859,
+      20020860
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057100",
+    "name": "Beat Performer X10",
+    "description": "When HP is above 80%, increases Intellect by ; effect is lost when HP falls below 80%. While in combat and standing still, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057101
+    ],
+    "itemIds": [
+      20020861,
+      20020862,
+      20020863,
+      20020864,
+      20020865,
+      20020866,
+      20020867,
+      20020868,
+      20020869,
+      20020870
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057110",
+    "name": "Beat Performer X11",
+    "description": "When casting Fivefold Crescendo, of the overhealing is gradually restored over 10s. Casting Fivefold Crescendo grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057111
+    ],
+    "itemIds": [
+      20020871,
+      20020872,
+      20020873,
+      20020874,
+      20020875,
+      20020876,
+      20020877,
+      20020878,
+      20020879,
+      20020880
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3058050",
+    "name": "Polarity X5",
+    "description": "Crit gained in any way +, but Mastery gained in any way –",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3058051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3058051
+    ],
+    "itemIds": [
+      20020921,
+      20020922,
+      20020923,
+      20020924,
+      20020925,
+      20020926,
+      20020927,
+      20020928,
+      20020929,
+      20020930
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3058060",
+    "name": "Polarity X6",
+    "description": "Luck gained in any way +, but Haste gained in any way –",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3058061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3058061
+    ],
+    "itemIds": [
+      20020931,
+      20020932,
+      20020933,
+      20020934,
+      20020935,
+      20020936,
+      20020937,
+      20020938,
+      20020939,
+      20020940
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3058070",
+    "name": "Polarity X7",
+    "description": "Mastery gained in any way +, but Luck gained in any way –",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3058071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3058071
+    ],
+    "itemIds": [
+      20020941,
+      20020942,
+      20020943,
+      20020944,
+      20020945,
+      20020946,
+      20020947,
+      20020948,
+      20020949,
+      20020950
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3058080",
+    "name": "Polarity X8",
+    "description": "Haste gained in any way +, but Crit gained in any way –",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3058081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3058081
+    ],
+    "itemIds": [
+      20020951,
+      20020952,
+      20020953,
+      20020954,
+      20020955,
+      20020956,
+      20020957,
+      20020958,
+      20020959,
+      20020960
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3058090",
+    "name": "Polarity X9",
+    "description": "Special Attack Illusion-Breaking DMG +",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3058091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3058091
+    ],
+    "itemIds": [
+      20020961,
+      20020962,
+      20020963,
+      20020964,
+      20020965,
+      20020966,
+      20020967,
+      20020968,
+      20020969,
+      20020970
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3058100",
+    "name": "Polarity X10",
+    "description": "Illusion-Breaking DMG of Expertise Skill +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3058101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3058101
+    ],
+    "itemIds": [
+      20020971,
+      20020972,
+      20020973,
+      20020974,
+      20020975,
+      20020976,
+      20020977,
+      20020978,
+      20020979,
+      20020980
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3058110",
+    "name": "Polarity X11",
+    "description": "For 6s after casting an Expertise Skill, Versatility +, stacking up to 5 times",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3058111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3058111
+    ],
+    "itemIds": [
+      20020981,
+      20020982,
+      20020983,
+      20020984,
+      20020985,
+      20020986,
+      20020987,
+      20020988,
+      20020989,
+      20020990
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059050",
+    "name": "Stasis X5",
+    "description": "Max HP +; When incoming damage exceeds current HP, that damage is reduced by (up to once every 30s)",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059051
+    ],
+    "itemIds": [
+      20021031,
+      20021032,
+      20021033,
+      20021034,
+      20021035,
+      20021036,
+      20021037,
+      20021038,
+      20021039,
+      20021040
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059060",
+    "name": "Stasis X6",
+    "description": "If no damage is taken for 8s, Max HP + for the next 10s, stacking up to 3 times",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059061
+    ],
+    "itemIds": [
+      20021041,
+      20021042,
+      20021043,
+      20021044,
+      20021045,
+      20021046,
+      20021047,
+      20021048,
+      20021049,
+      20021050
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059070",
+    "name": "Stasis X7",
+    "description": "For 10s after casting the Ultimate Skill, Illusion-Breaking DMG Reduction +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059071
+    ],
+    "itemIds": [
+      20021051,
+      20021052,
+      20021053,
+      20021054,
+      20021055,
+      20021056,
+      20021057,
+      20021058,
+      20021059,
+      20021060
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059080",
+    "name": "Stasis X8",
+    "description": "When taking any damage, restores Max HP (up to once every 10s)",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059081
+    ],
+    "itemIds": [
+      20021061,
+      20021062,
+      20021063,
+      20021064,
+      20021065,
+      20021066,
+      20021067,
+      20021068,
+      20021069,
+      20021070
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059100",
+    "name": "Stormblade Stasis X1",
+    "description": "During Volt Surge and Stormflash, restores Max HP per second",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059101
+    ],
+    "itemIds": [
+      20021081,
+      20021082,
+      20021083,
+      20021084,
+      20021085,
+      20021086,
+      20021087,
+      20021088,
+      20021089,
+      20021090
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059110",
+    "name": "Stormblade Stasis X2",
+    "description": "True Sight charge count +1; CD −",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059111
+    ],
+    "itemIds": [
+      20021091,
+      20021092,
+      20021093,
+      20021094,
+      20021095,
+      20021096,
+      20021097,
+      20021098,
+      20021099,
+      20021100
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059120",
+    "name": "Wind Knight Stasis X1",
+    "description": "Aegis Gale charge count +1; CD −",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059121
+    ],
+    "itemIds": [
+      20021101,
+      20021102,
+      20021103,
+      20021104,
+      20021105,
+      20021106,
+      20021107,
+      20021108,
+      20021109,
+      20021110
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059130",
+    "name": "Wind Knight Stasis X2",
+    "description": "During Galeform, Illusion-Breaking DMG Reduction +",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059131
+    ],
+    "itemIds": [
+      20021111,
+      20021112,
+      20021113,
+      20021114,
+      20021115,
+      20021116,
+      20021117,
+      20021118,
+      20021119,
+      20021120
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059140",
+    "name": "Frost Mage Stasis X1",
+    "description": "All-Element DMG Reduction +; During Permafrost, Illusion-Breaking DMG Reduction +",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059141
+    ],
+    "itemIds": [
+      20021121,
+      20021122,
+      20021123,
+      20021124,
+      20021125,
+      20021126,
+      20021127,
+      20021128,
+      20021129,
+      20021130
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059150",
+    "name": "Frost Mage Stasis X2",
+    "description": "Frost Shelter charge count +1; CD −",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059151
+    ],
+    "itemIds": [
+      20021131,
+      20021132,
+      20021133,
+      20021134,
+      20021135,
+      20021136,
+      20021137,
+      20021138,
+      20021139,
+      20021140
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059160",
+    "name": "Marksman Stasis X1",
+    "description": "During Focus, increases Illusion-Breaking DMG Reduction by",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059161,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059161
+    ],
+    "itemIds": [
+      20021141,
+      20021142,
+      20021143,
+      20021144,
+      20021145,
+      20021146,
+      20021147,
+      20021148,
+      20021149,
+      20021150
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059170",
+    "name": "Marksman Stasis X2",
+    "description": "During Deter Shot, Magic DMG Resistance +; Deter Shot CD −",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059171,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059171
+    ],
+    "itemIds": [
+      20021151,
+      20021152,
+      20021153,
+      20021154,
+      20021155,
+      20021156,
+      20021157,
+      20021158,
+      20021159,
+      20021160
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059180",
+    "name": "Shield Knight Stasis X1",
+    "description": "Aegis Ward and Radiance CD −; After casting Aegis Ward or Radiance, the next Judgment costs no Holy Energy",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059181,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059181
+    ],
+    "itemIds": [
+      20021161,
+      20021162,
+      20021163,
+      20021164,
+      20021165,
+      20021166,
+      20021167,
+      20021168,
+      20021169,
+      20021170
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059190",
+    "name": "Shield Knight Stasis X2",
+    "description": "After casting the Ultimate Skill, for the next 5 hits, each restores Max HP",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059191,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059191
+    ],
+    "itemIds": [
+      20021171,
+      20021172,
+      20021173,
+      20021174,
+      20021175,
+      20021176,
+      20021177,
+      20021178,
+      20021179,
+      20021180
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059200",
+    "name": "Heavy Guardian Stasis X1",
+    "description": "When taking Magic DMG, there is a fixed 10% chance to gain Magic DMG Resistance",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059201,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059201
+    ],
+    "itemIds": [
+      20021181,
+      20021182,
+      20021183,
+      20021184,
+      20021185,
+      20021186,
+      20021187,
+      20021188,
+      20021189,
+      20021190
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059210",
+    "name": "Heavy Guardian Stasis X2",
+    "description": "Max HP +; For every 50 Rage consumed, restores Max HP",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059211,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059211
+    ],
+    "itemIds": [
+      20021191,
+      20021192,
+      20021193,
+      20021194,
+      20021195,
+      20021196,
+      20021197,
+      20021198,
+      20021199,
+      20021200
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059220",
+    "name": "Verdant Oracle Stasis X1",
+    "description": "Excess healing received is converted into a Shield lasting 10s, up to Max HP",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059221,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059221
+    ],
+    "itemIds": [
+      20021201,
+      20021202,
+      20021203,
+      20021204,
+      20021205,
+      20021206,
+      20021207,
+      20021208,
+      20021209,
+      20021210
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059230",
+    "name": "Verdant Oracle Stasis X2",
+    "description": "When casting Grove Wish or Infusion, Illusion-Breaking DMG Reduction + for 5s.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059231,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059231
+    ],
+    "itemIds": [
+      20021211,
+      20021212,
+      20021213,
+      20021214,
+      20021215,
+      20021216,
+      20021217,
+      20021218,
+      20021219,
+      20021220
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059240",
+    "name": "Beat Performer Stasis X1",
+    "description": "During Heroic Melody and Healing Melody, Illusion-Breaking DMG Reduction +",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059241,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059241
+    ],
+    "itemIds": [
+      20021221,
+      20021222,
+      20021223,
+      20021224,
+      20021225,
+      20021226,
+      20021227,
+      20021228,
+      20021229,
+      20021230
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059250",
+    "name": "Beat Performer Stasis X2",
+    "description": "When healing yourself, Healing Strength +",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059251,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059251
+    ],
+    "itemIds": [
+      20021231,
+      20021232,
+      20021233,
+      20021234,
+      20021235,
+      20021236,
+      20021237,
+      20021238,
+      20021239,
+      20021240
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050120",
+    "name": "Stormblade Rhapsody X1",
+    "description": "Ultimate Slash no longer has a damage cap, and its retroactive window is increased to 60s. Damage dealt per Thunder Sigil consumed by Ultimate Slash is increased from 150% of ATK to of ATK.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050121
+    ],
+    "itemIds": [
+      20021241,
+      20021242,
+      20021243,
+      20021244,
+      20021245,
+      20021246,
+      20021247,
+      20021248,
+      20021249,
+      20021250
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050130",
+    "name": "Stormblade Rhapsody X2",
+    "description": "While Volt Surge is active, 1 stack of Thundrage is gained every . Thunder Cut Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050131
+    ],
+    "itemIds": [
+      20021251,
+      20021252,
+      20021253,
+      20021254,
+      20021255,
+      20021256,
+      20021257,
+      20021258,
+      20021259,
+      20021260
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050140",
+    "name": "Stormblade Rhapsody X3",
+    "description": "Moonblades cast Storm Scythe every 2s. Moonblades summoned by Scythe Wheel are capped at 1 and no longer target enemies. Recasting Moonstrike returns the Moonblade to the caster's position. Storm Scythe Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050141
+    ],
+    "itemIds": [
+      20021261,
+      20021262,
+      20021263,
+      20021264,
+      20021265,
+      20021266,
+      20021267,
+      20021268,
+      20021269,
+      20021270
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050150",
+    "name": "Stormblade Rhapsody X4",
+    "description": "While Stormflash is active, each cast of Thundercut also casts Thunderstrike on up to 6 enemies within a 5m radius and grants 3 Charge Seeds. Thunderstrike Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050151
+    ],
+    "itemIds": [
+      20021271,
+      20021272,
+      20021273,
+      20021274,
+      20021275,
+      20021276,
+      20021277,
+      20021278,
+      20021279,
+      20021280
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051120",
+    "name": "Wind Knight Rhapsody X1",
+    "description": "Every 10 hits of Valor Cyclone (hits on multiple targets count as 1) trigger Great Wind Cyclone, dealing Attack DMG equal to 1,500% of ATK to enemies within 5 meters around the user. Great Wind Cyclone Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051121
+    ],
+    "itemIds": [
+      20021281,
+      20021282,
+      20021283,
+      20021284,
+      20021285,
+      20021286,
+      20021287,
+      20021288,
+      20021289,
+      20021290
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051130",
+    "name": "Wind Knight Rhapsody X2",
+    "description": "Vortex Strike now launches 2 additional projectiles forward. Vortex Strike Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051131
+    ],
+    "itemIds": [
+      20021291,
+      20021292,
+      20021293,
+      20021294,
+      20021295,
+      20021296,
+      20021297,
+      20021298,
+      20021299,
+      20021300
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051140",
+    "name": "Wind Knight Rhapsody X3",
+    "description": "When the second attack of Instant Edge triggers both a Lucky Strike and a Crit, it fires an Azure Sever. Azure Sever Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051141
+    ],
+    "itemIds": [
+      20021301,
+      20021302,
+      20021303,
+      20021304,
+      20021305,
+      20021306,
+      20021307,
+      20021308,
+      20021309,
+      20021310
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051150",
+    "name": "Wind Knight Rhapsody X4",
+    "description": "Grants Wind Fury every 10s. Wind Fury DMG bonus is increased from 15% to .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051151
+    ],
+    "itemIds": [
+      20021311,
+      20021312,
+      20021313,
+      20021314,
+      20021315,
+      20021316,
+      20021317,
+      20021318,
+      20021319,
+      20021320
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052120",
+    "name": "Frost Mage Rhapsody X1",
+    "description": "While channeling Frostbeam, a Cold Pulse is fired in a random forward direction every . Cold Pulse Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052121
+    ],
+    "itemIds": [
+      20021321,
+      20021322,
+      20021323,
+      20021324,
+      20021325,
+      20021326,
+      20021327,
+      20021328,
+      20021329,
+      20021330
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052130",
+    "name": "Frost Mage Rhapsody X2",
+    "description": "Permanently grants Ultra Cold; Freeze DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052131
+    ],
+    "itemIds": [
+      20021331,
+      20021332,
+      20021333,
+      20021334,
+      20021335,
+      20021336,
+      20021337,
+      20021338,
+      20021339,
+      20021340
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052140",
+    "name": "Frost Mage Rhapsody X3",
+    "description": "Piercing Ice Lance now counts as Frost Lance and triggers related effects. Piercing Ice Lance's projectile speed is reduced by 80%, but its travel distance is unchanged. Piercing Ice Lance Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052141
+    ],
+    "itemIds": [
+      20021341,
+      20021342,
+      20021343,
+      20021344,
+      20021345,
+      20021346,
+      20021347,
+      20021348,
+      20021349,
+      20021350
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3052150",
+    "name": "Frost Mage Rhapsody X4",
+    "description": "When casting Meteor Storm, a Meteor Storm is simultaneously summoned at the location of Blizzard (including Endless Cold). Meteor Storm Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3052151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3052151
+    ],
+    "itemIds": [
+      20021351,
+      20021352,
+      20021353,
+      20021354,
+      20021355,
+      20021356,
+      20021357,
+      20021358,
+      20021359,
+      20021360
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053120",
+    "name": "Marksman Rhapsody X1",
+    "description": "For 15s after casting Wildcall, the Companion's Attack SPD +. Wild Wolf - Tail Sweep Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053121
+    ],
+    "itemIds": [
+      20021361,
+      20021362,
+      20021363,
+      20021364,
+      20021365,
+      20021366,
+      20021367,
+      20021368,
+      20021369,
+      20021370
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053130",
+    "name": "Marksman Rhapsody X2",
+    "description": "While Focus is active, Class Skill damage is increased by an amount equal to: Companion's DMG% × number of Beasts on the field × .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053131
+    ],
+    "itemIds": [
+      20021371,
+      20021372,
+      20021373,
+      20021374,
+      20021375,
+      20021376,
+      20021377,
+      20021378,
+      20021379,
+      20021380
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053140",
+    "name": "Marksman Rhapsody X3",
+    "description": "The falcon summoned by Wildcall follows you for the next .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053141
+    ],
+    "itemIds": [
+      20021381,
+      20021382,
+      20021383,
+      20021384,
+      20021385,
+      20021386,
+      20021387,
+      20021388,
+      20021389,
+      20021390
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3053150",
+    "name": "Marksman Rhapsody X4",
+    "description": "Casting Powerdraw triggers Radiance Barrage. Casting Radiance Barrage triggers Powerdraw. Powerdraw and Radiance Barrage Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3053151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3053151
+    ],
+    "itemIds": [
+      20021391,
+      20021392,
+      20021393,
+      20021394,
+      20021395,
+      20021396,
+      20021397,
+      20021398,
+      20021399,
+      20021400
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056120",
+    "name": "Verdant Oracle Rhapsody X1",
+    "description": "While Regen Pulse is equipped, Regen Pulse is triggered whenever a non-basic attack Class Skill enters CD (can be triggered at most once each time). Regen Pulse Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056121
+    ],
+    "itemIds": [
+      20021401,
+      20021402,
+      20021403,
+      20021404,
+      20021405,
+      20021406,
+      20021407,
+      20021408,
+      20021409,
+      20021410
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056130",
+    "name": "Verdant Oracle Rhapsody X2",
+    "description": "Every 20 hits from Infusion triggers Stag Charge. Stag Charge Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056131
+    ],
+    "itemIds": [
+      20021411,
+      20021412,
+      20021413,
+      20021414,
+      20021415,
+      20021416,
+      20021417,
+      20021418,
+      20021419,
+      20021420
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056140",
+    "name": "Verdant Oracle Rhapsody X3",
+    "description": "After a Nourishing Seed is thrown, Blossom Charge randomly triggers within 5m of the caster. A Nourishing Seed is thrown upon gaining Regen Bud. Blossom Charge Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056141
+    ],
+    "itemIds": [
+      20021421,
+      20021422,
+      20021423,
+      20021424,
+      20021425,
+      20021426,
+      20021427,
+      20021428,
+      20021429,
+      20021430
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056150",
+    "name": "Verdant Oracle Rhapsody X4",
+    "description": "Casting Nourish also applies a Damage over Time effect to the enemies. Nourish Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056151
+    ],
+    "itemIds": [
+      20021431,
+      20021432,
+      20021433,
+      20021434,
+      20021435,
+      20021436,
+      20021437,
+      20021438,
+      20021439,
+      20021440
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054120",
+    "name": "Shield Knight Rhapsody X1",
+    "description": "When Valor Bash deals Crit DMG to its primary target, it also triggers Shield Toss. Shield Toss Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054121
+    ],
+    "itemIds": [
+      20021441,
+      20021442,
+      20021443,
+      20021444,
+      20021445,
+      20021446,
+      20021447,
+      20021448,
+      20021449,
+      20021450
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054130",
+    "name": "Shield Knight Rhapsody X2",
+    "description": "When attacked, there is a 30% fixed chance to trigger Inferno Reckon, which can occur at most once every 0.5s. Inferno Reckon Crit DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054131
+    ],
+    "itemIds": [
+      20021451,
+      20021452,
+      20021453,
+      20021454,
+      20021455,
+      20021456,
+      20021457,
+      20021458,
+      20021459,
+      20021460
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054140",
+    "name": "Shield Knight Rhapsody X3",
+    "description": "Shields thrown by Radiance trigger Sacred Blade upon hitting a target. Sacred Blade Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054141
+    ],
+    "itemIds": [
+      20021461,
+      20021462,
+      20021463,
+      20021464,
+      20021465,
+      20021466,
+      20021467,
+      20021468,
+      20021469,
+      20021470
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054150",
+    "name": "Shield Knight Rhapsody X4",
+    "description": "Vanguard Hunt now generates 2 additional Sword Energy. Every 5 casts of Vanguard Hunt triggers Divine Arc Slash, dealing Attack DMG equal to 800% of ATK to the target. Divine Arc Slash Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054151
+    ],
+    "itemIds": [
+      20021471,
+      20021472,
+      20021473,
+      20021474,
+      20021475,
+      20021476,
+      20021477,
+      20021478,
+      20021479,
+      20021480
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055120",
+    "name": "Heavy Guardian Rhapsody X1",
+    "description": "Gaining or losing a shield triggers Terra Sunder, but this Terra Sunder cannot grant a shield. This effect can trigger at most once every 0.2s. Terra Sunder Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055121
+    ],
+    "itemIds": [
+      20021481,
+      20021482,
+      20021483,
+      20021484,
+      20021485,
+      20021486,
+      20021487,
+      20021488,
+      20021489,
+      20021490
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055130",
+    "name": "Heavy Guardian Rhapsody X2",
+    "description": "While Sandshroud is active, gaining a shield triggers Sand Crystal Shock, up to once every 0.2s. Sand Crystal Shock Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055131
+    ],
+    "itemIds": [
+      20021491,
+      20021492,
+      20021493,
+      20021494,
+      20021495,
+      20021496,
+      20021497,
+      20021498,
+      20021499,
+      20021500
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055140",
+    "name": "Heavy Guardian Rhapsody X3",
+    "description": "For 10s after casting Brave Bastion, Stone Fist randomly triggers within a 5m radius around the caster. Stone Fist Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055141
+    ],
+    "itemIds": [
+      20021501,
+      20021502,
+      20021503,
+      20021504,
+      20021505,
+      20021506,
+      20021507,
+      20021508,
+      20021509,
+      20021510
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055150",
+    "name": "Heavy Guardian Rhapsody X4",
+    "description": "Casting Granite Fury triggers Countercrush. Countercrush Crit DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055151
+    ],
+    "itemIds": [
+      20021511,
+      20021512,
+      20021513,
+      20021514,
+      20021515,
+      20021516,
+      20021517,
+      20021518,
+      20021519,
+      20021520
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057120",
+    "name": "Beat Performer Rhapsody X1",
+    "description": "Flame Note can now trigger Lucky Strike. Lucky Strike DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057121
+    ],
+    "itemIds": [
+      20021521,
+      20021522,
+      20021523,
+      20021524,
+      20021525,
+      20021526,
+      20021527,
+      20021528,
+      20021529,
+      20021530
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057130",
+    "name": "Beat Performer Rhapsody X2",
+    "description": "While Heroic Melody is active, Encore randomly triggers on nearby targets every 2s. Encore Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057131
+    ],
+    "itemIds": [
+      20021531,
+      20021532,
+      20021533,
+      20021534,
+      20021535,
+      20021536,
+      20021537,
+      20021538,
+      20021539,
+      20021540
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057140",
+    "name": "Beat Performer Rhapsody X3",
+    "description": "The speaker triggers a Flame Shock every 3s. Flame Shock Range +300%. Flame Shock Illusion-Breaking DMG +. (Requires activating the talent Tower Flame Blast.)",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057141
+    ],
+    "itemIds": [
+      20021541,
+      20021542,
+      20021543,
+      20021544,
+      20021545,
+      20021546,
+      20021547,
+      20021548,
+      20021549,
+      20021550
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057150",
+    "name": "Beat Performer Rhapsody X4",
+    "description": "When Healing Melody heals, it deals Magic DMG equal to 100% of ATK to enemies within 10m. Healing Melody Illusion-Breaking DMG +.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057151
+    ],
+    "itemIds": [
+      20021551,
+      20021552,
+      20021553,
+      20021554,
+      20021555,
+      20021556,
+      20021557,
+      20021558,
+      20021559,
+      20021560
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060010",
+    "name": "Flame Vanguard X1",
+    "description": "Formless Flame Slash Illusion-Breaking DMG +. Dealing damage with Formless Flame Slash grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060011,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060011
+    ],
+    "itemIds": [
+      20021561,
+      20021562,
+      20021563,
+      20021564,
+      20021565,
+      20021566,
+      20021567,
+      20021568,
+      20021569,
+      20021570
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060020",
+    "name": "Flame Vanguard X2",
+    "description": "Rage Cleave Illusion-Breaking DMG +. Casting Rage Cleave grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060021,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060021
+    ],
+    "itemIds": [
+      20021571,
+      20021572,
+      20021573,
+      20021574,
+      20021575,
+      20021576,
+      20021577,
+      20021578,
+      20021579,
+      20021580
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060030",
+    "name": "Flame Vanguard X3",
+    "description": "Axe Wind Illusion-Breaking DMG +. While Axe Wind is active, Grants Illusion Energy every 0.5s.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060031,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060031
+    ],
+    "itemIds": [
+      20021581,
+      20021582,
+      20021583,
+      20021584,
+      20021585,
+      20021586,
+      20021587,
+      20021588,
+      20021589,
+      20021590
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060040",
+    "name": "Flame Vanguard X4",
+    "description": "While Wasteland's End is active, Formless Flame Slash trigger chance +. While Wasteland's End is active, grants Illusion Energy every second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060041,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060041
+    ],
+    "itemIds": [
+      20021591,
+      20021592,
+      20021593,
+      20021594,
+      20021595,
+      20021596,
+      20021597,
+      20021598,
+      20021599,
+      20021600
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060050",
+    "name": "Flame Vanguard X5",
+    "description": "Hellfire Meteor can trigger Lucky Strike; Hellfire Meteor Illusion-Breaking DMG +. When Hellfire Meteor triggers Lucky Strike, grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060051,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060051
+    ],
+    "itemIds": [
+      20021601,
+      20021602,
+      20021603,
+      20021604,
+      20021605,
+      20021606,
+      20021607,
+      20021608,
+      20021609,
+      20021610
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060060",
+    "name": "Flame Vanguard X6",
+    "description": "Wildfire Dance ignores + of the target's Armor. While Wildfire Dance is active, grants Illusion Energy every 0.5s.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060061,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060061
+    ],
+    "itemIds": [
+      20021611,
+      20021612,
+      20021613,
+      20021614,
+      20021615,
+      20021616,
+      20021617,
+      20021618,
+      20021619,
+      20021620
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060070",
+    "name": "Flame Vanguard X7",
+    "description": "Flowing Splendor Slash Illusion-Breaking DMG +. Casting Flowing Splendor Slash grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060071,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060071
+    ],
+    "itemIds": [
+      20021621,
+      20021622,
+      20021623,
+      20021624,
+      20021625,
+      20021626,
+      20021627,
+      20021628,
+      20021629,
+      20021630
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060080",
+    "name": "Flame Vanguard X8",
+    "description": "Unbound Meteor and Falling Hellfire Illusion-Breaking DMG +. Casting Unbound Meteor or Falling Hellfire grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060081,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060081
+    ],
+    "itemIds": [
+      20021631,
+      20021632,
+      20021633,
+      20021634,
+      20021635,
+      20021636,
+      20021637,
+      20021638,
+      20021639,
+      20021640
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060090",
+    "name": "Flame Vanguard X9",
+    "description": "Casting Unbound Meteor, Falling Hellfire, or Flowing Splendor Slash has a 50% chance to trigger Great Crimson Lotus; Great Crimson Lotus Illusion-Breaking DMG +. Dealing damage with Great Crimson Lotus grants Illusion Energy.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060091,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060091
+    ],
+    "itemIds": [
+      20021641,
+      20021642,
+      20021643,
+      20021644,
+      20021645,
+      20021646,
+      20021647,
+      20021648,
+      20021649,
+      20021650
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060100",
+    "name": "Flame Vanguard X10",
+    "description": "Wildfire Dance restores Crimson Soul Gauge upon dealing damage to the main target; the gauge is restored after the skill ends. While in combat and standing still, grants Illusion Energy per second.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060101,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060101
+    ],
+    "itemIds": [
+      20021651,
+      20021652,
+      20021653,
+      20021654,
+      20021655,
+      20021656,
+      20021657,
+      20021658,
+      20021659,
+      20021660
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060110",
+    "name": "Flame Vanguard X11",
+    "description": "Expertise Skills ignore more of the target's Armor. Grants Illusion Energy for every 50 Flame Souls consumed.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060111,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060111
+    ],
+    "itemIds": [
+      20021661,
+      20021662,
+      20021663,
+      20021664,
+      20021665,
+      20021666,
+      20021667,
+      20021668,
+      20021669,
+      20021670
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059260",
+    "name": "Flame Vanguard Stasis X1",
+    "description": "Each level of the Formless effect grants All-Element DMG Reduction.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059261,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059261
+    ],
+    "itemIds": [
+      20021671,
+      20021672,
+      20021673,
+      20021674,
+      20021675,
+      20021676,
+      20021677,
+      20021678,
+      20021679,
+      20021680
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3059270",
+    "name": "Flame Vanguard Stasis X2",
+    "description": "While casting Wildfire Dance, grants Super Armor and increases Illusion-Breaking DMG Reduction by .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3059271,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3059271
+    ],
+    "itemIds": [
+      20021681,
+      20021682,
+      20021683,
+      20021684,
+      20021685,
+      20021686,
+      20021687,
+      20021688,
+      20021689,
+      20021690
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060120",
+    "name": "Flame Vanguard Rhapsody X1",
+    "description": "Triggering Formless Flame Slash Stage 3 will trigger Hellfire Meteor; Hellfire Meteor Illusion-Breaking DMG +",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060121,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060121
+    ],
+    "itemIds": [
+      20021691,
+      20021692,
+      20021693,
+      20021694,
+      20021695,
+      20021696,
+      20021697,
+      20021698,
+      20021699,
+      20021700
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060130",
+    "name": "Flame Vanguard Rhapsody X2",
+    "description": "When Explosion is triggered, randomly infect a target once. If there is only one target, it triggers twice. Explosion Illusion-Breaking DMG+",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060131,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060131
+    ],
+    "itemIds": [
+      20021701,
+      20021702,
+      20021703,
+      20021704,
+      20021705,
+      20021706,
+      20021707,
+      20021708,
+      20021709,
+      20021710
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060140",
+    "name": "Flame Vanguard Rhapsody X3",
+    "description": "For every 50 hits Wildfire Dance deals to the primary target, gain Enhancement: Great Crimson Lotus Illusion-Breaking DMG+ for 5s",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060141,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060141
+    ],
+    "itemIds": [
+      20021711,
+      20021712,
+      20021713,
+      20021714,
+      20021715,
+      20021716,
+      20021717,
+      20021718,
+      20021719,
+      20021720
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060150",
+    "name": "Flame Vanguard Rhapsody X4",
+    "description": "For every 7 hits Wildfire Dance deals to the primary target, unleashes a Flowing Splendor Slash. Flowing Splendor Slash Illusion-Breaking DMG+",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060151,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060151
+    ],
+    "itemIds": [
+      20021721,
+      20021722,
+      20021723,
+      20021724,
+      20021725,
+      20021726,
+      20021727,
+      20021728,
+      20021729,
+      20021730
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3050430",
+    "name": "Stormblade Reality Factor X4",
+    "description": "When Illusion Energy reaches points, grants 10 Blade Intent and 1 Charge Seed.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3050431,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3050431
+    ],
+    "itemIds": [
+      20021761,
+      20021762,
+      20021763,
+      20021764,
+      20021765,
+      20021766,
+      20021767,
+      20021768,
+      20021769,
+      20021770
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051400",
+    "name": "Wind Knight Reality Factor X1",
+    "description": "When Illusion Energy reaches points, reduces the remaining CD of Galeform by 1s.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051401,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051401
+    ],
+    "itemIds": [
+      20021791,
+      20021792,
+      20021793,
+      20021794,
+      20021795,
+      20021796,
+      20021797,
+      20021798,
+      20021799,
+      20021800
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051420",
+    "name": "Wind Knight Reality Factor X3",
+    "description": "When Illusion Energy reaches points, trigger Great Wind Cyclone if Valor Cyclone is active, dealing 800% of ATK as Attack DMG to enemies within 5 meters. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3051421,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051421
+    ],
+    "itemIds": [
+      20021811,
+      20021812,
+      20021813,
+      20021814,
+      20021815,
+      20021816,
+      20021817,
+      20021818,
+      20021819,
+      20021820
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3051450",
+    "name": "Wind Knight Reality Factor X6",
+    "description": "When Illusion Energy reaches points, Sharp Impact gains charge.",
+    "slot": {
+      "threshold": 240,
+      "resetBuffId": 3051451,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3051451
+    ],
+    "itemIds": [
+      20021841,
+      20021842,
+      20021843,
+      20021844,
+      20021845,
+      20021846,
+      20021847,
+      20021848,
+      20021849,
+      20021850
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054400",
+    "name": "Shield Knight Reality Factor X1",
+    "description": "When Illusion Energy reaches points, triggers Inferno Reckon. This instance of Inferno Reckon deals + Illusion DMG. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054401,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054401
+    ],
+    "itemIds": [
+      20021971,
+      20021972,
+      20021973,
+      20021974,
+      20021975,
+      20021976,
+      20021977,
+      20021978,
+      20021979,
+      20021980
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054420",
+    "name": "Shield Knight Reality Factor X3",
+    "description": "When Illusion Energy reaches points, gains a Radiant Shield equal to of ATK. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054421,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054421
+    ],
+    "itemIds": [
+      20021991,
+      20021992,
+      20021993,
+      20021994,
+      20021995,
+      20021996,
+      20021997,
+      20021998,
+      20021999,
+      20022000
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3054450",
+    "name": "Shield Knight Reality Factor X6",
+    "description": "When Illusion Energy reaches points, the remaining CD of the Ultimate is reduced by 1s. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3054451,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3054451
+    ],
+    "itemIds": [
+      20022021,
+      20022022,
+      20022023,
+      20022024,
+      20022025,
+      20022026,
+      20022027,
+      20022028,
+      20022029,
+      20022030
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3055380",
+    "name": "Heavy Guardian Reality Factor X3",
+    "description": "When Illusion Energy reaches points, the remaining CDs of Stoneform and Brave Bastion are reduced by 1s. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3055381,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3055381
+    ],
+    "itemIds": [
+      20022051,
+      20022052,
+      20022053,
+      20022054,
+      20022055,
+      20022056,
+      20022057,
+      20022058,
+      20022059,
+      20022060
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056380",
+    "name": "Verdant Oracle Reality Factor X1",
+    "description": "When Illusion Energy reaches points, grants Energy and reduces the remaining CD of Nature Ward by 1s. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056381,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056381
+    ],
+    "itemIds": [
+      20022091,
+      20022092,
+      20022093,
+      20022094,
+      20022095,
+      20022096,
+      20022097,
+      20022098,
+      20022099,
+      20022100
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056390",
+    "name": "Verdant Oracle Reality Factor X2",
+    "description": "When Illusion Energy reaches points, grants Super Armor for 10s, along with Casting SPD +, and Illusion-Breaking DMG Reduction +.",
+    "slot": {
+      "threshold": 500,
+      "resetBuffId": 3056391,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056391
+    ],
+    "itemIds": [
+      20022101,
+      20022102,
+      20022103,
+      20022104,
+      20022105,
+      20022106,
+      20022107,
+      20022108,
+      20022109,
+      20022110
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056400",
+    "name": "Verdant Oracle Reality Factor X3",
+    "description": "When Illusion Energy reaches points, Thorn can trigger Lucky Strike for 7s.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056401,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056401
+    ],
+    "itemIds": [
+      20022111,
+      20022112,
+      20022113,
+      20022114,
+      20022115,
+      20022116,
+      20022117,
+      20022118,
+      20022119,
+      20022120
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056410",
+    "name": "Verdant Oracle Reality Factor X4",
+    "description": "When Illusion Energy reaches points, a Flower Stalk is spawned, guaranteed to be Moonlight Solace. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056411,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056411
+    ],
+    "itemIds": [
+      20022121,
+      20022122,
+      20022123,
+      20022124,
+      20022125,
+      20022126,
+      20022127,
+      20022128,
+      20022129,
+      20022130
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056420",
+    "name": "Verdant Oracle Reality Factor X5",
+    "description": "When Illusion Energy reaches points, triggers Group Nourish once.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056421,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056421
+    ],
+    "itemIds": [
+      20022131,
+      20022132,
+      20022133,
+      20022134,
+      20022135,
+      20022136,
+      20022137,
+      20022138,
+      20022139,
+      20022140
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3056430",
+    "name": "Verdant Oracle Reality Factor X6",
+    "description": "When Illusion Energy reaches points, the remaining CD of Grove Wish is reduced by 1s. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3056431,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3056431
+    ],
+    "itemIds": [
+      20022141,
+      20022142,
+      20022143,
+      20022144,
+      20022145,
+      20022146,
+      20022147,
+      20022148,
+      20022149,
+      20022150
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3057400",
+    "name": "Beat Performer Reality Factor X1",
+    "description": "When Illusion Energy reaches points, triggers Encore Strings once.",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3057401,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3057401
+    ],
+    "itemIds": [
+      20022151,
+      20022152,
+      20022153,
+      20022154,
+      20022155,
+      20022156,
+      20022157,
+      20022158,
+      20022159,
+      20022160
+    ]
+  },
+  {
+    "slotTemplateId": "factor_3060450",
+    "name": "Flame Vanguard Reality Factor X6",
+    "description": "When Illusion Energy reaches points, the remaining CD of the Ultimate is reduced by 0.5s. Can trigger at most once within .",
+    "slot": {
+      "threshold": null,
+      "resetBuffId": 3060451,
+      "onBuffAdd": "reset",
+      "onBuffChange": "reset",
+      "onBuffRemove": "noOp"
+    },
+    "effectBuffIds": [
+      3060451
+    ],
+    "itemIds": [
+      20022261,
+      20022262,
+      20022263,
+      20022264,
+      20022265,
+      20022266,
+      20022267,
+      20022268,
+      20022269,
+      20022270
+    ]
   }
 ]

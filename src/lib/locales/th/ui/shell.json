@@ -50,5 +50,9 @@
   "update.downloadGithub": "ดาวน์โหลดจาก GitHub",
   "update.emptyNotes": "ไม่มีบันทึกประจำรุ่นสำหรับเวอร์ชันนี้",
   "update.title": "มีเวอร์ชันใหม่",
-  "update.versionLine": "เวอร์ชันปัจจุบัน v{currentVersion}, เวอร์ชันล่าสุด v{latestVersion}"
+  "update.versionLine": "เวอร์ชันปัจจุบัน v{currentVersion}, เวอร์ชันล่าสุด v{latestVersion}",
+  "settings.appBehavior": "พฤติกรรมของแอป",
+  "settings.appBehavior.subtitle": "ควบคุมพฤติกรรมโดยรวมของแอปที่ไม่ได้ผูกกับโอเวอร์เลย์หรือหน้ามิเตอร์ใดหน้าหนึ่ง",
+  "settings.hideMainWindowToTray": "ซ่อนหน้าต่างหลักไปยังถาดระบบเมื่อปิด",
+  "settings.hideMainWindowToTrayDescription": "เมื่อเปิดใช้ การปิดหน้าต่างหลักจะซ่อนไว้แทนการออกจากแอป ใช้ไอคอนถาดระบบเพื่อกู้คืน หรือเลือกออกเพื่อปิดทั้งหมด"
 }

@@ -83,5 +83,12 @@
   "gpuChecking": "Checking GPU availability...",
   "gpuDisabledDescription": "GPU-accelerated calculations are disabled.",
   "gpuEnabledDescription": "GPU-accelerated calculations are enabled.",
-  "requiresAtLeastModules": "Requires at least {count} modules"
+  "requiresAtLeastModules": "Requires at least {count} modules",
+  "gpuCheckUnavailable": "Disponibilidad de GPU no disponible.",
+  "gpuCheckDeferred": "La comprobación de GPU es manual.",
+  "gpuDeferredDescription": "Usa Comprobar GPU para verificar la disponibilidad del controlador.",
+  "gpuRecheck": "Comprobar GPU",
+  "checkingModuleData": "Comprobando datos de módulos...",
+  "moduleDataUnavailable": "Los datos de módulos aún no están sincronizados. Abre el juego con un personaje que tenga módulos y luego actualiza los datos.",
+  "calculationTimedOut": "El cálculo agotó el tiempo. Prueba con menos filtros o modo CPU y vuelve a iniciar."
 }

@@ -55,6 +55,7 @@ export function computePlayerRowsFromEntities(
       const stats = statsByMetric(entity, metric);
       const total = Number(stats.total || 0);
       const hits = Number(stats.hits || 0);
+      const triggerHits = Number(stats.triggerHits || stats.hits || 0);
       const bossDmg = metric === "dps" ? Number(entity.damageBossOnly?.total || 0) : 0;
       const bossTotal = Number(source.totalDmgBossOnly || 0);
 
@@ -62,6 +63,7 @@ export function computePlayerRowsFromEntities(
 
       const row: PlayerRow = {
         uid: entity.uid,
+        uuid: entity.uuid ?? null,
         name: entity.name || `#${entity.uid}`,
         className: entity.className,
         classSpecName: entity.classSpecName,
@@ -77,8 +79,11 @@ export function computePlayerRowsFromEntities(
         dmgPct: percent(total, totalMetric),
         critRate: rate(Number(stats.critHits || 0), hits),
         critDmgRate: percent(Number(stats.critTotal || 0), total),
-        luckyRate: rate(Number(stats.luckyHits || 0), hits),
+        luckyRate: rate(Number(stats.luckyHits || 0), triggerHits),
         luckyDmgRate: percent(Number(stats.luckyTotal || 0), total),
+        blockRate: metric === "tanked" ? rate(Number(stats.blockHits || 0), hits) : 0,
+        luckyBlockRate:
+          metric === "tanked" ? rate(Number(stats.luckyBlockHits || 0), hits) : 0,
         hits,
         hitsPerMinute: elapsedSecs > 0 ? (hits / elapsedSecs) * 60 : 0,
         bossDmg,
@@ -118,6 +123,7 @@ export function computeSkillRows(
       const skillId = Number(skillIdText);
       const total = Number(stats.totalValue || 0);
       const hits = Number(stats.hits || 0);
+      const triggerHits = Number(stats.triggerHits || stats.hits || 0);
 
       const effectiveTotal = Number(stats.effectiveTotalValue || 0);
 
@@ -131,8 +137,10 @@ export function computeSkillRows(
         dmgPct: percent(total, parentTotal),
         critRate: rate(Number(stats.critHits || 0), hits),
         critDmgRate: percent(Number(stats.critTotalValue || 0), total),
-        luckyRate: rate(Number(stats.luckyHits || 0), hits),
+        luckyRate: rate(Number(stats.luckyHits || 0), triggerHits),
         luckyDmgRate: percent(Number(stats.luckyTotalValue || 0), total),
+        blockRate: rate(Number(stats.blockHits || 0), hits),
+        luckyBlockRate: rate(Number(stats.luckyBlockHits || 0), hits),
         hits,
         hitsPerMinute: elapsedSecs > 0 ? (hits / elapsedSecs) * 60 : 0,
         property: stats.property ?? null,

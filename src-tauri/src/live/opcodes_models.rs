@@ -1,10 +1,18 @@
 use crate::live::commands_models::{DamageSnapshot, DeathRecord};
+use crate::live::entity_id::{EntityUid, EntityUuid, uid_from_uuid};
 use crate::live::monster_registry::{self, MonsterType};
 use crate::live::opcodes_models::class::ClassSpec;
 use blueprotobuf_lib::blueprotobuf::{EEntityType, SyncContainerData};
 use serde::{Deserialize, Serialize};
 use std::collections::{HashMap, VecDeque};
 use tokio::sync::RwLock;
+
+pub mod damage_type_flag {
+    pub const CRIT: i32 = 0b0001;
+    pub const BLOCK: i32 = 0b0010;
+    pub const ATTACKER_LUCK: i32 = 0b0100;
+    pub const ATTACKED_LUCK: i32 = 0b1000;
+}
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Encounter {
@@ -20,6 +28,15 @@ pub struct Encounter {
     pub total_heal: u128,
     pub total_effective_heal: u128,
     pub local_player_uid: i64,
+    #[serde(default)]
+    pub local_player_uuid: EntityUuid,
+    #[serde(default)]
+    pub entity_uuid_to_uid: HashMap<EntityUuid, EntityUid>,
+    #[serde(default)]
+    pub entity_uid_to_uuids: HashMap<EntityUid, Vec<EntityUuid>>,
+    #[serde(default)]
+    pub entity_uuid_to_entity: HashMap<EntityUuid, Entity>, // key: canonical entity uuid
+    #[serde(default)]
     pub entity_uid_to_entity: HashMap<i64, Entity>, // key: entity uid
     pub local_player: SyncContainerData,
     pub current_scene_id: Option<i32>,
@@ -56,6 +73,7 @@ pub enum AttrType {
     Name,
     MonsterId,
     ActorState,
+    TargetId,
     GuildId,
     AttackPower,
     DefensePower,
@@ -129,7 +147,7 @@ impl AttrType {
             attr_type::ATTR_NAME => Some(AttrType::Name),
             attr_type::ATTR_ID => Some(AttrType::MonsterId),
             attr_type::ATTR_ACTOR_STATE => Some(AttrType::ActorState),
-            attr_type::ATTR_GUILD_ID => Some(AttrType::GuildId),
+            attr_type::ATTR_TARGET_ID => Some(AttrType::TargetId),
             attr_type::ATTR_ATTACK_POWER => Some(AttrType::AttackPower),
             attr_type::ATTR_DEFENSE_POWER => Some(AttrType::DefensePower),
             attr_type::ATTR_POS => Some(AttrType::Position),
@@ -201,7 +219,7 @@ impl AttrType {
             AttrType::Name => attr_type::ATTR_NAME,
             AttrType::MonsterId => attr_type::ATTR_ID,
             AttrType::ActorState => attr_type::ATTR_ACTOR_STATE,
-            AttrType::GuildId => attr_type::ATTR_GUILD_ID,
+            AttrType::TargetId | AttrType::GuildId => attr_type::ATTR_TARGET_ID,
             AttrType::AttackPower => attr_type::ATTR_ATTACK_POWER,
             AttrType::DefensePower => attr_type::ATTR_DEFENSE_POWER,
             AttrType::Position => attr_type::ATTR_POS,
@@ -338,6 +356,12 @@ pub struct CombatStats {
     pub lucky_total: u128,
     pub lucky_hits: u128,
     pub hits: u128,
+    #[serde(default)]
+    pub trigger_hits: u128,
+    #[serde(default)]
+    pub block_hits: u128,
+    #[serde(default)]
+    pub lucky_block_hits: u128,
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
@@ -353,6 +377,10 @@ pub struct ObservedActiveBuff {
     pub duration: i32,
     pub create_time: i64,
     pub received_time_ms: i64,
+    #[serde(default)]
+    pub host_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub source_uuid: Option<EntityUuid>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -370,6 +398,10 @@ pub struct ObservedFactorBuff {
     pub duration: i32,
     pub create_time: i64,
     pub received_time_ms: i64,
+    #[serde(default)]
+    pub host_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub source_uuid: Option<EntityUuid>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -387,6 +419,10 @@ pub struct ObservedEffectBuff {
     pub duration: i32,
     pub create_time: i64,
     pub received_time_ms: i64,
+    #[serde(default)]
+    pub host_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub source_uuid: Option<EntityUuid>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -404,6 +440,10 @@ pub struct ObservedModifierWindow {
     pub duration: i32,
     pub start_time_ms: i64,
     pub end_time_ms: Option<i64>,
+    #[serde(default)]
+    pub host_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub source_uuid: Option<EntityUuid>,
     pub host_uid: i64,
     pub source_uid: i64,
 }
@@ -419,6 +459,14 @@ pub struct ObservedDamageHit {
     pub damage_source: Option<i32>,
     pub property: Option<i32>,
     pub damage_mode: Option<i32>,
+    #[serde(default)]
+    pub attacker_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub original_attacker_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub top_summoner_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub target_uuid: Option<EntityUuid>,
     pub attacker_uid: i64,
     pub original_attacker_uid: i64,
     pub top_summoner_uid: Option<i64>,
@@ -450,6 +498,10 @@ pub struct ObservedModifierReplaySource {
     pub modifier_buff_level: Option<i32>,
     pub modifier_count: Option<i32>,
     pub modifier_layer: i32,
+    #[serde(default)]
+    pub modifier_host_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub modifier_source_uuid: Option<EntityUuid>,
     pub modifier_host_uid: i64,
     pub modifier_source_uid: i64,
 }
@@ -465,6 +517,14 @@ pub struct ObservedModifierReplayHit {
     pub damage_source: Option<i32>,
     pub property: Option<i32>,
     pub damage_mode: Option<i32>,
+    #[serde(default)]
+    pub attacker_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub original_attacker_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub top_summoner_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub target_uuid: Option<EntityUuid>,
     pub attacker_uid: i64,
     pub original_attacker_uid: i64,
     pub top_summoner_uid: Option<i64>,
@@ -495,6 +555,10 @@ pub struct ObservedModifierHitBucket {
     pub modifier_duration: i32,
     pub modifier_start_time_ms: i64,
     pub modifier_end_time_ms: Option<i64>,
+    #[serde(default)]
+    pub modifier_host_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub modifier_source_uuid: Option<EntityUuid>,
     pub modifier_host_uid: i64,
     pub modifier_source_uid: i64,
     pub skill_key: i64,
@@ -505,6 +569,14 @@ pub struct ObservedModifierHitBucket {
     pub damage_source: Option<i32>,
     pub property: Option<i32>,
     pub damage_mode: Option<i32>,
+    #[serde(default)]
+    pub attacker_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub original_attacker_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub top_summoner_uuid: Option<EntityUuid>,
+    #[serde(default)]
+    pub target_uuid: Option<EntityUuid>,
     pub attacker_uid: i64,
     pub original_attacker_uid: i64,
     pub top_summoner_uid: Option<i64>,
@@ -610,6 +682,8 @@ pub struct ObservedProfessionTalent {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct Entity {
+    #[serde(default)]
+    pub uuid: Option<EntityUuid>,
     pub name: String,
     pub entity_type: EEntityType,
     pub class_id: i32,
@@ -632,6 +706,8 @@ pub struct Entity {
     // Tanked/Taken (damage received)
     pub taken: CombatStats,
     pub skill_uid_to_taken_skill: HashMap<i64, Skill>,
+    #[serde(default)]
+    pub skill_taken_from_source: HashMap<(i64, i32), Skill>,
     // Monster metadata and per-target aggregates (for boss-only filtering)
     pub monster_type_id: Option<i32>,
     pub dmg_to_target: HashMap<i64, u128>,
@@ -680,6 +756,8 @@ pub struct Entity {
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct SkillTargetStats {
+    #[serde(default)]
+    pub target_uuid: Option<EntityUuid>,
     pub hits: u128,
     pub total_value: u128,
     pub effective_total_value: u128,
@@ -687,6 +765,8 @@ pub struct SkillTargetStats {
     pub lucky_hits: u128,
     pub crit_total: u128,
     pub lucky_total: u128,
+    #[serde(default)]
+    pub trigger_hits: u128,
     pub hp_loss_total: u128,
     pub shield_loss_total: u128,
     pub monster_name: Option<String>,
@@ -702,19 +782,299 @@ pub struct Skill {
     pub lucky_hits: u128,
     pub hits: u128,
     #[serde(default)]
+    pub trigger_hits: u128,
+    #[serde(default)]
+    pub block_hits: u128,
+    #[serde(default)]
+    pub lucky_block_hits: u128,
+    #[serde(default)]
     pub property: Option<i32>,
     #[serde(default)]
     pub damage_mode: Option<i32>,
 }
 
 impl Encounter {
+    pub fn remember_entity_uuid(&mut self, entity_uuid: EntityUuid) -> EntityUid {
+        let uid = uid_from_uuid(entity_uuid);
+        if entity_uuid == 0 || uid == 0 {
+            return uid;
+        }
+
+        self.entity_uuid_to_uid.insert(entity_uuid, uid);
+        let uuids = self.entity_uid_to_uuids.entry(uid).or_default();
+        if !uuids.contains(&entity_uuid) {
+            uuids.push(entity_uuid);
+        }
+        uid
+    }
+
+    fn first_uuid_for_uid(&self, uid: EntityUid) -> Option<EntityUuid> {
+        self.entity_uid_to_uuids
+            .get(&uid)
+            .and_then(|uuids| uuids.first().copied())
+    }
+
+    pub fn canonical_uuid_for_uid(&self, uid: EntityUid) -> Option<EntityUuid> {
+        if uid == 0 {
+            return None;
+        }
+        if uid == self.local_player_uid && self.local_player_uuid != 0 {
+            return Some(self.local_player_uuid);
+        }
+        let uuids = self.entity_uid_to_uuids.get(&uid)?;
+        (uuids.len() == 1).then_some(uuids[0])
+    }
+
+    pub fn display_uid_for_entity(&self, entity_uuid: EntityUuid, entity: &Entity) -> EntityUid {
+        let uuid = entity.uuid.unwrap_or(entity_uuid);
+        if uuid != 0 {
+            if let Some(uid) = self.entity_uuid_to_uid.get(&uuid).copied() {
+                return uid;
+            }
+            return uid_from_uuid(uuid);
+        }
+        0
+    }
+
+    pub fn entity_count(&self) -> usize {
+        if self.entity_uuid_to_entity.is_empty() {
+            self.entity_uid_to_entity.len()
+        } else {
+            self.entity_uuid_to_entity.len() + self.entity_uid_to_entity.len()
+        }
+    }
+
+    pub fn entity_uid_entries(&self) -> Vec<(EntityUid, &Entity)> {
+        if self.entity_uuid_to_entity.is_empty() {
+            return self
+                .entity_uid_to_entity
+                .iter()
+                .map(|(&uid, entity)| (uid, entity))
+                .collect();
+        }
+
+        let mut entries: Vec<(EntityUid, &Entity)> = self
+            .entity_uuid_to_entity
+            .iter()
+            .filter_map(|(&uuid, entity)| {
+                let uid = self.display_uid_for_entity(uuid, entity);
+                (uid > 0).then_some((uid, entity))
+            })
+            .collect();
+        for (&uid, entity) in &self.entity_uid_to_entity {
+            if uid > 0 && !entries.iter().any(|(existing_uid, _)| *existing_uid == uid) {
+                entries.push((uid, entity));
+            }
+        }
+        entries
+    }
+
+    pub fn entity_identity_keys(&self) -> Vec<(EntityUid, Option<EntityUuid>)> {
+        if self.entity_uuid_to_entity.is_empty() {
+            return self
+                .entity_uid_to_entity
+                .keys()
+                .copied()
+                .map(|uid| (uid, None))
+                .collect();
+        }
+
+        let mut keys: Vec<(EntityUid, Option<EntityUuid>)> = self
+            .entity_uuid_to_entity
+            .iter()
+            .filter_map(|(&uuid, entity)| {
+                let uid = self.display_uid_for_entity(uuid, entity);
+                (uid > 0).then_some((uid, Some(uuid)))
+            })
+            .collect();
+        for &uid in self.entity_uid_to_entity.keys() {
+            if uid > 0 && !keys.iter().any(|(existing_uid, _)| *existing_uid == uid) {
+                keys.push((uid, None));
+            }
+        }
+        keys
+    }
+
+    pub fn entities(&self) -> Box<dyn Iterator<Item = &Entity> + '_> {
+        if self.entity_uuid_to_entity.is_empty() {
+            Box::new(self.entity_uid_to_entity.values())
+        } else {
+            Box::new(
+                self.entity_uuid_to_entity
+                    .values()
+                    .chain(self.entity_uid_to_entity.values()),
+            )
+        }
+    }
+
+    pub fn entities_mut(&mut self) -> Box<dyn Iterator<Item = &mut Entity> + '_> {
+        if self.entity_uuid_to_entity.is_empty() {
+            Box::new(self.entity_uid_to_entity.values_mut())
+        } else {
+            Box::new(
+                self.entity_uuid_to_entity
+                    .values_mut()
+                    .chain(self.entity_uid_to_entity.values_mut()),
+            )
+        }
+    }
+
+    pub fn entity_by_uuid(&self, entity_uuid: EntityUuid) -> Option<&Entity> {
+        if entity_uuid == 0 {
+            return None;
+        }
+        self.entity_uuid_to_entity
+            .get(&entity_uuid)
+            .or_else(|| self.entity_uid_to_entity.get(&uid_from_uuid(entity_uuid)))
+    }
+
+    pub fn entity_by_uid(&self, uid: EntityUid) -> Option<&Entity> {
+        if uid == 0 {
+            return None;
+        }
+        if let Some(uuid) = self
+            .canonical_uuid_for_uid(uid)
+            .or_else(|| self.first_uuid_for_uid(uid))
+        {
+            if let Some(entity) = self.entity_uuid_to_entity.get(&uuid) {
+                return Some(entity);
+            }
+        }
+        self.entity_uid_to_entity.get(&uid)
+    }
+
+    pub fn entity_mut_by_uuid(&mut self, entity_uuid: EntityUuid) -> Option<&mut Entity> {
+        if entity_uuid == 0 {
+            return None;
+        }
+        if self.entity_uuid_to_entity.contains_key(&entity_uuid) {
+            return self.entity_uuid_to_entity.get_mut(&entity_uuid);
+        }
+        let uid = uid_from_uuid(entity_uuid);
+        self.entity_uid_to_entity.get_mut(&uid)
+    }
+
+    pub fn entity_mut_by_uid(&mut self, uid: EntityUid) -> Option<&mut Entity> {
+        if uid == 0 {
+            return None;
+        }
+        let uuid = self
+            .canonical_uuid_for_uid(uid)
+            .or_else(|| self.first_uuid_for_uid(uid));
+        if let Some(uuid) = uuid {
+            if self.entity_uuid_to_entity.contains_key(&uuid) {
+                return self.entity_uuid_to_entity.get_mut(&uuid);
+            }
+        }
+        self.entity_uid_to_entity.get_mut(&uid)
+    }
+
+    pub fn entity_mut_by_identity(
+        &mut self,
+        uid: EntityUid,
+        uuid: Option<EntityUuid>,
+    ) -> Option<&mut Entity> {
+        if let Some(uuid) = uuid.filter(|uuid| *uuid != 0) {
+            return self.entity_mut_by_uuid(uuid);
+        }
+        self.entity_mut_by_uid(uid)
+    }
+
+    pub fn entity_by_uuid_or_insert_with<F>(
+        &mut self,
+        entity_uuid: EntityUuid,
+        create: F,
+    ) -> &mut Entity
+    where
+        F: FnOnce() -> Entity,
+    {
+        if entity_uuid == 0 {
+            return self.entity_uid_to_entity.entry(0).or_insert_with(create);
+        }
+
+        let uid = self.remember_entity_uuid(entity_uuid);
+        if !self.entity_uuid_to_entity.contains_key(&entity_uuid) {
+            let entity = self
+                .entity_uid_to_entity
+                .remove(&uid)
+                .unwrap_or_else(create);
+            self.entity_uuid_to_entity.insert(entity_uuid, entity);
+        }
+
+        let entity = self
+            .entity_uuid_to_entity
+            .get_mut(&entity_uuid)
+            .expect("entity_uuid_to_entity entry exists after insert");
+        if entity.uuid.is_none() {
+            entity.uuid = Some(entity_uuid);
+        }
+        entity
+    }
+
+    pub fn entity_by_uid_or_insert_with<F>(&mut self, uid: EntityUid, create: F) -> &mut Entity
+    where
+        F: FnOnce() -> Entity,
+    {
+        if let Some(uuid) = self
+            .canonical_uuid_for_uid(uid)
+            .or_else(|| self.first_uuid_for_uid(uid))
+        {
+            return self.entity_by_uuid_or_insert_with(uuid, create);
+        }
+        self.entity_uid_to_entity.entry(uid).or_insert_with(create)
+    }
+
+    pub fn clear_entities(&mut self) {
+        self.entity_uuid_to_entity.clear();
+        self.entity_uid_to_entity.clear();
+    }
+
+    pub fn legacy_uid_entity_map(&self) -> HashMap<EntityUid, Entity> {
+        if self.entity_uuid_to_entity.is_empty() {
+            return self.entity_uid_to_entity.clone();
+        }
+
+        let mut entities = self.entity_uid_to_entity.clone();
+        for (&uuid, entity) in &self.entity_uuid_to_entity {
+            let uid = self.display_uid_for_entity(uuid, entity);
+            if uid > 0 {
+                entities.insert(uid, entity.clone());
+            }
+        }
+        entities
+    }
+
+    pub fn history_entity_map(&self) -> HashMap<EntityUuid, Entity> {
+        if self.entity_uuid_to_entity.is_empty() {
+            return self.entity_uid_to_entity.clone();
+        }
+
+        let mut entities = HashMap::new();
+        for (&uuid, entity) in &self.entity_uuid_to_entity {
+            let key = entity.uuid.filter(|uuid| *uuid > 0).unwrap_or(uuid);
+            if key > 0 {
+                entities.entry(key).or_insert_with(|| entity.clone());
+            }
+        }
+        for (&uid, entity) in &self.entity_uid_to_entity {
+            if uid <= 0 {
+                continue;
+            }
+            let key = entity.uuid.filter(|uuid| *uuid > 0).unwrap_or(uid);
+            entities.entry(key).or_insert_with(|| entity.clone());
+        }
+        entities
+    }
+
     /// Reset only combat-specific state while preserving player identity fields and cache.
     ///
     /// Preserves:
     /// - is_encounter_paused
     /// - local_player_uid
+    /// - local_player_uuid
+    /// - entity UUID bridge maps
     /// - local_player (sync container data)
-    /// - entity_uid_to_entity identity fields (name, class, spec, ability score, level, type)
+    /// - entity_uuid_to_entity / entity_uid_to_entity identity fields (name, class, spec, ability score, level, type)
     ///
     /// Clears:
     /// - encounter totals and timestamps
@@ -731,7 +1091,7 @@ impl Encounter {
         self.total_effective_heal = 0;
 
         // Reset per-entity combat stats while preserving identity
-        for entity in self.entity_uid_to_entity.values_mut() {
+        for entity in self.entities_mut() {
             // Damage
             entity.damage = CombatStats::default();
             entity.damage_boss_only = CombatStats::default();
@@ -772,7 +1132,8 @@ pub mod attr_type {
     pub const ATTR_ID: i32 = 0x0a;
     pub const ATTR_SCENE_BASIC_ID: i32 = 0x155; // Scene basic ID (341)
     pub const ATTR_ACTOR_STATE: i32 = 0x0b; // Actor state, see EActorState
-    pub const ATTR_GUILD_ID: i32 = 0x1e; // Guild/clan ID
+    pub const ATTR_TARGET_ID: i32 = 0x1e; // AttrTargetId: current attack target entity UUID
+    pub const ATTR_GUILD_ID: i32 = ATTR_TARGET_ID; // Legacy alias kept for older callers.
     pub const ATTR_ATTACK_POWER: i32 = 0x32; // Attack stat
     pub const ATTR_DEFENSE_POWER: i32 = 0x33; // Defense stat
     pub const ATTR_POS: i32 = 0x34; // Position vector

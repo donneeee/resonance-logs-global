@@ -1,7 +1,7 @@
 import { spawn, spawnSync } from "node:child_process";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { resolve, sep } from "node:path";
-import { createServer } from "node:http";
+import { createServer, get } from "node:http";
 import { fileURLToPath } from "node:url";
 
 const rootDir = resolve(fileURLToPath(new URL("..", import.meta.url)));
@@ -109,11 +109,103 @@ function contentType(filePath) {
   return (match && contentTypes.get(match[0].toLowerCase())) || "application/octet-stream";
 }
 
+function requestText(pathname, timeoutMs = 1500) {
+  return new Promise((resolvePromise) => {
+    let settled = false;
+    const finish = (value) => {
+      if (settled) return;
+      settled = true;
+      resolvePromise(value);
+    };
+    const request = get(
+      {
+        host,
+        port,
+        path: pathname,
+        timeout: timeoutMs,
+      },
+      (response) => {
+        response.setEncoding("utf8");
+        let body = "";
+        response.on("data", (chunk) => {
+          body += chunk;
+          if (body.length > 16_384) {
+            response.destroy();
+          }
+        });
+        response.on("end", () => {
+          finish({ statusCode: response.statusCode ?? 0, body });
+        });
+        response.on("close", () => {
+          finish({ statusCode: response.statusCode ?? 0, body });
+        });
+      },
+    );
+
+    request.on("timeout", () => {
+      request.destroy();
+      finish(null);
+    });
+    request.on("error", () => finish(null));
+  });
+}
+
+async function probeExistingStaticServer() {
+  const marker = await requestText("/__tauri_static_dev_probe");
+  if (marker?.statusCode === 200) {
+    try {
+      const payload = JSON.parse(marker.body);
+      if (payload?.app === "resonance-logs-global-static-dev") {
+        return "marker";
+      }
+    } catch {
+      // Fall through to the legacy probe below.
+    }
+  }
+
+  const localeProbe = await requestText(
+    "/src/lib/locales/en/ui/overlay/skill-monitor/custom-panel.json",
+  );
+  if (
+    localeProbe?.statusCode === 200 &&
+    localeProbe.body.includes("customPanel.newFactor")
+  ) {
+    return "locale-probe";
+  }
+
+  return null;
+}
+
+function keepAliveForReusedServer(reason) {
+  console.warn(
+    `[tauri-static-dev] ${host}:${port} is already in use; reusing existing static dev server (${reason}).`,
+  );
+  console.warn(
+    "[tauri-static-dev] If this looks stale, stop the old dev process or free port 1420, then rerun.",
+  );
+  setInterval(() => {}, 60 * 60 * 1000);
+}
+
 async function main() {
   stopWindivertIfPresent();
   await runBuild();
 
   const server = createServer((request, response) => {
+    if ((request.url || "").split("?")[0] === "/__tauri_static_dev_probe") {
+      response.writeHead(200, {
+        "content-type": "application/json; charset=utf-8",
+        "cache-control": "no-store",
+      });
+      response.end(
+        JSON.stringify({
+          app: "resonance-logs-global-static-dev",
+          rootDir,
+          buildDir,
+        }),
+      );
+      return;
+    }
+
     const filePath = resolveRequestPath(request.url || "/");
 
     if (!filePath || !existsSync(filePath)) {
@@ -129,9 +221,17 @@ async function main() {
     createReadStream(filePath).pipe(response);
   });
 
-  server.on("error", (error) => {
+  server.on("error", async (error) => {
+    if (error.code === "EADDRINUSE") {
+      const reason = await probeExistingStaticServer();
+      if (reason) {
+        keepAliveForReusedServer(reason);
+        return;
+      }
+    }
+
     console.error(`[tauri-static-dev] server failed: ${error.message}`);
-    process.exitCode = 1;
+    process.exit(1);
   });
 
   server.listen(port, host, () => {

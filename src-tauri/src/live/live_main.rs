@@ -5,8 +5,9 @@ use crate::live::{
     commands_models::{
         BossBuffUpdatePayload, BuffCounterUpdatePayload, BuffUpdatePayload, DeathReplayPayload,
         EntityIdentityMapPayload, EntityNameMapPayload, FightResourceUpdatePayload,
-        HateListUpdatePayload, LiveDataPayload, PanelAttrUpdatePayload, ShieldDetailUpdatePayload,
-        SkillCdUpdatePayload,
+        HateListUpdatePayload, LiveDataPayload, PanelAttrUpdatePayload,
+        SeasonCultivateFactorCounterUpdatePayload, ShieldDetailUpdatePayload, SkillCdUpdatePayload,
+        TeammateBuffUpdatePayload,
     },
     custom_trigger_events::emit_custom_trigger_entries,
     event_logger::{
@@ -15,7 +16,8 @@ use crate::live::{
     },
     event_manager::{EncounterUpdatePayload, SceneChangePayload},
     event_manager::{OutboundEvent, safe_emit_to},
-    opcodes_models::AttrType,
+    opcodes_models::{AttrType, attr_type},
+    opcodes_process::parse_fight_resources,
 };
 use crate::packets;
 use blueprotobuf_lib::blueprotobuf;
@@ -97,6 +99,17 @@ fn handle_capture_event(
             let auxiliary_entries = decode_auxiliary_logger_entries(&notify);
             if !auxiliary_entries.is_empty() {
                 emit_auxiliary_entries(app_handle, auxiliary_entries);
+            }
+
+            if let Some(team_event) = crate::live::team::decode_team_event(
+                packets::opcodes::NotifyKey {
+                    service_id: notify.service_id,
+                    method_id: notify.method_id,
+                },
+                notify.payload.clone(),
+            ) {
+                batch_events.push(StateEvent::Team(team_event));
+                return false;
             }
 
             let Some(op) = notify.recognized_pkt else {
@@ -3108,6 +3121,562 @@ fn raw_service_probe_payload_hex_limit() -> usize {
     *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_RAW_SERVICE_PROBE_HEX_LIMIT", 4096))
 }
 
+fn factor_energy_probes_enabled() -> bool {
+    static ENABLED: OnceLock<bool> = OnceLock::new();
+
+    *ENABLED.get_or_init(|| debug_env_flag_enabled("RESONANCE_ENABLE_FACTOR_ENERGY_PROBES"))
+}
+
+fn build_factor_energy_counter_probe_logger_entry(
+    ts_ms: i64,
+    payload: &SeasonCultivateFactorCounterUpdatePayload,
+) -> Option<EventLoggerEntry> {
+    if !factor_energy_probes_enabled() {
+        return None;
+    }
+
+    let slot_count = payload
+        .counters
+        .iter()
+        .map(|counter| counter.slots.len())
+        .sum::<usize>();
+    let raw = serde_json::json!({
+        "probe": "factor-energy",
+        "source": "season-cultivate-factor-counter-update",
+        "sourceItemIds": &payload.source_item_ids,
+        "slotItemIds": &payload.slot_item_ids,
+        "activeAreaIds": &payload.active_area_ids,
+        "activeItemIds": &payload.active_item_ids,
+        "activeFantasyIds": &payload.active_fantasy_ids,
+        "counters": &payload.counters,
+    });
+
+    Some(EventLoggerEntry {
+        ts_ms,
+        category: "factor_energy_probe".to_string(),
+        action: "factor_counter_update".to_string(),
+        uid: None,
+        target_uid: None,
+        source_uid: None,
+        source_label: Some("New Factor inferred counter".to_string()),
+        target_label: None,
+        name_hint: Some("Factor energy counter guess".to_string()),
+        summary: Some(format!(
+            "sourceItems={} slotItems={} activeItems={} counters={} slots={}",
+            payload.source_item_ids.len(),
+            payload.slot_item_ids.len(),
+            payload.active_item_ids.len(),
+            payload.counters.len(),
+            slot_count
+        )),
+        stacks: i32::try_from(slot_count).ok(),
+        duration_ms: None,
+        remaining_ms: None,
+        value: None,
+        raw: serde_json::to_string_pretty(&raw).unwrap_or_else(|_| "null".to_string()),
+    })
+}
+
+fn build_factor_energy_fight_resource_probe_logger_entry(
+    ts_ms: i64,
+    fight_res: &crate::live::commands_models::FightResourceState,
+) -> Option<EventLoggerEntry> {
+    if !factor_energy_probes_enabled() {
+        return None;
+    }
+
+    let raw = serde_json::json!({
+        "probe": "factor-energy",
+        "source": "fight-res-update",
+        "fightRes": fight_res,
+    });
+    let value_summary = fight_res
+        .entries
+        .iter()
+        .take(8)
+        .map(|entry| format!("{}={}", entry.id, entry.value))
+        .collect::<Vec<_>>()
+        .join(",");
+
+    Some(EventLoggerEntry {
+        ts_ms,
+        category: "factor_energy_probe".to_string(),
+        action: "fight_resource_update".to_string(),
+        uid: None,
+        target_uid: None,
+        source_uid: None,
+        source_label: Some("SyncToMeDeltaInfo ATTR_FIGHT_RESOURCES".to_string()),
+        target_label: None,
+        name_hint: Some("Packet fight resources".to_string()),
+        summary: Some(format!(
+            "entries={}{}",
+            fight_res.entries.len(),
+            if value_summary.is_empty() {
+                String::new()
+            } else {
+                format!(" values={value_summary}")
+            }
+        )),
+        stacks: i32::try_from(fight_res.entries.len()).ok(),
+        duration_ms: None,
+        remaining_ms: None,
+        value: None,
+        raw: serde_json::to_string_pretty(&raw).unwrap_or_else(|_| "null".to_string()),
+    })
+}
+
+fn factor_energy_delta_attr_probe_attr_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_FACTOR_ENERGY_DELTA_ATTR_LIMIT", 200))
+}
+
+fn factor_energy_delta_attr_probe_raw_hex_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_FACTOR_ENERGY_DELTA_ATTR_HEX_LIMIT", 96))
+}
+
+fn decode_probe_varints(raw: &[u8], max_values: usize) -> (Vec<u64>, bool) {
+    let mut buf = raw;
+    let mut values = Vec::new();
+
+    while !buf.is_empty() && values.len() < max_values {
+        match prost::encoding::decode_varint(&mut buf) {
+            Ok(value) => values.push(value),
+            Err(_) => return (values, false),
+        }
+    }
+
+    (values, buf.is_empty())
+}
+
+fn decode_probe_first_varint(raw: &[u8]) -> Option<u64> {
+    let mut buf = raw;
+    prost::encoding::decode_varint(&mut buf).ok()
+}
+
+fn decode_probe_u16_le(raw: &[u8]) -> Option<u16> {
+    raw.get(..2)
+        .and_then(|bytes| <[u8; 2]>::try_from(bytes).ok())
+        .map(u16::from_le_bytes)
+}
+
+fn decode_probe_i32_le(raw: &[u8]) -> Option<i32> {
+    raw.get(..4)
+        .and_then(|bytes| <[u8; 4]>::try_from(bytes).ok())
+        .map(i32::from_le_bytes)
+}
+
+fn decode_fight_resource_tuple_candidate(values: &[i64]) -> Option<serde_json::Value> {
+    if values.len() < 10 {
+        return None;
+    }
+
+    let resource_ids = [values[1], values[3], values[5]];
+    if resource_ids.iter().any(|value| *value <= 0)
+        || resource_ids.iter().any(|value| *value != resource_ids[0])
+    {
+        return None;
+    }
+
+    Some(serde_json::json!({
+        "resourceId": resource_ids[0],
+        "currentValue": values[6],
+        "maxValue": values[7],
+        "tailValues": values[8..].to_vec(),
+        "leadingFlags": [values[0], values[2], values[4]],
+        "sequence": values,
+    }))
+}
+
+fn factor_probe_attr_kind(id: i32) -> Option<&'static str> {
+    match id {
+        attr_type::ATTR_FIGHT_RESOURCE_IDS => Some("fight_resource_ids"),
+        attr_type::ATTR_FIGHT_RESOURCES => Some("fight_resources"),
+        attr_type::ATTR_SKILL_ID => Some("skill_id"),
+        attr_type::ATTR_ENERGY_FLAG => Some("energy_flag"),
+        _ => None,
+    }
+}
+
+fn build_factor_probe_attr_row(
+    attr: &blueprotobuf::Attr,
+    raw_hex_limit: usize,
+) -> Option<serde_json::Value> {
+    let id = attr.id?;
+    let raw = attr.raw_data.as_deref().unwrap_or_default();
+    let raw_hex_len = raw.len().min(raw_hex_limit);
+    let (varints, varints_fully_decoded) = decode_probe_varints(raw, 12);
+    let packed_varints = parse_fight_resources(raw);
+    let fight_resource_tuple_candidate = packed_varints
+        .as_deref()
+        .and_then(decode_fight_resource_tuple_candidate);
+    let attr_type_name = AttrType::from_id(id).map(|value| format!("{value:?}"));
+    let kind = factor_probe_attr_kind(id);
+
+    Some(serde_json::json!({
+        "id": id,
+        "idHex": format!("0x{:X}", id),
+        "attrType": attr_type_name,
+        "kind": kind,
+        "rawLen": raw.len(),
+        "rawHex": hex::encode(&raw[..raw_hex_len]),
+        "rawHexTruncated": raw.len() > raw_hex_len,
+        "varint": decode_probe_first_varint(raw),
+        "varints": varints,
+        "varintsFullyDecoded": varints_fully_decoded,
+        "u16Le": decode_probe_u16_le(raw),
+        "i32Le": decode_probe_i32_le(raw),
+        "packedVarints": packed_varints,
+        "fightResourceTupleCandidate": fight_resource_tuple_candidate,
+    }))
+}
+
+fn build_factor_probe_delta_row(
+    delta: &blueprotobuf::AoiSyncDelta,
+    attr_limit_remaining: &mut usize,
+    raw_hex_limit: usize,
+) -> Option<serde_json::Value> {
+    let attrs_collection = delta.attrs.as_ref()?;
+    let total_attrs = attrs_collection.attrs.len();
+    let mut attrs = Vec::new();
+    let mut interesting_ids = Vec::new();
+    let mut packed_candidate_ids = Vec::new();
+    let mut fight_resource_tuple_candidates = Vec::new();
+
+    for attr in &attrs_collection.attrs {
+        let Some(id) = attr.id else {
+            continue;
+        };
+        let raw_data = attr.raw_data.as_deref();
+        if factor_probe_attr_kind(id).is_some() {
+            interesting_ids.push(id);
+        }
+        let packed_varints = raw_data.and_then(parse_fight_resources);
+        if packed_varints.is_some() {
+            packed_candidate_ids.push(id);
+        }
+        if id == attr_type::ATTR_FIGHT_RESOURCES {
+            if let Some(tuple_candidate) = packed_varints
+                .as_deref()
+                .and_then(decode_fight_resource_tuple_candidate)
+            {
+                let raw_hex_len = raw_data
+                    .map(|raw| raw.len().min(raw_hex_limit))
+                    .unwrap_or(0);
+                fight_resource_tuple_candidates.push(serde_json::json!({
+                    "deltaUuid": delta.uuid,
+                    "attrCollectionUuid": attrs_collection.uuid,
+                    "id": id,
+                    "idHex": format!("0x{:X}", id),
+                    "attrType": AttrType::from_id(id).map(|value| format!("{value:?}")),
+                    "kind": factor_probe_attr_kind(id),
+                    "rawLen": raw_data.map(|raw| raw.len()).unwrap_or(0),
+                    "rawHex": raw_data.map(|raw| hex::encode(&raw[..raw_hex_len])).unwrap_or_default(),
+                    "rawHexTruncated": raw_data.map(|raw| raw.len() > raw_hex_len).unwrap_or(false),
+                    "candidate": tuple_candidate,
+                }));
+            }
+        }
+        if *attr_limit_remaining == 0 {
+            continue;
+        }
+        if let Some(row) = build_factor_probe_attr_row(attr, raw_hex_limit) {
+            attrs.push(row);
+            *attr_limit_remaining = attr_limit_remaining.saturating_sub(1);
+        }
+    }
+
+    if total_attrs == 0 {
+        return None;
+    }
+
+    Some(serde_json::json!({
+        "deltaUuid": delta.uuid,
+        "attrCollectionUuid": attrs_collection.uuid,
+        "totalAttrs": total_attrs,
+        "attrsTruncated": attrs.len() < total_attrs,
+        "interestingAttrIds": interesting_ids,
+        "packedCandidateAttrIds": packed_candidate_ids,
+        "fightResourceTupleCandidates": fight_resource_tuple_candidates,
+        "attrs": attrs,
+    }))
+}
+
+fn fight_resource_tuple_candidate_count(deltas: &[serde_json::Value]) -> usize {
+    deltas
+        .iter()
+        .filter_map(|delta| {
+            delta
+                .get("fightResourceTupleCandidates")
+                .and_then(|value| value.as_array())
+        })
+        .map(|rows| rows.len())
+        .sum()
+}
+
+fn build_factor_energy_delta_attr_probe_logger_entry(
+    ts_ms: i64,
+    source: &'static str,
+    deltas: Vec<serde_json::Value>,
+    total_attrs: usize,
+    total_interesting: usize,
+) -> EventLoggerEntry {
+    let raw = serde_json::json!({
+        "probe": "factor-energy",
+        "source": source,
+        "deltas": deltas,
+        "totalAttrs": total_attrs,
+        "totalInterestingAttrs": total_interesting,
+    });
+
+    EventLoggerEntry {
+        ts_ms,
+        category: "factor_energy_probe".to_string(),
+        action: match source {
+            "SyncToMeDeltaInfo" => "sync_to_me_delta_attrs".to_string(),
+            "SyncNearDeltaInfo" => "sync_near_delta_attrs".to_string(),
+            _ => "delta_attrs".to_string(),
+        },
+        uid: None,
+        target_uid: None,
+        source_uid: None,
+        source_label: Some(source.to_string()),
+        target_label: None,
+        name_hint: Some("Decoded packet attrs near factor energy".to_string()),
+        summary: Some(format!(
+            "source={source} deltas={} attrs={} interesting={} tuples={}",
+            raw["deltas"].as_array().map(|rows| rows.len()).unwrap_or(0),
+            total_attrs,
+            total_interesting,
+            fight_resource_tuple_candidate_count(
+                raw["deltas"].as_array().map(Vec::as_slice).unwrap_or(&[])
+            )
+        )),
+        stacks: i32::try_from(total_attrs).ok(),
+        duration_ms: None,
+        remaining_ms: None,
+        value: None,
+        raw: serde_json::to_string_pretty(&raw).unwrap_or_else(|_| "null".to_string()),
+    }
+}
+
+fn build_factor_energy_tuple_probe_logger_entries(
+    ts_ms: i64,
+    source: &'static str,
+    deltas: &[serde_json::Value],
+) -> Vec<EventLoggerEntry> {
+    let mut entries = Vec::new();
+
+    for delta in deltas {
+        let Some(candidates) = delta
+            .get("fightResourceTupleCandidates")
+            .and_then(|value| value.as_array())
+        else {
+            continue;
+        };
+
+        for candidate_row in candidates {
+            let Some(candidate) = candidate_row
+                .get("candidate")
+                .and_then(|value| value.as_object())
+            else {
+                continue;
+            };
+            let resource_id = candidate
+                .get("resourceId")
+                .and_then(|value| value.as_i64())
+                .unwrap_or_default();
+            let current_value = candidate
+                .get("currentValue")
+                .and_then(|value| value.as_i64())
+                .unwrap_or_default();
+            let max_value = candidate
+                .get("maxValue")
+                .and_then(|value| value.as_i64())
+                .unwrap_or_default();
+            let tail_values = candidate
+                .get("tailValues")
+                .and_then(|value| value.as_array())
+                .map(|rows| {
+                    rows.iter()
+                        .filter_map(|value| value.as_i64())
+                        .map(|value| value.to_string())
+                        .collect::<Vec<_>>()
+                        .join(",")
+                })
+                .unwrap_or_default();
+            let sequence_summary = candidate
+                .get("sequence")
+                .and_then(|value| value.as_array())
+                .map(|rows| {
+                    rows.iter()
+                        .take(12)
+                        .filter_map(|value| value.as_i64())
+                        .map(|value| value.to_string())
+                        .collect::<Vec<_>>()
+                        .join(",")
+                })
+                .unwrap_or_default();
+
+            let raw = serde_json::json!({
+                "probe": "factor-energy",
+                "source": source,
+                "candidateRow": candidate_row,
+            });
+
+            entries.push(EventLoggerEntry {
+                ts_ms,
+                category: "factor_energy_probe".to_string(),
+                action: "fight_resource_tuple_candidate".to_string(),
+                uid: Some(resource_id),
+                target_uid: candidate_row
+                    .get("deltaUuid")
+                    .and_then(|value| value.as_i64()),
+                source_uid: candidate_row
+                    .get("attrCollectionUuid")
+                    .and_then(|value| value.as_i64()),
+                source_label: Some(source.to_string()),
+                target_label: None,
+                name_hint: Some("Packet fight-resource tuple candidate".to_string()),
+                summary: Some(format!(
+                    "resource={} current={}/{} tail={} sequence=[{}]",
+                    resource_id, current_value, max_value, tail_values, sequence_summary
+                )),
+                stacks: i32::try_from(current_value).ok(),
+                duration_ms: None,
+                remaining_ms: None,
+                value: Some(current_value.to_string()),
+                raw: serde_json::to_string_pretty(&raw).unwrap_or_else(|_| "null".to_string()),
+            });
+        }
+    }
+
+    entries
+}
+
+fn decode_factor_energy_delta_attr_probe_entries(
+    notify: &crate::packets::parser::ParsedNotifyFragment,
+) -> Vec<EventLoggerEntry> {
+    if !factor_energy_probes_enabled() {
+        return Vec::new();
+    }
+
+    let attr_limit = factor_energy_delta_attr_probe_attr_limit();
+    let raw_hex_limit = factor_energy_delta_attr_probe_raw_hex_limit();
+    let ts_ms = now_ms();
+
+    match notify.recognized_pkt {
+        Some(packets::opcodes::Pkt::SyncToMeDeltaInfo) => {
+            let Ok(sync_to_me_delta_info) =
+                blueprotobuf::SyncToMeDeltaInfo::decode(notify.payload.clone())
+            else {
+                return Vec::new();
+            };
+            let Some(delta_info) = sync_to_me_delta_info.delta_info.as_ref() else {
+                return Vec::new();
+            };
+            let Some(base_delta) = delta_info.base_delta.as_ref() else {
+                return Vec::new();
+            };
+
+            let mut attr_limit_remaining = attr_limit;
+            let Some(mut delta_row) =
+                build_factor_probe_delta_row(base_delta, &mut attr_limit_remaining, raw_hex_limit)
+            else {
+                return Vec::new();
+            };
+            if let Some(object) = delta_row.as_object_mut() {
+                object.insert("localUuid".to_string(), serde_json::json!(delta_info.uuid));
+                object.insert(
+                    "syncSkillCdCount".to_string(),
+                    serde_json::json!(delta_info.sync_skill_c_ds.len()),
+                );
+                object.insert(
+                    "fightResCdCount".to_string(),
+                    serde_json::json!(delta_info.fight_res_c_ds.len()),
+                );
+            }
+
+            let total_attrs = delta_row
+                .get("totalAttrs")
+                .and_then(|value| value.as_u64())
+                .and_then(|value| usize::try_from(value).ok())
+                .unwrap_or(0);
+            let total_interesting = delta_row
+                .get("interestingAttrIds")
+                .and_then(|value| value.as_array())
+                .map(|rows| rows.len())
+                .unwrap_or(0);
+
+            let deltas = vec![delta_row];
+            let mut entries = vec![build_factor_energy_delta_attr_probe_logger_entry(
+                ts_ms,
+                "SyncToMeDeltaInfo",
+                deltas.clone(),
+                total_attrs,
+                total_interesting,
+            )];
+            entries.extend(build_factor_energy_tuple_probe_logger_entries(
+                ts_ms,
+                "SyncToMeDeltaInfo",
+                &deltas,
+            ));
+            entries
+        }
+        Some(packets::opcodes::Pkt::SyncNearDeltaInfo) => {
+            let Ok(sync_near_delta_info) =
+                blueprotobuf::SyncNearDeltaInfo::decode(notify.payload.clone())
+            else {
+                return Vec::new();
+            };
+
+            let mut attr_limit_remaining = attr_limit;
+            let mut deltas = Vec::new();
+            let mut total_attrs = 0usize;
+            let mut total_interesting = 0usize;
+            for delta in &sync_near_delta_info.delta_infos {
+                let Some(delta_row) =
+                    build_factor_probe_delta_row(delta, &mut attr_limit_remaining, raw_hex_limit)
+                else {
+                    continue;
+                };
+                total_attrs += delta_row
+                    .get("totalAttrs")
+                    .and_then(|value| value.as_u64())
+                    .and_then(|value| usize::try_from(value).ok())
+                    .unwrap_or(0);
+                total_interesting += delta_row
+                    .get("interestingAttrIds")
+                    .and_then(|value| value.as_array())
+                    .map(|rows| rows.len())
+                    .unwrap_or(0);
+                deltas.push(delta_row);
+            }
+
+            if deltas.is_empty() {
+                return Vec::new();
+            }
+
+            let mut entries = vec![build_factor_energy_delta_attr_probe_logger_entry(
+                ts_ms,
+                "SyncNearDeltaInfo",
+                deltas.clone(),
+                total_attrs,
+                total_interesting,
+            )];
+            entries.extend(build_factor_energy_tuple_probe_logger_entries(
+                ts_ms,
+                "SyncNearDeltaInfo",
+                &deltas,
+            ));
+            entries
+        }
+        _ => Vec::new(),
+    }
+}
+
 fn raw_service_probe_near_delta_limit() -> usize {
     static LIMIT: OnceLock<usize> = OnceLock::new();
 
@@ -3954,6 +4523,138 @@ fn build_sync_container_probe_logger_entry(
     })
 }
 
+#[derive(Clone)]
+struct ContainerProbeDirtyRootField {
+    field_id: i32,
+    field_name: &'static str,
+    offset: usize,
+}
+
+impl ContainerProbeDirtyRootField {
+    fn to_json(&self) -> serde_json::Value {
+        serde_json::json!({
+            "fieldId": self.field_id,
+            "fieldName": self.field_name,
+            "offset": self.offset,
+        })
+    }
+}
+
+fn container_probe_char_serialize_field_name(field_id: i32) -> &'static str {
+    match field_id {
+        1 => "char_id",
+        2 => "char_base",
+        3 => "scene_data",
+        5 => "pioneer_data",
+        6 => "buff_info",
+        7 => "item_package",
+        8 => "quest_list",
+        13 => "energy_item",
+        16 => "attr",
+        20 => "counter_list",
+        24 => "transfer_point",
+        37 => "anti_info",
+        52 => "season_medal_info",
+        55 => "slots",
+        61 => "profession_list",
+        88 => "lucky_value_mgr",
+        91 => "statistics_data",
+        98 => "char_statistics_data",
+        101 => "season_cultivate_line_data",
+        _ => "unknown",
+    }
+}
+
+fn container_probe_read_i32_le(buffer: &[u8], offset: usize) -> Option<i32> {
+    let bytes = buffer.get(offset..offset.checked_add(4)?)?;
+    Some(i32::from_le_bytes(bytes.try_into().ok()?))
+}
+
+fn container_probe_read_u32_le(buffer: &[u8], offset: usize) -> Option<u32> {
+    let bytes = buffer.get(offset..offset.checked_add(4)?)?;
+    Some(u32::from_le_bytes(bytes.try_into().ok()?))
+}
+
+fn collect_container_probe_dirty_root_fields(buffer: &[u8]) -> Vec<ContainerProbeDirtyRootField> {
+    if container_probe_read_i32_le(buffer, 0) != Some(-2) {
+        return Vec::new();
+    }
+
+    let Some(length) =
+        container_probe_read_u32_le(buffer, 4).and_then(|value| usize::try_from(value).ok())
+    else {
+        return Vec::new();
+    };
+    let body_start = 8usize;
+    let Some(body_end) = body_start.checked_add(length) else {
+        return Vec::new();
+    };
+    if body_end > buffer.len() || container_probe_read_i32_le(buffer, body_end) != Some(-3) {
+        return Vec::new();
+    }
+
+    let mut fields = Vec::new();
+    let mut offset = body_start;
+    while offset.checked_add(4).is_some_and(|end| end <= body_end) {
+        let Some(field_id) = container_probe_read_i32_le(buffer, offset) else {
+            break;
+        };
+        if field_id <= 0 {
+            break;
+        }
+
+        fields.push(ContainerProbeDirtyRootField {
+            field_id,
+            field_name: container_probe_char_serialize_field_name(field_id),
+            offset,
+        });
+        offset += 4;
+
+        if container_probe_read_i32_le(buffer, offset) == Some(-2)
+            && offset.checked_add(8).is_some_and(|end| end <= body_end)
+        {
+            let Some(child_length) = container_probe_read_u32_le(buffer, offset + 4)
+                .and_then(|value| usize::try_from(value).ok())
+            else {
+                break;
+            };
+            let Some(child_body_end) = offset
+                .checked_add(8)
+                .and_then(|child_body_start| child_body_start.checked_add(child_length))
+            else {
+                break;
+            };
+            if child_body_end > body_end {
+                break;
+            }
+            offset = child_body_end;
+            if container_probe_read_i32_le(buffer, child_body_end) == Some(-3) {
+                offset += 4;
+            }
+            continue;
+        }
+
+        let Some(after_u64) = offset.checked_add(8) else {
+            break;
+        };
+        let marker_after_u64 = container_probe_read_i32_le(buffer, after_u64);
+        if after_u64 <= body_end
+            && (matches!(marker_after_u64, Some(-2 | -3))
+                || marker_after_u64.is_some_and(|marker| marker > 0 && marker <= 200))
+        {
+            offset = after_u64;
+            continue;
+        }
+
+        let Some(next_offset) = offset.checked_add(4) else {
+            break;
+        };
+        offset = next_offset;
+    }
+
+    fields
+}
+
 fn build_sync_container_dirty_probe_logger_entry(
     ts_ms: i64,
     sync_container_dirty_data: blueprotobuf::SyncContainerDirtyData,
@@ -3965,8 +4666,10 @@ fn build_sync_container_dirty_probe_logger_entry(
         .unwrap_or_default();
     let candidates = scan_container_factor_candidates(buffer);
     let raw_proto_candidates = scan_container_raw_proto_candidates(buffer);
+    let root_fields = collect_container_probe_dirty_root_fields(buffer);
     if candidates.is_empty()
         && raw_proto_candidates.is_empty()
+        && root_fields.is_empty()
         && !container_probes_verbose_enabled()
     {
         return None;
@@ -4012,6 +4715,22 @@ fn build_sync_container_dirty_probe_logger_entry(
     if !value_summary.is_empty() {
         summary_parts.push(format!("values={}", value_summary.join(",")));
     }
+    let root_field_summary = root_fields
+        .iter()
+        .take(8)
+        .map(|field| format!("{}:{}", field.field_id, field.field_name))
+        .collect::<Vec<_>>();
+    if !root_field_summary.is_empty() {
+        summary_parts.push(format!("rootFields={}", root_field_summary.join(",")));
+    }
+    let has_season_medal_root = root_fields.iter().any(|field| field.field_id == 52);
+    let has_season_cultivate_root = root_fields.iter().any(|field| field.field_id == 101);
+    if has_season_medal_root || has_season_cultivate_root {
+        summary_parts.push(format!(
+            "seasonRoots=medal:{} cultivate:{}",
+            has_season_medal_root, has_season_cultivate_root
+        ));
+    }
 
     let raw_candidates = candidates
         .iter()
@@ -4037,12 +4756,25 @@ fn build_sync_container_dirty_probe_logger_entry(
             })
         })
         .collect::<Vec<_>>();
+    let root_fields_json = root_fields
+        .iter()
+        .map(ContainerProbeDirtyRootField::to_json)
+        .collect::<Vec<_>>();
+    let season_root_fields_json = root_fields
+        .iter()
+        .filter(|field| matches!(field.field_id, 52 | 101))
+        .map(ContainerProbeDirtyRootField::to_json)
+        .collect::<Vec<_>>();
 
     let raw = serde_json::json!({
         "probe": "sync-container-dirty",
         "bufferLength": buffer.len(),
         "bufferHex": hex::encode(buffer_slice),
         "bufferHexTruncated": is_truncated,
+        "rootFields": root_fields_json,
+        "seasonRootFields": season_root_fields_json,
+        "hasSeasonMedalRoot": has_season_medal_root,
+        "hasSeasonCultivateRoot": has_season_cultivate_root,
         "factorCandidateCount": candidates.len(),
         "factorCandidatesTruncated": candidates.len() > raw_candidates.len(),
         "factorCandidates": raw_candidates,
@@ -4256,18 +4988,21 @@ fn decode_auxiliary_logger_entries(
     notify: &crate::packets::parser::ParsedNotifyFragment,
 ) -> Vec<EventLoggerEntry> {
     let mut entries = Vec::new();
+    let mut factor_delta_attr_entries = decode_factor_energy_delta_attr_probe_entries(notify);
 
     let mut promoted_entries = decode_promoted_service_entries(notify);
     if !promoted_entries.is_empty() {
         if should_emit_raw_service_probe_sample(notify) {
             promoted_entries.insert(0, build_raw_service_probe_logger_entry(now_ms(), notify));
         }
+        promoted_entries.append(&mut factor_delta_attr_entries);
         promoted_entries.extend(entries);
         return promoted_entries;
     }
 
     if should_emit_raw_service_probe(notify) {
         entries.insert(0, build_raw_service_probe_logger_entry(now_ms(), notify));
+        entries.append(&mut factor_delta_attr_entries);
         return entries;
     }
 
@@ -4341,6 +5076,7 @@ fn decode_auxiliary_logger_entries(
         decoded_entries.insert(0, build_raw_service_probe_logger_entry(now_ms(), notify));
     }
 
+    decoded_entries.append(&mut factor_delta_attr_entries);
     decoded_entries.append(&mut entries);
     decoded_entries
 }
@@ -4357,8 +5093,7 @@ fn build_event_logger_session_context(state: &AppState) -> EventLoggerSessionCon
             .or_else(|| {
                 state
                     .encounter
-                    .entity_uid_to_entity
-                    .get(&uid)
+                    .entity_by_uid(uid)
                     .map(|entity| entity.name.clone())
                     .filter(|value| !value.trim().is_empty())
             })
@@ -4456,8 +5191,7 @@ fn build_live_snapshot_logger_entries(
 
         state
             .encounter
-            .entity_uid_to_entity
-            .get(&local_player_uid)
+            .entity_by_uid(local_player_uid)
             .map(|entity| resolve_entity_display_name(local_player_uid, entity, &state.attr_store))
             .map(|name| {
                 normalize_logger_base_name(local_player_uid, name, fallback_name.as_deref())
@@ -4546,7 +5280,7 @@ fn build_live_snapshot_logger_entries(
         });
     }
 
-    for (&uid, entity) in &state.encounter.entity_uid_to_entity {
+    for (uid, entity) in state.encounter.entity_uid_entries() {
         let base_name = resolve_entity_display_name(uid, entity, &state.attr_store);
         let fallback_name = if uid == local_player_uid {
             session_context
@@ -4749,8 +5483,7 @@ fn build_live_snapshot_logger_entries(
                 }
                 let target_name = state
                     .encounter
-                    .entity_uid_to_entity
-                    .get(&target_uid)
+                    .entity_by_uid(target_uid)
                     .map(|target| {
                         resolve_entity_display_name(target_uid, target, &state.attr_store)
                     })
@@ -4788,8 +5521,7 @@ fn build_live_snapshot_logger_entries(
                 }
                 let target_name = state
                     .encounter
-                    .entity_uid_to_entity
-                    .get(&target_uid)
+                    .entity_by_uid(target_uid)
                     .map(|target| {
                         resolve_entity_display_name(target_uid, target, &state.attr_store)
                     })
@@ -4831,8 +5563,7 @@ fn build_live_snapshot_logger_entries(
                 }
                 let target_name = state
                     .encounter
-                    .entity_uid_to_entity
-                    .get(&target_uid)
+                    .entity_by_uid(target_uid)
                     .map(|target| {
                         resolve_entity_display_name(target_uid, target, &state.attr_store)
                     })
@@ -5527,19 +6258,20 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     payload,
                 );
                 let mut entries = Vec::new();
-                for (boss_uid, buffs) in boss_buffs {
+                for (boss_key, buffs) in boss_buffs {
+                    let boss_uid = boss_key.parse::<i64>().ok();
                     for buff in buffs {
                         entries.push(EventLoggerEntry {
                             ts_ms,
                             category: "monster_buff".into(),
                             action: "update".into(),
                             uid: Some(buff.base_id as i64),
-                            target_uid: Some(boss_uid),
+                            target_uid: boss_uid,
                             source_uid: Some(buff.source_uid),
                             source_label: None,
                             target_label: None,
                             name_hint: None,
-                            summary: Some(format!("boss={} src={}", boss_uid, buff.source_uid)),
+                            summary: Some(format!("boss={} src={}", boss_key, buff.source_uid)),
                             stacks: Some(buff.layer),
                             duration_ms: Some(buff.duration_ms),
                             remaining_ms: Some(buff.duration_ms),
@@ -5550,6 +6282,14 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     }
                 }
                 emit_auxiliary_entries(app_handle, entries);
+            }
+            OutboundEvent::TeammateBuffUpdate(teammate_buffs) => {
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_MONSTER_OVERLAY_LABEL,
+                    "teammate-buff-update",
+                    TeammateBuffUpdatePayload { teammate_buffs },
+                );
             }
             OutboundEvent::HateListUpdate(hate_lists) => {
                 let payload = HateListUpdatePayload {
@@ -5568,19 +6308,20 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     payload,
                 );
                 let mut entries = Vec::new();
-                for (boss_uid, entries_for_boss) in hate_lists {
+                for (boss_key, entries_for_boss) in hate_lists {
+                    let boss_uid = boss_key.parse::<i64>().ok();
                     for hate in entries_for_boss {
                         entries.push(EventLoggerEntry {
                             ts_ms,
                             category: "hate".into(),
                             action: "update".into(),
                             uid: Some(hate.uid),
-                            target_uid: Some(boss_uid),
+                            target_uid: boss_uid,
                             source_uid: None,
                             source_label: None,
                             target_label: None,
                             name_hint: None,
-                            summary: Some(format!("boss={} hate={}", boss_uid, hate.hate_val)),
+                            summary: Some(format!("boss={} hate={}", boss_key, hate.hate_val)),
                             stacks: None,
                             duration_ms: None,
                             remaining_ms: None,
@@ -5675,6 +6416,30 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     })
                     .collect();
                 emit_auxiliary_entries(app_handle, entries);
+            }
+            OutboundEvent::SeasonCultivateFactorCounterUpdate {
+                selection,
+                snapshot,
+                counters,
+            } => {
+                let payload = SeasonCultivateFactorCounterUpdatePayload {
+                    source_item_ids: selection.source_item_ids,
+                    slot_item_ids: selection.slot_item_ids,
+                    active_area_ids: snapshot.active_area_ids,
+                    active_item_ids: snapshot.active_item_ids,
+                    active_fantasy_ids: snapshot.active_fantasy_ids,
+                    counters,
+                };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "season-cultivate-factor-counter-update",
+                    payload.clone(),
+                );
+                if let Some(entry) = build_factor_energy_counter_probe_logger_entry(ts_ms, &payload)
+                {
+                    emit_auxiliary_entries(app_handle, vec![entry]);
+                }
             }
             OutboundEvent::SkillCdUpdate(skill_cds) => {
                 safe_emit_to(
@@ -5773,6 +6538,11 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                             .unwrap_or_else(|_| "null".to_string()),
                     }],
                 );
+                if let Some(entry) =
+                    build_factor_energy_fight_resource_probe_logger_entry(ts_ms, &fight_res)
+                {
+                    emit_auxiliary_entries(app_handle, vec![entry]);
+                }
             }
             OutboundEvent::ShieldDetailUpdate {
                 current_hp,

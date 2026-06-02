@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "Fonte desconhecida",
+  "tanked.monster.source": "Fonte",
+  "tanked.monster.total": "Total",
   "columns.historyHealPlayers.critDmgRate.description": "Mostra a proporção de healing done as cura crítica",
   "columns.historyHealPlayers.critDmgRate.header": "Cura crítica %",
   "columns.historyHealPlayers.critDmgRate.label": "Cura crítica %",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "Grupos de contribuicao",
   "detail.modifierTitlePredicates": "Predicados",
   "detail.modifierTitleRequiredEvidence": "Evidencia necessaria",
-  "detail.modifierTitleAttributionNotes": "Notas de atribuicao"
+  "detail.modifierTitleAttributionNotes": "Notas de atribuicao",
+  "columns.historyTankedPlayers.blockRate.description": "Mostra a chance de bloquear golpes recebidos",
+  "columns.historyTankedPlayers.blockRate.header": "Bloqueio %",
+  "columns.historyTankedPlayers.blockRate.label": "Bloqueio %",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "Mostra a chance de acionar um bloqueio de sorte",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "Bloqueio de sorte %",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "Bloqueio de sorte %",
+  "columns.historyTankedSkills.blockRate.description": "Mostra a chance desta habilidade recebida ser bloqueada",
+  "columns.historyTankedSkills.blockRate.header": "Bloqueio %",
+  "columns.historyTankedSkills.blockRate.label": "Bloqueio %",
+  "columns.historyTankedSkills.luckyBlockRate.description": "Mostra a chance desta habilidade recebida acionar bloqueio de sorte",
+  "columns.historyTankedSkills.luckyBlockRate.header": "Bloqueio de sorte %",
+  "columns.historyTankedSkills.luckyBlockRate.label": "Bloqueio de sorte %"
 }

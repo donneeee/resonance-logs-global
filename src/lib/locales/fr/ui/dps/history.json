@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "Source inconnue",
+  "tanked.monster.source": "Source",
+  "tanked.monster.total": "Total",
   "columns.historyHealPlayers.critDmgRate.description": "Affiche la proportion de healing done as soin critique",
   "columns.historyHealPlayers.critDmgRate.header": "Soin crit. %",
   "columns.historyHealPlayers.critDmgRate.label": "Soin crit. %",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "Groupes de contribution",
   "detail.modifierTitlePredicates": "Predicats",
   "detail.modifierTitleRequiredEvidence": "Preuves requises",
-  "detail.modifierTitleAttributionNotes": "Notes d'attribution"
+  "detail.modifierTitleAttributionNotes": "Notes d'attribution",
+  "columns.historyTankedPlayers.blockRate.description": "Affiche la chance de bloquer les coups reçus",
+  "columns.historyTankedPlayers.blockRate.header": "Blocage %",
+  "columns.historyTankedPlayers.blockRate.label": "Blocage %",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "Affiche la chance de déclencher un blocage chanceux",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "Blocage chanceux %",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "Blocage chanceux %",
+  "columns.historyTankedSkills.blockRate.description": "Affiche la chance que cette compétence reçue soit bloquée",
+  "columns.historyTankedSkills.blockRate.header": "Blocage %",
+  "columns.historyTankedSkills.blockRate.label": "Blocage %",
+  "columns.historyTankedSkills.luckyBlockRate.description": "Affiche la chance que cette compétence reçue déclenche un blocage chanceux",
+  "columns.historyTankedSkills.luckyBlockRate.header": "Blocage chanceux %",
+  "columns.historyTankedSkills.luckyBlockRate.label": "Blocage chanceux %"
 }

@@ -1,8 +1,21 @@
 import {
   findAnySkillByBaseId,
+  findSkillById,
   findSpecialBuffDisplays,
   getCounterRules,
+  getSeasonCultivateFactorConfiguredEffectBuffIds,
+  getSeasonCultivateFactorEffectBuffLabelMap,
+  getSeasonCultivateFactorItemSlotTemplateMap,
+  getSeasonCultivateFactorRuleId,
+  getSeasonCultivateFactorRuleMap,
+  getSeasonCultivateFactorSourceIncrementMap,
+  getSourceTemplates,
+  getSlotTemplates,
+  resolveSeasonCultivateSlotSkillLabel,
+  resolveSeasonCultivateSourceSkillLabel,
   type CounterRulePreset,
+  type SlotTemplate,
+  type SourceTemplate,
 } from "$lib/skill-mappings";
 import {
   getBuffCategoryLabel,
@@ -10,6 +23,8 @@ import {
   resolveBuffCategoryKey,
   resolveBuffOverlayDisplayName,
 } from "$lib/config/buff-name-table";
+import { lookupLocalizedDamageIdName } from "$lib/config/recount-table";
+import type { BuffUpdateState } from "$lib/api";
 import type {
   CustomPanelDisplayRow,
   IconBuffDisplay,
@@ -26,11 +41,14 @@ import {
   ensureIndividualMonitorAllGroup,
   formatTimerText,
   getCustomPanelDisplayRow,
+  getBuffRemainPercent,
   getResourcePreciseValue as getResourcePreciseValueValue,
   getResourceValue as getResourceValueValue,
+  isBuffActive,
   resolveAlertState,
 } from "./overlay-utils";
-import { ensureBuffAlerts } from "$lib/settings-store";
+import { uiT } from "$lib/i18n";
+import { ensureBuffAlerts, SETTINGS, type InlineBuffEntry } from "$lib/settings-store";
 import {
   activeProfile,
   buffAliases,
@@ -42,6 +60,7 @@ import {
   buffUptimeTrackingModes,
   customPanelGroups,
   expandedMonitoredBuffIds,
+  factorSlotLabels,
   monitoredUptimeBuffIds,
   enabledPanelAttrs,
   monitoredBuffCategories,
@@ -58,13 +77,34 @@ import {
   buffDefinitions,
   cdMap,
   counterMap,
+  factorCounterMap,
   liveData,
   nameCache,
   overlayRuntime,
+  seasonCultivateFactorCandidateSlotItemIds,
+  seasonCultivateFactorProcCounts,
+  seasonCultivateFactorSlotItemIds,
   skillDurationMap,
   uptimeTotals,
 } from "./overlay-runtime.svelte.js";
 import { overlayNow } from "./overlay-clock.svelte.js";
+
+const tCustomPanel = uiT(
+  "overlay/skill-monitor/custom-panel",
+  () => SETTINGS.live.general.state.language,
+);
+
+const FACTOR_CLASS_KEYS = [
+  "wind_knight",
+  "frost_mage",
+  "flame_berserker",
+  "stormblade",
+  "beat_performer",
+  "heavy_guardian",
+  "shield_knight",
+  "marksman",
+  "verdant_oracle",
+];
 
 const _normalizedBuffGroups = $derived.by(() => {
   const profile = activeProfile();
@@ -101,6 +141,373 @@ const _counterRuleMap = $derived.by(() => {
   return map;
 });
 
+const _seasonCultivateFactorRuleMap = $derived.by(() =>
+  getSeasonCultivateFactorRuleMap(),
+);
+
+const _seasonCultivateFactorItemSlotTemplateMap = $derived.by(() =>
+  getSeasonCultivateFactorItemSlotTemplateMap(),
+);
+
+const _seasonCultivateFactorSourceIncrementMap = $derived.by(() =>
+  getSeasonCultivateFactorSourceIncrementMap(),
+);
+
+const _seasonCultivateFactorSourceTemplateMap = $derived.by(() => {
+  const map = new Map<number, SourceTemplate>();
+  for (const template of getSourceTemplates()) {
+    for (const itemId of template.itemIds ?? []) {
+      map.set(itemId, template);
+    }
+  }
+  return map;
+});
+
+const _seasonCultivateFactorSlotTemplateMap = $derived.by(() => {
+  const map = new Map<number, SlotTemplate>();
+  for (const template of getSlotTemplates()) {
+    for (const itemId of template.itemIds ?? []) {
+      map.set(itemId, template);
+    }
+  }
+  return map;
+});
+
+const _seasonCultivateFactorOwnedEffectBuffIds = $derived.by(() => {
+  const result = new Set<number>();
+  const hasFactorPanelGroup = customPanelGroups().some(
+    (group) => group.kind === "seasonCultivateFactor",
+  );
+  if (!hasFactorPanelGroup) return result;
+
+  for (const buffId of getSeasonCultivateFactorConfiguredEffectBuffIds()) {
+    result.add(buffId);
+  }
+  return result;
+});
+
+const _seasonCultivateFactorEffectBuffLabelMap = $derived.by(() =>
+  getSeasonCultivateFactorEffectBuffLabelMap(),
+);
+
+function resolveFactorBuffName(
+  baseId: number,
+  aliases: Record<string, string>,
+): string {
+  return (
+    _seasonCultivateFactorEffectBuffLabelMap.get(baseId)
+    ?? resolveBuffOverlayDisplayName(baseId, aliases)
+  );
+}
+
+function getLocalPlayerFactorBuffMap(): Map<number, BuffUpdateState> {
+  const result = new Map<number, BuffUpdateState>();
+  const data = liveData();
+  const localEntity = data?.entities.find(
+    (entity) => entity.uid === data.localPlayerUid,
+  );
+  const maybeSet = (baseId: number | null | undefined, buff: BuffUpdateState) => {
+    if (!baseId || baseId <= 0) return;
+    const existing = result.get(baseId);
+    if (!existing || buff.createTimeMs >= existing.createTimeMs) {
+      result.set(baseId, buff);
+    }
+  };
+  for (const [baseId, buff] of buffMap()) {
+    maybeSet(baseId, buff);
+  }
+  for (const buff of localEntity?.activeEffectBuffs ?? []) {
+    const converted: BuffUpdateState = {
+      baseId: buff.observedBuffId,
+      layer: buff.layer,
+      durationMs: buff.durationMs,
+      createTimeMs: buff.createTimeMs,
+      hostUid: buff.hostUid,
+      sourceUid: buff.sourceUid,
+      sourceConfigId: buff.sourceConfigId,
+    };
+    maybeSet(buff.observedBuffId, converted);
+    maybeSet(buff.effectSourceBuffId, {
+      ...converted,
+      baseId: buff.effectSourceBuffId,
+    });
+  }
+  for (const buff of localEntity?.activeFactorBuffs ?? []) {
+    const converted: BuffUpdateState = {
+      baseId: buff.observedBuffId,
+      layer: buff.layer,
+      durationMs: buff.durationMs,
+      createTimeMs: buff.createTimeMs,
+      hostUid: buff.hostUid,
+      sourceUid: buff.sourceUid,
+      sourceConfigId: buff.sourceConfigId,
+    };
+    maybeSet(buff.observedBuffId, converted);
+    maybeSet(buff.factorBuffId, {
+      ...converted,
+      baseId: buff.factorBuffId,
+    });
+  }
+  return result;
+}
+
+function getInferredFactorEnergyTotal(): number {
+  let total = 0;
+  for (const itemId of seasonCultivateFactorSlotItemIds()) {
+    const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
+    if (!increment || increment <= 0) continue;
+    const ruleId = getSeasonCultivateFactorRuleId(itemId);
+    const currentCount = getSeasonCultivateSourceCounterCount(itemId, ruleId, 1);
+    total += currentCount;
+  }
+  return total;
+}
+
+function buildInferredFactorEnergyRow(): CustomPanelDisplayRow | null {
+  const total = getInferredFactorEnergyTotal();
+  const hasSourceRows = seasonCultivateFactorSlotItemIds().some((itemId) => {
+    const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
+    return Boolean(increment && increment > 0);
+  });
+  if (!hasSourceRows && !overlayRuntime.isEditing) return null;
+  return {
+    key: "season_cultivate_inferred_energy",
+    label: "",
+    prefixText: tCustomPanel("customPanel.factorCounterProcs", "Procs"),
+    valueText: hasSourceRows || overlayRuntime.isEditing ? String(total) : "--",
+    metaText: tCustomPanel("customPanel.inferredFactorEnergy", "Illusion Energy"),
+    progressPercent: 0,
+    showProgress: false,
+    isPlaceholder: !hasSourceRows,
+  };
+}
+
+function getSeasonCultivateProcPrefix(
+  itemId: number,
+  ruleId: number,
+  slotId: number,
+): string | undefined {
+  const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
+  if (!increment || increment <= 0) {
+    const observedProcCount =
+      seasonCultivateFactorProcCounts().get(itemId) ?? 0;
+    return String(observedProcCount);
+  }
+  const currentCount = getSeasonCultivateSourceCounterCount(
+    itemId,
+    ruleId,
+    slotId,
+  );
+  const procCount = Math.floor(currentCount / increment);
+  return String(procCount);
+}
+
+function getSeasonCultivateCounterCount(
+  ruleId: number,
+  slotId: number,
+): number {
+  const counter = factorCounterMap().get(ruleId);
+  const slot =
+    counter?.slots.find((item) => item.slotId === slotId) ?? counter?.slots[0];
+  return Math.max(0, slot?.currentCount ?? 0);
+}
+
+function getSeasonCultivateSourceCounterCount(
+  _itemId: number,
+  ruleId: number,
+  slotId: number,
+): number {
+  return getSeasonCultivateCounterCount(ruleId, slotId);
+}
+
+function getSeasonCultivateSourceValueText(
+  itemId: number,
+  ruleId: number,
+  slotId: number,
+): string | undefined {
+  const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
+  if (!increment || increment <= 0) return undefined;
+  const currentCount = getSeasonCultivateSourceCounterCount(
+    itemId,
+    ruleId,
+    slotId,
+  );
+  return String(currentCount);
+}
+
+function getSeasonCultivateSourceProgressPercent(
+  itemId: number,
+  ruleId: number,
+  slotId: number,
+): number | undefined {
+  const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
+  if (!increment || increment <= 0) return undefined;
+  const currentCount = getSeasonCultivateSourceCounterCount(
+    itemId,
+    ruleId,
+    slotId,
+  );
+  return Math.max(0, Math.min(100, ((currentCount % increment) / increment) * 100));
+}
+
+function getFirstSourceSkillBaseId(template: SourceTemplate): number | null {
+  const source = template.source;
+  if ("skillCast" in source) return source.skillCast.skillBaseIds[0] ?? null;
+  if ("skillCastComplete" in source) {
+    return source.skillCastComplete.skillBaseIds[0] ?? null;
+  }
+  if ("skillDurationTick" in source) return source.skillDurationTick.skillBaseId;
+  return null;
+}
+
+function getSourceSkillKeyLabel(template: SourceTemplate): string | null {
+  const source = template.source;
+  const skillKeys =
+    "damageBySkillKey" in source
+      ? source.damageBySkillKey.skillKeys
+      : "damageBySkillKeyOnce" in source
+        ? source.damageBySkillKeyOnce.skillKeys
+        : "damageBySkillKeySelfTarget" in source
+          ? source.damageBySkillKeySelfTarget.skillKeys
+          : "damageTaken" in source
+            ? source.damageTaken.skillKeys ?? []
+            : [];
+  for (const skillKey of skillKeys) {
+    const label = lookupLocalizedDamageIdName(
+      skillKey,
+      SETTINGS.live.general.state.language,
+    );
+    if (label && !label.startsWith("Unknown (")) return label;
+  }
+  return null;
+}
+
+function findClassSkillLabel(skillBaseId: number): string | null {
+  const selectedSkill = findSkillById(selectedClassKey(), skillBaseId);
+  if (selectedSkill?.name) return selectedSkill.name;
+  for (const classKey of FACTOR_CLASS_KEYS) {
+    if (classKey === selectedClassKey()) continue;
+    const skill = findSkillById(classKey, skillBaseId);
+    if (skill?.name) return skill.name;
+  }
+  return null;
+}
+
+function getSourceTemplateSkillLabel(template?: SourceTemplate): string | null {
+  if (!template) return null;
+  const mapped = resolveSeasonCultivateSourceSkillLabel(template.sourceId);
+  if (mapped) return mapped;
+  const skillBaseId = getFirstSourceSkillBaseId(template);
+  if (skillBaseId !== null) {
+    const skillName = findClassSkillLabel(skillBaseId);
+    if (skillName) return skillName;
+  }
+  const damageSkillName = getSourceSkillKeyLabel(template);
+  if (damageSkillName) return damageSkillName;
+  const description = template.description.trim();
+  const sourceTextMatch =
+    description.match(/(?:Casting|cast of|with|damage with)\s+([^.;,()]+?)(?:\s+grants|\s+is|\s+does|\s+Illusion|\s+Void|$)/i)
+    ?? description.match(/^([^.;,()]+?)\s+(?:deals?|dealing|causes?|does)\s+.*(?:grants|gain|gives)/i)
+    ?? description.match(/^([^.;,()]+?)\s+(?:Illusion|Void)/i);
+  const text = sourceTextMatch?.[1]?.trim();
+  return text && text.length <= 48 ? text : null;
+}
+
+function getSlotTemplateSkillLabel(template?: SlotTemplate): string | null {
+  if (!template) return null;
+  const mapped = resolveSeasonCultivateSlotSkillLabel(template.slotTemplateId);
+  if (mapped) return mapped;
+  const description = template.description.trim();
+  const triggerMatch =
+    description.match(/triggers?\s+([^.;]+?)(?:;|\.|,|$)/i)
+    ?? description.match(/next cast of\s+([^.;,]+?)(?:\s+restores|\s+does|\s+is|,|\.|$)/i);
+  const text = triggerMatch?.[1]?.trim();
+  return text && text.length <= 48 ? text : null;
+}
+
+function getFactorBaseLabel(name: string, kind: "source" | "slot"): string {
+  const normalized = name
+    .replace(/\s*,.*$/, "")
+    .replace(/\bS\d+\s+(X\d+)\b/i, "$1")
+    .trim();
+  const xMatch = normalized.match(/\bX\d+\b/i)?.[0]?.toUpperCase();
+  if (kind === "source" && xMatch) return xMatch;
+  if (kind === "slot") {
+    const reality =
+      normalized.match(/Reality(?:\s+Factor)?\s+(X\d+)/i)?.[1]
+      ?? normalized.match(/真实因子\s*(X\d+)/i)?.[1];
+    if (reality) return `Reality ${reality.toUpperCase()}`;
+  }
+  return normalized;
+}
+
+function getSeasonCultivateDisplayLabel(
+  itemId: number,
+  fallbackLabel: string,
+  kind: "source" | "slot",
+): string {
+  const sourceTemplate = _seasonCultivateFactorSourceTemplateMap.get(itemId);
+  const slotTemplate = _seasonCultivateFactorSlotTemplateMap.get(itemId);
+  const templateName =
+    kind === "source" ? sourceTemplate?.name : slotTemplate?.name;
+  const baseLabel = getFactorBaseLabel(templateName ?? fallbackLabel, kind);
+  const skillLabel =
+    kind === "source"
+      ? getSourceTemplateSkillLabel(sourceTemplate)
+      : getSlotTemplateSkillLabel(slotTemplate);
+  return skillLabel ? `${baseLabel} - ${skillLabel}` : baseLabel;
+}
+
+function getSeasonCultivateCandidateSortRank(itemId: number): number {
+  const template = _seasonCultivateFactorSlotTemplateMap.get(itemId);
+  const templateId = template?.slotTemplateId ?? "";
+  const name = (template?.name ?? "").toLowerCase();
+  const threshold = template?.slot.threshold;
+  if (threshold !== null && threshold !== undefined && threshold > 0) return 0;
+  if (name.includes("reality") || templateId.includes("_x4")) return 0;
+  if (name.includes("polarity") || templateId.startsWith("factor_3058")) {
+    return 2;
+  }
+  if (name.includes("stasis") || templateId.startsWith("factor_3059")) {
+    return 3;
+  }
+  return 4;
+}
+
+function buildSeasonCultivateThresholdRow(
+  itemId: number,
+  rule: CounterRulePreset,
+  label: string,
+  factorBuffMap: Map<number, BuffUpdateState>,
+  now: number,
+): CustomPanelDisplayRow | null {
+  const slot = rule.effectSlots[0];
+  if (!slot) return null;
+  const threshold = slot?.threshold ?? null;
+  if (!threshold || threshold <= 0) return null;
+  const total = getInferredFactorEnergyTotal();
+  const procCount = Math.floor(total / threshold);
+  const remainder = total % threshold;
+  const linkedBuff = factorBuffMap.get(slot.resetBuffId);
+  const active = isBuffActive(linkedBuff, now);
+  const timerProgressPercent = getBuffRemainPercent(linkedBuff, now);
+  const bucketProgressPercent = Math.max(
+    0,
+    Math.min(100, (remainder / threshold) * 100),
+  );
+  return {
+    key: `season_cultivate_factor_threshold_${itemId}`,
+    label,
+    prefixText: String(procCount),
+    valueText: `${remainder}/${threshold}`,
+    progressPercent:
+      active && linkedBuff?.durationMs ? timerProgressPercent : bucketProgressPercent,
+    showProgress: active && linkedBuff?.durationMs
+      ? true
+      : bucketProgressPercent > 0,
+  };
+}
+
 const _buffSnapshot = $derived.by(() => {
   const now = overlayNow();
   const explicitSelectedBuffIds = monitoredBuffIds();
@@ -116,11 +523,13 @@ const _buffSnapshot = $derived.by(() => {
   ) => resolveAlertState(alertMap[String(baseId)], remainingMs, durationMs);
   const skippedInlineBuffIds = new Set(
     panelGroups
+      .filter((group) => (group.kind ?? "manual") === "manual")
       .flatMap((group) => group.entries)
       .filter((entry) => entry.sourceType === "buff")
       .map((entry) => entry.sourceId),
   );
   const currentBuffAliases = buffAliases();
+  const factorOwnedEffectBuffIds = _seasonCultivateFactorOwnedEffectBuffIds;
   const nextActiveBuffIds = new Set<number>();
   const nextBuffDurationPercents = new Map<number, number>();
   const nextIconBuffs: IconBuffDisplay[] = [];
@@ -149,6 +558,7 @@ const _buffSnapshot = $derived.by(() => {
     // Keep monitor-all quiet, but allow explicitly selected state buffs with no timer.
     const allowPassiveSingleStack = expandedSelectedBuffIds.has(baseId);
     if (buff.durationMs <= 0 && buff.layer <= 1 && !allowPassiveSingleStack) continue;
+    if (factorOwnedEffectBuffIds.has(baseId)) continue;
 
     const definition = buffDefinitionsMap.get(baseId);
     const name = resolveBuffOverlayDisplayName(baseId, currentBuffAliases);
@@ -194,6 +604,7 @@ const _buffSnapshot = $derived.by(() => {
     const iconIds = new Set(nextIconBuffs.map((buff) => buff.baseId));
     const textIds = new Set(nextTextBuffs.map((buff) => buff.key));
     for (const baseId of explicitSelectedBuffIds) {
+      if (factorOwnedEffectBuffIds.has(baseId)) continue;
       if (iconIds.has(baseId) || textIds.has(`buff_${baseId}`)) continue;
       const definition = buffDefinitionsMap.get(baseId);
       const name = resolveBuffOverlayDisplayName(baseId, currentBuffAliases);
@@ -249,17 +660,150 @@ const _buffSnapshot = $derived.by(() => {
 
   for (const group of panelGroups) {
     const nextRows: CustomPanelDisplayRow[] = [];
-    for (const entry of group.entries) {
-      const row = getCustomPanelDisplayRow(
-        entry,
-        now,
-        buffMap(),
-        counterMap(),
-        _counterRuleMap,
-        (baseId) => resolveBuffOverlayDisplayName(baseId, currentBuffAliases),
-        resolveAlert,
-      );
-      if (row) nextRows.push(row);
+    if (group.kind === "seasonCultivateFactor") {
+      const inferredEnergyRow = buildInferredFactorEnergyRow();
+      if (inferredEnergyRow) nextRows.push(inferredEnergyRow);
+
+      const factorBuffMap = getLocalPlayerFactorBuffMap();
+      const trustedFactorItemIds = new Set<number>();
+      const thresholdRows: CustomPanelDisplayRow[] = [];
+      const sourceRows: CustomPanelDisplayRow[] = [];
+      const candidateRows: CustomPanelDisplayRow[] = [];
+      for (const itemId of seasonCultivateFactorSlotItemIds()) {
+        trustedFactorItemIds.add(itemId);
+        const ruleId = getSeasonCultivateFactorRuleId(itemId);
+        const rule = _seasonCultivateFactorRuleMap.get(ruleId);
+        if (!rule) continue;
+        const sourceIncrement =
+          _seasonCultivateFactorSourceIncrementMap.get(itemId);
+        const slotTemplateId =
+          _seasonCultivateFactorItemSlotTemplateMap.get(itemId);
+        const customLabel = slotTemplateId
+          ? factorSlotLabels()[slotTemplateId]
+          : undefined;
+        const label = customLabel || getSeasonCultivateDisplayLabel(
+          itemId,
+          rule.name,
+          sourceIncrement && sourceIncrement > 0 ? "source" : "slot",
+        );
+        if (!sourceIncrement || sourceIncrement <= 0) {
+          const thresholdRow = buildSeasonCultivateThresholdRow(
+            itemId,
+            rule,
+            label,
+            factorBuffMap,
+            now,
+          );
+          if (thresholdRow) thresholdRows.push(thresholdRow);
+          continue;
+        }
+        const entry: InlineBuffEntry = {
+          id: `season_cultivate_factor_${itemId}`,
+          sourceType: "counter",
+          sourceId: ruleId,
+          counterSlotId: rule.effectSlots[0]?.slotId ?? 1,
+          counterDisplayMode: "factor",
+          label,
+          format: "timer",
+        };
+        const row = getCustomPanelDisplayRow(
+          entry,
+          now,
+          factorBuffMap,
+          factorCounterMap(),
+          _seasonCultivateFactorRuleMap,
+          (baseId) => resolveFactorBuffName(baseId, currentBuffAliases),
+          resolveAlert,
+        );
+        if (row) {
+          const slotId = entry.counterSlotId ?? 1;
+          const sourceValueText = getSeasonCultivateSourceValueText(
+            itemId,
+            ruleId,
+            slotId,
+          );
+          const sourceProgressPercent = getSeasonCultivateSourceProgressPercent(
+            itemId,
+            ruleId,
+            slotId,
+          );
+          sourceRows.push({
+            ...row,
+            prefixText: getSeasonCultivateProcPrefix(itemId, ruleId, slotId),
+            valueText: sourceValueText ?? row.valueText,
+            progressPercent: row.showProgress
+              ? row.progressPercent
+              : sourceProgressPercent ?? row.progressPercent,
+            showProgress:
+              row.showProgress ||
+              (sourceProgressPercent !== undefined && sourceProgressPercent > 0),
+            metaText: undefined,
+          });
+        }
+      }
+      const sortedCandidateItemIds = [...seasonCultivateFactorCandidateSlotItemIds()]
+        .sort((left, right) =>
+          getSeasonCultivateCandidateSortRank(left)
+          - getSeasonCultivateCandidateSortRank(right)
+          || left - right,
+        );
+      for (const itemId of sortedCandidateItemIds) {
+        if (trustedFactorItemIds.has(itemId)) continue;
+        const ruleId = getSeasonCultivateFactorRuleId(itemId);
+        const rule = _seasonCultivateFactorRuleMap.get(ruleId);
+        if (!rule) continue;
+        const slotTemplateId =
+          _seasonCultivateFactorItemSlotTemplateMap.get(itemId);
+        const customLabel = slotTemplateId
+          ? factorSlotLabels()[slotTemplateId]
+          : undefined;
+        const label = customLabel || getSeasonCultivateDisplayLabel(
+          itemId,
+          rule.name,
+          "slot",
+        );
+        const thresholdRow = buildSeasonCultivateThresholdRow(
+          itemId,
+          rule,
+          label,
+          factorBuffMap,
+          now,
+        );
+        if (thresholdRow) {
+          thresholdRows.push(thresholdRow);
+          continue;
+        }
+        const linkedBuff = factorBuffMap.get(rule.effectSlots[0]?.resetBuffId ?? -1);
+        const active = Boolean(
+          linkedBuff
+          && linkedBuff.durationMs > 0
+          && isBuffActive(linkedBuff, now),
+        );
+        const procCount = seasonCultivateFactorProcCounts().get(itemId) ?? 0;
+        if (!active && procCount <= 0 && !overlayRuntime.isEditing) continue;
+        candidateRows.push({
+          key: `season_cultivate_factor_candidate_${itemId}`,
+          label,
+          prefixText: String(procCount),
+          valueText: "--",
+          progressPercent: getBuffRemainPercent(linkedBuff, now),
+          showProgress: active && Boolean(linkedBuff && linkedBuff.durationMs > 0),
+        });
+      }
+      nextRows.push(...thresholdRows, ...sourceRows, ...candidateRows);
+    } else {
+      for (const entry of group.entries) {
+        const row = getCustomPanelDisplayRow(
+          entry,
+          now,
+          buffMap(),
+          counterMap(),
+          _counterRuleMap,
+          (baseId) => resolveBuffOverlayDisplayName(baseId, currentBuffAliases),
+          resolveAlert,
+        );
+        if (row) nextRows.push(row);
+      }
     }
     nextCustomPanelRowsByGroup.set(group.id, nextRows);
   }

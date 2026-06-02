@@ -43,6 +43,7 @@
         {#each rows as row (row.key)}
           <TextBuffRow
             label={row.label}
+            prefixText={row.prefixText}
             valueText={row.valueText}
             metaText={row.metaText}
             progressPercent={row.progressPercent}

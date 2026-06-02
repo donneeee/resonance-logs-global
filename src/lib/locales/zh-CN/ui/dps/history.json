@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "未知来源",
+  "tanked.monster.source": "来源",
+  "tanked.monster.total": "总计",
   "columns.historyHealPlayers.critDmgRate.description": "显示玩家造成的暴击治疗比例",
   "columns.historyHealPlayers.critDmgRate.header": "暴击疗%",
   "columns.historyHealPlayers.critDmgRate.label": "暴击疗%",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "贡献分组",
   "detail.modifierTitlePredicates": "条件",
   "detail.modifierTitleRequiredEvidence": "所需证据",
-  "detail.modifierTitleAttributionNotes": "归因备注"
+  "detail.modifierTitleAttributionNotes": "归因备注",
+  "columns.historyTankedPlayers.blockRate.description": "显示承受伤害时的格挡几率",
+  "columns.historyTankedPlayers.blockRate.header": "格挡%",
+  "columns.historyTankedPlayers.blockRate.label": "格挡%",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "显示承受伤害时触发幸运格挡的几率",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "幸运格挡%",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "幸运格挡%",
+  "columns.historyTankedSkills.blockRate.description": "显示该承伤技能被格挡的几率",
+  "columns.historyTankedSkills.blockRate.header": "格挡%",
+  "columns.historyTankedSkills.blockRate.label": "格挡%",
+  "columns.historyTankedSkills.luckyBlockRate.description": "显示该承伤技能触发幸运格挡的几率",
+  "columns.historyTankedSkills.luckyBlockRate.header": "幸运格挡%",
+  "columns.historyTankedSkills.luckyBlockRate.label": "幸运格挡%"
 }

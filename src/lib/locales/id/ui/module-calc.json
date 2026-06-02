@@ -83,5 +83,12 @@
   "gpuChecking": "Memeriksa ketersediaan GPU...",
   "gpuDisabledDescription": "Kalkulasi dengan akselerasi GPU dinonaktifkan.",
   "gpuEnabledDescription": "Kalkulasi dengan akselerasi GPU diaktifkan.",
-  "requiresAtLeastModules": "Membutuhkan minimal {count} modul"
+  "requiresAtLeastModules": "Membutuhkan minimal {count} modul",
+  "gpuCheckUnavailable": "Ketersediaan GPU tidak tersedia.",
+  "gpuCheckDeferred": "Pemeriksaan GPU dilakukan manual.",
+  "gpuDeferredDescription": "Gunakan Periksa GPU untuk memverifikasi ketersediaan driver.",
+  "gpuRecheck": "Periksa GPU",
+  "checkingModuleData": "Memeriksa data modul...",
+  "moduleDataUnavailable": "Data modul belum tersinkron. Buka game pada karakter yang memiliki modul, lalu segarkan data.",
+  "calculationTimedOut": "Perhitungan kehabisan waktu. Coba kurangi filter atau gunakan mode CPU, lalu mulai lagi."
 }

@@ -1,4 +1,5 @@
 use crate::live::counter_tracker::CounterRule;
+use crate::live::season_cultivate::{FactorCounterTemplate, normalize_factor_templates};
 use log::{info, warn};
 use serde::{Deserialize, Serialize};
 use std::io::Write;
@@ -15,6 +16,7 @@ pub struct MonitorRuntimeSnapshot {
     pub live: LiveRuntimeSnapshot,
     pub skill: SkillRuntimeSnapshot,
     pub monster: MonsterRuntimeSnapshot,
+    pub teammate: TeammateRuntimeSnapshot,
 }
 
 impl Default for MonitorRuntimeSnapshot {
@@ -23,6 +25,7 @@ impl Default for MonitorRuntimeSnapshot {
             live: LiveRuntimeSnapshot::default(),
             skill: SkillRuntimeSnapshot::default(),
             monster: MonsterRuntimeSnapshot::default(),
+            teammate: TeammateRuntimeSnapshot::default(),
         }
     }
 }
@@ -62,6 +65,27 @@ impl MonitorRuntimeSnapshot {
         self.skill
             .buff_counter_rules
             .dedup_by_key(|rule| rule.rule_id);
+        self.skill.season_cultivate_factor_templates = normalize_factor_templates(std::mem::take(
+            &mut self.skill.season_cultivate_factor_templates,
+        ));
+        self.skill
+            .season_cultivate_factor_templates
+            .sort_by_key(|template| {
+                (
+                    template.item_ids.first().copied().unwrap_or_default(),
+                    !template.sources.is_empty(),
+                    !template.effect_slots.is_empty(),
+                )
+            });
+        self.skill
+            .season_cultivate_factor_templates
+            .dedup_by_key(|template| {
+                (
+                    template.item_ids.first().copied().unwrap_or_default(),
+                    !template.sources.is_empty(),
+                    !template.effect_slots.is_empty(),
+                )
+            });
 
         if !self.skill.enabled {
             self.skill.monitored_skill_ids.clear();
@@ -69,6 +93,7 @@ impl MonitorRuntimeSnapshot {
             self.skill.monitor_all_buff = false;
             self.skill.monitored_panel_attr_ids.clear();
             self.skill.buff_counter_rules.clear();
+            self.skill.season_cultivate_factor_templates.clear();
         }
 
         dedup_and_sort_i32(&mut self.monster.global_ids);
@@ -76,6 +101,15 @@ impl MonitorRuntimeSnapshot {
         if !self.monster.enabled {
             self.monster.global_ids.clear();
             self.monster.self_applied_ids.clear();
+        }
+        dedup_and_sort_i32(&mut self.teammate.any_source_ids);
+        dedup_and_sort_i32(&mut self.teammate.local_player_source_ids);
+        dedup_and_sort_i32(&mut self.teammate.target_self_source_ids);
+        if !self.teammate.enabled {
+            self.teammate.any_source_ids.clear();
+            self.teammate.local_player_source_ids.clear();
+            self.teammate.target_self_source_ids.clear();
+            self.teammate.monitor_all = false;
         }
 
         Ok(self)
@@ -116,6 +150,7 @@ pub struct SkillRuntimeSnapshot {
     pub monitor_all_buff: bool,
     pub monitored_panel_attr_ids: Vec<i32>,
     pub buff_counter_rules: Vec<CounterRule>,
+    pub season_cultivate_factor_templates: Vec<FactorCounterTemplate>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type, Default)]
@@ -124,6 +159,16 @@ pub struct MonsterRuntimeSnapshot {
     pub enabled: bool,
     pub global_ids: Vec<i32>,
     pub self_applied_ids: Vec<i32>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, specta::Type, Default)]
+#[serde(rename_all = "camelCase", default)]
+pub struct TeammateRuntimeSnapshot {
+    pub enabled: bool,
+    pub any_source_ids: Vec<i32>,
+    pub local_player_source_ids: Vec<i32>,
+    pub target_self_source_ids: Vec<i32>,
+    pub monitor_all: bool,
 }
 
 pub(crate) fn save_monitor_runtime_snapshot(
@@ -153,7 +198,7 @@ pub(crate) fn save_monitor_runtime_snapshot(
             Ok(_) => {
                 info!(
                     target: "app::startup",
-                    "saved monitor runtime snapshot to {} (event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
+                    "saved monitor runtime snapshot to {} (event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} season_cultivate_factor_templates={} monster_enabled={} monster_global={} monster_self_applied={} teammate_enabled={} teammate_any={} teammate_local={} teammate_self={})",
                     path.display(),
                     snapshot.live.event_update_rate_ms,
                     snapshot.live.auto_clear_on_scene_change,
@@ -164,9 +209,14 @@ pub(crate) fn save_monitor_runtime_snapshot(
                     snapshot.skill.monitored_buff_ids.len(),
                     snapshot.skill.monitored_panel_attr_ids.len(),
                     snapshot.skill.buff_counter_rules.len(),
+                    snapshot.skill.season_cultivate_factor_templates.len(),
                     snapshot.monster.enabled,
                     snapshot.monster.global_ids.len(),
-                    snapshot.monster.self_applied_ids.len()
+                    snapshot.monster.self_applied_ids.len(),
+                    snapshot.teammate.enabled,
+                    snapshot.teammate.any_source_ids.len(),
+                    snapshot.teammate.local_player_source_ids.len(),
+                    snapshot.teammate.target_self_source_ids.len()
                 );
                 return Ok(());
             }
@@ -217,7 +267,7 @@ pub(crate) fn load_monitor_runtime_snapshot(
             Ok(snapshot) => {
                 info!(
                     target: "app::startup",
-                    "loaded monitor runtime snapshot from {} (event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={})",
+                    "loaded monitor runtime snapshot from {} (event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} modifier_reports_opt_in={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} monster_enabled={} monster_global={} monster_self_applied={} teammate_enabled={} teammate_any={} teammate_local={} teammate_self={})",
                     path.display(),
                     snapshot.live.event_update_rate_ms,
                     snapshot.live.auto_clear_on_scene_change,
@@ -230,7 +280,11 @@ pub(crate) fn load_monitor_runtime_snapshot(
                     snapshot.skill.buff_counter_rules.len(),
                     snapshot.monster.enabled,
                     snapshot.monster.global_ids.len(),
-                    snapshot.monster.self_applied_ids.len()
+                    snapshot.monster.self_applied_ids.len(),
+                    snapshot.teammate.enabled,
+                    snapshot.teammate.any_source_ids.len(),
+                    snapshot.teammate.local_player_source_ids.len(),
+                    snapshot.teammate.target_self_source_ids.len()
                 );
                 return Some(snapshot);
             }

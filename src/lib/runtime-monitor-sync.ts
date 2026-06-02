@@ -9,6 +9,8 @@ import { MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION, SETTINGS } from "$lib/settings
 import {
   getCounterRules,
   getDefaultMonitoredBuffIds,
+  getSeasonCultivateFactorConfiguredEffectBuffIds,
+  getSeasonCultivateFactorTemplates,
   resolveUserCounterRulesToPresets,
 } from "$lib/skill-mappings";
 
@@ -44,6 +46,12 @@ function getCounterRuleBuffIds(rule: CounterRule): number[] {
   for (const source of rule.sources) {
     if ("buffDurationTick" in source) {
       result.push(source.buffDurationTick.buffId);
+    }
+    if ("buffAdded" in source) {
+      result.push(source.buffAdded.buffId);
+    }
+    if ("buffLayerSpent" in source) {
+      result.push(source.buffLayerSpent.buffId);
     }
     const movementDistance = (source as { movementDistance?: { buffId?: number } })
       .movementDistance;
@@ -84,8 +92,15 @@ function buildSkillRuntimeSnapshot(): MonitorRuntimeSnapshot["skill"] {
   const monitoredUptimeBuffIds = profile?.monitoredUptimeBuffIds ?? [];
   const monitoredPanelAttrs = profile?.monitoredPanelAttrs ?? [];
   const customPanelEntries = profile?.customPanelGroups?.length
-    ? profile.customPanelGroups.flatMap((group) => group.entries ?? [])
+    ? profile.customPanelGroups
+        .filter((group) => (group.kind ?? "manual") === "manual")
+        .flatMap((group) => group.entries ?? [])
     : (profile?.inlineBuffEntries ?? []);
+  const hasSeasonCultivateFactorGroup = Boolean(
+    profile?.customPanelGroups?.some(
+      (group) => group.kind === "seasonCultivateFactor",
+    ),
+  );
   const inlineCounterRuleIds = customPanelEntries
     .filter((entry) => entry.sourceType === "counter")
     .map((entry) => entry.sourceId);
@@ -122,9 +137,22 @@ function buildSkillRuntimeSnapshot(): MonitorRuntimeSnapshot["skill"] {
     ...enabledPresetCounterRules,
     ...enabledUserCounterRules,
   ]);
+  const seasonCultivateFactorTemplates = hasSeasonCultivateFactorGroup
+    ? getSeasonCultivateFactorTemplates()
+    : [];
   const counterBuffIds = enabledCounterRules.flatMap((rule) =>
     getCounterRuleBuffIds(rule),
   );
+  const factorBuffIds = seasonCultivateFactorTemplates.flatMap((template) =>
+    getCounterRuleBuffIds({
+      ruleId: 0,
+      sources: template.sources ?? [],
+      effectSlots: template.effectSlots ?? [],
+    }),
+  );
+  const factorEffectBuffIds = hasSeasonCultivateFactorGroup
+    ? getSeasonCultivateFactorConfiguredEffectBuffIds()
+    : [];
   const defaultLinkedBuffIds = getDefaultMonitoredBuffIds(selectedClass);
   const mergedBuffIds = uniqueSortedNumbers([
     ...monitoredBuffIds,
@@ -132,6 +160,8 @@ function buildSkillRuntimeSnapshot(): MonitorRuntimeSnapshot["skill"] {
     ...groupBuffIds,
     ...inlineBuffIds,
     ...counterBuffIds,
+    ...factorBuffIds,
+    ...factorEffectBuffIds,
     ...defaultLinkedBuffIds,
   ]);
   const monitoredPanelAttrIds = uniqueSortedNumbers(
@@ -148,6 +178,7 @@ function buildSkillRuntimeSnapshot(): MonitorRuntimeSnapshot["skill"] {
       monitorAllBuff: false,
       monitoredPanelAttrIds: [],
       buffCounterRules: [],
+      seasonCultivateFactorTemplates: [],
     };
   }
 
@@ -158,6 +189,7 @@ function buildSkillRuntimeSnapshot(): MonitorRuntimeSnapshot["skill"] {
     monitorAllBuff,
     monitoredPanelAttrIds,
     buffCounterRules: enabledCounterRules,
+    seasonCultivateFactorTemplates,
   };
 }
 
@@ -187,6 +219,34 @@ function buildMonsterRuntimeSnapshot(): MonitorRuntimeSnapshot["monster"] {
   };
 }
 
+function buildTeammateRuntimeSnapshot(): MonitorRuntimeSnapshot["teammate"] {
+  const anySourceIds = uniqueSortedNumbers(
+    expandBuffSelection(
+      SETTINGS.monsterMonitor.state.teammateBuffIds ?? [],
+      SETTINGS.monsterMonitor.state.teammateBuffCategories,
+    ),
+  );
+  const enabled =
+    SETTINGS.monsterMonitor.state.enabled && anySourceIds.length > 0;
+  if (!enabled) {
+    return {
+      enabled: false,
+      anySourceIds: [],
+      localPlayerSourceIds: [],
+      targetSelfSourceIds: [],
+      monitorAll: false,
+    };
+  }
+
+  return {
+    enabled: true,
+    anySourceIds,
+    localPlayerSourceIds: [],
+    targetSelfSourceIds: [],
+    monitorAll: false,
+  };
+}
+
 export function buildMonitorRuntimeSnapshot(): MonitorRuntimeSnapshot {
   return {
     live: {
@@ -200,6 +260,7 @@ export function buildMonitorRuntimeSnapshot(): MonitorRuntimeSnapshot {
     },
     skill: buildSkillRuntimeSnapshot(),
     monster: buildMonsterRuntimeSnapshot(),
+    teammate: buildTeammateRuntimeSnapshot(),
   };
 }
 

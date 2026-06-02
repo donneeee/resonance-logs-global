@@ -222,6 +222,7 @@
   "header.training.disableMode": "Desativar modo de boneco de treino",
   "header.training.enableMode": "Ativar modo de boneco de treino",
   "header.training.ready": "Boneco de treino pronto",
+  "header.training.finished": "Segmento concluído",
   "header.training.waitSegment": "Troca de segmento pendente",
   "historyDetail.classIcon": "Ícone da classe",
   "historyDetail.player": "Jogador",
@@ -231,5 +232,17 @@
   "live.resetToast": "Combate redefinido",
   "live.resumeToast": "Combate retomado",
   "live.unknownClass": "Classe desconhecida",
-  "table.skill": "Habilidade"
+  "table.skill": "Habilidade",
+  "columns.liveTankedPlayers.blockRate.description": "Mostra a chance de bloquear golpes recebidos",
+  "columns.liveTankedPlayers.blockRate.header": "Bloqueio %",
+  "columns.liveTankedPlayers.blockRate.label": "Bloqueio %",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "Mostra a chance de acionar um bloqueio de sorte",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "Bloqueio de sorte %",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "Bloqueio de sorte %",
+  "columns.liveTankedSkills.blockRate.description": "Mostra a chance desta habilidade recebida ser bloqueada",
+  "columns.liveTankedSkills.blockRate.header": "Bloqueio %",
+  "columns.liveTankedSkills.blockRate.label": "Bloqueio %",
+  "columns.liveTankedSkills.luckyBlockRate.description": "Mostra a chance desta habilidade recebida acionar bloqueio de sorte",
+  "columns.liveTankedSkills.luckyBlockRate.header": "Bloqueio de sorte %",
+  "columns.liveTankedSkills.luckyBlockRate.label": "Bloqueio de sorte %"
 }

@@ -47,6 +47,16 @@ export const overlayRuntime = $state({
   uptimeLastElapsedMs: 0,
   uptimeLastActiveCombatTimeMs: 0,
   isEditing: false,
+  factorCounterMap: new Map<number, CounterUpdateState>(),
+  seasonCultivateFactorSourceItemIds: [] as number[],
+  seasonCultivateFactorSlotItemIds: [] as number[],
+  seasonCultivateFactorCandidateSlotItemIds: [] as number[],
+  seasonCultivateFactorActiveAreaIds: [] as number[],
+  seasonCultivateFactorActiveItemIds: [] as number[],
+  seasonCultivateFactorActiveFantasyIds: [] as number[],
+  seasonCultivateFactorProcCounts: new Map<number, number>(),
+  seasonCultivateFactorProcBuffLayers: new Map<string, number>(),
+  seasonCultivateFactorProcBuffLayersInitialized: false,
   restoreVisibilityAfterEditing: false,
   dragState: null as DragState | null,
   resizeState: null as ResizeState | null,
@@ -82,6 +92,26 @@ export function activeUptimeRowKeys() {
 
 export function nameCache() {
   return overlayRuntime.nameCache;
+}
+
+export function factorCounterMap() {
+  return overlayRuntime.factorCounterMap;
+}
+
+export function seasonCultivateFactorSourceItemIds() {
+  return overlayRuntime.seasonCultivateFactorSourceItemIds;
+}
+
+export function seasonCultivateFactorSlotItemIds() {
+  return overlayRuntime.seasonCultivateFactorSlotItemIds;
+}
+
+export function seasonCultivateFactorCandidateSlotItemIds() {
+  return overlayRuntime.seasonCultivateFactorCandidateSlotItemIds;
+}
+
+export function seasonCultivateFactorProcCounts() {
+  return overlayRuntime.seasonCultivateFactorProcCounts;
 }
 
 export function counterMap() {

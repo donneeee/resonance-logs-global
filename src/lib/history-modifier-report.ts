@@ -25,9 +25,13 @@ export type ModifierContributionConfidence = "low" | "medium";
 
 export type ModifierActorSummary = {
   hostUids: number[];
+  hostUuids: number[];
   sourceUids: number[];
+  sourceUuids: number[];
   externalSourceUids: number[];
+  externalSourceUuids: number[];
   selfSourceUids: number[];
+  selfSourceUuids: number[];
 };
 
 export type ModifierTimingModel = {
@@ -341,7 +345,7 @@ type SkillParentLookup = Map<number, SkillParent>;
 
 type ModifierBuildCaches = {
   sourceSearchText: Map<string, string>;
-  parsedActorHints: Map<string, Array<{ hostUid: number | null; sourceUid: number | null }>>;
+  parsedActorHints: Map<string, Array<{ hostUid: number | null; hostUuid: number | null; sourceUid: number | null; sourceUuid: number | null }>>;
   timingLockout: Map<string, boolean>;
   broadDamage: Map<string, boolean>;
   runtimeBroadDamage: Map<string, boolean>;
@@ -910,48 +914,74 @@ type ModifierActorState =
 
 function actorHint(kind: string, state: ModifierActorState): string | null {
   const hostUid = finiteNumber(state.hostUid);
+  const hostUuid = finiteNumber(state.hostUuid);
   const sourceUid = finiteNumber(state.sourceUid);
-  if (hostUid === null && sourceUid === null) return null;
+  const sourceUuid = finiteNumber(state.sourceUuid);
+  if (hostUid === null && hostUuid === null && sourceUid === null && sourceUuid === null) return null;
   return [
     kind,
     hostUid !== null ? `host:${hostUid}` : "",
+    hostUuid !== null ? `hostUuid:${hostUuid}` : "",
     sourceUid !== null ? `source:${sourceUid}` : "",
+    sourceUuid !== null ? `sourceUuid:${sourceUuid}` : "",
   ].filter(Boolean).join("|");
 }
 
-function parseActorHint(hint: string): { hostUid: number | null; sourceUid: number | null } {
-  const result = { hostUid: null as number | null, sourceUid: null as number | null };
+function parseActorHint(hint: string): { hostUid: number | null; hostUuid: number | null; sourceUid: number | null; sourceUuid: number | null } {
+  const result = {
+    hostUid: null as number | null,
+    hostUuid: null as number | null,
+    sourceUid: null as number | null,
+    sourceUuid: null as number | null,
+  };
   for (const part of hint.split("|")) {
     const [key, rawValue] = part.split(":");
     const value = finiteNumber(rawValue);
     if (key === "host") result.hostUid = value;
+    if (key === "hostUuid") result.hostUuid = value;
     if (key === "source") result.sourceUid = value;
+    if (key === "sourceUuid") result.sourceUuid = value;
   }
   return result;
 }
 
 function summarizeActors(hints: Iterable<string>): ModifierActorSummary {
   const hostUids = new Set<number>();
+  const hostUuids = new Set<number>();
   const sourceUids = new Set<number>();
+  const sourceUuids = new Set<number>();
   const externalSourceUids = new Set<number>();
+  const externalSourceUuids = new Set<number>();
   const selfSourceUids = new Set<number>();
+  const selfSourceUuids = new Set<number>();
   for (const hint of hints) {
     const parsed = parseActorHint(hint);
     if (parsed.hostUid !== null) hostUids.add(parsed.hostUid);
+    if (parsed.hostUuid !== null) hostUuids.add(parsed.hostUuid);
     if (parsed.sourceUid !== null) sourceUids.add(parsed.sourceUid);
-    if (parsed.hostUid !== null && parsed.sourceUid !== null) {
-      if (parsed.hostUid === parsed.sourceUid) {
-        selfSourceUids.add(parsed.sourceUid);
+    if (parsed.sourceUuid !== null) sourceUuids.add(parsed.sourceUuid);
+    if ((parsed.hostUid !== null || parsed.hostUuid !== null) && (parsed.sourceUid !== null || parsed.sourceUuid !== null)) {
+      const sameActor = parsed.hostUuid !== null && parsed.sourceUuid !== null
+        ? parsed.hostUuid === parsed.sourceUuid
+        : parsed.hostUid !== null && parsed.sourceUid !== null && parsed.hostUid === parsed.sourceUid;
+      if (sameActor) {
+        if (parsed.sourceUid !== null) selfSourceUids.add(parsed.sourceUid);
+        if (parsed.sourceUuid !== null) selfSourceUuids.add(parsed.sourceUuid);
       } else {
-        externalSourceUids.add(parsed.sourceUid);
+        if (parsed.sourceUid !== null) externalSourceUids.add(parsed.sourceUid);
+        if (parsed.sourceUuid !== null) externalSourceUuids.add(parsed.sourceUuid);
       }
     }
   }
   return {
     hostUids: sortedNumbers(hostUids),
+    hostUuids: sortedNumbers(hostUuids),
     sourceUids: sortedNumbers(sourceUids),
+    sourceUuids: sortedNumbers(sourceUuids),
     externalSourceUids: sortedNumbers(externalSourceUids),
+    externalSourceUuids: sortedNumbers(externalSourceUuids),
     selfSourceUids: sortedNumbers(selfSourceUids),
+    selfSourceUuids: sortedNumbers(selfSourceUuids),
   };
 }
 
@@ -1438,6 +1468,7 @@ function entityOwnedPassiveSkillIds(entity: HistoryEntityData): Set<number> {
 }
 
 const entityModifierTargetUidCache = new WeakMap<HistoryEntityData, Set<number>>();
+const entityModifierTargetUuidCache = new WeakMap<HistoryEntityData, Set<number>>();
 
 function entityModifierTargetUids(entity: HistoryEntityData): Set<number> {
   const cached = entityModifierTargetUidCache.get(entity);
@@ -1456,14 +1487,41 @@ function entityModifierTargetUids(entity: HistoryEntityData): Set<number> {
   return targetUids;
 }
 
+function entityUuid(entity: HistoryEntityData): number | null {
+  return finitePositiveNumber(entity.uuid);
+}
+
+function entityModifierTargetUuids(entity: HistoryEntityData): Set<number> {
+  const cached = entityModifierTargetUuidCache.get(entity);
+  if (cached) return cached;
+
+  const targetUuids = new Set<number>();
+  const selfUuid = entityUuid(entity);
+  const add = (value: unknown) => {
+    const uuid = finitePositiveNumber(value);
+    if (uuid !== null && uuid !== selfUuid) targetUuids.add(uuid);
+  };
+
+  for (const target of entity.dmgPerTarget ?? []) add(target.targetUuid);
+  for (const bucket of entity.modifierHitBuckets ?? []) add(bucket.targetUuid);
+
+  entityModifierTargetUuidCache.set(entity, targetUuids);
+  return targetUuids;
+}
+
 function sourceHasRuntimeEvidenceInEntityScope(source: ModifierSource, entity: HistoryEntityData): boolean {
   if (entity.uid <= 0 || source.actorHints.size === 0) return false;
   const targetUids = entityModifierTargetUids(entity);
+  const targetUuids = entityModifierTargetUuids(entity);
+  const selfUuid = entityUuid(entity);
   for (const hint of source.actorHints) {
     const parsed = parseActorHint(hint);
+    if (parsed.hostUuid !== null && parsed.hostUuid === selfUuid) return true;
+    if (parsed.hostUuid !== null && targetUuids.has(parsed.hostUuid)) return true;
     if (parsed.hostUid === entity.uid) return true;
     if (parsed.hostUid !== null && targetUids.has(parsed.hostUid)) return true;
-    if (parsed.hostUid === null && parsed.sourceUid === entity.uid) return true;
+    if (parsed.hostUid === null && parsed.hostUuid === null && parsed.sourceUuid !== null && parsed.sourceUuid === selfUuid) return true;
+    if (parsed.hostUid === null && parsed.hostUuid === null && parsed.sourceUid === entity.uid) return true;
   }
   return false;
 }
@@ -1500,8 +1558,12 @@ function sourceHasGeneratedActivationAlias(source: ModifierSource): boolean {
 
 function sourceHasExternalRecipientEvidence(source: ModifierSource, entity: HistoryEntityData): boolean {
   if (entity.uid <= 0) return false;
+  const selfUuid = entityUuid(entity);
   for (const hint of source.actorHints) {
     const parsed = parseActorHint(hint);
+    if (parsed.hostUuid !== null && parsed.hostUuid === selfUuid && parsed.sourceUuid !== null && parsed.sourceUuid !== selfUuid) {
+      return true;
+    }
     if (parsed.hostUid === entity.uid && parsed.sourceUid !== null && parsed.sourceUid !== entity.uid) {
       return true;
     }
@@ -1558,12 +1620,25 @@ function talentOwnershipCandidateEntities(
 ): HistoryEntityData[] {
   if (source.actorHints.size === 0) return [entity];
 
-  const byUid = new Map(modifierContextEntities(entity, allEntities).map((row) => [row.uid, row]));
+  const contextEntities = modifierContextEntities(entity, allEntities);
+  const byUid = new Map(contextEntities.map((row) => [row.uid, row]));
+  const byUuid = new Map(contextEntities
+    .map((row) => [entityUuid(row), row] as const)
+    .filter((entry): entry is readonly [number, HistoryEntityData] => entry[0] !== null));
   const candidates = new Map<number, HistoryEntityData>();
   let sawUnknownExternalSource = false;
 
   for (const hint of source.actorHints) {
     const parsed = parseActorHint(hint);
+    if (parsed.sourceUuid !== null) {
+      const sourceEntity = byUuid.get(parsed.sourceUuid);
+      if (sourceEntity) {
+        candidates.set(sourceEntity.uid, sourceEntity);
+      } else if (parsed.sourceUuid !== entityUuid(entity)) {
+        sawUnknownExternalSource = true;
+      }
+      continue;
+    }
     if (parsed.sourceUid !== null && parsed.sourceUid > 0) {
       const sourceEntity = byUid.get(parsed.sourceUid);
       if (sourceEntity) {
@@ -1860,6 +1935,8 @@ function modifierWindowFromBucket(bucket: ModifierHitBucketState): ModifierWindo
     durationMs: bucket.modifierDurationMs,
     startTimeMs: bucket.modifierStartTimeMs,
     endTimeMs: bucket.modifierEndTimeMs,
+    hostUuid: bucket.modifierHostUuid ?? null,
+    sourceUuid: bucket.modifierSourceUuid ?? null,
     hostUid: bucket.modifierHostUid,
     sourceUid: bucket.modifierSourceUid,
   };
@@ -2042,8 +2119,12 @@ function cachedSourceActorMatchesBucket(
     caches.parsedActorHints.set(source.groupKey, parsedHints);
   }
   for (const parsed of parsedHints) {
-    const hostMatches = parsed.hostUid === null || parsed.hostUid === bucket.modifierHostUid;
-    const sourceMatches = parsed.sourceUid === null || parsed.sourceUid === bucket.modifierSourceUid;
+    const hostMatches = parsed.hostUuid !== null
+      ? parsed.hostUuid === bucket.modifierHostUuid
+      : parsed.hostUid === null || parsed.hostUid === bucket.modifierHostUid;
+    const sourceMatches = parsed.sourceUuid !== null
+      ? parsed.sourceUuid === bucket.modifierSourceUuid
+      : parsed.sourceUid === null || parsed.sourceUid === bucket.modifierSourceUid;
     if (hostMatches && sourceMatches) return true;
   }
   return false;
@@ -2846,7 +2927,11 @@ export function buildModifierActivityRows(
 
   for (const source of sources) {
     const actorSummary = summarizeActors(source.actorHints);
-    if (actorFilter === "external" && actorSummary.externalSourceUids.length === 0) continue;
+    if (
+      actorFilter === "external"
+      && actorSummary.externalSourceUids.length === 0
+      && actorSummary.externalSourceUuids.length === 0
+    ) continue;
 
     const exactSkillAggregates = exactSkillAggregatesBySource.get(source.groupKey) ?? [];
     if (exactSkillAggregates.length > 0) {

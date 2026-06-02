@@ -222,6 +222,7 @@
   "header.training.disableMode": "Trainingspuppenmodus deaktivieren",
   "header.training.enableMode": "Trainingspuppenmodus aktivieren",
   "header.training.ready": "Trainingspuppe bereit",
+  "header.training.finished": "Segment beendet",
   "header.training.waitSegment": "Segmentwechsel ausstehend",
   "historyDetail.classIcon": "Klassensymbol",
   "historyDetail.player": "Spieler",
@@ -231,5 +232,17 @@
   "live.resetToast": "Kampf zurückgesetzt",
   "live.resumeToast": "Kampf fortgesetzt",
   "live.unknownClass": "Unbekannte Klasse",
-  "table.skill": "Fertigkeit"
+  "table.skill": "Fertigkeit",
+  "columns.liveTankedPlayers.blockRate.description": "Zeigt die Chance, eingehende Treffer zu blocken",
+  "columns.liveTankedPlayers.blockRate.header": "Block %",
+  "columns.liveTankedPlayers.blockRate.label": "Block %",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "Zeigt die Chance auf einen Glücksblock bei eingehenden Treffern",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "Glücksblock %",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "Glücksblock %",
+  "columns.liveTankedSkills.blockRate.description": "Zeigt die Chance, dass diese eingehende Fähigkeit geblockt wurde",
+  "columns.liveTankedSkills.blockRate.header": "Block %",
+  "columns.liveTankedSkills.blockRate.label": "Block %",
+  "columns.liveTankedSkills.luckyBlockRate.description": "Zeigt die Chance, dass diese eingehende Fähigkeit einen Glücksblock auslöste",
+  "columns.liveTankedSkills.luckyBlockRate.header": "Glücksblock %",
+  "columns.liveTankedSkills.luckyBlockRate.label": "Glücksblock %"
 }

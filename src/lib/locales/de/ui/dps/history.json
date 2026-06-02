@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "Unbekannte Quelle",
+  "tanked.monster.source": "Quelle",
+  "tanked.monster.total": "Gesamt",
   "columns.historyHealPlayers.critDmgRate.description": "Zeigt den Anteil von healing done as kritische Heilung",
   "columns.historyHealPlayers.critDmgRate.header": "Krit-Heilung %",
   "columns.historyHealPlayers.critDmgRate.label": "Krit-Heilung %",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "Beitragsgruppen",
   "detail.modifierTitlePredicates": "Pradikate",
   "detail.modifierTitleRequiredEvidence": "Benoetigte Nachweise",
-  "detail.modifierTitleAttributionNotes": "Zuordnungsnotizen"
+  "detail.modifierTitleAttributionNotes": "Zuordnungsnotizen",
+  "columns.historyTankedPlayers.blockRate.description": "Zeigt die Chance, eingehende Treffer zu blocken",
+  "columns.historyTankedPlayers.blockRate.header": "Block %",
+  "columns.historyTankedPlayers.blockRate.label": "Block %",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "Zeigt die Chance auf einen Glücksblock bei eingehenden Treffern",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "Glücksblock %",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "Glücksblock %",
+  "columns.historyTankedSkills.blockRate.description": "Zeigt die Chance, dass diese eingehende Fähigkeit geblockt wurde",
+  "columns.historyTankedSkills.blockRate.header": "Block %",
+  "columns.historyTankedSkills.blockRate.label": "Block %",
+  "columns.historyTankedSkills.luckyBlockRate.description": "Zeigt die Chance, dass diese eingehende Fähigkeit einen Glücksblock auslöste",
+  "columns.historyTankedSkills.luckyBlockRate.header": "Glücksblock %",
+  "columns.historyTankedSkills.luckyBlockRate.label": "Glücksblock %"
 }

@@ -1,4 +1,7 @@
 {
+  "tanked.monster.unknownSource": "未知來源",
+  "tanked.monster.source": "來源",
+  "tanked.monster.total": "總計",
   "columns.historyHealPlayers.critDmgRate.description": "顯示玩家造成的暴擊治療比例",
   "columns.historyHealPlayers.critDmgRate.header": "暴擊療%",
   "columns.historyHealPlayers.critDmgRate.label": "暴擊療%",
@@ -358,5 +361,17 @@
   "detail.modifierTitleContributionGroups": "貢獻分組",
   "detail.modifierTitlePredicates": "條件",
   "detail.modifierTitleRequiredEvidence": "所需證據",
-  "detail.modifierTitleAttributionNotes": "歸因備註"
+  "detail.modifierTitleAttributionNotes": "歸因備註",
+  "columns.historyTankedPlayers.blockRate.description": "顯示承受傷害時的格擋機率",
+  "columns.historyTankedPlayers.blockRate.header": "格擋%",
+  "columns.historyTankedPlayers.blockRate.label": "格擋%",
+  "columns.historyTankedPlayers.luckyBlockRate.description": "顯示承受傷害時觸發幸運格擋的機率",
+  "columns.historyTankedPlayers.luckyBlockRate.header": "幸運格擋%",
+  "columns.historyTankedPlayers.luckyBlockRate.label": "幸運格擋%",
+  "columns.historyTankedSkills.blockRate.description": "顯示該承傷技能被格擋的機率",
+  "columns.historyTankedSkills.blockRate.header": "格擋%",
+  "columns.historyTankedSkills.blockRate.label": "格擋%",
+  "columns.historyTankedSkills.luckyBlockRate.description": "顯示該承傷技能觸發幸運格擋的機率",
+  "columns.historyTankedSkills.luckyBlockRate.header": "幸運格擋%",
+  "columns.historyTankedSkills.luckyBlockRate.label": "幸運格擋%"
 }

@@ -11,11 +11,12 @@ use crate::database::db_exec;
 use crate::database::reindex_encounters;
 use crate::database::schema as sch;
 use crate::live::commands_models as lc;
+use crate::live::entity_id::uid_from_uuid;
 use crate::live::monster_registry;
 use crate::live::opcodes_models::{Entity, class};
 use blueprotobuf_lib::blueprotobuf::EEntityType;
 
-const HISTORY_ENTITY_SUMMARY_VERSION: i32 = 2;
+const HISTORY_ENTITY_SUMMARY_VERSION: i32 = 3;
 const HISTORY_ENTITY_SUMMARY_CACHE_MAX: usize = 16;
 type HistoryEntitySummaryCache = Vec<(i32, Arc<Vec<lc::HistoryEntityData>>)>;
 static HISTORY_ENTITY_SUMMARY_CACHE: OnceLock<Mutex<HistoryEntitySummaryCache>> = OnceLock::new();
@@ -26,6 +27,8 @@ static HISTORY_ENTITY_SUMMARY_CACHE: OnceLock<Mutex<HistoryEntitySummaryCache>> 
 pub struct PlayerSummaryDto {
     /// The player UID.
     pub uid: i64,
+    /// The canonical player UUID when present in saved history.
+    pub uuid: Option<i64>,
     /// The player name.
     pub name: String,
     /// The class ID of the player.
@@ -60,6 +63,8 @@ pub struct EncounterSummaryDto {
     pub active_combat_duration: Option<f64>,
     /// The UID of the local player for this encounter.
     pub local_player_id: Option<i64>,
+    /// The canonical UUID of the local player for this encounter, when available.
+    pub local_player_uuid: Option<i64>,
     /// A list of bosses in the encounter.
     pub bosses: Vec<BossSummaryDto>,
     /// A list of players in the encounter.
@@ -164,6 +169,7 @@ fn parse_player_entries(json: &Option<String>) -> Vec<PlayerSummaryDto> {
             .into_iter()
             .map(|entry| PlayerSummaryDto {
                 uid: entry.uid,
+                uuid: entry.uuid.filter(|uuid| *uuid > 0),
                 name: entry.name,
                 class_id: entry.class_id,
                 class_spec: entry.class_spec as i32,
@@ -177,12 +183,25 @@ fn parse_player_entries(json: &Option<String>) -> Vec<PlayerSummaryDto> {
         .into_iter()
         .map(|name| PlayerSummaryDto {
             uid: 0,
+            uuid: None,
             name,
             class_id: 0,
             class_spec: 0,
             class_spec_name: String::new(),
         })
         .collect()
+}
+
+fn local_player_uuid_from_entries(
+    local_player_id: Option<i64>,
+    players: &[PlayerSummaryDto],
+) -> Option<i64> {
+    let local_player_id = local_player_id.filter(|uid| *uid > 0)?;
+    players
+        .iter()
+        .find(|player| player.uid == local_player_id)
+        .and_then(|player| player.uuid)
+        .filter(|uuid| *uuid > 0)
 }
 
 fn parse_boss_name_strings(json: &Option<String>) -> Vec<String> {
@@ -534,6 +553,8 @@ pub fn get_recent_encounters_filtered(
         {
             let boss_entries = parse_boss_summary_entries(&boss_json);
             let player_entries = parse_player_entries(&player_json);
+            let local_player_uuid =
+                local_player_uuid_from_entries(local_player_id, &player_entries);
 
             mapped.push(EncounterSummaryDto {
                 id,
@@ -546,6 +567,7 @@ pub fn get_recent_encounters_filtered(
                 duration,
                 active_combat_duration,
                 local_player_id,
+                local_player_uuid,
                 bosses: boss_entries,
                 players: player_entries,
                 remote_encounter_id: remote_id,
@@ -711,6 +733,7 @@ pub fn get_encounter_by_id(encounter_id: i32) -> Result<EncounterSummaryDto, Str
 
     let boss_names = parse_boss_summary_entries(&row.12);
     let player_entries = parse_player_entries(&row.13);
+    let local_player_uuid = local_player_uuid_from_entries(row.9, &player_entries);
 
     Ok(EncounterSummaryDto {
         id: row.0,
@@ -723,6 +746,7 @@ pub fn get_encounter_by_id(encounter_id: i32) -> Result<EncounterSummaryDto, Str
         duration: row.7,
         active_combat_duration: row.8,
         local_player_id: row.9,
+        local_player_uuid,
         bosses: boss_names,
         players: player_entries,
         remote_encounter_id: row.10,
@@ -928,6 +952,7 @@ fn to_history_entity_data(
 
     lc::HistoryEntityData {
         uid,
+        uuid: entity_canonical_uuid(entity),
         name: entity.name.clone(),
         class_id: entity.class_id,
         class_spec: entity.class_spec as i32,
@@ -954,6 +979,7 @@ fn to_history_entity_data(
             .iter()
             .map(|(skill_id, stats)| (*skill_id, lc::to_raw_skill_stats(stats)))
             .collect(),
+        taken_per_source: lc::build_taken_per_source(&entity.skill_taken_from_source),
         active_buffs: if include_modifier_details {
             entity
                 .active_buffs
@@ -1102,11 +1128,20 @@ fn build_modifier_target_refs(entity: &Entity) -> Vec<lc::PerTargetStats> {
             *entry = name;
         }
     }
+    let mut target_uuids = HashMap::<i64, i64>::new();
+    for (&(_, target_uid), stats) in &entity.skill_dmg_to_target {
+        if let Some(target_uuid) = stats.target_uuid.filter(|uuid| *uuid > 0) {
+            target_uuids.entry(target_uid).or_insert(target_uuid);
+        }
+    }
     for bucket in &entity.modifier_hit_buckets {
         if bucket.target_uid > 0 {
             targets
                 .entry(bucket.target_uid)
                 .or_insert_with(|| format!("#{}", bucket.target_uid));
+            if let Some(target_uuid) = bucket.target_uuid.filter(|uuid| *uuid > 0) {
+                target_uuids.entry(bucket.target_uid).or_insert(target_uuid);
+            }
         }
     }
 
@@ -1114,6 +1149,7 @@ fn build_modifier_target_refs(entity: &Entity) -> Vec<lc::PerTargetStats> {
         .into_iter()
         .map(|(target_uid, target_name)| lc::PerTargetStats {
             target_uid,
+            target_uuid: target_uuids.get(&target_uid).copied(),
             target_name,
             total_value: 0,
             damage: lc::RawCombatStats::default(),
@@ -1145,6 +1181,55 @@ fn source_actor_display_name(uid: i64, entity: Option<&Entity>) -> String {
     format!("#{}", uid)
 }
 
+fn entity_canonical_uuid(entity: &Entity) -> Option<i64> {
+    entity.uuid.filter(|uuid| *uuid > 0)
+}
+
+fn history_entity_display_uid(identity_key: i64, entity: &Entity) -> i64 {
+    entity_canonical_uuid(entity)
+        .map(uid_from_uuid)
+        .unwrap_or(identity_key)
+}
+
+fn history_entity_identity_key(identity_key: i64, entity: &Entity) -> (i64, Option<i64>) {
+    (
+        history_entity_display_uid(identity_key, entity),
+        entity_canonical_uuid(entity),
+    )
+}
+
+fn entity_by_identity<'a>(
+    entities: &'a HashMap<i64, Entity>,
+    uid: i64,
+    uuid: Option<i64>,
+) -> Option<&'a Entity> {
+    if let Some(uuid) = uuid.filter(|uuid| *uuid > 0) {
+        if let Some(entity) = entities
+            .get(&uuid)
+            .filter(|entity| entity_canonical_uuid(entity) == Some(uuid))
+        {
+            return Some(entity);
+        }
+        if let Some(entity) = entities
+            .get(&uid)
+            .filter(|entity| entity_canonical_uuid(entity) == Some(uuid))
+        {
+            return Some(entity);
+        }
+        return entities
+            .values()
+            .find(|entity| entity_canonical_uuid(entity) == Some(uuid));
+    }
+    entities.get(&uid).or_else(|| {
+        entities
+            .iter()
+            .find(|(identity_key, entity)| {
+                history_entity_display_uid(**identity_key, entity) == uid
+            })
+            .map(|(_, entity)| entity)
+    })
+}
+
 fn source_actor_entity_type(entity: Option<&Entity>) -> String {
     entity
         .map(|entity| format!("{:?}", entity.entity_type))
@@ -1152,38 +1237,49 @@ fn source_actor_entity_type(entity: Option<&Entity>) -> String {
 }
 
 fn add_modifier_source_owner_hint(
-    owners: &mut HashMap<i64, (i64, String)>,
-    ambiguous_sources: &mut HashSet<i64>,
+    owners: &mut HashMap<(i64, Option<i64>), (i64, Option<i64>, String)>,
+    ambiguous_sources: &mut HashSet<(i64, Option<i64>)>,
     entities: &HashMap<i64, Entity>,
     target_uid: i64,
+    target_uuid: Option<i64>,
     owner_uid: i64,
     owner_entity: &Entity,
     host_uid: i64,
+    host_uuid: Option<i64>,
     source_uid: i64,
+    source_uuid: Option<i64>,
 ) {
+    let source_key = (source_uid, source_uuid.filter(|uuid| *uuid > 0));
     if source_uid <= 0
         || source_uid == owner_uid
-        || ambiguous_sources.contains(&source_uid)
-        || !is_hosted_on(host_uid, owner_uid, target_uid)
-        || entities
-            .get(&source_uid)
+        || ambiguous_sources.contains(&source_key)
+        || !is_hosted_on_identity(
+            host_uid,
+            host_uuid,
+            owner_uid,
+            entity_canonical_uuid(owner_entity),
+            target_uid,
+            target_uuid,
+        )
+        || entity_by_identity(entities, source_uid, source_uuid)
             .is_some_and(|entity| entity.entity_type == EEntityType::EntChar)
     {
         return;
     }
 
-    if let Some((existing_owner_uid, _)) = owners.get(&source_uid) {
+    if let Some((existing_owner_uid, _, _)) = owners.get(&source_key) {
         if *existing_owner_uid != owner_uid {
-            owners.remove(&source_uid);
-            ambiguous_sources.insert(source_uid);
+            owners.remove(&source_key);
+            ambiguous_sources.insert(source_key);
         }
         return;
     }
 
     owners.insert(
-        source_uid,
+        source_key,
         (
             owner_uid,
+            entity_canonical_uuid(owner_entity),
             source_actor_display_name(owner_uid, Some(owner_entity)),
         ),
     );
@@ -1191,10 +1287,11 @@ fn add_modifier_source_owner_hint(
 
 fn build_modifier_source_owner_index(
     target_uid: i64,
+    target_uuid: Option<i64>,
     entities: &HashMap<i64, Entity>,
-) -> HashMap<i64, (i64, String)> {
-    let mut owners = HashMap::<i64, (i64, String)>::new();
-    let mut ambiguous_sources = HashSet::<i64>::new();
+) -> HashMap<(i64, Option<i64>), (i64, Option<i64>, String)> {
+    let mut owners = HashMap::<(i64, Option<i64>), (i64, Option<i64>, String)>::new();
+    let mut ambiguous_sources = HashSet::<(i64, Option<i64>)>::new();
 
     for (&owner_uid, owner_entity) in entities {
         if owner_entity.entity_type != EEntityType::EntChar {
@@ -1207,10 +1304,13 @@ fn build_modifier_source_owner_index(
                 &mut ambiguous_sources,
                 entities,
                 target_uid,
+                target_uuid,
                 owner_uid,
                 owner_entity,
                 buff.host_uid,
+                buff.host_uuid,
                 buff.source_uid,
+                buff.source_uuid,
             );
         }
         for buff in &owner_entity.active_factor_buffs {
@@ -1219,10 +1319,13 @@ fn build_modifier_source_owner_index(
                 &mut ambiguous_sources,
                 entities,
                 target_uid,
+                target_uuid,
                 owner_uid,
                 owner_entity,
                 buff.host_uid,
+                buff.host_uuid,
                 buff.source_uid,
+                buff.source_uuid,
             );
         }
         for buff in &owner_entity.active_effect_buffs {
@@ -1231,10 +1334,13 @@ fn build_modifier_source_owner_index(
                 &mut ambiguous_sources,
                 entities,
                 target_uid,
+                target_uuid,
                 owner_uid,
                 owner_entity,
                 buff.host_uid,
+                buff.host_uuid,
                 buff.source_uid,
+                buff.source_uuid,
             );
         }
         for window in &owner_entity.modifier_windows {
@@ -1243,10 +1349,13 @@ fn build_modifier_source_owner_index(
                 &mut ambiguous_sources,
                 entities,
                 target_uid,
+                target_uuid,
                 owner_uid,
                 owner_entity,
                 window.host_uid,
+                window.host_uuid,
                 window.source_uid,
+                window.source_uuid,
             );
         }
     }
@@ -1256,13 +1365,13 @@ fn build_modifier_source_owner_index(
 
 fn source_actor_owner_hint_from_bucket(
     source_uid: i64,
+    source_uuid: Option<i64>,
     bucket: &crate::live::opcodes_models::ObservedModifierHitBucket,
     entities: &HashMap<i64, Entity>,
-) -> Option<(i64, String)> {
+) -> Option<(i64, Option<i64>, String)> {
     if source_uid <= 0
         || bucket.original_attacker_uid != source_uid
-        || entities
-            .get(&source_uid)
+        || entity_by_identity(entities, source_uid, source_uuid)
             .is_some_and(|entity| entity.entity_type == EEntityType::EntChar)
     {
         return None;
@@ -1275,13 +1384,18 @@ fn source_actor_owner_hint_from_bucket(
             (bucket.attacker_uid > 0 && bucket.attacker_uid != source_uid)
                 .then_some(bucket.attacker_uid)
         })?;
-    let owner_entity = entities.get(&owner_uid)?;
+    let owner_uuid = bucket
+        .top_summoner_uuid
+        .filter(|uuid| *uuid > 0)
+        .or_else(|| bucket.attacker_uuid.filter(|uuid| *uuid > 0));
+    let owner_entity = entity_by_identity(entities, owner_uid, owner_uuid)?;
     if owner_entity.entity_type != EEntityType::EntChar {
         return None;
     }
 
     Some((
         owner_uid,
+        entity_canonical_uuid(owner_entity).or(owner_uuid),
         source_actor_display_name(owner_uid, Some(owner_entity)),
     ))
 }
@@ -1291,8 +1405,9 @@ fn build_modifier_source_actor_refs(
     entity: &Entity,
     entities: &HashMap<i64, Entity>,
 ) -> Vec<lc::ModifierSourceActorState> {
-    let mut actors = HashMap::<i64, lc::ModifierSourceActorState>::new();
-    let owner_index = build_modifier_source_owner_index(target_uid, entities);
+    let mut actors = HashMap::<(i64, Option<i64>), lc::ModifierSourceActorState>::new();
+    let target_uuid = entity_canonical_uuid(entity);
+    let owner_index = build_modifier_source_owner_index(target_uid, target_uuid, entities);
 
     for bucket in &entity.modifier_hit_buckets {
         if !crate::live::modifier_recount::is_reportable_modifier_bucket(
@@ -1303,31 +1418,39 @@ fn build_modifier_source_actor_refs(
         }
 
         let source_uid = bucket.modifier_source_uid;
+        let source_uuid = bucket.modifier_source_uuid.filter(|uuid| *uuid > 0);
         if source_uid <= 0 {
             continue;
         }
 
-        let source_entity = entities.get(&source_uid);
-        let owner_hint = owner_index
-            .get(&source_uid)
-            .cloned()
-            .or_else(|| source_actor_owner_hint_from_bucket(source_uid, bucket, entities));
+        let source_entity = entity_by_identity(entities, source_uid, source_uuid);
+        let source_key = (source_uid, source_uuid);
+        let owner_hint = owner_index.get(&source_key).cloned().or_else(|| {
+            source_actor_owner_hint_from_bucket(source_uid, source_uuid, bucket, entities)
+        });
         let actor = actors
-            .entry(source_uid)
+            .entry(source_key)
             .or_insert_with(|| lc::ModifierSourceActorState {
                 uid: source_uid,
+                uuid: source_entity
+                    .and_then(entity_canonical_uuid)
+                    .or(source_uuid),
                 name: source_actor_display_name(source_uid, source_entity),
                 entity_type: source_actor_entity_type(source_entity),
-                owner_uid: owner_hint.as_ref().map(|(owner_uid, _)| *owner_uid),
+                owner_uid: owner_hint.as_ref().map(|(owner_uid, _, _)| *owner_uid),
+                owner_uuid: owner_hint
+                    .as_ref()
+                    .and_then(|(_, owner_uuid, _)| *owner_uuid),
                 owner_name: owner_hint
                     .as_ref()
-                    .map(|(_, owner_name)| owner_name.clone()),
+                    .map(|(_, _, owner_name)| owner_name.clone()),
                 source_config_ids: Vec::new(),
                 base_ids: Vec::new(),
             });
         if actor.owner_uid.is_none() {
-            if let Some((owner_uid, owner_name)) = owner_hint {
+            if let Some((owner_uid, owner_uuid, owner_name)) = owner_hint {
                 actor.owner_uid = Some(owner_uid);
+                actor.owner_uuid = owner_uuid;
                 actor.owner_name = Some(owner_name);
             }
         }
@@ -1343,7 +1466,7 @@ fn build_modifier_source_actor_refs(
         row.source_config_ids.sort_unstable();
         row.base_ids.sort_unstable();
     }
-    rows.sort_by_key(|row| row.uid);
+    rows.sort_by_key(|row| (row.uid, row.uuid));
     rows
 }
 
@@ -1354,6 +1477,7 @@ fn to_history_modifier_primary_entity_data(
 ) -> lc::HistoryEntityData {
     lc::HistoryEntityData {
         uid,
+        uuid: entity_canonical_uuid(entity),
         name: entity.name.clone(),
         class_id: entity.class_id,
         class_spec: entity.class_spec as i32,
@@ -1372,6 +1496,7 @@ fn to_history_modifier_primary_entity_data(
             .collect(),
         heal_skills: Default::default(),
         taken_skills: Default::default(),
+        taken_per_source: Vec::new(),
         active_buffs: entity
             .active_buffs
             .iter()
@@ -1458,6 +1583,8 @@ struct ModifierHitBucketCompactKey {
     modifier_duration_ms: i32,
     modifier_start_time_ms: i64,
     modifier_end_time_ms: Option<i64>,
+    modifier_host_uuid: Option<i64>,
+    modifier_source_uuid: Option<i64>,
     modifier_host_uid: i64,
     modifier_source_uid: i64,
     skill_key: i64,
@@ -1467,6 +1594,10 @@ struct ModifierHitBucketCompactKey {
     damage_source: Option<i32>,
     property: Option<i32>,
     damage_mode: Option<i32>,
+    attacker_uuid: Option<i64>,
+    original_attacker_uuid: Option<i64>,
+    top_summoner_uuid: Option<i64>,
+    target_uuid: Option<i64>,
     attacker_uid: i64,
     original_attacker_uid: i64,
     top_summoner_uid: Option<i64>,
@@ -1479,6 +1610,8 @@ struct ModifierHitBucketCompactKey {
 struct ModifierHitBucketReportKey {
     modifier_base_id: i32,
     modifier_source_config_id: Option<i32>,
+    modifier_host_uuid: Option<i64>,
+    modifier_source_uuid: Option<i64>,
     modifier_host_uid: i64,
     modifier_source_uid: i64,
     skill_key: i64,
@@ -1501,6 +1634,8 @@ fn compact_key_for_modifier_hit_bucket(
         modifier_duration_ms: bucket.modifier_duration_ms,
         modifier_start_time_ms: bucket.modifier_start_time_ms,
         modifier_end_time_ms: bucket.modifier_end_time_ms,
+        modifier_host_uuid: bucket.modifier_host_uuid,
+        modifier_source_uuid: bucket.modifier_source_uuid,
         modifier_host_uid: bucket.modifier_host_uid,
         modifier_source_uid: bucket.modifier_source_uid,
         skill_key: bucket.skill_key,
@@ -1510,6 +1645,10 @@ fn compact_key_for_modifier_hit_bucket(
         damage_source: bucket.damage_source,
         property: bucket.property,
         damage_mode: bucket.damage_mode,
+        attacker_uuid: bucket.attacker_uuid,
+        original_attacker_uuid: bucket.original_attacker_uuid,
+        top_summoner_uuid: bucket.top_summoner_uuid,
+        target_uuid: bucket.target_uuid,
         attacker_uid: bucket.attacker_uid,
         original_attacker_uid: bucket.original_attacker_uid,
         top_summoner_uid: bucket.top_summoner_uid,
@@ -1525,6 +1664,8 @@ fn report_key_for_modifier_hit_bucket(
     ModifierHitBucketReportKey {
         modifier_base_id: bucket.modifier_base_id,
         modifier_source_config_id: bucket.modifier_source_config_id,
+        modifier_host_uuid: bucket.modifier_host_uuid,
+        modifier_source_uuid: bucket.modifier_source_uuid,
         modifier_host_uid: bucket.modifier_host_uid,
         modifier_source_uid: bucket.modifier_source_uid,
         skill_key: bucket.skill_key,
@@ -1627,6 +1768,10 @@ where
         bucket.damage_source = None;
         bucket.property = None;
         bucket.damage_mode = None;
+        bucket.attacker_uuid = None;
+        bucket.original_attacker_uuid = None;
+        bucket.top_summoner_uuid = None;
+        bucket.target_uuid = None;
         bucket.attacker_uid = 0;
         bucket.original_attacker_uid = 0;
         bucket.top_summoner_uid = None;
@@ -1658,32 +1803,85 @@ fn is_hosted_on(host_uid: i64, fallback_uid: i64, target_uid: i64) -> bool {
     resolved_host_uid == target_uid
 }
 
-fn entity_has_modifier_state_for_host(uid: i64, entity: &Entity, target_uid: i64) -> bool {
-    entity
-        .active_buffs
-        .iter()
-        .any(|buff| is_hosted_on(buff.host_uid, uid, target_uid))
-        || entity
-            .active_factor_buffs
-            .iter()
-            .any(|buff| is_hosted_on(buff.host_uid, uid, target_uid))
-        || entity
-            .active_effect_buffs
-            .iter()
-            .any(|buff| is_hosted_on(buff.host_uid, uid, target_uid))
-        || entity
-            .modifier_windows
-            .iter()
-            .any(|window| is_hosted_on(window.host_uid, uid, target_uid))
+fn is_hosted_on_identity(
+    host_uid: i64,
+    host_uuid: Option<i64>,
+    fallback_uid: i64,
+    fallback_uuid: Option<i64>,
+    target_uid: i64,
+    target_uuid: Option<i64>,
+) -> bool {
+    let resolved_host_uuid = host_uuid
+        .filter(|uuid| *uuid > 0)
+        .or_else(|| fallback_uuid.filter(|uuid| *uuid > 0));
+    if let Some(target_uuid) = target_uuid.filter(|uuid| *uuid > 0) {
+        if resolved_host_uuid == Some(target_uuid) {
+            return true;
+        }
+        if resolved_host_uuid.is_some() {
+            return false;
+        }
+    }
+
+    is_hosted_on(host_uid, fallback_uid, target_uid)
+}
+
+fn entity_has_modifier_state_for_host(
+    uid: i64,
+    entity: &Entity,
+    target_uid: i64,
+    target_uuid: Option<i64>,
+) -> bool {
+    let fallback_uuid = entity_canonical_uuid(entity);
+    entity.active_buffs.iter().any(|buff| {
+        is_hosted_on_identity(
+            buff.host_uid,
+            buff.host_uuid,
+            uid,
+            fallback_uuid,
+            target_uid,
+            target_uuid,
+        )
+    }) || entity.active_factor_buffs.iter().any(|buff| {
+        is_hosted_on_identity(
+            buff.host_uid,
+            buff.host_uuid,
+            uid,
+            fallback_uuid,
+            target_uid,
+            target_uuid,
+        )
+    }) || entity.active_effect_buffs.iter().any(|buff| {
+        is_hosted_on_identity(
+            buff.host_uid,
+            buff.host_uuid,
+            uid,
+            fallback_uuid,
+            target_uid,
+            target_uuid,
+        )
+    }) || entity.modifier_windows.iter().any(|window| {
+        is_hosted_on_identity(
+            window.host_uid,
+            window.host_uuid,
+            uid,
+            fallback_uuid,
+            target_uid,
+            target_uuid,
+        )
+    })
 }
 
 fn to_history_modifier_support_entity_data(
     uid: i64,
     entity: &Entity,
     target_uid: i64,
+    target_uuid: Option<i64>,
 ) -> lc::HistoryEntityData {
+    let fallback_uuid = entity_canonical_uuid(entity);
     lc::HistoryEntityData {
         uid,
+        uuid: fallback_uuid,
         name: entity.name.clone(),
         class_id: entity.class_id,
         class_spec: entity.class_spec as i32,
@@ -1698,28 +1896,65 @@ fn to_history_modifier_support_entity_data(
         dmg_skills: Default::default(),
         heal_skills: Default::default(),
         taken_skills: Default::default(),
+        taken_per_source: Vec::new(),
         active_buffs: entity
             .active_buffs
             .iter()
-            .filter(|buff| is_hosted_on(buff.host_uid, uid, target_uid))
+            .filter(|buff| {
+                is_hosted_on_identity(
+                    buff.host_uid,
+                    buff.host_uuid,
+                    uid,
+                    fallback_uuid,
+                    target_uid,
+                    target_uuid,
+                )
+            })
             .map(lc::to_active_buff_state)
             .collect(),
         active_factor_buffs: entity
             .active_factor_buffs
             .iter()
-            .filter(|buff| is_hosted_on(buff.host_uid, uid, target_uid))
+            .filter(|buff| {
+                is_hosted_on_identity(
+                    buff.host_uid,
+                    buff.host_uuid,
+                    uid,
+                    fallback_uuid,
+                    target_uid,
+                    target_uuid,
+                )
+            })
             .map(lc::to_active_factor_buff_state)
             .collect(),
         active_effect_buffs: entity
             .active_effect_buffs
             .iter()
-            .filter(|buff| is_hosted_on(buff.host_uid, uid, target_uid))
+            .filter(|buff| {
+                is_hosted_on_identity(
+                    buff.host_uid,
+                    buff.host_uuid,
+                    uid,
+                    fallback_uuid,
+                    target_uid,
+                    target_uuid,
+                )
+            })
             .map(lc::to_active_effect_buff_state)
             .collect(),
         modifier_windows: entity
             .modifier_windows
             .iter()
-            .filter(|window| is_hosted_on(window.host_uid, uid, target_uid))
+            .filter(|window| {
+                is_hosted_on_identity(
+                    window.host_uid,
+                    window.host_uuid,
+                    uid,
+                    fallback_uuid,
+                    target_uid,
+                    target_uuid,
+                )
+            })
             .map(lc::to_modifier_window_state)
             .collect(),
         modifier_hit_buckets: Vec::new(),
@@ -1783,13 +2018,14 @@ fn get_encounter_entities_raw_inner(
     let loaded_ms = started.elapsed().as_millis();
     let build_started = Instant::now();
     let mut rows = Vec::new();
-    for (&uid, entity) in entities.iter() {
+    for (&identity_key, entity) in entities.iter() {
         if entity.entity_type != EEntityType::EntChar {
             continue;
         }
         if !entity_has_history_surface(entity, include_modifier_details) {
             continue;
         }
+        let uid = history_entity_display_uid(identity_key, entity);
         rows.push(to_history_entity_data(
             uid,
             entity,
@@ -1797,7 +2033,7 @@ fn get_encounter_entities_raw_inner(
             target_detail_mode,
         ));
     }
-    rows.sort_by_key(|row| row.uid);
+    rows.sort_by_key(|row| (row.uid, row.uuid));
     log::info!(
         target: "app::history",
         "history_entities_built encounter_id={} include_modifier_details={} target_detail_mode={:?} entities={} rows={} load_ms={} build_ms={} total_ms={}",
@@ -1855,17 +2091,20 @@ pub fn get_encounter_entities_target_details_raw(
 pub fn get_encounter_modifier_entities_raw(
     encounter_id: i32,
     entity_uid: i64,
+    entity_uuid: Option<i64>,
 ) -> Result<Vec<lc::HistoryEntityData>, String> {
     let started = Instant::now();
     let entities = crate::database::load_encounter_data_cached(encounter_id)?;
     let loaded_ms = started.elapsed().as_millis();
     let build_started = Instant::now();
-    let Some(entity) = entities.get(&entity_uid) else {
+    let Some(entity) = entity_by_identity(&entities, entity_uid, entity_uuid) else {
         return Err(format!(
-            "Entity #{} was not found in encounter #{}",
-            entity_uid, encounter_id
+            "Entity #{} ({:?}) was not found in encounter #{}",
+            entity_uid, entity_uuid, encounter_id
         ));
     };
+    let selected_entity_uuid =
+        entity_canonical_uuid(entity).or(entity_uuid.filter(|uuid| *uuid > 0));
     if entity.entity_type != EEntityType::EntChar {
         return Err(format!("Entity #{} is not a character", entity_uid));
     }
@@ -1881,6 +2120,18 @@ pub fn get_encounter_modifier_entities_raw(
                 .filter_map(|bucket| (bucket.target_uid > 0).then_some(bucket.target_uid)),
         )
         .collect();
+    let target_uuids: HashSet<i64> = entity
+        .skill_dmg_to_target
+        .values()
+        .filter_map(|stats| stats.target_uuid)
+        .chain(
+            entity
+                .modifier_hit_buckets
+                .iter()
+                .filter_map(|bucket| bucket.target_uuid),
+        )
+        .filter(|uuid| *uuid > 0)
+        .collect();
 
     let original_bucket_count = entity.modifier_hit_buckets.len();
     let mut rows = vec![to_history_modifier_primary_entity_data(
@@ -1890,38 +2141,64 @@ pub fn get_encounter_modifier_entities_raw(
         .first()
         .map(|row| row.modifier_hit_buckets.len())
         .unwrap_or_default();
-    let mut support_uids = HashSet::<i64>::new();
-    for (&uid, source_entity) in entities.iter() {
-        if uid == entity_uid {
+    let mut support_identities = HashSet::<(i64, Option<i64>)>::new();
+    for (&source_identity_key, source_entity) in entities.iter() {
+        let uid = history_entity_display_uid(source_identity_key, source_entity);
+        let source_entity_uuid = entity_canonical_uuid(source_entity);
+        if uid == entity_uid && source_entity_uuid == selected_entity_uuid {
             continue;
         }
         if source_entity.entity_type == EEntityType::EntChar
-            && entity_has_modifier_state_for_host(uid, source_entity, entity_uid)
-            && support_uids.insert(uid)
+            && entity_has_modifier_state_for_host(
+                uid,
+                source_entity,
+                entity_uid,
+                selected_entity_uuid,
+            )
+            && support_identities.insert(history_entity_identity_key(
+                source_identity_key,
+                source_entity,
+            ))
         {
             rows.push(to_history_modifier_support_entity_data(
                 uid,
                 source_entity,
                 entity_uid,
+                selected_entity_uuid,
             ));
         }
-        if target_uids.contains(&uid)
-            && entity_has_modifier_state_for_host(uid, source_entity, uid)
-            && support_uids.insert(uid)
+        let is_target_identity = target_uids.contains(&uid)
+            || source_entity_uuid.is_some_and(|uuid| target_uuids.contains(&uuid));
+        if is_target_identity
+            && entity_has_modifier_state_for_host(uid, source_entity, uid, source_entity_uuid)
+            && support_identities.insert(history_entity_identity_key(
+                source_identity_key,
+                source_entity,
+            ))
         {
             rows.push(to_history_modifier_support_entity_data(
                 uid,
                 source_entity,
                 uid,
+                source_entity_uuid,
             ));
         }
     }
-    rows.sort_by_key(|row| if row.uid == entity_uid { 0 } else { 1 });
+    rows.sort_by_key(|row| {
+        if row.uid == entity_uid
+            && (selected_entity_uuid.is_none() || row.uuid == selected_entity_uuid)
+        {
+            0
+        } else {
+            1
+        }
+    });
     log::info!(
         target: "app::history",
-        "history_modifier_entities_built encounter_id={} entity_uid={} entities={} support_rows={} targets={} original_buckets={} compact_buckets={} load_ms={} build_ms={} total_ms={}",
+        "history_modifier_entities_built encounter_id={} entity_uid={} entity_uuid={:?} entities={} support_rows={} targets={} original_buckets={} compact_buckets={} load_ms={} build_ms={} total_ms={}",
         encounter_id,
         entity_uid,
+        selected_entity_uuid,
         entities.len(),
         rows.len().saturating_sub(1),
         target_uids.len(),

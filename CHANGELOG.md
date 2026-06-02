@@ -1,8 +1,8 @@
 # Changelog
 
-## v1.1.0_beta1 - Global Beta
+## v1.1.0_beta2 - Global Beta
 
-- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta1` beta release.
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta2` beta release.
 - Fixed live meter hotkey/sidebar/tray show behavior so the live window can appear without stealing game focus, while still becoming clickable afterward.
 - Restored overlay edit-mode exit behavior so the overlay returns to its previous visible/hidden state instead of staying on after editing.
 - Fixed Dynamic Live Window row capping by measuring actual rendered live-table rows, preventing the player list from clipping before the configured visible-player count.
@@ -10,6 +10,14 @@
 - Made the live refresh-rate setting affect the backend idle update loop as well as active packet updates, reducing cases where live stats felt stuck on a coarse delay.
 - Reconciled Auto-hide Live Window with manual show/toggle actions so auto-hidden windows no longer require a double toggle to reappear.
 - Forced auto-hidden live windows into cursor-ignore mode before hiding so an invisible live meter cannot block game clicks.
+- Added a UUID compatibility boundary for saved history: new entity blobs prefer UUID keys, older UID-keyed history still loads, and history detail URLs now preserve UUID sidecars alongside existing UID params.
+- Ported the safe CN 0.1.5 beta data and live-parser updates into Global while keeping the Global app identity and existing Global localization flow.
+- Expanded official data coverage with new counter source/slot templates, class skill configs, buff names, scene names, damage attribute names, aoyi icons, and CN-only logic table additions.
+- Added New Factor/Season Cultivate monitor support with automatic active-factor rows, compact Reality/Inspiration/Stasis sorting, skill-aware labels, proc counts, timer bars, and localized factor display names across supported UI locales.
+- Fixed factor energy/proc inference so skill-cast factor sources count from local cooldown-start packets, source rows do not cross-count unrelated factor energy, thresholdless timer/effect rows no longer reset source buckets, and durationless Stasis signals do not inflate proc totals.
+- Improved Tanked reports with source/monster aggregation, monster drilldown into damage-taken skills, lucky/block/lucky-block style rate fields, and localized history/live detail columns and values.
+- Added ally buff/monster monitor support from the CN merge, including teammate buff display plumbing and refreshed monster overlay localization strings.
+- Added event logger and probe tooling for factor-energy packet investigations, plus a reusable Tauri static dev server path so stale dev servers no longer block beta testing.
 
 ## v1.0.9 - Global
 

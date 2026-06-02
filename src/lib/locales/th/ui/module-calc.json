@@ -83,5 +83,12 @@
   "gpuChecking": "กำลังตรวจสอบ GPU...",
   "gpuDisabledDescription": "การคำนวณเร่งด้วย GPU ถูกปิดอยู่",
   "gpuEnabledDescription": "การคำนวณเร่งด้วย GPU เปิดใช้อยู่",
-  "requiresAtLeastModules": "ต้องมีอย่างน้อย {count} โมดูล"
+  "requiresAtLeastModules": "ต้องมีอย่างน้อย {count} โมดูล",
+  "gpuCheckUnavailable": "ไม่สามารถตรวจสอบความพร้อมใช้งานของ GPU ได้",
+  "gpuCheckDeferred": "การตรวจสอบ GPU เป็นแบบสั่งเอง",
+  "gpuDeferredDescription": "ใช้ ตรวจสอบ GPU เพื่อยืนยันว่าไดรเวอร์พร้อมใช้งาน",
+  "gpuRecheck": "ตรวจสอบ GPU",
+  "checkingModuleData": "กำลังตรวจสอบข้อมูลโมดูล...",
+  "moduleDataUnavailable": "ข้อมูลโมดูลยังไม่ได้ซิงค์ เปิดเกมด้วยตัวละครที่มีโมดูล แล้วรีเฟรชข้อมูล",
+  "calculationTimedOut": "การคำนวณหมดเวลา ลองลดตัวกรองหรือใช้โหมด CPU แล้วเริ่มใหม่"
 }

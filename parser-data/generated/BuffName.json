@@ -13840,6 +13840,48 @@
     "NameSourceOffset": 1078069
   },
   {
+    "Id": 680905,
+    "Name": "#680905",
+    "NameDesign": "#680905",
+    "DesignName": "#680905",
+    "Names": {
+      "design": "#680905",
+      "en": "#680905",
+      "zh-CN": "#680905",
+      "ja": "#680905",
+      "de": "#680905",
+      "es": "#680905",
+      "fr": "#680905",
+      "id": "#680905",
+      "ko-KR": "#680905",
+      "pt-BR": "#680905",
+      "th": "#680905",
+      "zh-TW": "#680905"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 680906,
+    "Name": "#680906",
+    "NameDesign": "#680906",
+    "DesignName": "#680906",
+    "Names": {
+      "design": "#680906",
+      "en": "#680906",
+      "zh-CN": "#680906",
+      "ja": "#680906",
+      "de": "#680906",
+      "es": "#680906",
+      "fr": "#680906",
+      "id": "#680906",
+      "ko-KR": "#680906",
+      "pt-BR": "#680906",
+      "th": "#680906",
+      "zh-TW": "#680906"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
     "Id": 681001,
     "Level": 1,
     "NameDesign": "npc牵手",
@@ -35202,6 +35244,153 @@
     "NameSourceOffset": 1111547
   },
   {
+    "Id": 829133,
+    "Name": "运动会预警",
+    "NameDesign": "运动会预警",
+    "DesignName": "运动会预警",
+    "Names": {
+      "design": "运动会预警",
+      "en": "运动会预警",
+      "zh-CN": "运动会预警",
+      "ja": "运动会预警",
+      "de": "运动会预警",
+      "es": "运动会预警",
+      "fr": "运动会预警",
+      "id": "运动会预警",
+      "ko-KR": "运动会预警",
+      "pt-BR": "运动会预警",
+      "th": "运动会预警",
+      "zh-TW": "运动会预警"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829134,
+    "Name": "左旋",
+    "NameDesign": "左旋",
+    "DesignName": "左旋",
+    "Names": {
+      "design": "左旋",
+      "en": "左旋",
+      "zh-CN": "左旋",
+      "ja": "左旋",
+      "de": "左旋",
+      "es": "左旋",
+      "fr": "左旋",
+      "id": "左旋",
+      "ko-KR": "左旋",
+      "pt-BR": "左旋",
+      "th": "左旋",
+      "zh-TW": "左旋"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829135,
+    "Name": "右旋",
+    "NameDesign": "右旋",
+    "DesignName": "右旋",
+    "Names": {
+      "design": "右旋",
+      "en": "右旋",
+      "zh-CN": "右旋",
+      "ja": "右旋",
+      "de": "右旋",
+      "es": "右旋",
+      "fr": "右旋",
+      "id": "右旋",
+      "ko-KR": "右旋",
+      "pt-BR": "右旋",
+      "th": "右旋",
+      "zh-TW": "右旋"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829136,
+    "Name": "激光瞄准",
+    "NameDesign": "激光瞄准",
+    "DesignName": "激光瞄准",
+    "Names": {
+      "design": "激光瞄准",
+      "en": "激光瞄准",
+      "zh-CN": "激光瞄准",
+      "ja": "激光瞄准",
+      "de": "激光瞄准",
+      "es": "激光瞄准",
+      "fr": "激光瞄准",
+      "id": "激光瞄准",
+      "ko-KR": "激光瞄准",
+      "pt-BR": "激光瞄准",
+      "th": "激光瞄准",
+      "zh-TW": "激光瞄准"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829137,
+    "Name": "压团血点名",
+    "NameDesign": "压团血点名",
+    "DesignName": "压团血点名",
+    "Names": {
+      "design": "压团血点名",
+      "en": "压团血点名",
+      "zh-CN": "压团血点名",
+      "ja": "压团血点名",
+      "de": "压团血点名",
+      "es": "压团血点名",
+      "fr": "压团血点名",
+      "id": "压团血点名",
+      "ko-KR": "压团血点名",
+      "pt-BR": "压团血点名",
+      "th": "压团血点名",
+      "zh-TW": "压团血点名"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829138,
+    "Name": "压暗",
+    "NameDesign": "压暗",
+    "DesignName": "压暗",
+    "Names": {
+      "design": "压暗",
+      "en": "压暗",
+      "zh-CN": "压暗",
+      "ja": "压暗",
+      "de": "压暗",
+      "es": "压暗",
+      "fr": "压暗",
+      "id": "压暗",
+      "ko-KR": "压暗",
+      "pt-BR": "压暗",
+      "th": "压暗",
+      "zh-TW": "压暗"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829139,
+    "Name": "压暗",
+    "NameDesign": "压暗",
+    "DesignName": "压暗",
+    "Names": {
+      "design": "压暗",
+      "en": "压暗",
+      "zh-CN": "压暗",
+      "ja": "压暗",
+      "de": "压暗",
+      "es": "压暗",
+      "fr": "压暗",
+      "id": "压暗",
+      "ko-KR": "压暗",
+      "pt-BR": "压暗",
+      "th": "压暗",
+      "zh-TW": "压暗"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
     "Id": 829201,
     "Level": 1,
     "NameDesign": "Delayed Railgun",
@@ -35950,6 +36139,321 @@
     },
     "SourceOffset": 278663,
     "NameSourceOffset": 1112858
+  },
+  {
+    "Id": 829248,
+    "Name": "机械守卫转身用目标点标记",
+    "NameDesign": "机械守卫转身用目标点标记",
+    "DesignName": "机械守卫转身用目标点标记",
+    "Names": {
+      "design": "机械守卫转身用目标点标记",
+      "en": "机械守卫转身用目标点标记",
+      "zh-CN": "机械守卫转身用目标点标记",
+      "ja": "机械守卫转身用目标点标记",
+      "de": "机械守卫转身用目标点标记",
+      "es": "机械守卫转身用目标点标记",
+      "fr": "机械守卫转身用目标点标记",
+      "id": "机械守卫转身用目标点标记",
+      "ko-KR": "机械守卫转身用目标点标记",
+      "pt-BR": "机械守卫转身用目标点标记",
+      "th": "机械守卫转身用目标点标记",
+      "zh-TW": "机械守卫转身用目标点标记"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829249,
+    "Name": "自爆进度条(三足机器人）",
+    "NameDesign": "自爆进度条(三足机器人）",
+    "DesignName": "自爆进度条(三足机器人）",
+    "Names": {
+      "design": "自爆进度条(三足机器人）",
+      "en": "自爆进度条(三足机器人）",
+      "zh-CN": "自爆进度条(三足机器人）",
+      "ja": "自爆进度条(三足机器人）",
+      "de": "自爆进度条(三足机器人）",
+      "es": "自爆进度条(三足机器人）",
+      "fr": "自爆进度条(三足机器人）",
+      "id": "自爆进度条(三足机器人）",
+      "ko-KR": "自爆进度条(三足机器人）",
+      "pt-BR": "自爆进度条(三足机器人）",
+      "th": "自爆进度条(三足机器人）",
+      "zh-TW": "自爆进度条(三足机器人）"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829250,
+    "Name": "踩停圈(三足机器人）",
+    "NameDesign": "踩停圈(三足机器人）",
+    "DesignName": "踩停圈(三足机器人）",
+    "Names": {
+      "design": "踩停圈(三足机器人）",
+      "en": "踩停圈(三足机器人）",
+      "zh-CN": "踩停圈(三足机器人）",
+      "ja": "踩停圈(三足机器人）",
+      "de": "踩停圈(三足机器人）",
+      "es": "踩停圈(三足机器人）",
+      "fr": "踩停圈(三足机器人）",
+      "id": "踩停圈(三足机器人）",
+      "ko-KR": "踩停圈(三足机器人）",
+      "pt-BR": "踩停圈(三足机器人）",
+      "th": "踩停圈(三足机器人）",
+      "zh-TW": "踩停圈(三足机器人）"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829251,
+    "Name": "巡航守卫buff（添加连线buff）",
+    "NameDesign": "巡航守卫buff（添加连线buff）",
+    "DesignName": "巡航守卫buff（添加连线buff）",
+    "Names": {
+      "design": "巡航守卫buff（添加连线buff）",
+      "en": "巡航守卫buff（添加连线buff）",
+      "zh-CN": "巡航守卫buff（添加连线buff）",
+      "ja": "巡航守卫buff（添加连线buff）",
+      "de": "巡航守卫buff（添加连线buff）",
+      "es": "巡航守卫buff（添加连线buff）",
+      "fr": "巡航守卫buff（添加连线buff）",
+      "id": "巡航守卫buff（添加连线buff）",
+      "ko-KR": "巡航守卫buff（添加连线buff）",
+      "pt-BR": "巡航守卫buff（添加连线buff）",
+      "th": "巡航守卫buff（添加连线buff）",
+      "zh-TW": "巡航守卫buff（添加连线buff）"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829252,
+    "Name": "巡航守卫连线盾",
+    "NameDesign": "巡航守卫连线盾",
+    "DesignName": "巡航守卫连线盾",
+    "Names": {
+      "design": "巡航守卫连线盾",
+      "en": "巡航守卫连线盾",
+      "zh-CN": "巡航守卫连线盾",
+      "ja": "巡航守卫连线盾",
+      "de": "巡航守卫连线盾",
+      "es": "巡航守卫连线盾",
+      "fr": "巡航守卫连线盾",
+      "id": "巡航守卫连线盾",
+      "ko-KR": "巡航守卫连线盾",
+      "pt-BR": "巡航守卫连线盾",
+      "th": "巡航守卫连线盾",
+      "zh-TW": "巡航守卫连线盾"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829253,
+    "Name": "巡航静电debuff",
+    "NameDesign": "巡航静电debuff",
+    "DesignName": "巡航静电debuff",
+    "Names": {
+      "design": "巡航静电debuff",
+      "en": "巡航静电debuff",
+      "zh-CN": "巡航静电debuff",
+      "ja": "巡航静电debuff",
+      "de": "巡航静电debuff",
+      "es": "巡航静电debuff",
+      "fr": "巡航静电debuff",
+      "id": "巡航静电debuff",
+      "ko-KR": "巡航静电debuff",
+      "pt-BR": "巡航静电debuff",
+      "th": "巡航静电debuff",
+      "zh-TW": "巡航静电debuff"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829254,
+    "Name": "运动会倒计时",
+    "NameDesign": "运动会倒计时",
+    "DesignName": "运动会倒计时",
+    "Names": {
+      "design": "运动会倒计时",
+      "en": "运动会倒计时",
+      "zh-CN": "运动会倒计时",
+      "ja": "运动会倒计时",
+      "de": "运动会倒计时",
+      "es": "运动会倒计时",
+      "fr": "运动会倒计时",
+      "id": "运动会倒计时",
+      "ko-KR": "运动会倒计时",
+      "pt-BR": "运动会倒计时",
+      "th": "运动会倒计时",
+      "zh-TW": "运动会倒计时"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829255,
+    "Name": "吸力连线一层",
+    "NameDesign": "吸力连线一层",
+    "DesignName": "吸力连线一层",
+    "Names": {
+      "design": "吸力连线一层",
+      "en": "吸力连线一层",
+      "zh-CN": "吸力连线一层",
+      "ja": "吸力连线一层",
+      "de": "吸力连线一层",
+      "es": "吸力连线一层",
+      "fr": "吸力连线一层",
+      "id": "吸力连线一层",
+      "ko-KR": "吸力连线一层",
+      "pt-BR": "吸力连线一层",
+      "th": "吸力连线一层",
+      "zh-TW": "吸力连线一层"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829256,
+    "Name": "吸力连线二层",
+    "NameDesign": "吸力连线二层",
+    "DesignName": "吸力连线二层",
+    "Names": {
+      "design": "吸力连线二层",
+      "en": "吸力连线二层",
+      "zh-CN": "吸力连线二层",
+      "ja": "吸力连线二层",
+      "de": "吸力连线二层",
+      "es": "吸力连线二层",
+      "fr": "吸力连线二层",
+      "id": "吸力连线二层",
+      "ko-KR": "吸力连线二层",
+      "pt-BR": "吸力连线二层",
+      "th": "吸力连线二层",
+      "zh-TW": "吸力连线二层"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829257,
+    "Name": "吸力连线3层",
+    "NameDesign": "吸力连线3层",
+    "DesignName": "吸力连线3层",
+    "Names": {
+      "design": "吸力连线3层",
+      "en": "吸力连线3层",
+      "zh-CN": "吸力连线3层",
+      "ja": "吸力连线3层",
+      "de": "吸力连线3层",
+      "es": "吸力连线3层",
+      "fr": "吸力连线3层",
+      "id": "吸力连线3层",
+      "ko-KR": "吸力连线3层",
+      "pt-BR": "吸力连线3层",
+      "th": "吸力连线3层",
+      "zh-TW": "吸力连线3层"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829258,
+    "Name": "吸力连线4层",
+    "NameDesign": "吸力连线4层",
+    "DesignName": "吸力连线4层",
+    "Names": {
+      "design": "吸力连线4层",
+      "en": "吸力连线4层",
+      "zh-CN": "吸力连线4层",
+      "ja": "吸力连线4层",
+      "de": "吸力连线4层",
+      "es": "吸力连线4层",
+      "fr": "吸力连线4层",
+      "id": "吸力连线4层",
+      "ko-KR": "吸力连线4层",
+      "pt-BR": "吸力连线4层",
+      "th": "吸力连线4层",
+      "zh-TW": "吸力连线4层"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829259,
+    "Name": "吸力连线5层",
+    "NameDesign": "吸力连线5层",
+    "DesignName": "吸力连线5层",
+    "Names": {
+      "design": "吸力连线5层",
+      "en": "吸力连线5层",
+      "zh-CN": "吸力连线5层",
+      "ja": "吸力连线5层",
+      "de": "吸力连线5层",
+      "es": "吸力连线5层",
+      "fr": "吸力连线5层",
+      "id": "吸力连线5层",
+      "ko-KR": "吸力连线5层",
+      "pt-BR": "吸力连线5层",
+      "th": "吸力连线5层",
+      "zh-TW": "吸力连线5层"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829260,
+    "Name": "板子消失后会复活标记（运动会用）",
+    "NameDesign": "板子消失后会复活标记（运动会用）",
+    "DesignName": "板子消失后会复活标记（运动会用）",
+    "Names": {
+      "design": "板子消失后会复活标记（运动会用）",
+      "en": "板子消失后会复活标记（运动会用）",
+      "zh-CN": "板子消失后会复活标记（运动会用）",
+      "ja": "板子消失后会复活标记（运动会用）",
+      "de": "板子消失后会复活标记（运动会用）",
+      "es": "板子消失后会复活标记（运动会用）",
+      "fr": "板子消失后会复活标记（运动会用）",
+      "id": "板子消失后会复活标记（运动会用）",
+      "ko-KR": "板子消失后会复活标记（运动会用）",
+      "pt-BR": "板子消失后会复活标记（运动会用）",
+      "th": "板子消失后会复活标记（运动会用）",
+      "zh-TW": "板子消失后会复活标记（运动会用）"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829261,
+    "Name": "倒计时生成地板",
+    "NameDesign": "倒计时生成地板",
+    "DesignName": "倒计时生成地板",
+    "Names": {
+      "design": "倒计时生成地板",
+      "en": "倒计时生成地板",
+      "zh-CN": "倒计时生成地板",
+      "ja": "倒计时生成地板",
+      "de": "倒计时生成地板",
+      "es": "倒计时生成地板",
+      "fr": "倒计时生成地板",
+      "id": "倒计时生成地板",
+      "ko-KR": "倒计时生成地板",
+      "pt-BR": "倒计时生成地板",
+      "th": "倒计时生成地板",
+      "zh-TW": "倒计时生成地板"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 829262,
+    "Name": "忘了干啥的buff了 但是有用",
+    "NameDesign": "点名特效",
+    "DesignName": "点名特效",
+    "Names": {
+      "design": "点名特效",
+      "en": "忘了干啥的buff了 但是有用",
+      "zh-CN": "点名特效",
+      "ja": "忘了干啥的buff了 但是有用",
+      "de": "忘了干啥的buff了 但是有用",
+      "es": "忘了干啥的buff了 但是有用",
+      "fr": "忘了干啥的buff了 但是有用",
+      "id": "忘了干啥的buff了 但是有用",
+      "ko-KR": "忘了干啥的buff了 但是有用",
+      "pt-BR": "忘了干啥的buff了 但是有用",
+      "th": "忘了干啥的buff了 但是有用",
+      "zh-TW": "忘了干啥的buff了 但是有用"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
   },
   {
     "Id": 829300,
@@ -87165,6 +87669,9 @@
     "Names": {
       "design": "交互水球环形圈"
     },
+    "Icon": "talent_passive_icon_sup_meleeconversion",
+    "SpriteFile": "talent_passive_icon_sup_meleeconversion_5095031411280052604.png",
+    "IconSource": "CN 0.1.5 BuffName.json",
     "SourceOffset": 534380,
     "NameSourceOffset": 1188099
   },
@@ -104603,6 +105110,71 @@
     "NameSourceOffset": 1215853
   },
   {
+    "Id": 990202,
+    "Name": "溪谷尖兵-水护盾",
+    "NameDesign": "溪谷尖兵-水护盾",
+    "DesignName": "溪谷尖兵-水护盾",
+    "Names": {
+      "design": "溪谷尖兵-水护盾",
+      "en": "溪谷尖兵-水护盾",
+      "zh-CN": "溪谷尖兵-水护盾",
+      "ja": "溪谷尖兵-水护盾",
+      "de": "溪谷尖兵-水护盾",
+      "es": "溪谷尖兵-水护盾",
+      "fr": "溪谷尖兵-水护盾",
+      "id": "溪谷尖兵-水护盾",
+      "ko-KR": "溪谷尖兵-水护盾",
+      "pt-BR": "溪谷尖兵-水护盾",
+      "th": "溪谷尖兵-水护盾",
+      "zh-TW": "溪谷尖兵-水护盾"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 990203,
+    "Name": "溪谷尖兵-回血",
+    "NameDesign": "溪谷尖兵-回血",
+    "DesignName": "溪谷尖兵-回血",
+    "Names": {
+      "design": "溪谷尖兵-回血",
+      "en": "溪谷尖兵-回血",
+      "zh-CN": "溪谷尖兵-回血",
+      "ja": "溪谷尖兵-回血",
+      "de": "溪谷尖兵-回血",
+      "es": "溪谷尖兵-回血",
+      "fr": "溪谷尖兵-回血",
+      "id": "溪谷尖兵-回血",
+      "ko-KR": "溪谷尖兵-回血",
+      "pt-BR": "溪谷尖兵-回血",
+      "th": "溪谷尖兵-回血",
+      "zh-TW": "溪谷尖兵-回血"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 990204,
+    "Name": "溪谷尖兵-冰冻",
+    "NameDesign": "溪谷尖兵-冰冻",
+    "DesignName": "溪谷尖兵-冰冻",
+    "Names": {
+      "design": "溪谷尖兵-冰冻",
+      "en": "溪谷尖兵-冰冻",
+      "zh-CN": "溪谷尖兵-冰冻",
+      "ja": "溪谷尖兵-冰冻",
+      "de": "溪谷尖兵-冰冻",
+      "es": "溪谷尖兵-冰冻",
+      "fr": "溪谷尖兵-冰冻",
+      "id": "溪谷尖兵-冰冻",
+      "ko-KR": "溪谷尖兵-冰冻",
+      "pt-BR": "溪谷尖兵-冰冻",
+      "th": "溪谷尖兵-冰冻",
+      "zh-TW": "溪谷尖兵-冰冻"
+    },
+    "Icon": "debuff_icon_4",
+    "SpriteFile": "debuff_icon_4_-5684314934487765329.png",
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
     "Id": 990210,
     "Level": 10,
     "NameDesign": "姆克头目-打死人判定",
@@ -107075,6 +107647,90 @@
     "NameSourceOffset": 1219289
   },
   {
+    "Id": 995140,
+    "Name": "风雷核心隐身buff",
+    "NameDesign": "风雷核心隐身buff",
+    "DesignName": "风雷核心隐身buff",
+    "Names": {
+      "design": "风雷核心隐身buff",
+      "en": "风雷核心隐身buff",
+      "zh-CN": "风雷核心隐身buff",
+      "ja": "风雷核心隐身buff",
+      "de": "风雷核心隐身buff",
+      "es": "风雷核心隐身buff",
+      "fr": "风雷核心隐身buff",
+      "id": "风雷核心隐身buff",
+      "ko-KR": "风雷核心隐身buff",
+      "pt-BR": "风雷核心隐身buff",
+      "th": "风雷核心隐身buff",
+      "zh-TW": "风雷核心隐身buff"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995141,
+    "Name": "风球阻挡命中表现",
+    "NameDesign": "风球阻挡命中表现",
+    "DesignName": "风球阻挡命中表现",
+    "Names": {
+      "design": "风球阻挡命中表现",
+      "en": "风球阻挡命中表现",
+      "zh-CN": "风球阻挡命中表现",
+      "ja": "风球阻挡命中表现",
+      "de": "风球阻挡命中表现",
+      "es": "风球阻挡命中表现",
+      "fr": "风球阻挡命中表现",
+      "id": "风球阻挡命中表现",
+      "ko-KR": "风球阻挡命中表现",
+      "pt-BR": "风球阻挡命中表现",
+      "th": "风球阻挡命中表现",
+      "zh-TW": "风球阻挡命中表现"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995142,
+    "Name": "雷球阻挡命中表现",
+    "NameDesign": "雷球阻挡命中表现",
+    "DesignName": "雷球阻挡命中表现",
+    "Names": {
+      "design": "雷球阻挡命中表现",
+      "en": "雷球阻挡命中表现",
+      "zh-CN": "雷球阻挡命中表现",
+      "ja": "雷球阻挡命中表现",
+      "de": "雷球阻挡命中表现",
+      "es": "雷球阻挡命中表现",
+      "fr": "雷球阻挡命中表现",
+      "id": "雷球阻挡命中表现",
+      "ko-KR": "雷球阻挡命中表现",
+      "pt-BR": "雷球阻挡命中表现",
+      "th": "雷球阻挡命中表现",
+      "zh-TW": "雷球阻挡命中表现"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995143,
+    "Name": "斥力甩尾",
+    "NameDesign": "斥力甩尾",
+    "DesignName": "斥力甩尾",
+    "Names": {
+      "design": "斥力甩尾",
+      "en": "斥力甩尾",
+      "zh-CN": "斥力甩尾",
+      "ja": "斥力甩尾",
+      "de": "斥力甩尾",
+      "es": "斥力甩尾",
+      "fr": "斥力甩尾",
+      "id": "斥力甩尾",
+      "ko-KR": "斥力甩尾",
+      "pt-BR": "斥力甩尾",
+      "th": "斥力甩尾",
+      "zh-TW": "斥力甩尾"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
     "Id": 995152,
     "Level": 52,
     "NameDesign": "精英怪大风粒子虚拟体检测buff",
@@ -107583,6 +108239,455 @@
     "IconPathSource": "CTB:983121143",
     "SourceOffset": 634172,
     "NameSourceOffset": 1220015
+  },
+  {
+    "Id": 995179,
+    "Name": "龙魂觉醒-全体玩家眩晕",
+    "NameDesign": "龙魂觉醒-全体玩家眩晕",
+    "DesignName": "龙魂觉醒-全体玩家眩晕",
+    "Names": {
+      "design": "龙魂觉醒-全体玩家眩晕",
+      "en": "龙魂觉醒-全体玩家眩晕",
+      "zh-CN": "龙魂觉醒-全体玩家眩晕",
+      "ja": "龙魂觉醒-全体玩家眩晕",
+      "de": "龙魂觉醒-全体玩家眩晕",
+      "es": "龙魂觉醒-全体玩家眩晕",
+      "fr": "龙魂觉醒-全体玩家眩晕",
+      "id": "龙魂觉醒-全体玩家眩晕",
+      "ko-KR": "龙魂觉醒-全体玩家眩晕",
+      "pt-BR": "龙魂觉醒-全体玩家眩晕",
+      "th": "龙魂觉醒-全体玩家眩晕",
+      "zh-TW": "龙魂觉醒-全体玩家眩晕"
+    },
+    "Icon": "debuff_icon_17",
+    "SpriteFile": "debuff_icon_17_-4998991083182462306.png",
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995180,
+    "Name": "龙魂觉醒-成功标记",
+    "NameDesign": "龙魂觉醒-成功标记",
+    "DesignName": "龙魂觉醒-成功标记",
+    "Names": {
+      "design": "龙魂觉醒-成功标记",
+      "en": "龙魂觉醒-成功标记",
+      "zh-CN": "龙魂觉醒-成功标记",
+      "ja": "龙魂觉醒-成功标记",
+      "de": "龙魂觉醒-成功标记",
+      "es": "龙魂觉醒-成功标记",
+      "fr": "龙魂觉醒-成功标记",
+      "id": "龙魂觉醒-成功标记",
+      "ko-KR": "龙魂觉醒-成功标记",
+      "pt-BR": "龙魂觉醒-成功标记",
+      "th": "龙魂觉醒-成功标记",
+      "zh-TW": "龙魂觉醒-成功标记"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995181,
+    "Name": "风雷俱灭-风核玩家",
+    "NameDesign": "风雷俱灭-风核玩家",
+    "DesignName": "风雷俱灭-风核玩家",
+    "Names": {
+      "design": "风雷俱灭-风核玩家",
+      "en": "风雷俱灭-风核玩家",
+      "zh-CN": "风雷俱灭-风核玩家",
+      "ja": "风雷俱灭-风核玩家",
+      "de": "风雷俱灭-风核玩家",
+      "es": "风雷俱灭-风核玩家",
+      "fr": "风雷俱灭-风核玩家",
+      "id": "风雷俱灭-风核玩家",
+      "ko-KR": "风雷俱灭-风核玩家",
+      "pt-BR": "风雷俱灭-风核玩家",
+      "th": "风雷俱灭-风核玩家",
+      "zh-TW": "风雷俱灭-风核玩家"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995182,
+    "Name": "风雷俱灭-雷核玩家",
+    "NameDesign": "风雷俱灭-雷核玩家",
+    "DesignName": "风雷俱灭-雷核玩家",
+    "Names": {
+      "design": "风雷俱灭-雷核玩家",
+      "en": "风雷俱灭-雷核玩家",
+      "zh-CN": "风雷俱灭-雷核玩家",
+      "ja": "风雷俱灭-雷核玩家",
+      "de": "风雷俱灭-雷核玩家",
+      "es": "风雷俱灭-雷核玩家",
+      "fr": "风雷俱灭-雷核玩家",
+      "id": "风雷俱灭-雷核玩家",
+      "ko-KR": "风雷俱灭-雷核玩家",
+      "pt-BR": "风雷俱灭-雷核玩家",
+      "th": "风雷俱灭-雷核玩家",
+      "zh-TW": "风雷俱灭-雷核玩家"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995183,
+    "Name": "风雷俱灭-打断龙魂觉醒",
+    "NameDesign": "风雷俱灭-打断龙魂觉醒",
+    "DesignName": "风雷俱灭-打断龙魂觉醒",
+    "Names": {
+      "design": "风雷俱灭-打断龙魂觉醒",
+      "en": "风雷俱灭-打断龙魂觉醒",
+      "zh-CN": "风雷俱灭-打断龙魂觉醒",
+      "ja": "风雷俱灭-打断龙魂觉醒",
+      "de": "风雷俱灭-打断龙魂觉醒",
+      "es": "风雷俱灭-打断龙魂觉醒",
+      "fr": "风雷俱灭-打断龙魂觉醒",
+      "id": "风雷俱灭-打断龙魂觉醒",
+      "ko-KR": "风雷俱灭-打断龙魂觉醒",
+      "pt-BR": "风雷俱灭-打断龙魂觉醒",
+      "th": "风雷俱灭-打断龙魂觉醒",
+      "zh-TW": "风雷俱灭-打断龙魂觉醒"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995184,
+    "Name": "雷核怪天生buff",
+    "NameDesign": "雷核怪天生buff",
+    "DesignName": "雷核怪天生buff",
+    "Names": {
+      "design": "雷核怪天生buff",
+      "en": "雷核怪天生buff",
+      "zh-CN": "雷核怪天生buff",
+      "ja": "雷核怪天生buff",
+      "de": "雷核怪天生buff",
+      "es": "雷核怪天生buff",
+      "fr": "雷核怪天生buff",
+      "id": "雷核怪天生buff",
+      "ko-KR": "雷核怪天生buff",
+      "pt-BR": "雷核怪天生buff",
+      "th": "雷核怪天生buff",
+      "zh-TW": "雷核怪天生buff"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995185,
+    "Name": "风核怪天生buff",
+    "NameDesign": "风核怪天生buff",
+    "DesignName": "风核怪天生buff",
+    "Names": {
+      "design": "风核怪天生buff",
+      "en": "风核怪天生buff",
+      "zh-CN": "风核怪天生buff",
+      "ja": "风核怪天生buff",
+      "de": "风核怪天生buff",
+      "es": "风核怪天生buff",
+      "fr": "风核怪天生buff",
+      "id": "风核怪天生buff",
+      "ko-KR": "风核怪天生buff",
+      "pt-BR": "风核怪天生buff",
+      "th": "风核怪天生buff",
+      "zh-TW": "风核怪天生buff"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995186,
+    "Name": "雷核boss增益",
+    "NameDesign": "雷核boss增益",
+    "DesignName": "雷核boss增益",
+    "Names": {
+      "design": "雷核boss增益",
+      "en": "雷核boss增益",
+      "zh-CN": "雷核boss增益",
+      "ja": "雷核boss增益",
+      "de": "雷核boss增益",
+      "es": "雷核boss增益",
+      "fr": "雷核boss增益",
+      "id": "雷核boss增益",
+      "ko-KR": "雷核boss增益",
+      "pt-BR": "雷核boss增益",
+      "th": "雷核boss增益",
+      "zh-TW": "雷核boss增益"
+    },
+    "Icon": "buff_blue_atk",
+    "SpriteFile": "buff_blue_atk_-7930843873503020716.png",
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995187,
+    "Name": "风核boss增益",
+    "NameDesign": "风核boss增益",
+    "DesignName": "风核boss增益",
+    "Names": {
+      "design": "风核boss增益",
+      "en": "风核boss增益",
+      "zh-CN": "风核boss增益",
+      "ja": "风核boss增益",
+      "de": "风核boss增益",
+      "es": "风核boss增益",
+      "fr": "风核boss增益",
+      "id": "风核boss增益",
+      "ko-KR": "风核boss增益",
+      "pt-BR": "风核boss增益",
+      "th": "风核boss增益",
+      "zh-TW": "风核boss增益"
+    },
+    "Icon": "buff_blue_def",
+    "SpriteFile": "buff_blue_def_-5154019358626773797.png",
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995188,
+    "Name": "boss吸收核心-回血狂暴",
+    "NameDesign": "boss吸收核心-回血狂暴",
+    "DesignName": "boss吸收核心-回血狂暴",
+    "Names": {
+      "design": "boss吸收核心-回血狂暴",
+      "en": "boss吸收核心-回血狂暴",
+      "zh-CN": "boss吸收核心-回血狂暴",
+      "ja": "boss吸收核心-回血狂暴",
+      "de": "boss吸收核心-回血狂暴",
+      "es": "boss吸收核心-回血狂暴",
+      "fr": "boss吸收核心-回血狂暴",
+      "id": "boss吸收核心-回血狂暴",
+      "ko-KR": "boss吸收核心-回血狂暴",
+      "pt-BR": "boss吸收核心-回血狂暴",
+      "th": "boss吸收核心-回血狂暴",
+      "zh-TW": "boss吸收核心-回血狂暴"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995189,
+    "Name": "全体落雷",
+    "NameDesign": "全体落雷",
+    "DesignName": "全体落雷",
+    "Names": {
+      "design": "全体落雷",
+      "en": "全体落雷",
+      "zh-CN": "全体落雷",
+      "ja": "全体落雷",
+      "de": "全体落雷",
+      "es": "全体落雷",
+      "fr": "全体落雷",
+      "id": "全体落雷",
+      "ko-KR": "全体落雷",
+      "pt-BR": "全体落雷",
+      "th": "全体落雷",
+      "zh-TW": "全体落雷"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995190,
+    "Name": "风龙boss狂暴初始标记",
+    "NameDesign": "风龙boss狂暴初始标记",
+    "DesignName": "风龙boss狂暴初始标记",
+    "Names": {
+      "design": "风龙boss狂暴初始标记",
+      "en": "风龙boss狂暴初始标记",
+      "zh-CN": "风龙boss狂暴初始标记",
+      "ja": "风龙boss狂暴初始标记",
+      "de": "风龙boss狂暴初始标记",
+      "es": "风龙boss狂暴初始标记",
+      "fr": "风龙boss狂暴初始标记",
+      "id": "风龙boss狂暴初始标记",
+      "ko-KR": "风龙boss狂暴初始标记",
+      "pt-BR": "风龙boss狂暴初始标记",
+      "th": "风龙boss狂暴初始标记",
+      "zh-TW": "风龙boss狂暴初始标记"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995191,
+    "Name": "Boss硬狂暴计时器",
+    "NameDesign": "Boss硬狂暴计时器",
+    "DesignName": "Boss硬狂暴计时器",
+    "Names": {
+      "design": "Boss硬狂暴计时器",
+      "en": "Boss硬狂暴计时器",
+      "zh-CN": "Boss硬狂暴计时器",
+      "ja": "Boss硬狂暴计时器",
+      "de": "Boss硬狂暴计时器",
+      "es": "Boss硬狂暴计时器",
+      "fr": "Boss硬狂暴计时器",
+      "id": "Boss硬狂暴计时器",
+      "ko-KR": "Boss硬狂暴计时器",
+      "pt-BR": "Boss硬狂暴计时器",
+      "th": "Boss硬狂暴计时器",
+      "zh-TW": "Boss硬狂暴计时器"
+    },
+    "Icon": "buff_talent_skill_330301",
+    "SpriteFile": "buff_talent_skill_330301_1685661307899942034.png",
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995192,
+    "Name": "阻挡雷球-雷电",
+    "NameDesign": "阻挡雷球-雷电",
+    "DesignName": "阻挡雷球-雷电",
+    "Names": {
+      "design": "阻挡雷球-雷电",
+      "en": "阻挡雷球-雷电",
+      "zh-CN": "阻挡雷球-雷电",
+      "ja": "阻挡雷球-雷电",
+      "de": "阻挡雷球-雷电",
+      "es": "阻挡雷球-雷电",
+      "fr": "阻挡雷球-雷电",
+      "id": "阻挡雷球-雷电",
+      "ko-KR": "阻挡雷球-雷电",
+      "pt-BR": "阻挡雷球-雷电",
+      "th": "阻挡雷球-雷电",
+      "zh-TW": "阻挡雷球-雷电"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995193,
+    "Name": "阻挡风球-风牢",
+    "NameDesign": "阻挡风球-风牢",
+    "DesignName": "阻挡风球-风牢",
+    "Names": {
+      "design": "阻挡风球-风牢",
+      "en": "阻挡风球-风牢",
+      "zh-CN": "阻挡风球-风牢",
+      "ja": "阻挡风球-风牢",
+      "de": "阻挡风球-风牢",
+      "es": "阻挡风球-风牢",
+      "fr": "阻挡风球-风牢",
+      "id": "阻挡风球-风牢",
+      "ko-KR": "阻挡风球-风牢",
+      "pt-BR": "阻挡风球-风牢",
+      "th": "阻挡风球-风牢",
+      "zh-TW": "阻挡风球-风牢"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995194,
+    "Name": "阻挡风球-免疫标记",
+    "NameDesign": "阻挡风球-免疫标记",
+    "DesignName": "阻挡风球-免疫标记",
+    "Names": {
+      "design": "阻挡风球-免疫标记",
+      "en": "阻挡风球-免疫标记",
+      "zh-CN": "阻挡风球-免疫标记",
+      "ja": "阻挡风球-免疫标记",
+      "de": "阻挡风球-免疫标记",
+      "es": "阻挡风球-免疫标记",
+      "fr": "阻挡风球-免疫标记",
+      "id": "阻挡风球-免疫标记",
+      "ko-KR": "阻挡风球-免疫标记",
+      "pt-BR": "阻挡风球-免疫标记",
+      "th": "阻挡风球-免疫标记",
+      "zh-TW": "阻挡风球-免疫标记"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995195,
+    "Name": "阻挡雷球-免疫标记",
+    "NameDesign": "阻挡雷球-免疫标记",
+    "DesignName": "阻挡雷球-免疫标记",
+    "Names": {
+      "design": "阻挡雷球-免疫标记",
+      "en": "阻挡雷球-免疫标记",
+      "zh-CN": "阻挡雷球-免疫标记",
+      "ja": "阻挡雷球-免疫标记",
+      "de": "阻挡雷球-免疫标记",
+      "es": "阻挡雷球-免疫标记",
+      "fr": "阻挡雷球-免疫标记",
+      "id": "阻挡雷球-免疫标记",
+      "ko-KR": "阻挡雷球-免疫标记",
+      "pt-BR": "阻挡雷球-免疫标记",
+      "th": "阻挡雷球-免疫标记",
+      "zh-TW": "阻挡雷球-免疫标记"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995196,
+    "Name": "可交互风核",
+    "NameDesign": "可交互风核",
+    "DesignName": "可交互风核",
+    "Names": {
+      "design": "可交互风核",
+      "en": "可交互风核",
+      "zh-CN": "可交互风核",
+      "ja": "可交互风核",
+      "de": "可交互风核",
+      "es": "可交互风核",
+      "fr": "可交互风核",
+      "id": "可交互风核",
+      "ko-KR": "可交互风核",
+      "pt-BR": "可交互风核",
+      "th": "可交互风核",
+      "zh-TW": "可交互风核"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995197,
+    "Name": "可交互雷核",
+    "NameDesign": "可交互雷核",
+    "DesignName": "可交互雷核",
+    "Names": {
+      "design": "可交互雷核",
+      "en": "可交互雷核",
+      "zh-CN": "可交互雷核",
+      "ja": "可交互雷核",
+      "de": "可交互雷核",
+      "es": "可交互雷核",
+      "fr": "可交互雷核",
+      "id": "可交互雷核",
+      "ko-KR": "可交互雷核",
+      "pt-BR": "可交互雷核",
+      "th": "可交互雷核",
+      "zh-TW": "可交互雷核"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995198,
+    "Name": "飞行风核连线",
+    "NameDesign": "飞行风核连线",
+    "DesignName": "飞行风核连线",
+    "Names": {
+      "design": "飞行风核连线",
+      "en": "飞行风核连线",
+      "zh-CN": "飞行风核连线",
+      "ja": "飞行风核连线",
+      "de": "飞行风核连线",
+      "es": "飞行风核连线",
+      "fr": "飞行风核连线",
+      "id": "飞行风核连线",
+      "ko-KR": "飞行风核连线",
+      "pt-BR": "飞行风核连线",
+      "th": "飞行风核连线",
+      "zh-TW": "飞行风核连线"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
+  },
+  {
+    "Id": 995199,
+    "Name": "飞行雷核连线",
+    "NameDesign": "飞行雷核连线",
+    "DesignName": "飞行雷核连线",
+    "Names": {
+      "design": "飞行雷核连线",
+      "en": "飞行雷核连线",
+      "zh-CN": "飞行雷核连线",
+      "ja": "飞行雷核连线",
+      "de": "飞行雷核连线",
+      "es": "飞行雷核连线",
+      "fr": "飞行雷核连线",
+      "id": "飞行雷核连线",
+      "ko-KR": "飞行雷核连线",
+      "pt-BR": "飞行雷核连线",
+      "th": "飞行雷核连线",
+      "zh-TW": "飞行雷核连线"
+    },
+    "Source": "CN 0.1.5 BuffName.json"
   },
   {
     "Id": 995201,

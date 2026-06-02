@@ -11,6 +11,7 @@ import type {
   RawCombatStats as BindingRawCombatStats,
   RawSkillStats as BindingRawSkillStats,
   HistoryEntityData as BindingRawEntityData,
+  PerSourceStats as BindingPerSourceStats,
   DamageSnapshot as BindingDamageSnapshot,
   DeathRecord as BindingDeathRecord,
 } from "./bindings";
@@ -35,7 +36,7 @@ export type HeaderInfo = {
   trainingDummy: TrainingDummyState;
 };
 
-export type TrainingDummyPhase = "idle" | "armed" | "running" | "pendingRollover";
+export type TrainingDummyPhase = "idle" | "armed" | "running" | "finished";
 
 export type TrainingDummyState = {
   phase: TrainingDummyPhase;
@@ -43,6 +44,7 @@ export type TrainingDummyState = {
 
 export type PlayerRow = {
   uid: number;
+  uuid?: number | null;
   name: string;
   className: string;
   classSpecName: string;
@@ -58,6 +60,8 @@ export type PlayerRow = {
   critDmgRate: number;
   luckyRate: number;
   luckyDmgRate: number;
+  blockRate: number;
+  luckyBlockRate: number;
   hits: number;
   hitsPerMinute: number;
   bossDmg: number;
@@ -82,6 +86,8 @@ export type SkillRow = {
   critDmgRate: number;
   luckyRate: number;
   luckyDmgRate: number;
+  blockRate: number;
+  luckyBlockRate: number;
   hits: number;
   hitsPerMinute: number;
   property: number | null;
@@ -135,7 +141,12 @@ export type BossBuffUpdatePayload = {
   bossBuffs: Record<string, BuffUpdateState[]>;
 };
 
+export type TeammateBuffUpdatePayload = {
+  teammateBuffs: Record<string, BuffUpdateState[]>;
+};
+
 export type HateEntry = {
+  entityUuid?: number | null;
   uid: number;
   hateVal: number;
 };
@@ -159,6 +170,15 @@ export type CounterUpdateState = {
 };
 
 export type BuffCounterUpdatePayload = {
+  counters: CounterUpdateState[];
+};
+
+export type SeasonCultivateFactorCounterUpdatePayload = {
+  sourceItemIds: number[];
+  slotItemIds: number[];
+  activeAreaIds: number[];
+  activeItemIds: number[];
+  activeFantasyIds: number[];
   counters: CounterUpdateState[];
 };
 
@@ -207,6 +227,7 @@ export type EncounterUpdatePayload = {
 export type RawCombatStats = BindingRawCombatStats;
 export type RawSkillStats = BindingRawSkillStats;
 export type RawEntityData = BindingRawEntityData;
+export type PerSourceStats = BindingPerSourceStats;
 
 export type LiveDataPayload = {
   elapsedMs: number;
@@ -274,6 +295,11 @@ export const onBossBuffUpdate = (
 ): Promise<UnlistenFn> =>
   listen<BossBuffUpdatePayload>("boss-buff-update", handler);
 
+export const onTeammateBuffUpdate = (
+  handler: (event: Event<TeammateBuffUpdatePayload>) => void
+): Promise<UnlistenFn> =>
+  listen<TeammateBuffUpdatePayload>("teammate-buff-update", handler);
+
 export const onHateListUpdate = (
   handler: (event: Event<HateListUpdatePayload>) => void
 ): Promise<UnlistenFn> =>
@@ -294,6 +320,14 @@ export const onBuffCounterUpdate = (
 ): Promise<UnlistenFn> =>
   listen<BuffCounterUpdatePayload>("buff-counter-update", handler);
 
+export const onSeasonCultivateFactorCounterUpdate = (
+  handler: (event: Event<SeasonCultivateFactorCounterUpdatePayload>) => void
+): Promise<UnlistenFn> =>
+  listen<SeasonCultivateFactorCounterUpdatePayload>(
+    "season-cultivate-factor-counter-update",
+    handler,
+  );
+
 export const onPanelAttrUpdate = (
   handler: (event: Event<PanelAttrUpdatePayload>) => void
 ): Promise<UnlistenFn> =>
@@ -312,8 +346,8 @@ export const onDeathReplay = (
 
 export const resetEncounter = (): Promise<Result<null, string>> => commands.resetEncounter();
 export const togglePauseEncounter = (): Promise<Result<null, string>> => commands.togglePauseEncounter();
-export const startTrainingDummy = (monsterId: number): Promise<Result<null, string>> =>
-  commands.startTrainingDummy(monsterId);
+export const startTrainingDummy = (): Promise<Result<null, string>> =>
+  commands.startTrainingDummy();
 export const stopTrainingDummy = (): Promise<Result<null, string>> => commands.stopTrainingDummy();
 export const enableBlur = (): Promise<void> => commands.enableBlur();
 export const disableBlur = (): Promise<void> => commands.disableBlur();
@@ -332,8 +366,9 @@ export const getEncounterEntitiesTargetDetailsRaw = (
 export const getEncounterModifierEntitiesRaw = (
   encounterId: number,
   entityUid: number,
+  entityUuid?: number | null,
 ): Promise<Result<RawEntityData[], string>> =>
-  commands.getEncounterModifierEntitiesRaw(encounterId, entityUid);
+  commands.getEncounterModifierEntitiesRaw(encounterId, entityUid, entityUuid ?? null);
 
 // =========================
 // 模组计算器相关 API

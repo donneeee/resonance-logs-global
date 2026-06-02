@@ -11576,6 +11576,48 @@
     "SkillTableSourceOffset": 877478638
   },
   {
+    "id": 3984,
+    "Name": "Exit Lucy Transformation",
+    "NameDesign": "退出露西变身",
+    "Names": {
+      "design": "退出露西变身",
+      "en": "Exit Lucy Transformation",
+      "zh-CN": "退出露西变身",
+      "ja": "ルーシー変身解除",
+      "de": "Exit Lucy Transformation",
+      "es": "Exit Lucy Transformation",
+      "fr": "Exit Lucy Transformation",
+      "id": "Exit Lucy Transformation",
+      "ko-KR": "Exit Lucy Transformation",
+      "pt-BR": "Exit Lucy Transformation",
+      "th": "Exit Lucy Transformation",
+      "zh-TW": "Exit Lucy Transformation"
+    },
+    "Icon": "skill_aoyi_skill_icon_086.png",
+    "Source": "CN 0.1.5 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3985,
+    "Name": "Exit Natsu Transformation",
+    "NameDesign": "退出纳兹变身",
+    "Names": {
+      "design": "退出纳兹变身",
+      "en": "Exit Natsu Transformation",
+      "zh-CN": "退出纳兹变身",
+      "ja": "ナツ変身解除",
+      "de": "Exit Natsu Transformation",
+      "es": "Exit Natsu Transformation",
+      "fr": "Exit Natsu Transformation",
+      "id": "Exit Natsu Transformation",
+      "ko-KR": "Exit Natsu Transformation",
+      "pt-BR": "Exit Natsu Transformation",
+      "th": "Exit Natsu Transformation",
+      "zh-TW": "Exit Natsu Transformation"
+    },
+    "Icon": "skill_aoyi_skill_icon_085.png",
+    "Source": "CN 0.1.5 skill_aoyi_icons.json"
+  },
+  {
     "id": 3986,
     "Id": 3986,
     "Name": "Arcane! Celestial Spirit Mage",

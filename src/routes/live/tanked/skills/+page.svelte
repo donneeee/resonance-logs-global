@@ -1,7 +1,11 @@
 <script lang="ts">
   import { settings, SETTINGS } from "$lib/settings-store";
   import { computePlayerRows, computeSkillRows } from "$lib/live-derived";
-  import { lookupDamageIdName, lookupSkillBreakdownIconPath } from "$lib/config/recount-table";
+  import {
+    lookupDamageIdName,
+    lookupSkillBreakdownIconPath,
+    resolveSkillRuntimeSourceFallbackName,
+  } from "$lib/config/recount-table";
   import { getLiveData } from "$lib/stores/live-meter-store.svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
@@ -13,8 +17,14 @@
   import { normalizeNameDisplaySetting } from "$lib/name-display";
   import { toSpecLabel } from "$lib/class-labels";
   import { resolveNavigationTranslation, resolveSkillNote, resolveSkillTranslation, type LocaleCode } from "$lib/i18n";
+  import {
+    buildSourceNameFallback,
+    buildUniqueSkillSourceFallbacks,
+    findSourceByKey,
+  } from "$lib/tanked-source-derived";
 
   const playerUid = Number(page.url.searchParams.get("playerUid") ?? "-1");
+  const monsterId = page.url.searchParams.get("monsterId");
 
   let liveData = $derived(getLiveData());
   let tankedPlayers = $derived(
@@ -26,13 +36,32 @@
   let currentEntity = $derived(
     liveData?.entities.find((entity) => entity.uid === playerUid) ?? null,
   );
+  let selectedSource = $derived(
+    monsterId && monsterId !== "total"
+      ? findSourceByKey(currentEntity?.takenPerSource, monsterId)
+      : null,
+  );
+  let sourceFallbacks = $derived(
+    buildUniqueSkillSourceFallbacks(
+      currentEntity?.takenPerSource,
+      SETTINGS.live.general.state.language as LocaleCode,
+    ),
+  );
+  let selectedSourceFallback = $derived(
+    selectedSource
+      ? buildSourceNameFallback(
+          selectedSource.sourceMonsterId,
+          SETTINGS.live.general.state.language as LocaleCode,
+        )
+      : null,
+  );
 
   let skillRows = $derived(
     currentEntity && liveData
       ? computeSkillRows(
-          currentEntity.takenSkills,
+          selectedSource ? selectedSource.skills : currentEntity.takenSkills,
           liveData.elapsedMs,
-          currentEntity.taken.total,
+          selectedSource ? selectedSource.taken.total : currentEntity.taken.total,
           lookupDamageIdName,
         )
       : [],
@@ -84,6 +113,20 @@
     return SETTINGS.live.general.state.skillIdDisplayMode === 'hover' || hoverDescriptionsEnabled();
   }
 
+  function skillDisplayName(skill: { skillId: number; name: string }): string {
+    const language = SETTINGS.live.general.state.language as LocaleCode;
+    const runtimeSource =
+      selectedSourceFallback ?? sourceFallbacks.get(skill.skillId);
+    const runtimeName = resolveSkillRuntimeSourceFallbackName(
+      skill.skillId,
+      language,
+      skill.name,
+      runtimeSource ?? undefined,
+    );
+    if (runtimeName) return runtimeName;
+    return resolveSkillTranslation(skill.skillId, language, skill.name);
+  }
+
   function thLabel(
     col: { headerKey?: string; labelKey?: string; header: string; label?: string },
   ): string {
@@ -104,6 +147,14 @@
     }
 
     return col.header;
+  }
+
+  function uiLabel(key: string, fallback: string): string {
+    return resolveNavigationTranslation(
+      key,
+      SETTINGS.live.general.state.language,
+      fallback,
+    );
   }
 
   let sortedSkillRows = $derived.by(() => {
@@ -175,7 +226,12 @@
     class="sticky top-0 z-10 flex h-8 w-full items-center gap-2 bg-popover/60 px-2 text-xs"
     style="background-color: {`color-mix(in srgb, ${className ? `var(--class-color-${className.toLowerCase().replace(/\s+/g, '-')})` : '#6b7280'} 30%, transparent)`};"
   >
-    <button class="underline" onclick={() => goto("/live/tanked")}>Back</button>
+    <button
+      class="underline"
+      onclick={() =>
+        goto(monsterId ? `/live/tanked/monsters?playerUid=${playerUid}` : "/live/tanked")}
+      >{uiLabel("detail.back", "Back")}</button
+    >
     <span class="font-bold">{displayName || `#${currentPlayer.uid}`}</span>
     {#if nameSetting !== "Show Your Name - Spec" &&
       nameSetting !== "Show Others' Name - Spec" &&
@@ -183,7 +239,7 @@
       <span>{toSpecLabel(currentPlayer.classSpecName)}</span>
     {/if}
     <span class="ml-auto">
-      <span class="text-xs">Total: </span>
+      <span class="text-xs">{uiLabel("tanked.monster.total", "Total")}: </span>
       {#if SETTINGS_SHORTEN_TPS}
         <AbbreviatedNumber
           num={currentPlayer.totalDmg}
@@ -265,7 +321,7 @@
                   ? buildSkillHoverText(skill.skillId, SETTINGS.live.general.state.language as LocaleCode)
                   : undefined}
               >
-                {resolveSkillTranslation(skill.skillId, SETTINGS.live.general.state.language, skill.name)}
+                {skillDisplayName(skill)}
               </span>
               {#if SETTINGS.live.general.state.skillIdDisplayMode === 'column'}
                 <span class="text-[10px] text-muted-foreground/50 shrink-0">
@@ -308,7 +364,7 @@
                   suffixFontSize={tableSettings.skillAbbreviatedFontSize}
                   suffixColor={customThemeColors.tableAbbreviatedColor}
                 />
-              {:else if col.key === "critRate" || col.key === "critDmgRate" || col.key === "luckyRate" || col.key === "luckyDmgRate"}
+              {:else if col.key === "critRate" || col.key === "critDmgRate" || col.key === "luckyRate" || col.key === "luckyDmgRate" || col.key === "blockRate" || col.key === "luckyBlockRate"}
                 <PercentFormat
                   val={skill[col.key]}
                   suffixFontSize={tableSettings.skillAbbreviatedFontSize}

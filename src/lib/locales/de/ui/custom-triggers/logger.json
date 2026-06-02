@@ -138,5 +138,11 @@
   "debug.currentFolder": "Current folder",
   "debug.unavailable": "Unavailable",
   "debug.filePattern": "File pattern",
-  "debug.sceneChangeNotice": "Files are written automatically when the scene changes, the encounter resets, or the live loop exits. Each day is stored in its own YYYY.MM.DD subfolder."
+  "debug.sceneChangeNotice": "Files are written automatically when the scene changes, the encounter resets, or the live loop exits. Each day is stored in its own YYYY.MM.DD subfolder.",
+  "controls.category.factor_energy_probe": "Faktor-Energie-Probe",
+  "action.fight_resource_update": "Kampfressource aktualisiert",
+  "action.factor_counter_update": "Faktorzaehler aktualisiert",
+  "action.sync_to_me_delta_attrs": "SyncToMe-Delta-Attribute",
+  "action.sync_near_delta_attrs": "SyncNear-Delta-Attribute",
+  "action.fight_resource_tuple_candidate": "Kampfressourcen-Tupelkandidat"
 }

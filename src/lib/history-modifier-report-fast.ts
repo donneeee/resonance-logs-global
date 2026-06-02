@@ -355,39 +355,48 @@ function sourceGroupKeyForEntry(entry: ModifierSourceCatalogEntry): string {
 
 function sourceActorGroupKey(
   entityUid: number,
+  entityUuidValue: unknown,
   bucket: ModifierHitBucketState,
   actorIndex: Map<number, ModifierSourceActor>,
 ): string {
   const sourceUid = finitePositiveNumber(bucket.modifierSourceUid);
   if (sourceUid === null) return "actor:unknown";
   const known = actorIndex.get(sourceUid);
+  const entityUuid = finitePositiveNumber(entityUuidValue);
+  const sourceUuid = finitePositiveNumber(bucket.modifierSourceUuid) ?? finitePositiveNumber(known?.uuid);
+  const ownerUuid = finitePositiveNumber(known?.ownerUuid);
+  if (entityUuid !== null && (sourceUuid === entityUuid || ownerUuid === entityUuid)) return "actor:self";
   return sourceUid === entityUid || known?.ownerUid === entityUid ? "actor:self" : "actor:external";
 }
 
 function sourceProviderGroupKey(
   entityUid: number,
+  entityUuidValue: unknown,
   bucket: ModifierHitBucketState,
   entry: ModifierSourceCatalogEntry,
   actorIndex: Map<number, ModifierSourceActor>,
 ): string {
   const policy = entry.providerAggregation ?? entry.classification?.providerAggregation ?? "source-uid";
-  if (policy === "actor-kind") return sourceActorGroupKey(entityUid, bucket, actorIndex);
+  if (policy === "actor-kind") return sourceActorGroupKey(entityUid, entityUuidValue, bucket, actorIndex);
+  const hostUuid = finitePositiveNumber(bucket.modifierHostUuid);
+  const sourceUuid = finitePositiveNumber(bucket.modifierSourceUuid);
   return [
-    "actor:source-uid",
-    finitePositiveNumber(bucket.modifierHostUid) ?? 0,
-    finitePositiveNumber(bucket.modifierSourceUid) ?? 0,
+    "actor:source",
+    hostUuid !== null ? `hostUuid:${hostUuid}` : `host:${finitePositiveNumber(bucket.modifierHostUid) ?? 0}`,
+    sourceUuid !== null ? `sourceUuid:${sourceUuid}` : `source:${finitePositiveNumber(bucket.modifierSourceUid) ?? 0}`,
   ].join(":");
 }
 
 function sourceKeyForEntry(
   entityUid: number,
+  entityUuidValue: unknown,
   bucket: ModifierHitBucketState,
   entry: ModifierSourceCatalogEntry,
   actorIndex: Map<number, ModifierSourceActor>,
 ): string {
   return [
     sourceGroupKeyForEntry(entry),
-    sourceProviderGroupKey(entityUid, bucket, entry, actorIndex),
+    sourceProviderGroupKey(entityUid, entityUuidValue, bucket, entry, actorIndex),
   ].join(":");
 }
 
@@ -406,35 +415,44 @@ function mergeActorRef(left: ModifierSourceActor, right: ModifierSourceActor): M
     : left.name;
   const merged: ModifierSourceActor = {
     uid: left.uid,
+    ...(left.uuid !== undefined || right.uuid !== undefined ? { uuid: left.uuid ?? right.uuid ?? null } : {}),
     name,
     sourceConfigIds: sortedNumbers(new Set([...(left.sourceConfigIds ?? []), ...(right.sourceConfigIds ?? [])])),
     baseIds: sortedNumbers(new Set([...(left.baseIds ?? []), ...(right.baseIds ?? [])])),
   };
   const entityType = left.entityType ?? right.entityType;
   const ownerUid = left.ownerUid ?? right.ownerUid;
+  const ownerUuid = left.ownerUuid ?? right.ownerUuid;
   const ownerName = left.ownerName ?? right.ownerName;
   if (entityType) merged.entityType = entityType;
   if (ownerUid !== undefined) merged.ownerUid = ownerUid;
+  if (ownerUuid !== undefined) merged.ownerUuid = ownerUuid;
   if (ownerName) merged.ownerName = ownerName;
   return merged;
 }
 
 function mergeActorRefs(left: ModifierSourceActor[], right: ModifierSourceActor[]): ModifierSourceActor[] {
-  const byUid = new Map<number, ModifierSourceActor>();
+  const byIdentity = new Map<string, ModifierSourceActor>();
   for (const actor of [...left, ...right]) {
     const uid = finitePositiveNumber(actor.uid);
     if (uid === null) continue;
+    const uuid = finitePositiveNumber(actor.uuid);
+    const identity = uuid !== null ? `uuid:${uuid}` : `uid:${uid}`;
     const normalized: ModifierSourceActor = {
       ...actor,
       uid,
+      ...(uuid !== null ? { uuid } : {}),
       name: actor.name?.trim() || `#${uid}`,
       sourceConfigIds: sortedNumbers(actor.sourceConfigIds ?? []),
       baseIds: sortedNumbers(actor.baseIds ?? []),
     };
-    const existing = byUid.get(uid);
-    byUid.set(uid, existing ? mergeActorRef(existing, normalized) : normalized);
+    const existing = byIdentity.get(identity);
+    byIdentity.set(identity, existing ? mergeActorRef(existing, normalized) : normalized);
   }
-  return [...byUid.values()].sort((leftActor, rightActor) => leftActor.uid - rightActor.uid);
+  return [...byIdentity.values()].sort((leftActor, rightActor) =>
+    leftActor.uid - rightActor.uid
+    || (finitePositiveNumber(leftActor.uuid) ?? 0) - (finitePositiveNumber(rightActor.uuid) ?? 0)
+  );
 }
 
 function sourceActorIndexForEntity(entity: HistoryEntityData): Map<number, ModifierSourceActor> {
@@ -444,9 +462,11 @@ function sourceActorIndexForEntity(entity: HistoryEntityData): Map<number, Modif
     if (uid === null) continue;
     index.set(uid, {
       uid,
+      ...(actor.uuid !== undefined ? { uuid: actor.uuid } : {}),
       name: actor.name?.trim() || `#${uid}`,
       ...(actor.entityType ? { entityType: actor.entityType } : {}),
       ...(actor.ownerUid !== undefined ? { ownerUid: actor.ownerUid } : {}),
+      ...(actor.ownerUuid !== undefined ? { ownerUuid: actor.ownerUuid } : {}),
       ...(actor.ownerName ? { ownerName: actor.ownerName } : {}),
       sourceConfigIds: sortedNumbers(actor.sourceConfigIds ?? []),
       baseIds: sortedNumbers(actor.baseIds ?? []),
@@ -461,20 +481,24 @@ function actorRefForBucket(
   uid: number,
 ): ModifierSourceActor {
   const known = actorIndex.get(uid);
+  const sourceUuid = finitePositiveNumber(bucket.modifierSourceUuid);
   const sourceConfigId = finitePositiveNumber(bucket.modifierSourceConfigId);
   const baseId = finitePositiveNumber(bucket.modifierBaseId);
   return mergeActorRef(
     {
       uid,
+      ...(known?.uuid !== undefined ? { uuid: known.uuid } : sourceUuid !== null ? { uuid: sourceUuid } : {}),
       name: known?.name?.trim() || `#${uid}`,
       ...(known?.entityType ? { entityType: known.entityType } : {}),
       ...(known?.ownerUid !== undefined ? { ownerUid: known.ownerUid } : {}),
+      ...(known?.ownerUuid !== undefined ? { ownerUuid: known.ownerUuid } : {}),
       ...(known?.ownerName ? { ownerName: known.ownerName } : {}),
       sourceConfigIds: known?.sourceConfigIds ?? [],
       baseIds: known?.baseIds ?? [],
     },
     {
       uid,
+      ...(sourceUuid !== null ? { uuid: sourceUuid } : {}),
       name: `#${uid}`,
       sourceConfigIds: sourceConfigId !== null ? [sourceConfigId] : [],
       baseIds: baseId !== null ? [baseId] : [],
@@ -484,21 +508,39 @@ function actorRefForBucket(
 
 function actorSummaryForBucket(
   entityUid: number,
+  entityUuidValue: unknown,
   bucket: ModifierHitBucketState,
   actorIndex: Map<number, ModifierSourceActor>,
 ): ModifierActorSummary {
   const hostUids = sortedNumbers([bucket.modifierHostUid].filter((uid) => uid > 0));
+  const hostUuid = finitePositiveNumber(bucket.modifierHostUuid);
+  const hostUuids = hostUuid !== null ? [hostUuid] : [];
   const sourceUids = sortedNumbers([bucket.modifierSourceUid].filter((uid) => uid > 0));
+  const sourceUuid = finitePositiveNumber(bucket.modifierSourceUuid);
+  const sourceUuids = sourceUuid !== null ? [sourceUuid] : [];
   const sourceActors = mergeActorRefs([], sourceUids.map((uid) => actorRefForBucket(actorIndex, bucket, uid)));
-  const selfSourceActors = sourceActors.filter((actor) => actor.uid === entityUid || actor.ownerUid === entityUid);
-  const externalSourceActors = sourceActors.filter((actor) => actor.uid !== entityUid && actor.ownerUid !== entityUid);
+  const entityUuid = finitePositiveNumber(entityUuidValue);
+  const belongsToEntity = (actor: ModifierSourceActor) => {
+    const actorUuid = finitePositiveNumber(actor.uuid);
+    const ownerUuid = finitePositiveNumber(actor.ownerUuid);
+    if (entityUuid !== null && (actorUuid === entityUuid || ownerUuid === entityUuid)) return true;
+    return actor.uid === entityUid || actor.ownerUid === entityUid;
+  };
+  const selfSourceActors = sourceActors.filter(belongsToEntity);
+  const externalSourceActors = sourceActors.filter((actor) => !belongsToEntity(actor));
   const selfActorUids = new Set(selfSourceActors.map((actor) => actor.uid));
   const externalActorUids = new Set(externalSourceActors.map((actor) => actor.uid));
+  const selfActorUuids = new Set(selfSourceActors.map((actor) => finitePositiveNumber(actor.uuid)).filter((uuid): uuid is number => uuid !== null));
+  const externalActorUuids = new Set(externalSourceActors.map((actor) => finitePositiveNumber(actor.uuid)).filter((uuid): uuid is number => uuid !== null));
   return {
     hostUids,
+    hostUuids,
     sourceUids,
+    sourceUuids,
     externalSourceUids: sourceUids.filter((uid) => externalActorUids.has(uid)),
+    externalSourceUuids: sourceUuids.filter((uuid) => externalActorUuids.has(uuid)),
     selfSourceUids: sourceUids.filter((uid) => selfActorUids.has(uid)),
+    selfSourceUuids: sourceUuids.filter((uuid) => selfActorUuids.has(uuid)),
     sourceActors,
     externalSourceActors,
     selfSourceActors,
@@ -507,15 +549,21 @@ function actorSummaryForBucket(
 
 function selfActorSummaryForEntity(entity: HistoryEntityData): ModifierActorSummary {
   const uid = finitePositiveNumber(entity.uid) ?? 0;
+  const uuid = finitePositiveNumber(entity.uuid);
   const actor: ModifierSourceActor = {
     uid,
+    ...(uuid !== null ? { uuid } : {}),
     name: entity.name?.trim() || `#${uid}`,
   };
   return {
     hostUids: uid > 0 ? [uid] : [],
+    hostUuids: uuid !== null ? [uuid] : [],
     sourceUids: uid > 0 ? [uid] : [],
+    sourceUuids: uuid !== null ? [uuid] : [],
     externalSourceUids: [],
+    externalSourceUuids: [],
     selfSourceUids: uid > 0 ? [uid] : [],
+    selfSourceUuids: uuid !== null ? [uuid] : [],
     sourceActors: uid > 0 ? [actor] : [],
     externalSourceActors: [],
     selfSourceActors: uid > 0 ? [actor] : [],
@@ -523,15 +571,22 @@ function selfActorSummaryForEntity(entity: HistoryEntityData): ModifierActorSumm
 }
 
 function actorMatchesFilter(actorSummary: ModifierActorSummary, actorFilter: ModifierActorFilter): boolean {
-  return actorFilter !== "external" || actorSummary.externalSourceUids.length > 0;
+  return actorFilter !== "external"
+    || actorSummary.externalSourceUids.length > 0
+    || actorSummary.externalSourceUuids.length > 0
+    || actorSummary.externalSourceActors.length > 0;
 }
 
 function mergeActorSummary(target: ModifierActorSummary, source: ModifierActorSummary): ModifierActorSummary {
   return {
     hostUids: sortedNumbers(new Set([...target.hostUids, ...source.hostUids])),
+    hostUuids: sortedNumbers(new Set([...target.hostUuids, ...source.hostUuids])),
     sourceUids: sortedNumbers(new Set([...target.sourceUids, ...source.sourceUids])),
+    sourceUuids: sortedNumbers(new Set([...target.sourceUuids, ...source.sourceUuids])),
     externalSourceUids: sortedNumbers(new Set([...target.externalSourceUids, ...source.externalSourceUids])),
+    externalSourceUuids: sortedNumbers(new Set([...target.externalSourceUuids, ...source.externalSourceUuids])),
     selfSourceUids: sortedNumbers(new Set([...target.selfSourceUids, ...source.selfSourceUids])),
+    selfSourceUuids: sortedNumbers(new Set([...target.selfSourceUuids, ...source.selfSourceUuids])),
     sourceActors: mergeActorRefs(target.sourceActors ?? [], source.sourceActors ?? []),
     externalSourceActors: mergeActorRefs(target.externalSourceActors ?? [], source.externalSourceActors ?? []),
     selfSourceActors: mergeActorRefs(target.selfSourceActors ?? [], source.selfSourceActors ?? []),
@@ -580,10 +635,19 @@ function aggregateBucketIntoSkill(
 function replayHitMatchesActor(source: FastSourceAggregate, replaySource: ModifierReplayHitState["activeModifiers"][number]): boolean {
   const hostUid = finitePositiveNumber(replaySource.modifierHostUid);
   const sourceUid = finitePositiveNumber(replaySource.modifierSourceUid);
+  const hostUuid = finitePositiveNumber(replaySource.modifierHostUuid);
+  const sourceUuid = finitePositiveNumber(replaySource.modifierSourceUuid);
   const knownHostUids = new Set(source.actorSummary.hostUids);
   const knownSourceUids = new Set(source.actorSummary.sourceUids);
-  return (knownHostUids.size === 0 || hostUid === null || knownHostUids.has(hostUid))
-    && (knownSourceUids.size === 0 || sourceUid === null || knownSourceUids.has(sourceUid));
+  const knownHostUuids = new Set(source.actorSummary.hostUuids);
+  const knownSourceUuids = new Set(source.actorSummary.sourceUuids);
+  const hostMatches = knownHostUuids.size > 0 && hostUuid !== null
+    ? knownHostUuids.has(hostUuid)
+    : (knownHostUids.size === 0 || hostUid === null || knownHostUids.has(hostUid));
+  const sourceMatches = knownSourceUuids.size > 0 && sourceUuid !== null
+    ? knownSourceUuids.has(sourceUuid)
+    : (knownSourceUids.size === 0 || sourceUid === null || knownSourceUids.has(sourceUid));
+  return hostMatches && sourceMatches;
 }
 
 function replayHitMatchesSource(source: FastSourceAggregate, hit: ModifierReplayHitState): boolean {
@@ -1263,6 +1327,9 @@ function buildActiveOnlyRuntimeRows(
 
 function isExternalModifierBucket(entity: HistoryEntityData, bucket: ModifierHitBucketState): boolean {
   const sourceUid = finitePositiveNumber(bucket.modifierSourceUid);
+  const entityUuid = finitePositiveNumber(entity.uuid);
+  const sourceUuid = finitePositiveNumber(bucket.modifierSourceUuid);
+  if (entityUuid !== null && sourceUuid !== null) return sourceUuid !== entityUuid;
   return sourceUid !== null && sourceUid !== entity.uid;
 }
 
@@ -1491,8 +1558,10 @@ function isFormulaReplayCandidate(model: ModifierActivityRow["contributionModel"
 
 function actorScopeForComponentValues(actorSummary?: ModifierActorSummary): ModifierContributionComponentActorScope {
   const externalCount = (actorSummary?.externalSourceUids?.length ?? 0)
+    + (actorSummary?.externalSourceUuids?.length ?? 0)
     + (actorSummary?.externalSourceActors?.length ?? 0);
   const selfCount = (actorSummary?.selfSourceUids?.length ?? 0)
+    + (actorSummary?.selfSourceUuids?.length ?? 0)
     + (actorSummary?.selfSourceActors?.length ?? 0);
   if (externalCount > 0 && selfCount === 0) return "party";
   if (selfCount > 0 && externalCount === 0) return "owner";
@@ -1982,7 +2051,7 @@ export function buildModifierActivityRowsFast(
     if (preferredId === null) continue;
 
     const damageIds = damageIdsForBucket(bucket, skillId);
-    const actorSummary = actorSummaryForBucket(entity.uid, bucket, sourceActorIndex);
+    const actorSummary = actorSummaryForBucket(entity.uid, entity.uuid, bucket, sourceActorIndex);
     for (const sourceMatch of sourceMatchesForBucket(entity, catalog, scope, bucket, preferredId, skillId, damageIds)) {
       const { entry, match } = sourceMatch;
       const selectedFactorItem = sourceMatch.selectedFactorItem ?? null;
@@ -1992,7 +2061,7 @@ export function buildModifierActivityRowsFast(
       const sourceNames = selectedFactorItem
         ? selectedFactorSourceNames(entry, selectedFactorItem)
         : entry.sourceNames;
-      const sourceKey = sourceKeyForEntry(entity.uid, bucket, entry, sourceActorIndex);
+      const sourceKey = sourceKeyForEntry(entity.uid, entity.uuid, bucket, entry, sourceActorIndex);
       let source = sources.get(sourceKey);
       if (!source) {
         source = {

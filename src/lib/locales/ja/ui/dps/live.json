@@ -222,6 +222,7 @@
   "header.training.disableMode": "木人モードを無効化",
   "header.training.enableMode": "木人モードを有効化",
   "header.training.ready": "木人待機中",
+  "header.training.finished": "区間終了",
   "header.training.waitSegment": "セグメント切替待ち",
   "historyDetail.classIcon": "クラスアイコン",
   "historyDetail.player": "プレイヤー",
@@ -231,5 +232,17 @@
   "live.resetToast": "戦闘記録をリセットしました",
   "live.resumeToast": "戦闘を再開しました",
   "live.unknownClass": "不明なクラス",
-  "table.skill": "スキル"
+  "table.skill": "スキル",
+  "columns.liveTankedPlayers.blockRate.description": "被弾時にブロックした割合を表示",
+  "columns.liveTankedPlayers.blockRate.header": "ブロック%",
+  "columns.liveTankedPlayers.blockRate.label": "ブロック%",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "被弾時にラッキーブロックが発生した割合を表示",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "ラッキーブロック%",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "ラッキーブロック%",
+  "columns.liveTankedSkills.blockRate.description": "この被弾スキルがブロックされた割合を表示",
+  "columns.liveTankedSkills.blockRate.header": "ブロック%",
+  "columns.liveTankedSkills.blockRate.label": "ブロック%",
+  "columns.liveTankedSkills.luckyBlockRate.description": "この被弾スキルでラッキーブロックが発生した割合を表示",
+  "columns.liveTankedSkills.luckyBlockRate.header": "ラッキーブロック%",
+  "columns.liveTankedSkills.luckyBlockRate.label": "ラッキーブロック%"
 }

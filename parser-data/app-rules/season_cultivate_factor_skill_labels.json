@@ -1,0 +1,2697 @@
+{
+  "version": 1,
+  "sources": {
+    "beat_performer_s3_x1": {
+      "label": {
+        "de": "Verstärkter Takt",
+        "en": "Amplified Beat",
+        "es": "Ritmo Amplificado",
+        "fr": "Rythme amplifié",
+        "id": "Amplify Beat",
+        "ja": "ハードディストーション",
+        "ko-KR": "증폭하는 비트",
+        "pt-BR": "Batida Amplificada",
+        "th": "Amplified Beat",
+        "zh-CN": "增幅节拍",
+        "zh-TW": "增幅節拍"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2306
+        ]
+      }
+    },
+    "beat_performer_s3_x2": {
+      "label": {
+        "de": "Harmonische Hymne",
+        "en": "Harmonic Anthem",
+        "es": "Himno Armonioso",
+        "fr": "Hymne harmonique",
+        "id": "Harmonic Movement",
+        "ja": "ハーモニックアンセム",
+        "ko-KR": "결집의 악장",
+        "pt-BR": "Hino Harmônico",
+        "th": "Harmonic Anthem",
+        "zh-CN": "聚合乐章",
+        "zh-TW": "聚合樂章"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2308
+        ]
+      }
+    },
+    "beat_performer_s3_x3": {
+      "label": {
+        "de": "Rhapsodie der Flamme",
+        "en": "Rhapsody of Flame",
+        "es": "Rapsodia de la Flama",
+        "fr": "Rhapsodie de flammes",
+        "id": "Flame Fantasy",
+        "ja": "フレイムラプソディー",
+        "ko-KR": "불꽃의 랩소디",
+        "pt-BR": "Rapsódia de Chamas",
+        "th": "Rhapsody of Flame",
+        "zh-CN": "烈焰狂想",
+        "zh-TW": "烈焰狂想"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2309
+        ]
+      }
+    },
+    "beat_performer_s3_x4": {
+      "label": {
+        "de": "Heroische Melodie",
+        "en": "Heroic Melody",
+        "es": "Melodía Heroica",
+        "fr": "Mélodie héroïque",
+        "id": "Passion Flow",
+        "ja": "パッショネート",
+        "ko-KR": "열정 발산",
+        "pt-BR": "Melodia Heroica",
+        "th": "Passion Burst",
+        "zh-CN": "鸣奏·英勇乐章",
+        "zh-TW": "鳴奏·英勇樂章"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Heroic Melody"
+      }
+    },
+    "beat_performer_s3_x6": {
+      "label": {
+        "de": "Zugabe",
+        "en": "Encore",
+        "es": "Bis",
+        "fr": "Rappel",
+        "id": "Encore",
+        "ja": "アンコール",
+        "ko-KR": "앵콜",
+        "pt-BR": "Bis",
+        "th": "Encore",
+        "zh-CN": "安可",
+        "zh-TW": "安可"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2315
+        ]
+      }
+    },
+    "beat_performer_s3_x7": {
+      "label": {
+        "de": "Flammennote",
+        "en": "Flame Note",
+        "es": "Nota de Llamas",
+        "fr": "Note de flamme",
+        "id": "Surge Quintet",
+        "ja": "サージクインテット",
+        "ko-KR": "격렬한 오중주",
+        "pt-BR": "Nota Flamejante",
+        "th": "Fivefold Crescendo",
+        "zh-CN": "烈焰音符",
+        "zh-TW": "烈焰音符"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          12301060101
+        ]
+      }
+    },
+    "beat_performer_x10": {
+      "label": {
+        "de": "Intelligenzverstärkung",
+        "en": "Intellect Amp",
+        "es": "Amplificación de Intelecto",
+        "fr": "Amplification d'intelligence",
+        "id": "Intellect Boost",
+        "ja": "知力強化",
+        "ko-KR": "지력 증폭",
+        "pt-BR": "Amplificação de Intelecto",
+        "th": "การเพิ่ม Int",
+        "zh-CN": "智力增幅",
+        "zh-TW": "智力增幅"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Intellect"
+      }
+    },
+    "beat_performer_x11": {
+      "label": {
+        "de": "Fünffaches Crescendo",
+        "en": "Fivefold Crescendo",
+        "es": "Crescendo Quíntuple",
+        "fr": "Crescendo quintuple",
+        "id": "Surge Quintet",
+        "ja": "サージクインテット",
+        "ko-KR": "격렬한 오중주",
+        "pt-BR": "Crescendo Quíntuplo",
+        "th": "Fivefold Crescendo",
+        "zh-CN": "激涌五重奏",
+        "zh-TW": "激湧五重奏"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2312
+        ]
+      }
+    },
+    "beat_performer_x5": {
+      "label": {
+        "de": "Ausbruch der Leidenschaft / Leidenschaftliche Wut",
+        "en": "Passion Burst / Passion Fury",
+        "es": "Estallido Pasional / Furia Pasional",
+        "fr": "Explosion de passion / Fureur passionnée",
+        "id": "Passion Flow / Exalt - Passion Flow",
+        "ja": "パッショネート / レイジパッショネート",
+        "ko-KR": "열정 발산 / 격앙・열정 발산",
+        "pt-BR": "Explosão da Paixão / Fúria da Paixão",
+        "th": "Passion Burst",
+        "zh-CN": "热情挥洒 / 激昂·热情挥洒",
+        "zh-TW": "熱情揮灑 / 激昂·熱情揮灑"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2313,
+          2332
+        ]
+      }
+    },
+    "beat_performer_x9": {
+      "label": {
+        "de": "Heilende Melodie",
+        "en": "Healing Melody",
+        "es": "Melodía Curativa",
+        "fr": "Mélodie de soin",
+        "id": "Encore",
+        "ja": "アンコール",
+        "ko-KR": "앵콜",
+        "pt-BR": "Melodia Curativa",
+        "th": "Encore",
+        "zh-CN": "鸣奏·愈合乐章",
+        "zh-TW": "鳴奏·癒合樂章"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Healing Melody"
+      }
+    },
+    "flame_berserker_s3_x10": {
+      "label": {
+        "de": "Wildfeuertanz",
+        "en": "Wildfire Dance",
+        "es": "Danza de Fuego Salvaje",
+        "fr": "Danse du feu sauvage",
+        "id": "Riverflow Slash",
+        "ja": "川流のごとき斬撃",
+        "ko-KR": "유수화참",
+        "pt-BR": "Dança das Chamas",
+        "th": "ดั่งกระแสธารฟาดฟัน",
+        "zh-CN": "迷狂炎舞",
+        "zh-TW": "迷狂炎舞"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Wildfire Dance"
+      }
+    },
+    "flame_berserker_s3_x11": {
+      "label": {
+        "de": "Expertise Skills",
+        "en": "Expertise Skills",
+        "es": "Expertise Skills",
+        "fr": "Expertise Skills",
+        "id": "Expertise Skills",
+        "ja": "Expertise Skills",
+        "ko-KR": "Expertise Skills",
+        "pt-BR": "Expertise Skills",
+        "th": "Expertise Skills",
+        "zh-CN": "Expertise Skills",
+        "zh-TW": "Expertise Skills"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Expertise Skills"
+      }
+    },
+    "flame_berserker_s3_x3": {
+      "label": {
+        "de": "Axtwind",
+        "en": "Axe Wind",
+        "es": "Viento de Hacha",
+        "fr": "Vent de hache",
+        "id": "Axewind",
+        "ja": "斧風",
+        "ko-KR": "도끼 바람",
+        "pt-BR": "Vento de Machado",
+        "th": "ขวานสายลม",
+        "zh-CN": "斧风",
+        "zh-TW": "斧風"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1612
+        ]
+      }
+    },
+    "flame_berserker_s3_x6": {
+      "label": {
+        "de": "Wildfeuertanz",
+        "en": "Wildfire Dance",
+        "es": "Danza de Fuego Salvaje",
+        "fr": "Danse du feu sauvage",
+        "id": "Manic Firedance",
+        "ja": "迷いと狂い炎舞",
+        "ko-KR": "광염 난무",
+        "pt-BR": "Dança das Chamas",
+        "th": "ระบำเปลวเพลิงคลุ้มคลั่ง",
+        "zh-CN": "迷狂炎舞",
+        "zh-TW": "迷狂炎舞"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1613
+        ]
+      }
+    },
+    "flame_berserker_s3_x7": {
+      "label": {
+        "de": "Fließender Prachthieb",
+        "en": "Flowing Splendor Slash",
+        "es": "Corte de Esplendor Fluido",
+        "fr": "Taillade de splendeur fluide",
+        "id": "Riverflow Slash",
+        "ja": "川流のごとき斬撃",
+        "ko-KR": "유수화참",
+        "pt-BR": "Corte do Esplendor Fluido",
+        "th": "ดั่งกระแสธารฟาดฟัน",
+        "zh-CN": "如川流华斩",
+        "zh-TW": "如川流華斬"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1616
+        ]
+      }
+    },
+    "flame_berserker_x1": {
+      "label": {
+        "de": "Formloser Flammenhieb.",
+        "en": "Formless Flame Slash.",
+        "es": "Corte de Llama Amorfa",
+        "fr": "Taillade de flamme informe.",
+        "id": "Ultimate! Hunter Slash",
+        "ja": "絶技！ハントスラッシュ",
+        "ko-KR": "비기! 추격의 참격",
+        "pt-BR": "Corte de Chama Informe.",
+        "th": "Stunt! Predator Slash",
+        "zh-CN": "无相火斩",
+        "zh-TW": "無相火斬"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          23510703,
+          23510803,
+          23510903
+        ]
+      }
+    },
+    "flame_berserker_x2": {
+      "label": {
+        "de": "Wutspalter",
+        "en": "Rage Cleave",
+        "es": "Hendidura de Furia",
+        "fr": "Fendoir de rage",
+        "id": "Rage Cleave",
+        "ja": "激怒の斬撃",
+        "ko-KR": "분노 강타",
+        "pt-BR": "Cutilada da Fúria",
+        "th": "ฟาดฟันด้วยความโกรธ",
+        "zh-CN": "暴怒劈斩",
+        "zh-TW": "暴怒劈斬"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1608,
+          1609,
+          1610,
+          1611
+        ]
+      }
+    },
+    "flame_berserker_x4": {
+      "label": {
+        "de": "Ödland-Ende",
+        "en": "Wasteland's End",
+        "es": "Final del Páramo",
+        "fr": "Fin des Terres défrichées",
+        "id": "Arakawa Desolation",
+        "ja": "濁流焚滅",
+        "ko-KR": "황천의 적멸",
+        "pt-BR": "Fim da Desolação",
+        "th": "Wasteland's End",
+        "zh-CN": "荒川之寂灭",
+        "zh-TW": "荒川之寂滅"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Wasteland's End"
+      }
+    },
+    "flame_berserker_x8": {
+      "label": {
+        "de": "Fallendes Höllenfeuer. / Entfesselter Meteor",
+        "en": "Falling Hellfire. / Unbound Meteor",
+        "es": "Caída de Fuego Infernal / Meteoro Desatado",
+        "fr": "Chute de feu infernal. / Météore déchaîné",
+        "id": "Flame Demon Heavenfall / Unbound Starfall",
+        "ja": "炎魔天落殺 / 自由なる墜星",
+        "ko-KR": "염마천락살 / 추락하는 별",
+        "pt-BR": "Inferno Cadente. / Meteoro Livre",
+        "th": "ทักษะ \"ตกสวรรค์ปีศาจเพลิง\" / ดาวตกไร้พันธนาการ",
+        "zh-CN": "炎魔天落杀 / 无羁坠星",
+        "zh-TW": "炎魔天落殺 / 無羈墜星"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1621,
+          1614
+        ]
+      }
+    },
+    "flame_berserker_x9": {
+      "label": {
+        "de": "Großer Karmesin-Lotos",
+        "en": "Great Crimson Lotus",
+        "es": "Gran Loto Carmesí",
+        "fr": "Grand lotus pourpre",
+        "id": "Ultimate! Blink Strike",
+        "ja": "絶技！フラッシュレイド",
+        "ko-KR": "비기! 재빠른 기습",
+        "pt-BR": "Grande Lótus Carmesim",
+        "th": "Stunt! Blink Ambush",
+        "zh-CN": "大红莲丸",
+        "zh-TW": "大紅蓮丸"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          116230101
+        ]
+      }
+    },
+    "frost_mage_s3_x5": {
+      "label": {
+        "de": "Schneesturm / Frostmagier G11 – Schneesturm",
+        "en": "Blizzard / Frost Mage G11 - Blizzard",
+        "es": "Ventisca / Mago gélido G11: Ventisca",
+        "fr": "Blizzard / Mage de givre G11 - Blizzard",
+        "id": "Ice Storm / Frost G11 - Ice Storm",
+        "ja": "ブリザード / 氷魔G11-ブリザード",
+        "ko-KR": "블리자드 / 프로스트 메이지 G11 - 블리자드",
+        "pt-BR": "Nevasca / Mago do Gelo G11 – Nevasca",
+        "th": "Blizzard / Frost G11-Blizzard",
+        "zh-CN": "寒冰风暴 / 冰魔G11-寒冰风暴",
+        "zh-TW": "寒冰風暴 / 冰魔G11-寒冰風暴"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          112570101,
+          112610101,
+          2305211201
+        ]
+      }
+    },
+    "frost_mage_s3_x9": {
+      "label": {
+        "de": "Gefrorener Sturm",
+        "en": "Frozen Gale",
+        "es": "Vendaval Congelado",
+        "fr": "Bourrasque gelée",
+        "id": "Freezing Wind",
+        "ja": "フローズンストーム",
+        "ko-KR": "프로즌 게일",
+        "pt-BR": "Vendaval Congelado",
+        "th": "Frozen Gale",
+        "zh-CN": "冻结寒风",
+        "zh-TW": "凍結寒風"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          112400101,
+          112400102
+        ]
+      }
+    },
+    "frost_mage_x1": {
+      "label": {
+        "de": "Frostlanze",
+        "en": "Frost Lance",
+        "es": "Lanza Gélida",
+        "fr": "Lance de givre",
+        "id": "Frost Spear",
+        "ja": "フロストファング",
+        "ko-KR": "프로스트 스피어",
+        "pt-BR": "Lança de Gelo",
+        "th": "Frost Lance",
+        "zh-CN": "冰霜之矛",
+        "zh-TW": "冰霜之矛"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1242
+        ]
+      }
+    },
+    "frost_mage_x10": {
+      "label": {
+        "de": "Permafrost",
+        "en": "Permafrost",
+        "es": "Hielo Eterno",
+        "fr": "Gelée éternelle",
+        "id": "Ice Infuse",
+        "ja": "パーマフロスト",
+        "ko-KR": "퍼마프로스트",
+        "pt-BR": "Geleterno",
+        "th": "Permafrost",
+        "zh-CN": "冰之灌注",
+        "zh-TW": "冰之灌注"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1243
+        ]
+      }
+    },
+    "frost_mage_x2": {
+      "label": {
+        "de": "Meteorsturm",
+        "en": "Meteor Storm",
+        "es": "Tormenta Meteórica",
+        "fr": "Tempête de météores",
+        "id": "Meteor Storm",
+        "ja": "メテオストーム",
+        "ko-KR": "메테오 스톰",
+        "pt-BR": "Tempestade de Meteoros",
+        "th": "Meteor Storm",
+        "zh-CN": "陨星风暴",
+        "zh-TW": "隕星風暴"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1239
+        ]
+      }
+    },
+    "frost_mage_x3": {
+      "label": {
+        "de": "Eispfeil",
+        "en": "Ice Arrow",
+        "es": "Flecha helada",
+        "fr": "Flèche de glace",
+        "id": "Ice Arrow",
+        "ja": "アイスボルト",
+        "ko-KR": "아이스 애로우",
+        "pt-BR": "Flecha de Gelo",
+        "th": "Ice Arrow",
+        "zh-CN": "冰箭",
+        "zh-TW": "冰箭"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          312130100,
+          312130200
+        ]
+      }
+    },
+    "frost_mage_x4": {
+      "label": {
+        "de": "Durchdringende Eislanze / Frostkomet",
+        "en": "Piercing Ice Lance / Frost Comet",
+        "es": "Lanza Gélida Perforante / Cometa Gélido",
+        "fr": "Lance de glace perforante / Comète de givre",
+        "id": "Piercing Ice Spear / Frost Comet",
+        "ja": "貫通アイススピア / 氷の彗星",
+        "ko-KR": "피어싱 아이스 스피어 / 프로스트 코멧",
+        "pt-BR": "Lança de Gelo Perfurante / Cometa Gélido",
+        "th": "Piercing Ice Spear / Frost Comet",
+        "zh-CN": "贯穿冰矛 / 冰霜彗星",
+        "zh-TW": "貫穿冰矛 / 冰霜彗星"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          312090100,
+          112590101
+        ]
+      }
+    },
+    "frost_mage_x6": {
+      "label": {
+        "de": "Froststrahl",
+        "en": "Frostbeam",
+        "es": "Rayo Gélido",
+        "fr": "Rayon de givre",
+        "id": "Ice Ray",
+        "ja": "フロストレイ",
+        "ko-KR": "프로스트 레이",
+        "pt-BR": "Raio de Gelo",
+        "th": "Frostbeam",
+        "zh-CN": "寒冰射线",
+        "zh-TW": "寒冰射線"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1241
+        ]
+      }
+    },
+    "frost_mage_x7": {
+      "label": {
+        "de": "Gezeitenbecken",
+        "en": "Tidepool",
+        "es": "Pozo de Marea",
+        "fr": "Bassin des marées",
+        "id": "Tide Merge",
+        "ja": "タイドプール",
+        "ko-KR": "타이드풀",
+        "pt-BR": "Poça da Maré",
+        "th": "Tidepool",
+        "zh-CN": "浪潮汇聚",
+        "zh-TW": "浪潮匯聚"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          112560101,
+          112560102
+        ]
+      }
+    },
+    "giant_blade_s3_x8": {
+      "label": {
+        "de": "Blocken",
+        "en": "Block",
+        "es": "Bloqueo",
+        "fr": "Blocage",
+        "id": "Block",
+        "ja": "レジスト",
+        "ko-KR": "막기",
+        "pt-BR": "Bloqueio",
+        "th": "Block",
+        "zh-CN": "格挡",
+        "zh-TW": "格擋"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Block"
+      }
+    },
+    "giant_blade_s3_x9": {
+      "label": {
+        "de": "Blocken",
+        "en": "Block",
+        "es": "Bloqueo",
+        "fr": "Blocage",
+        "id": "Block",
+        "ja": "レジスト",
+        "ko-KR": "막기",
+        "pt-BR": "Bloqueio",
+        "th": "Block",
+        "zh-CN": "格挡",
+        "zh-TW": "格擋"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Block"
+      }
+    },
+    "giant_blade_x1": {
+      "label": {
+        "de": "Schildschlag",
+        "en": "Shield Bash",
+        "es": "Golpe de Escudo",
+        "fr": "Coup de bouclier",
+        "id": "Shield Bash",
+        "ja": "砕刃の猛撃",
+        "ko-KR": "실드 배쉬",
+        "pt-BR": "Ataque com Escudo",
+        "th": "Shield Bash",
+        "zh-CN": "护盾猛击",
+        "zh-TW": "護盾猛擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Shield Bash"
+      }
+    },
+    "giant_blade_x10": {
+      "label": {
+        "de": "Konterzermalmer",
+        "en": "Countercrush",
+        "es": "Contrachoque",
+        "fr": "Contre-écrasement",
+        "id": "Block Counter",
+        "ja": "レジスト反撃",
+        "ko-KR": "막기 반격",
+        "pt-BR": "Bloqueio Esmagador",
+        "th": "Countercrush",
+        "zh-CN": "格挡反击",
+        "zh-TW": "格擋反擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          25003703
+        ]
+      }
+    },
+    "giant_blade_x11": {
+      "label": {
+        "de": "Steinfaust",
+        "en": "Stone Fist",
+        "es": "Puño Piedra",
+        "fr": "Poing de pierre",
+        "id": "Giant Rock Bombard",
+        "ja": "巨岩の轟撃",
+        "ko-KR": "거암 강타",
+        "pt-BR": "Punho de Pedra",
+        "th": "Stone Fist",
+        "zh-CN": "巨岩轰击",
+        "zh-TW": "巨岩轟擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Stone Fist"
+      }
+    },
+    "giant_blade_x2": {
+      "label": {
+        "de": "Schildschlag",
+        "en": "Shield Bash",
+        "es": "Golpe de Escudo",
+        "fr": "Coup de bouclier",
+        "id": "Shield Bash",
+        "ja": "砕刃の猛撃",
+        "ko-KR": "실드 배쉬",
+        "pt-BR": "Ataque com Escudo",
+        "th": "Shield Bash",
+        "zh-CN": "护盾猛击",
+        "zh-TW": "護盾猛擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1922,
+          1932
+        ]
+      }
+    },
+    "giant_blade_x3": {
+      "label": {
+        "de": "Wutausbruch",
+        "en": "Rage Burst",
+        "es": "Estallido de Furia",
+        "fr": "Explosion de rage",
+        "id": "Rage Burst",
+        "ja": "憤怒の剛撃",
+        "ko-KR": "분노 폭발",
+        "pt-BR": "Explosão de Fúria",
+        "th": "Rage Burst",
+        "zh-CN": "怒爆",
+        "zh-TW": "怒爆"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1925,
+          1940,
+          1944
+        ]
+      }
+    },
+    "giant_blade_x4": {
+      "label": {
+        "de": "Sandgriff",
+        "en": "Sandgrip",
+        "es": "Agarre Arenoso",
+        "fr": "Prise sableuse",
+        "id": "Sandstone Grip",
+        "ja": "砂岩握",
+        "ko-KR": "움켜쥐는 사암",
+        "pt-BR": "Agarre de Areia",
+        "th": "Sandgrip",
+        "zh-CN": "砂岩之握",
+        "zh-TW": "砂岩之握"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1926
+        ]
+      }
+    },
+    "giant_blade_x5": {
+      "label": {
+        "de": "Krachendes Echo",
+        "en": "Cracking Echo",
+        "es": "Eco Agrietado",
+        "fr": "Écho fracturant",
+        "id": "Rock - Guard Smash",
+        "ja": "岩堅・崩裂の廻刃",
+        "ko-KR": "바위 수호・붕괴의 고리",
+        "pt-BR": "Eco Estilhaçador",
+        "th": "Cracking Echo",
+        "zh-CN": "岩御·崩裂回环",
+        "zh-TW": "岩禦·崩裂迴環"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1907
+        ]
+      }
+    },
+    "giant_blade_x6": {
+      "label": {
+        "de": "Konterzermalmer",
+        "en": "Countercrush",
+        "es": "Contrachoque",
+        "fr": "Contre-écrasement",
+        "id": "Block Impact",
+        "ja": "護刃の衝撃",
+        "ko-KR": "블로킹 스트라이크",
+        "pt-BR": "Bloqueio Esmagador",
+        "th": "Countercrush",
+        "zh-CN": "格挡冲击",
+        "zh-TW": "格擋衝擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Countercrush"
+      }
+    },
+    "giant_blade_x7": {
+      "label": {
+        "de": "Granitfuror / Steinfaust",
+        "en": "Granite Fury / Stone Fist",
+        "es": "Furia de Granito / Puño Piedra",
+        "fr": "Furie de granit / Poing de pierre",
+        "id": "Rock Fury Strike / Giant Rock Bombard",
+        "ja": "岩塊撃 / 巨岩の轟撃",
+        "ko-KR": "분노의 바위 / 거암 강타",
+        "pt-BR": "Fúria de Granito / Punho de Pedra",
+        "th": "Granite Fury / Stone Fist",
+        "zh-CN": "岩怒之击 / 巨岩轰击",
+        "zh-TW": "岩怒之擊 / 巨岩轟擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1937,
+          1939,
+          1943
+        ]
+      }
+    },
+    "holy_shield_s3_x9": {
+      "label": {
+        "de": "Kreuzzug des Eifers",
+        "en": "Zeal Crusade",
+        "es": "Cruzada Ardiente",
+        "fr": "Croisade fanatique",
+        "id": "Condemn",
+        "ja": "パニッシュメント",
+        "ko-KR": "단죄",
+        "pt-BR": "Cruzada do Zelo",
+        "th": "Condemn",
+        "zh-CN": "冷酷征伐",
+        "zh-TW": "冷酷征伐"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Zeal Crusade"
+      }
+    },
+    "holy_shield_x1": {
+      "label": {
+        "de": "Tapferkeitsschlag",
+        "en": "Valor Bash",
+        "es": "Golpe del Valor",
+        "fr": "Coup de vaillance",
+        "id": "Valor Shield Bash",
+        "ja": "ブレイヴバッシュ",
+        "ko-KR": "용맹의 방패",
+        "pt-BR": "Golpe da Bravura",
+        "th": "Valor Bash",
+        "zh-CN": "英勇盾击",
+        "zh-TW": "英勇盾擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2405
+        ]
+      }
+    },
+    "holy_shield_x10": {
+      "label": {
+        "de": "Strahlen",
+        "en": "Radiance",
+        "es": "Resplandor",
+        "fr": "Radiance",
+        "id": "Cruel Conquest",
+        "ja": "コンクエスト",
+        "ko-KR": "냉혹한 정벌",
+        "pt-BR": "Radiância",
+        "th": "Zeal Crusade",
+        "zh-CN": "光明决心",
+        "zh-TW": "光明決心"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Radiance"
+      }
+    },
+    "holy_shield_x11": {
+      "label": {
+        "de": "Göttlicher Kreis",
+        "en": "Divine Circle",
+        "es": "Círculo Divino",
+        "fr": "Cercle divin",
+        "id": "Enhanced Judgement",
+        "ja": "強化パニッシュメント",
+        "ko-KR": "강화 단죄",
+        "pt-BR": "Círculo Divino",
+        "th": "Enhanced Condemn",
+        "zh-CN": "圣环",
+        "zh-TW": "聖環"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Divine Circle"
+      }
+    },
+    "holy_shield_x3": {
+      "label": {
+        "de": "Expertisefähigkeit",
+        "en": "Expertise Skill",
+        "es": "Habilidad de Pericia",
+        "fr": "Compétence d'expertise",
+        "id": "Expertise Skill",
+        "ja": "マスタリースキル",
+        "ko-KR": "마스터리 스킬",
+        "pt-BR": "Habilidade de Perícia",
+        "th": "Skill เฉพาะทาง",
+        "zh-CN": "专精技能",
+        "zh-TW": "專精技能"
+      },
+      "evidence": {
+        "kind": "sourceTextOverride",
+        "text": "Expertise Skill"
+      }
+    },
+    "holy_shield_x4": {
+      "label": {
+        "de": "Göttlicher Kreis",
+        "en": "Divine Circle",
+        "es": "Círculo Divino",
+        "fr": "Cercle divin",
+        "id": "Enhanced Judgement",
+        "ja": "強化パニッシュメント",
+        "ko-KR": "강화 단죄",
+        "pt-BR": "Círculo Divino",
+        "th": "Enhanced Condemn",
+        "zh-CN": "圣环",
+        "zh-TW": "聖環"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Divine Circle"
+      }
+    },
+    "holy_shield_x5": {
+      "label": {
+        "de": "Ägis-Wächter",
+        "en": "Aegis Ward",
+        "es": "Protección de Égida",
+        "fr": "Protection d'égide",
+        "id": "Holy Ring",
+        "ja": "ホーリーリング",
+        "ko-KR": "디바인 서클",
+        "pt-BR": "Proteção de Égide",
+        "th": "Divine Circle",
+        "zh-CN": "圣光守卫",
+        "zh-TW": "聖光守衛"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Aegis Ward"
+      }
+    },
+    "holy_shield_x6": {
+      "label": {
+        "de": "Strahlende Infusion",
+        "en": "Radiant Infusion",
+        "es": "Infusión Radiante",
+        "fr": "Infusion radieuse",
+        "id": "Righteous - Holylight Infuse",
+        "ja": "光凛・レイディアントフォース",
+        "ko-KR": "빛의 권위・라이트 인퓨전",
+        "pt-BR": "Infusão Radiante",
+        "th": "Radiant Infusion",
+        "zh-CN": "凛威·圣光灌注",
+        "zh-TW": "凜威·聖光灌注"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2407
+        ]
+      }
+    },
+    "holy_shield_x7": {
+      "label": {
+        "de": "Vorhutangriff / Vorhutjagd",
+        "en": "Vanguard Strike / Vanguard Hunt",
+        "es": "Golpe de Vanguardia / Caza de Vanguardia",
+        "fr": "Frappe d'avant-garde / Chasse d'avant-garde",
+        "id": "Righteous - Holylight Infuse / Judgement",
+        "ja": "光凛・レイディアントフォース / ジャッジメント",
+        "ko-KR": "빛의 권위・라이트 인퓨전 / 심판",
+        "pt-BR": "Investida do Vanguardeiro / Caçada do Vanguardeiro",
+        "th": "Radiant Infusion / Judgment",
+        "zh-CN": "先锋打击 / 先锋追击",
+        "zh-TW": "先鋒打擊 / 先鋒追擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Vanguard Strike, Vanguard Hunt"
+      }
+    },
+    "holy_shield_x8": {
+      "label": {
+        "de": "Heilige Klinge",
+        "en": "Sacred Blade",
+        "es": "Hoja Sagrada",
+        "fr": "Lame sacrée",
+        "id": "Holysword",
+        "ja": "ホーリーソード",
+        "ko-KR": "성스러운 검",
+        "pt-BR": "Lâmina Sagrada",
+        "th": "Sacred Blade",
+        "zh-CN": "圣剑",
+        "zh-TW": "聖劍"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2421
+        ]
+      }
+    },
+    "marksman_s3_x10": {
+      "label": {
+        "de": "Sprengschuss",
+        "en": "Blast Shot",
+        "es": "Tiro Explosivo",
+        "fr": "Tir explosif",
+        "id": "Explosive Shot",
+        "ja": "ブラストショット",
+        "ko-KR": "익스플로전 샷",
+        "pt-BR": "Tiro Explosivo",
+        "th": "Blast Shot",
+        "zh-CN": "爆炸射击",
+        "zh-TW": "爆炸射擊"
+      },
+      "evidence": {
+        "kind": "sourceIdOverride",
+        "ids": [
+          2238
+        ]
+      }
+    },
+    "marksman_s3_x5": {
+      "label": {
+        "de": "Doppelpfeil",
+        "en": "Double Arrow",
+        "es": "Flecha Doble",
+        "fr": "Double flèche",
+        "id": "Double Arrow",
+        "ja": "ストライクボルト",
+        "ko-KR": "더블 애로우",
+        "pt-BR": "Flecha Dupla",
+        "th": "Double Arrow",
+        "zh-CN": "二连矢",
+        "zh-TW": "二連矢"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2222
+        ]
+      }
+    },
+    "marksman_s3_x8": {
+      "label": {
+        "de": "Sturzflutsalve / Lumi-Lawine",
+        "en": "Torrent Volley / Lumi Torrent",
+        "es": "Descarga Torrencial / Torrente Lumi",
+        "fr": "Rafale torrentielle / Torrent de Lumi",
+        "id": "Raging Shot / Lightwill - Raging Shot",
+        "ja": "レイジショット / レイジブラスト",
+        "ko-KR": "래피드 샷 / 빛의 의지・래피드 샷",
+        "pt-BR": "Rajada Torrencial / Torrente de Lumi",
+        "th": "Torrent Volley / Lumi Torrent",
+        "zh-CN": "怒涛射击 / 光意·怒涛射击",
+        "zh-TW": "怒濤射擊 / 光意·怒濤射擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          322010200,
+          122400103
+        ]
+      }
+    },
+    "marksman_x1": {
+      "label": {
+        "de": "Sturmpfeil",
+        "en": "Storm Arrow",
+        "es": "Flecha Tormenta",
+        "fr": "Flèche de tempête",
+        "id": "Storm Arrow",
+        "ja": "ハウリングボルト",
+        "ko-KR": "스톰 애로우",
+        "pt-BR": "Flecha da Tempestade",
+        "th": "Storm Arrow",
+        "zh-CN": "暴风箭矢",
+        "zh-TW": "暴風箭矢"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2220
+        ]
+      }
+    },
+    "marksman_x11": {
+      "label": {
+        "de": "Kraftzug",
+        "en": "Powerdraw",
+        "es": "Tiro Potente",
+        "fr": "Tension maximale",
+        "id": "Charged Shot",
+        "ja": "チャージショット",
+        "ko-KR": "차지 샷",
+        "pt-BR": "Disparo Potente",
+        "th": "Powerdraw",
+        "zh-CN": "聚能射击",
+        "zh-TW": "聚能射擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2233
+        ]
+      }
+    },
+    "marksman_x2": {
+      "label": {
+        "de": "Pfeilregen",
+        "en": "Arrow Rain",
+        "es": "Lluvia de Flechas",
+        "fr": "Pluie de flèches",
+        "id": "Arrow Rain",
+        "ja": "アローレイン",
+        "ko-KR": "화살비",
+        "pt-BR": "Chuva de Flechas",
+        "th": "Arrow Rain",
+        "zh-CN": "箭雨",
+        "zh-TW": "箭雨"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2232
+        ]
+      }
+    },
+    "marksman_x3": {
+      "label": {
+        "de": "Wild Wolf",
+        "en": "Wild Wolf",
+        "es": "Wild Wolf",
+        "fr": "Loup sauvage",
+        "id": "Wild Wolf",
+        "ja": "Wild Wolf",
+        "ko-KR": "Wild Wolf",
+        "pt-BR": "Wild Wolf",
+        "th": "Wild Wolf",
+        "zh-CN": "Wild Wolf",
+        "zh-TW": "Wild Wolf"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          117008270101,
+          117008250102,
+          117008260102,
+          117008240102,
+          117008200102
+        ]
+      }
+    },
+    "marksman_x4": {
+      "label": {
+        "de": "Lichtsucher-Pfeil",
+        "en": "Lightseeker Arrow",
+        "es": "Flecha Buscaluz",
+        "fr": "Flèche chasse-lumière",
+        "id": "Lightseeker Arrow",
+        "ja": "閃追矢",
+        "ko-KR": "샤이닝 애로우",
+        "pt-BR": "Flecha Buscadora de Luz",
+        "th": "Lightseeker Arrow",
+        "zh-CN": "光追箭矢",
+        "zh-TW": "光追箭矢"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          322010500
+        ]
+      }
+    },
+    "marksman_x7": {
+      "label": {
+        "de": "Falken-Blitzschlag",
+        "en": "Falcon Lightning Strike",
+        "es": "Golpe de Rayo del Halcón",
+        "fr": "Frappe foudroyante du faucon",
+        "id": "Hawk Lightning Impact",
+        "ja": "臣鷹の雷撃衝撃",
+        "ko-KR": "팔콘 섬광 돌진",
+        "pt-BR": "Golpe Relâmpago do Falcão",
+        "th": "Falcon Lightning Strike",
+        "zh-CN": "猎鹰闪电冲击",
+        "zh-TW": "獵鷹閃電衝擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2220329109
+        ]
+      }
+    },
+    "marksman_x9": {
+      "label": {
+        "de": "Strahlungskanonade",
+        "en": "Radiance Barrage",
+        "es": "Aluvión de Resplandor",
+        "fr": "Déluge de radiance",
+        "id": "Light Bombard",
+        "ja": "エナジーショット",
+        "ko-KR": "라이트 봄버",
+        "pt-BR": "Rajada de Radiância",
+        "th": "Radiance Barrage",
+        "zh-CN": "光能轰炸",
+        "zh-TW": "光能轟炸"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          25524003,
+          25524004
+        ]
+      }
+    },
+    "stormablade_s3_x10": {
+      "label": {
+        "de": "Sturmblitz",
+        "en": "Stormflash",
+        "es": "Destello Tempestivo",
+        "fr": "Éclair de tempête",
+        "id": "Thousand Thunder Flash",
+        "ja": "千雷",
+        "ko-KR": "천뢰섬영의 의지",
+        "pt-BR": "Lampejo da Tempestade",
+        "th": "Stormflash",
+        "zh-CN": "千雷闪影之意",
+        "zh-TW": "千雷閃影之意"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Stormflash"
+      }
+    },
+    "stormablade_s3_x3": {
+      "label": {
+        "de": "Drachenhammer / Raijin-Flitzer-Hieb",
+        "en": "Dragonhammer / Raijin Dash Slash",
+        "es": "Martillo Dragón / Corte de Destello Raijin",
+        "fr": "Marteau-dragon / Taillade de la Ruée de Raijin",
+        "id": "Dragon Hammerflash / Raijin Slash",
+        "ja": "重撃槌 / カオシックサンダー",
+        "ko-KR": "용추섬 / 비뢰난참",
+        "pt-BR": "Martelo do Dragão / Corte da Investida de Raijin",
+        "th": "Dragon Hammer Flash / Raijin Dash Slash",
+        "zh-CN": "龙槌闪 / 飞雷斩乱",
+        "zh-TW": "龍槌閃 / 飛雷斬亂"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1735,
+          1736
+        ]
+      }
+    },
+    "stormablade_s3_x6": {
+      "label": {
+        "de": "Donnerschnitter / Donnerschnitter – Finaler Hieb",
+        "en": "Thundercut / Thundercut - Final Slash",
+        "es": "Corte Relámpago / Corte Relámpago: Corte final",
+        "fr": "Coup de tonnerre / Coup de tonnerre - Taillade finale",
+        "id": "Thunderbolt Strike / Thunderbolt Strike - Final Slash",
+        "ja": "迅雷連斬 / 迅雷連斬-最後の一太刀",
+        "ko-KR": "벽력연참 / 벽력연참 - 마지막 공격",
+        "pt-BR": "Corte Trovejante / Corte Trovejante – Golpe Final",
+        "th": "Thundercut / Thunderbolt Slash-ดาบสุดท้าย",
+        "zh-CN": "霹雳连斩 / 霹雳连斩-最后一刀",
+        "zh-TW": "霹靂連斬 / 霹靂連斬-最後一刀"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1724,
+          1725,
+          1726,
+          1742
+        ]
+      }
+    },
+    "stormablade_s3_x9": {
+      "label": {
+        "de": "Mondschlag",
+        "en": "Moonstrike",
+        "es": "Ataque Lunar",
+        "fr": "Frappe lunaire",
+        "id": "Moonshade",
+        "ja": "月影殺",
+        "ko-KR": "월영",
+        "pt-BR": "Golpe Lunar",
+        "th": "Moonstrike",
+        "zh-CN": "月影",
+        "zh-TW": "月影"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1715
+        ]
+      }
+    },
+    "stormablade_x1": {
+      "label": {
+        "de": "Iaido-Hieb",
+        "en": "Iaido Slash",
+        "es": "Corte de Iaido",
+        "fr": "Taillade iaido",
+        "id": "Quick Draw Slash",
+        "ja": "雷刃抜刀",
+        "ko-KR": "발도",
+        "pt-BR": "Corte de Iaido",
+        "th": "Iaido Slash",
+        "zh-CN": "居合斩",
+        "zh-TW": "居合斬"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1714
+        ]
+      }
+    },
+    "stormablade_x2": {
+      "label": {
+        "de": "Raijin-Flitzer / Leuchtblitz",
+        "en": "Raijin Dash / Flash Strike",
+        "es": "Destello Raijin / Ataque Relámpago",
+        "fr": "Ruée de Raijin / Frappe éclair",
+        "id": "Flying Thunder God / Flash",
+        "ja": "飛雷 / 一閃",
+        "ko-KR": "비뢰신 / 일섬",
+        "pt-BR": "Investida de Raijin / Lampejo",
+        "th": "Raijin Dash / Flash strike",
+        "zh-CN": "飞雷神 / 一闪",
+        "zh-TW": "飛雷神 / 一閃"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1718,
+          1717
+        ]
+      }
+    },
+    "stormablade_x4": {
+      "label": {
+        "de": "Donner-Iaido-Hieb",
+        "en": "Thunder Iaido Slash",
+        "es": "Corte de Iaido Atronador",
+        "fr": "Taillade iaido foudroyante",
+        "id": "Thunder Slash",
+        "ja": "轟雷刃抜刀",
+        "ko-KR": "천둥 발도",
+        "pt-BR": "Corte de Iaido de Trovão",
+        "th": "Thunder Iaido Slash",
+        "zh-CN": "雷霆居合斩",
+        "zh-TW": "雷霆居合斬"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1745
+        ]
+      }
+    },
+    "stormablade_x5": {
+      "label": {
+        "de": "Spannungsspitze",
+        "en": "Volt Surge",
+        "es": "Descarga de Voltios",
+        "fr": "Surtension",
+        "id": "Infinite Thunder Surge",
+        "ja": "無窮雷陣",
+        "ko-KR": "무궁뇌정의 힘",
+        "pt-BR": "Surto de Voltagem",
+        "th": "Volt Surge",
+        "zh-CN": "无穷雷霆之力",
+        "zh-TW": "無窮雷霆之力"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Volt Surge"
+      }
+    },
+    "stormablade_x7": {
+      "label": {
+        "de": "Sturmsense / Göttliche Sichel",
+        "en": "Storm Scythe / Divine Sickle",
+        "es": "Guadaña Tormenta / Hoz Divina",
+        "fr": "Faux de la tempête / Faucille divine",
+        "id": "Scythe of Thunder / Scythe of Punishment",
+        "ja": "雷霆鎌 / 審罰鎌",
+        "ko-KR": "뇌전의 낫 / 신벌의 낫",
+        "pt-BR": "Foice da Tempestade / Foice Divina",
+        "th": "Storm Scythe / Divine Sickle",
+        "zh-CN": "雷霆之镰 / 神罚之镰",
+        "zh-TW": "雷霆之鐮 / 神罰之鐮"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Storm Scythe, Divine Sickle"
+      }
+    },
+    "stormablade_x8": {
+      "label": {
+        "de": "Mondklinge",
+        "en": "Moonblades",
+        "es": "Ataque Lunar",
+        "fr": "Lame lunaire",
+        "id": "Moonblade",
+        "ja": "月刃",
+        "ko-KR": "월광의 낫",
+        "pt-BR": "Lâmina Lunar",
+        "th": "Moonstrike",
+        "zh-CN": "月刃",
+        "zh-TW": "月刃"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Moonblades"
+      }
+    },
+    "wind_knight_s3_x1": {
+      "label": {
+        "de": "Heldenmut-Zyklon",
+        "en": "Valor Cyclone",
+        "es": "Ciclón del Valor",
+        "fr": "Cyclone de vaillance",
+        "id": "Courage Wind Ring",
+        "ja": "勇心風環",
+        "ko-KR": "윈드 오라",
+        "pt-BR": "Ciclone da Bravura",
+        "th": "Valor Cyclone",
+        "zh-CN": "勇气风环",
+        "zh-TW": "勇氣風環"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          114320101
+        ]
+      }
+    },
+    "wind_knight_s3_x10": {
+      "label": {
+        "de": "Falkenwurf / Falkenschlag",
+        "en": "Falcon Toss / Falcon Strike",
+        "es": "Impulso de Halcón / Golpe de Halcón",
+        "fr": "Lancer de faucon / Frappe du faucon",
+        "id": "Falcon Toss / Falcon Strike",
+        "ja": "飛鳥投 / 飛鳥投・極",
+        "ko-KR": "팔콘 토스 / 팔콘 토스・극",
+        "pt-BR": "Arremesso do Falcão / Golpe do Falcão",
+        "th": "Falcon Toss / Falcon Strike",
+        "zh-CN": "飞鸟投 / 飞鸟极",
+        "zh-TW": "飛鳥投 / 飛鳥極"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1425,
+          1433
+        ]
+      }
+    },
+    "wind_knight_s3_x11": {
+      "label": {
+        "de": "Schriller Aufprall",
+        "en": "Sharp Impact",
+        "es": "Impacto Afilado",
+        "fr": "Impact tranchant",
+        "id": "Sharp Impact",
+        "ja": "鋭利衝",
+        "ko-KR": "예리한 찌르기",
+        "pt-BR": "Impacto Afiado",
+        "th": "Sharp Impact",
+        "zh-CN": "锐利冲击",
+        "zh-TW": "銳利衝擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1431
+        ]
+      }
+    },
+    "wind_knight_s3_x2": {
+      "label": {
+        "de": "Spiralstoß / Durchbruch-Verfolgung",
+        "en": "Spiral Thrust / Breach Pursuit",
+        "es": "Embestida en Espiral / Persecución de Brecha",
+        "fr": "Percée en spirale / Poursuite de la brèche",
+        "id": "Spiral Thrust / Chase Break",
+        "ja": "螺旋撃 / 破追",
+        "ko-KR": "나선 찌르기 / 체이싱",
+        "pt-BR": "Estocada Espiral / Perseguição Invasiva",
+        "th": "Spiral Thrust / Breach Pursuit",
+        "zh-CN": "螺旋击刺 / 破追",
+        "zh-TW": "螺旋擊刺 / 破追"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1421,
+          1422
+        ]
+      }
+    },
+    "wind_knight_s3_x3": {
+      "label": {
+        "de": "Wirbelschlag",
+        "en": "Vortex Strike",
+        "es": "Ataque Torbellino",
+        "fr": "Frappe du vortex",
+        "id": "Divine Spiral",
+        "ja": "瞬影螺旋",
+        "ko-KR": "그림자 나선",
+        "pt-BR": "Golpe de Vórtice",
+        "th": "Vortex Strike",
+        "zh-CN": "神影螺旋",
+        "zh-TW": "神影螺旋"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          114340102,
+          314030100
+        ]
+      }
+    },
+    "wind_knight_s3_x4": {
+      "label": {
+        "de": "Drachenkanone",
+        "en": "Drake Cannon",
+        "es": "Cañón Dragontino",
+        "fr": "Canon draconique",
+        "id": "Dragon Blast",
+        "ja": "龍撃陣",
+        "ko-KR": "용격포",
+        "pt-BR": "Canhão Draco",
+        "th": "Drake Cannon",
+        "zh-CN": "龙击炮",
+        "zh-TW": "龍擊炮"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          114350101,
+          314040100
+        ]
+      }
+    },
+    "wind_knight_s3_x6": {
+      "label": {
+        "de": "Sturmform",
+        "en": "Galeform",
+        "es": "Forma de Vendaval",
+        "fr": "Forme de bourrasque",
+        "id": "Graceful",
+        "ja": "風姿卓絶",
+        "ko-KR": "비범한 풍모",
+        "pt-BR": "Forma do Vendaval",
+        "th": "Galeform",
+        "zh-CN": "风姿卓绝",
+        "zh-TW": "風姿卓絕"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Galeform"
+      }
+    },
+    "wind_knight_x7": {
+      "label": {
+        "de": "Sofortiger Vorteil",
+        "en": "Instant Edge",
+        "es": "Filo Instantáneo",
+        "fr": "Lame instantanée",
+        "id": "Instant",
+        "ja": "刹那",
+        "ko-KR": "찰나",
+        "pt-BR": "Gume Instantâneo",
+        "th": "Instant Edge",
+        "zh-CN": "刹那",
+        "zh-TW": "刹那"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Instant Edge"
+      }
+    },
+    "wind_knight_x8": {
+      "label": {
+        "de": "Falkenwurf / Sofortiger Vorteil",
+        "en": "Falcon Toss / Instant Edge",
+        "es": "Impulso de Halcón / Filo Instantáneo",
+        "fr": "Lancer de faucon / Lame instantanée",
+        "id": "Falcon Toss / Instant",
+        "ja": "飛鳥投 / 刹那",
+        "ko-KR": "팔콘 토스 / 찰나",
+        "pt-BR": "Arremesso do Falcão / Gume Instantâneo",
+        "th": "Falcon Toss / Instant Edge",
+        "zh-CN": "飞鸟投 / 刹那",
+        "zh-TW": "飛鳥投 / 刹那"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Falcon Toss, Instant Edge Combo"
+      }
+    },
+    "wind_knight_x9": {
+      "label": {
+        "de": "Tornado",
+        "en": "Tornado",
+        "es": "Tornado",
+        "fr": "Tornade",
+        "id": "Tornado",
+        "ja": "竜巻",
+        "ko-KR": "토네이도",
+        "pt-BR": "Tornado",
+        "th": "Tornado",
+        "zh-CN": "龙卷风",
+        "zh-TW": "龍捲風"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          11499030102,
+          314050100
+        ]
+      }
+    }
+  },
+  "slots": {
+    "beat_performer_s3_x2": {
+      "label": {
+        "de": "Harmonische Hymne",
+        "en": "Harmonic Anthem",
+        "es": "Himno Armonioso",
+        "fr": "Hymne harmonique",
+        "id": "Melody - Valor Movement",
+        "ja": "ブレイブメロディー",
+        "ko-KR": "울림・용맹의 악장",
+        "pt-BR": "Hino Harmônico",
+        "th": "Heroic Melody",
+        "zh-CN": "聚合乐章",
+        "zh-TW": "聚合樂章"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Harmonic Anthem"
+      }
+    },
+    "beat_performer_s3_x4": {
+      "label": {
+        "de": "Woge",
+        "en": "Surge",
+        "es": "Sobrecarga",
+        "fr": "Sursaut",
+        "id": "Stride",
+        "ja": "アクセラレイト",
+        "ko-KR": "분투",
+        "pt-BR": "Surto",
+        "th": "Surge",
+        "zh-CN": "奋进",
+        "zh-TW": "奮進"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Surge Healing once"
+      }
+    },
+    "beat_performer_s3_x6": {
+      "label": {
+        "de": "restores 1 Performance Passion the next time it",
+        "en": "restores 1 Performance Passion the next time it",
+        "es": "restores 1 Performance Passion the next time it",
+        "fr": "restores 1 Performance Passion the next time it",
+        "id": "restores 1 Performance Passion the next time it",
+        "ja": "restores 1 Performance Passion the next time it",
+        "ko-KR": "restores 1 Performance Passion the next time it",
+        "pt-BR": "restores 1 Performance Passion the next time it",
+        "th": "restores 1 Performance Passion the next time it",
+        "zh-CN": "restores 1 Performance Passion the next time it",
+        "zh-TW": "restores 1 Performance Passion the next time it"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "restores 1 Performance Passion the next time it"
+      }
+    },
+    "beat_performer_x3": {
+      "label": {
+        "de": "Rhapsodie der Flamme",
+        "en": "Rhapsody of Flame",
+        "es": "Rapsodia de la Flama",
+        "fr": "Rhapsodie de flammes",
+        "id": "Fierce Swing",
+        "ja": "バイオレントスイング",
+        "ko-KR": "맹렬한 휘두르기",
+        "pt-BR": "Rapsódia de Chamas",
+        "th": "Fierce Strike",
+        "zh-CN": "烈焰狂想",
+        "zh-TW": "烈焰狂想"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Rhapsody of Flame once"
+      }
+    },
+    "beat_performer_x5": {
+      "label": {
+        "de": "Speaker",
+        "en": "Speaker",
+        "es": "Speaker",
+        "fr": "Speaker",
+        "id": "Speaker",
+        "ja": "Speaker",
+        "ko-KR": "Speaker",
+        "pt-BR": "Speaker",
+        "th": "Speaker",
+        "zh-CN": "Speaker",
+        "zh-TW": "Speaker"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Speaker"
+      }
+    },
+    "factor_3050430": {
+      "label": {
+        "de": "Klingenwille",
+        "en": "Blade Intent",
+        "es": "Voluntad del Filo",
+        "fr": "Intention de la lame",
+        "id": "Bladewill",
+        "ja": "刀意",
+        "ko-KR": "도의",
+        "pt-BR": "Intenção da Lâmina",
+        "th": "Blade Intent",
+        "zh-CN": "刀意",
+        "zh-TW": "刀意"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Blade Intent"
+      }
+    },
+    "factor_3051400": {
+      "label": {
+        "de": "Sturmform",
+        "en": "Galeform",
+        "es": "Forma de Vendaval",
+        "fr": "Forme de bourrasque",
+        "id": "Graceful",
+        "ja": "風姿卓絶",
+        "ko-KR": "비범한 풍모",
+        "pt-BR": "Forma do Vendaval",
+        "th": "Galeform",
+        "zh-CN": "风姿卓绝",
+        "zh-TW": "風姿卓絕"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Galeform"
+      }
+    },
+    "factor_3051420": {
+      "label": {
+        "de": "Great Wind Cyclone if Valor Cyclone is active",
+        "en": "Great Wind Cyclone if Valor Cyclone is active",
+        "es": "Great Wind Cyclone if Valor Cyclone is active",
+        "fr": "Great Wind Cyclone if Valor Cyclone is active",
+        "id": "Great Wind Cyclone if Valor Cyclone is active",
+        "ja": "Great Wind Cyclone if Valor Cyclone is active",
+        "ko-KR": "Great Wind Cyclone if Valor Cyclone is active",
+        "pt-BR": "Great Wind Cyclone if Valor Cyclone is active",
+        "th": "Great Wind Cyclone if Valor Cyclone is active",
+        "zh-CN": "Great Wind Cyclone if Valor Cyclone is active",
+        "zh-TW": "Great Wind Cyclone if Valor Cyclone is active"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Great Wind Cyclone if Valor Cyclone is active"
+      }
+    },
+    "factor_3051450": {
+      "label": {
+        "de": "Aufladung",
+        "en": "Charge",
+        "es": "Carga",
+        "fr": "Charge",
+        "id": "Charge",
+        "ja": "チャージ",
+        "ko-KR": "충전",
+        "pt-BR": "Carga",
+        "th": "Charge",
+        "zh-CN": "充能",
+        "zh-TW": "充能"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "charge"
+      }
+    },
+    "factor_3054400": {
+      "label": {
+        "de": "Inferno-Abrechnung",
+        "en": "Inferno Reckon",
+        "es": "Ajuste Infernal",
+        "fr": "Châtiment infernal",
+        "id": "Holy Mark",
+        "ja": "聖印",
+        "ko-KR": "신성 인장",
+        "pt-BR": "Inferno do Juízo",
+        "th": "Holy Mark",
+        "zh-CN": "炽热清算",
+        "zh-TW": "熾熱清算"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Inferno Reckon"
+      }
+    },
+    "factor_3054420": {
+      "label": {
+        "de": "Strahlender Schild",
+        "en": "Radiant shield",
+        "es": "Escudo radiante",
+        "fr": "Bouclier radieux",
+        "id": "Holy Shield",
+        "ja": "神聖な盾",
+        "ko-KR": "신성한 실드",
+        "pt-BR": "Escudo Radiante",
+        "th": "โล่ศักดิ์สิทธิ์",
+        "zh-CN": "神圣护盾",
+        "zh-TW": "神聖護盾"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Radiant Shield"
+      }
+    },
+    "factor_3054450": {
+      "label": {
+        "de": "Ultimative",
+        "en": "Ultimate",
+        "es": "Definitiva",
+        "fr": "Ultime",
+        "id": "Ultimate",
+        "ja": "究極スキル",
+        "ko-KR": "필살기",
+        "pt-BR": "Suprema",
+        "th": "Ultimate",
+        "zh-CN": "终极大招",
+        "zh-TW": "終極大招"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Ultimate"
+      }
+    },
+    "factor_3055380": {
+      "label": {
+        "de": "Steingestalt / Tapfere Bastion",
+        "en": "Stoneform / Brave Bastion",
+        "es": "Forma Rocosa / Bastión Valiente",
+        "fr": "Forme de pierre / Bastion du courage",
+        "id": "Giant Rock Body / Heroic Bulwark",
+        "ja": "巨岩躯体 / 勇壮砦壁",
+        "ko-KR": "거암의 신체 / 영웅의 방벽",
+        "pt-BR": "Forma de Pedra / Bastião Valente",
+        "th": "Stoneform / Brave Bastion",
+        "zh-CN": "巨岩躯体 / 勇者壁垒",
+        "zh-TW": "巨岩軀體 / 勇者壁壘"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Stoneform and Brave Bastion"
+      }
+    },
+    "factor_3056380": {
+      "label": {
+        "de": "Naturschutz",
+        "en": "Nature Ward",
+        "es": "Protección Natural",
+        "fr": "Protection de la nature",
+        "id": "Wild Seed",
+        "ja": "荒野の種",
+        "ko-KR": "야생의 씨앗",
+        "pt-BR": "Proteção da Natureza",
+        "th": "Wild Seed",
+        "zh-CN": "自然庇护",
+        "zh-TW": "自然庇護"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Nature Ward"
+      }
+    },
+    "factor_3056390": {
+      "label": {
+        "de": "Super-Rüstung",
+        "en": "Super Armor",
+        "es": "Superarmadura",
+        "fr": "Super armure",
+        "id": "Super Armor",
+        "ja": "剛体",
+        "ko-KR": "슈퍼 아머",
+        "pt-BR": "Superarmadura",
+        "th": "Tyrant Body",
+        "zh-CN": "霸体",
+        "zh-TW": "霸體"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Super Armor"
+      }
+    },
+    "factor_3056400": {
+      "label": {
+        "de": "Dorn",
+        "en": "Thorn",
+        "es": "Espina",
+        "fr": "Épine",
+        "id": "String Strike",
+        "ja": "ストロークビート",
+        "ko-KR": "스트링 슬랩",
+        "pt-BR": "Espinho",
+        "th": "String Strike",
+        "zh-CN": "荆棘",
+        "zh-TW": "荊棘"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Thorn"
+      }
+    },
+    "factor_3056410": {
+      "label": {
+        "de": "Flower Stalk",
+        "en": "Flower Stalk",
+        "es": "Flower Stalk",
+        "fr": "Flower Stalk",
+        "id": "Flower Stalk",
+        "ja": "Flower Stalk",
+        "ko-KR": "Flower Stalk",
+        "pt-BR": "Flower Stalk",
+        "th": "Flower Stalk",
+        "zh-CN": "Flower Stalk",
+        "zh-TW": "Flower Stalk"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Flower Stalk"
+      }
+    },
+    "factor_3056420": {
+      "label": {
+        "de": "Group Nourish once",
+        "en": "Group Nourish once",
+        "es": "Group Nourish once",
+        "fr": "Group Nourish once",
+        "id": "Group Nourish once",
+        "ja": "Group Nourish once",
+        "ko-KR": "Group Nourish once",
+        "pt-BR": "Group Nourish once",
+        "th": "Group Nourish once",
+        "zh-CN": "Group Nourish once",
+        "zh-TW": "Group Nourish once"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Group Nourish once"
+      }
+    },
+    "factor_3056430": {
+      "label": {
+        "de": "Hainwunsch",
+        "en": "Grove Wish",
+        "es": "Deseo Arbolado",
+        "fr": "Souhait du bosquet",
+        "id": "Accelerated Growth",
+        "ja": "ファストグロウス",
+        "ko-KR": "가속 성장",
+        "pt-BR": "Desejo do Bosque",
+        "th": "Fast Growth",
+        "zh-CN": "森之祈愿",
+        "zh-TW": "森之祈願"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Grove Wish"
+      }
+    },
+    "factor_3057400": {
+      "label": {
+        "de": "Zugabe",
+        "en": "Encore",
+        "es": "Bis",
+        "fr": "Rappel",
+        "id": "Blazing Heal",
+        "ja": "炎癒",
+        "ko-KR": "작염 치유",
+        "pt-BR": "Bis",
+        "th": "Blazing Heal",
+        "zh-CN": "安可",
+        "zh-TW": "安可"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Encore Strings once"
+      }
+    },
+    "factor_3060450": {
+      "label": {
+        "de": "Ultimative",
+        "en": "Ultimate",
+        "es": "Definitiva",
+        "fr": "Ultime",
+        "id": "Ultimate",
+        "ja": "究極スキル",
+        "ko-KR": "필살기",
+        "pt-BR": "Suprema",
+        "th": "Ultimate",
+        "zh-CN": "终极大招",
+        "zh-TW": "終極大招"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Ultimate"
+      }
+    },
+    "flame_berserker_x1": {
+      "label": {
+        "de": "Formloser Flammenhieb.",
+        "en": "Formless Flame Slash.",
+        "es": "Corte de Llama Amorfa",
+        "fr": "Taillade de flamme informe.",
+        "id": "Ultimate! Hunter Slash",
+        "ja": "絶技！ハントスラッシュ",
+        "ko-KR": "비기! 추격의 참격",
+        "pt-BR": "Corte de Chama Informe.",
+        "th": "Stunt! Predator Slash",
+        "zh-CN": "无相火斩",
+        "zh-TW": "無相火斬"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Formless Flame Slash"
+      }
+    },
+    "flame_berserker_x2": {
+      "label": {
+        "de": "Axtwind",
+        "en": "Axe Wind",
+        "es": "Viento de Hacha",
+        "fr": "Vent de hache",
+        "id": "Riverflow Slash",
+        "ja": "川流のごとき斬撃",
+        "ko-KR": "유수화참",
+        "pt-BR": "Vento de Machado",
+        "th": "ดั่งกระแสธารฟาดฟัน",
+        "zh-CN": "斧风",
+        "zh-TW": "斧風"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Axe Wind"
+      }
+    },
+    "flame_berserker_x3": {
+      "label": {
+        "de": "Formloser Flammenhieb.",
+        "en": "Formless Flame Slash.",
+        "es": "Corte de Llama Amorfa",
+        "fr": "Taillade de flamme informe.",
+        "id": "Ultimate! Hunter Slash",
+        "ja": "絶技！ハントスラッシュ",
+        "ko-KR": "비기! 추격의 참격",
+        "pt-BR": "Corte de Chama Informe.",
+        "th": "Stunt! Predator Slash",
+        "zh-CN": "无相火斩",
+        "zh-TW": "無相火斬"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Formless Flame Slash"
+      }
+    },
+    "flame_berserker_x4": {
+      "label": {
+        "de": "Großer Karmesin-Lotos",
+        "en": "Great Crimson Lotus",
+        "es": "Gran Loto Carmesí",
+        "fr": "Grand lotus pourpre",
+        "id": "Ultimate! Blink Strike",
+        "ja": "絶技！フラッシュレイド",
+        "ko-KR": "비기! 재빠른 기습",
+        "pt-BR": "Grande Lótus Carmesim",
+        "th": "Stunt! Blink Ambush",
+        "zh-CN": "大红莲丸",
+        "zh-TW": "大紅蓮丸"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Great Crimson Lotus"
+      }
+    },
+    "flame_berserker_x5": {
+      "label": {
+        "de": "Wildfeuertanz",
+        "en": "Wildfire Dance",
+        "es": "Danza de Fuego Salvaje",
+        "fr": "Danse du feu sauvage",
+        "id": "Riverflow Slash",
+        "ja": "川流のごとき斬撃",
+        "ko-KR": "유수화참",
+        "pt-BR": "Dança das Chamas",
+        "th": "ดั่งกระแสธารฟาดฟัน",
+        "zh-CN": "迷狂炎舞",
+        "zh-TW": "迷狂炎舞"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Wildfire Dance"
+      }
+    },
+    "frost_mage_s3_x6": {
+      "label": {
+        "de": "Permafrost",
+        "en": "Permafrost",
+        "es": "Hielo Eterno",
+        "fr": "Gelée éternelle",
+        "id": "Ice Infuse",
+        "ja": "パーマフロスト",
+        "ko-KR": "퍼마프로스트",
+        "pt-BR": "Geleterno",
+        "th": "Permafrost",
+        "zh-CN": "冰之灌注",
+        "zh-TW": "冰之灌注"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Permafrost"
+      }
+    },
+    "frost_mage_x1": {
+      "label": {
+        "de": "Permafrost",
+        "en": "Permafrost",
+        "es": "Hielo Eterno",
+        "fr": "Gelée éternelle",
+        "id": "Ice Infuse",
+        "ja": "パーマフロスト",
+        "ko-KR": "퍼마프로스트",
+        "pt-BR": "Geleterno",
+        "th": "Permafrost",
+        "zh-CN": "冰之灌注",
+        "zh-TW": "冰之灌注"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Permafrost"
+      }
+    },
+    "frost_mage_x2": {
+      "label": {
+        "de": "Schneesturm",
+        "en": "Blizzard",
+        "es": "Ventisca",
+        "fr": "Blizzard",
+        "id": "Ice Storm",
+        "ja": "ブリザード",
+        "ko-KR": "블리자드",
+        "pt-BR": "Nevasca",
+        "th": "Blizzard",
+        "zh-CN": "寒冰风暴",
+        "zh-TW": "寒冰風暴"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Blizzard"
+      }
+    },
+    "frost_mage_x3": {
+      "label": {
+        "de": "Kristallschleier",
+        "en": "Crystal Veil",
+        "es": "Velo de Cristal",
+        "fr": "Voile de cristal",
+        "id": "Cascade Beads",
+        "ja": "ウォータースフィア",
+        "ko-KR": "워터 볼",
+        "pt-BR": "Véu de Cristal",
+        "th": "Crystal Veil",
+        "zh-CN": "清滝绕珠",
+        "zh-TW": "清滝繞珠"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Crystal Veil"
+      }
+    },
+    "frost_mage_x4": {
+      "label": {
+        "de": "of Tidepool does not trigger CD",
+        "en": "of Tidepool does not trigger CD",
+        "es": "of Tidepool does not trigger CD",
+        "fr": "of Tidepool does not trigger CD",
+        "id": "of Tidepool does not trigger CD",
+        "ja": "of Tidepool does not trigger CD",
+        "ko-KR": "of Tidepool does not trigger CD",
+        "pt-BR": "of Tidepool does not trigger CD",
+        "th": "of Tidepool does not trigger CD",
+        "zh-CN": "of Tidepool does not trigger CD",
+        "zh-TW": "of Tidepool does not trigger CD"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "of Tidepool does not trigger CD"
+      }
+    },
+    "frost_mage_x5": {
+      "label": {
+        "de": "Frost",
+        "en": "Frost",
+        "es": "Escarcha",
+        "fr": "Givre",
+        "id": "Arctic",
+        "ja": "霜寒",
+        "ko-KR": "서리",
+        "pt-BR": "Gélido",
+        "th": "Frost",
+        "zh-CN": "寒霜",
+        "zh-TW": "寒霜"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Frost Crystal maximum"
+      }
+    },
+    "giant_blade_s3_x1": {
+      "label": {
+        "de": "the final shield value of the next shield applied",
+        "en": "the final shield value of the next shield applied",
+        "es": "the final shield value of the next shield applied",
+        "fr": "the final shield value of the next shield applied",
+        "id": "the final shield value of the next shield applied",
+        "ja": "the final shield value of the next shield applied",
+        "ko-KR": "the final shield value of the next shield applied",
+        "pt-BR": "the final shield value of the next shield applied",
+        "th": "the final shield value of the next shield applied",
+        "zh-CN": "the final shield value of the next shield applied",
+        "zh-TW": "the final shield value of the next shield applied"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "the final shield value of the next shield applied"
+      }
+    },
+    "giant_blade_s3_x2": {
+      "label": {
+        "de": "Erdentzweiung",
+        "en": "Terra Sunder",
+        "es": "Desgarro Terrestre",
+        "fr": "Déchirure de la terre",
+        "id": "Terra Sunder",
+        "ja": "地崩の山摧",
+        "ko-KR": "대지 붕괴",
+        "pt-BR": "Rasgo Terra",
+        "th": "Terra Sunder",
+        "zh-CN": "地崩山摧",
+        "zh-TW": "地崩山摧"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Terra Sunder"
+      }
+    },
+    "giant_blade_s3_x4": {
+      "label": {
+        "de": "Max. LP",
+        "en": "Max HP",
+        "es": "PS máximos",
+        "fr": "PV max",
+        "id": "Max HP",
+        "ja": "最大HP",
+        "ko-KR": "최대 HP",
+        "pt-BR": "PV Máx.",
+        "th": "Max HP",
+        "zh-CN": "生命上限",
+        "zh-TW": "生命上限"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Max HP"
+      }
+    },
+    "giant_blade_s3_x5": {
+      "label": {
+        "de": "Konterzermalmer",
+        "en": "Countercrush",
+        "es": "Contrachoque",
+        "fr": "Contre-écrasement",
+        "id": "Block Impact",
+        "ja": "護刃の衝撃",
+        "ko-KR": "블로킹 스트라이크",
+        "pt-BR": "Bloqueio Esmagador",
+        "th": "Countercrush",
+        "zh-CN": "格挡冲击",
+        "zh-TW": "格擋衝擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Countercrush"
+      }
+    },
+    "giant_blade_s3_x6": {
+      "label": {
+        "de": "Block DMG Reduction is decreased by / Class Skills",
+        "en": "Block DMG Reduction is decreased by / Class Skills",
+        "es": "Block DMG Reduction is decreased by / Class Skills",
+        "fr": "Block DMG Reduction is decreased by / Class Skills",
+        "id": "Block DMG Reduction is decreased by / Class Skills",
+        "ja": "Block DMG Reduction is decreased by / Class Skills",
+        "ko-KR": "Block DMG Reduction is decreased by / Class Skills",
+        "pt-BR": "Block DMG Reduction is decreased by / Class Skills",
+        "th": "Block DMG Reduction is decreased by / Class Skills",
+        "zh-CN": "Block DMG Reduction is decreased by / Class Skills",
+        "zh-TW": "Block DMG Reduction is decreased by / Class Skills"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Block DMG Reduction is decreased by and Class Skills"
+      }
+    },
+    "holy_shield_s3_x2": {
+      "label": {
+        "de": "the next Divine Circle's AoE",
+        "en": "the next Divine Circle's AoE",
+        "es": "the next Divine Circle's AoE",
+        "fr": "the next Divine Circle's AoE",
+        "id": "the next Divine Circle's AoE",
+        "ja": "the next Divine Circle's AoE",
+        "ko-KR": "the next Divine Circle's AoE",
+        "pt-BR": "the next Divine Circle's AoE",
+        "th": "the next Divine Circle's AoE",
+        "zh-CN": "the next Divine Circle's AoE",
+        "zh-TW": "the next Divine Circle's AoE"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "the next Divine Circle's AoE"
+      }
+    },
+    "holy_shield_s3_x4": {
+      "label": {
+        "de": "Illusionsbrechungs-SCH",
+        "en": "Illusion DMG",
+        "es": "Daño rompeilusiones",
+        "fr": "DGT brise-illusion",
+        "id": "Sanity DMG",
+        "ja": "滅妄ダメージ",
+        "ko-KR": "파망 대미지",
+        "pt-BR": "Dano Quebra-Ilusão",
+        "th": "Illusion-Breaking DMG",
+        "zh-CN": "破妄伤害",
+        "zh-TW": "破妄傷害"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Illusion DMG"
+      }
+    },
+    "holy_shield_s3_x5": {
+      "label": {
+        "de": "Heilige Klinge",
+        "en": "Sacred Blade",
+        "es": "Hoja Sagrada",
+        "fr": "Lame sacrée",
+        "id": "Holylight Guard",
+        "ja": "ホーリーガード",
+        "ko-KR": "라이트 프로텍션",
+        "pt-BR": "Lâmina Sagrada",
+        "th": "Aegis Ward",
+        "zh-CN": "圣剑",
+        "zh-TW": "聖劍"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Sacred Blade"
+      }
+    },
+    "marksman_s3_x3": {
+      "label": {
+        "de": "Sturmpfeil",
+        "en": "Storm Arrow",
+        "es": "Flecha Tormenta",
+        "fr": "Flèche de tempête",
+        "id": "Storm Arrow",
+        "ja": "ハウリングボルト",
+        "ko-KR": "스톰 애로우",
+        "pt-BR": "Flecha da Tempestade",
+        "th": "Storm Arrow",
+        "zh-CN": "暴风箭矢",
+        "zh-TW": "暴風箭矢"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Storm Arrow"
+      }
+    },
+    "marksman_x1": {
+      "label": {
+        "de": "Wilder Wolf – Anspringen",
+        "en": "Wild Wolf - Pounce",
+        "es": "Lobo Salvaje: Embestida",
+        "fr": "Loup sauvage - Bond",
+        "id": "Wildwolf Pounce",
+        "ja": "臣狼アサルト",
+        "ko-KR": "늑대 돌진",
+        "pt-BR": "Lobo Selvagem – Bote",
+        "th": "Wild Wolf Pounce",
+        "zh-CN": "野狼飞扑",
+        "zh-TW": "野狼飛撲"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Wild Wolf"
+      }
+    },
+    "marksman_x2": {
+      "label": {
+        "de": "of Arrow Rain restores all Photon Energy",
+        "en": "of Arrow Rain restores all Photon Energy",
+        "es": "of Arrow Rain restores all Photon Energy",
+        "fr": "of Arrow Rain restores all Photon Energy",
+        "id": "of Arrow Rain restores all Photon Energy",
+        "ja": "of Arrow Rain restores all Photon Energy",
+        "ko-KR": "of Arrow Rain restores all Photon Energy",
+        "pt-BR": "of Arrow Rain restores all Photon Energy",
+        "th": "of Arrow Rain restores all Photon Energy",
+        "zh-CN": "of Arrow Rain restores all Photon Energy",
+        "zh-TW": "of Arrow Rain restores all Photon Energy"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "of Arrow Rain restores all Photon Energy"
+      }
+    },
+    "marksman_x4": {
+      "label": {
+        "de": "Kraftzug",
+        "en": "Powerdraw",
+        "es": "Tiro Potente",
+        "fr": "Tension maximale",
+        "id": "Charged Shot",
+        "ja": "チャージショット",
+        "ko-KR": "차지 샷",
+        "pt-BR": "Disparo Potente",
+        "th": "Powerdraw",
+        "zh-CN": "聚能射击",
+        "zh-TW": "聚能射擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Powerdraw"
+      }
+    },
+    "marksman_x5": {
+      "label": {
+        "de": "Falkenwurf",
+        "en": "Falcon Toss",
+        "es": "Impulso de Halcón",
+        "fr": "Lancer de faucon",
+        "id": "Falcon Toss",
+        "ja": "飛鳥投",
+        "ko-KR": "팔콘 토스",
+        "pt-BR": "Arremesso do Falcão",
+        "th": "Falcon Toss",
+        "zh-CN": "飞鸟投",
+        "zh-TW": "飛鳥投"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Falcon"
+      }
+    },
+    "marksman_x6": {
+      "label": {
+        "de": "Himmlischer Adler",
+        "en": "Celestial Eagle",
+        "es": "Águila celestial",
+        "fr": "Aigle céleste",
+        "id": "Celestial Eagle",
+        "ja": "天界の臣鷹",
+        "ko-KR": "천공의 매",
+        "pt-BR": "Águia Celestial",
+        "th": "Celestial Eagle",
+        "zh-CN": "天界雄鹰",
+        "zh-TW": "天界雄鷹"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Celestial Eagle"
+      }
+    },
+    "stormablade_s3_x3": {
+      "label": {
+        "de": "the next Ultimate",
+        "en": "the next Ultimate",
+        "es": "the next Ultimate",
+        "fr": "the next Ultimate",
+        "id": "the next Ultimate",
+        "ja": "the next Ultimate",
+        "ko-KR": "the next Ultimate",
+        "pt-BR": "the next Ultimate",
+        "th": "the next Ultimate",
+        "zh-CN": "the next Ultimate",
+        "zh-TW": "the next Ultimate"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "the next Ultimate"
+      }
+    },
+    "stormablade_s3_x5": {
+      "label": {
+        "de": "Glückstreffer",
+        "en": "Lucky Strike",
+        "es": "Golpe de suerte",
+        "fr": "Frappe chanceuse",
+        "id": "Lucky Hit",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
+        "pt-BR": "Golpe de Sorte",
+        "th": "Lucky Strike",
+        "zh-CN": "幸运一击",
+        "zh-TW": "幸運一擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Lucky Strike Multiplier"
+      }
+    },
+    "stormablade_s3_x6": {
+      "label": {
+        "de": "Sturmsense",
+        "en": "Storm Scythe",
+        "es": "Guadaña Tormenta",
+        "fr": "Faux de la tempête",
+        "id": "Scythe of Thunder",
+        "ja": "雷霆鎌",
+        "ko-KR": "뇌전의 낫",
+        "pt-BR": "Foice da Tempestade",
+        "th": "Storm Scythe",
+        "zh-CN": "雷霆之镰",
+        "zh-TW": "雷霆之鐮"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Storm Scythe"
+      }
+    },
+    "stormablade_x1": {
+      "label": {
+        "de": "Iaido-Hieb",
+        "en": "Iaido Slash",
+        "es": "Corte de Iaido",
+        "fr": "Taillade iaido",
+        "id": "Quick Draw Slash",
+        "ja": "雷刃抜刀",
+        "ko-KR": "발도",
+        "pt-BR": "Corte de Iaido",
+        "th": "Iaido Slash",
+        "zh-CN": "居合斩",
+        "zh-TW": "居合斬"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Iaido Slash"
+      }
+    },
+    "stormablade_x2": {
+      "label": {
+        "de": "Donnersiegel-Amulett",
+        "en": "Thunder Sigil Charm",
+        "es": "Amuleto de sello del trueno",
+        "fr": "Talisman du Sceau de foudre",
+        "id": "Thunderbolt Sigil",
+        "ja": "霹靂",
+        "ko-KR": "벽력의 인장",
+        "pt-BR": "Amuleto do Símbolo do Trovão",
+        "th": "ตราประทับสายฟ้า",
+        "zh-CN": "霹雳符印",
+        "zh-TW": "霹靂符印"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Thunder Sigil"
+      }
+    },
+    "wind_knight_s3_x2": {
+      "label": {
+        "de": "Drachenkanone",
+        "en": "Drake Cannon",
+        "es": "Cañón Dragontino",
+        "fr": "Canon draconique",
+        "id": "Dragon Blast",
+        "ja": "龍撃陣",
+        "ko-KR": "용격포",
+        "pt-BR": "Canhão Draco",
+        "th": "Drake Cannon",
+        "zh-CN": "龙击炮",
+        "zh-TW": "龍擊炮"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Drake Cannon"
+      }
+    },
+    "wind_knight_x4": {
+      "label": {
+        "de": "Spezialangriff",
+        "en": "Special Attack",
+        "es": "Ataque especial",
+        "fr": "Attaque spéciale",
+        "id": "Special Attack DMG Blessing",
+        "ja": "特攻ダメージ強化",
+        "ko-KR": "특수 공격 대미지 강화",
+        "pt-BR": "Ataque Especial",
+        "th": "Special Attack",
+        "zh-CN": "特攻伤害加持",
+        "zh-TW": "特攻傷害加持"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Special Attack Crit"
+      }
+    },
+    "wind_knight_x5": {
+      "label": {
+        "de": "Sofortiger Vorteil / Schriller Aufprall",
+        "en": "Instant Edge / Sharp Impact",
+        "es": "Filo Instantáneo / Impacto Afilado",
+        "fr": "Lame instantanée / Impact tranchant",
+        "id": "Instant / Sharp Impact",
+        "ja": "刹那 / 鋭利衝",
+        "ko-KR": "찰나 / 예리한 찌르기",
+        "pt-BR": "Gume Instantâneo / Impacto Afiado",
+        "th": "Instant Edge / Sharp Impact",
+        "zh-CN": "刹那 / 锐利冲击",
+        "zh-TW": "刹那 / 銳利衝擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Instant Edge or Sharp Impact during Chasing Step"
+      }
+    }
+  }
+}

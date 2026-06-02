@@ -23,9 +23,11 @@ export type ModifierFormulaReplayStatus =
 
 export type ModifierSourceActor = {
   uid: number;
+  uuid?: number | null;
   name: string;
   entityType?: string;
   ownerUid?: number | null;
+  ownerUuid?: number | null;
   ownerName?: string | null;
   sourceConfigIds?: number[];
   baseIds?: number[];
@@ -33,9 +35,13 @@ export type ModifierSourceActor = {
 
 export type ModifierActorSummary = {
   hostUids: number[];
+  hostUuids: number[];
   sourceUids: number[];
+  sourceUuids: number[];
   externalSourceUids: number[];
+  externalSourceUuids: number[];
   selfSourceUids: number[];
+  selfSourceUuids: number[];
   sourceActors: ModifierSourceActor[];
   externalSourceActors: ModifierSourceActor[];
   selfSourceActors: ModifierSourceActor[];

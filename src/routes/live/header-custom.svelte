@@ -177,8 +177,8 @@
         return t("header.training.ready", "Training Dummy Ready");
       case "running":
         return t("header.training.active", "Training Dummy Active");
-      case "pendingRollover":
-        return t("header.training.waitSegment", "Awaiting Split");
+      case "finished":
+        return t("header.training.finished", "Segment Finished");
       default:
         return "";
     }
@@ -191,7 +191,7 @@
       if (isTrainingDummyActive) {
         await stopTrainingDummy();
       } else {
-        await startTrainingDummy(trainingDummySettings.defaultMonsterId);
+        await startTrainingDummy();
       }
     } finally {
       trainingDummyBusy = false;

@@ -162,7 +162,13 @@
       return resolveActiveEffectDetailName(skill.activeEffects, skill.activeFactors, language);
     }
     return skill.details
-      ? resolveSkillBreakdownDetailName(skill, language)
+      ? resolveSkillBreakdownDetailName(skill, language, {
+          baseSkillLabel: resolveNavigationTranslation(
+            "detail.skillBreakdown.baseSkill",
+            language,
+            "Base skill",
+          ),
+        })
       : resolveActiveEffectDetailName(skill.activeEffects, skill.activeFactors, language);
   }
 
@@ -234,6 +240,8 @@
         critDmgRate: group.critDmgRate,
         luckyRate: group.luckyRate,
         luckyDmgRate: group.luckyDmgRate,
+        blockRate: group.blockRate,
+        luckyBlockRate: group.luckyBlockRate,
         hits: group.hits,
         hitsPerMinute: group.hitsPerMinute,
         property: group.property,
@@ -254,6 +262,9 @@
           critTotalValue: group.raw.critTotalValue,
           luckyHits: group.raw.luckyHits,
           luckyTotalValue: group.raw.luckyTotalValue,
+          triggerHits: group.raw.triggerHits ?? 0,
+          blockHits: group.raw.blockHits ?? 0,
+          luckyBlockHits: group.raw.luckyBlockHits ?? 0,
           property: group.raw.property ?? null,
           damageMode: group.raw.damageMode ?? null,
         },

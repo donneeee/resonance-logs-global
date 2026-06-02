@@ -83,5 +83,12 @@
   "gpuChecking": "Checking GPU availability...",
   "gpuDisabledDescription": "GPU-accelerated calculations are disabled.",
   "gpuEnabledDescription": "GPU-accelerated calculations are enabled.",
-  "requiresAtLeastModules": "Requires at least {count} modules"
+  "requiresAtLeastModules": "Requires at least {count} modules",
+  "gpuCheckUnavailable": "GPU の使用可否を確認できません。",
+  "gpuCheckDeferred": "GPU チェックは手動です。",
+  "gpuDeferredDescription": "「GPU をチェック」でドライバーの使用可否を確認します。",
+  "gpuRecheck": "GPU をチェック",
+  "checkingModuleData": "モジュールデータを確認中...",
+  "moduleDataUnavailable": "モジュールデータはまだ同期されていません。モジュールを持つキャラクターでゲームを開いてから、データを更新してください。",
+  "calculationTimedOut": "計算がタイムアウトしました。フィルターを減らすか CPU モードにしてから、もう一度開始してください。"
 }

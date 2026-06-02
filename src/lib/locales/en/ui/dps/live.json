@@ -222,6 +222,7 @@
   "header.training.disableMode": "Disable Training Dummy Mode",
   "header.training.enableMode": "Enable Training Dummy Mode",
   "header.training.ready": "Training Dummy Ready",
+  "header.training.finished": "Segment Finished",
   "header.training.waitSegment": "Awaiting Split",
   "historyDetail.classIcon": "Class Icon",
   "historyDetail.player": "Player",
@@ -231,5 +232,17 @@
   "live.resetToast": "Encounter reset",
   "live.resumeToast": "Encounter resumed",
   "live.unknownClass": "Unknown Class",
-  "table.skill": "Skill"
+  "table.skill": "Skill",
+  "columns.liveTankedPlayers.blockRate.description": "Show the chance that incoming hits were blocked",
+  "columns.liveTankedPlayers.blockRate.header": "Block %",
+  "columns.liveTankedPlayers.blockRate.label": "Block %",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "Show the chance that incoming hits triggered lucky block",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "Lucky Block %",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "Lucky Block %",
+  "columns.liveTankedSkills.blockRate.description": "Show the chance that this incoming skill was blocked",
+  "columns.liveTankedSkills.blockRate.header": "Block %",
+  "columns.liveTankedSkills.blockRate.label": "Block %",
+  "columns.liveTankedSkills.luckyBlockRate.description": "Show the chance that this incoming skill triggered lucky block",
+  "columns.liveTankedSkills.luckyBlockRate.header": "Lucky Block %",
+  "columns.liveTankedSkills.luckyBlockRate.label": "Lucky Block %"
 }

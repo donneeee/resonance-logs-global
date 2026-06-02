@@ -1,7 +1,7 @@
 use crate::live::commands_models::{
     BossHealth, BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceState, HateEntry,
     HeaderInfo, LiveDataPayload, PanelAttrState, RawEntityData, ShieldDetailEntry, SkillCdState,
-    TrainingDummyState, to_active_buff_state, to_active_effect_buff_state,
+    TrainingDummyState, build_taken_per_source, to_active_buff_state, to_active_effect_buff_state,
     to_active_effect_source_state, to_active_factor_buff_state, to_active_factor_item_state,
     to_active_passive_skill_state, to_active_profession_skill_state,
     to_active_profession_talent_state, to_modifier_window_state, to_raw_combat_stats,
@@ -9,6 +9,9 @@ use crate::live::commands_models::{
 };
 use crate::live::entity_attr_store::EntityAttrStore;
 use crate::live::opcodes_models::{AttrType, Encounter, class};
+use crate::live::season_cultivate::{
+    SeasonCultivateActiveSnapshot, SeasonCultivateFactorSelection,
+};
 use blueprotobuf_lib::blueprotobuf::EEntityType;
 use log::{trace, warn};
 use serde::{Deserialize, Serialize};
@@ -115,16 +118,22 @@ pub enum OutboundEvent {
     TrainingDummyUpdate(TrainingDummyState),
     LiveData(LiveDataPayload),
     BuffUpdate(Vec<BuffUpdateState>),
-    BossBuffUpdate(HashMap<i64, Vec<BuffUpdateState>>),
-    HateListUpdate(HashMap<i64, Vec<HateEntry>>),
+    BossBuffUpdate(HashMap<String, Vec<BuffUpdateState>>),
+    TeammateBuffUpdate(HashMap<String, Vec<BuffUpdateState>>),
+    HateListUpdate(HashMap<String, Vec<HateEntry>>),
     EntityNameMap {
         names: HashMap<i64, String>,
     },
     EntityIdentityMap {
-        player_names: HashMap<i64, String>,
-        monster_ids: HashMap<i64, i32>,
+        player_names: HashMap<String, String>,
+        monster_ids: HashMap<String, i32>,
     },
     BuffCounterUpdate(Vec<CounterUpdateState>),
+    SeasonCultivateFactorCounterUpdate {
+        selection: SeasonCultivateFactorSelection,
+        snapshot: SeasonCultivateActiveSnapshot,
+        counters: Vec<CounterUpdateState>,
+    },
     SkillCdUpdate(Vec<SkillCdState>),
     PanelAttrUpdate(Vec<PanelAttrState>),
     FightResourceUpdate(FightResourceState),
@@ -206,12 +215,20 @@ impl EventManager {
         self.outbound_events.push(OutboundEvent::BuffUpdate(buffs));
     }
 
-    pub fn emit_boss_buff_update(&mut self, boss_buffs: HashMap<i64, Vec<BuffUpdateState>>) {
+    pub fn emit_boss_buff_update(&mut self, boss_buffs: HashMap<String, Vec<BuffUpdateState>>) {
         self.outbound_events
             .push(OutboundEvent::BossBuffUpdate(boss_buffs));
     }
 
-    pub fn emit_hate_list_update(&mut self, hate_lists: HashMap<i64, Vec<HateEntry>>) {
+    pub fn emit_teammate_buff_update(
+        &mut self,
+        teammate_buffs: HashMap<String, Vec<BuffUpdateState>>,
+    ) {
+        self.outbound_events
+            .push(OutboundEvent::TeammateBuffUpdate(teammate_buffs));
+    }
+
+    pub fn emit_hate_list_update(&mut self, hate_lists: HashMap<String, Vec<HateEntry>>) {
         self.outbound_events
             .push(OutboundEvent::HateListUpdate(hate_lists));
     }
@@ -223,8 +240,8 @@ impl EventManager {
 
     pub fn emit_entity_identity_map(
         &mut self,
-        player_names: HashMap<i64, String>,
-        monster_ids: HashMap<i64, i32>,
+        player_names: HashMap<String, String>,
+        monster_ids: HashMap<String, i32>,
     ) {
         self.outbound_events.push(OutboundEvent::EntityIdentityMap {
             player_names,
@@ -235,6 +252,20 @@ impl EventManager {
     pub fn emit_buff_counter_update(&mut self, counters: Vec<CounterUpdateState>) {
         self.outbound_events
             .push(OutboundEvent::BuffCounterUpdate(counters));
+    }
+
+    pub fn emit_season_cultivate_factor_counter_update(
+        &mut self,
+        selection: SeasonCultivateFactorSelection,
+        snapshot: SeasonCultivateActiveSnapshot,
+        counters: Vec<CounterUpdateState>,
+    ) {
+        self.outbound_events
+            .push(OutboundEvent::SeasonCultivateFactorCounterUpdate {
+                selection,
+                snapshot,
+                counters,
+            });
     }
 
     pub fn emit_skill_cd_update(&mut self, cds: Vec<SkillCdState>) {
@@ -408,8 +439,9 @@ pub fn generate_live_data_payload(
         .saturating_sub(encounter.time_fight_start_ms);
     let active_combat_time_ms = encounter.active_combat_time_ms.min(elapsed_ms);
 
-    let mut entities = Vec::with_capacity(encounter.entity_uid_to_entity.len());
-    for (&uid, entity) in &encounter.entity_uid_to_entity {
+    let entity_entries = encounter.entity_uid_entries();
+    let mut entities = Vec::with_capacity(entity_entries.len());
+    for (uid, entity) in entity_entries {
         if entity.entity_type != EEntityType::EntChar {
             continue;
         }
@@ -421,6 +453,7 @@ pub fn generate_live_data_payload(
 
         entities.push(RawEntityData {
             uid,
+            uuid: entity.uuid,
             name: attr_store
                 .attr(uid, AttrType::Name)
                 .and_then(|value| value.as_string())
@@ -469,6 +502,7 @@ pub fn generate_live_data_payload(
                 .iter()
                 .map(|(skill_id, stats)| (*skill_id, to_raw_skill_stats(stats)))
                 .collect(),
+            taken_per_source: build_taken_per_source(&entity.skill_taken_from_source),
             active_buffs: entity
                 .active_buffs
                 .iter()
@@ -526,9 +560,9 @@ pub fn generate_live_data_payload(
     }
 
     let bosses: Vec<BossHealth> = encounter
-        .entity_uid_to_entity
-        .iter()
-        .filter_map(|(&uid, entity)| {
+        .entity_uid_entries()
+        .into_iter()
+        .filter_map(|(uid, entity)| {
             if !entity.is_boss_metric_target() {
                 return None;
             }

@@ -50,5 +50,9 @@
   "update.downloadGithub": "GitHub からダウンロード",
   "update.emptyNotes": "このバージョンのリリースノートはありません。",
   "update.title": "新しいバージョンがあります",
-  "update.versionLine": "現在のバージョン v{currentVersion}、最新バージョン v{latestVersion}"
+  "update.versionLine": "現在のバージョン v{currentVersion}、最新バージョン v{latestVersion}",
+  "settings.appBehavior": "アプリの動作",
+  "settings.appBehavior.subtitle": "個別のオーバーレイやメーター表示に紐づかない、アプリ全体の動作を制御します。",
+  "settings.hideMainWindowToTray": "メインウィンドウをトレイに隠す",
+  "settings.hideMainWindowToTrayDescription": "有効にすると、メインウィンドウを閉じても終了せずトレイに隠します。復元するにはトレイアイコンを使用し、完全に終了するには終了を選択します。"
 }

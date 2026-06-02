@@ -50,6 +50,7 @@ export type SkillDurationDisplay = {
 export type TextBuffRowDisplay = {
   key: string;
   label: string;
+  prefixText?: string | undefined;
   valueText: string;
   metaText?: string | undefined;
   progressPercent: number;

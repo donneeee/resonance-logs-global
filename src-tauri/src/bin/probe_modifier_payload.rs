@@ -363,9 +363,11 @@ fn build_modifier_source_actor_refs(
         let actor = actors.entry(bucket.modifier_source_uid).or_insert_with(|| {
             lc::ModifierSourceActorState {
                 uid: bucket.modifier_source_uid,
+                uuid: bucket.modifier_source_uuid,
                 name: source_actor_display_name(bucket.modifier_source_uid, source_entity),
                 entity_type: source_actor_entity_type(source_entity),
                 owner_uid: owner_hint.as_ref().map(|(owner_uid, _)| *owner_uid),
+                owner_uuid: None,
                 owner_name: owner_hint
                     .as_ref()
                     .map(|(_, owner_name)| owner_name.clone()),
@@ -401,6 +403,7 @@ fn build_report_entity(
 ) -> lc::HistoryEntityData {
     lc::HistoryEntityData {
         uid,
+        uuid: entity.uuid,
         name: entity.name.clone(),
         class_id: entity.class_id,
         class_spec: entity.class_spec as i32,
@@ -419,6 +422,7 @@ fn build_report_entity(
             .collect(),
         heal_skills: HashMap::new(),
         taken_skills: HashMap::new(),
+        taken_per_source: Vec::new(),
         active_buffs: entity
             .active_buffs
             .iter()

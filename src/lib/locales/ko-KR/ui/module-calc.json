@@ -83,5 +83,12 @@
   "gpuChecking": "Checking GPU availability...",
   "gpuDisabledDescription": "GPU-accelerated calculations are disabled.",
   "gpuEnabledDescription": "GPU-accelerated calculations are enabled.",
-  "requiresAtLeastModules": "Requires at least {count} modules"
+  "requiresAtLeastModules": "Requires at least {count} modules",
+  "gpuCheckUnavailable": "GPU 사용 가능 여부를 확인할 수 없습니다.",
+  "gpuCheckDeferred": "GPU 확인은 수동입니다.",
+  "gpuDeferredDescription": "GPU 확인으로 드라이버 사용 가능 여부를 확인하세요.",
+  "gpuRecheck": "GPU 확인",
+  "checkingModuleData": "모듈 데이터를 확인 중...",
+  "moduleDataUnavailable": "모듈 데이터가 아직 동기화되지 않았습니다. 모듈이 있는 캐릭터로 게임을 연 뒤 데이터를 새로고침하세요.",
+  "calculationTimedOut": "계산 시간이 초과되었습니다. 필터를 줄이거나 CPU 모드로 전환한 뒤 다시 시작하세요."
 }

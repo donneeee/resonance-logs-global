@@ -24,6 +24,8 @@ export const DEFAULT_STATS = {
   critDmgRate: true,
   luckyRate: false,
   luckyDmgRate: false,
+  blockRate: false,
+  luckyBlockRate: false,
   hits: false,
   hitsPerMinute: false,
   property: true,
@@ -43,6 +45,8 @@ export const DEFAULT_HISTORY_STATS = {
   critDmgRate: false,
   luckyRate: false,
   luckyDmgRate: false,
+  blockRate: false,
+  luckyBlockRate: false,
   hits: false,
   hitsPerMinute: false,
   property: true,
@@ -62,6 +66,8 @@ export const DEFAULT_HISTORY_TANKED_STATS = {
   critDmgRate: false,
   luckyRate: false,
   luckyDmgRate: false,
+  blockRate: false,
+  luckyBlockRate: false,
   hitsTaken: false,
   hitsPerMinute: false,
 };
@@ -85,8 +91,8 @@ export const DEFAULT_DPS_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'tdps', 'boss
 export const DEFAULT_DPS_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_HEAL_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'effectiveTotal', 'effectiveDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_HEAL_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'effectiveTotal', 'effectiveDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
-export const DEFAULT_TANKED_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
-export const DEFAULT_TANKED_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute', 'property', 'damageMode'];
+export const DEFAULT_TANKED_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'blockRate', 'luckyBlockRate', 'hits', 'hitsPerMinute'];
+export const DEFAULT_TANKED_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'blockRate', 'luckyBlockRate', 'hits', 'hitsPerMinute', 'property', 'damageMode'];
 
 // Default sort settings for live tables
 export const DEFAULT_LIVE_SORT_SETTINGS = {
@@ -356,12 +362,20 @@ export type CustomPanelStyle = {
 
 export type MonsterOverlayPositions = {
   monsterBuffPanel: Point;
+  teammateBuffPanel: Point;
   hatePanel: Point;
 };
 
 export type MonsterOverlaySizes = {
   monsterBuffPanelScale: number;
+  teammateBuffPanelScale: number;
   hatePanelScale: number;
+};
+
+export type MonsterOverlayVisibility = {
+  showMonsterBuffPanel: boolean;
+  showTeammateBuffPanel: boolean;
+  showHatePanel: boolean;
 };
 
 export type BuffAlertRule = {
@@ -380,12 +394,16 @@ export type MonsterMonitorConfig = {
   hateListMaxDisplay: number;
   monitoredBuffIds: number[];
   selfAppliedBuffIds: number[];
+  teammateBuffIds: number[];
+  teammateBuffCategories?: BuffCategoryKey[];
   buffPriorityIds: number[];
   buffAliases: BuffAliasMap;
   buffAlerts: BuffAlertMap;
   overlayPositions: MonsterOverlayPositions;
   overlaySizes: MonsterOverlaySizes;
+  overlayVisibility: MonsterOverlayVisibility;
   panelStyle: CustomPanelStyle;
+  teammatePanelStyle: CustomPanelStyle;
   hatePanelStyle: CustomPanelStyle;
 };
 
@@ -433,6 +451,7 @@ export type InlineBuffEntry = {
   sourceType: "buff" | "counter";
   sourceId: number;
   counterSlotId?: number;
+  counterDisplayMode?: "factor";
   label: string;
   format: InlineBuffFormat;
 };
@@ -446,9 +465,12 @@ export type UserCounterRule = {
 
 export type PanelAreaRowRef = { type: "attr"; attrId: number };
 
+export type CustomPanelGroupKind = "manual" | "seasonCultivateFactor";
+
 export type CustomPanelGroup = {
   id: string;
   name: string;
+  kind: CustomPanelGroupKind;
   entries: InlineBuffEntry[];
   position: Point;
   scale: number;
@@ -505,6 +527,7 @@ export type SkillMonitorProfile = {
   individualMonitorAllGroup?: BuffGroup | null;
   userCounterRules?: UserCounterRule[];
   customPanelGroups?: CustomPanelGroup[];
+  factorSlotLabels?: Record<string, string>;
   inlineBuffEntries?: InlineBuffEntry[];
   panelAreaRowOrder?: PanelAreaRowRef[];
   /** @deprecated Legacy shared style, kept only for migrating old custom panel groups. */
@@ -649,6 +672,7 @@ export function createDefaultCustomPanelStyle(): CustomPanelStyle {
 function createDefaultMonsterOverlayPositions(): MonsterOverlayPositions {
   return {
     monsterBuffPanel: { x: 40, y: 40 },
+    teammateBuffPanel: { x: 420, y: 40 },
     hatePanel: { x: 40, y: 300 },
   };
 }
@@ -656,7 +680,16 @@ function createDefaultMonsterOverlayPositions(): MonsterOverlayPositions {
 function createDefaultMonsterOverlaySizes(): MonsterOverlaySizes {
   return {
     monsterBuffPanelScale: 1,
+    teammateBuffPanelScale: 1,
     hatePanelScale: 1,
+  };
+}
+
+function createDefaultMonsterOverlayVisibility(): MonsterOverlayVisibility {
+  return {
+    showMonsterBuffPanel: true,
+    showTeammateBuffPanel: true,
+    showHatePanel: true,
   };
 }
 
@@ -714,10 +747,12 @@ export function createDefaultBuffGroup(name = "新分组", index = 1): BuffGroup
 export function createDefaultCustomPanelGroup(
   name = "监控区 1",
   index = 1,
+  kind: CustomPanelGroupKind = "manual",
 ): CustomPanelGroup {
   return {
     id: `custom_panel_group_${Date.now()}_${index}`,
     name,
+    kind,
     entries: [],
     position: { x: 700 + (index - 1) * 40, y: 280 + (index - 1) * 40 },
     scale: 1,
@@ -791,6 +826,7 @@ export function createDefaultSkillMonitorProfile(
     individualMonitorAllGroup: null,
     userCounterRules: [],
     customPanelGroups: [],
+    factorSlotLabels: {},
     inlineBuffEntries: [],
     panelAreaRowOrder: [],
     customPanelStyle: createDefaultCustomPanelStyle(),
@@ -898,12 +934,16 @@ export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
     hateListMaxDisplay: 5,
     monitoredBuffIds: [],
     selfAppliedBuffIds: [],
+    teammateBuffIds: [],
+    teammateBuffCategories: [],
     buffPriorityIds: [],
     buffAliases: {},
     buffAlerts: {},
     overlayPositions: createDefaultMonsterOverlayPositions(),
     overlaySizes: createDefaultMonsterOverlaySizes(),
+    overlayVisibility: createDefaultMonsterOverlayVisibility(),
     panelStyle: createDefaultCustomPanelStyle(),
+    teammatePanelStyle: createDefaultCustomPanelStyle(),
     hatePanelStyle: createDefaultCustomPanelStyle(),
   };
 }
@@ -1346,7 +1386,6 @@ const DEFAULT_SETTINGS = {
   },
   monsterMonitor: createDefaultMonsterMonitorConfig(),
   trainingDummy: {
-    defaultMonsterId: 122 as 115 | 122,
     showHeaderControl: true,
   },
   appBehavior: {

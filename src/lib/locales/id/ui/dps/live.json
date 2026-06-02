@@ -222,6 +222,7 @@
   "header.training.disableMode": "Nonaktifkan Mode Training Dummy",
   "header.training.enableMode": "Aktifkan Mode Training Dummy",
   "header.training.ready": "Training Dummy Siap",
+  "header.training.finished": "Segmen selesai",
   "header.training.waitSegment": "Menunggu Split",
   "historyDetail.classIcon": "Ikon Class",
   "historyDetail.player": "Pemain",
@@ -231,5 +232,17 @@
   "live.resetToast": "Encounter direset",
   "live.resumeToast": "Encounter dilanjutkan",
   "live.unknownClass": "Class Tidak Dikenal",
-  "table.skill": "Skill"
+  "table.skill": "Skill",
+  "columns.liveTankedPlayers.blockRate.description": "Menampilkan peluang memblokir serangan yang diterima",
+  "columns.liveTankedPlayers.blockRate.header": "Blok %",
+  "columns.liveTankedPlayers.blockRate.label": "Blok %",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "Menampilkan peluang memicu blok beruntung",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "Blok Beruntung %",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "Blok Beruntung %",
+  "columns.liveTankedSkills.blockRate.description": "Menampilkan peluang skill masuk ini diblokir",
+  "columns.liveTankedSkills.blockRate.header": "Blok %",
+  "columns.liveTankedSkills.blockRate.label": "Blok %",
+  "columns.liveTankedSkills.luckyBlockRate.description": "Menampilkan peluang skill masuk ini memicu blok beruntung",
+  "columns.liveTankedSkills.luckyBlockRate.header": "Blok Beruntung %",
+  "columns.liveTankedSkills.luckyBlockRate.label": "Blok Beruntung %"
 }

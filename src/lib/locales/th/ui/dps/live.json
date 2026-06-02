@@ -222,6 +222,7 @@
   "header.training.disableMode": "ปิดโหมด Training Dummy",
   "header.training.enableMode": "เปิดโหมด Training Dummy",
   "header.training.ready": "Training Dummy พร้อม",
+  "header.training.finished": "สิ้นสุดช่วง",
   "header.training.waitSegment": "รอ Split",
   "historyDetail.classIcon": "ไอคอนคลาส",
   "historyDetail.player": "ผู้เล่น",
@@ -231,5 +232,17 @@
   "live.resetToast": "รีเซ็ต Encounter แล้ว",
   "live.resumeToast": "Encounter ดำเนินต่อแล้ว",
   "live.unknownClass": "คลาสไม่ทราบ",
-  "table.skill": "สกิล"
+  "table.skill": "สกิล",
+  "columns.liveTankedPlayers.blockRate.description": "แสดงโอกาสบล็อกการโจมตีที่ได้รับ",
+  "columns.liveTankedPlayers.blockRate.header": "บล็อก %",
+  "columns.liveTankedPlayers.blockRate.label": "บล็อก %",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "แสดงโอกาสเกิดบล็อกโชคดี",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "บล็อกโชคดี %",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "บล็อกโชคดี %",
+  "columns.liveTankedSkills.blockRate.description": "แสดงโอกาสที่สกิลที่ได้รับนี้ถูกบล็อก",
+  "columns.liveTankedSkills.blockRate.header": "บล็อก %",
+  "columns.liveTankedSkills.blockRate.label": "บล็อก %",
+  "columns.liveTankedSkills.luckyBlockRate.description": "แสดงโอกาสที่สกิลที่ได้รับนี้เกิดบล็อกโชคดี",
+  "columns.liveTankedSkills.luckyBlockRate.header": "บล็อกโชคดี %",
+  "columns.liveTankedSkills.luckyBlockRate.label": "บล็อกโชคดี %"
 }

@@ -50,5 +50,9 @@
   "update.downloadGithub": "Télécharger depuis GitHub",
   "update.emptyNotes": "Aucune note de version disponible pour cette version.",
   "update.title": "Nouvelle version disponible",
-  "update.versionLine": "Version actuelle v{currentVersion}, dernière version v{latestVersion}"
+  "update.versionLine": "Version actuelle v{currentVersion}, dernière version v{latestVersion}",
+  "settings.appBehavior": "Comportement de l'application",
+  "settings.appBehavior.subtitle": "Contrôle le comportement global de l'application qui n'est pas lié à une fenêtre superposée ou à une vue de compteur.",
+  "settings.hideMainWindowToTray": "Masquer la fenêtre principale dans la zone de notification",
+  "settings.hideMainWindowToTrayDescription": "Lorsque cette option est activée, fermer la fenêtre principale la masque au lieu de quitter. Utilisez l'icône de la zone de notification pour la restaurer, ou Quitter pour fermer complètement."
 }

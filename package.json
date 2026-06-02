@@ -1,6 +1,6 @@
 {
   "name": "resonance-logs-global",
-  "version": "1.1.0-beta.1",
+  "version": "1.1.0-beta.2",
   "description": "",
   "type": "module",
   "scripts": {
@@ -67,6 +67,10 @@
     "audit:seasonal-factor:event-surface": "node scripts/audit-seasonal-factor-event-surface.mjs",
     "audit:seasonal-factor:grade-text-scan": "node scripts/audit-seasonal-factor-grade-text-scan.mjs",
     "audit:seasonal-factor:differential": "node scripts/audit-seasonal-factor-differential.mjs",
+    "audit:season-cultivate:preactivation": "node scripts/audit-season-cultivate-preactivation.mjs",
+    "sync:season-cultivate:slots": "node scripts/sync-missing-factor-slot-templates.mjs",
+    "sync:season-cultivate:locales": "node scripts/sync-counter-template-factor-locales.mjs",
+    "sync:season-cultivate:labels": "node scripts/sync-season-cultivate-factor-skill-labels.mjs",
     "audit:container-probes": "node scripts/audit-container-probes.mjs",
     "audit:container-probes:path-diff": "node scripts/audit-container-probe-path-differential.mjs",
     "probe:seasonal-factor:selector": "node scripts/probe-seasonal-factor-selector.mjs",

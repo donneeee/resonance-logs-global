@@ -222,6 +222,7 @@
   "header.training.disableMode": "關閉打樁模式",
   "header.training.enableMode": "開啟打樁模式",
   "header.training.ready": "打樁待命",
+  "header.training.finished": "打樁結束",
   "header.training.waitSegment": "待切段",
   "historyDetail.classIcon": "職業圖示",
   "historyDetail.player": "玩家",
@@ -231,5 +232,17 @@
   "live.resetToast": "戰鬥記錄已重設",
   "live.resumeToast": "戰鬥已繼續",
   "live.unknownClass": "未知職業",
-  "table.skill": "技能"
+  "table.skill": "技能",
+  "columns.liveTankedPlayers.blockRate.description": "顯示承受傷害時的格擋機率",
+  "columns.liveTankedPlayers.blockRate.header": "格擋%",
+  "columns.liveTankedPlayers.blockRate.label": "格擋%",
+  "columns.liveTankedPlayers.luckyBlockRate.description": "顯示承受傷害時觸發幸運格擋的機率",
+  "columns.liveTankedPlayers.luckyBlockRate.header": "幸運格擋%",
+  "columns.liveTankedPlayers.luckyBlockRate.label": "幸運格擋%",
+  "columns.liveTankedSkills.blockRate.description": "顯示該承傷技能被格擋的機率",
+  "columns.liveTankedSkills.blockRate.header": "格擋%",
+  "columns.liveTankedSkills.blockRate.label": "格擋%",
+  "columns.liveTankedSkills.luckyBlockRate.description": "顯示該承傷技能觸發幸運格擋的機率",
+  "columns.liveTankedSkills.luckyBlockRate.header": "幸運格擋%",
+  "columns.liveTankedSkills.luckyBlockRate.label": "幸運格擋%"
 }
