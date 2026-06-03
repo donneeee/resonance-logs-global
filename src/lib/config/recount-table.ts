@@ -346,6 +346,10 @@ type DamageAttrNameEntry = string | {
   LinkedSource?: string;
   LinkedBuffId?: number | string;
   BuffSourceId?: number | string;
+  LinkedSkillEffectSkillTableName?: string;
+  LinkedSkillEffectSkillTableNames?: LocalizedTextMap;
+  LinkedSkillTableName?: string;
+  LinkedSkillTableNames?: LocalizedTextMap;
   IconPath?: string;
   IconPaths?: string[];
   LinkedBaseSkillIconPath?: string;
@@ -453,20 +457,6 @@ const buffIdToEffectSourceIds = effectSources.buffIdToEffectSourceIds ?? {};
 const damageIdToEffectSourceIds = effectSources.damageIdToEffectSourceIds ?? {};
 const recountIdToEffectSourceIds = effectSources.recountIdToEffectSourceIds ?? {};
 
-const BURN_EFFECT_NAMES: LocalizedTextMap = {
-  en: "Burn",
-  "zh-CN": "燃烧",
-  "zh-TW": "燃燒",
-  ja: "バーニング",
-  "ko-KR": "연소",
-  fr: "Brûlure",
-  de: "Verbrennung",
-  es: "Quemadura",
-  "pt-BR": "Queimadura",
-  th: "เผาไหม้",
-  id: "Burn",
-};
-
 const S2_SET_4B_SHIELD_NAMES: LocalizedTextMap = {
   en: "S2 Set 4B Shield",
   "zh-CN": "S2套装4B护盾",
@@ -538,9 +528,6 @@ const RADIANCE_BARRAGE_NAMES: LocalizedTextMap = {
 };
 
 const EFFECT_SOURCE_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
-  // 2208181 is the Burn damage/buff source. It is linked to the Inferno
-  // Explosion family icon, but should not inherit Explosion as its row name.
-  "buff-source:2208181": BURN_EFFECT_NAMES,
   "buff-source:2203531": PHANTOM_FALCON_AOE_NAMES,
   "buff-source:2202705": MOONLIGHT_SOLACE_SHIELD_NAMES,
   "buff-source:2404271": S2_SET_4B_SHIELD_NAMES,
@@ -551,7 +538,6 @@ const DAMAGE_ID_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
   "25524003": RADIANCE_BARRAGE_NAMES,
   "25524004": RADIANCE_BARRAGE_NAMES,
   "2220353101": PHANTOM_FALCON_AOE_NAMES,
-  "2220818103": BURN_EFFECT_NAMES,
   "2220270501": MOONLIGHT_SOLACE_SHIELD_NAMES,
   "2240427101": S2_SET_4B_SHIELD_NAMES,
 };
@@ -2260,6 +2246,73 @@ export function resolveSkillRuntimeSourceFallbackName(
   return "";
 }
 
+const RAGE_CLEAVE_RECOUNT_ID = 235;
+const RAGE_CLEAVE_STAGE_BY_LINKED_SKILL_ID: Record<string, number> = {
+  "1608": 1,
+  "1609": 2,
+  "1610": 3,
+  "1611": 4,
+};
+const RAGE_CLEAVE_STAGE_TEMPLATES: LocalizedTextMap = {
+  en: "Stage {stage}",
+  "zh-CN": "\u7b2c{stage}\u6bb5",
+  "zh-TW": "\u7b2c{stage}\u6bb5",
+  ja: "\u7b2c{stage}\u6bb5",
+  "ko-KR": "\uc81c{stage}\ub2e8\uacc4",
+  fr: "Phase {stage}",
+  de: "Stufe {stage}",
+  es: "Fase {stage}",
+  "pt-BR": "Etapa {stage}",
+  th: "\u0e02\u0e31\u0e49\u0e19\u0e17\u0e35\u0e48 {stage}",
+  id: "Tahap {stage}",
+};
+const RAGE_CLEAVE_STAGE_FALLBACK_TEMPLATE = "Stage {stage}";
+
+function resolveRageCleaveStageNumber(detail: SkillBreakdownDetail | undefined): number | undefined {
+  const linkedSkillId = detail?.LinkedSkillId ?? detail?.UnderlyingSkillId ?? detail?.LinkedId;
+  const stage = RAGE_CLEAVE_STAGE_BY_LINKED_SKILL_ID[String(linkedSkillId ?? "")];
+  if (!stage) return undefined;
+
+  const parentRecountId = Number(detail?.ParentRecountId);
+  if (Number.isFinite(parentRecountId) && parentRecountId !== RAGE_CLEAVE_RECOUNT_ID) {
+    return undefined;
+  }
+  return stage;
+}
+
+function resolveRageCleaveStageLabel(stage: number, locale: string): string {
+  return resolveLocalizedText(
+    RAGE_CLEAVE_STAGE_TEMPLATES,
+    locale,
+    RAGE_CLEAVE_STAGE_TEMPLATES["en"] ?? RAGE_CLEAVE_STAGE_FALLBACK_TEMPLATE,
+  ).replace("{stage}", String(stage));
+}
+
+function resolveRageCleaveLinkedSkillName(
+  skillId: number | string,
+  detail: SkillBreakdownDetail | undefined,
+  locale: string,
+): string | undefined {
+  if (!resolveRageCleaveStageNumber(detail)) return undefined;
+
+  const damageEntry = damageAttrIdNames[String(skillId)];
+  const linkedDamageEntry = damageEntry && typeof damageEntry !== "string" ? damageEntry : undefined;
+  const linkedNames =
+    detail?.LinkedNames
+    ?? detail?.UnderlyingSkillNames
+    ?? linkedDamageEntry?.LinkedSkillTableNames
+    ?? linkedDamageEntry?.LinkedSkillEffectSkillTableNames;
+  const linkedFallback =
+    detail?.LinkedName
+    ?? detail?.UnderlyingSkillName
+    ?? linkedDamageEntry?.LinkedSkillTableName
+    ?? linkedDamageEntry?.LinkedSkillEffectSkillTableName
+    ?? detail?.DisplayName
+    ?? "";
+  const linkedName = resolveLocalizedText(linkedNames, locale, linkedFallback).trim();
+  return linkedName || undefined;
+}
+
 export function resolveSkillBreakdownName(
   row: Pick<
     SkillDisplayRow,
@@ -2292,6 +2345,9 @@ export function resolveSkillBreakdownName(
     runtimeSource,
   );
   if (runtimeSourceName) return runtimeSourceName;
+
+  const rageCleaveStageName = resolveRageCleaveLinkedSkillName(row.skillId, detail, locale);
+  if (rageCleaveStageName) return rageCleaveStageName;
 
   const damageName = lookupLocalizedDamageIdName(row.skillId, locale);
   if (
@@ -2328,6 +2384,9 @@ export function resolveSkillBreakdownDetailName(
     return resolveLocalizedText(row.sourceNames, locale, row.sourceName ?? "");
   }
   const detail = row.details ?? lookupSkillBreakdownDetail(row.skillId);
+  const rageCleaveStage = resolveRageCleaveStageNumber(detail);
+  if (rageCleaveStage) return resolveRageCleaveStageLabel(rageCleaveStage, locale);
+
   const detailName = resolveLocalizedText(detail?.DisplayDetailNames, locale, detail?.DisplayDetailName ?? "");
   const variantName = resolveLocalizedText(detail?.DisplayVariantNames, locale, detail?.DisplayVariantName ?? "");
   const effectNames = resolveActiveEffectDetailName(row.activeEffects, row.activeFactors, locale);
@@ -2673,6 +2732,7 @@ function buildChildDisplayKey(row: SkillDisplayRow): string {
     localizedKey(detail.DisplayNames, row.name),
     localizedKey(detail.DisplayDetailNames, detail.DisplayDetailName ?? ""),
     localizedKey(detail.DisplayVariantNames, detail.DisplayVariantName ?? ""),
+    resolveRageCleaveStageNumber(detail) ?? "",
     detail.Badge ?? "",
   ].join("|");
 }
