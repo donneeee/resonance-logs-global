@@ -5876,8 +5876,8 @@ pub async fn start(
     let heartbeat_duration = Duration::from_secs(2);
 
     // 1. Start capturing packets and send to rx
-    let method = get_capture_method(&app_handle);
-    let (mut rx, queue_depth) = packets::packet_capture::start_capture(method);
+    let npcap_device = get_capture_device(&app_handle);
+    let (mut rx, queue_depth) = packets::packet_capture::start_capture(npcap_device);
     let mut queue_depth_warn_counter = 0usize;
     let mut queue_depth_last_log_at = Instant::now();
 
@@ -6594,9 +6594,7 @@ fn flush_selected_factor_cache_if_needed(app_handle: &AppHandle, state: &mut App
     }
 }
 
-fn get_capture_method(app: &AppHandle) -> packets::packet_capture::CaptureMethod {
-    use packets::packet_capture::CaptureMethod;
-
+fn get_capture_device(app: &AppHandle) -> String {
     let filename_candidates = ["packetCapture.json", "packetCapture.bin", "packetCapture"];
     let mut dir_candidates = Vec::new();
     if let Some(dir) = app.path().app_data_dir().ok() {
@@ -6616,10 +6614,10 @@ fn get_capture_method(app: &AppHandle) -> packets::packet_capture::CaptureMethod
             }
             if let Ok(file) = std::fs::File::open(&path) {
                 if let Ok(json) = serde_json::from_reader::<_, serde_json::Value>(file) {
-                    let method = json
+                    let legacy_method = json
                         .get("method")
                         .and_then(|v| v.as_str())
-                        .unwrap_or("WinDivert");
+                        .unwrap_or("Npcap");
                     let device = json
                         .get("npcapDevice")
                         .and_then(|v| v.as_str())
@@ -6627,19 +6625,16 @@ fn get_capture_method(app: &AppHandle) -> packets::packet_capture::CaptureMethod
 
                     info!(
                         target: "app::capture",
-                        "Packet capture config found at {} (method={}, device={})",
+                        "Packet capture config found at {} (legacy_method={}, device={})",
                         path.display(),
-                        method,
+                        legacy_method,
                         device
                     );
 
-                    if method == "Npcap" {
+                    if !device.trim().is_empty() {
                         info!(target: "app::capture", "Using Npcap capture method device={}", device);
-                        return CaptureMethod::Npcap(device.to_string());
-                    } else {
-                        info!(target: "app::capture", "Using WinDivert capture method (from config)");
-                        return CaptureMethod::WinDivert;
                     }
+                    return device.to_string();
                 } else {
                     warn!(
                         "Failed to parse packet capture config at {}",
@@ -6660,10 +6655,10 @@ fn get_capture_method(app: &AppHandle) -> packets::packet_capture::CaptureMethod
                 }
                 if let Ok(file) = std::fs::File::open(&path) {
                     if let Ok(json) = serde_json::from_reader::<_, serde_json::Value>(file) {
-                        let method = json
+                        let legacy_method = json
                             .get("method")
                             .and_then(|v| v.as_str())
-                            .unwrap_or("WinDivert");
+                            .unwrap_or("Npcap");
                         let device = json
                             .get("npcapDevice")
                             .and_then(|v| v.as_str())
@@ -6671,19 +6666,16 @@ fn get_capture_method(app: &AppHandle) -> packets::packet_capture::CaptureMethod
 
                         info!(
                             target: "app::capture",
-                            "Packet capture config found at {} (method={}, device={})",
+                            "Packet capture config found at {} (legacy_method={}, device={})",
                             path.display(),
-                            method,
+                            legacy_method,
                             device
                         );
 
-                        if method == "Npcap" {
+                        if !device.trim().is_empty() {
                             info!(target: "app::capture", "Using Npcap capture method device={}", device);
-                            return CaptureMethod::Npcap(device.to_string());
-                        } else {
-                            info!(target: "app::capture", "Using WinDivert capture method (from config)");
-                            return CaptureMethod::WinDivert;
                         }
+                        return device.to_string();
                     } else {
                         warn!(
                             "Failed to parse packet capture config at {}",
@@ -6695,8 +6687,7 @@ fn get_capture_method(app: &AppHandle) -> packets::packet_capture::CaptureMethod
         }
     }
 
-    warn!(target: "app::capture", "No packetCapture config found in app data dirs; falling back to WinDivert");
+    warn!(target: "app::capture", "No packetCapture config found in app data dirs; Npcap device is empty");
 
-    info!(target: "app::capture", "Using WinDivert capture method (default)");
-    CaptureMethod::WinDivert
+    String::new()
 }

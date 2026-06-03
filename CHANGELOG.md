@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.0_beta3 - Global Beta
+
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta3` beta release.
+- Guarded Season Cultivate factor counters against dungeon-start/bootstrap cooldown snapshots so Illusion Energy no longer jumps from stale skill cooldowns when a run or floor starts.
+- Removed the WinDivert capture path, bundled WinDivert binaries, service cleanup hooks, and capture-method selector; packet capture now uses Npcap only, matching the CN 0.1.5 capture model.
+
 ## v1.1.0_beta2 - Global Beta
 
 - Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta2` beta release.

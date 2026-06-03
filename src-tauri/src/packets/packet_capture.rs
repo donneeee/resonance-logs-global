@@ -24,9 +24,6 @@ use std::hash::{Hash, Hasher};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, OnceLock};
 use tokio::sync::watch;
-use windivert::WinDivert;
-use windivert::prelude::NetworkLayer;
-use windivert::prelude::WinDivertFlags;
 
 // Global sender for restart signal
 static RESTART_SENDER: OnceCell<watch::Sender<bool>> = OnceCell::new();
@@ -95,12 +92,6 @@ const DLT_NULL: i32 = 0;
 const DLT_EN10MB: i32 = 1;
 const DLT_RAW: i32 = 12;
 const DLT_LOOP: i32 = 108;
-
-#[derive(Clone, Debug)]
-pub enum CaptureMethod {
-    WinDivert,
-    Npcap(String),
-}
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum PacketFormat {
@@ -1010,47 +1001,6 @@ fn process_non_scene_chat_packet(
     }
 }
 
-trait PacketSource: Send {
-    fn next_packet(&mut self) -> Result<Option<Vec<u8>>, String>;
-    fn packet_format(&self) -> PacketFormat;
-}
-
-struct WinDivertSource {
-    handle: WinDivert<NetworkLayer>,
-    buffer: Vec<u8>,
-}
-
-impl WinDivertSource {
-    fn new() -> Result<Self, String> {
-        let handle = WinDivert::network(
-            "!loopback && ip && tcp",
-            0,
-            WinDivertFlags::new().set_sniff(),
-        )
-        .map_err(|e| format!("Failed to initialize WinDivert: {}", e))?;
-
-        info!(target: "app::capture", "WinDivert handle opened");
-
-        Ok(Self {
-            handle,
-            buffer: vec![0u8; 10 * 1024 * 1024],
-        })
-    }
-}
-
-impl PacketSource for WinDivertSource {
-    fn next_packet(&mut self) -> Result<Option<Vec<u8>>, String> {
-        self.handle
-            .recv(Some(&mut self.buffer))
-            .map(|packet| Some(packet.data.to_vec()))
-            .map_err(|e| e.to_string())
-    }
-
-    fn packet_format(&self) -> PacketFormat {
-        PacketFormat::RawIp
-    }
-}
-
 struct NpcapSource {
     capture: NpcapCapture,
 }
@@ -1096,9 +1046,7 @@ impl NpcapSource {
             }
         }
     }
-}
 
-impl PacketSource for NpcapSource {
     fn next_packet(&mut self) -> Result<Option<Vec<u8>>, String> {
         match self.capture.next_packet()? {
             Some(data) => Ok(self.normalize_packet(data)),
@@ -1132,7 +1080,7 @@ fn log_unsupported_datalink(datalink: i32) {
 }
 
 pub fn start_capture(
-    method: CaptureMethod,
+    npcap_device: String,
 ) -> (
     tokio::sync::mpsc::UnboundedReceiver<CaptureEvent>,
     Arc<AtomicUsize>,
@@ -1143,26 +1091,28 @@ pub fn start_capture(
     let (restart_sender, mut restart_receiver) = watch::channel(false);
     RESTART_SENDER.set(restart_sender.clone()).ok();
 
-    match &method {
-        CaptureMethod::WinDivert => {
-            info!(target: "app::capture", "capture_start method=WinDivert")
-        }
-        CaptureMethod::Npcap(dev) => {
-            info!(target: "app::capture", "capture_start method=Npcap device={}", dev)
-        }
+    if npcap_device.trim().is_empty() {
+        error!(target: "app::capture", "capture_start_failed method=Npcap err=empty_device");
+        return (packet_receiver, queue_depth);
     }
 
-    // Use std::thread::spawn to avoid blocking the async runtime with WinDivert recv
+    info!(target: "app::capture", "capture_start method=Npcap device={}", npcap_device);
+
+    // Use std::thread::spawn to avoid blocking the async runtime with pcap recv.
     std::thread::spawn(move || {
-        let capture_span =
-            tracing::info_span!(target: "app::capture", "capture_thread", method = ?method);
+        let capture_span = tracing::info_span!(
+            target: "app::capture",
+            "capture_thread",
+            method = "Npcap",
+            device = %npcap_device
+        );
         let _capture_guard = capture_span.enter();
         loop {
             read_packets(
                 &packet_sender,
                 &capture_queue_depth,
                 &mut restart_receiver,
-                method.clone(),
+                &npcap_device,
             );
 
             // Check if this was a requested restart or a crash/exit
@@ -1189,32 +1139,27 @@ fn read_packets(
     packet_sender: &tokio::sync::mpsc::UnboundedSender<CaptureEvent>,
     queue_depth: &AtomicUsize,
     restart_receiver: &mut watch::Receiver<bool>,
-    method: CaptureMethod,
+    npcap_device: &str,
 ) {
-    let read_span =
-        tracing::info_span!(target: "app::capture", "capture_read_loop", method = ?method);
+    let read_span = tracing::info_span!(
+        target: "app::capture",
+        "capture_read_loop",
+        method = "Npcap",
+        device = %npcap_device
+    );
     let _read_guard = read_span.enter();
 
-    let mut source: Box<dyn PacketSource> = match method {
-        CaptureMethod::WinDivert => match WinDivertSource::new() {
-            Ok(s) => Box::new(s),
-            Err(e) => {
-                error!(target: "app::capture", "capture_source_init_failed method=WinDivert err={}", e);
-                return;
-            }
-        },
-        CaptureMethod::Npcap(device) => match NpcapSource::new(&device) {
-            Ok(s) => Box::new(s),
-            Err(e) => {
-                error!(
-                    target: "app::capture",
-                    "capture_source_init_failed method=Npcap device={} err={}",
-                    device,
-                    e
-                );
-                return;
-            }
-        },
+    let mut source = match NpcapSource::new(npcap_device) {
+        Ok(s) => s,
+        Err(e) => {
+            error!(
+                target: "app::capture",
+                "capture_source_init_failed method=Npcap device={} err={}",
+                npcap_device,
+                e
+            );
+            return;
+        }
     };
 
     let mut known_server: Option<Server> = None; // nothing at start

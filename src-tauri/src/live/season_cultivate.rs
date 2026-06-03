@@ -1,6 +1,4 @@
-use crate::live::counter_tracker::{
-    CounterAction, CounterRule, CounterSource, EffectSlotConfig,
-};
+use crate::live::counter_tracker::{CounterAction, CounterRule, CounterSource, EffectSlotConfig};
 use blueprotobuf_lib::blueprotobuf;
 use log::debug;
 use std::collections::{HashMap, HashSet};

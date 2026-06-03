@@ -1,4 +1,4 @@
-import { spawn, spawnSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { resolve, sep } from "node:path";
 import { createServer, get } from "node:http";
@@ -23,15 +23,6 @@ const contentTypes = new Map([
   [".wasm", "application/wasm"],
   [".webp", "image/webp"],
 ]);
-
-function stopWindivertIfPresent() {
-  if (process.platform !== "win32") return;
-
-  const query = spawnSync("sc", ["query", "windivert"], { stdio: "ignore" });
-  if (query.status !== 0) return;
-
-  spawnSync("sc", ["stop", "windivert"], { stdio: "ignore" });
-}
 
 function runBuild() {
   const isWindows = process.platform === "win32";
@@ -187,7 +178,6 @@ function keepAliveForReusedServer(reason) {
 }
 
 async function main() {
-  stopWindivertIfPresent();
   await runBuild();
 
   const server = createServer((request, response) => {

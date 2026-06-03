@@ -1,18 +1,18 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Resonance Logs - Global",
-  "version": "1.1.0-beta.2",
+  "version": "1.1.0-beta.3",
   "identifier": "com.resonance-logs-global",
   "build": {
     "beforeDevCommand": "npm run dev:tauri-static",
-    "beforeBuildCommand": "npm run build:stop-windivert",
+    "beforeBuildCommand": "npm run build",
     "devUrl": "http://127.0.0.1:1420",
     "frontendDist": "../build"
   },
   "app": {
     "windows": [
       {
-        "title": "Resonance Logs - Global v1.1.0_beta2 - Live",
+        "title": "Resonance Logs - Global v1.1.0_beta3 - Live",
         "label": "live",
         "url": "/live/dps",
         "shadow": false,
@@ -24,7 +24,7 @@
         "skipTaskbar": true
       },
       {
-        "title": "Resonance Logs - Global v1.1.0_beta2 - Main",
+        "title": "Resonance Logs - Global v1.1.0_beta3 - Main",
         "label": "main",
         "url": "/main/dps",
         "width": 1200,
@@ -67,7 +67,7 @@
         "maximizable": false
       },
       {
-        "title": "Resonance Logs - Global v1.1.0_beta2 - Event Logger",
+        "title": "Resonance Logs - Global v1.1.0_beta3 - Event Logger",
         "label": "event-logger",
         "url": "/event-logger",
         "width": 1200,
@@ -100,8 +100,6 @@
       "icons/icon.ico"
     ],
     "resources": [
-      "./WinDivert.dll",
-      "./WinDivert64.sys",
       "../parser-data/",
       "../src/lib/locales/"
     ],

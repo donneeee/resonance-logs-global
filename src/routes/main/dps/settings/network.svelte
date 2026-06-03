@@ -1,5 +1,4 @@
 <script lang="ts">
-    import SettingsSelect from "./settings-select.svelte";
     import SettingsDropdown from "./settings-dropdown.svelte";
     import { SETTINGS } from "$lib/settings-store";
     import { invoke } from "@tauri-apps/api/core";
@@ -16,7 +15,6 @@
     let npcapInstalled = $state(false);
     let loading = $state(false);
     let mounted = $state(false);
-    let initialMethod = $state<string | null>(null);
     let initialDevice = $state<string | null>(null);
 
     const t = uiT("dps/settings-network", () => SETTINGS.live.general.state.language);
@@ -36,7 +34,6 @@
 
     onMount(() => {
         untrack(() => {
-            initialMethod = SETTINGS.packetCapture.state.method;
             initialDevice = SETTINGS.packetCapture.state.npcapDevice;
         });
         mounted = true;
@@ -45,18 +42,15 @@
 
     $effect(() => {
         if (!mounted) return;
-        const method = SETTINGS.packetCapture.state.method;
         const device = SETTINGS.packetCapture.state.npcapDevice;
 
-        if (initialMethod !== null && method === initialMethod && device === initialDevice) {
+        if (initialDevice !== null && device === initialDevice) {
             return;
         }
 
-        initialMethod = method;
         initialDevice = device;
 
         invoke("save_packet_capture_settings", {
-            method,
             npcapDevice: device,
         }).catch((e) => console.error("Failed to save packet capture settings", e));
     });
@@ -75,43 +69,37 @@
     >
         <div class="px-4 py-3">
             <h2 class="text-base font-semibold text-foreground mb-2">
-                {t("title", "抓包")}
+                {t("title", "Packet Capture")}
             </h2>
 
-            <SettingsSelect
-                bind:selected={SETTINGS.packetCapture.state.method}
-                label={t("captureMethod", "捕获方式")}
-                description={t("captureMethodDescription", "选择用于捕获网络数据包的方法（需要重启应用）。")}
-                values={["WinDivert", "Npcap"]}
-            />
-
-            {#if SETTINGS.packetCapture.state.method === "Npcap"}
-                {#if !npcapInstalled}
-                    <div
-                        class="mt-2 p-3 bg-destructive/10 text-destructive rounded-md text-sm"
+            {#if !npcapInstalled}
+                <div
+                    class="mt-2 p-3 bg-destructive/10 text-destructive rounded-md text-sm"
+                >
+                    {t("npcapMissing", "Npcap was not detected.")}
+                    <a
+                        href="https://npcap.com/"
+                        target="_blank"
+                        class="underline"
                     >
-                        {t("npcapMissing", "未检测到 Npcap。请从")}
-                        <a
-                            href="https://npcap.com/"
-                            target="_blank"
-                            class="underline"
-                        >
-                            npcap.com
-                        </a>
-                        {" "}
-                        {t("npcapMissingSuffix", "安装 Npcap 以使用该功能。")}
-                    </div>
-                {:else}
-                    <SettingsDropdown
-                        bind:selected={SETTINGS.packetCapture.state.npcapDevice}
-                        label={t("networkDevice", "网络设备")}
-                        description={t("networkDeviceDescription", "选择用于捕获流量的网卡。")}
-                        options={deviceOptions}
-                        placeholder={loading
-                            ? t("loadingDevices", "正在加载设备...")
-                            : t("selectDevice", "选择设备")}
-                    />
-                {/if}
+                        npcap.com
+                    </a>
+                    {" "}
+                    {t("npcapMissingSuffix", "Please install Npcap before using packet capture.")}
+                </div>
+            {:else}
+                <SettingsDropdown
+                    bind:selected={SETTINGS.packetCapture.state.npcapDevice}
+                    label={t("networkDevice", "Network Device")}
+                    description={t(
+                        "networkDeviceDescription",
+                        "Choose the network adapter used to capture traffic.",
+                    )}
+                    options={deviceOptions}
+                    placeholder={loading
+                        ? t("loadingDevices", "Loading network devices...")
+                        : t("selectDevice", "Select Network Device")}
+                />
             {/if}
         </div>
     </div>

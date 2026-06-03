@@ -8,8 +8,7 @@ mod translation_runtime;
 use crate::build_app::build_and_run;
 use log::{info, warn};
 use specta_typescript::{BigIntExportBehavior, Typescript};
-#[cfg(windows)]
-use std::process::{Command, Stdio};
+use std::process::Command;
 
 use std::path::{Path, PathBuf};
 use std::sync::{
@@ -290,11 +289,6 @@ fn migrate_legacy_app_data(app: &tauri::AppHandle) -> Result<(), String> {
 /// This function sets up and runs the Tauri application.
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    // std::panic::set_hook(Box::new(|info| {
-    //     info!pub(crate)("App crashed! Info: {:?}", info);
-    //     unload_and_remove_windivert();
-    // }));
-
     let builder = Builder::<tauri::Wry>::new()
         // Then register them (separated by a comma)
         .commands(collect_commands![
@@ -407,8 +401,6 @@ pub fn run() {
             let _setup_guard = setup_span.enter();
 
             log::info!(target: "app::startup", "starting app v{}", app.package_info().version);
-            stop_windivert();
-            remove_windivert();
             keep_passive_overlay_windows_non_focusable(&app_handle);
 
             // Initialize database and background writer early to avoid startup races where
@@ -472,8 +464,6 @@ pub fn run() {
                     warn!("panic: failed to resolve app_log_dir; printing dump content to logs");
                     warn!("Crash dump:\n{}", dump_content);
                 }
-                // Attempt a clean up of resources (driver) before handing off to default handler.
-                unload_and_remove_windivert();
                 // Call the previously installed panic hook (prints to stderr etc)
                 default_hook(info);
             }));
@@ -648,7 +638,6 @@ mod packet_settings_commands {
     #[tauri::command]
     #[specta::specta]
     pub fn save_packet_capture_settings(
-        method: String,
         npcap_device: String,
         app_handle: tauri::AppHandle,
     ) -> Result<(), String> {
@@ -666,7 +655,6 @@ mod packet_settings_commands {
             }
             let path = target_dir.join("packetCapture.json");
             let payload = json!({
-                "method": method,
                 "npcapDevice": npcap_device,
             });
             match std::fs::write(
@@ -916,117 +904,6 @@ mod debug_commands {
         destination_path: Option<String>,
     ) -> Result<String, String> {
         crate::create_diagnostics_bundle(&app_handle, destination_path)
-    }
-}
-
-/// Starts the WinDivert driver.
-///
-/// This function executes a shell command to create and start the WinDivert driver service.
-#[allow(dead_code)]
-fn start_windivert() {
-    // Run the command silently (no console window) on Windows. On other platforms, just
-    // redirect stdio to null so nothing is printed.
-    let mut cmd = Command::new("sc");
-    cmd.args([
-        "create",
-        "windivert",
-        "type=",
-        "kernel",
-        "binPath=",
-        "WinDivert64.sys",
-        "start=",
-        "demand",
-    ]);
-    let status = run_command_silently(&mut cmd);
-    if status.is_ok_and(|status| status.success()) {
-        info!("started driver");
-    } else {
-        warn!("could not execute command to start driver");
-    }
-}
-
-fn windivert_service_exists() -> bool {
-    let mut cmd = Command::new("sc");
-    cmd.args(["query", "windivert"]);
-    run_command_silently(&mut cmd).is_ok_and(|status| status.success())
-}
-
-/// Stops the WinDivert driver.
-///
-/// This function executes a shell command to stop the WinDivert driver service.
-fn stop_windivert() {
-    if !windivert_service_exists() {
-        info!("WinDivert driver service not installed; skipping stop");
-        return;
-    }
-
-    let mut cmd = Command::new("sc");
-    cmd.args(["stop", "windivert"]);
-    let status = run_command_silently(&mut cmd);
-    if status.is_ok_and(|status| status.success()) {
-        info!("stopped driver");
-    } else {
-        info!("could not stop WinDivert driver; it may already be stopped");
-    }
-}
-
-/// Removes the WinDivert driver.
-///
-/// This function executes a shell command to delete the WinDivert driver service.
-fn remove_windivert() {
-    if !windivert_service_exists() {
-        info!("WinDivert driver service not installed; skipping delete");
-        return;
-    }
-
-    let mut cmd = Command::new("sc");
-    cmd.args(["delete", "windivert"]);
-    let status = run_command_silently(&mut cmd);
-    if status.is_ok_and(|status| status.success()) {
-        info!("deleted driver");
-    } else {
-        warn!("could not execute command to delete driver");
-    }
-}
-
-/// Helper to unload and remove the WinDivert driver.
-///
-/// On Windows this attempts to stop and delete the service. On other
-/// platforms this is a no-op.
-fn unload_and_remove_windivert() {
-    #[cfg(windows)]
-    {
-        // Try to stop and remove the driver; these helpers already log
-        // warnings on failure so we don't need to handle the results here.
-        stop_windivert();
-        remove_windivert();
-    }
-    #[cfg(not(windows))]
-    {
-        // no-op on non-windows platforms
-    }
-}
-
-/// Helper to run a prepared Command with stdio redirected to null and (on Windows)
-/// with the CREATE_NO_WINDOW flag so no console window appears.
-fn run_command_silently(cmd: &mut Command) -> std::io::Result<std::process::ExitStatus> {
-    #[cfg(windows)]
-    {
-        // CREATE_NO_WINDOW = 0x08000000
-        use std::os::windows::process::CommandExt;
-        cmd.creation_flags(0x08000000)
-            .stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .stdin(Stdio::null())
-            .status()
-    }
-
-    #[cfg(not(windows))]
-    {
-        cmd.stdout(Stdio::null())
-            .stderr(Stdio::null())
-            .stdin(Stdio::null())
-            .status()
     }
 }
 
@@ -1399,7 +1276,6 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                 }
             }
             "quit" => {
-                stop_windivert();
                 tray_app.exit(0);
             }
             _ => {}
@@ -1443,7 +1319,6 @@ fn on_window_event_fn(window: &Window, event: &WindowEvent) {
                     }
                 } else {
                     // Main window close = exit entire app
-                    stop_windivert();
                     window.app_handle().exit(0);
                 }
             } else {

@@ -17,11 +17,11 @@ This project is modified from [resonance-logs](https://github.com/resonance-logs
 
 - **Backend**: Rust + [Tauroh godi 2](https://tauri.app/)
 - **Frontend**: SvelteKit 5 + Svelte + TypeScript + Tailwind CSS
-- **Data Capture**: WinDivert / Npcap (Windows packet capture)
+- **Data Capture**: Npcap (Windows packet capture)
 
 ## System Requirements
 
-- **Platform**: Windows (administrator privileges required to use WinDivert)
+- **Platform**: Windows with [Npcap](https://npcap.com/) installed and the correct network adapter selected
 - **Node.js**: Required for frontend builds
 - **Rust**: Required for Tauri builds
 

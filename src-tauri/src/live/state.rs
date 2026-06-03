@@ -141,6 +141,7 @@ pub struct EntityMonitor {
     pub buff_monitor: BuffMonitor,
     pub skill_cd_monitor: SkillCdMonitor,
     pub factor_skill_cd_begin_times: HashMap<i32, i64>,
+    pub factor_counter_reset_at_ms: i64,
     pub monitored_panel_attr_ids: Vec<i32>,
     pub fight_res_state: Option<FightResourceState>,
     pub counter_tracker: BuffCounterTracker,
@@ -155,6 +156,7 @@ impl EntityMonitor {
             buff_monitor: BuffMonitor::new(),
             skill_cd_monitor: SkillCdMonitor::new(),
             factor_skill_cd_begin_times: HashMap::new(),
+            factor_counter_reset_at_ms: now_ms(),
             monitored_panel_attr_ids: Vec::new(),
             fight_res_state: None,
             counter_tracker: BuffCounterTracker::default(),
@@ -166,7 +168,7 @@ impl EntityMonitor {
     fn clear_runtime_state(&mut self) {
         self.buff_monitor.active_buffs.clear();
         self.skill_cd_monitor.skill_cd_map.clear();
-        self.factor_skill_cd_begin_times.clear();
+        self.factor_counter_reset_at_ms = now_ms();
         self.fight_res_state = None;
         self.counter_tracker.reset_counts();
         self.factor_counter_tracker.reset_counts();
@@ -363,7 +365,14 @@ fn refresh_season_cultivate_factor_rules(state: &mut AppState) {
         .local_monitor
         .season_cultivate
         .build_factor_counter_rules();
+    state.local_monitor.factor_counter_reset_at_ms = now_ms();
     state.local_monitor.factor_counter_tracker.set_rules(rules);
+}
+
+fn reset_season_cultivate_factor_counters(state: &mut AppState) {
+    state.local_monitor.factor_counter_reset_at_ms = now_ms();
+    state.local_monitor.factor_counter_tracker.reset_counts();
+    emit_season_cultivate_factor_counter_update(state);
 }
 
 fn hydrate_entities_from_attr_store(state: &mut AppState) {
@@ -2225,6 +2234,7 @@ fn collect_factor_skill_casts_from_cooldown_starts(
     factor_skill_cd_begin_times: &mut HashMap<i32, i64>,
     skill_cds: &[ParsedSkillCd],
     counted_skill_base_ids: &mut HashSet<i32>,
+    reset_at_ms: i64,
 ) -> Vec<i32> {
     let mut skill_base_ids = Vec::new();
     for cd in skill_cds {
@@ -2255,6 +2265,17 @@ fn collect_factor_skill_casts_from_cooldown_starts(
         }
 
         factor_skill_cd_begin_times.insert(skill_level_id, begin_time);
+        if begin_time <= reset_at_ms {
+            debug!(
+                target: "app::live",
+                "[factor-counter] seeded stale skill cooldown start skill_level_id={} skill_base_id={} begin_time={} reset_at_ms={}",
+                skill_level_id,
+                skill_base_id,
+                begin_time,
+                reset_at_ms
+            );
+            continue;
+        }
         counted_skill_base_ids.insert(skill_base_id);
         skill_base_ids.push(skill_base_id);
     }
@@ -2755,6 +2776,7 @@ impl AppStateManager {
             persist_and_save_encounter(state, false, "server_change");
         }
         on_server_change(&mut state.encounter);
+        reset_season_cultivate_factor_counters(state);
         state.battle_state = BattleStateMachine::default();
     }
 
@@ -3168,6 +3190,7 @@ impl AppStateManager {
                 &mut state.local_monitor.factor_skill_cd_begin_times,
                 &result.skill_cds,
                 &mut counted_skill_base_ids,
+                state.local_monitor.factor_counter_reset_at_ms,
             );
             for skill_base_id in skill_casts_from_cds {
                 factor_counter_dirty |= state
@@ -3477,6 +3500,7 @@ impl AppStateManager {
         persist_segment_unless_saved(state, is_manual, "reset");
         state.encounter.reset_combat_state();
         sync_selected_factor_items_to_local_entity(state);
+        reset_season_cultivate_factor_counters(state);
         if is_manual && state.encounter.is_encounter_paused {
             info!(
                 target: "app::live",
