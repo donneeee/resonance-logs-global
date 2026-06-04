@@ -140,6 +140,10 @@ fn event_logger_enabled(app_handle: &AppHandle) -> bool {
     event_logger_enabled_flag().load(Ordering::Relaxed)
 }
 
+pub fn is_event_logger_enabled(app_handle: &AppHandle) -> bool {
+    event_logger_enabled(app_handle)
+}
+
 #[derive(Debug, Default)]
 struct SnapshotFilterState {
     last_snapshot_by_stream: HashMap<String, String>,

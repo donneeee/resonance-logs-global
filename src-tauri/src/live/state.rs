@@ -34,7 +34,7 @@ use std::collections::{HashMap, HashSet};
 use std::time::{Duration, Instant};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
 
-const MAX_SKILL_TIMING_EVENTS: usize = 20_000;
+const MAX_SKILL_TIMING_EVENTS: usize = 2_000;
 const ACTIVE_EFFECT_BUFF_SOURCE_RUNTIME_PREFIX: &str = "activeEffectBuffs.";
 const SELECTED_FACTOR_RUNTIME_PREFIX: &str = "SyncContainerDirtyData.v_data.dirty_tree.";
 const MAX_FACTOR_SELECTOR_ZERO_SLOTS: usize = 128;
@@ -140,6 +140,7 @@ pub struct EntityMonitor {
     pub uid: i64,
     pub buff_monitor: BuffMonitor,
     pub skill_cd_monitor: SkillCdMonitor,
+    /// Last counted factor SkillCast cooldown begin time, keyed by skill base ID.
     pub factor_skill_cd_begin_times: HashMap<i32, i64>,
     pub factor_counter_reset_at_ms: i64,
     pub monitored_panel_attr_ids: Vec<i32>,
@@ -168,6 +169,7 @@ impl EntityMonitor {
     fn clear_runtime_state(&mut self) {
         self.buff_monitor.active_buffs.clear();
         self.skill_cd_monitor.skill_cd_map.clear();
+        self.factor_skill_cd_begin_times.clear();
         self.factor_counter_reset_at_ms = now_ms();
         self.fight_res_state = None;
         self.counter_tracker.reset_counts();
@@ -365,11 +367,13 @@ fn refresh_season_cultivate_factor_rules(state: &mut AppState) {
         .local_monitor
         .season_cultivate
         .build_factor_counter_rules();
+    state.local_monitor.factor_skill_cd_begin_times.clear();
     state.local_monitor.factor_counter_reset_at_ms = now_ms();
     state.local_monitor.factor_counter_tracker.set_rules(rules);
 }
 
 fn reset_season_cultivate_factor_counters(state: &mut AppState) {
+    state.local_monitor.factor_skill_cd_begin_times.clear();
     state.local_monitor.factor_counter_reset_at_ms = now_ms();
     state.local_monitor.factor_counter_tracker.reset_counts();
     emit_season_cultivate_factor_counter_update(state);
@@ -2254,13 +2258,13 @@ fn collect_factor_skill_casts_from_cooldown_starts(
         }
 
         if factor_skill_cd_begin_times
-            .get(&skill_level_id)
+            .get(&skill_base_id)
             .is_some_and(|previous_begin_time| *previous_begin_time == begin_time)
         {
             continue;
         }
 
-        factor_skill_cd_begin_times.insert(skill_level_id, begin_time);
+        factor_skill_cd_begin_times.insert(skill_base_id, begin_time);
         if begin_time <= reset_at_ms {
             debug!(
                 target: "app::live",
@@ -3168,20 +3172,21 @@ impl AppStateManager {
         }
 
         if let Some(skill_base_id) = result.attr_skill_id {
-            record_local_skill_cast_event(state, skill_base_id);
+            if state.modifier_capture_enabled {
+                record_local_skill_cast_event(state, skill_base_id);
+            }
             counter_dirty |= state
                 .local_monitor
                 .counter_tracker
                 .on_skill_cast(skill_base_id);
-            factor_counter_dirty |= state
-                .local_monitor
-                .factor_counter_tracker
-                .on_skill_cast(skill_base_id);
-            counted_skill_base_ids.insert(skill_base_id);
         }
 
         if !result.skill_cds.is_empty() {
-            record_local_skill_cooldown_events(state, &result.skill_cds);
+            if state.modifier_capture_enabled {
+                record_local_skill_cooldown_events(state, &result.skill_cds);
+            }
+            // Factor SkillCast energy uses cooldown-start edges. AttrSkillId can echo while a
+            // skill is active, which overcounts cast-based factors such as Blast Shot/Powerdraw.
             let skill_casts_from_cds = collect_factor_skill_casts_from_cooldown_starts(
                 &mut state.local_monitor.factor_skill_cd_begin_times,
                 &result.skill_cds,
@@ -3845,5 +3850,61 @@ impl AppStateManager {
         }
 
         state.training_dummy.combat_gate()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn parsed_skill_cd(skill_level_id: i32, begin_time: i64) -> ParsedSkillCd {
+        ParsedSkillCd {
+            skill_level_id: Some(skill_level_id),
+            begin_time: Some(begin_time),
+            duration: Some(1000),
+            skill_cd_type: Some(0),
+            valid_cd_time: Some(1000),
+        }
+    }
+
+    #[test]
+    fn factor_skill_casts_from_cooldown_starts_dedupes_by_skill_base_id() {
+        let mut begin_times = HashMap::new();
+        let mut counted = HashSet::new();
+
+        let casts = collect_factor_skill_casts_from_cooldown_starts(
+            &mut begin_times,
+            &[
+                parsed_skill_cd(223801, 1000),
+                parsed_skill_cd(223802, 1000),
+                parsed_skill_cd(223801, 1000),
+            ],
+            &mut counted,
+            0,
+        );
+
+        assert_eq!(casts, vec![2238]);
+        assert_eq!(begin_times.get(&2238), Some(&1000));
+
+        let mut counted = HashSet::new();
+        let casts = collect_factor_skill_casts_from_cooldown_starts(
+            &mut begin_times,
+            &[parsed_skill_cd(223801, 1000)],
+            &mut counted,
+            0,
+        );
+
+        assert!(casts.is_empty());
+
+        let mut counted = HashSet::new();
+        let casts = collect_factor_skill_casts_from_cooldown_starts(
+            &mut begin_times,
+            &[parsed_skill_cd(223801, 2000)],
+            &mut counted,
+            0,
+        );
+
+        assert_eq!(casts, vec![2238]);
+        assert_eq!(begin_times.get(&2238), Some(&2000));
     }
 }

@@ -12,10 +12,10 @@ use crate::live::{
     custom_trigger_events::emit_custom_trigger_entries,
     event_logger::{
         EventLoggerEntry, EventLoggerSessionContext, drain_background_logger_entries,
-        emit_logger_entries, flush_current_session_to_file, now_ms,
+        emit_logger_entries, flush_current_session_to_file, is_event_logger_enabled, now_ms,
     },
     event_manager::{EncounterUpdatePayload, SceneChangePayload},
-    event_manager::{OutboundEvent, safe_emit_to},
+    event_manager::{OutboundEvent, safe_emit_json_to, safe_emit_to},
     opcodes_models::{AttrType, attr_type},
     opcodes_process::parse_fight_resources,
 };
@@ -77,11 +77,36 @@ fn container_probes_verbose_enabled() -> bool {
 }
 
 fn emit_auxiliary_entries(app_handle: &AppHandle, entries: Vec<EventLoggerEntry>) {
+    if !is_event_logger_enabled(app_handle) {
+        return;
+    }
+
     emit_custom_trigger_entries(app_handle, entries.clone());
     emit_logger_entries(app_handle, entries);
 }
 
+fn emit_auxiliary_entries_lazy<F>(app_handle: &AppHandle, build_entries: F)
+where
+    F: FnOnce() -> Vec<EventLoggerEntry>,
+{
+    if !is_event_logger_enabled(app_handle) {
+        return;
+    }
+
+    let entries = build_entries();
+    if entries.is_empty() {
+        return;
+    }
+
+    emit_auxiliary_entries(app_handle, entries);
+}
+
 fn emit_pending_background_logger_entries(app_handle: &AppHandle) {
+    if !is_event_logger_enabled(app_handle) {
+        let _ = drain_background_logger_entries();
+        return;
+    }
+
     let entries = drain_background_logger_entries();
     if entries.is_empty() {
         return;
@@ -96,9 +121,11 @@ fn handle_capture_event(
 ) -> bool {
     match capture_event {
         packets::packet_capture::CaptureEvent::Notify(notify) => {
-            let auxiliary_entries = decode_auxiliary_logger_entries(&notify);
-            if !auxiliary_entries.is_empty() {
-                emit_auxiliary_entries(app_handle, auxiliary_entries);
+            if is_event_logger_enabled(app_handle) {
+                let auxiliary_entries = decode_auxiliary_logger_entries(&notify);
+                if !auxiliary_entries.is_empty() {
+                    emit_auxiliary_entries(app_handle, auxiliary_entries);
+                }
             }
 
             if let Some(team_event) = crate::live::team::decode_team_event(
@@ -6037,8 +6064,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     },
                 );
 
-                emit_auxiliary_entries(
-                    app_handle,
+                emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
                         ts_ms,
                         category: "encounter".into(),
@@ -6062,13 +6088,12 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                             is_paused,
                         })
                         .unwrap_or_else(|_| "null".to_string()),
-                    }],
-                );
+                    }]
+                });
             }
             OutboundEvent::EncounterReset => {
                 safe_emit_to(app_handle, crate::WINDOW_LIVE_LABEL, "reset-encounter", "");
-                emit_auxiliary_entries(
-                    app_handle,
+                emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
                         ts_ms,
                         category: "encounter".into(),
@@ -6088,8 +6113,8 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                             &serde_json::json!({ "event": "reset-encounter" }),
                         )
                         .unwrap_or_else(|_| "null".to_string()),
-                    }],
-                );
+                    }]
+                });
                 if let Err(error) = flush_current_session_to_file(
                     app_handle,
                     "encounter_reset",
@@ -6106,8 +6131,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     "pause-encounter",
                     is_paused,
                 );
-                emit_auxiliary_entries(
-                    app_handle,
+                emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
                         ts_ms,
                         category: "encounter".into(),
@@ -6127,8 +6151,8 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                             &serde_json::json!({ "paused": is_paused }),
                         )
                         .unwrap_or_else(|_| "null".to_string()),
-                    }],
-                );
+                    }]
+                });
             }
             OutboundEvent::SceneChange(scene_name) => {
                 if let Err(error) = flush_current_session_to_file(
@@ -6148,8 +6172,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         scene_name: scene_name.clone(),
                     },
                 );
-                emit_auxiliary_entries(
-                    app_handle,
+                emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
                         ts_ms,
                         category: "scene".into(),
@@ -6167,8 +6190,8 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         value: None,
                         raw: serde_json::to_string_pretty(&SceneChangePayload { scene_name })
                             .unwrap_or_else(|_| "null".to_string()),
-                    }],
-                );
+                    }]
+                });
             }
             OutboundEvent::TrainingDummyUpdate(training_dummy) => {
                 safe_emit_to(
@@ -6177,8 +6200,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     "training-dummy-update",
                     training_dummy.clone(),
                 );
-                emit_auxiliary_entries(
-                    app_handle,
+                emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
                         ts_ms,
                         category: "system".into(),
@@ -6196,18 +6218,26 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         value: None,
                         raw: serde_json::to_string_pretty(&training_dummy)
                             .unwrap_or_else(|_| "null".to_string()),
-                    }],
-                );
+                    }]
+                });
             }
             OutboundEvent::LiveData(payload) => {
-                safe_emit_to(
-                    app_handle,
-                    crate::WINDOW_LIVE_LABEL,
-                    "live-data",
-                    payload.clone(),
-                );
-                let snapshot_entries = build_live_snapshot_logger_entries(state, &payload, ts_ms);
-                emit_auxiliary_entries(app_handle, snapshot_entries);
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    build_live_snapshot_logger_entries(state, &payload, ts_ms)
+                });
+                match serde_json::to_string(&payload) {
+                    Ok(payload_json) => {
+                        safe_emit_json_to(
+                            app_handle,
+                            crate::WINDOW_LIVE_LABEL,
+                            "live-data",
+                            payload_json,
+                        );
+                    }
+                    Err(error) => {
+                        warn!(target: "app::live", "live_data_payload_serialize_failed error={}", error);
+                    }
+                }
             }
             OutboundEvent::BuffUpdate(buffs) => {
                 safe_emit_to(
@@ -6218,28 +6248,32 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         buffs: buffs.clone(),
                     },
                 );
-                let entries = buffs
-                    .into_iter()
-                    .map(|buff| EventLoggerEntry {
-                        ts_ms,
-                        category: "buff".into(),
-                        action: "update".into(),
-                        uid: Some(buff.base_id as i64),
-                        target_uid: Some(buff.host_uid),
-                        source_uid: Some(buff.source_uid),
-                        source_label: None,
-                        target_label: None,
-                        name_hint: None,
-                        summary: Some(format!("host={} src={}", buff.host_uid, buff.source_uid)),
-                        stacks: Some(buff.layer),
-                        duration_ms: Some(buff.duration_ms),
-                        remaining_ms: Some(buff.duration_ms),
-                        value: None,
-                        raw: serde_json::to_string_pretty(&buff)
-                            .unwrap_or_else(|_| "null".to_string()),
-                    })
-                    .collect();
-                emit_auxiliary_entries(app_handle, entries);
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    buffs
+                        .into_iter()
+                        .map(|buff| EventLoggerEntry {
+                            ts_ms,
+                            category: "buff".into(),
+                            action: "update".into(),
+                            uid: Some(buff.base_id as i64),
+                            target_uid: Some(buff.host_uid),
+                            source_uid: Some(buff.source_uid),
+                            source_label: None,
+                            target_label: None,
+                            name_hint: None,
+                            summary: Some(format!(
+                                "host={} src={}",
+                                buff.host_uid, buff.source_uid
+                            )),
+                            stacks: Some(buff.layer),
+                            duration_ms: Some(buff.duration_ms),
+                            remaining_ms: Some(buff.duration_ms),
+                            value: None,
+                            raw: serde_json::to_string_pretty(&buff)
+                                .unwrap_or_else(|_| "null".to_string()),
+                        })
+                        .collect()
+                });
             }
             OutboundEvent::BossBuffUpdate(boss_buffs) => {
                 let payload = BossBuffUpdatePayload {
@@ -6257,31 +6291,33 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     "boss-buff-update",
                     payload,
                 );
-                let mut entries = Vec::new();
-                for (boss_key, buffs) in boss_buffs {
-                    let boss_uid = boss_key.parse::<i64>().ok();
-                    for buff in buffs {
-                        entries.push(EventLoggerEntry {
-                            ts_ms,
-                            category: "monster_buff".into(),
-                            action: "update".into(),
-                            uid: Some(buff.base_id as i64),
-                            target_uid: boss_uid,
-                            source_uid: Some(buff.source_uid),
-                            source_label: None,
-                            target_label: None,
-                            name_hint: None,
-                            summary: Some(format!("boss={} src={}", boss_key, buff.source_uid)),
-                            stacks: Some(buff.layer),
-                            duration_ms: Some(buff.duration_ms),
-                            remaining_ms: Some(buff.duration_ms),
-                            value: None,
-                            raw: serde_json::to_string_pretty(&buff)
-                                .unwrap_or_else(|_| "null".to_string()),
-                        });
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    let mut entries = Vec::new();
+                    for (boss_key, buffs) in boss_buffs {
+                        let boss_uid = boss_key.parse::<i64>().ok();
+                        for buff in buffs {
+                            entries.push(EventLoggerEntry {
+                                ts_ms,
+                                category: "monster_buff".into(),
+                                action: "update".into(),
+                                uid: Some(buff.base_id as i64),
+                                target_uid: boss_uid,
+                                source_uid: Some(buff.source_uid),
+                                source_label: None,
+                                target_label: None,
+                                name_hint: None,
+                                summary: Some(format!("boss={} src={}", boss_key, buff.source_uid)),
+                                stacks: Some(buff.layer),
+                                duration_ms: Some(buff.duration_ms),
+                                remaining_ms: Some(buff.duration_ms),
+                                value: None,
+                                raw: serde_json::to_string_pretty(&buff)
+                                    .unwrap_or_else(|_| "null".to_string()),
+                            });
+                        }
                     }
-                }
-                emit_auxiliary_entries(app_handle, entries);
+                    entries
+                });
             }
             OutboundEvent::TeammateBuffUpdate(teammate_buffs) => {
                 safe_emit_to(
@@ -6307,31 +6343,33 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     "hate-list-update",
                     payload,
                 );
-                let mut entries = Vec::new();
-                for (boss_key, entries_for_boss) in hate_lists {
-                    let boss_uid = boss_key.parse::<i64>().ok();
-                    for hate in entries_for_boss {
-                        entries.push(EventLoggerEntry {
-                            ts_ms,
-                            category: "hate".into(),
-                            action: "update".into(),
-                            uid: Some(hate.uid),
-                            target_uid: boss_uid,
-                            source_uid: None,
-                            source_label: None,
-                            target_label: None,
-                            name_hint: None,
-                            summary: Some(format!("boss={} hate={}", boss_key, hate.hate_val)),
-                            stacks: None,
-                            duration_ms: None,
-                            remaining_ms: None,
-                            value: Some(hate.hate_val.to_string()),
-                            raw: serde_json::to_string_pretty(&hate)
-                                .unwrap_or_else(|_| "null".to_string()),
-                        });
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    let mut entries = Vec::new();
+                    for (boss_key, entries_for_boss) in hate_lists {
+                        let boss_uid = boss_key.parse::<i64>().ok();
+                        for hate in entries_for_boss {
+                            entries.push(EventLoggerEntry {
+                                ts_ms,
+                                category: "hate".into(),
+                                action: "update".into(),
+                                uid: Some(hate.uid),
+                                target_uid: boss_uid,
+                                source_uid: None,
+                                source_label: None,
+                                target_label: None,
+                                name_hint: None,
+                                summary: Some(format!("boss={} hate={}", boss_key, hate.hate_val)),
+                                stacks: None,
+                                duration_ms: None,
+                                remaining_ms: None,
+                                value: Some(hate.hate_val.to_string()),
+                                raw: serde_json::to_string_pretty(&hate)
+                                    .unwrap_or_else(|_| "null".to_string()),
+                            });
+                        }
                     }
-                }
-                emit_auxiliary_entries(app_handle, entries);
+                    entries
+                });
             }
             OutboundEvent::EntityNameMap { names } => {
                 let payload = EntityNameMapPayload {
@@ -6349,8 +6387,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     "entity-names",
                     payload,
                 );
-                emit_auxiliary_entries(
-                    app_handle,
+                emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
                         ts_ms,
                         category: "system".into(),
@@ -6368,8 +6405,8 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         value: None,
                         raw: serde_json::to_string_pretty(&EntityNameMapPayload { names })
                             .unwrap_or_else(|_| "null".to_string()),
-                    }],
-                );
+                    }]
+                });
             }
             OutboundEvent::EntityIdentityMap {
                 player_names,
@@ -6394,28 +6431,29 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         counters: counters.clone(),
                     },
                 );
-                let entries = counters
-                    .into_iter()
-                    .map(|counter| EventLoggerEntry {
-                        ts_ms,
-                        category: "counter".into(),
-                        action: "update".into(),
-                        uid: Some(counter.rule_id as i64),
-                        target_uid: None,
-                        source_uid: None,
-                        source_label: None,
-                        target_label: None,
-                        name_hint: None,
-                        summary: Some(format!("slots={}", counter.slots.len())),
-                        stacks: None,
-                        duration_ms: None,
-                        remaining_ms: None,
-                        value: None,
-                        raw: serde_json::to_string_pretty(&counter)
-                            .unwrap_or_else(|_| "null".to_string()),
-                    })
-                    .collect();
-                emit_auxiliary_entries(app_handle, entries);
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    counters
+                        .into_iter()
+                        .map(|counter| EventLoggerEntry {
+                            ts_ms,
+                            category: "counter".into(),
+                            action: "update".into(),
+                            uid: Some(counter.rule_id as i64),
+                            target_uid: None,
+                            source_uid: None,
+                            source_label: None,
+                            target_label: None,
+                            name_hint: None,
+                            summary: Some(format!("slots={}", counter.slots.len())),
+                            stacks: None,
+                            duration_ms: None,
+                            remaining_ms: None,
+                            value: None,
+                            raw: serde_json::to_string_pretty(&counter)
+                                .unwrap_or_else(|_| "null".to_string()),
+                        })
+                        .collect()
+                });
             }
             OutboundEvent::SeasonCultivateFactorCounterUpdate {
                 selection,
@@ -6436,10 +6474,11 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     "season-cultivate-factor-counter-update",
                     payload.clone(),
                 );
-                if let Some(entry) = build_factor_energy_counter_probe_logger_entry(ts_ms, &payload)
-                {
-                    emit_auxiliary_entries(app_handle, vec![entry]);
-                }
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    build_factor_energy_counter_probe_logger_entry(ts_ms, &payload)
+                        .into_iter()
+                        .collect()
+                });
             }
             OutboundEvent::SkillCdUpdate(skill_cds) => {
                 safe_emit_to(
@@ -6450,31 +6489,32 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         skill_cds: skill_cds.clone(),
                     },
                 );
-                let entries = skill_cds
-                    .into_iter()
-                    .map(|skill_cd| EventLoggerEntry {
-                        ts_ms,
-                        category: "skill_cd".into(),
-                        action: "update".into(),
-                        uid: Some(skill_cd.skill_level_id as i64),
-                        target_uid: None,
-                        source_uid: None,
-                        source_label: None,
-                        target_label: None,
-                        name_hint: None,
-                        summary: Some(format!(
-                            "type={} accelerate={:.2}",
-                            skill_cd.skill_cd_type, skill_cd.cd_accelerate_rate
-                        )),
-                        stacks: None,
-                        duration_ms: Some(skill_cd.calculated_duration),
-                        remaining_ms: Some(skill_cd.valid_cd_time),
-                        value: Some(skill_cd.valid_cd_time.to_string()),
-                        raw: serde_json::to_string_pretty(&skill_cd)
-                            .unwrap_or_else(|_| "null".to_string()),
-                    })
-                    .collect();
-                emit_auxiliary_entries(app_handle, entries);
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    skill_cds
+                        .into_iter()
+                        .map(|skill_cd| EventLoggerEntry {
+                            ts_ms,
+                            category: "skill_cd".into(),
+                            action: "update".into(),
+                            uid: Some(skill_cd.skill_level_id as i64),
+                            target_uid: None,
+                            source_uid: None,
+                            source_label: None,
+                            target_label: None,
+                            name_hint: None,
+                            summary: Some(format!(
+                                "type={} accelerate={:.2}",
+                                skill_cd.skill_cd_type, skill_cd.cd_accelerate_rate
+                            )),
+                            stacks: None,
+                            duration_ms: Some(skill_cd.calculated_duration),
+                            remaining_ms: Some(skill_cd.valid_cd_time),
+                            value: Some(skill_cd.valid_cd_time.to_string()),
+                            raw: serde_json::to_string_pretty(&skill_cd)
+                                .unwrap_or_else(|_| "null".to_string()),
+                        })
+                        .collect()
+                });
             }
             OutboundEvent::PanelAttrUpdate(attrs) => {
                 safe_emit_to(
@@ -6485,28 +6525,29 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         attrs: attrs.clone(),
                     },
                 );
-                let entries = attrs
-                    .into_iter()
-                    .map(|attr| EventLoggerEntry {
-                        ts_ms,
-                        category: "system".into(),
-                        action: "panel_attr".into(),
-                        uid: Some(attr.attr_id as i64),
-                        target_uid: None,
-                        source_uid: None,
-                        source_label: None,
-                        target_label: None,
-                        name_hint: None,
-                        summary: Some(format!("value={}", attr.value)),
-                        stacks: None,
-                        duration_ms: None,
-                        remaining_ms: None,
-                        value: Some(attr.value.to_string()),
-                        raw: serde_json::to_string_pretty(&attr)
-                            .unwrap_or_else(|_| "null".to_string()),
-                    })
-                    .collect();
-                emit_auxiliary_entries(app_handle, entries);
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    attrs
+                        .into_iter()
+                        .map(|attr| EventLoggerEntry {
+                            ts_ms,
+                            category: "system".into(),
+                            action: "panel_attr".into(),
+                            uid: Some(attr.attr_id as i64),
+                            target_uid: None,
+                            source_uid: None,
+                            source_label: None,
+                            target_label: None,
+                            name_hint: None,
+                            summary: Some(format!("value={}", attr.value)),
+                            stacks: None,
+                            duration_ms: None,
+                            remaining_ms: None,
+                            value: Some(attr.value.to_string()),
+                            raw: serde_json::to_string_pretty(&attr)
+                                .unwrap_or_else(|_| "null".to_string()),
+                        })
+                        .collect()
+                });
             }
             OutboundEvent::FightResourceUpdate(fight_res) => {
                 safe_emit_to(
@@ -6517,9 +6558,8 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         fight_res: fight_res.clone(),
                     },
                 );
-                emit_auxiliary_entries(
-                    app_handle,
-                    vec![EventLoggerEntry {
+                emit_auxiliary_entries_lazy(app_handle, || {
+                    let mut entries = vec![EventLoggerEntry {
                         ts_ms,
                         category: "system".into(),
                         action: "fight_resource".into(),
@@ -6536,13 +6576,14 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                         value: None,
                         raw: serde_json::to_string_pretty(&fight_res)
                             .unwrap_or_else(|_| "null".to_string()),
-                    }],
-                );
-                if let Some(entry) =
-                    build_factor_energy_fight_resource_probe_logger_entry(ts_ms, &fight_res)
-                {
-                    emit_auxiliary_entries(app_handle, vec![entry]);
-                }
+                    }];
+                    if let Some(entry) =
+                        build_factor_energy_fight_resource_probe_logger_entry(ts_ms, &fight_res)
+                    {
+                        entries.push(entry);
+                    }
+                    entries
+                });
             }
             OutboundEvent::ShieldDetailUpdate {
                 current_hp,

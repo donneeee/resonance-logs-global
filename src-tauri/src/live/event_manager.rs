@@ -16,8 +16,43 @@ use blueprotobuf_lib::blueprotobuf::EEntityType;
 use log::{trace, warn};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
+use std::sync::{Mutex, OnceLock};
+use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::RwLock;
+
+const WEBVIEW_EMIT_BACKOFF: Duration = Duration::from_secs(2);
+
+fn webview_emit_backoff_until() -> &'static Mutex<HashMap<String, Instant>> {
+    static WEBVIEW_EMIT_BACKOFF_UNTIL: OnceLock<Mutex<HashMap<String, Instant>>> = OnceLock::new();
+    WEBVIEW_EMIT_BACKOFF_UNTIL.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn is_webview_state_error(error_msg: &str) -> bool {
+    error_msg.contains("0x8007139F")
+        || error_msg.contains("not in the correct state")
+        || error_msg.contains("Class not registered")
+}
+
+fn should_skip_webview_emit(target_label: &str) -> bool {
+    let now = Instant::now();
+    let mut backoff = webview_emit_backoff_until().lock().unwrap();
+    let Some(until) = backoff.get(target_label).copied() else {
+        return false;
+    };
+    if now < until {
+        return true;
+    }
+    backoff.remove(target_label);
+    false
+}
+
+fn mark_webview_emit_backoff(target_label: &str) {
+    webview_emit_backoff_until().lock().unwrap().insert(
+        target_label.to_string(),
+        Instant::now() + WEBVIEW_EMIT_BACKOFF,
+    );
+}
 
 /// Safely emits an event to the frontend, handling WebView2 state errors gracefully.
 /// This prevents the app from freezing when the WebView is in an invalid state
@@ -46,7 +81,7 @@ pub(crate) fn safe_emit<S: Serialize + Clone>(
         Err(e) => {
             // Check if this is a WebView2 state error (0x8007139F)
             let error_msg = e.to_string();
-            if error_msg.contains("0x8007139F") || error_msg.contains("not in the correct state") {
+            if is_webview_state_error(&error_msg) {
                 // This is expected when windows are minimized/hidden - don't spam logs
                 trace!(
                     "WebView2 not ready for '{}' (window may be minimized/hidden)",
@@ -67,6 +102,14 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
     event: &str,
     payload: S,
 ) -> bool {
+    if should_skip_webview_emit(target_label) {
+        trace!(
+            "Skipping emit for '{}': target window '{}' is in WebView backoff",
+            event, target_label
+        );
+        return false;
+    }
+
     let Some(window) = app_handle.get_webview_window(target_label) else {
         trace!(
             "Skipping emit for '{}': target window '{}' unavailable",
@@ -75,19 +118,110 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
         return false;
     };
 
-    if target_label != crate::WINDOW_LIVE_LABEL && !window.is_visible().unwrap_or(false) {
-        trace!(
-            "Skipping emit for '{}': target window '{}' is hidden",
-            event, target_label
-        );
-        return false;
+    if target_label != crate::WINDOW_LIVE_LABEL {
+        match window.is_visible() {
+            Ok(true) => {}
+            Ok(false) => {
+                trace!(
+                    "Skipping emit for '{}': target window '{}' is hidden",
+                    event, target_label
+                );
+                return false;
+            }
+            Err(e) => {
+                let error_msg = e.to_string();
+                if is_webview_state_error(&error_msg) {
+                    mark_webview_emit_backoff(target_label);
+                    trace!(
+                        "WebView2 not ready for visibility check on '{}' (window may be closing)",
+                        target_label
+                    );
+                } else {
+                    warn!(
+                        "Failed to check visibility for '{}' on '{}': {}",
+                        event, target_label, e
+                    );
+                }
+                return false;
+            }
+        }
     }
 
     match window.emit(event, payload) {
         Ok(_) => true,
         Err(e) => {
             let error_msg = e.to_string();
-            if error_msg.contains("0x8007139F") || error_msg.contains("not in the correct state") {
+            if is_webview_state_error(&error_msg) {
+                mark_webview_emit_backoff(target_label);
+                trace!(
+                    "WebView2 not ready for '{}' on '{}' (window may be minimized/hidden)",
+                    event, target_label
+                );
+            } else {
+                warn!("Failed to emit '{}' to '{}': {}", event, target_label, e);
+            }
+            false
+        }
+    }
+}
+
+pub(crate) fn safe_emit_json_to(
+    app_handle: &AppHandle,
+    target_label: &str,
+    event: &str,
+    payload_json: String,
+) -> bool {
+    if should_skip_webview_emit(target_label) {
+        trace!(
+            "Skipping emit for '{}': target window '{}' is in WebView backoff",
+            event, target_label
+        );
+        return false;
+    }
+
+    let Some(window) = app_handle.get_webview_window(target_label) else {
+        trace!(
+            "Skipping emit for '{}': target window '{}' unavailable",
+            event, target_label
+        );
+        return false;
+    };
+
+    if target_label != crate::WINDOW_LIVE_LABEL {
+        match window.is_visible() {
+            Ok(true) => {}
+            Ok(false) => {
+                trace!(
+                    "Skipping emit for '{}': target window '{}' is hidden",
+                    event, target_label
+                );
+                return false;
+            }
+            Err(e) => {
+                let error_msg = e.to_string();
+                if is_webview_state_error(&error_msg) {
+                    mark_webview_emit_backoff(target_label);
+                    trace!(
+                        "WebView2 not ready for visibility check on '{}' (window may be closing)",
+                        target_label
+                    );
+                } else {
+                    warn!(
+                        "Failed to check visibility for '{}' on '{}': {}",
+                        event, target_label, e
+                    );
+                }
+                return false;
+            }
+        }
+    }
+
+    match window.emit_str(event, payload_json) {
+        Ok(_) => true,
+        Err(e) => {
+            let error_msg = e.to_string();
+            if is_webview_state_error(&error_msg) {
+                mark_webview_emit_backoff(target_label);
                 trace!(
                     "WebView2 not ready for '{}' on '{}' (window may be minimized/hidden)",
                     event, target_label
