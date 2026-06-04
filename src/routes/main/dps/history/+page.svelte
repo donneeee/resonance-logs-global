@@ -654,7 +654,7 @@
 		{/if}
 	</div>
 
-	<div class="overflow-x-auto rounded border border-border/60 bg-card/30 relative">
+	<div class="history-sticky-frame rounded border border-border/60 bg-card/30 relative">
 		<div class="absolute top-2 right-3 z-10">
 			<button
 				onclick={() => loadEncounters(page)}
@@ -680,7 +680,7 @@
 			</button>
 		</div>
 
-		<table class="w-full border-collapse" style="min-width: 780px;">
+		<table class="history-sticky-table w-full border-collapse" style="min-width: 780px;">
 			<thead>
 				<tr class="bg-popover/60">
 					<th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground w-10">
@@ -874,6 +874,30 @@
 		</div>
 	</div>
 {/if}
+
+<style>
+	:global(.history-sticky-frame) {
+		max-height: 72vh;
+		overflow: auto;
+	}
+
+	:global(.history-sticky-table thead),
+	:global(.history-sticky-table th) {
+		position: sticky;
+		top: 0;
+		z-index: 20;
+	}
+
+	:global(.history-sticky-table thead tr),
+	:global(.history-sticky-table th) {
+		background: hsl(var(--popover) / 0.95);
+		backdrop-filter: blur(8px);
+	}
+
+	:global(.history-sticky-table th) {
+		box-shadow: 0 1px 0 hsl(var(--border) / 0.6);
+	}
+</style>
 
 {#if showDeleteModal}
 	<div class="fixed inset-0 z-50 flex items-center justify-center" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">

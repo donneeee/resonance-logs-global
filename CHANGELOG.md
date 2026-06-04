@@ -7,6 +7,7 @@
 - Fixed Season Cultivate SkillCast factor overcounting by counting local cooldown-start edges instead of repeated `attr_skill_id` echoes, so Blast Shot and similar cast-based factors no longer double count.
 - Reduced live-runtime memory and CPU churn by keeping Event Logger/probe rows fully off unless enabled, avoiding full `live-data` payload clones on every tick, adding WebView emit backoff for invalid window states, and gating persisted modifier timing ledgers behind the WIP modifier opt-in.
 - Preserved known player identity/name maps across resets; a tested reset-prune optimization was reverted because it caused known players to fall back to UID labels and did not release the reported RAM growth.
+- Kept live and history table headers pinned while scrolling so column labels stay visible and only the data rows move underneath them.
 - Removed the WinDivert capture path, bundled WinDivert binaries, service cleanup hooks, and capture-method selector; packet capture now uses Npcap only, matching the CN 0.1.5 capture model.
 
 ## v1.1.0_beta2 - Global Beta

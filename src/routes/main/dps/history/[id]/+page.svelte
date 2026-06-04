@@ -3443,8 +3443,8 @@
         </div>
       </div>
 
-      <div class="overflow-x-auto rounded border border-border/60 bg-card/30">
-        <table class="w-full border-collapse">
+      <div class="history-sticky-frame rounded border border-border/60 bg-card/30">
+        <table class="history-sticky-table w-full border-collapse">
           <thead>
             <tr class="bg-popover/60">
               <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
@@ -3787,8 +3787,8 @@
       </div>
       {/if}
     {:else}
-    <div class="overflow-x-auto rounded border border-border/60 bg-card/30">
-        <table class="w-full border-collapse">
+    <div class="history-sticky-frame rounded border border-border/60 bg-card/30">
+        <table class="history-sticky-table w-full border-collapse">
           <thead>
             <tr class="bg-popover/60">
               <th
@@ -4060,8 +4060,8 @@
       </div>
     {/if}
 
-    <div class="overflow-x-auto rounded border border-border/60 bg-card/30">
-      <table class="w-full border-collapse">
+    <div class="history-sticky-frame rounded border border-border/60 bg-card/30">
+      <table class="history-sticky-table w-full border-collapse">
         <thead>
           <tr class="bg-popover/60">
             <th
@@ -4333,3 +4333,27 @@
   </div>
 </div>
 {/if}
+
+<style>
+  :global(.history-sticky-frame) {
+    max-height: 72vh;
+    overflow: auto;
+  }
+
+  :global(.history-sticky-table thead),
+  :global(.history-sticky-table th) {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+  }
+
+  :global(.history-sticky-table thead tr),
+  :global(.history-sticky-table th) {
+    background: hsl(var(--popover) / 0.95);
+    backdrop-filter: blur(8px);
+  }
+
+  :global(.history-sticky-table th) {
+    box-shadow: 0 1px 0 hsl(var(--border) / 0.6);
+  }
+</style>

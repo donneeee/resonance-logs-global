@@ -193,7 +193,7 @@ function thLabel(col: { headerKey?: string; header: string }): string {
   class="relative flex flex-col gap-2 {dynamicWindowSettings.enabled ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'} rounded-lg ring-1 ring-border/60 bg-card/30"
   style={playerTableFrameStyle}
 >
-  <table class="w-full border-separate border-spacing-0 overflow-hidden">
+  <table class="w-full border-separate border-spacing-0">
     {#if tableSettings.showTableHeader && !compactMode}
       <thead class="sticky top-0 z-30">
         <tr
