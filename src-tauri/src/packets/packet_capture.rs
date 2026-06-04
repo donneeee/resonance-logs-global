@@ -960,7 +960,7 @@ fn process_non_scene_chat_packet(
             reason,
             data,
         } => {
-            warn!(
+            debug!(
                 target: "app::capture",
                 "TCP gap skipped for {endpoint}: from={from} to={to} reason={reason:?}; clearing frame reassembler"
             );
@@ -1380,7 +1380,7 @@ fn read_packets(
                 reason,
                 data,
             } => {
-                warn!(
+                debug!(
                     target: "app::capture",
                     "TCP gap skipped for {curr_server}: from={from} to={to} reason={reason:?}; clearing frame reassembler"
                 );

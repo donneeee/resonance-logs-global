@@ -6,6 +6,12 @@
   import { Button } from "$lib/components/ui/button/index.js";
   import { setEventLoggerAlwaysOnTop, showEventLoggerWindow } from "$lib/event-logger-window";
   import { uiT } from "$lib/i18n";
+  import {
+    loadProfileLibraryFromSettings,
+    openProfileLibraryFolder,
+    profileLibraryRuntime,
+    saveActiveProfileToLibrary,
+  } from "$lib/profile-library.svelte";
   import { SETTINGS } from "$lib/settings-store";
   import SettingsSwitch from "../../dps/settings/settings-switch.svelte";
   import ProfileSwitcher from "../../skill-monitor/profile-switcher.svelte";
@@ -84,6 +90,75 @@
     }
   }
 
+  async function chooseProfileLibraryFolder() {
+    try {
+      const defaultPath = SETTINGS.profileLibrary.state.folder || undefined;
+      const selected = await open({
+        directory: true,
+        multiple: false,
+        ...(defaultPath ? { defaultPath } : {}),
+        title: tShell("settings.profileLibrary.chooseFolder", "Choose profile library folder"),
+      });
+
+      if (!selected || Array.isArray(selected)) return;
+
+      SETTINGS.profileLibrary.state.folder = selected;
+      const loaded = await loadProfileLibraryFromSettings();
+      if (loaded) {
+        toast.success(tShell("settings.profileLibrary.loaded", "Profile library loaded."));
+      } else {
+        toast.warning(tShell("settings.profileLibrary.noProfiles", "No valid profiles were found in that folder."));
+      }
+    } catch (error) {
+      console.error("Failed to choose profile library folder", error);
+      toast.error(`Failed to update profile library folder: ${error}`);
+    }
+  }
+
+  async function reloadProfileLibraryFolder() {
+    try {
+      const loaded = await loadProfileLibraryFromSettings();
+      if (loaded) {
+        toast.success(tShell("settings.profileLibrary.reloaded", "Profile library reloaded."));
+      } else {
+        toast.warning(tShell("settings.profileLibrary.noProfiles", "No valid profiles were found in that folder."));
+      }
+    } catch (error) {
+      console.error("Failed to reload profile library", error);
+      toast.error(`Failed to reload profile library: ${error}`);
+    }
+  }
+
+  async function saveActiveProfileLibraryFile() {
+    try {
+      await saveActiveProfileToLibrary();
+      toast.success(tShell("settings.profileLibrary.saved", "Active profile saved."));
+    } catch (error) {
+      console.error("Failed to save active profile", error);
+      toast.error(`Failed to save active profile: ${error}`);
+    }
+  }
+
+  async function openProfileLibraryFolderFromSettings() {
+    try {
+      await openProfileLibraryFolder();
+    } catch (error) {
+      console.error("Failed to open profile library folder", error);
+      toast.error(`Failed to open profile library folder: ${error}`);
+    }
+  }
+
+  function resetProfileLibraryFolder() {
+    SETTINGS.profileLibrary.state.folder = "";
+    SETTINGS.profileLibrary.state.lastSelectedProfileId = "";
+    SETTINGS.profileLibrary.state.lastSelectedProfileFile = "";
+    SETTINGS.profileLibrary.state.profileFiles = {};
+    profileLibraryRuntime.loadedCount = 0;
+    profileLibraryRuntime.skippedFiles = [];
+    profileLibraryRuntime.lastError = "";
+    toast.success(tShell("settings.profileLibrary.reset", "Profile library reset to internal profiles."));
+  }
+
   async function resetEventLoggerSessionDirectory() {
     try {
       loggerSessionDirectory = await invoke<EventLoggerSessionDirectoryPayload>(
@@ -121,6 +196,100 @@
       </div>
 
       <ProfileSwitcher />
+
+      <div class="space-y-3 rounded-lg border border-border/60 bg-background/40 p-4 text-sm">
+        <div class="flex flex-wrap items-start justify-between gap-3">
+          <div class="space-y-1">
+            <div class="font-medium">{tShell("settings.profileLibrary.title", "Profile library folder")}</div>
+            <p class="text-xs text-muted-foreground">
+              {tShell(
+                "settings.profileLibrary.description",
+                "Load profile JSON files from a folder. Missing fields are added from the current defaults, and the last selected profile is remembered outside the JSON files.",
+              )}
+            </p>
+          </div>
+
+          <div class="flex flex-wrap gap-2">
+            <Button size="sm" variant="outline" onclick={() => void chooseProfileLibraryFolder()}>
+              {tShell("settings.profileLibrary.chooseFolder", "Choose Folder")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!SETTINGS.profileLibrary.state.folder || profileLibraryRuntime.loading}
+              onclick={() => void reloadProfileLibraryFolder()}
+            >
+              {profileLibraryRuntime.loading
+                ? tShell("settings.profileLibrary.loading", "Loading...")
+                : tShell("settings.profileLibrary.reload", "Reload")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!SETTINGS.profileLibrary.state.folder}
+              onclick={() => void saveActiveProfileLibraryFile()}
+            >
+              {tShell("settings.profileLibrary.saveActive", "Save Active")}
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              disabled={!SETTINGS.profileLibrary.state.folder}
+              onclick={() => void openProfileLibraryFolderFromSettings()}
+            >
+              {tShell("settings.profileLibrary.openFolder", "Open Folder")}
+            </Button>
+            <Button
+              size="sm"
+              variant="ghost"
+              disabled={!SETTINGS.profileLibrary.state.folder}
+              onclick={resetProfileLibraryFolder}
+            >
+              {tShell("settings.profileLibrary.useInternal", "Use Internal")}
+            </Button>
+          </div>
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+          <div class="space-y-1">
+            <div class="text-xs uppercase tracking-wide text-muted-foreground">
+              {tShell("settings.profileLibrary.currentFolder", "Current folder")}
+            </div>
+            <div class="break-all rounded-md border border-border/60 bg-background px-3 py-2 font-mono text-xs">
+              {SETTINGS.profileLibrary.state.folder || tShell("settings.profileLibrary.internalProfiles", "Internal profiles")}
+            </div>
+          </div>
+
+          <div class="space-y-1">
+            <div class="text-xs uppercase tracking-wide text-muted-foreground">
+              {tShell("settings.profileLibrary.loadedProfiles", "Loaded profiles")}
+            </div>
+            <div class="rounded-md border border-border/60 bg-background px-3 py-2 font-mono text-xs">
+              {profileLibraryRuntime.loadedCount}
+              {#if SETTINGS.profileLibrary.state.lastSelectedProfileFile}
+                <span class="text-muted-foreground">
+                  · {SETTINGS.profileLibrary.state.lastSelectedProfileFile}
+                </span>
+              {/if}
+            </div>
+          </div>
+        </div>
+
+        {#if profileLibraryRuntime.lastError}
+          <p class="text-xs text-destructive">{profileLibraryRuntime.lastError}</p>
+        {/if}
+
+        {#if profileLibraryRuntime.skippedFiles.length > 0}
+          <div class="space-y-1 text-xs text-muted-foreground">
+            <div class="font-medium text-foreground">
+              {tShell("settings.profileLibrary.skippedFiles", "Skipped files")}
+            </div>
+            {#each profileLibraryRuntime.skippedFiles as skipped}
+              <div class="break-all">{skipped.fileName}: {skipped.reason}</div>
+            {/each}
+          </div>
+        {/if}
+      </div>
     </div>
   </div>
 

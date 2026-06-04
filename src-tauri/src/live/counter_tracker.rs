@@ -532,11 +532,10 @@ impl BuffCounterTracker {
                             .iter()
                             .filter(|event| {
                                 skill_keys.contains(&event.skill_key)
-                                    && if local_player_uuid != 0 {
-                                        event.target_uuid == Some(local_player_uuid)
-                                    } else {
-                                        event.target_uid == local_player_uid
-                                    }
+                                    && ((local_player_uuid != 0
+                                        && event.target_uuid == Some(local_player_uuid))
+                                        || (local_player_uid > 0
+                                            && event.target_uid == local_player_uid))
                             })
                             .count(),
                     ),
@@ -609,11 +608,9 @@ impl BuffCounterTracker {
                 let matches = events
                     .iter()
                     .filter(|event| {
-                        let is_self_source = if local_player_uuid != 0 {
-                            event.attacker_uuid == Some(local_player_uuid)
-                        } else {
-                            event.attacker_uid == local_player_uid
-                        };
+                        let is_self_source = (local_player_uuid != 0
+                            && event.attacker_uuid == Some(local_player_uuid))
+                            || (local_player_uid > 0 && event.attacker_uid == local_player_uid);
                         !is_self_source
                             && skill_keys
                                 .as_ref()

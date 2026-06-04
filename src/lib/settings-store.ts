@@ -106,15 +106,50 @@ export const DEFAULT_LIVE_SORT_SETTINGS = {
 
 type MutableRecord = Record<string, unknown>;
 
-function mergeFlatDefaults<T extends MutableRecord>(
+function isMutableRecord(value: unknown): value is MutableRecord {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function cloneSettingValue<T>(value: T): T {
+  if (Array.isArray(value)) {
+    return value.map((item) => cloneSettingValue(item)) as T;
+  }
+  if (isMutableRecord(value)) {
+    const next: MutableRecord = {};
+    for (const [key, item] of Object.entries(value)) {
+      next[key] = cloneSettingValue(item);
+    }
+    return next as T;
+  }
+  return value;
+}
+
+function mergeDeepDefaults<T extends MutableRecord>(
   target: T,
   defaults: Record<string, unknown>,
 ): void {
+  const mutableTarget = target as MutableRecord;
   for (const [key, value] of Object.entries(defaults)) {
-    if (!(key in target)) {
-      (target as MutableRecord)[key] = value;
+    const current = mutableTarget[key];
+    if (current === undefined) {
+      mutableTarget[key] = cloneSettingValue(value);
+      continue;
+    }
+    if (isMutableRecord(current) && isMutableRecord(value)) {
+      mergeDeepDefaults(current, value);
     }
   }
+}
+
+function normalizeObjectWithDefaults<T extends MutableRecord>(
+  value: unknown,
+  defaults: T,
+): T {
+  const next = isMutableRecord(value)
+    ? (cloneSettingValue(value) as MutableRecord)
+    : {};
+  mergeDeepDefaults(next, defaults);
+  return next as T;
 }
 
 function normalizeColumnOrder(
@@ -512,6 +547,7 @@ export type ModuleCalcMemoryState = {
 };
 
 export type SkillMonitorProfile = {
+  id: string;
   name: string;
   selectedClass: string;
   monitoredSkillIds: number[];
@@ -548,6 +584,13 @@ export type SkillMonitorProfile = {
   overlayPositions: OverlayPositions;
   overlaySizes: OverlaySizes;
   overlayVisibility: OverlayVisibility;
+};
+
+export type ProfileLibrarySettings = {
+  folder: string;
+  lastSelectedProfileId: string;
+  lastSelectedProfileFile: string;
+  profileFiles: Record<string, string>;
 };
 
 export function ensureBuffAliases(
@@ -773,6 +816,32 @@ function finiteNumberArray(value: unknown): number[] {
     .filter((item) => Number.isFinite(item));
 }
 
+function profileIdSlug(value: string): string {
+  const slug = value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9_-]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+  return slug || "profile";
+}
+
+export function createGeneratedProfileId(seed = "profile"): string {
+  return `${profileIdSlug(seed)}-${Date.now().toString(36)}-${Math.random()
+    .toString(36)
+    .slice(2, 8)}`;
+}
+
+function normalizeProfileId(
+  value: unknown,
+  name: string,
+  index: number,
+  fallbackId?: string,
+): string {
+  if (typeof value === "string" && value.trim()) return value.trim();
+  if (fallbackId?.trim()) return fallbackId.trim();
+  return `profile-${index + 1}-${profileIdSlug(name)}`;
+}
+
 export function createDefaultModuleCalcProfileSettings(): ModuleCalcProfileSettings {
   return {
     useGpu: true,
@@ -809,8 +878,10 @@ export function normalizeModuleCalcProfileSettings(
 export function createDefaultSkillMonitorProfile(
   name = "默认方案",
   classKey = "wind_knight",
+  id = createGeneratedProfileId(name),
 ): SkillMonitorProfile {
   return {
+    id,
     name,
     selectedClass: classKey,
     monitoredSkillIds: [],
@@ -1351,6 +1422,12 @@ const DEFAULT_SETTINGS = {
     buffAliases: {} as BuffAliasMap,
     profiles: [createDefaultSkillMonitorProfile()] as SkillMonitorProfile[],
   },
+  profileLibrary: {
+    folder: "",
+    lastSelectedProfileId: "",
+    lastSelectedProfileFile: "",
+    profileFiles: {} as Record<string, string>,
+  } satisfies ProfileLibrarySettings,
   customTriggers: {
     enabled: true,
     loggerAlwaysOnTop: false,
@@ -1459,227 +1536,396 @@ const DEFAULT_SETTINGS = {
   },
 };
 
+function normalizeStringRecord(value: unknown): Record<string, string> {
+  const next: Record<string, string> = {};
+  if (!isMutableRecord(value)) return next;
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item === "string") next[key] = item;
+  }
+  return next;
+}
+
+function normalizeInlineBuffEntriesForPersistence(
+  value: unknown,
+): InlineBuffEntry[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .filter(isMutableRecord)
+    .map((entry, index) => {
+      const format = entry["format"];
+      const normalized: InlineBuffEntry = {
+        id:
+          typeof entry["id"] === "string" && entry["id"]
+            ? entry["id"]
+            : `inline_${index + 1}`,
+        sourceType: entry["sourceType"] === "counter" ? "counter" : "buff",
+        sourceId: Number.isFinite(Number(entry["sourceId"]))
+          ? Number(entry["sourceId"])
+          : 0,
+        label: typeof entry["label"] === "string" ? entry["label"] : "",
+        format:
+          format === "active" || format === "stacks_timer"
+            ? format
+            : "timer",
+      };
+      if (
+        entry["counterSlotId"] !== undefined &&
+        Number.isFinite(Number(entry["counterSlotId"]))
+      ) {
+        normalized.counterSlotId = Number(entry["counterSlotId"]);
+      }
+      if (entry["counterDisplayMode"] === "factor") {
+        normalized.counterDisplayMode = "factor";
+      }
+      return normalized;
+    });
+}
+
+function normalizeCustomPanelGroupKind(
+  value: unknown,
+): CustomPanelGroupKind {
+  return value === "seasonCultivateFactor" ? "seasonCultivateFactor" : "manual";
+}
+
+function normalizeCustomPanelGroupsForPersistence(
+  value: unknown,
+  profile: SkillMonitorProfile,
+): CustomPanelGroup[] {
+  if (!Array.isArray(value)) return [];
+  const legacyPosition = profile.overlayPositions?.customPanelGroup ?? {
+    x: 700,
+    y: 280,
+  };
+  const legacyScale =
+    typeof profile.overlaySizes?.customPanelGroupScale === "number"
+      ? profile.overlaySizes.customPanelGroupScale
+      : 1;
+  return value.filter(isMutableRecord).map((group, index) => {
+    const kind = normalizeCustomPanelGroupKind(group["kind"]);
+    const fallbackPosition = {
+      x: legacyPosition.x + index * 40,
+      y: legacyPosition.y + index * 40,
+    };
+    const normalized = normalizeObjectWithDefaults(group, {
+      id: `custom_panel_group_${index + 1}`,
+      name: `监控区 ${index + 1}`,
+      kind,
+      entries: [] as InlineBuffEntry[],
+      position: fallbackPosition,
+      scale: index === 0 ? legacyScale : 1,
+      style: createDefaultCustomPanelStyle(),
+    }) as CustomPanelGroup;
+    normalized.kind = kind;
+    normalized.entries =
+      kind === "manual"
+        ? normalizeInlineBuffEntriesForPersistence(normalized.entries)
+        : [];
+    normalized.style = normalizeObjectWithDefaults(
+      normalized.style,
+      createDefaultCustomPanelStyle(),
+    );
+    return normalized as CustomPanelGroup;
+  });
+}
+
+export function normalizeSkillMonitorProfileForPersistence(
+  value: unknown,
+  index: number,
+  options?: { fallbackId?: string },
+): SkillMonitorProfile {
+  const defaults = createDefaultSkillMonitorProfile(`默认方案 ${index + 1}`);
+  const next = normalizeObjectWithDefaults(value, defaults);
+  next.id = normalizeProfileId(next.id, next.name, index, options?.fallbackId);
+  next.monitoredSkillIds = finiteNumberArray(next.monitoredSkillIds);
+  next.monitoredSkillDurationIds = finiteNumberArray(next.monitoredSkillDurationIds);
+  next.monitoredBuffIds = finiteNumberArray(next.monitoredBuffIds);
+  next.monitoredUptimeBuffIds = finiteNumberArray(next.monitoredUptimeBuffIds);
+  next.buffPriorityIds = finiteNumberArray(next.buffPriorityIds);
+  next.userCounterRules = Array.isArray(next.userCounterRules)
+    ? next.userCounterRules
+    : [];
+  next.buffUptimeColors = ensureBuffUptimeColors(next.buffUptimeColors);
+  next.buffUptimeAliases = ensureBuffUptimeAliases(next.buffUptimeAliases);
+  next.buffUptimeTrackingModes = ensureBuffUptimeTrackingModes(
+    next.buffUptimeTrackingModes,
+  );
+  next.buffUptimeActiveIndicators = ensureBuffUptimeActiveIndicators(
+    next.buffUptimeActiveIndicators,
+  );
+  next.buffUptimeMinStacksEnabled = ensureBuffUptimeMinStacksEnabled(
+    next.buffUptimeMinStacksEnabled,
+  );
+  next.buffUptimeMinStacks = ensureBuffUptimeMinStacks(next.buffUptimeMinStacks);
+  next.moduleCalc = normalizeModuleCalcProfileSettings(next.moduleCalc);
+  next.factorSlotLabels = normalizeStringRecord(next.factorSlotLabels);
+  next.inlineBuffEntries = normalizeInlineBuffEntriesForPersistence(
+    next.inlineBuffEntries,
+  );
+  next.customPanelGroups = normalizeCustomPanelGroupsForPersistence(
+    next.customPanelGroups,
+    next,
+  );
+  next.panelAreaRowOrder = Array.isArray(next.panelAreaRowOrder)
+    ? next.panelAreaRowOrder
+    : [];
+  return next as SkillMonitorProfile;
+}
+
+function normalizeSkillMonitorSettingsState(
+  value: unknown,
+): typeof DEFAULT_SETTINGS.skillMonitor {
+  const next = normalizeObjectWithDefaults(value, DEFAULT_SETTINGS.skillMonitor);
+  const profiles = Array.isArray(next.profiles)
+    ? next.profiles.map((profile, index) =>
+        normalizeSkillMonitorProfileForPersistence(profile, index),
+      )
+    : [];
+  next.profiles =
+    profiles.length > 0 ? profiles : [createDefaultSkillMonitorProfile()];
+  const activeIndex = Number(next.activeProfileIndex);
+  next.activeProfileIndex = Number.isFinite(activeIndex)
+    ? Math.max(0, Math.min(next.profiles.length - 1, Math.round(activeIndex)))
+    : 0;
+  return next;
+}
+
+function normalizeProfileLibrarySettingsState(
+  value: unknown,
+): ProfileLibrarySettings {
+  const next = normalizeObjectWithDefaults(
+    value,
+    DEFAULT_SETTINGS.profileLibrary,
+  );
+  next.folder = typeof next.folder === "string" ? next.folder : "";
+  next.lastSelectedProfileId =
+    typeof next.lastSelectedProfileId === "string"
+      ? next.lastSelectedProfileId
+      : "";
+  next.lastSelectedProfileFile =
+    typeof next.lastSelectedProfileFile === "string"
+      ? next.lastSelectedProfileFile
+      : "";
+  next.profileFiles = isMutableRecord(next.profileFiles)
+    ? normalizeStringRecord(next.profileFiles)
+    : {};
+  return next as ProfileLibrarySettings;
+}
+
+function normalizeMonsterMonitorSettingsState(
+  value: unknown,
+): MonsterMonitorConfig {
+  return normalizeObjectWithDefaults(
+    value,
+    DEFAULT_SETTINGS.monsterMonitor,
+  ) as MonsterMonitorConfig;
+}
+
+type SettingsStoreNormalizer<T extends MutableRecord> = (value: unknown) => T;
+
+function createSettingsStore<T extends MutableRecord>(
+  id: string,
+  defaults: T,
+  normalize: SettingsStoreNormalizer<T> = (value) =>
+    normalizeObjectWithDefaults(value, defaults),
+): RuneStore<T> {
+  return new RuneStore(id, cloneSettingValue(defaults), {
+    autoStart: true,
+    saveOnChange: true,
+    hooks: {
+      beforeFrontendSync: normalize,
+      beforeBackendSync: normalize,
+    },
+  });
+}
+
 // We need flattened settings for every update to be able to auto-detect new changes
-const RUNE_STORE_OPTIONS = { autoStart: true, saveOnChange: true };
 export const SETTINGS = {
-  accessibility: new RuneStore(
+  accessibility: createSettingsStore(
     "accessibility",
     DEFAULT_SETTINGS.accessibility,
-    RUNE_STORE_OPTIONS,
   ),
-  shortcuts: new RuneStore(
+  shortcuts: createSettingsStore(
     "shortcuts",
     DEFAULT_SETTINGS.shortcuts,
-    RUNE_STORE_OPTIONS,
   ),
-  moduleSync: new RuneStore(
+  moduleSync: createSettingsStore(
     "moduleSync",
     DEFAULT_SETTINGS.moduleSync,
-    RUNE_STORE_OPTIONS,
   ),
-  moduleCalc: new RuneStore(
+  moduleCalc: createSettingsStore(
     "moduleCalc",
     DEFAULT_SETTINGS.moduleCalc,
-    RUNE_STORE_OPTIONS,
   ),
-  skillMonitor: new RuneStore(
+  skillMonitor: createSettingsStore(
     "skillMonitor",
     DEFAULT_SETTINGS.skillMonitor,
-    RUNE_STORE_OPTIONS,
+    normalizeSkillMonitorSettingsState,
   ),
-  customTriggers: new RuneStore(
+  profileLibrary: createSettingsStore(
+    "profileLibrary",
+    DEFAULT_SETTINGS.profileLibrary,
+    normalizeProfileLibrarySettingsState,
+  ),
+  customTriggers: createSettingsStore(
     "customTriggers",
     DEFAULT_SETTINGS.customTriggers,
-    RUNE_STORE_OPTIONS,
   ),
-  monsterMonitor: new RuneStore(
+  monsterMonitor: createSettingsStore(
     "monsterMonitor",
     DEFAULT_SETTINGS.monsterMonitor,
-    RUNE_STORE_OPTIONS,
+    normalizeMonsterMonitorSettingsState,
   ),
-  trainingDummy: new RuneStore(
+  trainingDummy: createSettingsStore(
     "trainingDummy",
     DEFAULT_SETTINGS.trainingDummy,
-    RUNE_STORE_OPTIONS,
   ),
-  appBehavior: new RuneStore(
+  appBehavior: createSettingsStore(
     "appBehavior",
     DEFAULT_SETTINGS.appBehavior,
-    RUNE_STORE_OPTIONS,
   ),
   live: {
-    general: new RuneStore(
+    general: createSettingsStore(
       "liveGeneral",
       DEFAULT_SETTINGS.live.general,
-      RUNE_STORE_OPTIONS,
     ),
     dps: {
-      players: new RuneStore(
+      players: createSettingsStore(
         "liveDpsPlayers",
         DEFAULT_SETTINGS.live.dpsPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      skillBreakdown: new RuneStore(
+      skillBreakdown: createSettingsStore(
         "liveDpsSkillBreakdown",
         DEFAULT_SETTINGS.live.dpsSkillBreakdown,
-        RUNE_STORE_OPTIONS,
       ),
     },
     heal: {
-      players: new RuneStore(
+      players: createSettingsStore(
         "liveHealPlayers",
         DEFAULT_SETTINGS.live.healPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      skillBreakdown: new RuneStore(
+      skillBreakdown: createSettingsStore(
         "liveHealSkillBreakdown",
         DEFAULT_SETTINGS.live.healSkillBreakdown,
-        RUNE_STORE_OPTIONS,
       ),
     },
     tanked: {
-      players: new RuneStore(
+      players: createSettingsStore(
         "liveTankedPlayers",
         DEFAULT_SETTINGS.live.tankedPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      skills: new RuneStore(
+      skills: createSettingsStore(
         "liveTankedSkills",
         DEFAULT_SETTINGS.live.tankedSkillBreakdown,
-        RUNE_STORE_OPTIONS,
       ),
     },
-    tableCustomization: new RuneStore(
+    tableCustomization: createSettingsStore(
       "liveTableCustomization",
       DEFAULT_SETTINGS.live.tableCustomization,
-      RUNE_STORE_OPTIONS,
     ),
-    dynamicWindow: new RuneStore(
+    dynamicWindow: createSettingsStore(
       "liveDynamicWindow",
       DEFAULT_SETTINGS.live.dynamicWindow,
-      RUNE_STORE_OPTIONS,
     ),
-    headerCustomization: new RuneStore(
+    headerCustomization: createSettingsStore(
       "liveHeaderCustomization",
       DEFAULT_SETTINGS.live.headerCustomization,
-      RUNE_STORE_OPTIONS,
     ),
     // Column order settings
     columnOrder: {
-      dpsPlayers: new RuneStore(
+      dpsPlayers: createSettingsStore(
         "liveDpsPlayersColumnOrder",
         { order: DEFAULT_DPS_PLAYER_COLUMN_ORDER },
-        RUNE_STORE_OPTIONS,
       ),
-      dpsSkills: new RuneStore(
+      dpsSkills: createSettingsStore(
         "liveDpsSkillsColumnOrder",
         { order: DEFAULT_DPS_SKILL_COLUMN_ORDER },
-        RUNE_STORE_OPTIONS,
       ),
-      healPlayers: new RuneStore(
+      healPlayers: createSettingsStore(
         "liveHealPlayersColumnOrder",
         { order: DEFAULT_HEAL_PLAYER_COLUMN_ORDER },
-        RUNE_STORE_OPTIONS,
       ),
-      healSkills: new RuneStore(
+      healSkills: createSettingsStore(
         "liveHealSkillsColumnOrder",
         { order: DEFAULT_HEAL_SKILL_COLUMN_ORDER },
-        RUNE_STORE_OPTIONS,
       ),
-      tankedPlayers: new RuneStore(
+      tankedPlayers: createSettingsStore(
         "liveTankedPlayersColumnOrder",
         { order: DEFAULT_TANKED_PLAYER_COLUMN_ORDER },
-        RUNE_STORE_OPTIONS,
       ),
-      tankedSkills: new RuneStore(
+      tankedSkills: createSettingsStore(
         "liveTankedSkillsColumnOrder",
         { order: DEFAULT_TANKED_SKILL_COLUMN_ORDER },
-        RUNE_STORE_OPTIONS,
       ),
     },
     // Sort settings
     sorting: {
-      dpsPlayers: new RuneStore(
+      dpsPlayers: createSettingsStore(
         "liveDpsPlayersSorting",
         DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      dpsSkills: new RuneStore(
+      dpsSkills: createSettingsStore(
         "liveDpsSkillsSorting",
         DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
-        RUNE_STORE_OPTIONS,
       ),
-      healPlayers: new RuneStore(
+      healPlayers: createSettingsStore(
         "liveHealPlayersSorting",
         DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      healSkills: new RuneStore(
+      healSkills: createSettingsStore(
         "liveHealSkillsSorting",
         DEFAULT_LIVE_SORT_SETTINGS.healSkills,
-        RUNE_STORE_OPTIONS,
       ),
-      tankedPlayers: new RuneStore(
+      tankedPlayers: createSettingsStore(
         "liveTankedPlayersSorting",
         DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      tankedSkills: new RuneStore(
+      tankedSkills: createSettingsStore(
         "liveTankedSkillsSorting",
         DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
-        RUNE_STORE_OPTIONS,
       ),
     },
   },
   history: {
-    general: new RuneStore(
+    general: createSettingsStore(
       "historyGeneral",
       DEFAULT_SETTINGS.history.general,
-      RUNE_STORE_OPTIONS,
     ),
     dps: {
-      players: new RuneStore(
+      players: createSettingsStore(
         "historyDpsPlayers",
         DEFAULT_SETTINGS.history.dpsPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      skillBreakdown: new RuneStore(
+      skillBreakdown: createSettingsStore(
         "historyDpsSkillBreakdown",
         DEFAULT_SETTINGS.history.dpsSkillBreakdown,
-        RUNE_STORE_OPTIONS,
       ),
     },
     heal: {
-      players: new RuneStore(
+      players: createSettingsStore(
         "historyHealPlayers",
         DEFAULT_SETTINGS.history.healPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      skillBreakdown: new RuneStore(
+      skillBreakdown: createSettingsStore(
         "historyHealSkillBreakdown",
         DEFAULT_SETTINGS.history.healSkillBreakdown,
-        RUNE_STORE_OPTIONS,
       ),
     },
     tanked: {
-      players: new RuneStore(
+      players: createSettingsStore(
         "historyTankedPlayers",
         DEFAULT_SETTINGS.history.tankedPlayers,
-        RUNE_STORE_OPTIONS,
       ),
-      skillBreakdown: new RuneStore(
+      skillBreakdown: createSettingsStore(
         "historyTankedSkillBreakdown",
         DEFAULT_SETTINGS.history.tankedSkillBreakdown,
-        RUNE_STORE_OPTIONS,
       ),
     },
   },
   // persisted app metadata (tracks which app version the user last saw)
-  appVersion: new RuneStore("appVersion", { value: "" }, RUNE_STORE_OPTIONS),
-  packetCapture: new RuneStore(
+  appVersion: createSettingsStore("appVersion", { value: "" }),
+  packetCapture: createSettingsStore(
     "packetCapture",
     { npcapDevice: "" },
-    RUNE_STORE_OPTIONS,
   ),
 };
 
@@ -1691,6 +1937,7 @@ export const settings = {
     moduleSync: SETTINGS.moduleSync.state,
     moduleCalc: SETTINGS.moduleCalc.state,
     skillMonitor: SETTINGS.skillMonitor.state,
+    profileLibrary: SETTINGS.profileLibrary.state,
     customTriggers: SETTINGS.customTriggers.state,
     monsterMonitor: SETTINGS.monsterMonitor.state,
     trainingDummy: SETTINGS.trainingDummy.state,
@@ -1751,24 +1998,133 @@ export const settings = {
 
 
 export function normalizePersistedSettings(): void {
-  mergeFlatDefaults(SETTINGS.appBehavior.state as MutableRecord, DEFAULT_SETTINGS.appBehavior);
-  mergeFlatDefaults(SETTINGS.live.general.state as MutableRecord, DEFAULT_SETTINGS.live.general);
-  mergeFlatDefaults(SETTINGS.live.tableCustomization.state as MutableRecord, DEFAULT_SETTINGS.live.tableCustomization);
-  mergeFlatDefaults(SETTINGS.live.dynamicWindow.state as MutableRecord, DEFAULT_SETTINGS.live.dynamicWindow);
-  mergeFlatDefaults(SETTINGS.live.headerCustomization.state as MutableRecord, DEFAULT_SETTINGS.live.headerCustomization);
-  mergeFlatDefaults(SETTINGS.live.dps.players.state as MutableRecord, DEFAULT_SETTINGS.live.dpsPlayers);
-  mergeFlatDefaults(SETTINGS.live.dps.skillBreakdown.state as MutableRecord, DEFAULT_SETTINGS.live.dpsSkillBreakdown);
-  mergeFlatDefaults(SETTINGS.live.heal.players.state as MutableRecord, DEFAULT_SETTINGS.live.healPlayers);
-  mergeFlatDefaults(SETTINGS.live.heal.skillBreakdown.state as MutableRecord, DEFAULT_SETTINGS.live.healSkillBreakdown);
-  mergeFlatDefaults(SETTINGS.live.tanked.players.state as MutableRecord, DEFAULT_SETTINGS.live.tankedPlayers);
-  mergeFlatDefaults(SETTINGS.live.tanked.skills.state as MutableRecord, DEFAULT_SETTINGS.live.tankedSkillBreakdown);
-  mergeFlatDefaults(SETTINGS.history.general.state as MutableRecord, DEFAULT_SETTINGS.history.general);
-  mergeFlatDefaults(SETTINGS.history.dps.players.state as MutableRecord, DEFAULT_SETTINGS.history.dpsPlayers);
-  mergeFlatDefaults(SETTINGS.history.dps.skillBreakdown.state as MutableRecord, DEFAULT_SETTINGS.history.dpsSkillBreakdown);
-  mergeFlatDefaults(SETTINGS.history.heal.players.state as MutableRecord, DEFAULT_SETTINGS.history.healPlayers);
-  mergeFlatDefaults(SETTINGS.history.heal.skillBreakdown.state as MutableRecord, DEFAULT_SETTINGS.history.healSkillBreakdown);
-  mergeFlatDefaults(SETTINGS.history.tanked.players.state as MutableRecord, DEFAULT_SETTINGS.history.tankedPlayers);
-  mergeFlatDefaults(SETTINGS.history.tanked.skillBreakdown.state as MutableRecord, DEFAULT_SETTINGS.history.tankedSkillBreakdown);
+  Object.assign(
+    SETTINGS.skillMonitor.state,
+    normalizeSkillMonitorSettingsState(SETTINGS.skillMonitor.state),
+  );
+  Object.assign(
+    SETTINGS.profileLibrary.state,
+    normalizeProfileLibrarySettingsState(SETTINGS.profileLibrary.state),
+  );
+  Object.assign(
+    SETTINGS.monsterMonitor.state,
+    normalizeMonsterMonitorSettingsState(SETTINGS.monsterMonitor.state),
+  );
+  Object.assign(
+    SETTINGS.trainingDummy.state,
+    normalizeObjectWithDefaults(SETTINGS.trainingDummy.state, DEFAULT_SETTINGS.trainingDummy),
+  );
+  Object.assign(
+    SETTINGS.appBehavior.state,
+    normalizeObjectWithDefaults(SETTINGS.appBehavior.state, DEFAULT_SETTINGS.appBehavior),
+  );
+  Object.assign(
+    SETTINGS.live.general.state,
+    normalizeObjectWithDefaults(SETTINGS.live.general.state, DEFAULT_SETTINGS.live.general),
+  );
+  Object.assign(
+    SETTINGS.live.tableCustomization.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.live.tableCustomization.state,
+      DEFAULT_SETTINGS.live.tableCustomization,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.dynamicWindow.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.live.dynamicWindow.state,
+      DEFAULT_SETTINGS.live.dynamicWindow,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.headerCustomization.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.live.headerCustomization.state,
+      DEFAULT_SETTINGS.live.headerCustomization,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.dps.players.state,
+    normalizeObjectWithDefaults(SETTINGS.live.dps.players.state, DEFAULT_SETTINGS.live.dpsPlayers),
+  );
+  Object.assign(
+    SETTINGS.live.dps.skillBreakdown.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.live.dps.skillBreakdown.state,
+      DEFAULT_SETTINGS.live.dpsSkillBreakdown,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.heal.players.state,
+    normalizeObjectWithDefaults(SETTINGS.live.heal.players.state, DEFAULT_SETTINGS.live.healPlayers),
+  );
+  Object.assign(
+    SETTINGS.live.heal.skillBreakdown.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.live.heal.skillBreakdown.state,
+      DEFAULT_SETTINGS.live.healSkillBreakdown,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.tanked.players.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.live.tanked.players.state,
+      DEFAULT_SETTINGS.live.tankedPlayers,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.tanked.skills.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.live.tanked.skills.state,
+      DEFAULT_SETTINGS.live.tankedSkillBreakdown,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.general.state,
+    normalizeObjectWithDefaults(SETTINGS.history.general.state, DEFAULT_SETTINGS.history.general),
+  );
+  Object.assign(
+    SETTINGS.history.dps.players.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.history.dps.players.state,
+      DEFAULT_SETTINGS.history.dpsPlayers,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.dps.skillBreakdown.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.history.dps.skillBreakdown.state,
+      DEFAULT_SETTINGS.history.dpsSkillBreakdown,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.heal.players.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.history.heal.players.state,
+      DEFAULT_SETTINGS.history.healPlayers,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.heal.skillBreakdown.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.history.heal.skillBreakdown.state,
+      DEFAULT_SETTINGS.history.healSkillBreakdown,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.tanked.players.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.history.tanked.players.state,
+      DEFAULT_SETTINGS.history.tankedPlayers,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.tanked.skillBreakdown.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.history.tanked.skillBreakdown.state,
+      DEFAULT_SETTINGS.history.tankedSkillBreakdown,
+    ),
+  );
 
   normalizeColumnOrder(SETTINGS.live.columnOrder.dpsPlayers.state, DEFAULT_DPS_PLAYER_COLUMN_ORDER);
   normalizeColumnOrder(SETTINGS.live.columnOrder.dpsSkills.state, DEFAULT_DPS_SKILL_COLUMN_ORDER);

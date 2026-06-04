@@ -429,6 +429,14 @@ fn record_observed_damage_hit(
     target_attr_snapshot: Vec<FormulaAttrSnapshot>,
     attacker_entity: &mut Entity,
 ) {
+    if attacker_entity.observed_damage_hits.len() >= MAX_OBSERVED_MODIFIER_DAMAGE_HITS {
+        let overflow = attacker_entity
+            .observed_damage_hits
+            .len()
+            .saturating_sub(MAX_OBSERVED_MODIFIER_DAMAGE_HITS)
+            + 1;
+        attacker_entity.observed_damage_hits.drain(0..overflow);
+    }
     attacker_entity
         .observed_damage_hits
         .push(ObservedDamageHit {
@@ -527,6 +535,13 @@ pub(crate) struct EnterSceneResult {
 }
 use std::time::{SystemTime, UNIX_EPOCH};
 
+const MAX_OBSERVED_MODIFIER_DAMAGE_HITS: usize = 20_000;
+
+fn is_local_identity(encounter: &Encounter, uid: i64, uuid: i64) -> bool {
+    (encounter.local_player_uuid != 0 && uuid == encounter.local_player_uuid)
+        || (encounter.local_player_uid > 0 && uid == encounter.local_player_uid)
+}
+
 /// Increment global active combat time used for True DPS calculations.
 /// Adds a small grace window for single hits and ignores long idle gaps.
 fn update_active_damage_time(encounter: &mut Encounter, timestamp_ms: u128) {
@@ -564,6 +579,7 @@ pub fn process_sync_near_entities(
         let target_uuid = pkt_entity.uuid?;
         let target_uid = encounter.remember_entity_uuid(target_uuid);
         let target_entity_type = EEntityType::from(target_uuid);
+        let is_target_local_player = is_local_identity(encounter, target_uid, target_uuid);
 
         let target_entity = encounter.entity_by_uuid_or_insert_with(target_uuid, || Entity {
             entity_type: target_entity_type,
@@ -586,7 +602,7 @@ pub fn process_sync_near_entities(
         target_entity.uuid = Some(target_uuid);
         if let Some(passive_infos) = pkt_entity.passive_skill_infos.as_ref() {
             sync_entity_spec_from_passive_skill_infos(target_entity, passive_infos);
-            if capture_modifier_evidence {
+            if capture_modifier_evidence && is_target_local_player {
                 observe_passive_skill_infos(
                     target_entity,
                     passive_infos,
@@ -631,8 +647,10 @@ pub fn process_sync_container_data(
     let season_cultivate_line_data = v_data.season_cultivate_line_data.clone();
     let player_uid = v_data.char_id?;
     let player_uuid = canonical_player_uuid(player_uid);
+    encounter.local_player_uid = player_uid;
     encounter.local_player_uuid = player_uuid;
     encounter.remember_entity_uuid(player_uuid);
+    attr_store.set_local_uid(player_uid);
     attr_store.set_local_uuid(player_uuid);
 
     let target_entity = encounter.entity_by_uuid_or_insert_with(player_uuid, Entity::default);
@@ -1430,6 +1448,21 @@ pub(crate) fn process_enter_scene(
 ) -> EnterSceneResult {
     if let Some(info) = enter_scene.enter_scene_info.as_ref() {
         if let Some(player_ent) = info.player_ent.as_ref() {
+            if let Some(player_uuid) = player_ent.uuid.or_else(|| {
+                player_ent
+                    .passive_skill_infos
+                    .as_ref()
+                    .and_then(|passive_infos| passive_infos.actor_uuid)
+            }) {
+                encounter.local_player_uuid = player_uuid;
+                encounter.local_player_uid = encounter.remember_entity_uuid(player_uuid);
+                attr_store.set_local_uid(encounter.local_player_uid);
+                attr_store.set_local_uuid(player_uuid);
+
+                let entity = encounter.entity_by_uuid_or_insert_with(player_uuid, Entity::default);
+                entity.uuid = Some(player_uuid);
+                entity.entity_type = EEntityType::EntChar;
+            }
             if let Some(passive_infos) = player_ent.passive_skill_infos.as_ref() {
                 if let Some(player_uuid) = player_ent.uuid.or(passive_infos.actor_uuid) {
                     encounter.remember_entity_uuid(player_uuid);
@@ -1603,6 +1636,7 @@ pub fn process_aoi_sync_delta(
 ) -> Option<(Vec<LocalDamageEvent>, Vec<LocalDamageTakenEvent>)> {
     let target_uuid = aoi_sync_delta.uuid?; // UUID =/= uid (have to >> 16)
     let target_uid = encounter.remember_entity_uuid(target_uuid);
+    let is_target_local_player = is_local_identity(encounter, target_uid, target_uuid);
     let allow_combat = match combat_gate {
         CombatGate::AllowAll => true,
         CombatGate::Only(locked_target_uuid) => locked_target_uuid == target_uuid,
@@ -1616,12 +1650,12 @@ pub fn process_aoi_sync_delta(
         entity.uuid = Some(actor_uuid);
         entity.entity_type = EEntityType::from(actor_uuid);
         sync_entity_spec_from_passive_skill_infos(entity, passive_infos);
-        if capture_modifier_evidence {
+        if capture_modifier_evidence && is_target_local_player {
             observe_passive_skill_infos(entity, passive_infos, "AoiSyncDelta.passive_skill_infos");
         }
     }
 
-    if capture_modifier_evidence {
+    if capture_modifier_evidence && is_target_local_player {
         if let Some(passive_end_infos) = aoi_sync_delta.passive_skill_end_infos.as_ref() {
             let actor_uuid = passive_end_infos.actor_uuid.unwrap_or(target_uuid);
             encounter.remember_entity_uuid(actor_uuid);
@@ -1718,12 +1752,11 @@ pub fn process_aoi_sync_delta(
         let top_summoner_uid = sync_damage_info
             .top_summoner_id
             .map(|uuid| encounter.remember_entity_uuid(uuid));
+        let is_local_damage_source = is_local_identity(encounter, attacker_uid, attacker_uuid);
         let capture_formula_evidence = attribution_census::is_attribution_census_enabled()
             || (capture_modifier_evidence
-                && encounter
-                    .entity_by_uuid(attacker_uuid)
-                    .map(|entity| entity.entity_type == EEntityType::EntChar)
-                    .unwrap_or(false));
+                && is_local_damage_source
+                && EEntityType::from(attacker_uuid) == EEntityType::EntChar);
         let (attacker_formula_attrs, target_formula_attrs) = if capture_formula_evidence {
             (
                 formula_attr_snapshot(attr_store, attacker_uid, FORMULA_ATTACKER_ATTRS),
@@ -1742,12 +1775,6 @@ pub fn process_aoi_sync_delta(
             sync_damage_info.hit_event_id,
         );
         let skill_key = damage_id;
-        let local_player_uuid = encounter.local_player_uuid;
-        let is_local_damage_source = if local_player_uuid != 0 {
-            attacker_uuid == local_player_uuid
-        } else {
-            attacker_uid == encounter.local_player_uid
-        };
         if allow_combat && is_local_damage_source {
             local_damage_events.push(LocalDamageEvent {
                 skill_key,
@@ -1761,11 +1788,7 @@ pub fn process_aoi_sync_delta(
                 top_summoner_uid,
             });
         }
-        let is_local_damage_target = if local_player_uuid != 0 {
-            target_uuid == local_player_uuid
-        } else {
-            target_uid == encounter.local_player_uid
-        };
+        let is_local_damage_target = is_target_local_player;
         if allow_combat && collect_taken && is_local_damage_target && !is_heal {
             local_damage_taken_events.push(LocalDamageTakenEvent {
                 skill_key,
@@ -1907,7 +1930,9 @@ pub fn process_aoi_sync_delta(
                     target_formula_attrs.clone(),
                     attacker_entity,
                 );
-                if capture_modifier_evidence && attacker_entity.entity_type == EEntityType::EntChar
+                if capture_modifier_evidence
+                    && is_local_damage_source
+                    && attacker_entity.entity_type == EEntityType::EntChar
                 {
                     record_observed_damage_hit(
                         timestamp_ms,
@@ -2068,7 +2093,9 @@ pub fn process_aoi_sync_delta(
                     target_formula_attrs.clone(),
                     attacker_entity,
                 );
-                if capture_modifier_evidence && attacker_entity.entity_type == EEntityType::EntChar
+                if capture_modifier_evidence
+                    && is_local_damage_source
+                    && attacker_entity.entity_type == EEntityType::EntChar
                 {
                     record_observed_damage_hit(
                         timestamp_ms,

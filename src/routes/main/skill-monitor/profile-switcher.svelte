@@ -2,6 +2,7 @@
   import {
     SETTINGS,
     createDefaultSkillMonitorProfile,
+    createGeneratedProfileId,
   } from "$lib/settings-store";
   import { uiT } from "$lib/i18n";
   import {
@@ -25,10 +26,17 @@
 
   function setActiveProfileIndex(index: number) {
     const maxIndex = Math.max(0, SETTINGS.skillMonitor.state.profiles.length - 1);
-    SETTINGS.skillMonitor.state.activeProfileIndex = Math.min(
+    const nextIndex = Math.min(
       Math.max(index, 0),
       maxIndex,
     );
+    SETTINGS.skillMonitor.state.activeProfileIndex = nextIndex;
+    const profile = SETTINGS.skillMonitor.state.profiles[nextIndex];
+    if (profile) {
+      SETTINGS.profileLibrary.state.lastSelectedProfileId = profile.id;
+      SETTINGS.profileLibrary.state.lastSelectedProfileFile =
+        SETTINGS.profileLibrary.state.profileFiles[profile.id] ?? "";
+    }
   }
 
   function updateActiveProfileName(name: string) {
@@ -39,6 +47,8 @@
     const nextIndex = SETTINGS.skillMonitor.state.profiles.length + 1;
     const nextProfile = createDefaultSkillMonitorProfile(
       `${t("profile.defaultName", "方案")} ${nextIndex}`,
+      "wind_knight",
+      createGeneratedProfileId(`profile-${nextIndex}`),
     );
     SETTINGS.skillMonitor.state.profiles = [
       ...SETTINGS.skillMonitor.state.profiles,
@@ -46,6 +56,8 @@
     ];
     SETTINGS.skillMonitor.state.activeProfileIndex =
       SETTINGS.skillMonitor.state.profiles.length - 1;
+    SETTINGS.profileLibrary.state.lastSelectedProfileId = nextProfile.id;
+    SETTINGS.profileLibrary.state.lastSelectedProfileFile = "";
   }
 
   function renameActiveProfile() {
@@ -68,6 +80,11 @@
     );
     state.profiles = state.profiles.filter((_, i) => i !== index);
     state.activeProfileIndex = Math.min(index, state.profiles.length - 1);
+    const profile = state.profiles[state.activeProfileIndex];
+    SETTINGS.profileLibrary.state.lastSelectedProfileId = profile?.id ?? "";
+    SETTINGS.profileLibrary.state.lastSelectedProfileFile = profile
+      ? (SETTINGS.profileLibrary.state.profileFiles[profile.id] ?? "")
+      : "";
   }
 </script>
 

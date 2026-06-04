@@ -320,6 +320,9 @@ pub fn run() {
             custom_data_commands::write_custom_definitions,
             custom_data_commands::read_custom_triggers,
             custom_data_commands::write_custom_triggers,
+            profile_library_commands::read_profile_library_files,
+            profile_library_commands::write_profile_library_file,
+            profile_library_commands::open_profile_library_dir,
             debug_commands::read_event_logger_buffer,
             debug_commands::clear_event_logger_buffer,
             debug_commands::show_event_logger_window,
@@ -632,6 +635,146 @@ mod custom_data_commands {
     }
 }
 
+mod profile_library_commands {
+    use super::*;
+    use serde::Serialize;
+
+    #[derive(Debug, Clone, Serialize, specta::Type)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ProfileLibraryJsonFile {
+        pub file_name: String,
+        pub path: String,
+        pub content: String,
+    }
+
+    fn resolve_profile_library_dir(directory: String) -> Result<PathBuf, String> {
+        let trimmed = directory.trim();
+        if trimmed.is_empty() {
+            return Err("Profile library folder is not configured".to_string());
+        }
+        let path = PathBuf::from(trimmed);
+        if !path.exists() {
+            return Err(format!(
+                "Profile library folder does not exist: {}",
+                path.display()
+            ));
+        }
+        if !path.is_dir() {
+            return Err(format!(
+                "Profile library path is not a folder: {}",
+                path.display()
+            ));
+        }
+        Ok(path)
+    }
+
+    fn sanitize_profile_file_name(file_name: String) -> Result<String, String> {
+        let trimmed = file_name.trim();
+        if trimmed.is_empty() {
+            return Err("Profile file name is empty".to_string());
+        }
+        if trimmed.contains('/') || trimmed.contains('\\') || trimmed == "." || trimmed == ".." {
+            return Err("Profile file name must not contain path separators".to_string());
+        }
+        let path = Path::new(trimmed);
+        if path.file_name().and_then(|value| value.to_str()) != Some(trimmed) {
+            return Err("Profile file name must be a plain file name".to_string());
+        }
+        if path
+            .extension()
+            .and_then(|value| value.to_str())
+            .map(|value| !value.eq_ignore_ascii_case("json"))
+            .unwrap_or(true)
+        {
+            return Err("Profile file name must end with .json".to_string());
+        }
+        Ok(trimmed.to_string())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn read_profile_library_files(
+        directory: String,
+    ) -> Result<Vec<ProfileLibraryJsonFile>, String> {
+        let dir = resolve_profile_library_dir(directory)?;
+        let mut files = Vec::new();
+        let entries =
+            std::fs::read_dir(&dir).map_err(|e| format!("read_dir {}: {}", dir.display(), e))?;
+        for entry in entries {
+            let entry = entry.map_err(|e| format!("read_dir entry {}: {}", dir.display(), e))?;
+            let path = entry.path();
+            if !path.is_file() {
+                continue;
+            }
+            let Some(extension) = path.extension().and_then(|value| value.to_str()) else {
+                continue;
+            };
+            if !extension.eq_ignore_ascii_case("json") {
+                continue;
+            }
+            let metadata = std::fs::metadata(&path)
+                .map_err(|e| format!("metadata {}: {}", path.display(), e))?;
+            if metadata.len() > 5 * 1024 * 1024 {
+                return Err(format!("Profile JSON is too large: {}", path.display()));
+            }
+            let Some(file_name) = path.file_name().and_then(|value| value.to_str()) else {
+                continue;
+            };
+            let content = std::fs::read_to_string(&path)
+                .map_err(|e| format!("read {}: {}", path.display(), e))?;
+            files.push(ProfileLibraryJsonFile {
+                file_name: file_name.to_string(),
+                path: path.display().to_string(),
+                content,
+            });
+        }
+        files.sort_by(|a, b| a.file_name.to_lowercase().cmp(&b.file_name.to_lowercase()));
+        Ok(files)
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn write_profile_library_file(
+        directory: String,
+        file_name: String,
+        content: String,
+    ) -> Result<String, String> {
+        let dir = resolve_profile_library_dir(directory)?;
+        let file_name = sanitize_profile_file_name(file_name)?;
+        let parsed: serde_json::Value = serde_json::from_str(&content)
+            .map_err(|e| format!("Profile JSON payload is invalid: {}", e))?;
+        let bytes = serde_json::to_vec_pretty(&parsed)
+            .map_err(|e| format!("Failed to serialize profile JSON: {}", e))?;
+        let target = dir.join(&file_name);
+        std::fs::write(&target, bytes).map_err(|e| format!("write {}: {}", target.display(), e))?;
+        Ok(target.display().to_string())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn open_profile_library_dir(directory: String) -> Result<(), String> {
+        let dir = resolve_profile_library_dir(directory)?;
+
+        #[cfg(target_os = "windows")]
+        {
+            Command::new("explorer")
+                .arg(&dir)
+                .spawn()
+                .map_err(|e| format!("Failed to open profile library folder: {}", e))?;
+        }
+
+        #[cfg(not(target_os = "windows"))]
+        {
+            Command::new("xdg-open")
+                .arg(&dir)
+                .spawn()
+                .map_err(|e| format!("Failed to open profile library folder: {}", e))?;
+        }
+
+        Ok(())
+    }
+}
+
 mod packet_settings_commands {
     use super::*;
 
@@ -796,6 +939,7 @@ mod debug_commands {
     #[specta::specta]
     pub fn set_event_logger_file_storage_settings(
         app_handle: tauri::AppHandle,
+        enabled: bool,
         store_log_files: bool,
         include_repeated_snapshot_rows: bool,
         delete_older_than_days: Option<u32>,
@@ -804,6 +948,7 @@ mod debug_commands {
     ) -> Result<crate::live::event_logger::EventLoggerFileStoragePayload, String> {
         crate::live::event_logger::set_event_logger_file_storage_settings(
             &app_handle,
+            enabled,
             store_log_files,
             include_repeated_snapshot_rows,
             delete_older_than_days,
@@ -819,6 +964,9 @@ mod debug_commands {
     ) -> Result<Option<String>, String> {
         let file_storage =
             crate::live::event_logger::get_event_logger_file_storage_payload(&app_handle)?;
+        if !file_storage.enabled {
+            return Err("Enable Event Logger before exporting an event log.".to_string());
+        }
         if !file_storage.store_log_files {
             return Err("Enable Store Log Files before exporting an event log.".to_string());
         }

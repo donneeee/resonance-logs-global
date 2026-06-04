@@ -4,7 +4,10 @@ use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::{
+    OnceLock,
+    atomic::{AtomicBool, Ordering},
+};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use tauri::{AppHandle, Manager};
 
@@ -24,6 +27,7 @@ pub struct EventLoggerFileStoragePayload {
     pub configured_directory: Option<String>,
     pub resolved_directory: String,
     pub using_default: bool,
+    pub enabled: bool,
     pub store_log_files: bool,
     pub include_repeated_snapshot_rows: bool,
     pub delete_older_than_days: Option<u32>,
@@ -63,6 +67,7 @@ struct EventLoggerSessionFile {
 #[serde(rename_all = "camelCase")]
 struct EventLoggerSessionDirectoryConfig {
     save_directory: Option<String>,
+    enabled: Option<bool>,
     store_log_files: Option<bool>,
     include_repeated_snapshot_rows: Option<bool>,
     delete_older_than_days: Option<u32>,
@@ -97,6 +102,7 @@ pub struct EventLoggerBatchPayload {
 }
 
 pub const EVENT_LOGGER_BUFFER_LIMIT: usize = 5000;
+pub const EVENT_LOGGER_SESSION_ENTRY_LIMIT: usize = 50_000;
 
 fn event_logger_buffer() -> &'static Mutex<Vec<EventLoggerEntry>> {
     static EVENT_LOGGER_BUFFER: OnceLock<Mutex<Vec<EventLoggerEntry>>> = OnceLock::new();
@@ -106,6 +112,32 @@ fn event_logger_buffer() -> &'static Mutex<Vec<EventLoggerEntry>> {
 fn event_logger_session_state() -> &'static Mutex<EventLoggerSessionState> {
     static EVENT_LOGGER_SESSION_STATE: OnceLock<Mutex<EventLoggerSessionState>> = OnceLock::new();
     EVENT_LOGGER_SESSION_STATE.get_or_init(|| Mutex::new(EventLoggerSessionState::default()))
+}
+
+fn default_event_logger_enabled() -> bool {
+    false
+}
+
+fn event_logger_enabled_flag() -> &'static AtomicBool {
+    static EVENT_LOGGER_ENABLED: OnceLock<AtomicBool> = OnceLock::new();
+    EVENT_LOGGER_ENABLED.get_or_init(|| AtomicBool::new(default_event_logger_enabled()))
+}
+
+fn set_event_logger_enabled_runtime(enabled: bool) {
+    event_logger_enabled_flag().store(enabled, Ordering::Relaxed);
+}
+
+fn event_logger_enabled(app_handle: &AppHandle) -> bool {
+    static EVENT_LOGGER_ENABLED_LOADED: OnceLock<()> = OnceLock::new();
+    EVENT_LOGGER_ENABLED_LOADED.get_or_init(|| {
+        let enabled = read_event_logger_settings_config(app_handle)
+            .ok()
+            .and_then(|config| config.enabled)
+            .unwrap_or_else(default_event_logger_enabled);
+        set_event_logger_enabled_runtime(enabled);
+    });
+
+    event_logger_enabled_flag().load(Ordering::Relaxed)
 }
 
 #[derive(Debug, Default)]
@@ -131,6 +163,17 @@ pub fn get_logger_buffer_entries() -> Vec<EventLoggerEntry> {
 
 pub fn clear_logger_buffer_entries() {
     event_logger_buffer().lock().clear();
+    reset_snapshot_filter_state();
+}
+
+fn clear_logger_runtime_state() {
+    event_logger_buffer().lock().clear();
+    {
+        let mut session = event_logger_session_state().lock();
+        session.started_at_ms = None;
+        session.current_scene_name = None;
+        session.entries.clear();
+    }
     reset_snapshot_filter_state();
 }
 
@@ -419,6 +462,10 @@ fn push_logger_entries(entries: &[EventLoggerEntry]) {
         session.current_scene_name = Some(scene_name);
     }
     session.entries.extend(entries.iter().cloned());
+    if session.entries.len() > EVENT_LOGGER_SESSION_ENTRY_LIMIT {
+        let overflow = session.entries.len() - EVENT_LOGGER_SESSION_ENTRY_LIMIT;
+        session.entries.drain(0..overflow);
+    }
 }
 
 pub fn now_ms() -> i64 {
@@ -438,6 +485,10 @@ pub fn logger_window_visible(app_handle: &AppHandle) -> bool {
 
 pub fn emit_logger_entries(app_handle: &AppHandle, entries: Vec<EventLoggerEntry>) {
     if entries.is_empty() {
+        return;
+    }
+
+    if !event_logger_enabled(app_handle) {
         return;
     }
 
@@ -547,6 +598,7 @@ fn event_logger_file_storage_defaults() -> (bool, bool, Option<u32>, bool, bool)
 fn build_event_logger_file_storage_payload(
     configured_directory: Option<String>,
     resolved_directory: PathBuf,
+    enabled: bool,
     store_log_files: bool,
     include_repeated_snapshot_rows: bool,
     delete_older_than_days: Option<u32>,
@@ -557,6 +609,7 @@ fn build_event_logger_file_storage_payload(
         using_default: configured_directory.is_none(),
         configured_directory,
         resolved_directory: resolved_directory.display().to_string(),
+        enabled,
         store_log_files,
         include_repeated_snapshot_rows,
         delete_older_than_days,
@@ -581,10 +634,13 @@ pub fn get_event_logger_file_storage_payload(
         _default_capture_census_enabled,
         _default_attribution_census_enabled,
     ) = event_logger_file_storage_defaults();
+    let enabled = config.enabled.unwrap_or_else(default_event_logger_enabled);
+    set_event_logger_enabled_runtime(enabled);
 
     Ok(build_event_logger_file_storage_payload(
         configured_directory,
         resolved_directory,
+        enabled,
         config.store_log_files.unwrap_or(default_store_log_files),
         config
             .include_repeated_snapshot_rows
@@ -599,6 +655,7 @@ pub fn get_event_logger_file_storage_payload(
 
 pub fn set_event_logger_file_storage_settings(
     app_handle: &AppHandle,
+    enabled: bool,
     store_log_files: bool,
     include_repeated_snapshot_rows: bool,
     delete_older_than_days: Option<u32>,
@@ -606,6 +663,7 @@ pub fn set_event_logger_file_storage_settings(
     attribution_census_enabled: bool,
 ) -> Result<EventLoggerFileStoragePayload, String> {
     let mut config = read_event_logger_settings_config(app_handle)?;
+    config.enabled = Some(enabled);
     config.store_log_files = Some(store_log_files);
     config.include_repeated_snapshot_rows = Some(include_repeated_snapshot_rows);
     config.delete_older_than_days = delete_older_than_days.filter(|value| *value > 0);
@@ -624,8 +682,15 @@ pub fn set_event_logger_file_storage_settings(
         let _ = cleanup_old_event_logger_files(&dir, delete_older_than_days);
     }
 
-    crate::packets::packet_capture::set_capture_census_enabled(capture_census_enabled);
-    crate::live::attribution_census::set_attribution_census_enabled(attribution_census_enabled);
+    set_event_logger_enabled_runtime(enabled);
+    if !enabled {
+        clear_logger_runtime_state();
+    }
+
+    crate::packets::packet_capture::set_capture_census_enabled(enabled && capture_census_enabled);
+    crate::live::attribution_census::set_attribution_census_enabled(
+        enabled && attribution_census_enabled,
+    );
 
     get_event_logger_file_storage_payload(app_handle)
 }

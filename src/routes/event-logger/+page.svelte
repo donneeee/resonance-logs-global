@@ -47,6 +47,7 @@
     configuredDirectory: string | null;
     resolvedDirectory: string;
     usingDefault: boolean;
+    enabled: boolean;
     storeLogFiles: boolean;
     includeRepeatedSnapshotRows: boolean;
     deleteOlderThanDays: number | null;
@@ -954,6 +955,7 @@
       loggerFileStorage = await invoke<EventLoggerFileStoragePayload>(
         "set_event_logger_file_storage_settings",
         {
+          enabled: loggerFileStorage.enabled,
           storeLogFiles: loggerFileStorage.storeLogFiles,
           includeRepeatedSnapshotRows: loggerFileStorage.includeRepeatedSnapshotRows,
           deleteOlderThanDays: parseDeleteOldFilesDays(),
@@ -1588,6 +1590,27 @@
         </Button>
       </div>
 
+      <label class="flex items-center gap-2 rounded-md border border-border/60 bg-background-main px-3 py-2 text-sm">
+        <input
+          type="checkbox"
+          checked={loggerFileStorage?.enabled ?? false}
+          disabled={!loggerFileStorage || loggerFileStorageLoading}
+          onchange={(event) => {
+            if (!loggerFileStorage) return;
+            loggerFileStorage = {
+              ...loggerFileStorage,
+              enabled: (event.currentTarget as HTMLInputElement).checked,
+            };
+            void saveLoggerFileStorage();
+          }}
+          class="h-4 w-4"
+        />
+        <span class="font-medium">{t("controls.eventLogger", "Event Logger")}</span>
+        <span class={`text-xs ${loggerFileStorage?.enabled ? "text-emerald-300" : "text-muted-foreground"}`}>
+          {loggerFileStorage?.enabled ? t("controls.on", "On") : t("controls.off", "Off")}
+        </span>
+      </label>
+
       <Button variant="outline" onclick={() => (paused = !paused)}>
         {paused ? t("controls.resume", "Resume") : t("controls.pause", "Pause")}
       </Button>
@@ -1605,6 +1628,11 @@
   <div class="grid min-h-0 flex-1 gap-0 lg:grid-cols-[minmax(0,1.3fr)_minmax(360px,0.7fr)]">
     <section class="min-h-0 border-r border-border/60">
       <div class="h-full overflow-auto">
+        {#if loggerFileStorage && !loggerFileStorage.enabled}
+          <div class="m-4 rounded-md border border-dashed border-border/70 bg-card/60 px-4 py-3 text-sm text-muted-foreground">
+            {t("status.disabledDescription", "Event Logger capture is off. Turn it on from the toolbar when you need diagnostic combat rows. DPS parsing continues normally while this logger is off.")}
+          </div>
+        {/if}
         <table class="w-full border-collapse text-sm table-fixed" style={`min-width:${tableMinWidth}px`}>
           <colgroup>
             {#each visibleColumns as columnKey (columnKey)}
@@ -1952,7 +1980,29 @@
               <label class="flex items-center gap-3 rounded-md border border-border/50 bg-card/40 px-3 py-2 text-sm">
                 <input
                   type="checkbox"
+                  checked={loggerFileStorage?.enabled ?? false}
+                  disabled={!loggerFileStorage}
+                  onchange={(event) => {
+                    if (!loggerFileStorage) return;
+                    loggerFileStorage = {
+                      ...loggerFileStorage,
+                      enabled: (event.currentTarget as HTMLInputElement).checked,
+                    };
+                    void saveLoggerFileStorage();
+                  }}
+                  class="h-4 w-4"
+                />
+                <div>
+                  <div>{t("debug.enableEventLogger", "Enable Event Logger")}</div>
+                  <div class="text-xs text-muted-foreground">{t("debug.enableEventLoggerDescription", "Collect and display diagnostic Event Logger rows. Keep this off during normal play for lower CPU and memory usage.")}</div>
+                </div>
+              </label>
+
+              <label class="flex items-center gap-3 rounded-md border border-border/50 bg-card/40 px-3 py-2 text-sm">
+                <input
+                  type="checkbox"
                   checked={loggerFileStorage?.storeLogFiles ?? false}
+                  disabled={!loggerFileStorage || !(loggerFileStorage.enabled ?? false)}
                   onchange={(event) => {
                     if (!loggerFileStorage) return;
                     loggerFileStorage = {
@@ -1973,7 +2023,7 @@
                 <input
                   type="checkbox"
                   checked={loggerFileStorage?.includeRepeatedSnapshotRows ?? false}
-                  disabled={!(loggerFileStorage?.storeLogFiles ?? false)}
+                  disabled={!loggerFileStorage || !(loggerFileStorage.enabled ?? false) || !(loggerFileStorage.storeLogFiles ?? false)}
                   onchange={(event) => {
                     if (!loggerFileStorage) return;
                     loggerFileStorage = {
@@ -1995,7 +2045,7 @@
                   <input
                     type="checkbox"
                     checked={loggerFileStorage?.captureCensusEnabled ?? false}
-                    disabled={!loggerFileStorage}
+                    disabled={!loggerFileStorage || !(loggerFileStorage.enabled ?? false)}
                     onchange={(event) => {
                       if (!loggerFileStorage) return;
                       loggerFileStorage = {
@@ -2016,7 +2066,7 @@
                   <input
                     type="checkbox"
                     checked={loggerFileStorage?.attributionCensusEnabled ?? false}
-                    disabled={!loggerFileStorage}
+                    disabled={!loggerFileStorage || !(loggerFileStorage.enabled ?? false)}
                     onchange={(event) => {
                       if (!loggerFileStorage) return;
                       loggerFileStorage = {

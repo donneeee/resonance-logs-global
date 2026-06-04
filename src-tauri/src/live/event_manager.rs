@@ -451,6 +451,10 @@ pub fn generate_live_data_payload(
             continue;
         }
 
+        let is_local_player = uid == encounter.local_player_uid
+            || (encounter.local_player_uuid != 0
+                && entity.uuid == Some(encounter.local_player_uuid));
+
         entities.push(RawEntityData {
             uid,
             uuid: entity.uuid,
@@ -503,26 +507,42 @@ pub fn generate_live_data_payload(
                 .map(|(skill_id, stats)| (*skill_id, to_raw_skill_stats(stats)))
                 .collect(),
             taken_per_source: build_taken_per_source(&entity.skill_taken_from_source),
-            active_buffs: entity
-                .active_buffs
-                .iter()
-                .map(to_active_buff_state)
-                .collect(),
-            active_factor_buffs: entity
-                .active_factor_buffs
-                .iter()
-                .map(to_active_factor_buff_state)
-                .collect(),
-            active_effect_buffs: entity
-                .active_effect_buffs
-                .iter()
-                .map(to_active_effect_buff_state)
-                .collect(),
-            modifier_windows: entity
-                .modifier_windows
-                .iter()
-                .map(to_modifier_window_state)
-                .collect(),
+            active_buffs: if is_local_player {
+                entity
+                    .active_buffs
+                    .iter()
+                    .map(to_active_buff_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
+            active_factor_buffs: if is_local_player {
+                entity
+                    .active_factor_buffs
+                    .iter()
+                    .map(to_active_factor_buff_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
+            active_effect_buffs: if is_local_player {
+                entity
+                    .active_effect_buffs
+                    .iter()
+                    .map(to_active_effect_buff_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
+            modifier_windows: if is_local_player {
+                entity
+                    .modifier_windows
+                    .iter()
+                    .map(to_modifier_window_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
             // Exact hit buckets are save-time history data. Keeping them out of
             // live payloads avoids replaying a large encounter ledger every tick.
             modifier_hit_buckets: Vec::new(),
@@ -531,31 +551,51 @@ pub fn generate_live_data_payload(
             // separately through SkillCdUpdate.
             skill_cast_events: Vec::new(),
             skill_cooldown_events: Vec::new(),
-            active_effect_sources: entity
-                .active_effect_sources
-                .iter()
-                .map(to_active_effect_source_state)
-                .collect(),
-            active_factor_items: entity
-                .active_factor_items
-                .iter()
-                .map(to_active_factor_item_state)
-                .collect(),
-            active_passive_skills: entity
-                .active_passive_skills
-                .iter()
-                .map(to_active_passive_skill_state)
-                .collect(),
-            active_profession_skills: entity
-                .active_profession_skills
-                .iter()
-                .map(to_active_profession_skill_state)
-                .collect(),
-            active_profession_talents: entity
-                .active_profession_talents
-                .iter()
-                .map(to_active_profession_talent_state)
-                .collect(),
+            active_effect_sources: if is_local_player {
+                entity
+                    .active_effect_sources
+                    .iter()
+                    .map(to_active_effect_source_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
+            active_factor_items: if is_local_player {
+                entity
+                    .active_factor_items
+                    .iter()
+                    .map(to_active_factor_item_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
+            active_passive_skills: if is_local_player {
+                entity
+                    .active_passive_skills
+                    .iter()
+                    .map(to_active_passive_skill_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
+            active_profession_skills: if is_local_player {
+                entity
+                    .active_profession_skills
+                    .iter()
+                    .map(to_active_profession_skill_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
+            active_profession_talents: if is_local_player {
+                entity
+                    .active_profession_talents
+                    .iter()
+                    .map(to_active_profession_talent_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
         });
     }
 

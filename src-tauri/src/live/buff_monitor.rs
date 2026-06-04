@@ -95,11 +95,8 @@ impl BuffMonitor {
             raw_bytes,
             server_clock_offset,
             |_, source_uid, source_uuid, _, _| {
-                if local_player_uuid != 0 {
-                    source_uuid == Some(local_player_uuid)
-                } else {
-                    source_uid == local_player_uid
-                }
+                (local_player_uuid != 0 && source_uuid == Some(local_player_uuid))
+                    || (local_player_uid > 0 && source_uid == local_player_uid)
             },
         )
     }

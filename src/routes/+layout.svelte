@@ -64,9 +64,12 @@
     void (async () => {
       const { getCurrentWebviewWindow } = await import("@tauri-apps/api/webviewWindow");
       const { hideEventLoggerWindow, showEventLoggerWindow } = await import("$lib/event-logger-window");
+      const { loadProfileLibraryFromSettings } = await import("$lib/profile-library.svelte");
       const currentWindow = getCurrentWebviewWindow();
       if (currentWindow.label !== "main") return;
       isMainWindow = true;
+
+      void loadProfileLibraryFromSettings();
 
       if (SETTINGS.customTriggers.state.loggerStartWithMeter) {
         await showEventLoggerWindow();

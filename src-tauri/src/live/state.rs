@@ -615,14 +615,11 @@ fn remember_local_owned_sources_from_buff_changes(
         ) {
             continue;
         }
-        if change
-            .host_uuid
-            .is_some_and(|uuid| uuid != 0 && uuid != local_player_uuid)
-        {
-            continue;
-        }
-        if change.host_uuid.is_none() && change.host_uid != 0 && change.host_uid != local_player_uid
-        {
+        let has_host_identity =
+            change.host_uuid.is_some_and(|uuid| uuid != 0) || change.host_uid != 0;
+        let host_is_local = (local_player_uuid != 0 && change.host_uuid == Some(local_player_uuid))
+            || (local_player_uid > 0 && change.host_uid == local_player_uid);
+        if has_host_identity && !host_is_local {
             continue;
         }
 
@@ -650,13 +647,12 @@ fn remember_local_owned_sources_from_damage_events(
     }
 
     for event in events {
-        let is_local_source = if local_player_uuid != 0 {
-            event.attacker_uuid == Some(local_player_uuid)
-                || event.top_summoner_uuid == Some(local_player_uuid)
-        } else {
-            event.attacker_uid == local_player_uid
-                || event.top_summoner_uid == Some(local_player_uid)
-        };
+        let is_local_source = (local_player_uuid != 0
+            && (event.attacker_uuid == Some(local_player_uuid)
+                || event.top_summoner_uuid == Some(local_player_uuid)))
+            || (local_player_uid > 0
+                && (event.attacker_uid == local_player_uid
+                    || event.top_summoner_uid == Some(local_player_uid)));
         if !is_local_source {
             continue;
         }
@@ -3296,7 +3292,12 @@ impl AppStateManager {
             }
 
             if let (Some(target_uid), Some(raw_bytes)) = (target_uid, buff_bytes) {
+                let is_local_target = (local_player_uuid != 0
+                    && target_uuid == Some(local_player_uuid))
+                    || (state.encounter.local_player_uid > 0
+                        && target_uid == state.encounter.local_player_uid);
                 if state.modifier_capture_enabled
+                    && is_local_target
                     && matches!(target_entity_type, Some(EEntityType::EntChar))
                 {
                     let local_player_uid = state.encounter.local_player_uid;
@@ -3348,7 +3349,7 @@ impl AppStateManager {
                             },
                         );
                     if !buff_process_result.changes.is_empty() {
-                        info!(
+                        debug!(
                             target: "app::live",
                             "[boss-buff] processed target_uid={} target_uuid={:?} changes={} entity_type={:?}",
                             target_uid,

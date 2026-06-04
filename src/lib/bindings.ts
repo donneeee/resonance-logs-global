@@ -455,9 +455,9 @@ async getEventLoggerFileStorageSettings() : Promise<Result<EventLoggerFileStorag
     else return { status: "error", error: e  as any };
 }
 },
-async setEventLoggerFileStorageSettings(storeLogFiles: boolean, includeRepeatedSnapshotRows: boolean, deleteOlderThanDays: number | null, captureCensusEnabled: boolean, attributionCensusEnabled: boolean) : Promise<Result<EventLoggerFileStoragePayload, string>> {
+async setEventLoggerFileStorageSettings(enabled: boolean, storeLogFiles: boolean, includeRepeatedSnapshotRows: boolean, deleteOlderThanDays: number | null, captureCensusEnabled: boolean, attributionCensusEnabled: boolean) : Promise<Result<EventLoggerFileStoragePayload, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("set_event_logger_file_storage_settings", { storeLogFiles, includeRepeatedSnapshotRows, deleteOlderThanDays, captureCensusEnabled, attributionCensusEnabled }) };
+    return { status: "ok", data: await TAURI_INVOKE("set_event_logger_file_storage_settings", { enabled, storeLogFiles, includeRepeatedSnapshotRows, deleteOlderThanDays, captureCensusEnabled, attributionCensusEnabled }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -835,7 +835,7 @@ remoteEncounterId: number | null;
 isFavorite: boolean }
 export type EventLoggerBatchPayload = { entries: EventLoggerEntry[] }
 export type EventLoggerEntry = { tsMs: number; category: string; action: string; uid: number | null; targetUid: number | null; sourceUid: number | null; sourceLabel: string | null; targetLabel: string | null; nameHint: string | null; summary: string | null; stacks: number | null; durationMs: number | null; remainingMs: number | null; value: string | null; raw: string }
-export type EventLoggerFileStoragePayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean; storeLogFiles: boolean; includeRepeatedSnapshotRows: boolean; deleteOlderThanDays: number | null; captureCensusEnabled: boolean; attributionCensusEnabled: boolean }
+export type EventLoggerFileStoragePayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean; enabled: boolean; storeLogFiles: boolean; includeRepeatedSnapshotRows: boolean; deleteOlderThanDays: number | null; captureCensusEnabled: boolean; attributionCensusEnabled: boolean }
 export type EventLoggerSessionDirectoryPayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean }
 export type FactorCounterTemplate = { itemIds?: number[]; sources?: CounterSource[]; effectSlots?: EffectSlotConfig[] }
 export type GpuSupport = { cuda_available: boolean; opencl_available: boolean }
