@@ -64,7 +64,11 @@
 
   // Client-side timer loop for smooth local elapsed display.
   function updateClientTimer() {
-    if (headerInfo.fightStartTimestampMs > 0 && !isEncounterPaused) {
+    if (
+      headerInfo.fightStartTimestampMs > 0 &&
+      !isEncounterPaused &&
+      !headerInfo.dpsDisplayPaused
+    ) {
       clientElapsedMs = Date.now() - headerInfo.fightStartTimestampMs;
     }
     animationFrameId = requestAnimationFrame(updateClientTimer);
@@ -103,6 +107,7 @@
     elapsedMs: 0,
     activeCombatTimeMs: 0,
     fightStartTimestampMs: 0,
+    dpsDisplayPaused: false,
     bosses: [],
     sceneId: null,
     sceneName: null,
@@ -322,7 +327,7 @@
 
 {#snippet bossHealthItem()}
   {#if h.showBossHealth}
-    <div class="flex min-w-0 items-start gap-2">
+    <div class="flex min-w-0 max-w-full items-start gap-2 overflow-hidden">
       <span
         class="shrink-0 font-bold text-muted-foreground uppercase tracking-wider"
         style="font-size: {h.bossHealthLabelFontSize}px"
@@ -330,7 +335,7 @@
       >
       {#if displayBosses.length > 0}
         <div
-          class="flex min-w-0 max-w-full gap-x-4 gap-y-1 overflow-hidden"
+          class="flex min-w-0 flex-1 max-w-full gap-x-4 gap-y-1 overflow-hidden"
           class:flex-col={h.bossHealthLayout !== "horizontal"}
           class:flex-row={h.bossHealthLayout === "horizontal"}
           class:flex-wrap={h.bossHealthLayout === "horizontal"}
@@ -341,7 +346,7 @@
                 ? Math.min(100, Math.max(0, (boss.currentHp / boss.maxHp) * 100))
                 : 0}
             {@const localizedBossName = localizeRawMonsterName(boss.name, boss.name)}
-            <div class="flex min-w-0 items-center gap-1 whitespace-nowrap">
+            <div class="flex min-w-0 max-w-full items-center gap-1 whitespace-nowrap">
               <span
                 class="min-w-0 truncate text-foreground font-semibold tracking-tight"
                 style="font-size: {h.bossHealthNameFontSize}px"
@@ -832,7 +837,7 @@
     {/if}
 
     {#if hasBossRow}
-      <div class="col-span-2 row-start-3 min-w-0 overflow-hidden" data-tauri-drag-region>
+      <div class="col-span-full row-start-3 min-w-0 overflow-hidden" data-tauri-drag-region>
         {@render bossHealthItem()}
       </div>
     {/if}

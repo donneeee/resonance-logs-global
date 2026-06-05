@@ -47,6 +47,7 @@ export function liveDisplayElapsedMs(
   if (
     fightStartTimestampMs <= 0 ||
     data.isPaused ||
+    data.dpsDisplayPaused ||
     data.trainingDummy?.phase === "finished"
   ) {
     return serverElapsedMs;
@@ -190,6 +191,7 @@ export function computeHeaderInfo(
     elapsedMs,
     activeCombatTimeMs: data.activeCombatTimeMs,
     fightStartTimestampMs: data.fightStartTimestampMs,
+    dpsDisplayPaused: data.dpsDisplayPaused,
     bosses: data.bosses,
     sceneId: data.sceneId,
     sceneName: data.sceneName,

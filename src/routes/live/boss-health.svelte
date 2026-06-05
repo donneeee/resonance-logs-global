@@ -15,6 +15,7 @@
     elapsedMs: 0,
     activeCombatTimeMs: 0,
     fightStartTimestampMs: 0,
+    dpsDisplayPaused: false,
     bosses: [],
     sceneId: null,
     sceneName: null,

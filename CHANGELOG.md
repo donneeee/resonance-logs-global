@@ -12,6 +12,8 @@
 - Fixed Auto-hide Live Window so pressing the live window minimize button remains a manual hide choice; later damage no longer reopens the live meter unless auto-hide itself hid it.
 - Corrected Twin Axe factor/class presentation labels so Season Cultivate settings, Skill CD locale fallbacks, and factor audit exports no longer display the old Flame Vanguard/Flame Berserker class names.
 - Marked Rhapsody factor rows as expired for Season 3 in the Season Cultivate factor audit exports so old-season data is not treated as current actionable counter work.
+- Widened the live Boss header row so long boss/objective names and HP summaries use the full header width before truncating.
+- Added a display-only live DPS/timer pause at dungeon objective boundaries detected from dungeon flow/objective packets, so mobbing-complete and boss-complete states stop visually aging the active meter without pausing packet parsing.
 
 ## v1.1.0_beta3 - Global Beta
 

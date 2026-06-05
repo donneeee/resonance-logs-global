@@ -39,6 +39,8 @@ pub struct HeaderInfo {
     pub active_combat_time_ms: u128,
     /// The timestamp of when the fight started, in milliseconds since the Unix epoch.
     pub fight_start_timestamp_ms: u128, // Unix timestamp when fight started
+    /// Whether DPS/rate display time should stop advancing while parsing continues.
+    pub dps_display_paused: bool,
     /// A list of bosses in the encounter.
     pub bosses: Vec<BossHealth>,
     /// The ID of the scene where the encounter took place.
@@ -56,6 +58,7 @@ pub struct LiveDataPayload {
     pub elapsed_ms: u128,
     pub active_combat_time_ms: u128,
     pub fight_start_timestamp_ms: u128,
+    pub dps_display_paused: bool,
     pub total_dmg: u128,
     pub total_dmg_boss_only: u128,
     pub total_heal: u128,

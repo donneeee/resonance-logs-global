@@ -23,6 +23,8 @@ pub struct Encounter {
     pub active_combat_time_ms: u128,
     /// Timestamp of the last damage event used to compute global active time.
     pub last_combat_timestamp_ms: Option<u128>,
+    /// Display-only pause for DPS/rate denominators after dungeon objective boundaries.
+    pub dps_display_paused: bool,
     pub total_dmg: u128,
     pub total_dmg_boss_only: u128,
     pub total_heal: u128,
@@ -1085,6 +1087,7 @@ impl Encounter {
         self.time_fight_start_ms = 0;
         self.active_combat_time_ms = 0;
         self.last_combat_timestamp_ms = None;
+        self.dps_display_paused = false;
         self.total_dmg = 0;
         self.total_dmg_boss_only = 0;
         self.total_heal = 0;

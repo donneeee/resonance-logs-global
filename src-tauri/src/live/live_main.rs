@@ -5236,6 +5236,7 @@ fn build_live_snapshot_logger_entries(
         "elapsedMs": payload.elapsed_ms,
         "activeCombatTimeMs": payload.active_combat_time_ms,
         "fightStartTimestampMs": payload.fight_start_timestamp_ms,
+        "dpsDisplayPaused": payload.dps_display_paused,
         "totalDmg": payload.total_dmg,
         "totalDmgBossOnly": payload.total_dmg_boss_only,
         "totalHeal": payload.total_heal,

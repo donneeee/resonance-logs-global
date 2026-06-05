@@ -783,6 +783,7 @@ pub fn generate_live_data_payload(
         elapsed_ms,
         active_combat_time_ms,
         fight_start_timestamp_ms: encounter.time_fight_start_ms,
+        dps_display_paused: encounter.dps_display_paused,
         total_dmg: encounter.total_dmg,
         total_dmg_boss_only: encounter.total_dmg_boss_only,
         total_heal: encounter.total_heal,

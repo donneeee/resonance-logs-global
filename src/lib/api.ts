@@ -30,6 +30,7 @@ export type HeaderInfo = {
   elapsedMs: number;
   activeCombatTimeMs: number;
   fightStartTimestampMs: number; // Unix timestamp when fight started
+  dpsDisplayPaused: boolean;
   bosses: BossHealth[];
   sceneId: number | null;
   sceneName: string | null;
@@ -233,6 +234,7 @@ export type LiveDataPayload = {
   elapsedMs: number;
   activeCombatTimeMs: number;
   fightStartTimestampMs: number;
+  dpsDisplayPaused: boolean;
   totalDmg: number;
   totalDmgBossOnly: number;
   totalHeal: number;

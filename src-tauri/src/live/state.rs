@@ -3428,6 +3428,7 @@ impl AppStateManager {
 
     fn apply_reset_reason(&self, state: &mut AppState, reason: EncounterResetReason) {
         let encounter_has_stats = encounter_has_stats(&state.encounter);
+        state.encounter.dps_display_paused = encounter_has_stats;
         info!(
             target: "app::live",
             "Applying encounter reset due to rule: {:?} (has_stats={}, total_dmg={}, total_heal={})",
@@ -3535,6 +3536,7 @@ impl AppStateManager {
             elapsed_ms: 0,
             active_combat_time_ms: 0,
             fight_start_timestamp_ms: 0,
+            dps_display_paused: false,
             bosses: vec![],
             scene_id: state.encounter.current_scene_id,
             scene_name: state.encounter.current_scene_name.clone(),
