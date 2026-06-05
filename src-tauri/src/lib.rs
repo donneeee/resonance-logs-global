@@ -8,6 +8,8 @@ mod translation_runtime;
 use crate::build_app::build_and_run;
 use log::{info, warn};
 use specta_typescript::{BigIntExportBehavior, Typescript};
+use std::collections::HashSet;
+use std::io::Write;
 use std::process::Command;
 
 use std::path::{Path, PathBuf};
@@ -1180,8 +1182,9 @@ mod debug_commands {
     pub fn create_diagnostics_bundle(
         app_handle: tauri::AppHandle,
         destination_path: Option<String>,
+        settings_snapshot: Option<String>,
     ) -> Result<String, String> {
-        crate::create_diagnostics_bundle(&app_handle, destination_path)
+        crate::create_diagnostics_bundle(&app_handle, destination_path, settings_snapshot)
     }
 }
 
@@ -1348,9 +1351,226 @@ fn cleanup_old_logs(log_dir: &Path, keep: usize) -> Result<(), String> {
     Ok(())
 }
 
+fn is_sensitive_settings_key(key: &str) -> bool {
+    let lower = key.to_ascii_lowercase();
+    lower.contains("apikey")
+        || lower.contains("api_key")
+        || lower.contains("api-key")
+        || lower.contains("token")
+        || lower.contains("secret")
+        || lower.contains("password")
+        || lower.contains("authorization")
+        || lower.contains("bearer")
+}
+
+fn redact_settings_json(value: &mut serde_json::Value) {
+    match value {
+        serde_json::Value::Object(map) => {
+            for (key, entry) in map.iter_mut() {
+                if is_sensitive_settings_key(key) {
+                    *entry = serde_json::Value::String("[redacted]".to_string());
+                } else {
+                    redact_settings_json(entry);
+                }
+            }
+        }
+        serde_json::Value::Array(items) => {
+            for item in items {
+                redact_settings_json(item);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn should_skip_settings_file_content(path: &Path) -> bool {
+    let name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .unwrap_or("")
+        .to_ascii_lowercase();
+    name.ends_with(".db")
+        || name.ends_with(".sqlite")
+        || name.ends_with(".sqlite3")
+        || name.ends_with(".zip")
+        || name.ends_with(".7z")
+        || name.ends_with(".png")
+        || name.ends_with(".jpg")
+        || name.ends_with(".jpeg")
+        || name.ends_with(".webp")
+        || name.ends_with(".ico")
+        || name.ends_with(".exe")
+}
+
+fn collect_settings_file_entry(root: &Path, path: &Path) -> serde_json::Value {
+    const MAX_CONTENT_BYTES: u64 = 512 * 1024;
+    const MAX_TEXT_PREVIEW_CHARS: usize = 64 * 1024;
+
+    let relative = path
+        .strip_prefix(root)
+        .unwrap_or(path)
+        .display()
+        .to_string();
+    let meta = match std::fs::metadata(path) {
+        Ok(meta) => meta,
+        Err(error) => {
+            return json!({
+                "relativePath": relative,
+                "error": format!("metadata: {error}"),
+            });
+        }
+    };
+
+    let mut entry = json!({
+        "relativePath": relative,
+        "bytes": meta.len(),
+        "modifiedUnixMs": meta
+            .modified()
+            .ok()
+            .and_then(|time| time.duration_since(std::time::SystemTime::UNIX_EPOCH).ok())
+            .map(|duration| duration.as_millis()),
+    });
+
+    if should_skip_settings_file_content(path) {
+        entry["contentSkipped"] = json!("file type");
+        return entry;
+    }
+
+    if meta.len() > MAX_CONTENT_BYTES {
+        entry["contentSkipped"] = json!(format!("larger than {MAX_CONTENT_BYTES} bytes"));
+        return entry;
+    }
+
+    let bytes = match std::fs::read(path) {
+        Ok(bytes) => bytes,
+        Err(error) => {
+            entry["contentError"] = json!(format!("read: {error}"));
+            return entry;
+        }
+    };
+
+    if bytes.iter().take(1024).any(|byte| *byte == 0) {
+        entry["contentSkipped"] = json!("binary");
+        return entry;
+    }
+
+    match std::str::from_utf8(&bytes) {
+        Ok(text) => match serde_json::from_str::<serde_json::Value>(text) {
+            Ok(mut parsed) => {
+                redact_settings_json(&mut parsed);
+                entry["json"] = parsed;
+            }
+            Err(error) => {
+                entry["parseError"] = json!(error.to_string());
+                entry["textPreview"] = json!(text.chars().take(MAX_TEXT_PREVIEW_CHARS).collect::<String>());
+            }
+        },
+        Err(error) => {
+            entry["contentSkipped"] = json!(format!("non-utf8: {error}"));
+        }
+    }
+
+    entry
+}
+
+fn collect_settings_directory_snapshot(label: &str, root: PathBuf) -> serde_json::Value {
+    const MAX_FILES: usize = 240;
+    const MAX_DEPTH: usize = 8;
+
+    let mut files = Vec::new();
+    let mut issues = Vec::new();
+    let mut stack = vec![(root.clone(), 0usize)];
+
+    while let Some((dir, depth)) = stack.pop() {
+        if depth > MAX_DEPTH {
+            issues.push(format!("depth limit reached at {}", dir.display()));
+            continue;
+        }
+        let Ok(entries) = std::fs::read_dir(&dir) else {
+            issues.push(format!("read_dir failed at {}", dir.display()));
+            continue;
+        };
+
+        for entry in entries.flatten() {
+            let path = entry.path();
+            let Ok(file_type) = entry.file_type() else {
+                issues.push(format!("file_type failed at {}", path.display()));
+                continue;
+            };
+            if file_type.is_symlink() {
+                continue;
+            }
+            if file_type.is_dir() {
+                stack.push((path, depth + 1));
+                continue;
+            }
+            if !file_type.is_file() {
+                continue;
+            }
+            if files.len() >= MAX_FILES {
+                issues.push(format!("file limit reached at {MAX_FILES} files"));
+                break;
+            }
+            files.push(collect_settings_file_entry(&root, &path));
+        }
+    }
+
+    json!({
+        "label": label,
+        "path": root.display().to_string(),
+        "exists": root.exists(),
+        "files": files,
+        "issues": issues,
+    })
+}
+
+fn collect_backend_settings_snapshot(app_handle: &tauri::AppHandle) -> serde_json::Value {
+    let mut seen = HashSet::new();
+    let mut dirs = Vec::new();
+    let mut path_errors = Vec::new();
+
+    let mut add_dir = |label: &str, result: Result<PathBuf, tauri::Error>| match result {
+        Ok(path) => {
+            if seen.insert(path.clone()) {
+                dirs.push(collect_settings_directory_snapshot(label, path));
+            }
+        }
+        Err(error) => path_errors.push(json!({
+            "label": label,
+            "error": error.to_string(),
+        })),
+    };
+
+    add_dir("app_config_dir", app_handle.path().app_config_dir());
+    add_dir("app_data_dir", app_handle.path().app_data_dir());
+    add_dir("app_local_data_dir", app_handle.path().app_local_data_dir());
+
+    json!({
+        "schemaVersion": 1,
+        "generatedAt": chrono::Local::now().to_rfc3339(),
+        "directories": dirs,
+        "pathErrors": path_errors,
+    })
+}
+
+fn write_json_to_zip(
+    zip: &mut zip::ZipWriter<std::fs::File>,
+    opts: zip::write::FileOptions,
+    name: &str,
+    value: &serde_json::Value,
+) -> Result<(), String> {
+    let bytes = serde_json::to_vec_pretty(value).map_err(|e| format!("json {name}: {e}"))?;
+    zip.start_file(name, opts)
+        .map_err(|e| format!("zip: start file {name}: {e}"))?;
+    zip.write_all(&bytes)
+        .map_err(|e| format!("zip: write file {name}: {e}"))?;
+    Ok(())
+}
+
 fn create_diagnostics_bundle(
     app_handle: &tauri::AppHandle,
     destination_path: Option<String>,
+    settings_snapshot: Option<String>,
 ) -> Result<String, String> {
     use std::io::Write;
     use zip::write::FileOptions;
@@ -1429,6 +1649,32 @@ fn create_diagnostics_bundle(
         .map_err(|e| format!("zip: start file {name}: {e}"))?;
     zip.write_all(&bytes)
         .map_err(|e| format!("zip: write file {name}: {e}"))?;
+
+    let backend_settings_snapshot = collect_backend_settings_snapshot(app_handle);
+    write_json_to_zip(
+        &mut zip,
+        opts,
+        "settings/backend-settings-files.json",
+        &backend_settings_snapshot,
+    )?;
+
+    if let Some(settings_snapshot) = settings_snapshot {
+        let mut frontend_snapshot =
+            serde_json::from_str::<serde_json::Value>(&settings_snapshot).unwrap_or_else(|error| {
+                json!({
+                    "schemaVersion": 1,
+                    "parseError": error.to_string(),
+                    "raw": settings_snapshot,
+                })
+            });
+        redact_settings_json(&mut frontend_snapshot);
+        write_json_to_zip(
+            &mut zip,
+            opts,
+            "settings/frontend-settings-snapshot.json",
+            &frontend_snapshot,
+        )?;
+    }
 
     zip.finish().map_err(|e| format!("zip: finish: {e}"))?;
     Ok(bundle_path.display().to_string())

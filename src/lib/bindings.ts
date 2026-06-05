@@ -504,9 +504,9 @@ async openLogDir() : Promise<Result<null, string>> {
  * If `destination_path` is provided, the ZIP is written there. Otherwise it is created
  * in the app log directory.
  */
-async createDiagnosticsBundle(destinationPath: string | null) : Promise<Result<string, string>> {
+async createDiagnosticsBundle(destinationPath: string | null, settingsSnapshot: string | null) : Promise<Result<string, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("create_diagnostics_bundle", { destinationPath }) };
+    return { status: "ok", data: await TAURI_INVOKE("create_diagnostics_bundle", { destinationPath, settingsSnapshot }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };

@@ -21,6 +21,7 @@
 - Added a configurable no-change live DPS pause, enabled by default at 5 seconds, so repeated unchanged dungeon dirty packets no longer keep visually aging DPS after combat/objective data stops changing.
 - Added startup repair for older/restored Tauri settings folders so empty or legacy split-store JSON files are normalized and saved in place instead of requiring users to delete AppData.
 - Fixed restored-settings column toggles by coercing legacy column visibility values to real booleans and saving live settings before notifying the live meter to refresh, preventing stale backend state from re-showing hidden columns.
+- Expanded the Settings > Debug diagnostics bundle with redacted frontend/backend settings-store snapshots, store paths, AppData/config file summaries, and column-visibility issue detection so restored-settings bugs can be diagnosed from user-submitted debug ZIPs.
 
 ## v1.1.0_beta3 - Global Beta
 

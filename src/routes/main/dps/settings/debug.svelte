@@ -4,6 +4,7 @@
   import { save } from "@tauri-apps/plugin-dialog";
   import { toast } from "svelte-sonner";
   import { uiT } from "$lib/i18n";
+  import { collectSettingsDiagnosticsSnapshot } from "$lib/settings-diagnostics";
   import { SETTINGS } from "$lib/settings-store";
 
   const t = uiT("dps/settings-debug", () => SETTINGS.live.general.state.language);
@@ -33,8 +34,10 @@
         return;
       }
 
+      const settingsSnapshot = await collectSettingsDiagnosticsSnapshot();
       const path = await invoke<string>("create_diagnostics_bundle", {
         destination_path: destinationPath,
+        settings_snapshot: settingsSnapshot,
       });
       try {
         await navigator.clipboard.writeText(path);
