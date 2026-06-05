@@ -54,6 +54,9 @@ export function liveDisplayElapsedMs(
   }
 
   const clientElapsedMs = Math.max(0, displayNowMs - fightStartTimestampMs);
+  if (clientElapsedMs + 250 < serverElapsedMs) {
+    return clientElapsedMs;
+  }
   return Math.max(serverElapsedMs, clientElapsedMs);
 }
 

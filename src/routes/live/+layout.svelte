@@ -12,7 +12,11 @@
   import { invoke } from "@tauri-apps/api/core";
   import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
-  import { SETTINGS } from "$lib/settings-store";
+  import {
+    refreshLiveWindowSettingsFromBackend,
+    SETTINGS,
+    SETTINGS_CHANGED_EVENT,
+  } from "$lib/settings-store";
   import { activeProfileOrDefault } from "$lib/skill-monitor-profile.svelte";
   import {
     LIVE_WINDOW_MANUAL_SHOW_EVENT,
@@ -31,7 +35,7 @@
     onTrainingDummyUpdate,
     onDeathReplay,
   } from "$lib/api";
-  import type { LiveDataPayload } from "$lib/api";
+  import type { LiveDataPayload, RawCombatStats, RawSkillStats } from "$lib/api";
   import { applyCustomFonts } from "$lib/font-loader";
   import AppBackgroundLayer from "$lib/components/app-background-layer.svelte";
   import { writable } from "svelte/store";
@@ -110,8 +114,15 @@
   let gameBlurOperation: Promise<void> = Promise.resolve();
   let gameBlurPollInterval: ReturnType<typeof setInterval> | null = null;
   let manualShowUnlisten: UnlistenFn | null = null;
+  let settingsChangedUnlisten: UnlistenFn | null = null;
+  let settingsRefreshInterval: ReturnType<typeof setInterval> | null = null;
+  let latestLivePayload: LiveDataPayload | null = null;
+  let lastLiveActivitySignature = "";
+  let lastLiveActivityAtMs = Date.now();
+  let frozenLiveDisplayNowMs: number | null = null;
   const CROWDED_SESSION_MIN_REFRESH_MS = 1000;
   const GAME_FOREGROUND_POLL_MS = 750;
+  const LIVE_SETTINGS_REFRESH_FALLBACK_MS = 3000;
 
   function clampLiveRefreshRateMs(value: unknown): number {
     const numberValue = Number(value);
@@ -128,12 +139,162 @@
       : configuredRate;
   }
 
+  function idleDisplayPauseDelayMs(): number {
+    const rawSeconds = Number(SETTINGS.live.general.state.idleDisplayPauseDelaySeconds);
+    const seconds = Number.isFinite(rawSeconds) ? rawSeconds : 5;
+    return Math.max(1, Math.min(30, Math.round(seconds))) * 1000;
+  }
+
+  function combatStatsSignature(stats: RawCombatStats | null | undefined): string {
+    if (!stats) return "0:0:0:0:0:0:0:0:0:0";
+    return [
+      stats.total,
+      stats.effectiveTotal,
+      stats.hits,
+      stats.critHits,
+      stats.critTotal,
+      stats.luckyHits,
+      stats.luckyTotal,
+      stats.triggerHits,
+      stats.blockHits,
+      stats.luckyBlockHits,
+    ].join(":");
+  }
+
+  function skillStatsSignature(
+    skills: Partial<Record<number, RawSkillStats>> | null | undefined,
+  ): string {
+    if (!skills) return "";
+    return Object.entries(skills)
+      .sort(([left], [right]) => Number(left) - Number(right))
+      .map(([skillId, stats]) => {
+        if (!stats) return `${skillId}=0`;
+        return [
+          skillId,
+          stats.totalValue,
+          stats.effectiveTotalValue,
+          stats.hits,
+          stats.critHits,
+          stats.critTotalValue,
+          stats.luckyHits,
+          stats.luckyTotalValue,
+          stats.triggerHits,
+          stats.blockHits,
+          stats.luckyBlockHits,
+        ].join(":");
+      })
+      .join(",");
+  }
+
+  function liveActivitySignature(payload: LiveDataPayload): string {
+    const bosses = payload.bosses
+      .map((boss) => [
+        boss.uid,
+        boss.name,
+        boss.currentHp ?? "",
+        boss.maxHp ?? "",
+      ].join(":"))
+      .join("|");
+
+    const entities = payload.entities
+      .map((entity) => [
+        entity.uid,
+        entity.uuid ?? "",
+        entity.name,
+        entity.classId,
+        entity.classSpec,
+        combatStatsSignature(entity.damage),
+        combatStatsSignature(entity.damageBossOnly),
+        combatStatsSignature(entity.healing),
+        combatStatsSignature(entity.taken),
+        skillStatsSignature(entity.dmgSkills),
+        skillStatsSignature(entity.healSkills),
+        skillStatsSignature(entity.takenSkills),
+        entity.deaths?.length ?? 0,
+      ].join("~"))
+      .join("|");
+
+    return [
+      payload.sceneId ?? "",
+      payload.sceneName ?? "",
+      payload.fightStartTimestampMs,
+      payload.dpsDisplayPaused ? 1 : 0,
+      payload.isPaused ? 1 : 0,
+      payload.trainingDummy?.phase ?? "",
+      payload.totalDmg,
+      payload.totalDmgBossOnly,
+      payload.totalHeal,
+      payload.totalEffectiveHeal,
+      bosses,
+      entities,
+    ].join("||");
+  }
+
+  function markLiveActivity(nowMs = Date.now()): void {
+    lastLiveActivityAtMs = nowMs;
+    frozenLiveDisplayNowMs = null;
+  }
+
+  function resetLiveActivityTracking(nowMs = Date.now()): void {
+    latestLivePayload = null;
+    lastLiveActivitySignature = "";
+    markLiveActivity(nowMs);
+    setLiveDisplayNowMs(nowMs);
+  }
+
+  function updateLiveActivityFromPayload(
+    payload: LiveDataPayload,
+    nowMs = Date.now(),
+  ): void {
+    latestLivePayload = payload;
+    const signature = liveActivitySignature(payload);
+    if (signature !== lastLiveActivitySignature) {
+      lastLiveActivitySignature = signature;
+      markLiveActivity(nowMs);
+    }
+  }
+
+  function currentLiveDisplayNowMs(nowMs = Date.now()): number {
+    const payload = latestLivePayload;
+    if (
+      !payload ||
+      SETTINGS.live.general.state.idleDisplayPauseEnabled !== true ||
+      payload.fightStartTimestampMs <= 0 ||
+      payload.isPaused ||
+      payload.dpsDisplayPaused ||
+      payload.trainingDummy?.phase === "finished"
+    ) {
+      frozenLiveDisplayNowMs = null;
+      return nowMs;
+    }
+
+    const delayMs = idleDisplayPauseDelayMs();
+    if (nowMs - lastLiveActivityAtMs < delayMs) {
+      frozenLiveDisplayNowMs = null;
+      return nowMs;
+    }
+
+    if (frozenLiveDisplayNowMs === null) {
+      frozenLiveDisplayNowMs = lastLiveActivityAtMs + delayMs;
+    }
+    return frozenLiveDisplayNowMs;
+  }
+
+  function setLiveDataWithDisplayClock(
+    payload: LiveDataPayload,
+    nowMs = Date.now(),
+  ): void {
+    updateLiveActivityFromPayload(payload, nowMs);
+    setLiveData(payload);
+    setLiveDisplayNowMs(currentLiveDisplayNowMs(nowMs));
+  }
+
   $effect(() => {
     if (typeof window === "undefined") return;
     const refreshRateMs = liveDisplayRefreshRateMs();
-    setLiveDisplayNowMs(Date.now());
+    setLiveDisplayNowMs(currentLiveDisplayNowMs(Date.now()));
     const timer = setInterval(() => {
-      setLiveDisplayNowMs(Date.now());
+      setLiveDisplayNowMs(currentLiveDisplayNowMs(Date.now()));
     }, refreshRateMs);
     return () => clearInterval(timer);
   });
@@ -461,8 +622,9 @@
         hadAnyEvent = true;
         void syncAutoHideLiveWindow(livePayloadHasDamageEvent(event.payload));
         if (event.payload.fightStartTimestampMs > 0) {
-          setLiveData(event.payload);
+          setLiveDataWithDisplayClock(event.payload, lastEventTime);
         } else if (event.payload.totalDmg === 0 && event.payload.totalHeal === 0) {
+          resetLiveActivityTracking(lastEventTime);
           clearMeterData();
         }
       });
@@ -479,6 +641,7 @@
         lastEventTime = Date.now();
         hadAnyEvent = true;
         autoHideLastObservedDamageTotal = 0;
+        resetLiveActivityTracking(lastEventTime);
         void syncAutoHideLiveWindow(false);
         clearMeterData();
         notificationToast?.showToast(
@@ -500,6 +663,7 @@ t("live.resetToast", "战斗记录已重置"),
         // Treat encounter updates as keep-alive too so reconnect logic doesn't fire
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        markLiveActivity(lastEventTime);
         const newPaused = event.payload.isPaused;
         const elapsedMs = event.payload.headerInfo.elapsedMs;
         void syncAutoHideLiveWindow(headerHasDamageEvent(event.payload.headerInfo));
@@ -548,6 +712,7 @@ t("live.resumeToast", "战斗已继续"),
         // Treat scene change as a keep-alive
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        resetLiveActivityTracking(lastEventTime);
         if (SETTINGS.live.general.state.autoClearOnSceneChange !== false) {
           autoHideLastObservedDamageTotal = 0;
           void syncAutoHideLiveWindow(false);
@@ -568,6 +733,7 @@ t("live.resumeToast", "战斗已继续"),
         if (isDestroyed) return;
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        markLiveActivity(lastEventTime);
         setTrainingDummyState(event.payload);
       });
 
@@ -585,6 +751,7 @@ t("live.resumeToast", "战斗已继续"),
         if (isDestroyed) return;
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        markLiveActivity(lastEventTime);
         setDeathRecords(event.payload.records);
       });
 
@@ -604,6 +771,7 @@ t("live.resumeToast", "战斗已继续"),
         if (isDestroyed) return;
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        markLiveActivity(lastEventTime);
         isPaused.set(!!event.payload);
       });
 
@@ -767,6 +935,23 @@ t("live.resumeToast", "战斗已继续"),
   onMount(() => {
     isDestroyed = false;
     autoHideLastObservedDamageTotal = 0;
+    void refreshLiveWindowSettingsFromBackend();
+    settingsRefreshInterval = setInterval(() => {
+      void refreshLiveWindowSettingsFromBackend();
+    }, LIVE_SETTINGS_REFRESH_FALLBACK_MS);
+    void listen(SETTINGS_CHANGED_EVENT, () => {
+      void refreshLiveWindowSettingsFromBackend();
+    })
+      .then((unlistenSettingsChanged) => {
+        if (isDestroyed) {
+          unlistenSettingsChanged();
+          return;
+        }
+        settingsChangedUnlisten = unlistenSettingsChanged;
+      })
+      .catch((error) => {
+        console.warn("Failed to listen for settings updates:", error);
+      });
     void syncAutoHideLiveWindow(false);
     void listen(LIVE_WINDOW_MANUAL_SHOW_EVENT, reconcileManualLiveWindowShow)
       .then((unlistenManualShow) => {
@@ -793,6 +978,8 @@ t("live.resumeToast", "战斗已继续"),
       void clearDynamicWindowHeightConstraint();
       resizeObserver?.disconnect();
       if (reconnectInterval) clearInterval(reconnectInterval);
+      if (settingsRefreshInterval) clearInterval(settingsRefreshInterval);
+      settingsChangedUnlisten?.();
       manualShowUnlisten?.();
       if (unlisten) unlisten();
       cleanupStores();

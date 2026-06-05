@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { notifySettingsChanged } from "$lib/settings-store";
+
   let {
     label = "",
     description = "",
@@ -24,7 +26,10 @@
     <input
       type="checkbox"
       bind:checked
-      onchange={() => onchange?.(checked)}
+      onchange={() => {
+        onchange?.(checked);
+        notifySettingsChanged();
+      }}
       disabled={disabled}
       class="peer appearance-none w-5 h-5 border-2 border-border rounded bg-popover cursor-pointer transition-all
              checked:bg-primary checked:border-primary

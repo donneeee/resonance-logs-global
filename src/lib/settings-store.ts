@@ -2,7 +2,7 @@
  * @file This file contains the settings store for the application.
  * It uses `@tauri-store/svelte` to create persistent stores for user settings.
  */
-import { RuneStore } from "@tauri-store/svelte";
+import { getStoreState, RuneStore } from "@tauri-store/svelte";
 import type { BuffCategoryKey } from "./config/buff-name-table";
 import type { LocaleCode, SkillIdDisplayMode } from "./i18n";
 import {
@@ -105,6 +105,24 @@ export const DEFAULT_LIVE_SORT_SETTINGS = {
 };
 
 type MutableRecord = Record<string, unknown>;
+
+export const SETTINGS_CHANGED_EVENT = "settings-store-changed";
+
+let settingsChangedTimer: ReturnType<typeof setTimeout> | null = null;
+let liveSettingsRefreshInFlight: Promise<void> | null = null;
+
+export function notifySettingsChanged(): void {
+  if (typeof window === "undefined") return;
+  if (settingsChangedTimer) clearTimeout(settingsChangedTimer);
+  settingsChangedTimer = setTimeout(() => {
+    settingsChangedTimer = null;
+    void import("@tauri-apps/api/event")
+      .then(({ emit }) => emit(SETTINGS_CHANGED_EVENT))
+      .catch((error) => {
+        console.warn("Failed to broadcast settings update:", error);
+      });
+  }, 75);
+}
 
 function isMutableRecord(value: unknown): value is MutableRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
@@ -1052,6 +1070,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   abbreviationStyle: 'western' | 'cn';
   abbreviatedDecimalPlaces: number;
   eventUpdateRateMs: number;
+  idleDisplayPauseEnabled: boolean;
+  idleDisplayPauseDelaySeconds: number;
   autoClearOnSceneChange: boolean;
   autoHideLiveWindow: boolean;
   autoHideOverlaysWithLiveWindow: boolean;
@@ -1079,6 +1099,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   abbreviationStyle: 'western',
   abbreviatedDecimalPlaces: 1,
   eventUpdateRateMs: 200,
+  idleDisplayPauseEnabled: true,
+  idleDisplayPauseDelaySeconds: 5,
   autoClearOnSceneChange: true,
   autoHideLiveWindow: false,
   autoHideOverlaysWithLiveWindow: false,
@@ -1951,6 +1973,146 @@ export const SETTINGS = {
     { npcapDevice: "" },
   ),
 };
+
+async function refreshSettingsStoreFromBackend<T extends MutableRecord>(
+  store: RuneStore<T>,
+  defaults: T,
+  normalize: SettingsStoreNormalizer<T> = (value) =>
+    normalizeObjectWithDefaults(value, defaults),
+): Promise<void> {
+  const backendState = await getStoreState<T>(store.id);
+  const nextState = normalize(backendState);
+  if (JSON.stringify(store.state) === JSON.stringify(nextState)) return;
+  Object.assign(store.state, nextState);
+}
+
+export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
+  if (liveSettingsRefreshInFlight) return liveSettingsRefreshInFlight;
+
+  liveSettingsRefreshInFlight = Promise.all([
+    refreshSettingsStoreFromBackend(
+      SETTINGS.accessibility,
+      DEFAULT_SETTINGS.accessibility,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.skillMonitor,
+      DEFAULT_SETTINGS.skillMonitor,
+      normalizeSkillMonitorSettingsState,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.profileLibrary,
+      DEFAULT_SETTINGS.profileLibrary,
+      normalizeProfileLibrarySettingsState,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.trainingDummy,
+      DEFAULT_SETTINGS.trainingDummy,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.general,
+      DEFAULT_SETTINGS.live.general,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.dps.players,
+      DEFAULT_SETTINGS.live.dpsPlayers,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.dps.skillBreakdown,
+      DEFAULT_SETTINGS.live.dpsSkillBreakdown,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.heal.players,
+      DEFAULT_SETTINGS.live.healPlayers,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.heal.skillBreakdown,
+      DEFAULT_SETTINGS.live.healSkillBreakdown,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.tanked.players,
+      DEFAULT_SETTINGS.live.tankedPlayers,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.tanked.skills,
+      DEFAULT_SETTINGS.live.tankedSkillBreakdown,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.tableCustomization,
+      DEFAULT_SETTINGS.live.tableCustomization,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.dynamicWindow,
+      DEFAULT_SETTINGS.live.dynamicWindow,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.headerCustomization,
+      DEFAULT_SETTINGS.live.headerCustomization,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.columnOrder.dpsPlayers,
+      { order: [...DEFAULT_DPS_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_DPS_PLAYER_COLUMN_ORDER),
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.columnOrder.dpsSkills,
+      { order: [...DEFAULT_DPS_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_DPS_SKILL_COLUMN_ORDER),
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.columnOrder.healPlayers,
+      { order: [...DEFAULT_HEAL_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HEAL_PLAYER_COLUMN_ORDER),
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.columnOrder.healSkills,
+      { order: [...DEFAULT_HEAL_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HEAL_SKILL_COLUMN_ORDER),
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.columnOrder.tankedPlayers,
+      { order: [...DEFAULT_TANKED_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_TANKED_PLAYER_COLUMN_ORDER),
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.columnOrder.tankedSkills,
+      { order: [...DEFAULT_TANKED_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.sorting.dpsPlayers,
+      DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.sorting.dpsSkills,
+      DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.sorting.healPlayers,
+      DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.sorting.healSkills,
+      DEFAULT_LIVE_SORT_SETTINGS.healSkills,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.sorting.tankedPlayers,
+      DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
+    ),
+    refreshSettingsStoreFromBackend(
+      SETTINGS.live.sorting.tankedSkills,
+      DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
+    ),
+  ])
+    .then(() => undefined)
+    .catch((error) => {
+      console.warn("Failed to refresh live settings from backend store:", error);
+    })
+    .finally(() => {
+      liveSettingsRefreshInFlight = null;
+    });
+
+  return liveSettingsRefreshInFlight;
+}
 
 // Create flattened settings object for backwards compatibility
 export const settings = {

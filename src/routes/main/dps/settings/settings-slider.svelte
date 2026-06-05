@@ -1,5 +1,6 @@
 <script lang="ts">
   import { Slider } from "$lib/components/ui/slider/index.js";
+  import { notifySettingsChanged } from "$lib/settings-store";
 
   let {
     label = "",
@@ -20,6 +21,17 @@
     step?: number;
     [key: string]: any;
   } = $props();
+
+  let hasObservedInitialValue = false;
+
+  $effect(() => {
+    value;
+    if (!hasObservedInitialValue) {
+      hasObservedInitialValue = true;
+      return;
+    }
+    notifySettingsChanged();
+  });
 </script>
 
 <label class="items-center">

@@ -3,7 +3,7 @@
   import SettingsSwitch from "./settings-switch.svelte";
   import SettingsSelect from "./settings-select.svelte";
   import SettingsSlider from "./settings-slider.svelte";
-  import { SETTINGS } from "$lib/settings-store";
+  import { notifySettingsChanged, SETTINGS } from "$lib/settings-store";
   import ChevronDown from "virtual:icons/lucide/chevron-down";
   import {
     liveDpsPlayerColumns,
@@ -238,6 +238,21 @@
             unit="ms"
           />
           <SettingsSwitch
+            bind:checked={SETTINGS.live.general.state.idleDisplayPauseEnabled}
+            label={t("idleDisplayPauseEnabled", "Pause DPS after No Live Changes")}
+            description={t("idleDisplayPauseEnabledDescription", "Freeze the live DPS clock when combat totals and boss data stop changing. It resumes automatically when new combat or objective data arrives.")}
+          />
+          <SettingsSlider
+            bind:value={SETTINGS.live.general.state.idleDisplayPauseDelaySeconds}
+            disabled={!SETTINGS.live.general.state.idleDisplayPauseEnabled}
+            label={t("idleDisplayPauseDelaySeconds", "No-change Pause Delay")}
+            description={t("idleDisplayPauseDelaySecondsDescription", "Seconds to wait without live combat changes before freezing DPS.")}
+            min={1}
+            max={30}
+            step={1}
+            unit={t("secondsUnit", "s")}
+          />
+          <SettingsSwitch
             bind:checked={SETTINGS.live.general.state.autoClearOnSceneChange}
             label={t("autoClearOnSceneChange", "Clear Meter on Scene Change")}
             description={t("autoClearOnSceneChangeDescription", "Automatically save and clear the current meter when the game changes scene or server. Turn this off to keep the current meter running across scene changes.")}
@@ -322,6 +337,7 @@
                       if (prev !== undefined && curr !== undefined) {
                         arr.splice(idx - 1, 2, curr, prev);
                         SETTINGS.live.columnOrder.dpsPlayers.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▲</button
                   >
@@ -340,6 +356,7 @@
                       if (curr !== undefined && next !== undefined) {
                         arr.splice(idx, 2, next, curr);
                         SETTINGS.live.columnOrder.dpsPlayers.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▼</button
                   >
@@ -403,6 +420,7 @@
                       if (prev !== undefined && curr !== undefined) {
                         arr.splice(idx - 1, 2, curr, prev);
                         SETTINGS.live.columnOrder.dpsSkills.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▲</button
                   >
@@ -421,6 +439,7 @@
                       if (curr !== undefined && next !== undefined) {
                         arr.splice(idx, 2, next, curr);
                         SETTINGS.live.columnOrder.dpsSkills.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▼</button
                   >
@@ -484,6 +503,7 @@
                       if (prev !== undefined && curr !== undefined) {
                         arr.splice(idx - 1, 2, curr, prev);
                         SETTINGS.live.columnOrder.healPlayers.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▲</button
                   >
@@ -502,6 +522,7 @@
                       if (curr !== undefined && next !== undefined) {
                         arr.splice(idx, 2, next, curr);
                         SETTINGS.live.columnOrder.healPlayers.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▼</button
                   >
@@ -565,6 +586,7 @@
                       if (prev !== undefined && curr !== undefined) {
                         arr.splice(idx - 1, 2, curr, prev);
                         SETTINGS.live.columnOrder.healSkills.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▲</button
                   >
@@ -583,6 +605,7 @@
                       if (curr !== undefined && next !== undefined) {
                         arr.splice(idx, 2, next, curr);
                         SETTINGS.live.columnOrder.healSkills.state.order = arr;
+                        notifySettingsChanged();
                       }
                     }}>▼</button
                   >
@@ -647,6 +670,7 @@
                         arr.splice(idx - 1, 2, curr, prev);
                         SETTINGS.live.columnOrder.tankedPlayers.state.order =
                           arr;
+                        notifySettingsChanged();
                       }
                     }}>▲</button
                   >
@@ -667,6 +691,7 @@
                         arr.splice(idx, 2, next, curr);
                         SETTINGS.live.columnOrder.tankedPlayers.state.order =
                           arr;
+                        notifySettingsChanged();
                       }
                     }}>▼</button
                   >
@@ -731,6 +756,7 @@
                         arr.splice(idx - 1, 2, curr, prev);
                         SETTINGS.live.columnOrder.tankedSkills.state.order =
                           arr;
+                        notifySettingsChanged();
                       }
                     }}>▲</button
                   >
@@ -751,6 +777,7 @@
                         arr.splice(idx, 2, next, curr);
                         SETTINGS.live.columnOrder.tankedSkills.state.order =
                           arr;
+                        notifySettingsChanged();
                       }
                     }}>▼</button
                   >

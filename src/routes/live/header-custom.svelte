@@ -69,7 +69,10 @@
       !isEncounterPaused &&
       !headerInfo.dpsDisplayPaused
     ) {
-      clientElapsedMs = Date.now() - headerInfo.fightStartTimestampMs;
+      clientElapsedMs = Math.max(
+        0,
+        liveDisplayNowMs - headerInfo.fightStartTimestampMs,
+      );
     }
     animationFrameId = requestAnimationFrame(updateClientTimer);
   }
@@ -135,7 +138,7 @@
   $effect(() => {
     const nextFightStartTimestampMs = headerInfo.fightStartTimestampMs;
     clientElapsedMs = nextFightStartTimestampMs > 0
-      ? Date.now() - nextFightStartTimestampMs
+      ? Math.max(0, liveDisplayNowMs - nextFightStartTimestampMs)
       : 0;
   });
 

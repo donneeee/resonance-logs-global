@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { notifySettingsChanged } from "$lib/settings-store";
+
   type SettingsSelectOption =
     | string
     | number
@@ -37,7 +39,10 @@
           : value}
         <button
           type="button"
-          onclick={() => selected = option.value}
+          onclick={() => {
+            selected = option.value;
+            notifySettingsChanged();
+          }}
           class="px-3 py-1.5 rounded-md text-xs font-medium transition-all {selected === option.value
             ? 'bg-muted text-foreground shadow-sm border border-border'
             : 'bg-popover/50 text-muted-foreground hover:bg-popover/70 hover:text-foreground border border-border/60'}"
