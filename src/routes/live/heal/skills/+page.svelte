@@ -135,7 +135,7 @@
       (col) =>
         SETTINGS.live.heal.skillBreakdown.state[
           col.key as keyof typeof SETTINGS.live.heal.skillBreakdown.state
-        ],
+        ] === true,
     );
     return orderColumnsByKey(visible, columnOrder);
   });

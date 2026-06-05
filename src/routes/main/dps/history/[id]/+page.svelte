@@ -1642,7 +1642,7 @@
         SETTINGS.history.dps.players.state[
           col.key as keyof typeof SETTINGS.history.dps.players.state
         ];
-      return setting ?? defaultValue;
+      return typeof setting === "boolean" ? setting : defaultValue;
     });
   });
 
@@ -1652,14 +1652,14 @@
         (col) =>
           SETTINGS.history.heal.skillBreakdown.state[
             col.key as keyof typeof SETTINGS.history.heal.skillBreakdown.state
-          ],
+          ] === true,
       );
     } else if (skillType === "tanked") {
       return historyTankedSkillColumns.filter(
         (col) =>
           SETTINGS.history.tanked.skillBreakdown.state[
             col.key as keyof typeof SETTINGS.history.tanked.skillBreakdown.state
-          ],
+          ] === true,
       );
     }
     return historyDpsSkillColumns.filter(
@@ -1668,7 +1668,7 @@
         col.key !== "effectiveDps" &&
         SETTINGS.history.dps.skillBreakdown.state[
           col.key as keyof typeof SETTINGS.history.dps.skillBreakdown.state
-        ],
+        ] === true,
     );
   });
 

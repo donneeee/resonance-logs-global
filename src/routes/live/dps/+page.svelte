@@ -142,7 +142,7 @@
         SETTINGS.live.dps.players.state[
           col.key as keyof typeof SETTINGS.live.dps.players.state
         ];
-      return setting ?? defaultValue;
+      return typeof setting === "boolean" ? setting : defaultValue;
     });
     return orderColumnsByKey(visible, columnOrder);
   });

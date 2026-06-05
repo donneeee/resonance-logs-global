@@ -198,7 +198,7 @@
       if (col.key === "effectiveTotal" || col.key === "effectiveDps") return false;
       return SETTINGS.live.tanked.skills.state[
         col.key as keyof typeof SETTINGS.live.tanked.skills.state
-      ];
+      ] === true;
     });
     return orderColumnsByKey(visible, columnOrder);
   });

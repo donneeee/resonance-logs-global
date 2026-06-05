@@ -171,7 +171,7 @@
         SETTINGS.live.heal.players.state[
           col.key as keyof typeof SETTINGS.live.heal.players.state
         ];
-      return setting ?? defaultValue;
+      return typeof setting === "boolean" ? setting : defaultValue;
     });
     return orderColumnsByKey(visible, columnOrder);
   });

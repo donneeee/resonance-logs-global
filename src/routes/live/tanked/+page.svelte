@@ -189,7 +189,7 @@
         SETTINGS.live.tanked.players.state[
           col.key as keyof typeof SETTINGS.live.tanked.players.state
         ];
-      return setting ?? defaultValue;
+      return typeof setting === "boolean" ? setting : defaultValue;
     });
     return orderColumnsByKey(visible, columnOrder);
   });

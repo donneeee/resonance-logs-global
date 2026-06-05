@@ -120,7 +120,11 @@ export function notifySettingsChanged(): void {
   if (settingsChangedTimer) clearTimeout(settingsChangedTimer);
   settingsChangedTimer = setTimeout(() => {
     settingsChangedTimer = null;
-    void import("@tauri-apps/api/event")
+    void persistCurrentLiveSettingsStores()
+      .catch((error) => {
+        console.warn("Failed to persist live settings before broadcast:", error);
+      })
+      .then(() => import("@tauri-apps/api/event"))
       .then(({ emit }) => emit(SETTINGS_CHANGED_EVENT))
       .catch((error) => {
         console.warn("Failed to broadcast settings update:", error);
@@ -171,6 +175,30 @@ function normalizeObjectWithDefaults<T extends MutableRecord>(
     ? (cloneSettingValue(value) as MutableRecord)
     : {};
   mergeDeepDefaults(next, defaults);
+  return next as T;
+}
+
+function normalizeBooleanValue(value: unknown, fallback: boolean): boolean {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") {
+    const normalized = value.trim().toLowerCase();
+    if (normalized === "true" || normalized === "1") return true;
+    if (normalized === "false" || normalized === "0") return false;
+  }
+  return fallback;
+}
+
+function normalizeBooleanSettingsState<T extends MutableRecord>(
+  value: unknown,
+  defaults: T,
+): T {
+  const next = normalizeObjectWithDefaults(value, defaults) as MutableRecord;
+  for (const [key, defaultValue] of Object.entries(defaults)) {
+    if (typeof defaultValue === "boolean") {
+      next[key] = normalizeBooleanValue(next[key], defaultValue);
+    }
+  }
   return next as T;
 }
 
@@ -1838,30 +1866,36 @@ export const SETTINGS = {
       players: createSettingsStore(
         "liveDpsPlayers",
         DEFAULT_SETTINGS.live.dpsPlayers,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsPlayers),
       ),
       skillBreakdown: createSettingsStore(
         "liveDpsSkillBreakdown",
         DEFAULT_SETTINGS.live.dpsSkillBreakdown,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsSkillBreakdown),
       ),
     },
     heal: {
       players: createSettingsStore(
         "liveHealPlayers",
         DEFAULT_SETTINGS.live.healPlayers,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healPlayers),
       ),
       skillBreakdown: createSettingsStore(
         "liveHealSkillBreakdown",
         DEFAULT_SETTINGS.live.healSkillBreakdown,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healSkillBreakdown),
       ),
     },
     tanked: {
       players: createSettingsStore(
         "liveTankedPlayers",
         DEFAULT_SETTINGS.live.tankedPlayers,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedPlayers),
       ),
       skills: createSettingsStore(
         "liveTankedSkills",
         DEFAULT_SETTINGS.live.tankedSkillBreakdown,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedSkillBreakdown),
       ),
     },
     tableCustomization: createSettingsStore(
@@ -1946,30 +1980,36 @@ export const SETTINGS = {
       players: createSettingsStore(
         "historyDpsPlayers",
         DEFAULT_SETTINGS.history.dpsPlayers,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsPlayers),
       ),
       skillBreakdown: createSettingsStore(
         "historyDpsSkillBreakdown",
         DEFAULT_SETTINGS.history.dpsSkillBreakdown,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsSkillBreakdown),
       ),
     },
     heal: {
       players: createSettingsStore(
         "historyHealPlayers",
         DEFAULT_SETTINGS.history.healPlayers,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healPlayers),
       ),
       skillBreakdown: createSettingsStore(
         "historyHealSkillBreakdown",
         DEFAULT_SETTINGS.history.healSkillBreakdown,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healSkillBreakdown),
       ),
     },
     tanked: {
       players: createSettingsStore(
         "historyTankedPlayers",
         DEFAULT_SETTINGS.history.tankedPlayers,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedPlayers),
       ),
       skillBreakdown: createSettingsStore(
         "historyTankedSkillBreakdown",
         DEFAULT_SETTINGS.history.tankedSkillBreakdown,
+        (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedSkillBreakdown),
       ),
     },
   },
@@ -2012,6 +2052,133 @@ function repairSettingsStoreFromBackend<T extends MutableRecord>(
   });
 }
 
+async function persistSettingsStoreState<T extends MutableRecord>(
+  store: RuneStore<T>,
+  defaults: T,
+  normalize: SettingsStoreNormalizer<T> = (value) =>
+    normalizeObjectWithDefaults(value, defaults),
+): Promise<void> {
+  const nextState = normalize(store.state);
+  if (JSON.stringify(store.state) !== JSON.stringify(nextState)) {
+    Object.assign(store.state, nextState);
+  }
+  await patchStoreState(store.id, nextState);
+  await saveStoreNow(store.id);
+}
+
+function persistCurrentLiveSettingsStores(): Promise<void> {
+  return Promise.all([
+    persistSettingsStoreState(
+      SETTINGS.accessibility,
+      DEFAULT_SETTINGS.accessibility,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.trainingDummy,
+      DEFAULT_SETTINGS.trainingDummy,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.general,
+      DEFAULT_SETTINGS.live.general,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.dps.players,
+      DEFAULT_SETTINGS.live.dpsPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsPlayers),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.dps.skillBreakdown,
+      DEFAULT_SETTINGS.live.dpsSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsSkillBreakdown),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.heal.players,
+      DEFAULT_SETTINGS.live.healPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healPlayers),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.heal.skillBreakdown,
+      DEFAULT_SETTINGS.live.healSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healSkillBreakdown),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.tanked.players,
+      DEFAULT_SETTINGS.live.tankedPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedPlayers),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.tanked.skills,
+      DEFAULT_SETTINGS.live.tankedSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedSkillBreakdown),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.tableCustomization,
+      DEFAULT_SETTINGS.live.tableCustomization,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.dynamicWindow,
+      DEFAULT_SETTINGS.live.dynamicWindow,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.headerCustomization,
+      DEFAULT_SETTINGS.live.headerCustomization,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.columnOrder.dpsPlayers,
+      { order: [...DEFAULT_DPS_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_DPS_PLAYER_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.columnOrder.dpsSkills,
+      { order: [...DEFAULT_DPS_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_DPS_SKILL_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.columnOrder.healPlayers,
+      { order: [...DEFAULT_HEAL_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HEAL_PLAYER_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.columnOrder.healSkills,
+      { order: [...DEFAULT_HEAL_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HEAL_SKILL_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.columnOrder.tankedPlayers,
+      { order: [...DEFAULT_TANKED_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_TANKED_PLAYER_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.columnOrder.tankedSkills,
+      { order: [...DEFAULT_TANKED_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.sorting.dpsPlayers,
+      DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.sorting.dpsSkills,
+      DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.sorting.healPlayers,
+      DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.sorting.healSkills,
+      DEFAULT_LIVE_SORT_SETTINGS.healSkills,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.sorting.tankedPlayers,
+      DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.live.sorting.tankedSkills,
+      DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
+    ),
+  ]).then(() => undefined);
+}
+
 export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
   if (liveSettingsRefreshInFlight) return liveSettingsRefreshInFlight;
 
@@ -2041,26 +2208,32 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
     repairSettingsStoreFromBackend(
       SETTINGS.live.dps.players,
       DEFAULT_SETTINGS.live.dpsPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.dps.skillBreakdown,
       DEFAULT_SETTINGS.live.dpsSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.heal.players,
       DEFAULT_SETTINGS.live.healPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.heal.skillBreakdown,
       DEFAULT_SETTINGS.live.healSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.tanked.players,
       DEFAULT_SETTINGS.live.tankedPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.tanked.skills,
       DEFAULT_SETTINGS.live.tankedSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.tableCustomization,
@@ -2192,26 +2365,32 @@ export async function repairPersistedSettingsStores(): Promise<void> {
     repairSettingsStoreFromBackend(
       SETTINGS.live.dps.players,
       DEFAULT_SETTINGS.live.dpsPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.dps.skillBreakdown,
       DEFAULT_SETTINGS.live.dpsSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.heal.players,
       DEFAULT_SETTINGS.live.healPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.heal.skillBreakdown,
       DEFAULT_SETTINGS.live.healSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.tanked.players,
       DEFAULT_SETTINGS.live.tankedPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.tanked.skills,
       DEFAULT_SETTINGS.live.tankedSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.tableCustomization,
@@ -2286,26 +2465,32 @@ export async function repairPersistedSettingsStores(): Promise<void> {
     repairSettingsStoreFromBackend(
       SETTINGS.history.dps.players,
       DEFAULT_SETTINGS.history.dpsPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.history.dps.skillBreakdown,
       DEFAULT_SETTINGS.history.dpsSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.history.heal.players,
       DEFAULT_SETTINGS.history.healPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.history.heal.skillBreakdown,
       DEFAULT_SETTINGS.history.healSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.history.tanked.players,
       DEFAULT_SETTINGS.history.tankedPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.history.tanked.skillBreakdown,
       DEFAULT_SETTINGS.history.tankedSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.appVersion,
@@ -2438,36 +2623,36 @@ export function normalizePersistedSettings(): void {
   );
   Object.assign(
     SETTINGS.live.dps.players.state,
-    normalizeObjectWithDefaults(SETTINGS.live.dps.players.state, DEFAULT_SETTINGS.live.dpsPlayers),
+    normalizeBooleanSettingsState(SETTINGS.live.dps.players.state, DEFAULT_SETTINGS.live.dpsPlayers),
   );
   Object.assign(
     SETTINGS.live.dps.skillBreakdown.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.live.dps.skillBreakdown.state,
       DEFAULT_SETTINGS.live.dpsSkillBreakdown,
     ),
   );
   Object.assign(
     SETTINGS.live.heal.players.state,
-    normalizeObjectWithDefaults(SETTINGS.live.heal.players.state, DEFAULT_SETTINGS.live.healPlayers),
+    normalizeBooleanSettingsState(SETTINGS.live.heal.players.state, DEFAULT_SETTINGS.live.healPlayers),
   );
   Object.assign(
     SETTINGS.live.heal.skillBreakdown.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.live.heal.skillBreakdown.state,
       DEFAULT_SETTINGS.live.healSkillBreakdown,
     ),
   );
   Object.assign(
     SETTINGS.live.tanked.players.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.live.tanked.players.state,
       DEFAULT_SETTINGS.live.tankedPlayers,
     ),
   );
   Object.assign(
     SETTINGS.live.tanked.skills.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.live.tanked.skills.state,
       DEFAULT_SETTINGS.live.tankedSkillBreakdown,
     ),
@@ -2478,42 +2663,42 @@ export function normalizePersistedSettings(): void {
   );
   Object.assign(
     SETTINGS.history.dps.players.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.history.dps.players.state,
       DEFAULT_SETTINGS.history.dpsPlayers,
     ),
   );
   Object.assign(
     SETTINGS.history.dps.skillBreakdown.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.history.dps.skillBreakdown.state,
       DEFAULT_SETTINGS.history.dpsSkillBreakdown,
     ),
   );
   Object.assign(
     SETTINGS.history.heal.players.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.history.heal.players.state,
       DEFAULT_SETTINGS.history.healPlayers,
     ),
   );
   Object.assign(
     SETTINGS.history.heal.skillBreakdown.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.history.heal.skillBreakdown.state,
       DEFAULT_SETTINGS.history.healSkillBreakdown,
     ),
   );
   Object.assign(
     SETTINGS.history.tanked.players.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.history.tanked.players.state,
       DEFAULT_SETTINGS.history.tankedPlayers,
     ),
   );
   Object.assign(
     SETTINGS.history.tanked.skillBreakdown.state,
-    normalizeObjectWithDefaults(
+    normalizeBooleanSettingsState(
       SETTINGS.history.tanked.skillBreakdown.state,
       DEFAULT_SETTINGS.history.tankedSkillBreakdown,
     ),

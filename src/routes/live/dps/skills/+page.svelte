@@ -310,7 +310,7 @@
         col.key !== "effectiveDps" &&
         SETTINGS.live.dps.skillBreakdown.state[
           col.key as keyof typeof SETTINGS.live.dps.skillBreakdown.state
-        ],
+        ] === true,
     );
     return orderColumnsByKey(visible, columnOrder);
   });
