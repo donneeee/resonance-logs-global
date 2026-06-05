@@ -54,7 +54,7 @@ const SPEC_ICON_ROLE_COLORS = {
 } as const;
 
 const SUPPORT_SPEC_ICONS = new Set(["Lifebind", "Recovery", "Concerto"]);
-const TANK_SPEC_ICONS = new Set(["Block", "Shield"]);
+const TANK_SPEC_ICONS = new Set(["Earthfort", "Block", "Shield"]);
 
 export function getClassIconTintColor(class_name: string, class_spec_name = ""): string {
   if (!class_spec_name) return "";
@@ -178,6 +178,7 @@ export async function copyToClipboard(error: MouseEvent & { currentTarget: Event
 let isClickthrough = false;
 const LIVE_WINDOW_FOCUS_RESTORE_DELAY_MS = 80;
 export const LIVE_WINDOW_MANUAL_SHOW_EVENT = "live-window-manual-show";
+const PASSIVE_OVERLAY_WINDOW_LABELS = ["game-overlay", "monster-overlay"] as const;
 
 type LiveWindowHandle = {
   setFocusable(focusable: boolean): Promise<void>;
@@ -221,6 +222,37 @@ export async function showLiveWindowWithoutFocus(liveWindow?: LiveWindowHandle |
   await emit(LIVE_WINDOW_MANUAL_SHOW_EVENT).catch((error) => {
     console.warn("Failed to notify live window manual show:", error);
   });
+}
+
+export async function hideVisiblePassiveOverlayWindows(): Promise<Set<string>> {
+  const hiddenLabels = new Set<string>();
+  for (const label of PASSIVE_OVERLAY_WINDOW_LABELS) {
+    const overlayWindow = await WebviewWindow.getByLabel(label);
+    if (!overlayWindow) continue;
+    const visible = await overlayWindow.isVisible().catch(() => false);
+    if (!visible) continue;
+    await overlayWindow.hide().catch((error) => {
+      console.warn(`Failed to auto-hide overlay window '${label}':`, error);
+    });
+    hiddenLabels.add(label);
+  }
+  return hiddenLabels;
+}
+
+export async function restorePassiveOverlayWindows(labels: Iterable<string>): Promise<void> {
+  for (const label of labels) {
+    if (!PASSIVE_OVERLAY_WINDOW_LABELS.includes(label as typeof PASSIVE_OVERLAY_WINDOW_LABELS[number])) {
+      continue;
+    }
+    const overlayWindow = await WebviewWindow.getByLabel(label);
+    if (!overlayWindow) continue;
+    await overlayWindow.setFocusable(false).catch(() => undefined);
+    await overlayWindow.setIgnoreCursorEvents(true).catch(() => undefined);
+    await overlayWindow.show().catch((error) => {
+      console.warn(`Failed to restore auto-hidden overlay window '${label}':`, error);
+    });
+    await overlayWindow.unminimize().catch(() => undefined);
+  }
 }
 
 export async function setClickthrough(bool: boolean) {

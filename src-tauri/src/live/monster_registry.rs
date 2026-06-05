@@ -16,6 +16,7 @@ pub enum MonsterType {
 #[derive(Debug, Clone)]
 pub struct MonsterInfo {
     pub name: String,
+    pub localized_names: Vec<String>,
     pub monster_type: MonsterType,
 }
 
@@ -28,6 +29,8 @@ static MONSTER_REGISTRY: LazyLock<HashMap<i32, MonsterInfo>> = LazyLock::new(|| 
     struct RawMonsterInfo {
         #[serde(rename = "Name")]
         name: String,
+        #[serde(rename = "Names", default)]
+        names: HashMap<String, String>,
         #[serde(rename = "MonsterType")]
         monster_type: u8,
     }
@@ -60,6 +63,7 @@ static MONSTER_REGISTRY: LazyLock<HashMap<i32, MonsterInfo>> = LazyLock::new(|| 
                 id,
                 MonsterInfo {
                     name: info.name,
+                    localized_names: info.names.into_values().collect(),
                     monster_type,
                 },
             );
@@ -93,7 +97,11 @@ static BOSS_METRIC_EXCLUDED_MONSTER_NAMES: LazyLock<HashSet<String>> = LazyLock:
     BOSS_METRIC_EXCLUDED_MONSTER_IDS
         .iter()
         .filter_map(|id| MONSTER_REGISTRY.get(id))
-        .map(|info| normalize_monster_name(&info.name))
+        .flat_map(|info| {
+            std::iter::once(info.name.as_str())
+                .chain(info.localized_names.iter().map(String::as_str))
+        })
+        .map(normalize_monster_name)
         .filter(|name| !name.is_empty())
         .collect()
 });

@@ -100,13 +100,52 @@
     return String(profileIndex);
   }
 
+  function moduleCalcDefaultProfileSignature(): string {
+    return moduleCalcProfileSignature(normalizeModuleCalcProfileSettings(undefined));
+  }
+
+  function legacyModuleCalcProfileSettings(
+    profileIndex: number,
+  ): ModuleCalcProfileSettings | null {
+    const profileSettings = SETTINGS.moduleCalc.state.profileSettings ?? {};
+    const raw = profileSettings[moduleCalcProfileMemoryKey(profileIndex)];
+    return raw ? normalizeModuleCalcProfileSettings(raw) : null;
+  }
+
+  function writeModuleCalcProfileSettings(
+    profileIndex: number,
+    settings: ModuleCalcProfileSettings,
+  ): void {
+    const profiles = SETTINGS.skillMonitor.state.profiles;
+    if (profileIndex < 0 || profileIndex >= profiles.length) return;
+    const normalized = normalizeModuleCalcProfileSettings(settings);
+    SETTINGS.skillMonitor.state.profiles = profiles.map((profile, index) =>
+      index === profileIndex
+        ? {
+            ...profile,
+            moduleCalc: normalized,
+          }
+        : profile,
+    );
+  }
+
   function loadModuleCalcProfileSettings(
     profileIndex: number,
   ): ModuleCalcProfileSettings {
-    const profileSettings = SETTINGS.moduleCalc.state.profileSettings ?? {};
-    return normalizeModuleCalcProfileSettings(
-      profileSettings[moduleCalcProfileMemoryKey(profileIndex)],
-    );
+    const profile = SETTINGS.skillMonitor.state.profiles[profileIndex];
+    const profileSettings = normalizeModuleCalcProfileSettings(profile?.moduleCalc);
+    const legacySettings = legacyModuleCalcProfileSettings(profileIndex);
+    if (legacySettings) {
+      const defaultSignature = moduleCalcDefaultProfileSignature();
+      if (
+        moduleCalcProfileSignature(profileSettings) === defaultSignature &&
+        moduleCalcProfileSignature(legacySettings) !== defaultSignature
+      ) {
+        writeModuleCalcProfileSettings(profileIndex, legacySettings);
+        return legacySettings;
+      }
+    }
+    return profileSettings;
   }
 
   function applyModuleCalcProfileSettings(settings: ModuleCalcProfileSettings) {
@@ -262,6 +301,7 @@
 
     savedModuleCalcProfileSignature = signature;
     const profileIndex = appliedProfileIndex ?? clampedProfileIndex();
+    writeModuleCalcProfileSettings(profileIndex, snapshot);
     const key = moduleCalcProfileMemoryKey(profileIndex);
     const profileSettings = SETTINGS.moduleCalc.state.profileSettings ?? {};
     SETTINGS.moduleCalc.state.profileSettings = {

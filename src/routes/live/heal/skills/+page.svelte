@@ -1,8 +1,15 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { settings, SETTINGS } from "$lib/settings-store";
-  import { getLiveData } from "$lib/stores/live-meter-store.svelte";
-  import { computePlayerRows, computeSkillRows } from "$lib/live-derived";
+  import {
+    getLiveData,
+    getLiveDisplayNowMs,
+  } from "$lib/stores/live-meter-store.svelte";
+  import {
+    computePlayerRows,
+    computeSkillRows,
+    liveDisplayElapsedMs,
+  } from "$lib/live-derived";
   import { lookupDamageIdName, lookupSkillBreakdownIconPath } from "$lib/config/recount-table";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import { liveHealSkillColumns } from "$lib/column-data";
@@ -14,8 +21,9 @@
   const playerUid = Number(page.url.searchParams.get("playerUid") ?? "-1");
 
   let liveData = $derived(getLiveData());
+  let liveDisplayNow = $derived(getLiveDisplayNowMs());
   let healPlayers = $derived(
-    liveData ? computePlayerRows(liveData, "heal") : [],
+    liveData ? computePlayerRows(liveData, "heal", liveDisplayNow) : [],
   );
   let currPlayer = $derived(healPlayers.find((player) => player.uid === playerUid));
   let currEntity = $derived(
@@ -26,7 +34,7 @@
     currEntity && liveData
       ? computeSkillRows(
           currEntity.healSkills,
-          liveData.elapsedMs,
+          liveDisplayElapsedMs(liveData, liveDisplayNow),
           currEntity.healing.total,
           lookupDamageIdName,
         )

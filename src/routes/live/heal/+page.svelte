@@ -2,7 +2,10 @@
   import { goto } from "$app/navigation";
   import { tick } from "svelte";
   import { settings, SETTINGS } from "$lib/settings-store";
-  import { getLiveData } from "$lib/stores/live-meter-store.svelte";
+  import {
+    getLiveData,
+    getLiveDisplayNowMs,
+  } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
@@ -18,8 +21,9 @@
   import { resolveUiTranslation } from "$lib/i18n";
 
   let liveData = $derived(getLiveData());
+  let liveDisplayNowMs = $derived(getLiveDisplayNowMs());
   let rawHealData = $derived(
-    liveData ? computePlayerRows(liveData, "heal") : [],
+    liveData ? computePlayerRows(liveData, "heal", liveDisplayNowMs) : [],
   );
 
   // Sorting settings

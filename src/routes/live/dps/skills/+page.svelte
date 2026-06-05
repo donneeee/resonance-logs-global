@@ -1,8 +1,11 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { settings, SETTINGS } from "$lib/settings-store";
-  import { getLiveData } from "$lib/stores/live-meter-store.svelte";
-  import { computePlayerRows } from "$lib/live-derived";
+  import {
+    getLiveData,
+    getLiveDisplayNowMs,
+  } from "$lib/stores/live-meter-store.svelte";
+  import { computePlayerRows, liveDisplayElapsedMs } from "$lib/live-derived";
   import {
     buildRecountGroupHoverText,
     buildSkillBreakdownHoverText,
@@ -43,14 +46,17 @@
   const expandedGroups = $state(new Set<number>());
 
   let liveData = $derived(getLiveData());
+  let liveDisplayNow = $derived(getLiveDisplayNowMs());
   let dpsPlayers = $derived(
-    liveData ? computePlayerRows(liveData, "dps") : [],
+    liveData ? computePlayerRows(liveData, "dps", liveDisplayNow) : [],
   );
   let currPlayer = $derived(dpsPlayers.find((player) => player.uid === playerUid));
   let currEntity = $derived(
     liveData?.entities.find((entity) => entity.uid === playerUid) ?? null,
   );
-  let elapsedSecs = $derived((liveData?.elapsedMs ?? 0) / 1000);
+  let elapsedSecs = $derived(
+    liveData ? liveDisplayElapsedMs(liveData, liveDisplayNow) / 1000 : 0,
+  );
 
   let groupedSkills = $derived(
     currEntity

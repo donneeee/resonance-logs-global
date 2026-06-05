@@ -3,6 +3,20 @@ import fs from "node:fs";
 import path from "node:path";
 
 const ROOT = process.cwd();
+const TWIN_AXE_CLASS_LABEL_KEY = "class.Flame Berserker";
+const TWIN_AXE_FACTOR_TYPE_LABELS = {
+  en: { reality: "Reality Factor", stasis: "Stasis", rhapsody: "Rhapsody", polarity: "Polarity" },
+  "zh-CN": { reality: "真实因子", stasis: "稳态", rhapsody: "狂想", polarity: "极性" },
+  "zh-TW": { reality: "真實因子", stasis: "穩態", rhapsody: "狂想", polarity: "極性" },
+  ja: { reality: "実像因子", stasis: "恒常性", rhapsody: "狂想", polarity: "極性" },
+  "ko-KR": { reality: "진실 인자", stasis: "안정", rhapsody: "광상", polarity: "극성" },
+  fr: { reality: "Facteur de réalité", stasis: "Stase", rhapsody: "Rhapsodie", polarity: "Polarité" },
+  de: { reality: "Realitätsfaktor", stasis: "Stase", rhapsody: "Rhapsodie", polarity: "Polarität" },
+  es: { reality: "Factor de Realidad", stasis: "Estasis", rhapsody: "Rapsodia", polarity: "Polaridad" },
+  "pt-BR": { reality: "Fator de Realidade", stasis: "Estase", rhapsody: "Rapsódia", polarity: "Polaridade" },
+  th: { reality: "Reality Factor", stasis: "Stasis", rhapsody: "Rhapsody", polarity: "Polarity" },
+  id: { reality: "Reality Factor", stasis: "Stasis", rhapsody: "Rhapsody", polarity: "Polarity" },
+};
 
 function readJson(relPath) {
   return JSON.parse(fs.readFileSync(path.join(ROOT, relPath), "utf8"));
@@ -86,8 +100,53 @@ function getLocaleText(map, locale, fallbackLabel) {
   throw new Error(`Missing localized ${fallbackLabel} for ${locale}`);
 }
 
+function isTwinAxeFactor(row) {
+  const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
+  return /\b(?:Flame Vanguard|Flame Berserker)\b/i.test(englishName);
+}
+
+function getTwinAxeClassLabel(classLabels, locale) {
+  return getLocaleText(classLabels?.[TWIN_AXE_CLASS_LABEL_KEY], locale, "Twin Axe class label");
+}
+
+function getTwinAxeFactorKind(row) {
+  const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
+  if (/\bReality Factor\b/i.test(englishName)) return "reality";
+  if (/\bStasis\b/i.test(englishName)) return "stasis";
+  if (/\bRhapsody\b/i.test(englishName)) return "rhapsody";
+  if (/\bPolarity\b/i.test(englishName)) return "polarity";
+  return "";
+}
+
+function getTwinAxeSlot(row) {
+  const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
+  return englishName.match(/\bX\d+\b/i)?.[0]?.toUpperCase() ?? "";
+}
+
+function joinTwinAxeName(locale, className, factorKind, slot) {
+  const typeLabel = factorKind
+    ? TWIN_AXE_FACTOR_TYPE_LABELS[locale]?.[factorKind] ?? TWIN_AXE_FACTOR_TYPE_LABELS.en[factorKind]
+    : "";
+
+  if (!slot) return [className, typeLabel].filter(Boolean).join(" ");
+  if (!typeLabel) return `${className} ${slot}`;
+  if (locale === "zh-CN" || locale === "zh-TW") return `${className}${typeLabel}${slot}`;
+  if (locale === "ja") return `${className}・${typeLabel}${slot}`;
+  if (locale === "ko-KR") return `${className} ${typeLabel}${slot}`;
+  return `${className} ${typeLabel} ${slot}`;
+}
+
+function getDisplayFamilyName(row, locale, classLabels, fallbackLabel) {
+  const rawName = getLocaleText(row.familyNames, locale, fallbackLabel);
+  if (!isTwinAxeFactor(row)) return rawName;
+
+  const className = getTwinAxeClassLabel(classLabels, locale);
+  return joinTwinAxeName(locale, className, getTwinAxeFactorKind(row), getTwinAxeSlot(row)) || rawName;
+}
+
 function buildTemplateLocaleEntries(locale) {
   const indexes = buildFactorIndexes();
+  const classLabels = readJson("parser-data/generated/class-labels.json");
   const sourceTemplates = asArray(readJson("parser-data/app-rules/counter_source_templates.json"));
   const slotTemplates = asArray(readJson("parser-data/app-rules/counter_slot_templates.json"));
   const entries = new Map();
@@ -96,7 +155,7 @@ function buildTemplateLocaleEntries(locale) {
     const row = resolveFactorRow(template, indexes);
     entries.set(
       `sourceTemplate.${template.sourceId}.name`,
-      getLocaleText(row.familyNames, locale, `source template ${template.sourceId} name`),
+      getDisplayFamilyName(row, locale, classLabels, `source template ${template.sourceId} name`),
     );
     entries.set(
       `sourceTemplate.${template.sourceId}.description`,
@@ -108,7 +167,7 @@ function buildTemplateLocaleEntries(locale) {
     const row = resolveFactorRow(template, indexes);
     entries.set(
       `slotTemplate.${template.slotTemplateId}.name`,
-      getLocaleText(row.familyNames, locale, `slot template ${template.slotTemplateId} name`),
+      getDisplayFamilyName(row, locale, classLabels, `slot template ${template.slotTemplateId} name`),
     );
     entries.set(
       `slotTemplate.${template.slotTemplateId}.description`,

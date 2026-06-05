@@ -66,6 +66,8 @@
   "autoClearOnSceneChangeDescription": "当游戏切换场景或服务器时，自动保存并清空当前计量表。关闭此项可在场景切换后保留当前计量表。",
   "autoHideLiveWindow": "自动隐藏实时窗口",
   "autoHideLiveWindowDescription": "没有检测到新伤害时，延迟后隐藏实时计量表；一旦出现伤害会自动显示。",
+  "autoHideOverlaysWithLiveWindow": "随实时窗口自动隐藏悬浮窗",
+  "autoHideOverlaysWithLiveWindowDescription": "启用“自动隐藏实时窗口”后，实时计量表隐藏时会一起隐藏当前可见的游戏/怪物悬浮窗，并只恢复自动隐藏前原本可见的悬浮窗。",
   "autoHideLiveWindowDelaySeconds": "自动隐藏延迟",
   "autoHideLiveWindowDelaySecondsDescription": "没有检测到新伤害后，等待多少秒再隐藏实时计量表。设为 0 可立即隐藏。",
   "secondsUnit": "秒"

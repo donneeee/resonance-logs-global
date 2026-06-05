@@ -1040,6 +1040,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   eventUpdateRateMs: number;
   autoClearOnSceneChange: boolean;
   autoHideLiveWindow: boolean;
+  autoHideOverlaysWithLiveWindow: boolean;
   autoHideLiveWindowDelaySeconds: number;
   modifierReportsEnabled: boolean;
   language: LocaleCode;
@@ -1066,6 +1067,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   eventUpdateRateMs: 200,
   autoClearOnSceneChange: true,
   autoHideLiveWindow: false,
+  autoHideOverlaysWithLiveWindow: false,
   autoHideLiveWindowDelaySeconds: 5,
   modifierReportsEnabled: false,
   language: 'zh-CN',
@@ -1128,7 +1130,7 @@ export const DEFAULT_CLASS_SPEC_COLORS: Record<string, string> = {
   Smite: "#b9f36e",
   Lifebind: "#3b6d00",
   // Heavy Guardian
-  Earthfort: "#e6c25a",
+  Earthfort: "#7ea6c6",
   Block: "#7b5b08",
   // Marksman
   Wildpack: "#fff9a6",

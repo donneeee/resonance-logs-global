@@ -14,7 +14,9 @@
   import { SETTINGS } from "$lib/settings-store";
   import {
     LIVE_WINDOW_MANUAL_SHOW_EVENT,
+    hideVisiblePassiveOverlayWindows,
     restoreLiveWindowInteractivity,
+    restorePassiveOverlayWindows,
     showLiveWindowWithoutFocus,
   } from "$lib/utils.svelte";
   import { resolveUiTranslation } from "$lib/i18n";
@@ -51,6 +53,8 @@
 
   import {
     setLiveData,
+    setLiveDisplayNowMs,
+    isCrowdedLiveSession,
     setDeathRecords,
     setTrainingDummyState,
     clearMeterData,
@@ -91,9 +95,49 @@
   let autoHideRecentlyDamaged = false;
   let autoHideLastObservedDamageTotal = 0;
   let autoHideHiddenByFeature = false;
+  let autoHideHiddenOverlayLabels = new Set<string>();
   let autoHideOperation: Promise<void> = Promise.resolve();
   let autoHideTimer: ReturnType<typeof setTimeout> | null = null;
   let manualShowUnlisten: UnlistenFn | null = null;
+  const CROWDED_SESSION_MIN_REFRESH_MS = 1000;
+
+  function clampLiveRefreshRateMs(value: unknown): number {
+    const numberValue = Number(value);
+    const base = Number.isFinite(numberValue) ? numberValue : 200;
+    return Math.max(50, Math.min(2000, Math.round(base / 50) * 50));
+  }
+
+  function liveDisplayRefreshRateMs(): number {
+    const configuredRate = clampLiveRefreshRateMs(
+      SETTINGS.live.general.state.eventUpdateRateMs,
+    );
+    return isCrowdedLiveSession()
+      ? Math.max(configuredRate, CROWDED_SESSION_MIN_REFRESH_MS)
+      : configuredRate;
+  }
+
+  $effect(() => {
+    if (typeof window === "undefined") return;
+    const refreshRateMs = liveDisplayRefreshRateMs();
+    setLiveDisplayNowMs(Date.now());
+    const timer = setInterval(() => {
+      setLiveDisplayNowMs(Date.now());
+    }, refreshRateMs);
+    return () => clearInterval(timer);
+  });
+
+  $effect(() => {
+    const liveAutoHideEnabled = SETTINGS.live.general.state.autoHideLiveWindow === true;
+    const overlayAutoHideEnabled =
+      SETTINGS.live.general.state.autoHideOverlaysWithLiveWindow === true;
+    if (!liveAutoHideEnabled) {
+      void syncAutoHideLiveWindow(autoHideRecentlyDamaged, true);
+      return;
+    }
+    if (!overlayAutoHideEnabled) {
+      void restoreAutoHiddenOverlays();
+    }
+  });
 
   function damageNumber(value: unknown): number {
     const numberValue = Number(value);
@@ -160,20 +204,40 @@
     const liveWindow = getCurrentWindow();
 
     try {
+      const [isVisible, isMinimized] = await Promise.all([
+        liveWindow.isVisible().catch(() => true),
+        liveWindow.isMinimized().catch(() => false),
+      ]);
+
+      if (!isVisible || isMinimized) {
+        return;
+      }
+
       await liveWindow.setFocusable(false);
       await liveWindow.setIgnoreCursorEvents(true);
       await liveWindow.hide();
       await liveWindow.setIgnoreCursorEvents(true);
       autoHideHiddenByFeature = true;
+      if (SETTINGS.live.general.state.autoHideOverlaysWithLiveWindow === true) {
+        autoHideHiddenOverlayLabels = await hideVisiblePassiveOverlayWindows();
+      }
     } catch (error) {
       console.warn("Failed to hide live window after auto-hide delay:", error);
       await restoreLiveWindowCursorMode(liveWindow);
     }
   }
 
+  async function restoreAutoHiddenOverlays(): Promise<void> {
+    if (autoHideHiddenOverlayLabels.size === 0) return;
+    const labels = autoHideHiddenOverlayLabels;
+    autoHideHiddenOverlayLabels = new Set();
+    await restorePassiveOverlayWindows(labels);
+  }
+
   function reconcileManualLiveWindowShow(): void {
     clearAutoHideTimer();
     autoHideHiddenByFeature = false;
+    void restoreAutoHiddenOverlays();
     void syncAutoHideLiveWindow(autoHideRecentlyDamaged, true);
   }
 
@@ -219,6 +283,7 @@
           autoHideHiddenByFeature = false;
           await showLiveWindowWithoutFocus(liveWindow);
         }
+        await restoreAutoHiddenOverlays();
         await restoreLiveWindowCursorMode(liveWindow);
         return;
       }
@@ -229,6 +294,7 @@
           autoHideHiddenByFeature = false;
           await showLiveWindowWithoutFocus(liveWindow);
         }
+        await restoreAutoHiddenOverlays();
         await restoreLiveWindowCursorMode(liveWindow);
         return;
       }

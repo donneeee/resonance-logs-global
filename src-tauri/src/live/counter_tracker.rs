@@ -18,6 +18,15 @@ pub struct CounterRule {
     pub effect_slots: Vec<EffectSlotConfig>,
 }
 
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub struct DamageHitFilter {
+    #[serde(default)]
+    pub crit: Option<bool>,
+    #[serde(default)]
+    pub lucky: Option<bool>,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub enum CounterSource {
@@ -27,11 +36,15 @@ pub enum CounterSource {
         increment: u32,
         #[serde(default, rename = "hitsRequired")]
         hits_required: Option<u32>,
+        #[serde(default, rename = "hitFilter")]
+        hit_filter: Option<DamageHitFilter>,
     },
     DamageBySkillKeyOnce {
         #[serde(rename = "skillKeys")]
         skill_keys: Vec<i64>,
         increment: u32,
+        #[serde(default, rename = "hitFilter")]
+        hit_filter: Option<DamageHitFilter>,
     },
     DamageBySkillKeySelfTarget {
         #[serde(rename = "skillKeys")]
@@ -39,11 +52,15 @@ pub enum CounterSource {
         increment: u32,
         #[serde(default, rename = "hitsRequired")]
         hits_required: Option<u32>,
+        #[serde(default, rename = "hitFilter")]
+        hit_filter: Option<DamageHitFilter>,
     },
     AnyDamage {
         increment: u32,
         #[serde(default, rename = "hitsRequired")]
         hits_required: Option<u32>,
+        #[serde(default, rename = "hitFilter")]
+        hit_filter: Option<DamageHitFilter>,
     },
     DamageTaken {
         #[serde(default, rename = "skillKeys")]
@@ -507,23 +524,34 @@ impl BuffCounterTracker {
                         skill_keys,
                         increment,
                         hits_required,
+                        hit_filter,
                     } => apply_damage_hits_required(
                         &mut state.damage_hit_accumulators[source_idx],
                         *increment,
                         *hits_required,
                         events
                             .iter()
-                            .filter(|event| skill_keys.contains(&event.skill_key))
+                            .filter(|event| {
+                                skill_keys.contains(&event.skill_key)
+                                    && matches_damage_hit_filter(event, hit_filter.as_ref())
+                            })
                             .count(),
                     ),
                     CounterSource::DamageBySkillKeyOnce {
                         skill_keys,
                         increment,
-                    } => apply_damage_by_skill_key_once_max(events, skill_keys, *increment),
+                        hit_filter,
+                    } => apply_damage_by_skill_key_once_max(
+                        events,
+                        skill_keys,
+                        *increment,
+                        hit_filter.as_ref(),
+                    ),
                     CounterSource::DamageBySkillKeySelfTarget {
                         skill_keys,
                         increment,
                         hits_required,
+                        hit_filter,
                     } => apply_damage_hits_required(
                         &mut state.damage_hit_accumulators[source_idx],
                         *increment,
@@ -536,17 +564,22 @@ impl BuffCounterTracker {
                                         && event.target_uuid == Some(local_player_uuid))
                                         || (local_player_uid > 0
                                             && event.target_uid == local_player_uid))
+                                    && matches_damage_hit_filter(event, hit_filter.as_ref())
                             })
                             .count(),
                     ),
                     CounterSource::AnyDamage {
                         increment,
                         hits_required,
+                        hit_filter,
                     } => apply_damage_hits_required(
                         &mut state.damage_hit_accumulators[source_idx],
                         *increment,
                         *hits_required,
-                        events.len(),
+                        events
+                            .iter()
+                            .filter(|event| matches_damage_hit_filter(event, hit_filter.as_ref()))
+                            .count(),
                     ),
                     _ => continue,
                 };
@@ -1088,17 +1121,20 @@ impl CounterTriggerLegacy {
                 skill_keys,
                 increment: 1,
                 hits_required: None,
+                hit_filter: None,
             },
             CounterTriggerLegacy::DamageBySkillKeySelfTarget(skill_keys) => {
                 CounterSource::DamageBySkillKeySelfTarget {
                     skill_keys,
                     increment: 1,
                     hits_required: None,
+                    hit_filter: None,
                 }
             }
             CounterTriggerLegacy::AnyDamage => CounterSource::AnyDamage {
                 increment: 1,
                 hits_required: None,
+                hit_filter: None,
             },
         }
     }
@@ -1168,6 +1204,7 @@ fn apply_damage_by_skill_key_once_max(
     events: &[LocalDamageEvent],
     skill_keys: &[i64],
     increment: u32,
+    hit_filter: Option<&DamageHitFilter>,
 ) -> Option<u32> {
     if events.is_empty() || skill_keys.is_empty() {
         return None;
@@ -1175,7 +1212,7 @@ fn apply_damage_by_skill_key_once_max(
 
     let mut hits: HashMap<(i64, i64), u32> = HashMap::new();
     for event in events {
-        if skill_keys.contains(&event.skill_key) {
+        if skill_keys.contains(&event.skill_key) && matches_damage_hit_filter(event, hit_filter) {
             *hits.entry((event.skill_key, event.target_uid)).or_insert(0) += 1;
         }
     }
@@ -1193,6 +1230,26 @@ fn apply_damage_by_skill_key_once_max(
         .sum::<u32>();
 
     scaled_increment(increment, usize::try_from(total).unwrap_or(usize::MAX))
+}
+
+fn matches_damage_hit_filter(
+    event: &LocalDamageEvent,
+    hit_filter: Option<&DamageHitFilter>,
+) -> bool {
+    let Some(hit_filter) = hit_filter else {
+        return true;
+    };
+    if let Some(expected) = hit_filter.crit {
+        if event.is_crit != expected {
+            return false;
+        }
+    }
+    if let Some(expected) = hit_filter.lucky {
+        if event.is_lucky != expected {
+            return false;
+        }
+    }
+    true
 }
 
 fn apply_damage_hits_required(

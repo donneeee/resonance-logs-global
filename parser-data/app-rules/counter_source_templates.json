@@ -513,6 +513,34 @@
     ]
   },
   {
+    "sourceId": "wind_knight_x5",
+    "name": "Wind Knight X5, Valor Cyclone Lucky Strike grants 10 Illusion Energy",
+    "description": "Triggering Lucky Strike with Valor Cyclone grants 10 Illusion Energy.",
+    "source": {
+      "damageBySkillKey": {
+        "skillKeys": [
+          114320101
+        ],
+        "increment": 10,
+        "hitFilter": {
+          "lucky": true
+        }
+      }
+    },
+    "itemIds": [
+      20020151,
+      20020152,
+      20020153,
+      20020154,
+      20020155,
+      20020156,
+      20020157,
+      20020158,
+      20020159,
+      20020160
+    ]
+  },
+  {
     "sourceId": "wind_knight_s3_x6",
     "name": "青岚S3 X6, 风姿卓绝期间每秒获得 8 点能量",
     "description": "风姿卓绝期间每秒获得 8 点能量",
@@ -688,6 +716,34 @@
       20021598,
       20021599,
       20021600
+    ]
+  },
+  {
+    "sourceId": "flame_berserker_x5",
+    "name": "Twin Axe X5, Hellfire Meteor Lucky Strike grants 54 Illusion Energy",
+    "description": "When Hellfire Meteor triggers Lucky Strike, grants 54 Illusion Energy.",
+    "source": {
+      "damageBySkillKey": {
+        "skillKeys": [
+          11601020101
+        ],
+        "increment": 54,
+        "hitFilter": {
+          "lucky": true
+        }
+      }
+    },
+    "itemIds": [
+      20021601,
+      20021602,
+      20021603,
+      20021604,
+      20021605,
+      20021606,
+      20021607,
+      20021608,
+      20021609,
+      20021610
     ]
   },
   {
@@ -1304,6 +1360,34 @@
     ]
   },
   {
+    "sourceId": "marksman_x6",
+    "name": "Marksman X6, Falcon Crit grants 6 Illusion Energy",
+    "description": "Dealing Crit DMG with the Falcon grants 6 Illusion Energy.",
+    "source": {
+      "damageBySkillKey": {
+        "skillKeys": [
+          2220329107
+        ],
+        "increment": 6,
+        "hitFilter": {
+          "crit": true
+        }
+      }
+    },
+    "itemIds": [
+      20020381,
+      20020382,
+      20020383,
+      20020384,
+      20020385,
+      20020386,
+      20020387,
+      20020388,
+      20020389,
+      20020390
+    ]
+  },
+  {
     "sourceId": "marksman_x7",
     "name": "神射X7, 闪电冲击造成伤害获得 51 点能量",
     "description": "闪电冲击造成伤害获得 51 点能量",
@@ -1784,6 +1868,36 @@
       20020448,
       20020449,
       20020450
+    ]
+  },
+  {
+    "sourceId": "holy_shield_x2",
+    "name": "Shield Knight X2, Reckoning Crit grants 35 Illusion Energy",
+    "description": "Dealing Crit DMG with Reckoning grants 35 Illusion Energy.",
+    "source": {
+      "damageBySkillKey": {
+        "skillKeys": [
+          124120102,
+          124120103,
+          124120104
+        ],
+        "increment": 35,
+        "hitFilter": {
+          "crit": true
+        }
+      }
+    },
+    "itemIds": [
+      20020451,
+      20020452,
+      20020453,
+      20020454,
+      20020455,
+      20020456,
+      20020457,
+      20020458,
+      20020459,
+      20020460
     ]
   },
   {
@@ -2300,6 +2414,338 @@
       20020658,
       20020659,
       20020660
+    ]
+  },
+  {
+    "sourceId": "frost_mage_s3_x8",
+    "name": "Frost Mage X8, Ice Arrow trigger grants 6 Illusion Energy",
+    "description": "Triggering Ice Arrow grants 6 Illusion Energy.",
+    "source": {
+      "damageBySkillKeyOnce": {
+        "skillKeys": [
+          312130100,
+          312130200
+        ],
+        "increment": 6
+      }
+    },
+    "itemIds": [
+      20020291,
+      20020292,
+      20020293,
+      20020294,
+      20020295,
+      20020296,
+      20020297,
+      20020298,
+      20020299,
+      20020300
+    ]
+  },
+  {
+    "sourceId": "frost_mage_s3_x11",
+    "name": "Frost Mage X11, summoning Blizzard grants 120 Illusion Energy",
+    "description": "Summoning Blizzard grants 120 Illusion Energy.",
+    "source": {
+      "skillCast": {
+        "skillBaseIds": [
+          1244
+        ],
+        "increment": 120
+      }
+    },
+    "itemIds": [
+      20020321,
+      20020322,
+      20020323,
+      20020324,
+      20020325,
+      20020326,
+      20020327,
+      20020328,
+      20020329,
+      20020330
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x1",
+    "name": "Verdant Oracle X1, casting Wild Bloom or Stag Charge grants 49 Illusion Energy",
+    "description": "Casting Wild Bloom or Stag Charge grants 49 Illusion Energy.",
+    "source": {
+      "skillCast": {
+        "skillBaseIds": [
+          1518,
+          1541,
+          1525,
+          1563
+        ],
+        "increment": 49
+      }
+    },
+    "itemIds": [
+      20020661,
+      20020662,
+      20020663,
+      20020664,
+      20020665,
+      20020666,
+      20020667,
+      20020668,
+      20020669,
+      20020670
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x2",
+    "name": "Verdant Oracle X2, Infusion damage grants 6 Illusion Energy",
+    "description": "Dealing damage with Infusion grants 6 Illusion Energy.",
+    "source": {
+      "damageBySkillKeyOnce": {
+        "skillKeys": [
+          315010500,
+          315010600,
+          315010700,
+          315011000
+        ],
+        "increment": 6
+      }
+    },
+    "itemIds": [
+      20020671,
+      20020672,
+      20020673,
+      20020674,
+      20020675,
+      20020676,
+      20020677,
+      20020678,
+      20020679,
+      20020680
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x3",
+    "name": "Verdant Oracle X3, casting Regen Pulse grants 171 Illusion Energy",
+    "description": "Triggering Regen Pulse grants 171 Illusion Energy.",
+    "source": {
+      "skillCast": {
+        "skillBaseIds": [
+          1523
+        ],
+        "increment": 171
+      }
+    },
+    "itemIds": [
+      20020681,
+      20020682,
+      20020683,
+      20020684,
+      20020685,
+      20020686,
+      20020687,
+      20020688,
+      20020689,
+      20020690
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x4",
+    "name": "Verdant Oracle X4, Symbiotic Mark state grants 9 Illusion Energy per second",
+    "description": "While in Symbiotic Mark state, grants 9 Illusion Energy per second.",
+    "source": {
+      "buffDurationTick": {
+        "buffId": 21423,
+        "tickIntervalMs": 1000,
+        "increment": 9
+      }
+    },
+    "itemIds": [
+      20020691,
+      20020692,
+      20020693,
+      20020694,
+      20020695,
+      20020696,
+      20020697,
+      20020698,
+      20020699,
+      20020700
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x5",
+    "name": "Verdant Oracle X5, casting Feral Seed grants 200 Illusion Energy",
+    "description": "Casting Feral Seed grants 200 Illusion Energy.",
+    "source": {
+      "skillCast": {
+        "skillBaseIds": [
+          1519
+        ],
+        "increment": 200
+      }
+    },
+    "itemIds": [
+      20020701,
+      20020702,
+      20020703,
+      20020704,
+      20020705,
+      20020706,
+      20020707,
+      20020708,
+      20020709,
+      20020710
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x8",
+    "name": "Verdant Oracle X8, casting Blossom Charge grants 63 Illusion Energy",
+    "description": "Casting Blossom Charge grants 63 Illusion Energy.",
+    "source": {
+      "skillCast": {
+        "skillBaseIds": [
+          1529
+        ],
+        "increment": 63
+      }
+    },
+    "itemIds": [
+      20020731,
+      20020732,
+      20020733,
+      20020734,
+      20020735,
+      20020736,
+      20020737,
+      20020738,
+      20020739,
+      20020740
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x9",
+    "name": "Verdant Oracle X9, Wild Seed or Nourishing Seed trigger grants 20 Illusion Energy",
+    "description": "Triggering Wild Seed or Nourishing Seed grants 20 Illusion Energy.",
+    "source": {
+      "damageBySkillKeyOnce": {
+        "skillKeys": [
+          115510101,
+          2220231103,
+          2220231104
+        ],
+        "increment": 20
+      }
+    },
+    "itemIds": [
+      20020741,
+      20020742,
+      20020743,
+      20020744,
+      20020745,
+      20020746,
+      20020747,
+      20020748,
+      20020749,
+      20020750
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x10",
+    "name": "Verdant Oracle X10, Grove Wish damage or healing grants 27 Illusion Energy",
+    "description": "Dealing damage or healing with Grove Wish grants 27 Illusion Energy.",
+    "source": {
+      "damageBySkillKeyOnce": {
+        "skillKeys": [
+          22140601,
+          22140604
+        ],
+        "increment": 27
+      }
+    },
+    "itemIds": [
+      20020751,
+      20020752,
+      20020753,
+      20020754,
+      20020755,
+      20020756,
+      20020757,
+      20020758,
+      20020759,
+      20020760
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x11",
+    "name": "Verdant Oracle X11, Lucky Strike grants 7 Illusion Energy",
+    "description": "Triggering Lucky Strike grants 7 Illusion Energy.",
+    "source": {
+      "anyDamage": {
+        "increment": 7,
+        "hitFilter": {
+          "lucky": true
+        }
+      }
+    },
+    "itemIds": [
+      20020761,
+      20020762,
+      20020763,
+      20020764,
+      20020765,
+      20020766,
+      20020767,
+      20020768,
+      20020769,
+      20020770
+    ]
+  },
+  {
+    "sourceId": "beat_performer_s3_x8_heroic",
+    "name": "Beat Performer X8, Heroic Melody grants 8 Illusion Energy per second",
+    "description": "While Heroic Melody is active, grants 8 Illusion Energy per second.",
+    "source": {
+      "buffDurationTick": {
+        "buffId": 55392,
+        "tickIntervalMs": 1000,
+        "increment": 8
+      }
+    },
+    "itemIds": [
+      20020841,
+      20020842,
+      20020843,
+      20020844,
+      20020845,
+      20020846,
+      20020847,
+      20020848,
+      20020849,
+      20020850
+    ]
+  },
+  {
+    "sourceId": "beat_performer_s3_x8_healing",
+    "name": "Beat Performer X8, Healing Melody grants 8 Illusion Energy per second",
+    "description": "While Healing Melody is active, grants 8 Illusion Energy per second.",
+    "source": {
+      "buffDurationTick": {
+        "buffId": 55332,
+        "tickIntervalMs": 1000,
+        "increment": 8
+      }
+    },
+    "itemIds": [
+      20020841,
+      20020842,
+      20020843,
+      20020844,
+      20020845,
+      20020846,
+      20020847,
+      20020848,
+      20020849,
+      20020850
     ]
   }
 ]

@@ -24,6 +24,18 @@ const CLASS_LABEL_KEYS = {
   wind_knight: "class.Wind Knight",
 };
 
+const LEGACY_CLASS_LABEL_KEYS = {
+  beat_performer: "classLabel.beatPerformer",
+  flame_berserker: "classLabel.flameBerserker",
+  frost_mage: "classLabel.frostMage",
+  heavy_guardian: "classLabel.heavyGuardian",
+  marksman: "classLabel.marksman",
+  shield_knight: "classLabel.shieldKnight",
+  stormblade: "classLabel.stormblade",
+  verdant_oracle: "classLabel.verdantOracle",
+  wind_knight: "classLabel.windKnight",
+};
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
@@ -80,6 +92,8 @@ function main() {
       const classNameKey = `className.${classKey}`;
       const className = pickLocalizedName(classLabels[labelKey], locale, config.className, bundle[classNameKey]);
       if (setIfChanged(bundle, classNameKey, className)) changed += 1;
+      const legacyClassNameKey = LEGACY_CLASS_LABEL_KEYS[classKey];
+      if (legacyClassNameKey && setIfChanged(bundle, legacyClassNameKey, className)) changed += 1;
 
       for (const skill of config.skills ?? []) {
         const entry = skillnames[String(skill.skillId)];

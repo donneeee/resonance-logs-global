@@ -66,6 +66,8 @@
   "autoClearOnSceneChangeDescription": "當遊戲切換場景或伺服器時，自動儲存並清空目前的計量表。關閉此項可在場景切換後保留目前計量表。",
   "autoHideLiveWindow": "自動隱藏即時視窗",
   "autoHideLiveWindowDescription": "沒有偵測到新傷害時，延遲後隱藏即時計量表；一旦出現傷害會自動顯示。",
+  "autoHideOverlaysWithLiveWindow": "隨即時視窗自動隱藏疊加層",
+  "autoHideOverlaysWithLiveWindowDescription": "啟用「自動隱藏即時視窗」後，即時計量表隱藏時會一起隱藏目前可見的遊戲/怪物疊加層，並只恢復自動隱藏前原本可見的疊加層。",
   "autoHideLiveWindowDelaySeconds": "自動隱藏延遲",
   "autoHideLiveWindowDelaySecondsDescription": "沒有偵測到新傷害後，等待多少秒再隱藏即時計量表。設為 0 可立即隱藏。",
   "secondsUnit": "秒"

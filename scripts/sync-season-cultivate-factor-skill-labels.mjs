@@ -19,6 +19,10 @@ const SOURCE_TEXT_OVERRIDES = {
   holy_shield_x3: "Expertise Skill",
 };
 
+const SLOT_TEXT_OVERRIDES = {
+  giant_blade_s3_x6: "Class Skills",
+};
+
 const GENERIC_LABELS = {
   "Basic Attack": {
     en: "Basic Attack",
@@ -72,6 +76,19 @@ const GENERIC_LABELS = {
     th: "Ultimate",
     id: "Ultimate",
   },
+  "Performance Passion": {
+    en: "Performance Passion",
+    "zh-CN": "演奏热情",
+    "zh-TW": "演奏熱情",
+    ja: "熱響",
+    "ko-KR": "연주 열정",
+    fr: "Passion de performance",
+    de: "Auftrittspassion",
+    es: "Pasión escénica",
+    "pt-BR": "Paixão de Performance",
+    th: "Performance Passion",
+    id: "Performance Passion",
+  },
   "Illusion DMG": {
     en: "Illusion DMG",
     "zh-CN": "破妄伤害",
@@ -98,6 +115,19 @@ const GENERIC_LABELS = {
     th: "Skill เฉพาะทาง",
     id: "Expertise Skill",
   },
+  "Class Skills": {
+    en: "Class Skills",
+    "zh-CN": "èŒä¸šæŠ€èƒ½",
+    "zh-TW": "è·æ¥­æŠ€èƒ½",
+    ja: "ã‚¯ãƒ©ã‚¹ã‚­ãƒ«",
+    "ko-KR": "í´ëž˜ìŠ¤ ìŠ¤í‚¬",
+    fr: "CompÃ©tences de classe",
+    de: "KlassenfÃ¤higkeiten",
+    es: "Habilidades de clase",
+    "pt-BR": "Habilidades de Classe",
+    th: "Class Skills",
+    id: "Skill Kelas",
+  },
 };
 
 function readJson(relPath) {
@@ -118,8 +148,11 @@ function asRows(value) {
 
 function cleanText(value) {
   return String(value ?? "")
+    .replace(/<\s*(?:br|break)\s*\/?>/gi, ". ")
+    .replace(/<\/\s*break\s*>/gi, ". ")
     .replace(/<[^>]*>/g, " ")
     .replace(/\{\*[^}]+\*\}/g, " ")
+    .replace(/\s*([.!?。！？])\s*\.\s*/g, "$1 ")
     .replace(/\s+/g, " ")
     .trim();
 }
@@ -409,7 +442,10 @@ function extractSourceText(description) {
     /Gaining\s+([^.;,]+?)\s+grants/i,
   ];
   for (const pattern of patterns) {
-    const match = text.match(pattern)?.[1]?.trim();
+    const match = text
+      .match(pattern)?.[1]?.trim()
+      .replace(/\s+if\s+.+$/i, "")
+      .trim();
     if (match && isUsefulLabelText(match)) return match;
   }
   return null;
@@ -418,6 +454,11 @@ function extractSourceText(description) {
 function extractSlotText(description) {
   const text = cleanText(description);
   const patterns = [
+    /restores?\s+\d+\s+([^.;,]+?)\s+the next time/i,
+    /next cast of\s+([^.;,]+?)\s+(?:does|restores|is|,|\.|$)/i,
+    /the next\s+([^.;,]+?)'s\s+AoE/i,
+    /the final shield value of the next\s+(shield)/i,
+    /the next\s+(Ultimate)\s+is/i,
     /(?:^|,\s*)triggers?\s+([^.;,]+?)(?:;|\.|,|$)/i,
     /remaining CDs? of\s+(?:the\s+)?([^.;,]+?)\s+(?:are|is)\s+reduced/i,
     /reduces? the remaining CD of\s+(?:the\s+)?([^.;,]+?)(?:\s+by|;|\.|,|$)/i,
@@ -443,9 +484,13 @@ function extractSlotText(description) {
     /for the next\s+[^,]+,\s+([^.;,]+?)\s+/i,
   ];
   for (const pattern of patterns) {
-    const match = text.match(pattern)?.[1]?.trim();
+    const match = text
+      .match(pattern)?.[1]?.trim()
+      .replace(/\s+if\s+.+$/i, "")
+      .trim();
     if (match && isUsefulLabelText(match)) return match;
   }
+  if (/the final shield value of the next shield/i.test(text)) return "Shield";
   if (/next ultimate/i.test(text)) return "Ultimate";
   if (/Illusion DMG Reduction.+Illusion DMG/i.test(text)) return "Illusion DMG";
   return null;
@@ -525,6 +570,17 @@ function isRealitySlot(template, panels, locales) {
 
 function buildSlotEntry(template, panels, indexes, locales) {
   if (!isRealitySlot(template, panels, locales)) return null;
+  const overrideText = SLOT_TEXT_OVERRIDES[template.slotTemplateId];
+  if (overrideText) {
+    return {
+      label: lookupTextLabel(indexes, overrideText, locales) ?? makeTextLabel(locales, overrideText),
+      evidence: {
+        kind: "slotTextOverride",
+        text: overrideText,
+      },
+    };
+  }
+
   const enDescription = localizedTemplateText(
     panels,
     locales,

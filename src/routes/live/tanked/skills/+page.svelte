@@ -1,12 +1,19 @@
 <script lang="ts">
   import { settings, SETTINGS } from "$lib/settings-store";
-  import { computePlayerRows, computeSkillRows } from "$lib/live-derived";
+  import {
+    computePlayerRows,
+    computeSkillRows,
+    liveDisplayElapsedMs,
+  } from "$lib/live-derived";
   import {
     lookupDamageIdName,
     lookupSkillBreakdownIconPath,
     resolveSkillRuntimeSourceFallbackName,
   } from "$lib/config/recount-table";
-  import { getLiveData } from "$lib/stores/live-meter-store.svelte";
+  import {
+    getLiveData,
+    getLiveDisplayNowMs,
+  } from "$lib/stores/live-meter-store.svelte";
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
@@ -27,8 +34,9 @@
   const monsterId = page.url.searchParams.get("monsterId");
 
   let liveData = $derived(getLiveData());
+  let liveDisplayNow = $derived(getLiveDisplayNowMs());
   let tankedPlayers = $derived(
-    liveData ? computePlayerRows(liveData, "tanked") : [],
+    liveData ? computePlayerRows(liveData, "tanked", liveDisplayNow) : [],
   );
   let currentPlayer = $derived(
     tankedPlayers.find((player) => player.uid === playerUid) ?? null,
@@ -60,7 +68,7 @@
     currentEntity && liveData
       ? computeSkillRows(
           selectedSource ? selectedSource.skills : currentEntity.takenSkills,
-          liveData.elapsedMs,
+          liveDisplayElapsedMs(liveData, liveDisplayNow),
           selectedSource ? selectedSource.taken.total : currentEntity.taken.total,
           lookupDamageIdName,
         )

@@ -125,6 +125,44 @@
         ]
       }
     },
+    "beat_performer_s3_x8_healing": {
+      "label": {
+        "de": "Heroische Melodie / Heilende Melodie",
+        "en": "Heroic Melody / Healing Melody",
+        "es": "Melodía Heroica / Melodía Curativa",
+        "fr": "Mélodie héroïque / Mélodie de soin",
+        "id": "Passion Flow / Encore",
+        "ja": "パッショネート / アンコール",
+        "ko-KR": "열정 발산 / 앵콜",
+        "pt-BR": "Melodia Heroica / Melodia Curativa",
+        "th": "Passion Burst / Encore",
+        "zh-CN": "鸣奏·英勇乐章 / 鸣奏·愈合乐章",
+        "zh-TW": "鳴奏·英勇樂章 / 鳴奏·癒合樂章"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Heroic Melody or Healing Melody"
+      }
+    },
+    "beat_performer_s3_x8_heroic": {
+      "label": {
+        "de": "Heroische Melodie / Heilende Melodie",
+        "en": "Heroic Melody / Healing Melody",
+        "es": "Melodía Heroica / Melodía Curativa",
+        "fr": "Mélodie héroïque / Mélodie de soin",
+        "id": "Passion Flow / Encore",
+        "ja": "パッショネート / アンコール",
+        "ko-KR": "열정 발산 / 앵콜",
+        "pt-BR": "Melodia Heroica / Melodia Curativa",
+        "th": "Passion Burst / Encore",
+        "zh-CN": "鸣奏·英勇乐章 / 鸣奏·愈合乐章",
+        "zh-TW": "鳴奏·英勇樂章 / 鳴奏·癒合樂章"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Heroic Melody or Healing Melody"
+      }
+    },
     "beat_performer_x10": {
       "label": {
         "de": "Intelligenzverstärkung",
@@ -373,6 +411,27 @@
         "text": "Wasteland's End"
       }
     },
+    "flame_berserker_x5": {
+      "label": {
+        "de": "Höllenfeuer-Meteor",
+        "en": "Hellfire Meteor",
+        "es": "Meteorito de fuego infernal",
+        "fr": "Météore de feu infernal",
+        "id": "Formless Slash",
+        "ja": "無相火斬",
+        "ko-KR": "무상 화염베기",
+        "pt-BR": "Meteoro de Fogo Infernal",
+        "th": "ศาสตราไฟไร้รูปลักษณ์",
+        "zh-CN": "地火流星",
+        "zh-TW": "地火流星"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          11601020101
+        ]
+      }
+    },
     "flame_berserker_x8": {
       "label": {
         "de": "Fallendes Höllenfeuer. / Entfesselter Meteor",
@@ -416,6 +475,27 @@
         ]
       }
     },
+    "frost_mage_s3_x11": {
+      "label": {
+        "de": "Schneesturm",
+        "en": "Blizzard",
+        "es": "Ventisca",
+        "fr": "Blizzard",
+        "id": "Ice Storm",
+        "ja": "ブリザード",
+        "ko-KR": "블리자드",
+        "pt-BR": "Nevasca",
+        "th": "Blizzard",
+        "zh-CN": "寒冰风暴",
+        "zh-TW": "寒冰風暴"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1244
+        ]
+      }
+    },
     "frost_mage_s3_x5": {
       "label": {
         "de": "Schneesturm / Frostmagier G11 – Schneesturm",
@@ -436,6 +516,28 @@
           112570101,
           112610101,
           2305211201
+        ]
+      }
+    },
+    "frost_mage_s3_x8": {
+      "label": {
+        "de": "Eispfeil",
+        "en": "Ice Arrow",
+        "es": "Flecha helada",
+        "fr": "Flèche de glace",
+        "id": "Ice Arrow",
+        "ja": "アイスボルト",
+        "ko-KR": "아이스 애로우",
+        "pt-BR": "Flecha de Gelo",
+        "th": "Ice Arrow",
+        "zh-CN": "冰箭",
+        "zh-TW": "冰箭"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          312130100,
+          312130200
         ]
       }
     },
@@ -915,6 +1017,29 @@
         "text": "Divine Circle"
       }
     },
+    "holy_shield_x2": {
+      "label": {
+        "de": "Abrechnung",
+        "en": "Reckoning",
+        "es": "Ajuste de Cuentas",
+        "fr": "Châtiment",
+        "id": "Holysword",
+        "ja": "ホーリーソード",
+        "ko-KR": "성스러운 검",
+        "pt-BR": "Acerto de Contas",
+        "th": "Sacred Blade",
+        "zh-CN": "清算",
+        "zh-TW": "清算"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          124120102,
+          124120103,
+          124120104
+        ]
+      }
+    },
     "holy_shield_x3": {
       "label": {
         "de": "Expertisefähigkeit",
@@ -1206,6 +1331,27 @@
         ]
       }
     },
+    "marksman_x6": {
+      "label": {
+        "de": "Falkenschlag",
+        "en": "Falcon Strike",
+        "es": "Golpe de Halcón",
+        "fr": "Frappe du faucon",
+        "id": "Hawk Strike",
+        "ja": "臣鷹出撃",
+        "ko-KR": "팔콘 출격",
+        "pt-BR": "Golpe do Falcão",
+        "th": "Falcon Strike",
+        "zh-CN": "猎鹰出击",
+        "zh-TW": "獵鷹出擊"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          2220329107
+        ]
+      }
+    },
     "marksman_x7": {
       "label": {
         "de": "Falken-Blitzschlag",
@@ -1456,6 +1602,200 @@
         "text": "Moonblades"
       }
     },
+    "verdant_oracle_x1": {
+      "label": {
+        "de": "Wilde Blüte / Hirschangriff",
+        "en": "Wild Bloom / Stag Charge",
+        "es": "Brote Salvaje / Carga de Ciervo",
+        "fr": "Floraison sauvage / Charge du cerf",
+        "id": "Wild Bloom / Deer Charge",
+        "ja": "ワイルドブルーム / スタッグチャージ",
+        "ko-KR": "야생의 꽃 / 사슴의 돌진",
+        "pt-BR": "Florescer Selvagem / Investida do Cervo",
+        "th": "Wild Bloom / Stag Charge",
+        "zh-CN": "狂野绽放 / 鹿之奔袭",
+        "zh-TW": "狂野綻放 / 鹿之奔襲"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1518,
+          1541,
+          1525,
+          1563
+        ]
+      }
+    },
+    "verdant_oracle_x10": {
+      "label": {
+        "de": "Hainwunsch / Grünes Orakel G10 – Hainwunsch",
+        "en": "Grove Wish / Verdant Oracle G10 - Grove Wish",
+        "es": "Deseo Arbolado / Oráculo frondoso G10: Deseo Arbolado",
+        "fr": "Souhait du bosquet / Oracle verdoyant G10 - Souhait du bosquet",
+        "id": "Accelerated Growth / Deer Charge",
+        "ja": "ファストグロウス / スタッグチャージ",
+        "ko-KR": "가속 성장 / 사슴의 돌진",
+        "pt-BR": "Desejo do Bosque / Oráculo Verdejante G10 – Desejo do Bosque",
+        "th": "Fast Growth / Stag Charge",
+        "zh-CN": "森之祈愿 / 森语G10-森之祈愿",
+        "zh-TW": "森之祈願 / 森語G10-森之祈願"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          22140601,
+          22140604
+        ]
+      }
+    },
+    "verdant_oracle_x11": {
+      "label": {
+        "de": "Glückstreffer",
+        "en": "Lucky Strike",
+        "es": "Golpe de suerte",
+        "fr": "Frappe chanceuse",
+        "id": "Lucky Hit",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
+        "pt-BR": "Golpe de Sorte",
+        "th": "Lucky Strike",
+        "zh-CN": "幸运一击",
+        "zh-TW": "幸運一擊"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Lucky Strike"
+      }
+    },
+    "verdant_oracle_x2": {
+      "label": {
+        "de": "Infusion",
+        "en": "Infusion",
+        "es": "Infusión",
+        "fr": "Infusion",
+        "id": "Blossom Charge",
+        "ja": "ブルームチャージ",
+        "ko-KR": "에너지 주입",
+        "pt-BR": "Infusão",
+        "th": "Blossom Charge",
+        "zh-CN": "灌注",
+        "zh-TW": "灌注"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          315010500,
+          315010600,
+          315010700,
+          315011000
+        ]
+      }
+    },
+    "verdant_oracle_x3": {
+      "label": {
+        "de": "Regenerationsimpuls",
+        "en": "Regen Pulse",
+        "es": "Pulso Regenerativo",
+        "fr": "Impulsion régénérante",
+        "id": "Regen Pulse",
+        "ja": "リジェネイトパルス",
+        "ko-KR": "재생의 파동",
+        "pt-BR": "Pulso de Regeneração",
+        "th": "Regen Pulse",
+        "zh-CN": "再生脉冲",
+        "zh-TW": "再生脈衝"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1523
+        ]
+      }
+    },
+    "verdant_oracle_x4": {
+      "label": {
+        "de": "Symbiotisches Mal",
+        "en": "Symbiotic Mark",
+        "es": "Marca simbiótica",
+        "fr": "Marque symbiotique",
+        "id": "Revival",
+        "ja": "復活",
+        "ko-KR": "소생",
+        "pt-BR": "Marca Simbiótica",
+        "th": "Resurrect",
+        "zh-CN": "共生印记",
+        "zh-TW": "共生印記"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Symbiotic Mark"
+      }
+    },
+    "verdant_oracle_x5": {
+      "label": {
+        "de": "Wilde Saat",
+        "en": "Feral Seed",
+        "es": "Semilla Feral",
+        "fr": "Graine féroce",
+        "id": "Rebellious Seed",
+        "ja": "フェラルシード",
+        "ko-KR": "자유의 씨앗",
+        "pt-BR": "Semente Feral",
+        "th": "Feral Seed",
+        "zh-CN": "不羁之种",
+        "zh-TW": "不羈之種"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1519
+        ]
+      }
+    },
+    "verdant_oracle_x8": {
+      "label": {
+        "de": "Blütenansturm",
+        "en": "Blossom Charge",
+        "es": "Carga Floral",
+        "fr": "Charge florale",
+        "id": "Blossom Charge",
+        "ja": "ブルームチャージ",
+        "ko-KR": "에너지 주입",
+        "pt-BR": "Carga Florescente",
+        "th": "Blossom Charge",
+        "zh-CN": "盛放注能",
+        "zh-TW": "盛放注能"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          1529
+        ]
+      }
+    },
+    "verdant_oracle_x9": {
+      "label": {
+        "de": "Wildsaat / Nährsaat",
+        "en": "Wild Seed / Nourishing Seed",
+        "es": "Semilla Salvaje / Semilla Nutritiva",
+        "fr": "Graine sauvage / Graine nourricière",
+        "id": "Heal Link / Natural Bloom",
+        "ja": "治癒連結 / 自然開花",
+        "ko-KR": "치료 연쇄 / 자연 개화",
+        "pt-BR": "Semente Selvagem / Semente Nutritiva",
+        "th": "Healing Chain / Natural Bloom",
+        "zh-CN": "狂野之种 / 滋养之种",
+        "zh-TW": "狂野之種 / 滋養之種"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          115510101,
+          2220231103,
+          2220231104
+        ]
+      }
+    },
     "wind_knight_s3_x1": {
       "label": {
         "de": "Heldenmut-Zyklon",
@@ -1605,6 +1945,27 @@
         "text": "Galeform"
       }
     },
+    "wind_knight_x5": {
+      "label": {
+        "de": "Heldenmut-Zyklon",
+        "en": "Valor Cyclone",
+        "es": "Ciclón del Valor",
+        "fr": "Cyclone de vaillance",
+        "id": "Courage Wind Ring",
+        "ja": "勇心風環",
+        "ko-KR": "윈드 오라",
+        "pt-BR": "Ciclone da Bravura",
+        "th": "Valor Cyclone",
+        "zh-CN": "勇气风环",
+        "zh-TW": "勇氣風環"
+      },
+      "evidence": {
+        "kind": "sourceIds",
+        "ids": [
+          114320101
+        ]
+      }
+    },
     "wind_knight_x7": {
       "label": {
         "de": "Sofortiger Vorteil",
@@ -1707,21 +2068,21 @@
     },
     "beat_performer_s3_x6": {
       "label": {
-        "de": "restores 1 Performance Passion the next time it",
-        "en": "restores 1 Performance Passion the next time it",
-        "es": "restores 1 Performance Passion the next time it",
-        "fr": "restores 1 Performance Passion the next time it",
-        "id": "restores 1 Performance Passion the next time it",
-        "ja": "restores 1 Performance Passion the next time it",
-        "ko-KR": "restores 1 Performance Passion the next time it",
-        "pt-BR": "restores 1 Performance Passion the next time it",
-        "th": "restores 1 Performance Passion the next time it",
-        "zh-CN": "restores 1 Performance Passion the next time it",
-        "zh-TW": "restores 1 Performance Passion the next time it"
+        "de": "Auftrittspassion",
+        "en": "Performance Passion",
+        "es": "Pasión escénica",
+        "fr": "Passion de performance",
+        "id": "Performance Passion",
+        "ja": "熱響",
+        "ko-KR": "연주 열정",
+        "pt-BR": "Paixão de Performance",
+        "th": "Performance Passion",
+        "zh-CN": "演奏热情",
+        "zh-TW": "演奏熱情"
       },
       "evidence": {
         "kind": "descriptionText",
-        "text": "restores 1 Performance Passion the next time it"
+        "text": "Performance Passion"
       }
     },
     "beat_performer_x3": {
@@ -1802,21 +2163,21 @@
     },
     "factor_3051420": {
       "label": {
-        "de": "Great Wind Cyclone if Valor Cyclone is active",
-        "en": "Great Wind Cyclone if Valor Cyclone is active",
-        "es": "Great Wind Cyclone if Valor Cyclone is active",
-        "fr": "Great Wind Cyclone if Valor Cyclone is active",
-        "id": "Great Wind Cyclone if Valor Cyclone is active",
-        "ja": "Great Wind Cyclone if Valor Cyclone is active",
-        "ko-KR": "Great Wind Cyclone if Valor Cyclone is active",
-        "pt-BR": "Great Wind Cyclone if Valor Cyclone is active",
-        "th": "Great Wind Cyclone if Valor Cyclone is active",
-        "zh-CN": "Great Wind Cyclone if Valor Cyclone is active",
-        "zh-TW": "Great Wind Cyclone if Valor Cyclone is active"
+        "de": "Great Wind Cyclone",
+        "en": "Great Wind Cyclone",
+        "es": "Great Wind Cyclone",
+        "fr": "Great Wind Cyclone",
+        "id": "Great Wind Cyclone",
+        "ja": "Great Wind Cyclone",
+        "ko-KR": "Great Wind Cyclone",
+        "pt-BR": "Great Wind Cyclone",
+        "th": "Great Wind Cyclone",
+        "zh-CN": "Great Wind Cyclone",
+        "zh-TW": "Great Wind Cyclone"
       },
       "evidence": {
         "kind": "descriptionText",
-        "text": "Great Wind Cyclone if Valor Cyclone is active"
+        "text": "Great Wind Cyclone"
       }
     },
     "factor_3051450": {
@@ -2239,21 +2600,21 @@
     },
     "frost_mage_x4": {
       "label": {
-        "de": "of Tidepool does not trigger CD",
-        "en": "of Tidepool does not trigger CD",
-        "es": "of Tidepool does not trigger CD",
-        "fr": "of Tidepool does not trigger CD",
-        "id": "of Tidepool does not trigger CD",
-        "ja": "of Tidepool does not trigger CD",
-        "ko-KR": "of Tidepool does not trigger CD",
-        "pt-BR": "of Tidepool does not trigger CD",
-        "th": "of Tidepool does not trigger CD",
-        "zh-CN": "of Tidepool does not trigger CD",
-        "zh-TW": "of Tidepool does not trigger CD"
+        "de": "Gezeitenbecken",
+        "en": "Tidepool",
+        "es": "Pozo de Marea",
+        "fr": "Bassin des marées",
+        "id": "Tide Merge",
+        "ja": "タイドプール",
+        "ko-KR": "타이드풀",
+        "pt-BR": "Poça da Maré",
+        "th": "Tidepool",
+        "zh-CN": "浪潮汇聚",
+        "zh-TW": "浪潮匯聚"
       },
       "evidence": {
         "kind": "descriptionText",
-        "text": "of Tidepool does not trigger CD"
+        "text": "Tidepool"
       }
     },
     "frost_mage_x5": {
@@ -2277,21 +2638,21 @@
     },
     "giant_blade_s3_x1": {
       "label": {
-        "de": "the final shield value of the next shield applied",
-        "en": "the final shield value of the next shield applied",
-        "es": "the final shield value of the next shield applied",
-        "fr": "the final shield value of the next shield applied",
-        "id": "the final shield value of the next shield applied",
-        "ja": "the final shield value of the next shield applied",
-        "ko-KR": "the final shield value of the next shield applied",
-        "pt-BR": "the final shield value of the next shield applied",
-        "th": "the final shield value of the next shield applied",
-        "zh-CN": "the final shield value of the next shield applied",
-        "zh-TW": "the final shield value of the next shield applied"
+        "de": "Schild",
+        "en": "Shield",
+        "es": "Escudo",
+        "fr": "Bouclier",
+        "id": "Shield",
+        "ja": "バリア",
+        "ko-KR": "실드",
+        "pt-BR": "Escudo",
+        "th": "โล่",
+        "zh-CN": "护盾",
+        "zh-TW": "護盾"
       },
       "evidence": {
         "kind": "descriptionText",
-        "text": "the final shield value of the next shield applied"
+        "text": "shield"
       }
     },
     "giant_blade_s3_x2": {
@@ -2353,40 +2714,40 @@
     },
     "giant_blade_s3_x6": {
       "label": {
-        "de": "Block DMG Reduction is decreased by / Class Skills",
-        "en": "Block DMG Reduction is decreased by / Class Skills",
-        "es": "Block DMG Reduction is decreased by / Class Skills",
-        "fr": "Block DMG Reduction is decreased by / Class Skills",
-        "id": "Block DMG Reduction is decreased by / Class Skills",
-        "ja": "Block DMG Reduction is decreased by / Class Skills",
-        "ko-KR": "Block DMG Reduction is decreased by / Class Skills",
-        "pt-BR": "Block DMG Reduction is decreased by / Class Skills",
-        "th": "Block DMG Reduction is decreased by / Class Skills",
-        "zh-CN": "Block DMG Reduction is decreased by / Class Skills",
-        "zh-TW": "Block DMG Reduction is decreased by / Class Skills"
+        "de": "KlassenfÃ¤higkeiten",
+        "en": "Class Skills",
+        "es": "Habilidades de clase",
+        "fr": "CompÃ©tences de classe",
+        "id": "Skill Kelas",
+        "ja": "ã‚¯ãƒ©ã‚¹ã‚­ãƒ«",
+        "ko-KR": "í´ëž˜ìŠ¤ ìŠ¤í‚¬",
+        "pt-BR": "Habilidades de Classe",
+        "th": "Class Skills",
+        "zh-CN": "èŒä¸šæŠ€èƒ½",
+        "zh-TW": "è·æ¥­æŠ€èƒ½"
       },
       "evidence": {
-        "kind": "descriptionText",
-        "text": "Block DMG Reduction is decreased by and Class Skills"
+        "kind": "slotTextOverride",
+        "text": "Class Skills"
       }
     },
     "holy_shield_s3_x2": {
       "label": {
-        "de": "the next Divine Circle's AoE",
-        "en": "the next Divine Circle's AoE",
-        "es": "the next Divine Circle's AoE",
-        "fr": "the next Divine Circle's AoE",
-        "id": "the next Divine Circle's AoE",
-        "ja": "the next Divine Circle's AoE",
-        "ko-KR": "the next Divine Circle's AoE",
-        "pt-BR": "the next Divine Circle's AoE",
-        "th": "the next Divine Circle's AoE",
-        "zh-CN": "the next Divine Circle's AoE",
-        "zh-TW": "the next Divine Circle's AoE"
+        "de": "Göttlicher Kreis",
+        "en": "Divine Circle",
+        "es": "Círculo Divino",
+        "fr": "Cercle divin",
+        "id": "Enhanced Judgement",
+        "ja": "強化パニッシュメント",
+        "ko-KR": "강화 단죄",
+        "pt-BR": "Círculo Divino",
+        "th": "Enhanced Condemn",
+        "zh-CN": "圣环",
+        "zh-TW": "聖環"
       },
       "evidence": {
         "kind": "descriptionText",
-        "text": "the next Divine Circle's AoE"
+        "text": "Divine Circle"
       }
     },
     "holy_shield_s3_x4": {
@@ -2467,21 +2828,21 @@
     },
     "marksman_x2": {
       "label": {
-        "de": "of Arrow Rain restores all Photon Energy",
-        "en": "of Arrow Rain restores all Photon Energy",
-        "es": "of Arrow Rain restores all Photon Energy",
-        "fr": "of Arrow Rain restores all Photon Energy",
-        "id": "of Arrow Rain restores all Photon Energy",
-        "ja": "of Arrow Rain restores all Photon Energy",
-        "ko-KR": "of Arrow Rain restores all Photon Energy",
-        "pt-BR": "of Arrow Rain restores all Photon Energy",
-        "th": "of Arrow Rain restores all Photon Energy",
-        "zh-CN": "of Arrow Rain restores all Photon Energy",
-        "zh-TW": "of Arrow Rain restores all Photon Energy"
+        "de": "Pfeilregen",
+        "en": "Arrow Rain",
+        "es": "Lluvia de Flechas",
+        "fr": "Pluie de flèches",
+        "id": "Arrow Rain",
+        "ja": "アローレイン",
+        "ko-KR": "화살비",
+        "pt-BR": "Chuva de Flechas",
+        "th": "Arrow Rain",
+        "zh-CN": "箭雨",
+        "zh-TW": "箭雨"
       },
       "evidence": {
         "kind": "descriptionText",
-        "text": "of Arrow Rain restores all Photon Energy"
+        "text": "Arrow Rain"
       }
     },
     "marksman_x4": {
@@ -2543,21 +2904,21 @@
     },
     "stormablade_s3_x3": {
       "label": {
-        "de": "the next Ultimate",
-        "en": "the next Ultimate",
-        "es": "the next Ultimate",
-        "fr": "the next Ultimate",
-        "id": "the next Ultimate",
-        "ja": "the next Ultimate",
-        "ko-KR": "the next Ultimate",
-        "pt-BR": "the next Ultimate",
-        "th": "the next Ultimate",
-        "zh-CN": "the next Ultimate",
-        "zh-TW": "the next Ultimate"
+        "de": "Ultimative",
+        "en": "Ultimate",
+        "es": "Definitiva",
+        "fr": "Ultime",
+        "id": "Ultimate",
+        "ja": "究極スキル",
+        "ko-KR": "필살기",
+        "pt-BR": "Suprema",
+        "th": "Ultimate",
+        "zh-CN": "终极大招",
+        "zh-TW": "終極大招"
       },
       "evidence": {
         "kind": "descriptionText",
-        "text": "the next Ultimate"
+        "text": "Ultimate"
       }
     },
     "stormablade_s3_x5": {

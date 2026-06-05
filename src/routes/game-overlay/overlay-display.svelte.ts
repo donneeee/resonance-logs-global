@@ -24,6 +24,7 @@ import {
   resolveBuffOverlayDisplayName,
 } from "$lib/config/buff-name-table";
 import { lookupLocalizedDamageIdName } from "$lib/config/recount-table";
+import { resolveKnownSkillStageDisplayName } from "$lib/skill-stage-labels";
 import type { BuffUpdateState } from "$lib/api";
 import type {
   CustomPanelDisplayRow,
@@ -88,6 +89,14 @@ import {
   uptimeTotals,
 } from "./overlay-runtime.svelte.js";
 import { overlayNow } from "./overlay-clock.svelte.js";
+
+function resolveOverlaySkillDisplayName(skillId: number, baseName: string): string {
+  return resolveKnownSkillStageDisplayName(
+    skillId,
+    SETTINGS.live.general.state.language,
+    baseName,
+  ) ?? baseName;
+}
 
 const tCustomPanel = uiT(
   "overlay/skill-monitor/custom-panel",
@@ -929,7 +938,7 @@ const _skillSnapshot = $derived.by(() => {
       if (remaining > 0) {
         nextSkillDurationDisplays.push({
           skillId,
-          name: skill.name,
+          name: resolveOverlaySkillDisplayName(skillId, skill.name),
           imagePath: skill.imagePath,
           text: formatTimerText(remaining),
         });
@@ -940,7 +949,7 @@ const _skillSnapshot = $derived.by(() => {
     if (overlayRuntime.isEditing) {
       nextSkillDurationDisplays.push({
         skillId,
-        name: skill.name,
+        name: resolveOverlaySkillDisplayName(skillId, skill.name),
         imagePath: skill.imagePath,
         text: "--",
         isPlaceholder: true,

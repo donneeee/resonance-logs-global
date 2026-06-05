@@ -776,6 +776,7 @@ mod tests {
                 sources: vec![CounterSource::AnyDamage {
                     increment: 1,
                     hits_required: None,
+                    hit_filter: None,
                 }],
                 effect_slots: Vec::new(),
             },
@@ -825,6 +826,7 @@ mod tests {
                 sources: vec![CounterSource::AnyDamage {
                     increment: 1,
                     hits_required: None,
+                    hit_filter: None,
                 }],
                 effect_slots: Vec::new(),
             },
@@ -865,6 +867,7 @@ mod tests {
                 sources: vec![CounterSource::AnyDamage {
                     increment: 92,
                     hits_required: None,
+                    hit_filter: None,
                 }],
                 effect_slots: Vec::new(),
             },

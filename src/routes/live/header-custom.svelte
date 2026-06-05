@@ -39,8 +39,10 @@
   import {
     clearMeterData,
     getLiveData,
+    getLiveDisplayNowMs,
     getTrainingDummyState,
   } from "$lib/stores/live-meter-store.svelte";
+  import { computeHeaderInfo } from "$lib/live-derived";
   import { localizeRawSceneName } from "$lib/scene-mappings";
   import { localizeRawMonsterName } from "$lib/monster-mappings";
 
@@ -49,6 +51,7 @@
   const trainingDummySettings = $derived(SETTINGS.trainingDummy.state);
 
   const liveData = $derived(getLiveData());
+  const liveDisplayNowMs = $derived(getLiveDisplayNowMs());
   const runtimeTrainingDummyState = $derived(getTrainingDummyState());
 
   const emptyTrainingDummy: TrainingDummyState = {
@@ -119,15 +122,7 @@
     }
 
     return {
-      totalDps:
-        data.elapsedMs > 0 ? Number(data.totalDmg) / (Number(data.elapsedMs) / 1000) : 0,
-      totalDmg: Number(data.totalDmg),
-      elapsedMs: Number(data.elapsedMs),
-      activeCombatTimeMs: Number(data.activeCombatTimeMs),
-      fightStartTimestampMs: Number(data.fightStartTimestampMs),
-      bosses: data.bosses,
-      sceneId: data.sceneId,
-      sceneName: data.sceneName,
+      ...computeHeaderInfo(data, liveDisplayNowMs),
       trainingDummy: trainingDummyState,
     };
   });

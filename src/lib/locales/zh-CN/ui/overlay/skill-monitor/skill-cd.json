@@ -1,7 +1,7 @@
 {
   "classLabel.beatPerformer": "灵魂乐手",
   "classLabel.flameBerserker": "赤炎狂战士",
-  "classLabel.frostMage": "冰法",
+  "classLabel.frostMage": "冰魔导师",
   "classLabel.heavyGuardian": "巨刃守护者",
   "classLabel.marksman": "神射手",
   "classLabel.shieldKnight": "神盾骑士",
@@ -188,7 +188,7 @@
   "classSkillDerived.beat_performer.2313.2207241": "热情挥洒",
   "classSkillDerived.beat_performer.2311.55332": "完结！愈合乐章",
   "classSkillDerived.beat_performer.2307.2207011": "愈合节拍",
-  "classSkillDerived.beat_performer.2309.2207171": "重启",
+  "classSkillDerived.beat_performer.2309.2207171": "烈焰狂想",
   "classSkill.frost_mage.1201": "雨打潮生",
   "classSkill.frost_mage.1241": "寒冰射线",
   "classSkill.beat_performer.2301": "琴弦撩拨",

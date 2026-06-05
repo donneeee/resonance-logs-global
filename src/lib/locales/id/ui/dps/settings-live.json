@@ -66,6 +66,8 @@
   "autoClearOnSceneChangeDescription": "Secara otomatis menyimpan dan membersihkan meter saat game berganti scene atau server. Matikan ini untuk mempertahankan meter saat ini setelah scene berubah.",
   "autoHideLiveWindow": "Sembunyikan otomatis jendela live",
   "autoHideLiveWindowDescription": "Sembunyikan meter live setelah jeda saat tidak ada damage baru yang terdeteksi, lalu tampilkan otomatis begitu damage muncul.",
+  "autoHideOverlaysWithLiveWindow": "Sembunyikan overlay bersama jendela live",
+  "autoHideOverlaysWithLiveWindowDescription": "Saat Sembunyikan otomatis jendela live aktif, overlay game atau monster yang sedang terlihat ikut disembunyikan bersama meter live, lalu hanya overlay yang sebelumnya terlihat yang dipulihkan.",
   "autoHideLiveWindowDelaySeconds": "Jeda sembunyi otomatis",
   "autoHideLiveWindowDelaySecondsDescription": "Jumlah detik tanpa damage baru sebelum meter live disembunyikan. Atur ke 0 untuk langsung menyembunyikan.",
   "secondsUnit": "d"

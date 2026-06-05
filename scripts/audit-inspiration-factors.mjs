@@ -14,7 +14,7 @@ const skillIconsPath = path.join(generatedDir, "skill_aoyi_icons.json");
 
 const CLASS_PREFIXES = [
   ["stormablade", "Stormblade"],
-  ["flame_berserker", "Flame Vanguard"],
+  ["flame_berserker", "Twin Axe"],
   ["beat_performer", "Beat Performer"],
   ["marksman", "Marksman"],
   ["frost_mage", "Frost Mage"],
@@ -25,7 +25,7 @@ const CLASS_PREFIXES = [
 
 const CLASS_NAME_PATTERNS = [
   ["Stormblade", /stormblade|raikage|雷影/i],
-  ["Flame Vanguard", /flame (vanguard|berserker)|flame berserker|双斧/i],
+  ["Twin Axe", /flame (vanguard|berserker)|flame berserker|twin axe|双斧/i],
   ["Beat Performer", /beat performer|soul|灵魂/i],
   ["Marksman", /marksman|sharpshooter|神射/i],
   ["Frost Mage", /frost mage|ice demon|冰魔/i],
@@ -51,6 +51,10 @@ function asArray(value) {
 
 function cleanText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
+}
+
+function displayFactorName(value) {
+  return cleanText(value).replace(/\b(?:Flame Vanguard|Flame Berserker)\b/g, "Twin Axe");
 }
 
 function unique(values) {
@@ -138,7 +142,7 @@ function generatedNames(value) {
   const names = [];
   if (!value || typeof value !== "object") return names;
   for (const key of ["en", "zh-CN", "zh-TW", "ja", "ko-KR", "fr", "de", "es", "pt-BR", "th"]) {
-    const text = cleanText(value[key]);
+    const text = displayFactorName(value[key]);
     if (text) names.push(text);
   }
   return names;
@@ -190,6 +194,13 @@ function describeSource(template, skillNameMap) {
   if (config.attrId !== undefined) parts.push(`attrId=${config.attrId}`);
   if (config.metersRequired !== undefined) parts.push(`metersRequired=${config.metersRequired}`);
   if (config.sourceConfigId !== undefined) parts.push(`sourceConfigId=${config.sourceConfigId}`);
+  if (config.hitFilter !== undefined) {
+    parts.push(
+      `hitFilter=${Object.entries(config.hitFilter)
+        .map(([key, value]) => `${key}=${value}`)
+        .join(",")}`,
+    );
+  }
   return parts.join("; ");
 }
 
@@ -247,7 +258,7 @@ for (const factor of factors) {
       grade: grade.grade,
       buffId: factor.buffId,
       familyId: factor.familyId,
-      familyName: cleanText(factor.familyName),
+      familyName: displayFactorName(factor.familyName),
       familyNames: generatedNames(factor.familyNames),
       description: cleanText(grade.cleanResolvedDescription),
     });

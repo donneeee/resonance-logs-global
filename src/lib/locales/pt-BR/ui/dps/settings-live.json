@@ -66,6 +66,8 @@
   "autoClearOnSceneChangeDescription": "Salva e limpa automaticamente o medidor atual quando o jogo muda de cena ou servidor. Desative para manter o medidor atual entre mudanças de cena.",
   "autoHideLiveWindow": "Ocultar automaticamente a janela ao vivo",
   "autoHideLiveWindowDescription": "Oculta o medidor ao vivo após o atraso quando nenhum dano novo é detectado, e volta a mostrá-lo automaticamente assim que dano aparece.",
+  "autoHideOverlaysWithLiveWindow": "Ocultar overlays com a janela ao vivo",
+  "autoHideOverlaysWithLiveWindowDescription": "Quando Ocultar automaticamente a janela ao vivo estiver ativo, oculta qualquer overlay de jogo ou monstro visível junto com o medidor ao vivo e restaura apenas os overlays que estavam visíveis antes.",
   "autoHideLiveWindowDelaySeconds": "Atraso para ocultar automaticamente",
   "autoHideLiveWindowDelaySecondsDescription": "Segundos sem dano novo antes de ocultar o medidor ao vivo. Use 0 para ocultar imediatamente.",
   "secondsUnit": "s"

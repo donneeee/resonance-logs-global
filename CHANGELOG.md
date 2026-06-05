@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.1.0_beta4 - Global Beta
+
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta4` beta release.
+- Corrected Earthfort spec styling to use the tank/blue accent instead of DPS/gold coloring.
+- Excluded Dark Mist Fortress Divine Defense Tower objective entities from boss HP/boss metric display, including localized saved-history boss-name filtering.
+- Shared Rage Cleave stage labeling between history/detail rows and the Twin Axe Skill CD monitor so the 1608-1611 variants display localized stage suffixes.
+- Moved Module Calculator filter/profile selections into the active profile while migrating the older per-index Module Calculator memory bucket when present.
+- Made live DPS/HPS/TPS rows and T.DPS visually age from the encounter start clock between backend combat packets, so normal DPS decreases while attacking stops; sessions with more than 20 combat players now clamp the visual refresh tick to at least 1000ms to reduce raid-load churn.
+- Added a linked Auto-hide Overlays with Live Window option in both Live settings and Settings > Overlay; when enabled, visible game/monster overlay windows hide with the live meter and only previously visible overlays are restored.
+- Fixed Auto-hide Live Window so pressing the live window minimize button remains a manual hide choice; later damage no longer reopens the live meter unless auto-hide itself hid it.
+- Corrected Twin Axe factor/class presentation labels so Season Cultivate settings, Skill CD locale fallbacks, and factor audit exports no longer display the old Flame Vanguard/Flame Berserker class names.
+- Marked Rhapsody factor rows as expired for Season 3 in the Season Cultivate factor audit exports so old-season data is not treated as current actionable counter work.
+
 ## v1.1.0_beta3 - Global Beta
 
 - Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta3` beta release.

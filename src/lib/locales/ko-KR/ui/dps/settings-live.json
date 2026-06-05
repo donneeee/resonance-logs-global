@@ -66,6 +66,8 @@
   "autoClearOnSceneChangeDescription": "게임의 장면이나 서버가 바뀌면 현재 미터를 자동으로 저장하고 지웁니다. 장면이 바뀌어도 현재 미터를 유지하려면 끄세요.",
   "autoHideLiveWindow": "라이브 창 자동 숨기기",
   "autoHideLiveWindowDescription": "새 피해가 감지되지 않으면 지연 후 라이브 미터를 숨기고, 피해가 발생하면 자동으로 다시 보여줍니다.",
+  "autoHideOverlaysWithLiveWindow": "라이브 창과 함께 오버레이 자동 숨기기",
+  "autoHideOverlaysWithLiveWindowDescription": "라이브 창 자동 숨기기가 켜져 있으면 라이브 미터가 숨겨질 때 현재 보이는 게임/몬스터 오버레이도 함께 숨기고, 자동 숨김 전 보이던 오버레이만 복원합니다.",
   "autoHideLiveWindowDelaySeconds": "자동 숨김 지연",
   "autoHideLiveWindowDelaySecondsDescription": "새 피해가 감지되지 않은 뒤 라이브 미터를 숨기기 전까지 기다릴 초 수입니다. 0으로 설정하면 즉시 숨깁니다.",
   "secondsUnit": "초"

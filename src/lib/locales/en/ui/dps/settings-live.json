@@ -9,6 +9,8 @@
   "autoClearOnSceneChangeDescription": "Automatically save and clear the current meter when the game changes scene or server. Turn this off to keep the current meter running across scene changes.",
   "autoHideLiveWindow": "Auto-hide Live Window",
   "autoHideLiveWindowDescription": "Hide the live meter after the delay when no new damage is detected, then show it automatically as soon as damage appears.",
+  "autoHideOverlaysWithLiveWindow": "Auto-hide Overlays with Live Window",
+  "autoHideOverlaysWithLiveWindowDescription": "When Auto-hide Live Window is enabled, hide any visible game or monster overlay with the live meter and restore only the overlays that were visible before auto-hide.",
   "autoHideLiveWindowDelaySeconds": "Auto-hide Delay",
   "autoHideLiveWindowDelaySecondsDescription": "Seconds to wait after no new damage is detected before hiding the live meter. Set to 0 to hide immediately.",
   "defaultTargetDummy": "Default Dummy Target",

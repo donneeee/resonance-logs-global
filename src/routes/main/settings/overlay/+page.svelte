@@ -109,6 +109,18 @@
           description={tShell("settings.overlay.startWithAppDescription", "Open the shared overlay automatically when the app starts and overlay publishing is enabled.")}
         />
       </div>
+
+      <div class="rounded-lg border border-border/60 bg-background/30 p-3 md:col-span-2 space-y-1">
+        <SettingsSwitch
+          bind:checked={SETTINGS.live.general.state.autoHideOverlaysWithLiveWindow}
+          disabled={!SETTINGS.live.general.state.autoHideLiveWindow}
+          label={tShell("settings.overlay.autoHideWithLiveWindow", "Auto-hide with Live Window")}
+          description={tShell("settings.overlay.autoHideWithLiveWindowDescription", "When Auto-hide Live Window is enabled, visible overlay windows hide with the live meter and return only if they were visible before auto-hide.")}
+        />
+        <p class="text-xs text-muted-foreground px-3 pb-2">
+          {tShell("settings.overlay.autoHideWithLiveWindowHelp", "This follows the live meter's damage-based hide/show cycle. It does not turn overlays on by itself, and it stays inactive while Auto-hide Live Window is off.")}
+        </p>
+      </div>
     </div>
   </section>
 

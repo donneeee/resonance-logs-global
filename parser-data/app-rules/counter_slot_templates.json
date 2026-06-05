@@ -112,7 +112,7 @@
     "name": "雷影真实因子X6, 触发雷霆之镰",
     "description": "触发雷霆之镰",
     "slot": {
-      "threshold": null,
+      "threshold": 64,
       "resetBuffId": 3050451,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -276,7 +276,7 @@
     "name": "灵魂真实因子X2, 下一次聚合乐章消耗热情并增伤",
     "description": "下一次聚合乐章消耗所有演奏热情，每消耗1个演奏热情聚合乐章最终伤害提升",
     "slot": {
-      "threshold": null,
+      "threshold": 90,
       "resetBuffId": 3057411,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -731,7 +731,7 @@
     "name": "冰魔真实因子X6, 冰箭可触发幸运一击并增伤",
     "description": "下一次冰之灌注期间引导寒冰射线时冰箭可触发幸运一击，且幸运一击最终伤害提升",
     "slot": {
-      "threshold": null,
+      "threshold": 400,
       "resetBuffId": 3052451,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -759,7 +759,7 @@
     "name": "青岚真实因子X2, 触发龙击炮",
     "description": "触发龙击炮",
     "slot": {
-      "threshold": null,
+      "threshold": 50,
       "resetBuffId": 3051411,
       "onBuffAdd": "freeze",
       "onBuffChange": "noOp",
@@ -897,7 +897,7 @@
     "name": "神盾真实因子X5, 触发圣剑",
     "description": "下次造成伤害时触发圣剑，圣剑附加生命百分比伤害",
     "slot": {
-      "threshold": null,
+      "threshold": 144,
       "resetBuffId": 3054441,
       "onBuffAdd": "freeze",
       "onBuffChange": "noOp",
@@ -926,7 +926,7 @@
     "name": "巨刃真实因子X1, 下一次添加护盾时最终护盾提升",
     "description": "下一次添加护盾时最终护盾提升",
     "slot": {
-      "threshold": null,
+      "threshold": 48,
       "resetBuffId": 3055361,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -953,7 +953,7 @@
     "name": "巨刃真实因子X2, 触发地崩山摧",
     "description": "触发地崩山摧，地崩山摧伤害提升",
     "slot": {
-      "threshold": null,
+      "threshold": 180,
       "resetBuffId": 3055371,
       "onBuffAdd": "freeze",
       "onBuffChange": "noOp",
@@ -982,7 +982,7 @@
     "name": "巨刃真实因子X4, 生命上限提升",
     "description": "生命上限提升，可叠加",
     "slot": {
-      "threshold": null,
+      "threshold": 60,
       "resetBuffId": 3055391,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -1009,7 +1009,7 @@
     "name": "巨刃真实因子X5, 触发格挡反击",
     "description": "触发格挡反击，格挡反击伤害提升",
     "slot": {
-      "threshold": null,
+      "threshold": 72,
       "resetBuffId": 3055401,
       "onBuffAdd": "freeze",
       "onBuffChange": "noOp",
@@ -1038,7 +1038,7 @@
     "name": "巨刃真实因子X6, 格挡减伤降低，职业技能最终伤害提升",
     "description": "一段时间内格挡减伤降低，所有职业技能最终伤害提升",
     "slot": {
-      "threshold": null,
+      "threshold": 240,
       "resetBuffId": 3055411,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -5058,7 +5058,7 @@
   },
   {
     "slotTemplateId": "factor_3060010",
-    "name": "Flame Vanguard X1",
+    "name": "Twin Axe X1",
     "description": "Formless Flame Slash Illusion-Breaking DMG +. Dealing damage with Formless Flame Slash grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5085,7 +5085,7 @@
   },
   {
     "slotTemplateId": "factor_3060020",
-    "name": "Flame Vanguard X2",
+    "name": "Twin Axe X2",
     "description": "Rage Cleave Illusion-Breaking DMG +. Casting Rage Cleave grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5112,7 +5112,7 @@
   },
   {
     "slotTemplateId": "factor_3060030",
-    "name": "Flame Vanguard X3",
+    "name": "Twin Axe X3",
     "description": "Axe Wind Illusion-Breaking DMG +. While Axe Wind is active, Grants Illusion Energy every 0.5s.",
     "slot": {
       "threshold": null,
@@ -5139,7 +5139,7 @@
   },
   {
     "slotTemplateId": "factor_3060040",
-    "name": "Flame Vanguard X4",
+    "name": "Twin Axe X4",
     "description": "While Wasteland's End is active, Formless Flame Slash trigger chance +. While Wasteland's End is active, grants Illusion Energy every second.",
     "slot": {
       "threshold": null,
@@ -5166,7 +5166,7 @@
   },
   {
     "slotTemplateId": "factor_3060050",
-    "name": "Flame Vanguard X5",
+    "name": "Twin Axe X5",
     "description": "Hellfire Meteor can trigger Lucky Strike; Hellfire Meteor Illusion-Breaking DMG +. When Hellfire Meteor triggers Lucky Strike, grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5193,7 +5193,7 @@
   },
   {
     "slotTemplateId": "factor_3060060",
-    "name": "Flame Vanguard X6",
+    "name": "Twin Axe X6",
     "description": "Wildfire Dance ignores + of the target's Armor. While Wildfire Dance is active, grants Illusion Energy every 0.5s.",
     "slot": {
       "threshold": null,
@@ -5220,7 +5220,7 @@
   },
   {
     "slotTemplateId": "factor_3060070",
-    "name": "Flame Vanguard X7",
+    "name": "Twin Axe X7",
     "description": "Flowing Splendor Slash Illusion-Breaking DMG +. Casting Flowing Splendor Slash grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5247,7 +5247,7 @@
   },
   {
     "slotTemplateId": "factor_3060080",
-    "name": "Flame Vanguard X8",
+    "name": "Twin Axe X8",
     "description": "Unbound Meteor and Falling Hellfire Illusion-Breaking DMG +. Casting Unbound Meteor or Falling Hellfire grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5274,7 +5274,7 @@
   },
   {
     "slotTemplateId": "factor_3060090",
-    "name": "Flame Vanguard X9",
+    "name": "Twin Axe X9",
     "description": "Casting Unbound Meteor, Falling Hellfire, or Flowing Splendor Slash has a 50% chance to trigger Great Crimson Lotus; Great Crimson Lotus Illusion-Breaking DMG +. Dealing damage with Great Crimson Lotus grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5301,7 +5301,7 @@
   },
   {
     "slotTemplateId": "factor_3060100",
-    "name": "Flame Vanguard X10",
+    "name": "Twin Axe X10",
     "description": "Wildfire Dance restores Crimson Soul Gauge upon dealing damage to the main target; the gauge is restored after the skill ends. While in combat and standing still, grants Illusion Energy per second.",
     "slot": {
       "threshold": null,
@@ -5328,7 +5328,7 @@
   },
   {
     "slotTemplateId": "factor_3060110",
-    "name": "Flame Vanguard X11",
+    "name": "Twin Axe X11",
     "description": "Expertise Skills ignore more of the target's Armor. Grants Illusion Energy for every 50 Flame Souls consumed.",
     "slot": {
       "threshold": null,
@@ -5355,7 +5355,7 @@
   },
   {
     "slotTemplateId": "factor_3059260",
-    "name": "Flame Vanguard Stasis X1",
+    "name": "Twin Axe Stasis X1",
     "description": "Each level of the Formless effect grants All-Element DMG Reduction.",
     "slot": {
       "threshold": null,
@@ -5382,7 +5382,7 @@
   },
   {
     "slotTemplateId": "factor_3059270",
-    "name": "Flame Vanguard Stasis X2",
+    "name": "Twin Axe Stasis X2",
     "description": "While casting Wildfire Dance, grants Super Armor and increases Illusion-Breaking DMG Reduction by .",
     "slot": {
       "threshold": null,
@@ -5409,7 +5409,7 @@
   },
   {
     "slotTemplateId": "factor_3060120",
-    "name": "Flame Vanguard Rhapsody X1",
+    "name": "Twin Axe Rhapsody X1",
     "description": "Triggering Formless Flame Slash Stage 3 will trigger Hellfire Meteor; Hellfire Meteor Illusion-Breaking DMG +",
     "slot": {
       "threshold": null,
@@ -5436,7 +5436,7 @@
   },
   {
     "slotTemplateId": "factor_3060130",
-    "name": "Flame Vanguard Rhapsody X2",
+    "name": "Twin Axe Rhapsody X2",
     "description": "When Explosion is triggered, randomly infect a target once. If there is only one target, it triggers twice. Explosion Illusion-Breaking DMG+",
     "slot": {
       "threshold": null,
@@ -5463,7 +5463,7 @@
   },
   {
     "slotTemplateId": "factor_3060140",
-    "name": "Flame Vanguard Rhapsody X3",
+    "name": "Twin Axe Rhapsody X3",
     "description": "For every 50 hits Wildfire Dance deals to the primary target, gain Enhancement: Great Crimson Lotus Illusion-Breaking DMG+ for 5s",
     "slot": {
       "threshold": null,
@@ -5490,7 +5490,7 @@
   },
   {
     "slotTemplateId": "factor_3060150",
-    "name": "Flame Vanguard Rhapsody X4",
+    "name": "Twin Axe Rhapsody X4",
     "description": "For every 7 hits Wildfire Dance deals to the primary target, unleashes a Flowing Splendor Slash. Flowing Splendor Slash Illusion-Breaking DMG+",
     "slot": {
       "threshold": null,
@@ -5520,7 +5520,7 @@
     "name": "Stormblade Reality Factor X4",
     "description": "When Illusion Energy reaches points, grants 10 Blade Intent and 1 Charge Seed.",
     "slot": {
-      "threshold": null,
+      "threshold": 128,
       "resetBuffId": 3050431,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -5547,7 +5547,7 @@
     "name": "Wind Knight Reality Factor X1",
     "description": "When Illusion Energy reaches points, reduces the remaining CD of Galeform by 1s.",
     "slot": {
-      "threshold": null,
+      "threshold": 90,
       "resetBuffId": 3051401,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -5574,11 +5574,13 @@
     "name": "Wind Knight Reality Factor X3",
     "description": "When Illusion Energy reaches points, trigger Great Wind Cyclone if Valor Cyclone is active, dealing 800% of ATK as Attack DMG to enemies within 5 meters. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 60,
       "resetBuffId": 3051421,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 500,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3051421
@@ -5628,11 +5630,13 @@
     "name": "Shield Knight Reality Factor X1",
     "description": "When Illusion Energy reaches points, triggers Inferno Reckon. This instance of Inferno Reckon deals + Illusion DMG. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 150,
       "resetBuffId": 3054401,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 3000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3054401
@@ -5655,11 +5659,13 @@
     "name": "Shield Knight Reality Factor X3",
     "description": "When Illusion Energy reaches points, gains a Radiant Shield equal to of ATK. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 51,
       "resetBuffId": 3054421,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3054421
@@ -5682,11 +5688,13 @@
     "name": "Shield Knight Reality Factor X6",
     "description": "When Illusion Energy reaches points, the remaining CD of the Ultimate is reduced by 1s. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 90,
       "resetBuffId": 3054451,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3054451
@@ -5709,11 +5717,13 @@
     "name": "Heavy Guardian Reality Factor X3",
     "description": "When Illusion Energy reaches points, the remaining CDs of Stoneform and Brave Bastion are reduced by 1s. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 120,
       "resetBuffId": 3055381,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3055381
@@ -5736,11 +5746,13 @@
     "name": "Verdant Oracle Reality Factor X1",
     "description": "When Illusion Energy reaches points, grants Energy and reduces the remaining CD of Nature Ward by 1s. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 180,
       "resetBuffId": 3056381,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3056381
@@ -5790,7 +5802,7 @@
     "name": "Verdant Oracle Reality Factor X3",
     "description": "When Illusion Energy reaches points, Thorn can trigger Lucky Strike for 7s.",
     "slot": {
-      "threshold": null,
+      "threshold": 500,
       "resetBuffId": 3056401,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -5817,11 +5829,13 @@
     "name": "Verdant Oracle Reality Factor X4",
     "description": "When Illusion Energy reaches points, a Flower Stalk is spawned, guaranteed to be Moonlight Solace. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 200,
       "resetBuffId": 3056411,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 7000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3056411
@@ -5844,7 +5858,7 @@
     "name": "Verdant Oracle Reality Factor X5",
     "description": "When Illusion Energy reaches points, triggers Group Nourish once.",
     "slot": {
-      "threshold": null,
+      "threshold": 48,
       "resetBuffId": 3056421,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -5871,11 +5885,13 @@
     "name": "Verdant Oracle Reality Factor X6",
     "description": "When Illusion Energy reaches points, the remaining CD of Grove Wish is reduced by 1s. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 80,
       "resetBuffId": 3056431,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3056431
@@ -5898,7 +5914,7 @@
     "name": "Beat Performer Reality Factor X1",
     "description": "When Illusion Energy reaches points, triggers Encore Strings once.",
     "slot": {
-      "threshold": null,
+      "threshold": 60,
       "resetBuffId": 3057401,
       "onBuffAdd": "reset",
       "onBuffChange": "reset",
@@ -5922,14 +5938,16 @@
   },
   {
     "slotTemplateId": "factor_3060450",
-    "name": "Flame Vanguard Reality Factor X6",
+    "name": "Twin Axe Reality Factor X6",
     "description": "When Illusion Energy reaches points, the remaining CD of the Ultimate is reduced by 0.5s. Can trigger at most once within .",
     "slot": {
-      "threshold": null,
+      "threshold": 72,
       "resetBuffId": 3060451,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "freeze",
+      "onBuffChange": "noOp",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 2000,
+      "onFreezeExpire": "resetAndStartCount"
     },
     "effectBuffIds": [
       3060451

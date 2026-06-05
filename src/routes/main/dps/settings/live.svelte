@@ -71,6 +71,12 @@
             label={t("autoHideLiveWindow", "Auto-hide Live Window")}
             description={t("autoHideLiveWindowDescription", "Hide the live meter after the delay when no new damage is detected, then show it automatically as soon as damage appears.")}
           />
+          <SettingsSwitch
+            bind:checked={SETTINGS.live.general.state.autoHideOverlaysWithLiveWindow}
+            disabled={!SETTINGS.live.general.state.autoHideLiveWindow}
+            label={t("autoHideOverlaysWithLiveWindow", "Auto-hide Overlays with Live Window")}
+            description={t("autoHideOverlaysWithLiveWindowDescription", "When Auto-hide Live Window is enabled, hide any visible game or monster overlay with the live meter and restore only the overlays that were visible before auto-hide.")}
+          />
           <SettingsSlider
             bind:value={SETTINGS.live.general.state.autoHideLiveWindowDelaySeconds}
             label={t("autoHideLiveWindowDelaySeconds", "Auto-hide Delay")}

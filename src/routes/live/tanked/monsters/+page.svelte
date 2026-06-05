@@ -2,10 +2,14 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import { settings, SETTINGS } from "$lib/settings-store";
-  import { getLiveData } from "$lib/stores/live-meter-store.svelte";
+  import {
+    getLiveData,
+    getLiveDisplayNowMs,
+  } from "$lib/stores/live-meter-store.svelte";
   import {
     computePlayerRows,
     computePlayerRowsFromEntities,
+    liveDisplayElapsedMs,
   } from "$lib/live-derived";
   import { liveTankedPlayerColumns } from "$lib/column-data";
   import {
@@ -22,8 +26,9 @@
   const playerUid = Number(page.url.searchParams.get("playerUid") ?? "-1");
 
   let liveData = $derived(getLiveData());
+  let liveDisplayNow = $derived(getLiveDisplayNowMs());
   let tankedPlayers = $derived(
-    liveData ? computePlayerRows(liveData, "tanked") : [],
+    liveData ? computePlayerRows(liveData, "tanked", liveDisplayNow) : [],
   );
   let currentPlayer = $derived(
     tankedPlayers.find((player) => player.uid === playerUid) ?? null,
@@ -42,7 +47,7 @@
     return computePlayerRowsFromEntities(
       {
         entities,
-        elapsedMs: liveData.elapsedMs,
+        elapsedMs: liveDisplayElapsedMs(liveData, liveDisplayNow),
         activeCombatTimeMs: liveData.activeCombatTimeMs,
         totalDmg: 0,
         totalHeal: 0,

@@ -6,6 +6,10 @@ import seasonPhantomFactorsData from "$parserData/generated/SeasonPhantomFactors
 import skillBreakdownDetailsData from "$parserData/generated/SkillBreakdownDetails.json";
 import { lookupFirstSkillIconPath } from "$lib/skill-mappings";
 import { resolveStaticIconUrl } from "$lib/config/static-icon-resolver";
+import {
+  resolveRageCleaveStageLabel,
+  resolveRageCleaveStageNumberForSkillId,
+} from "$lib/skill-stage-labels";
 
 const ICON_OVERRIDES_BY_RECOUNT_ID: Record<string, string> = {
   // Great Crimson Lotus and Formless Flame Slash are proc rows; the generated
@@ -2247,30 +2251,10 @@ export function resolveSkillRuntimeSourceFallbackName(
 }
 
 const RAGE_CLEAVE_RECOUNT_ID = 235;
-const RAGE_CLEAVE_STAGE_BY_LINKED_SKILL_ID: Record<string, number> = {
-  "1608": 1,
-  "1609": 2,
-  "1610": 3,
-  "1611": 4,
-};
-const RAGE_CLEAVE_STAGE_TEMPLATES: LocalizedTextMap = {
-  en: "Stage {stage}",
-  "zh-CN": "\u7b2c{stage}\u6bb5",
-  "zh-TW": "\u7b2c{stage}\u6bb5",
-  ja: "\u7b2c{stage}\u6bb5",
-  "ko-KR": "\uc81c{stage}\ub2e8\uacc4",
-  fr: "Phase {stage}",
-  de: "Stufe {stage}",
-  es: "Fase {stage}",
-  "pt-BR": "Etapa {stage}",
-  th: "\u0e02\u0e31\u0e49\u0e19\u0e17\u0e35\u0e48 {stage}",
-  id: "Tahap {stage}",
-};
-const RAGE_CLEAVE_STAGE_FALLBACK_TEMPLATE = "Stage {stage}";
 
 function resolveRageCleaveStageNumber(detail: SkillBreakdownDetail | undefined): number | undefined {
   const linkedSkillId = detail?.LinkedSkillId ?? detail?.UnderlyingSkillId ?? detail?.LinkedId;
-  const stage = RAGE_CLEAVE_STAGE_BY_LINKED_SKILL_ID[String(linkedSkillId ?? "")];
+  const stage = resolveRageCleaveStageNumberForSkillId(linkedSkillId);
   if (!stage) return undefined;
 
   const parentRecountId = Number(detail?.ParentRecountId);
@@ -2278,14 +2262,6 @@ function resolveRageCleaveStageNumber(detail: SkillBreakdownDetail | undefined):
     return undefined;
   }
   return stage;
-}
-
-function resolveRageCleaveStageLabel(stage: number, locale: string): string {
-  return resolveLocalizedText(
-    RAGE_CLEAVE_STAGE_TEMPLATES,
-    locale,
-    RAGE_CLEAVE_STAGE_TEMPLATES["en"] ?? RAGE_CLEAVE_STAGE_FALLBACK_TEMPLATE,
-  ).replace("{stage}", String(stage));
 }
 
 function resolveRageCleaveLinkedSkillName(

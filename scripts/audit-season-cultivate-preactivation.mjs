@@ -5,6 +5,20 @@ import path from "node:path";
 const ROOT = process.cwd();
 const EXPORT_DIR = path.join(ROOT, "DEV_exports");
 const EXPECTED_FACTOR_RULE_ID_BASE = 900_000_000;
+const TWIN_AXE_CLASS_LABEL_KEY = "class.Flame Berserker";
+const TWIN_AXE_FACTOR_TYPE_LABELS = {
+  en: { reality: "Reality Factor", stasis: "Stasis", rhapsody: "Rhapsody", polarity: "Polarity" },
+  "zh-CN": { reality: "真实因子", stasis: "稳态", rhapsody: "狂想", polarity: "极性" },
+  "zh-TW": { reality: "真實因子", stasis: "穩態", rhapsody: "狂想", polarity: "極性" },
+  ja: { reality: "実像因子", stasis: "恒常性", rhapsody: "狂想", polarity: "極性" },
+  "ko-KR": { reality: "진실 인자", stasis: "안정", rhapsody: "광상", polarity: "극성" },
+  fr: { reality: "Facteur de réalité", stasis: "Stase", rhapsody: "Rhapsodie", polarity: "Polarité" },
+  de: { reality: "Realitätsfaktor", stasis: "Stase", rhapsody: "Rhapsodie", polarity: "Polarität" },
+  es: { reality: "Factor de Realidad", stasis: "Estasis", rhapsody: "Rapsodia", polarity: "Polaridad" },
+  "pt-BR": { reality: "Fator de Realidade", stasis: "Estase", rhapsody: "Rapsódia", polarity: "Polaridade" },
+  th: { reality: "Reality Factor", stasis: "Stasis", rhapsody: "Rhapsody", polarity: "Polarity" },
+  id: { reality: "Reality Factor", stasis: "Stasis", rhapsody: "Rhapsody", polarity: "Polarity" },
+};
 
 const LOCALE_KEYS = [
   "customPanel.newFactor",
@@ -91,8 +105,53 @@ function getFactorLocaleText(row, mapName, locale) {
   return value || null;
 }
 
+function getLocaleText(map, locale) {
+  return cleanText(map?.[locale]) || cleanText(map?.en) || null;
+}
+
+function isTwinAxeFactor(row) {
+  const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
+  return /\b(?:Flame Vanguard|Flame Berserker)\b/i.test(englishName);
+}
+
+function getTwinAxeFactorKind(row) {
+  const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
+  if (/\bReality Factor\b/i.test(englishName)) return "reality";
+  if (/\bStasis\b/i.test(englishName)) return "stasis";
+  if (/\bRhapsody\b/i.test(englishName)) return "rhapsody";
+  if (/\bPolarity\b/i.test(englishName)) return "polarity";
+  return "";
+}
+
+function getTwinAxeSlot(row) {
+  const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
+  return englishName.match(/\bX\d+\b/i)?.[0]?.toUpperCase() ?? "";
+}
+
+function joinTwinAxeName(locale, className, factorKind, slot) {
+  const typeLabel = factorKind
+    ? TWIN_AXE_FACTOR_TYPE_LABELS[locale]?.[factorKind] ?? TWIN_AXE_FACTOR_TYPE_LABELS.en[factorKind]
+    : "";
+
+  if (!slot) return [className, typeLabel].filter(Boolean).join(" ");
+  if (!typeLabel) return `${className} ${slot}`;
+  if (locale === "zh-CN" || locale === "zh-TW") return `${className}${typeLabel}${slot}`;
+  if (locale === "ja") return `${className}・${typeLabel}${slot}`;
+  if (locale === "ko-KR") return `${className} ${typeLabel}${slot}`;
+  return `${className} ${typeLabel} ${slot}`;
+}
+
+function getDisplayFamilyName(row, locale, classLabels) {
+  const rawName = getFactorLocaleText(row, "familyNames", locale);
+  if (!rawName || !isTwinAxeFactor(row)) return rawName;
+
+  const className = getLocaleText(classLabels?.[TWIN_AXE_CLASS_LABEL_KEY], locale) || "Twin Axe";
+  return joinTwinAxeName(locale, className, getTwinAxeFactorKind(row), getTwinAxeSlot(row)) || rawName;
+}
+
 function buildExpectedTemplateLocaleEntries(locale) {
   const indexes = buildFactorIndexes();
+  const classLabels = readJson("parser-data/generated/class-labels.json");
   const sourceTemplates = asArray(
     readJson("parser-data/app-rules/counter_source_templates.json"),
   );
@@ -113,7 +172,7 @@ function buildExpectedTemplateLocaleEntries(locale) {
       continue;
     }
     const row = rows[0];
-    const name = getFactorLocaleText(row, "familyNames", locale);
+    const name = getDisplayFamilyName(row, locale, classLabels);
     const description = getFactorLocaleText(row, "cleanDescriptions", locale);
     if (!name || !description) {
       bridgeIssues.push({
@@ -139,7 +198,7 @@ function buildExpectedTemplateLocaleEntries(locale) {
       continue;
     }
     const row = rows[0];
-    const name = getFactorLocaleText(row, "familyNames", locale);
+    const name = getDisplayFamilyName(row, locale, classLabels);
     const description = getFactorLocaleText(row, "cleanDescriptions", locale);
     if (!name || !description) {
       bridgeIssues.push({

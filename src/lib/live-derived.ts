@@ -35,6 +35,27 @@ type PlayerRowsSource = {
   totalDmgBossOnly: number;
 };
 
+export function liveDisplayElapsedMs(
+  data: LiveDataPayload,
+  displayNowMs = Date.now(),
+): number {
+  const serverElapsedMs = Math.max(0, Number(data.elapsedMs) || 0);
+  const fightStartTimestampMs = Math.max(
+    0,
+    Number(data.fightStartTimestampMs) || 0,
+  );
+  if (
+    fightStartTimestampMs <= 0 ||
+    data.isPaused ||
+    data.trainingDummy?.phase === "finished"
+  ) {
+    return serverElapsedMs;
+  }
+
+  const clientElapsedMs = Math.max(0, displayNowMs - fightStartTimestampMs);
+  return Math.max(serverElapsedMs, clientElapsedMs);
+}
+
 export function computePlayerRowsFromEntities(
   source: PlayerRowsSource,
   metric: Metric,
@@ -95,11 +116,15 @@ export function computePlayerRowsFromEntities(
     .filter((row) => row.totalDmg > 0);
 }
 
-export function computePlayerRows(data: LiveDataPayload, metric: Metric): PlayerRow[] {
+export function computePlayerRows(
+  data: LiveDataPayload,
+  metric: Metric,
+  displayNowMs = Date.now(),
+): PlayerRow[] {
   return computePlayerRowsFromEntities(
     {
       entities: data.entities,
-      elapsedMs: data.elapsedMs,
+      elapsedMs: liveDisplayElapsedMs(data, displayNowMs),
       activeCombatTimeMs: data.activeCombatTimeMs,
       totalDmg: data.totalDmg,
       totalHeal: data.totalHeal,
@@ -153,12 +178,16 @@ export function computeSkillRows(
     );
 }
 
-export function computeHeaderInfo(data: LiveDataPayload): HeaderInfo {
-  const elapsedSecs = data.elapsedMs > 0 ? data.elapsedMs / 1000 : 0;
+export function computeHeaderInfo(
+  data: LiveDataPayload,
+  displayNowMs = Date.now(),
+): HeaderInfo {
+  const elapsedMs = liveDisplayElapsedMs(data, displayNowMs);
+  const elapsedSecs = elapsedMs > 0 ? elapsedMs / 1000 : 0;
   return {
     totalDps: elapsedSecs > 0 ? data.totalDmg / elapsedSecs : 0,
     totalDmg: data.totalDmg,
-    elapsedMs: data.elapsedMs,
+    elapsedMs,
     activeCombatTimeMs: data.activeCombatTimeMs,
     fightStartTimestampMs: data.fightStartTimestampMs,
     bosses: data.bosses,

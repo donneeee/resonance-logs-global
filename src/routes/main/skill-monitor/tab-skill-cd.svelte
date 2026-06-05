@@ -3,6 +3,7 @@
 
   import { findAnySkillByBaseId, type ClassSkillConfig, type ResonanceSkillDefinition, type SkillDefinition } from "$lib/skill-mappings";
   import { SETTINGS } from "$lib/settings-store";
+  import { resolveKnownSkillStageDisplayName } from "$lib/skill-stage-labels";
   import {
     TRANSLATION_RUNTIME_REVISION,
     initializeSkillNameTranslationData,
@@ -201,12 +202,14 @@
   }
 
   function displaySkillName(skill: SkillDefinition): string {
-    return resolveSkillMonitorClassSkillName(
+    const locale = SETTINGS.live.general.state.language;
+    const baseName = resolveSkillMonitorClassSkillName(
       selectedClassKey,
       skill.skillId,
-      SETTINGS.live.general.state.language,
+      locale,
       skill.name || `#${skill.skillId}`,
     );
+    return resolveKnownSkillStageDisplayName(skill.skillId, locale, baseName) ?? baseName;
   }
 
   function formatSkillHoverNote(note: string): string {

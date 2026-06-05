@@ -89,6 +89,8 @@ pub struct LocalDamageEvent {
     pub original_attacker_uid: i64,
     pub top_summoner_uuid: Option<i64>,
     pub top_summoner_uid: Option<i64>,
+    pub is_crit: bool,
+    pub is_lucky: bool,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -1775,19 +1777,6 @@ pub fn process_aoi_sync_delta(
             sync_damage_info.hit_event_id,
         );
         let skill_key = damage_id;
-        if allow_combat && is_local_damage_source {
-            local_damage_events.push(LocalDamageEvent {
-                skill_key,
-                target_uuid: Some(target_uuid),
-                target_uid,
-                attacker_uuid: Some(attacker_uuid),
-                attacker_uid,
-                original_attacker_uuid: Some(original_attacker_uuid),
-                original_attacker_uid,
-                top_summoner_uuid: sync_damage_info.top_summoner_id,
-                top_summoner_uid,
-            });
-        }
         let is_local_damage_target = is_target_local_player;
         if allow_combat && collect_taken && is_local_damage_target && !is_heal {
             local_damage_taken_events.push(LocalDamageTakenEvent {
@@ -1819,6 +1808,21 @@ pub fn process_aoi_sync_delta(
         let is_attacked_lucky_trigger = (flag & damage_type_flag::ATTACKED_LUCK) != 0;
         let is_block = (flag & damage_type_flag::BLOCK) != 0;
         let is_crit = (flag & damage_type_flag::CRIT) != 0;
+        if allow_combat && is_local_damage_source {
+            local_damage_events.push(LocalDamageEvent {
+                skill_key,
+                target_uuid: Some(target_uuid),
+                target_uid,
+                attacker_uuid: Some(attacker_uuid),
+                attacker_uid,
+                original_attacker_uuid: Some(original_attacker_uuid),
+                original_attacker_uid,
+                top_summoner_uuid: sync_damage_info.top_summoner_id,
+                top_summoner_uid,
+                is_crit,
+                is_lucky: is_attacker_lucky_trigger && !is_lucky_bonus_only,
+            });
+        }
 
         let mut total_heal_delta = 0;
         let mut total_effective_heal_delta = 0;
