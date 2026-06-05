@@ -150,6 +150,15 @@ function cloneSettingValue<T>(value: T): T {
   return value;
 }
 
+function replaceRecordContents<T extends MutableRecord>(target: T, source: T): void {
+  for (const key of Object.keys(target)) {
+    if (!Object.prototype.hasOwnProperty.call(source, key)) {
+      delete target[key];
+    }
+  }
+  Object.assign(target, source);
+}
+
 function mergeDeepDefaults<T extends MutableRecord>(
   target: T,
   defaults: Record<string, unknown>,
@@ -167,12 +176,47 @@ function mergeDeepDefaults<T extends MutableRecord>(
   }
 }
 
+function countKnownSettingKeys(
+  value: MutableRecord,
+  defaults: Record<string, unknown>,
+): number {
+  let count = 0;
+  for (const key of Object.keys(defaults)) {
+    if (Object.prototype.hasOwnProperty.call(value, key)) count += 1;
+  }
+  return count;
+}
+
+function unwrapPersistedSettingsPayload(
+  value: unknown,
+  defaults: Record<string, unknown>,
+): unknown {
+  if (!isMutableRecord(value)) return value;
+
+  const directKnownKeys = countKnownSettingKeys(value, defaults);
+  let bestPayload: unknown = value;
+  let bestKnownKeys = directKnownKeys;
+
+  for (const wrapperKey of ["state", "value", "settings"]) {
+    const candidate = value[wrapperKey];
+    if (!isMutableRecord(candidate)) continue;
+    const candidateKnownKeys = countKnownSettingKeys(candidate, defaults);
+    if (candidateKnownKeys > bestKnownKeys || (bestKnownKeys === 0 && candidateKnownKeys > 0)) {
+      bestPayload = candidate;
+      bestKnownKeys = candidateKnownKeys;
+    }
+  }
+
+  return bestPayload;
+}
+
 function normalizeObjectWithDefaults<T extends MutableRecord>(
   value: unknown,
   defaults: T,
 ): T {
-  const next = isMutableRecord(value)
-    ? (cloneSettingValue(value) as MutableRecord)
+  const payload = unwrapPersistedSettingsPayload(value, defaults);
+  const next = isMutableRecord(payload)
+    ? (cloneSettingValue(payload) as MutableRecord)
     : {};
   mergeDeepDefaults(next, defaults);
   return next as T;
@@ -229,6 +273,18 @@ function normalizeColumnOrderSettingsState(
     normalizeColumnOrder(next, defaults);
     return next;
   };
+}
+
+function normalizeLiveSortSettingsState<T extends { sortKey: string; sortDesc: boolean }>(
+  value: unknown,
+  defaults: T,
+): T {
+  const next = normalizeObjectWithDefaults(value, defaults) as T;
+  if (typeof next.sortKey !== "string" || !next.sortKey.trim()) {
+    next.sortKey = defaults.sortKey;
+  }
+  next.sortDesc = normalizeBooleanValue(next.sortDesc, defaults.sortDesc);
+  return next;
 }
 
 export type ShortcutSettingId = keyof typeof DEFAULT_SETTINGS.shortcuts;
@@ -1914,32 +1970,32 @@ export const SETTINGS = {
     columnOrder: {
       dpsPlayers: createSettingsStore(
         "liveDpsPlayersColumnOrder",
-        { order: DEFAULT_DPS_PLAYER_COLUMN_ORDER },
+        { order: [...DEFAULT_DPS_PLAYER_COLUMN_ORDER] },
         normalizeColumnOrderSettingsState(DEFAULT_DPS_PLAYER_COLUMN_ORDER),
       ),
       dpsSkills: createSettingsStore(
         "liveDpsSkillsColumnOrder",
-        { order: DEFAULT_DPS_SKILL_COLUMN_ORDER },
+        { order: [...DEFAULT_DPS_SKILL_COLUMN_ORDER] },
         normalizeColumnOrderSettingsState(DEFAULT_DPS_SKILL_COLUMN_ORDER),
       ),
       healPlayers: createSettingsStore(
         "liveHealPlayersColumnOrder",
-        { order: DEFAULT_HEAL_PLAYER_COLUMN_ORDER },
+        { order: [...DEFAULT_HEAL_PLAYER_COLUMN_ORDER] },
         normalizeColumnOrderSettingsState(DEFAULT_HEAL_PLAYER_COLUMN_ORDER),
       ),
       healSkills: createSettingsStore(
         "liveHealSkillsColumnOrder",
-        { order: DEFAULT_HEAL_SKILL_COLUMN_ORDER },
+        { order: [...DEFAULT_HEAL_SKILL_COLUMN_ORDER] },
         normalizeColumnOrderSettingsState(DEFAULT_HEAL_SKILL_COLUMN_ORDER),
       ),
       tankedPlayers: createSettingsStore(
         "liveTankedPlayersColumnOrder",
-        { order: DEFAULT_TANKED_PLAYER_COLUMN_ORDER },
+        { order: [...DEFAULT_TANKED_PLAYER_COLUMN_ORDER] },
         normalizeColumnOrderSettingsState(DEFAULT_TANKED_PLAYER_COLUMN_ORDER),
       ),
       tankedSkills: createSettingsStore(
         "liveTankedSkillsColumnOrder",
-        { order: DEFAULT_TANKED_SKILL_COLUMN_ORDER },
+        { order: [...DEFAULT_TANKED_SKILL_COLUMN_ORDER] },
         normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
       ),
     },
@@ -1948,26 +2004,32 @@ export const SETTINGS = {
       dpsPlayers: createSettingsStore(
         "liveDpsPlayersSorting",
         DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
+        (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers),
       ),
       dpsSkills: createSettingsStore(
         "liveDpsSkillsSorting",
         DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
+        (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsSkills),
       ),
       healPlayers: createSettingsStore(
         "liveHealPlayersSorting",
         DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
+        (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healPlayers),
       ),
       healSkills: createSettingsStore(
         "liveHealSkillsSorting",
         DEFAULT_LIVE_SORT_SETTINGS.healSkills,
+        (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healSkills),
       ),
       tankedPlayers: createSettingsStore(
         "liveTankedPlayersSorting",
         DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
+        (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers),
       ),
       tankedSkills: createSettingsStore(
         "liveTankedSkillsSorting",
         DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
+        (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedSkills),
       ),
     },
   },
@@ -2028,12 +2090,19 @@ async function refreshSettingsStoreFromBackend<T extends MutableRecord>(
     normalizeObjectWithDefaults(value, defaults),
   options: SettingsStoreRefreshOptions = {},
 ): Promise<void> {
-  const backendState = await getStoreState<T>(store.id);
+  let backendState: unknown;
+  let currentBackendJson: string | null = null;
+  try {
+    backendState = await getStoreState<T>(store.id);
+    currentBackendJson = JSON.stringify(backendState);
+  } catch (error) {
+    console.warn(`Failed to read settings store ${store.id}; repairing from current/default state:`, error);
+    backendState = store.state;
+  }
   const nextState = normalize(backendState);
-  const currentBackendJson = JSON.stringify(backendState);
   const nextStateJson = JSON.stringify(nextState);
   if (JSON.stringify(store.state) !== nextStateJson) {
-    Object.assign(store.state, nextState);
+    replaceRecordContents(store.state, nextState);
   }
   if (options.persistRepair && currentBackendJson !== nextStateJson) {
     await patchStoreState(store.id, nextState);
@@ -2060,7 +2129,7 @@ async function persistSettingsStoreState<T extends MutableRecord>(
 ): Promise<void> {
   const nextState = normalize(store.state);
   if (JSON.stringify(store.state) !== JSON.stringify(nextState)) {
-    Object.assign(store.state, nextState);
+    replaceRecordContents(store.state, nextState);
   }
   await patchStoreState(store.id, nextState);
   await saveStoreNow(store.id);
@@ -2155,26 +2224,32 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
     persistSettingsStoreState(
       SETTINGS.live.sorting.dpsPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers),
     ),
     persistSettingsStoreState(
       SETTINGS.live.sorting.dpsSkills,
       DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsSkills),
     ),
     persistSettingsStoreState(
       SETTINGS.live.sorting.healPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healPlayers),
     ),
     persistSettingsStoreState(
       SETTINGS.live.sorting.healSkills,
       DEFAULT_LIVE_SORT_SETTINGS.healSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healSkills),
     ),
     persistSettingsStoreState(
       SETTINGS.live.sorting.tankedPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers),
     ),
     persistSettingsStoreState(
       SETTINGS.live.sorting.tankedSkills,
       DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedSkills),
     ),
   ]).then(() => undefined);
 }
@@ -2280,26 +2355,32 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.dpsPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.dpsSkills,
       DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsSkills),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.healPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.healSkills,
       DEFAULT_LIVE_SORT_SETTINGS.healSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healSkills),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.tankedPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.tankedSkills,
       DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedSkills),
     ),
   ])
     .then(() => undefined)
@@ -2437,26 +2518,32 @@ export async function repairPersistedSettingsStores(): Promise<void> {
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.dpsPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.dpsSkills,
       DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsSkills),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.healPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.healSkills,
       DEFAULT_LIVE_SORT_SETTINGS.healSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healSkills),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.tankedPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.tankedSkills,
       DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
+      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedSkills),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.history.general,
@@ -2704,12 +2791,85 @@ export function normalizePersistedSettings(): void {
     ),
   );
 
-  normalizeColumnOrder(SETTINGS.live.columnOrder.dpsPlayers.state, DEFAULT_DPS_PLAYER_COLUMN_ORDER);
-  normalizeColumnOrder(SETTINGS.live.columnOrder.dpsSkills.state, DEFAULT_DPS_SKILL_COLUMN_ORDER);
-  normalizeColumnOrder(SETTINGS.live.columnOrder.healPlayers.state, DEFAULT_HEAL_PLAYER_COLUMN_ORDER);
-  normalizeColumnOrder(SETTINGS.live.columnOrder.healSkills.state, DEFAULT_HEAL_SKILL_COLUMN_ORDER);
-  normalizeColumnOrder(SETTINGS.live.columnOrder.tankedPlayers.state, DEFAULT_TANKED_PLAYER_COLUMN_ORDER);
-  normalizeColumnOrder(SETTINGS.live.columnOrder.tankedSkills.state, DEFAULT_TANKED_SKILL_COLUMN_ORDER);
+  Object.assign(
+    SETTINGS.live.columnOrder.dpsPlayers.state,
+    normalizeColumnOrderSettingsState(DEFAULT_DPS_PLAYER_COLUMN_ORDER)(
+      SETTINGS.live.columnOrder.dpsPlayers.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.columnOrder.dpsSkills.state,
+    normalizeColumnOrderSettingsState(DEFAULT_DPS_SKILL_COLUMN_ORDER)(
+      SETTINGS.live.columnOrder.dpsSkills.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.columnOrder.healPlayers.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HEAL_PLAYER_COLUMN_ORDER)(
+      SETTINGS.live.columnOrder.healPlayers.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.columnOrder.healSkills.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HEAL_SKILL_COLUMN_ORDER)(
+      SETTINGS.live.columnOrder.healSkills.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.columnOrder.tankedPlayers.state,
+    normalizeColumnOrderSettingsState(DEFAULT_TANKED_PLAYER_COLUMN_ORDER)(
+      SETTINGS.live.columnOrder.tankedPlayers.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.columnOrder.tankedSkills.state,
+    normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER)(
+      SETTINGS.live.columnOrder.tankedSkills.state,
+    ),
+  );
+
+  Object.assign(
+    SETTINGS.live.sorting.dpsPlayers.state,
+    normalizeLiveSortSettingsState(
+      SETTINGS.live.sorting.dpsPlayers.state,
+      DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.sorting.dpsSkills.state,
+    normalizeLiveSortSettingsState(
+      SETTINGS.live.sorting.dpsSkills.state,
+      DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.sorting.healPlayers.state,
+    normalizeLiveSortSettingsState(
+      SETTINGS.live.sorting.healPlayers.state,
+      DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.sorting.healSkills.state,
+    normalizeLiveSortSettingsState(
+      SETTINGS.live.sorting.healSkills.state,
+      DEFAULT_LIVE_SORT_SETTINGS.healSkills,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.sorting.tankedPlayers.state,
+    normalizeLiveSortSettingsState(
+      SETTINGS.live.sorting.tankedPlayers.state,
+      DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
+    ),
+  );
+  Object.assign(
+    SETTINGS.live.sorting.tankedSkills.state,
+    normalizeLiveSortSettingsState(
+      SETTINGS.live.sorting.tankedSkills.state,
+      DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
+    ),
+  );
 
   const appMetadata = SETTINGS.appVersion.state as MutableRecord;
   if (appMetadata["modifierReportsResetVersion"] !== MODIFIER_REPORTS_RESET_VERSION) {

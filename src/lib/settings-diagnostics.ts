@@ -96,8 +96,10 @@ function detectObjectIssues(name: string, state: JsonRecord, defaults: JsonRecor
   const defaultKeys = Object.keys(defaults);
   const stateKeys = Object.keys(state);
 
-  if (isRecord(state["state"])) {
-    issues.push(`${name}: contains nested state object`);
+  for (const wrapperKey of ["state", "value", "settings"]) {
+    if (isRecord(state[wrapperKey])) {
+      issues.push(`${name}: contains nested ${wrapperKey} object`);
+    }
   }
 
   for (const key of defaultKeys) {
