@@ -5,7 +5,7 @@
   */
   import "../app.css";
   import { onMount } from "svelte";
-  import { SETTINGS } from "$lib/settings-store";
+  import { repairPersistedSettingsStores, SETTINGS } from "$lib/settings-store";
   import PersistentTitleTooltip from "$lib/components/persistent-title-tooltip.svelte";
   // Only allow warnings and errors to be printed to console in production builds
   if (typeof window !== "undefined" && import.meta.env.PROD) {
@@ -68,6 +68,12 @@
       const currentWindow = getCurrentWebviewWindow();
       if (currentWindow.label !== "main") return;
       isMainWindow = true;
+
+      try {
+        await repairPersistedSettingsStores();
+      } catch (error) {
+        console.warn("Failed to repair persisted settings stores:", error);
+      }
 
       void loadProfileLibraryFromSettings();
 

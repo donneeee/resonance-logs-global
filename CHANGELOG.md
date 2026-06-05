@@ -19,6 +19,7 @@
 - Hardened live/history sticky table headers with opaque high-layer header cells and separated table borders so scrolled rows, row glow underlines, and history skill details no longer bleed through the pinned header area.
 - Synced live-window settings from the backend store while the live meter is already open, so DPS/Heal/Tanked column visibility, column order, and related live settings update without requiring deleted settings or a restarted live window.
 - Added a configurable no-change live DPS pause, enabled by default at 5 seconds, so repeated unchanged dungeon dirty packets no longer keep visually aging DPS after combat/objective data stops changing.
+- Added startup repair for older/restored Tauri settings folders so empty or legacy split-store JSON files are normalized and saved in place instead of requiring users to delete AppData.
 
 ## v1.1.0_beta3 - Global Beta
 
