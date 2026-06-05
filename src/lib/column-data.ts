@@ -18,6 +18,26 @@ export type ColumnDefinition<K extends string = string> = {
   descriptionKey?: string;
 };
 
+export function orderColumnsByKey<T extends { key: string }>(
+  columns: readonly T[],
+  order: readonly string[] | null | undefined,
+): T[] {
+  const orderIndex = new Map<string, number>();
+  (order ?? []).forEach((key, index) => {
+    if (!orderIndex.has(key)) orderIndex.set(key, index);
+  });
+
+  return [...columns].sort((a, b) => {
+    const aIndex = orderIndex.get(a.key);
+    const bIndex = orderIndex.get(b.key);
+
+    if (aIndex !== undefined && bIndex !== undefined) return aIndex - bIndex;
+    if (aIndex !== undefined) return -1;
+    if (bIndex !== undefined) return 1;
+    return columns.indexOf(a) - columns.indexOf(b);
+  });
+}
+
 const integer = (v: number | null) => Number(v ?? 0).toLocaleString();
 const fixed1 = (v: number | null) => Number(v ?? 0).toFixed(1);
 const percent1 = (v: number | null) => Number(v ?? 0).toFixed(1) + "%";

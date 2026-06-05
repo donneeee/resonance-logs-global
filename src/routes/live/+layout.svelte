@@ -9,9 +9,11 @@
    * @packageDocumentation
    */
   import { onMount } from "svelte";
+  import { invoke } from "@tauri-apps/api/core";
   import { getCurrentWindow, LogicalSize } from "@tauri-apps/api/window";
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import { SETTINGS } from "$lib/settings-store";
+  import { activeProfileOrDefault } from "$lib/skill-monitor-profile.svelte";
   import {
     LIVE_WINDOW_MANUAL_SHOW_EVENT,
     hideVisiblePassiveOverlayWindows,
@@ -76,6 +78,10 @@
   let lastDynamicHeight = 0;
   let dynamicHeightConstraint = 0;
   let dynamicWindowEnabled = $derived(SETTINGS.live.dynamicWindow.state.enabled === true);
+  const activeProfile = $derived.by(() => activeProfileOrDefault());
+  const autoHideOnGameBlurEnabled = $derived(
+    activeProfile.autoHideWindowsOnGameBlur === true,
+  );
   const DYNAMIC_WINDOW_MIN_HEIGHT = 80;
 
   // Prevent concurrent setupEventListeners runs which can attach duplicate listeners
@@ -98,8 +104,14 @@
   let autoHideHiddenOverlayLabels = new Set<string>();
   let autoHideOperation: Promise<void> = Promise.resolve();
   let autoHideTimer: ReturnType<typeof setTimeout> | null = null;
+  let gameBlurHiddenLiveWindow = false;
+  let gameBlurHiddenOverlayLabels = new Set<string>();
+  let gameBlurLastForeground: boolean | null = null;
+  let gameBlurOperation: Promise<void> = Promise.resolve();
+  let gameBlurPollInterval: ReturnType<typeof setInterval> | null = null;
   let manualShowUnlisten: UnlistenFn | null = null;
   const CROWDED_SESSION_MIN_REFRESH_MS = 1000;
+  const GAME_FOREGROUND_POLL_MS = 750;
 
   function clampLiveRefreshRateMs(value: unknown): number {
     const numberValue = Number(value);
@@ -227,6 +239,112 @@
     }
   }
 
+  async function queryGameWindowForeground(): Promise<boolean> {
+    try {
+      return await invoke<boolean>("is_game_window_foreground");
+    } catch (error) {
+      console.warn("Failed to check foreground game window:", error);
+      return true;
+    }
+  }
+
+  async function hideWindowsForGameBlur(): Promise<void> {
+    if (isDestroyed) return;
+
+    const liveWindow = getCurrentWindow();
+
+    try {
+      const [isVisible, isMinimized] = await Promise.all([
+        liveWindow.isVisible().catch(() => true),
+        liveWindow.isMinimized().catch(() => false),
+      ]);
+
+      if (isVisible && !isMinimized && !gameBlurHiddenLiveWindow) {
+        await liveWindow.setFocusable(false);
+        await liveWindow.setIgnoreCursorEvents(true);
+        await liveWindow.hide();
+        await liveWindow.setIgnoreCursorEvents(true);
+        gameBlurHiddenLiveWindow = true;
+      }
+
+      const labels = await hideVisiblePassiveOverlayWindows();
+      for (const label of labels) {
+        gameBlurHiddenOverlayLabels.add(label);
+      }
+    } catch (error) {
+      console.warn("Failed to hide live/overlay windows after game lost focus:", error);
+      await restoreLiveWindowCursorMode(liveWindow);
+    }
+  }
+
+  async function restoreGameBlurHiddenWindows(): Promise<void> {
+    const liveWindow = getCurrentWindow();
+    const hiddenLabels = gameBlurHiddenOverlayLabels;
+    gameBlurHiddenOverlayLabels = new Set();
+
+    if (gameBlurHiddenLiveWindow) {
+      gameBlurHiddenLiveWindow = false;
+      const keepHiddenForDamageAutoHide =
+        SETTINGS.live.general.state.autoHideLiveWindow === true && !autoHideRecentlyDamaged;
+
+      if (!keepHiddenForDamageAutoHide) {
+        await showLiveWindowWithoutFocus(liveWindow);
+      }
+
+      await restoreLiveWindowCursorMode(liveWindow);
+    }
+
+    await restorePassiveOverlayWindows(hiddenLabels);
+  }
+
+  async function applyGameBlurAutoHideState(gameIsForeground: boolean): Promise<void> {
+    if (isDestroyed) return;
+
+    if (!autoHideOnGameBlurEnabled) {
+      gameBlurLastForeground = null;
+      await restoreGameBlurHiddenWindows();
+      return;
+    }
+
+    if (!gameIsForeground) {
+      await hideWindowsForGameBlur();
+      return;
+    }
+
+    await restoreGameBlurHiddenWindows();
+    void syncAutoHideLiveWindow(autoHideRecentlyDamaged, true);
+  }
+
+  function syncGameBlurAutoHide(force = false): Promise<void> {
+    gameBlurOperation = gameBlurOperation
+      .catch(() => undefined)
+      .then(async () => {
+        const gameIsForeground = autoHideOnGameBlurEnabled
+          ? await queryGameWindowForeground()
+          : true;
+        if (!force && gameBlurLastForeground === gameIsForeground) {
+          return;
+        }
+        gameBlurLastForeground = gameIsForeground;
+        await applyGameBlurAutoHideState(gameIsForeground);
+      });
+    return gameBlurOperation;
+  }
+
+  function startGameBlurPolling(): void {
+    if (gameBlurPollInterval) return;
+    gameBlurPollInterval = setInterval(() => {
+      void syncGameBlurAutoHide();
+    }, GAME_FOREGROUND_POLL_MS);
+    void syncGameBlurAutoHide(true);
+  }
+
+  function stopGameBlurPolling(): void {
+    if (!gameBlurPollInterval) return;
+    clearInterval(gameBlurPollInterval);
+    gameBlurPollInterval = null;
+  }
+
   async function restoreAutoHiddenOverlays(): Promise<void> {
     if (autoHideHiddenOverlayLabels.size === 0) return;
     const labels = autoHideHiddenOverlayLabels;
@@ -281,7 +399,9 @@
         clearAutoHideTimer();
         if (autoHideHiddenByFeature) {
           autoHideHiddenByFeature = false;
-          await showLiveWindowWithoutFocus(liveWindow);
+          if (!(autoHideOnGameBlurEnabled && gameBlurLastForeground === false)) {
+            await showLiveWindowWithoutFocus(liveWindow);
+          }
         }
         await restoreAutoHiddenOverlays();
         await restoreLiveWindowCursorMode(liveWindow);
@@ -290,6 +410,9 @@
 
       if (hasDamage) {
         clearAutoHideTimer();
+        if (autoHideOnGameBlurEnabled && gameBlurLastForeground === false) {
+          return;
+        }
         if (autoHideHiddenByFeature) {
           autoHideHiddenByFeature = false;
           await showLiveWindowWithoutFocus(liveWindow);
@@ -666,6 +789,7 @@ t("live.resumeToast", "战斗已继续"),
       isDestroyed = true;
       if (dynamicResizeFrame) cancelAnimationFrame(dynamicResizeFrame);
       clearAutoHideTimer();
+      stopGameBlurPolling();
       void clearDynamicWindowHeightConstraint();
       resizeObserver?.disconnect();
       if (reconnectInterval) clearInterval(reconnectInterval);
@@ -691,6 +815,15 @@ t("live.resumeToast", "战斗已继续"),
         });
     } else {
       void restoreLiveWindowCursorMode();
+    }
+  });
+
+  $effect(() => {
+    if (autoHideOnGameBlurEnabled) {
+      startGameBlurPolling();
+    } else {
+      stopGameBlurPolling();
+      void syncGameBlurAutoHide(true);
     }
   });
 
@@ -738,10 +871,12 @@ t("live.resumeToast", "战斗已继续"),
   <div class="pointer-events-none absolute inset-0 z-10 bg-background-live"></div>
 
   <div class="relative z-20 flex {dynamicWindowEnabled ? 'h-auto' : 'h-full'} flex-col">
-    <HeaderCustom />
+    <div class="relative z-40 shrink-0">
+      <HeaderCustom />
+    </div>
     <main
       bind:this={mainElement}
-      class="{dynamicWindowEnabled ? 'overflow-hidden' : 'flex-1 overflow-y-auto'} gap-4 rounded-lg bg-card/20"
+      class="{dynamicWindowEnabled ? '' : 'flex-1'} relative z-0 flex min-h-0 flex-col overflow-hidden gap-4 rounded-lg bg-card/20"
     >
       {@render children()}
     </main>

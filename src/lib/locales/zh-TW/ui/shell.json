@@ -34,6 +34,8 @@
   "settings.overlay.subtitle": "控制哪些監控係統會主動把資料推送到共享懸浮窗。",
   "settings.profile": "配置方案",
   "settings.profile.subtitle": "創建並管理技能監控配置方案，同時配置事件日誌視窗行為和會話日誌存儲。",
+  "settings.profile.autoHideWindowsOnGameBlur": "遊戲未啟用時隱藏即時視窗和懸浮窗",
+  "settings.profile.autoHideWindowsOnGameBlurDescription": "啟用此配置方案時，若其他應用程式取得焦點，即時計量表和目前可見的懸浮窗會自動隱藏；當 Blue Protocol: Star Resonance 視窗重新啟用後會恢復。此功能只檢查系統前景視窗，不讀取遊戲記憶體。",
   "settings.profileLibrary.chooseFolder": "Choose Folder",
   "settings.profileLibrary.currentFolder": "Current folder",
   "settings.profileLibrary.description": "Load profile JSON files from a folder. Missing fields are added from the current defaults, and the last selected profile is remembered outside the JSON files.",

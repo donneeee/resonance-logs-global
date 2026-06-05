@@ -680,9 +680,9 @@
 			</button>
 		</div>
 
-		<table class="history-sticky-table w-full border-collapse" style="min-width: 780px;">
+		<table class="history-sticky-table w-full border-separate border-spacing-0" style="min-width: 780px;">
 			<thead>
-				<tr class="bg-popover/60">
+				<tr class="bg-popover">
 					<th class="px-3 py-2.5 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground w-10">
 						<button
 							onclick={toggleSelectAll}
@@ -877,21 +877,28 @@
 
 <style>
 	:global(.history-sticky-frame) {
-		max-height: 72vh;
+		max-height: min(72vh, calc(100dvh - 260px));
+		min-height: 0;
 		overflow: auto;
+		overscroll-behavior: contain;
+		position: relative;
+		isolation: isolate;
 	}
 
-	:global(.history-sticky-table thead),
+	:global(.history-sticky-table) {
+		border-collapse: separate;
+		border-spacing: 0;
+	}
+
 	:global(.history-sticky-table th) {
 		position: sticky;
 		top: 0;
-		z-index: 20;
+		z-index: 60;
 	}
 
 	:global(.history-sticky-table thead tr),
 	:global(.history-sticky-table th) {
-		background: hsl(var(--popover) / 0.95);
-		backdrop-filter: blur(8px);
+		background: hsl(var(--popover));
 	}
 
 	:global(.history-sticky-table th) {

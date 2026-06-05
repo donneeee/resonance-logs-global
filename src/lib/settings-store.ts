@@ -169,6 +169,18 @@ function normalizeColumnOrder(
   target.order = deduped;
 }
 
+function normalizeColumnOrderSettingsState(
+  defaults: readonly string[],
+): SettingsStoreNormalizer<{ order: string[] }> {
+  return (value: unknown) => {
+    const next = normalizeObjectWithDefaults(value, {
+      order: [...defaults],
+    }) as { order: string[] };
+    normalizeColumnOrder(next, defaults);
+    return next;
+  };
+}
+
 export type ShortcutSettingId = keyof typeof DEFAULT_SETTINGS.shortcuts;
 
 export type Point = {
@@ -579,6 +591,7 @@ export type SkillMonitorProfile = {
   shieldDetailStyle?: ShieldDetailStyle;
   textBuffMaxVisible: number;
   moduleCalc?: ModuleCalcProfileSettings;
+  autoHideWindowsOnGameBlur?: boolean;
   showTrueUptime?: boolean;
   showBuffUptimeActiveIndicator?: boolean;
   overlayPositions: OverlayPositions;
@@ -912,6 +925,7 @@ export function createDefaultSkillMonitorProfile(
     shieldDetailStyle: createDefaultShieldDetailStyle(),
     textBuffMaxVisible: 10,
     moduleCalc: createDefaultModuleCalcProfileSettings(),
+    autoHideWindowsOnGameBlur: false,
     showTrueUptime: true,
     showBuffUptimeActiveIndicator: true,
     overlayPositions: createDefaultOverlayPositions(),
@@ -1659,6 +1673,7 @@ export function normalizeSkillMonitorProfileForPersistence(
   );
   next.buffUptimeMinStacks = ensureBuffUptimeMinStacks(next.buffUptimeMinStacks);
   next.moduleCalc = normalizeModuleCalcProfileSettings(next.moduleCalc);
+  next.autoHideWindowsOnGameBlur = next.autoHideWindowsOnGameBlur === true;
   next.factorSlotLabels = normalizeStringRecord(next.factorSlotLabels);
   next.inlineBuffEntries = normalizeInlineBuffEntriesForPersistence(
     next.inlineBuffEntries,
@@ -1837,26 +1852,32 @@ export const SETTINGS = {
       dpsPlayers: createSettingsStore(
         "liveDpsPlayersColumnOrder",
         { order: DEFAULT_DPS_PLAYER_COLUMN_ORDER },
+        normalizeColumnOrderSettingsState(DEFAULT_DPS_PLAYER_COLUMN_ORDER),
       ),
       dpsSkills: createSettingsStore(
         "liveDpsSkillsColumnOrder",
         { order: DEFAULT_DPS_SKILL_COLUMN_ORDER },
+        normalizeColumnOrderSettingsState(DEFAULT_DPS_SKILL_COLUMN_ORDER),
       ),
       healPlayers: createSettingsStore(
         "liveHealPlayersColumnOrder",
         { order: DEFAULT_HEAL_PLAYER_COLUMN_ORDER },
+        normalizeColumnOrderSettingsState(DEFAULT_HEAL_PLAYER_COLUMN_ORDER),
       ),
       healSkills: createSettingsStore(
         "liveHealSkillsColumnOrder",
         { order: DEFAULT_HEAL_SKILL_COLUMN_ORDER },
+        normalizeColumnOrderSettingsState(DEFAULT_HEAL_SKILL_COLUMN_ORDER),
       ),
       tankedPlayers: createSettingsStore(
         "liveTankedPlayersColumnOrder",
         { order: DEFAULT_TANKED_PLAYER_COLUMN_ORDER },
+        normalizeColumnOrderSettingsState(DEFAULT_TANKED_PLAYER_COLUMN_ORDER),
       ),
       tankedSkills: createSettingsStore(
         "liveTankedSkillsColumnOrder",
         { order: DEFAULT_TANKED_SKILL_COLUMN_ORDER },
+        normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
       ),
     },
     // Sort settings
@@ -1933,67 +1954,69 @@ export const SETTINGS = {
 
 // Create flattened settings object for backwards compatibility
 export const settings = {
-  state: {
-    accessibility: SETTINGS.accessibility.state,
-    shortcuts: SETTINGS.shortcuts.state,
-    moduleSync: SETTINGS.moduleSync.state,
-    moduleCalc: SETTINGS.moduleCalc.state,
-    skillMonitor: SETTINGS.skillMonitor.state,
-    profileLibrary: SETTINGS.profileLibrary.state,
-    customTriggers: SETTINGS.customTriggers.state,
-    monsterMonitor: SETTINGS.monsterMonitor.state,
-    trainingDummy: SETTINGS.trainingDummy.state,
-    appBehavior: SETTINGS.appBehavior.state,
-    live: {
-      general: SETTINGS.live.general.state,
-      dps: {
-        players: SETTINGS.live.dps.players.state,
-        skillBreakdown: SETTINGS.live.dps.skillBreakdown.state,
+  get state() {
+    return {
+      accessibility: SETTINGS.accessibility.state,
+      shortcuts: SETTINGS.shortcuts.state,
+      moduleSync: SETTINGS.moduleSync.state,
+      moduleCalc: SETTINGS.moduleCalc.state,
+      skillMonitor: SETTINGS.skillMonitor.state,
+      profileLibrary: SETTINGS.profileLibrary.state,
+      customTriggers: SETTINGS.customTriggers.state,
+      monsterMonitor: SETTINGS.monsterMonitor.state,
+      trainingDummy: SETTINGS.trainingDummy.state,
+      appBehavior: SETTINGS.appBehavior.state,
+      live: {
+        general: SETTINGS.live.general.state,
+        dps: {
+          players: SETTINGS.live.dps.players.state,
+          skillBreakdown: SETTINGS.live.dps.skillBreakdown.state,
+        },
+        heal: {
+          players: SETTINGS.live.heal.players.state,
+          skillBreakdown: SETTINGS.live.heal.skillBreakdown.state,
+        },
+        tanked: {
+          players: SETTINGS.live.tanked.players.state,
+          skills: SETTINGS.live.tanked.skills.state,
+        },
+        tableCustomization: SETTINGS.live.tableCustomization.state,
+        dynamicWindow: SETTINGS.live.dynamicWindow.state,
+        headerCustomization: SETTINGS.live.headerCustomization.state,
+        columnOrder: {
+          dpsPlayers: SETTINGS.live.columnOrder.dpsPlayers.state,
+          dpsSkills: SETTINGS.live.columnOrder.dpsSkills.state,
+          healPlayers: SETTINGS.live.columnOrder.healPlayers.state,
+          healSkills: SETTINGS.live.columnOrder.healSkills.state,
+          tankedPlayers: SETTINGS.live.columnOrder.tankedPlayers.state,
+          tankedSkills: SETTINGS.live.columnOrder.tankedSkills.state,
+        },
+        sorting: {
+          dpsPlayers: SETTINGS.live.sorting.dpsPlayers.state,
+          dpsSkills: SETTINGS.live.sorting.dpsSkills.state,
+          healPlayers: SETTINGS.live.sorting.healPlayers.state,
+          healSkills: SETTINGS.live.sorting.healSkills.state,
+          tankedPlayers: SETTINGS.live.sorting.tankedPlayers.state,
+          tankedSkills: SETTINGS.live.sorting.tankedSkills.state,
+        },
       },
-      heal: {
-        players: SETTINGS.live.heal.players.state,
-        skillBreakdown: SETTINGS.live.heal.skillBreakdown.state,
+      appVersion: SETTINGS.appVersion.state,
+      history: {
+        general: SETTINGS.history.general.state,
+        dps: {
+          players: SETTINGS.history.dps.players.state,
+          skillBreakdown: SETTINGS.history.dps.skillBreakdown.state,
+        },
+        heal: {
+          players: SETTINGS.history.heal.players.state,
+          skillBreakdown: SETTINGS.history.heal.skillBreakdown.state,
+        },
+        tanked: {
+          players: SETTINGS.history.tanked.players.state,
+          skillBreakdown: SETTINGS.history.tanked.skillBreakdown.state,
+        },
       },
-      tanked: {
-        players: SETTINGS.live.tanked.players.state,
-        skills: SETTINGS.live.tanked.skills.state,
-      },
-      tableCustomization: SETTINGS.live.tableCustomization.state,
-      dynamicWindow: SETTINGS.live.dynamicWindow.state,
-      headerCustomization: SETTINGS.live.headerCustomization.state,
-      columnOrder: {
-        dpsPlayers: SETTINGS.live.columnOrder.dpsPlayers.state,
-        dpsSkills: SETTINGS.live.columnOrder.dpsSkills.state,
-        healPlayers: SETTINGS.live.columnOrder.healPlayers.state,
-        healSkills: SETTINGS.live.columnOrder.healSkills.state,
-        tankedPlayers: SETTINGS.live.columnOrder.tankedPlayers.state,
-        tankedSkills: SETTINGS.live.columnOrder.tankedSkills.state,
-      },
-      sorting: {
-        dpsPlayers: SETTINGS.live.sorting.dpsPlayers.state,
-        dpsSkills: SETTINGS.live.sorting.dpsSkills.state,
-        healPlayers: SETTINGS.live.sorting.healPlayers.state,
-        healSkills: SETTINGS.live.sorting.healSkills.state,
-        tankedPlayers: SETTINGS.live.sorting.tankedPlayers.state,
-        tankedSkills: SETTINGS.live.sorting.tankedSkills.state,
-      },
-    },
-    appVersion: SETTINGS.appVersion.state,
-    history: {
-      general: SETTINGS.history.general.state,
-      dps: {
-        players: SETTINGS.history.dps.players.state,
-        skillBreakdown: SETTINGS.history.dps.skillBreakdown.state,
-      },
-      heal: {
-        players: SETTINGS.history.heal.players.state,
-        skillBreakdown: SETTINGS.history.heal.skillBreakdown.state,
-      },
-      tanked: {
-        players: SETTINGS.history.tanked.players.state,
-        skillBreakdown: SETTINGS.history.tanked.skillBreakdown.state,
-      },
-    },
+    };
   },
 };
 

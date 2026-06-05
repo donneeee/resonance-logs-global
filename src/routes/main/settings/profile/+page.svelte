@@ -13,6 +13,10 @@
     saveActiveProfileToLibrary,
   } from "$lib/profile-library.svelte";
   import { SETTINGS } from "$lib/settings-store";
+  import {
+    activeProfileOrDefault,
+    updateActiveProfile,
+  } from "$lib/skill-monitor-profile.svelte";
   import SettingsSwitch from "../../dps/settings/settings-switch.svelte";
   import ProfileSwitcher from "../../skill-monitor/profile-switcher.svelte";
 
@@ -27,6 +31,7 @@
 
   let loadingLoggerSessionDir = $state(false);
   let loggerSessionDirectory = $state<EventLoggerSessionDirectoryPayload | null>(null);
+  const activeProfile = $derived.by(() => activeProfileOrDefault());
 
   function ensureLoggerSettingsShape() {
     SETTINGS.customTriggers.state.loggerCaptureEvents ??= true;
@@ -159,6 +164,13 @@
     toast.success(tShell("settings.profileLibrary.reset", "Profile library reset to internal profiles."));
   }
 
+  function setAutoHideWindowsOnGameBlur(enabled: boolean) {
+    updateActiveProfile((profile) => ({
+      ...profile,
+      autoHideWindowsOnGameBlur: enabled,
+    }));
+  }
+
   async function resetEventLoggerSessionDirectory() {
     try {
       loggerSessionDirectory = await invoke<EventLoggerSessionDirectoryPayload>(
@@ -196,6 +208,16 @@
       </div>
 
       <ProfileSwitcher />
+
+      <SettingsSwitch
+        checked={activeProfile.autoHideWindowsOnGameBlur === true}
+        onchange={setAutoHideWindowsOnGameBlur}
+        label={tShell("settings.profile.autoHideWindowsOnGameBlur", "Auto-hide live and overlays when game is inactive")}
+        description={tShell(
+          "settings.profile.autoHideWindowsOnGameBlurDescription",
+          "When this profile is active, the live meter and visible overlay windows hide while another app has focus, then return when the Blue Protocol: Star Resonance window is active again. This checks the OS foreground window only and does not read game memory.",
+        )}
+      />
 
       <div class="space-y-3 rounded-lg border border-border/60 bg-background/40 p-4 text-sm">
         <div class="flex flex-wrap items-start justify-between gap-3">

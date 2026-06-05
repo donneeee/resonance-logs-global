@@ -34,6 +34,8 @@
   "settings.overlay.subtitle": "Control which monitor systems actively publish data to the shared overlay.",
   "settings.profile": "Profile",
   "settings.profile.subtitle": "Create and manage skill monitor profiles, and configure event logger behavior and session log storage.",
+  "settings.profile.autoHideWindowsOnGameBlur": "Masquer le live et les overlays quand le jeu est inactif",
+  "settings.profile.autoHideWindowsOnGameBlurDescription": "Quand ce profil est actif, le compteur live et les overlays visibles se masquent lorsqu'une autre application a le focus, puis reviennent quand la fenêtre Blue Protocol: Star Resonance redevient active. Cette option vérifie uniquement la fenêtre au premier plan du système et ne lit pas la mémoire du jeu.",
   "settings.profileLibrary.chooseFolder": "Choose Folder",
   "settings.profileLibrary.currentFolder": "Current folder",
   "settings.profileLibrary.description": "Load profile JSON files from a folder. Missing fields are added from the current defaults, and the last selected profile is remembered outside the JSON files.",

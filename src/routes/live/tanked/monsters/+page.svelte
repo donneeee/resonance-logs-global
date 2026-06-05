@@ -1,7 +1,7 @@
 <script lang="ts">
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
-  import { settings, SETTINGS } from "$lib/settings-store";
+  import { settings, SETTINGS, DEFAULT_STATS } from "$lib/settings-store";
   import {
     getLiveData,
     getLiveDisplayNowMs,
@@ -11,7 +11,7 @@
     computePlayerRowsFromEntities,
     liveDisplayElapsedMs,
   } from "$lib/live-derived";
-  import { liveTankedPlayerColumns } from "$lib/column-data";
+  import { liveTankedPlayerColumns, orderColumnsByKey } from "$lib/column-data";
   import {
     buildSourceEntities,
     sourceMonsterKey,
@@ -170,34 +170,36 @@
   let visiblePlayerColumns = $derived.by(() => {
     const visible = liveTankedPlayerColumns.filter((col) => {
       if (col.key === "effectiveTotal" || col.key === "effectiveDps") return false;
-      return settings.state.live.tanked.players[col.key];
+      const defaultValue =
+        DEFAULT_STATS[col.key as keyof typeof DEFAULT_STATS] ?? true;
+      const setting =
+        SETTINGS.live.tanked.players.state[
+          col.key as keyof typeof SETTINGS.live.tanked.players.state
+        ];
+      return setting ?? defaultValue;
     });
-    return visible.sort((a, b) => {
-      const aIdx = columnOrder.indexOf(a.key);
-      const bIdx = columnOrder.indexOf(b.key);
-      return aIdx - bIdx;
-    });
+    return orderColumnsByKey(visible, columnOrder);
   });
 </script>
 
 <svelte:window oncontextmenu={() => window.history.back()} />
 
-<div class="relative flex flex-col gap-2 overflow-hidden rounded-lg ring-1 ring-border/60 bg-card/30 backdrop-blur-sm">
-  <table class="w-full border-collapse overflow-hidden">
+<div class="relative flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden rounded-lg ring-1 ring-border/60 bg-card/30 backdrop-blur-sm">
+  <table class="w-full border-separate border-spacing-0">
     {#if tableSettings.showTableHeader && !compactMode}
-      <thead>
+      <thead class="sticky top-0 z-50">
         <tr
-          class="bg-popover/60"
+          class="bg-popover"
           style="height: {tableSettings.tableHeaderHeight}px;"
         >
           <th
-            class="px-3 py-1 text-left font-medium uppercase tracking-wide"
+            class="sticky top-0 z-50 bg-popover px-3 py-1 text-left font-medium uppercase tracking-wide shadow-[0_1px_0_hsl(var(--border)/0.6)]"
             style="font-size: {tableSettings.tableHeaderFontSize}px; color: {tableSettings.tableHeaderTextColor};"
             >{t("tanked.monster.source", "Source")}</th
           >
           {#each visiblePlayerColumns as col (col.key)}
             <th
-              class="px-3 py-1 text-right font-medium uppercase tracking-wide cursor-pointer select-none hover:bg-muted/40 transition-colors"
+              class="sticky top-0 z-50 bg-popover px-3 py-1 text-right font-medium uppercase tracking-wide cursor-pointer select-none shadow-[0_1px_0_hsl(var(--border)/0.6)] hover:bg-muted transition-colors"
               style="font-size: {tableSettings.tableHeaderFontSize}px; color: {tableSettings.tableHeaderTextColor};"
               onclick={() => handleSort(col.key)}
             >

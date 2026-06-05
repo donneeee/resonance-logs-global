@@ -17,7 +17,7 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
-  import { liveTankedSkillColumns } from "$lib/column-data";
+  import { liveTankedSkillColumns, orderColumnsByKey } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
   import getDisplayName from "$lib/name-display";
@@ -196,13 +196,11 @@
   let visibleSkillColumns = $derived.by(() => {
     const visible = liveTankedSkillColumns.filter((col) => {
       if (col.key === "effectiveTotal" || col.key === "effectiveDps") return false;
-      return settings.state.live.tanked.skills[col.key];
+      return SETTINGS.live.tanked.skills.state[
+        col.key as keyof typeof SETTINGS.live.tanked.skills.state
+      ];
     });
-    return visible.sort((a, b) => {
-      const aIdx = columnOrder.indexOf(a.key);
-      const bIdx = columnOrder.indexOf(b.key);
-      return aIdx - bIdx;
-    });
+    return orderColumnsByKey(visible, columnOrder);
   });
 </script>
 
@@ -231,7 +229,7 @@
     isLocalPlayer,
   })}
   <div
-    class="sticky top-0 z-10 flex h-8 w-full items-center gap-2 bg-popover/60 px-2 text-xs"
+    class="relative z-30 flex h-8 w-full shrink-0 items-center gap-2 bg-popover/60 px-2 text-xs"
     style="background-color: {`color-mix(in srgb, ${className ? `var(--class-color-${className.toLowerCase().replace(/\s+/g, '-')})` : '#6b7280'} 30%, transparent)`};"
   >
     <button
@@ -262,22 +260,22 @@
   </div>
 {/if}
 
-<div class="relative flex flex-col">
-  <table class="w-full border-collapse">
+<div class="relative flex min-h-0 flex-1 flex-col overflow-y-auto overflow-x-hidden">
+  <table class="w-full border-separate border-spacing-0">
     {#if tableSettings.skillShowHeader}
-      <thead class="z-1 sticky top-0">
+      <thead class="sticky top-0 z-50">
         <tr
-          class="bg-popover/60"
+          class="bg-popover"
           style="height: {tableSettings.skillHeaderHeight}px;"
         >
           <th
-            class="px-2 py-1 text-left font-medium uppercase tracking-wider"
+            class="sticky top-0 z-50 bg-popover px-2 py-1 text-left font-medium uppercase tracking-wider shadow-[0_1px_0_hsl(var(--border)/0.6)]"
             style="font-size: {tableSettings.skillHeaderFontSize}px; color: {tableSettings.skillHeaderTextColor};"
             >Skill</th
           >
           {#each visibleSkillColumns as col (col.key)}
             <th
-              class="px-2 py-1 text-right font-medium uppercase tracking-wider cursor-pointer select-none hover:bg-muted/40 transition-colors"
+              class="sticky top-0 z-50 bg-popover px-2 py-1 text-right font-medium uppercase tracking-wider cursor-pointer select-none shadow-[0_1px_0_hsl(var(--border)/0.6)] hover:bg-muted transition-colors"
               style="font-size: {tableSettings.skillHeaderFontSize}px; color: {tableSettings.skillHeaderTextColor};"
               onclick={() => handleSort(col.key)}
             >

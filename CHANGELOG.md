@@ -14,6 +14,9 @@
 - Marked Rhapsody factor rows as expired for Season 3 in the Season Cultivate factor audit exports so old-season data is not treated as current actionable counter work.
 - Widened the live Boss header row so long boss/objective names and HP summaries use the full header width before truncating.
 - Added a display-only live DPS/timer pause at dungeon objective boundaries detected from dungeon flow/objective packets, so mobbing-complete and boss-complete states stop visually aging the active meter without pausing packet parsing.
+- Added a per-profile option under Settings > Profile to hide the live meter and visible overlay windows whenever Blue Protocol: Star Resonance is no longer the active foreground window, using OS foreground-window metadata only.
+- Fixed live/history table header pinning across normal live view, dynamic live view, live skill breakdowns, tanked drilldowns, and history detail tables; live column visibility now reads the same split settings stores that the settings screen writes to, and the legacy settings facade now resolves current store state so old persisted settings no longer drift from fresh/default installs.
+- Hardened live/history sticky table headers with opaque high-layer header cells and separated table borders so scrolled rows, row glow underlines, and history skill details no longer bleed through the pinned header area.
 
 ## v1.1.0_beta3 - Global Beta
 

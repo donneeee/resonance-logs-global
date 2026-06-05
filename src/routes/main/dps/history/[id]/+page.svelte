@@ -1620,26 +1620,56 @@
   // Get visible columns based on settings and active tab
   let visiblePlayerColumns = $derived.by(() => {
     if (activeTab === "healing") {
-      return historyHealPlayerColumns.filter((col) => settings.state.history.heal.players[col.key] ?? true);
+      return historyHealPlayerColumns.filter(
+        (col) =>
+          SETTINGS.history.heal.players.state[
+            col.key as keyof typeof SETTINGS.history.heal.players.state
+          ] ?? true,
+      );
     } else if (activeTab === "tanked") {
-      return historyTankedPlayerColumns.filter((col) => settings.state.history.tanked.players[col.key] ?? true);
+      return historyTankedPlayerColumns.filter(
+        (col) =>
+          SETTINGS.history.tanked.players.state[
+            col.key as keyof typeof SETTINGS.history.tanked.players.state
+          ] ?? true,
+      );
     }
     return historyDpsPlayerColumns.filter((col) => {
       if (col.key === "effectiveTotal" || col.key === "effectiveDps") return false;
       if (overviewTargetUid !== null && (col.key === "bossDmg" || col.key === "bossDps")) return false;
       const defaultValue = DEFAULT_HISTORY_STATS[col.key as keyof typeof DEFAULT_HISTORY_STATS] ?? true;
-      const setting = settings.state.history.dps.players[col.key as keyof typeof settings.state.history.dps.players];
+      const setting =
+        SETTINGS.history.dps.players.state[
+          col.key as keyof typeof SETTINGS.history.dps.players.state
+        ];
       return setting ?? defaultValue;
     });
   });
 
   let visibleSkillColumns = $derived.by(() => {
     if (skillType === "heal") {
-      return historyHealSkillColumns.filter((col) => settings.state.history.heal.skillBreakdown[col.key]);
+      return historyHealSkillColumns.filter(
+        (col) =>
+          SETTINGS.history.heal.skillBreakdown.state[
+            col.key as keyof typeof SETTINGS.history.heal.skillBreakdown.state
+          ],
+      );
     } else if (skillType === "tanked") {
-      return historyTankedSkillColumns.filter((col) => settings.state.history.tanked.skillBreakdown[col.key]);
+      return historyTankedSkillColumns.filter(
+        (col) =>
+          SETTINGS.history.tanked.skillBreakdown.state[
+            col.key as keyof typeof SETTINGS.history.tanked.skillBreakdown.state
+          ],
+      );
     }
-    return historyDpsSkillColumns.filter((col) => col.key !== "effectiveTotal" && col.key !== "effectiveDps" && settings.state.history.dps.skillBreakdown[col.key]);
+    return historyDpsSkillColumns.filter(
+      (col) =>
+        col.key !== "effectiveTotal" &&
+        col.key !== "effectiveDps" &&
+        SETTINGS.history.dps.skillBreakdown.state[
+          col.key as keyof typeof SETTINGS.history.dps.skillBreakdown.state
+        ],
+    );
   });
 
   let skillHitsColumnVisible = $derived.by(() =>
@@ -3444,9 +3474,9 @@
       </div>
 
       <div class="history-sticky-frame rounded border border-border/60 bg-card/30">
-        <table class="history-sticky-table w-full border-collapse">
+        <table class="history-sticky-table w-full border-separate border-spacing-0">
           <thead>
-            <tr class="bg-popover/60">
+            <tr class="bg-popover">
               <th class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">
                 {modifierViewMode === "by-modifier"
                   ? t("detail.modifierColumnByModifier", "Modifier / Skill")
@@ -3788,9 +3818,9 @@
       {/if}
     {:else}
     <div class="history-sticky-frame rounded border border-border/60 bg-card/30">
-        <table class="history-sticky-table w-full border-collapse">
+        <table class="history-sticky-table w-full border-separate border-spacing-0">
           <thead>
-            <tr class="bg-popover/60">
+            <tr class="bg-popover">
               <th
                 class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground"
                 >{t("detail.player", "玩家")}</th
@@ -4061,9 +4091,9 @@
     {/if}
 
     <div class="history-sticky-frame rounded border border-border/60 bg-card/30">
-      <table class="history-sticky-table w-full border-collapse">
+      <table class="history-sticky-table w-full border-separate border-spacing-0">
         <thead>
-          <tr class="bg-popover/60">
+          <tr class="bg-popover">
             <th
               class="px-3 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground"
               >{t("detail.skillColumn", "技能")}</th
@@ -4336,21 +4366,28 @@
 
 <style>
   :global(.history-sticky-frame) {
-    max-height: 72vh;
+    max-height: min(72vh, calc(100dvh - 260px));
+    min-height: 0;
     overflow: auto;
+    overscroll-behavior: contain;
+    position: relative;
+    isolation: isolate;
   }
 
-  :global(.history-sticky-table thead),
+  :global(.history-sticky-table) {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
   :global(.history-sticky-table th) {
     position: sticky;
     top: 0;
-    z-index: 20;
+    z-index: 60;
   }
 
   :global(.history-sticky-table thead tr),
   :global(.history-sticky-table th) {
-    background: hsl(var(--popover) / 0.95);
-    backdrop-filter: blur(8px);
+    background: hsl(var(--popover));
   }
 
   :global(.history-sticky-table th) {

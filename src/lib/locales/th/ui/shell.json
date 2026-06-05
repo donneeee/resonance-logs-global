@@ -34,6 +34,8 @@
   "settings.overlay.subtitle": "ควบคุมระบบมอนิเตอร์ที่ส่งข้อมูลไปยังโอเวอร์เลย์ร่วม",
   "settings.profile": "โปรไฟล์",
   "settings.profile.subtitle": "สร้างและจัดการโปรไฟล์ตัวติดตามสกิล และตั้งค่าพฤติกรรมตัวบันทึกอีเวนต์กับการเก็บล็อกเซสชัน",
+  "settings.profile.autoHideWindowsOnGameBlur": "ซ่อนหน้าต่างสดและโอเวอร์เลย์เมื่อเกมไม่ได้ใช้งาน",
+  "settings.profile.autoHideWindowsOnGameBlurDescription": "เมื่อโปรไฟล์นี้เปิดใช้งาน มิเตอร์สดและหน้าต่างโอเวอร์เลย์ที่มองเห็นอยู่จะถูกซ่อนเมื่อแอปอื่นมีโฟกัส และจะกลับมาเมื่อหน้าต่าง Blue Protocol: Star Resonance กลับมาใช้งานอีกครั้ง ตัวเลือกนี้ตรวจเฉพาะหน้าต่าง foreground ของ OS และไม่อ่านหน่วยความจำเกม",
   "settings.profileLibrary.chooseFolder": "Choose Folder",
   "settings.profileLibrary.currentFolder": "Current folder",
   "settings.profileLibrary.description": "Load profile JSON files from a folder. Missing fields are added from the current defaults, and the last selected profile is remembered outside the JSON files.",

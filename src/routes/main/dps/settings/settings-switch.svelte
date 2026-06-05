@@ -4,11 +4,13 @@
     description = "",
     checked = $bindable(false),
     disabled = false,
+    onchange,
   }: {
     label: string;
     description?: string | undefined;
     checked: boolean | undefined;
     disabled?: boolean;
+    onchange?: (checked: boolean) => void;
   } = $props();
 
   // If checked is undefined, give it a default (e.g. false)
@@ -22,6 +24,7 @@
     <input
       type="checkbox"
       bind:checked
+      onchange={() => onchange?.(checked)}
       disabled={disabled}
       class="peer appearance-none w-5 h-5 border-2 border-border rounded bg-popover cursor-pointer transition-all
              checked:bg-primary checked:border-primary

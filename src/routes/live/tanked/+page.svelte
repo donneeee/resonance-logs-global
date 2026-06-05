@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { tick } from "svelte";
-  import { settings, SETTINGS } from "$lib/settings-store";
+  import { settings, SETTINGS, DEFAULT_STATS } from "$lib/settings-store";
   import {
     getLiveData,
     getLiveDisplayNowMs,
@@ -10,7 +10,7 @@
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
-  import { liveTankedPlayerColumns } from "$lib/column-data";
+  import { liveTankedPlayerColumns, orderColumnsByKey } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
   import getDisplayName, {
@@ -183,13 +183,15 @@
   let visiblePlayerColumns = $derived.by(() => {
     const visible = liveTankedPlayerColumns.filter((col) => {
       if (col.key === "effectiveTotal" || col.key === "effectiveDps") return false;
-      return settings.state.live.tanked.players[col.key];
+      const defaultValue =
+        DEFAULT_STATS[col.key as keyof typeof DEFAULT_STATS] ?? true;
+      const setting =
+        SETTINGS.live.tanked.players.state[
+          col.key as keyof typeof SETTINGS.live.tanked.players.state
+        ];
+      return setting ?? defaultValue;
     });
-    return visible.sort((a, b) => {
-      const aIdx = columnOrder.indexOf(a.key);
-      const bIdx = columnOrder.indexOf(b.key);
-      return aIdx - bIdx;
-    });
+    return orderColumnsByKey(visible, columnOrder);
   });
 
   let compactTankedData = $derived.by(() => {
@@ -215,24 +217,24 @@
 
 <div
   bind:this={playerTableFrameElement}
-  class="relative flex flex-col gap-2 {dynamicWindowSettings.enabled ? 'overflow-y-auto overflow-x-hidden' : 'overflow-hidden'} rounded-lg ring-1 ring-border/60 bg-card/30 backdrop-blur-sm"
+  class="relative flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto overflow-x-hidden rounded-lg ring-1 ring-border/60 bg-card/30 backdrop-blur-sm"
   style={playerTableFrameStyle}
 >
   <table class="w-full border-separate border-spacing-0">
     {#if tableSettings.showTableHeader && !compactMode}
-      <thead class="sticky top-0 z-30">
+      <thead class="sticky top-0 z-50">
         <tr
-          class="bg-popover/95 backdrop-blur-sm"
+          class="bg-popover"
           style="height: {tableSettings.tableHeaderHeight}px;"
         >
           <th
-            class="sticky top-0 z-30 bg-popover/95 px-3 py-1 text-left font-medium uppercase tracking-wide"
+            class="sticky top-0 z-50 bg-popover px-3 py-1 text-left font-medium uppercase tracking-wide"
             style="font-size: {tableSettings.tableHeaderFontSize}px; color: {tableSettings.tableHeaderTextColor};"
             >{t("historyDetail.player", "玩家")}</th
           >
           {#each visiblePlayerColumns as col (col.key)}
             <th
-              class="sticky top-0 z-30 bg-popover/95 px-3 py-1 text-right font-medium uppercase tracking-wide cursor-pointer select-none hover:bg-muted/40 transition-colors"
+              class="sticky top-0 z-50 bg-popover px-3 py-1 text-right font-medium uppercase tracking-wide cursor-pointer select-none hover:bg-muted transition-colors"
               style="font-size: {tableSettings.tableHeaderFontSize}px; color: {tableSettings.tableHeaderTextColor};"
               onclick={() => handleSort(col.key)}
             >

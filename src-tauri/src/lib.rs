@@ -44,6 +44,135 @@ const LEGACY_LOG_FILE_PREFIX: &str = "resonance-logs-cn_v";
 
 static HIDE_MAIN_WINDOW_TO_TRAY: AtomicBool = AtomicBool::new(false);
 
+#[cfg(target_os = "windows")]
+mod game_foreground {
+    use std::ffi::c_void;
+    use std::ptr::null_mut;
+
+    type Bool = i32;
+    type Dword = u32;
+    type Handle = *mut c_void;
+    type Hwnd = *mut c_void;
+
+    const PROCESS_QUERY_LIMITED_INFORMATION: Dword = 0x1000;
+
+    #[link(name = "user32")]
+    unsafe extern "system" {
+        fn GetForegroundWindow() -> Hwnd;
+        fn GetWindowTextLengthW(hwnd: Hwnd) -> i32;
+        fn GetWindowTextW(hwnd: Hwnd, lp_string: *mut u16, n_max_count: i32) -> i32;
+        fn GetWindowThreadProcessId(hwnd: Hwnd, process_id: *mut Dword) -> Dword;
+    }
+
+    #[link(name = "kernel32")]
+    unsafe extern "system" {
+        fn OpenProcess(
+            desired_access: Dword,
+            inherit_handle: Bool,
+            process_id: Dword,
+        ) -> Handle;
+        fn QueryFullProcessImageNameW(
+            process: Handle,
+            flags: Dword,
+            exe_name: *mut u16,
+            size: *mut Dword,
+        ) -> Bool;
+        fn CloseHandle(object: Handle) -> Bool;
+    }
+
+    fn foreground_window_text(hwnd: Hwnd) -> String {
+        let length = unsafe { GetWindowTextLengthW(hwnd) };
+        if length <= 0 {
+            return String::new();
+        }
+
+        let mut buffer = vec![0u16; length as usize + 1];
+        let copied = unsafe { GetWindowTextW(hwnd, buffer.as_mut_ptr(), buffer.len() as i32) };
+        if copied <= 0 {
+            return String::new();
+        }
+
+        String::from_utf16_lossy(&buffer[..copied as usize])
+    }
+
+    fn foreground_process_path(hwnd: Hwnd) -> String {
+        let mut process_id: Dword = 0;
+        unsafe {
+            GetWindowThreadProcessId(hwnd, &mut process_id);
+        }
+        if process_id == 0 {
+            return String::new();
+        }
+
+        let handle = unsafe { OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, 0, process_id) };
+        if handle.is_null() {
+            return String::new();
+        }
+
+        let mut buffer = vec![0u16; 32_768];
+        let mut size = buffer.len() as Dword;
+        let ok = unsafe { QueryFullProcessImageNameW(handle, 0, buffer.as_mut_ptr(), &mut size) };
+        unsafe {
+            CloseHandle(handle);
+        }
+
+        if ok == 0 || size == 0 {
+            return String::new();
+        }
+
+        String::from_utf16_lossy(&buffer[..size as usize])
+    }
+
+    fn looks_like_game_window(title: &str, process_path: &str) -> bool {
+        let title = title.to_ascii_lowercase();
+        let process_path = process_path.to_ascii_lowercase();
+
+        let process_matches = process_path.contains("\\blue protocol star resonance\\")
+            || process_path.contains("/blue protocol star resonance/")
+            || process_path.ends_with("\\bpsr_steam.exe")
+            || process_path.ends_with("/bpsr_steam.exe")
+            || process_path.contains("bpsr_steam")
+            || process_path.contains("blueprotocol")
+            || process_path.contains("starresonance");
+
+        if process_matches {
+            return true;
+        }
+
+        // Title fallback is used only when Windows does not allow querying the
+        // process path. This avoids treating browser/document windows as game
+        // focus when process metadata is available.
+        process_path.is_empty()
+            && ((title.contains("blue protocol") && title.contains("star resonance"))
+                || title.contains("blue protocol: star resonance")
+                || title == "star resonance")
+    }
+
+    pub fn is_game_window_foreground() -> bool {
+        let hwnd = unsafe { GetForegroundWindow() };
+        if hwnd.is_null() || hwnd == null_mut() {
+            return false;
+        }
+
+        let title = foreground_window_text(hwnd);
+        let process_path = foreground_process_path(hwnd);
+        looks_like_game_window(&title, &process_path)
+    }
+}
+
+#[cfg(not(target_os = "windows"))]
+mod game_foreground {
+    pub fn is_game_window_foreground() -> bool {
+        true
+    }
+}
+
+#[tauri::command]
+#[specta::specta]
+fn is_game_window_foreground() -> Result<bool, String> {
+    Ok(game_foreground::is_game_window_foreground())
+}
+
 #[cfg(debug_assertions)]
 fn trim_generated_bindings_whitespace(bindings: &str) -> String {
     let mut trimmed = String::with_capacity(bindings.len());
@@ -359,6 +488,7 @@ pub fn run() {
             set_hide_main_window_to_tray,
             toggle_game_overlay_edit_mode,
             sync_monster_overlay_window_to_game_overlay,
+            is_game_window_foreground,
         ]);
 
     #[cfg(debug_assertions)] // <- Only export on non-release builds
