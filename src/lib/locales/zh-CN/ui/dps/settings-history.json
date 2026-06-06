@@ -4,6 +4,7 @@
   "healSkillColumns": "治疗（技能明细）列",
   "playerColumns": "DPS（玩家）列",
   "skillColumns": "DPS（技能明细）列",
+  "reorderColumnsHint": "使用箭头调整顺序；用开关控制显示/隐藏。",
   "tankedPlayerColumns": "承伤（玩家）列",
   "tankedSkillColumns": "承伤（技能明细）列",
   "abbreviatedDecimalPlaces": "缩写小数位数",

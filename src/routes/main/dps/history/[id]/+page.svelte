@@ -16,6 +16,7 @@
     historyHealSkillColumns,
     historyTankedPlayerColumns,
     historyTankedSkillColumns,
+    orderColumnsByKey,
   } from "$lib/column-data";
   import { settings, SETTINGS, DEFAULT_HISTORY_STATS } from "$lib/settings-store";
   import { localizeSceneName } from "$lib/scene-mappings";
@@ -1620,21 +1621,30 @@
   // Get visible columns based on settings and active tab
   let visiblePlayerColumns = $derived.by(() => {
     if (activeTab === "healing") {
-      return historyHealPlayerColumns.filter(
+      return orderColumnsByKey(
+        historyHealPlayerColumns,
+        SETTINGS.history.columnOrder.healPlayers.state.order,
+      ).filter(
         (col) =>
           SETTINGS.history.heal.players.state[
             col.key as keyof typeof SETTINGS.history.heal.players.state
           ] ?? true,
       );
     } else if (activeTab === "tanked") {
-      return historyTankedPlayerColumns.filter(
+      return orderColumnsByKey(
+        historyTankedPlayerColumns,
+        SETTINGS.history.columnOrder.tankedPlayers.state.order,
+      ).filter(
         (col) =>
           SETTINGS.history.tanked.players.state[
             col.key as keyof typeof SETTINGS.history.tanked.players.state
           ] ?? true,
       );
     }
-    return historyDpsPlayerColumns.filter((col) => {
+    return orderColumnsByKey(
+      historyDpsPlayerColumns,
+      SETTINGS.history.columnOrder.dpsPlayers.state.order,
+    ).filter((col) => {
       if (col.key === "effectiveTotal" || col.key === "effectiveDps") return false;
       if (overviewTargetUid !== null && (col.key === "bossDmg" || col.key === "bossDps")) return false;
       const defaultValue = DEFAULT_HISTORY_STATS[col.key as keyof typeof DEFAULT_HISTORY_STATS] ?? true;
@@ -1648,21 +1658,30 @@
 
   let visibleSkillColumns = $derived.by(() => {
     if (skillType === "heal") {
-      return historyHealSkillColumns.filter(
+      return orderColumnsByKey(
+        historyHealSkillColumns,
+        SETTINGS.history.columnOrder.healSkills.state.order,
+      ).filter(
         (col) =>
           SETTINGS.history.heal.skillBreakdown.state[
             col.key as keyof typeof SETTINGS.history.heal.skillBreakdown.state
           ] === true,
       );
     } else if (skillType === "tanked") {
-      return historyTankedSkillColumns.filter(
+      return orderColumnsByKey(
+        historyTankedSkillColumns,
+        SETTINGS.history.columnOrder.tankedSkills.state.order,
+      ).filter(
         (col) =>
           SETTINGS.history.tanked.skillBreakdown.state[
             col.key as keyof typeof SETTINGS.history.tanked.skillBreakdown.state
           ] === true,
       );
     }
-    return historyDpsSkillColumns.filter(
+    return orderColumnsByKey(
+      historyDpsSkillColumns,
+      SETTINGS.history.columnOrder.dpsSkills.state.order,
+    ).filter(
       (col) =>
         col.key !== "effectiveTotal" &&
         col.key !== "effectiveDps" &&

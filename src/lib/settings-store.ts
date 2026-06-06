@@ -97,6 +97,12 @@ export const DEFAULT_HEAL_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'effectiveTo
 export const DEFAULT_HEAL_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'effectiveTotal', 'effectiveDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_TANKED_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'blockRate', 'luckyBlockRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_TANKED_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'blockRate', 'luckyBlockRate', 'hits', 'hitsPerMinute', 'property', 'damageMode'];
+export const DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER = [...DEFAULT_DPS_PLAYER_COLUMN_ORDER];
+export const DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER = [...DEFAULT_DPS_SKILL_COLUMN_ORDER];
+export const DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER = ['healDealt', 'hps', 'effectiveHeal', 'ehps', 'healPct', 'critHealRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hitsHeal', 'hitsPerMinute'];
+export const DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER = [...DEFAULT_HEAL_SKILL_COLUMN_ORDER];
+export const DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER = ['damageTaken', 'tankedPS', 'tankedPct', 'critTakenRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'blockRate', 'luckyBlockRate', 'hitsTaken', 'hitsPerMinute'];
+export const DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER = [...DEFAULT_TANKED_SKILL_COLUMN_ORDER];
 
 // Default sort settings for live tables
 export const DEFAULT_LIVE_SORT_SETTINGS = {
@@ -2074,6 +2080,38 @@ export const SETTINGS = {
         (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedSkillBreakdown),
       ),
     },
+    columnOrder: {
+      dpsPlayers: createSettingsStore(
+        "historyDpsPlayersColumnOrder",
+        { order: [...DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER] },
+        normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER),
+      ),
+      dpsSkills: createSettingsStore(
+        "historyDpsSkillsColumnOrder",
+        { order: [...DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER] },
+        normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER),
+      ),
+      healPlayers: createSettingsStore(
+        "historyHealPlayersColumnOrder",
+        { order: [...DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER] },
+        normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER),
+      ),
+      healSkills: createSettingsStore(
+        "historyHealSkillsColumnOrder",
+        { order: [...DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER] },
+        normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER),
+      ),
+      tankedPlayers: createSettingsStore(
+        "historyTankedPlayersColumnOrder",
+        { order: [...DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER] },
+        normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER),
+      ),
+      tankedSkills: createSettingsStore(
+        "historyTankedSkillsColumnOrder",
+        { order: [...DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER] },
+        normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER),
+      ),
+    },
   },
   // persisted app metadata (tracks which app version the user last saw)
   appVersion: createSettingsStore("appVersion", { value: "" }),
@@ -2250,6 +2288,70 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
       SETTINGS.live.sorting.tankedSkills,
       DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
       (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedSkills),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.general,
+      DEFAULT_SETTINGS.history.general,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.dps.players,
+      DEFAULT_SETTINGS.history.dpsPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsPlayers),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.dps.skillBreakdown,
+      DEFAULT_SETTINGS.history.dpsSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsSkillBreakdown),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.heal.players,
+      DEFAULT_SETTINGS.history.healPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healPlayers),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.heal.skillBreakdown,
+      DEFAULT_SETTINGS.history.healSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healSkillBreakdown),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.tanked.players,
+      DEFAULT_SETTINGS.history.tankedPlayers,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedPlayers),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.tanked.skillBreakdown,
+      DEFAULT_SETTINGS.history.tankedSkillBreakdown,
+      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedSkillBreakdown),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.columnOrder.dpsPlayers,
+      { order: [...DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.columnOrder.dpsSkills,
+      { order: [...DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.columnOrder.healPlayers,
+      { order: [...DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.columnOrder.healSkills,
+      { order: [...DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.columnOrder.tankedPlayers,
+      { order: [...DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER),
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.columnOrder.tankedSkills,
+      { order: [...DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER),
     ),
   ]).then(() => undefined);
 }
@@ -2580,6 +2682,36 @@ export async function repairPersistedSettingsStores(): Promise<void> {
       (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedSkillBreakdown),
     ),
     repairSettingsStoreFromBackend(
+      SETTINGS.history.columnOrder.dpsPlayers,
+      { order: [...DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER),
+    ),
+    repairSettingsStoreFromBackend(
+      SETTINGS.history.columnOrder.dpsSkills,
+      { order: [...DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER),
+    ),
+    repairSettingsStoreFromBackend(
+      SETTINGS.history.columnOrder.healPlayers,
+      { order: [...DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER),
+    ),
+    repairSettingsStoreFromBackend(
+      SETTINGS.history.columnOrder.healSkills,
+      { order: [...DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER),
+    ),
+    repairSettingsStoreFromBackend(
+      SETTINGS.history.columnOrder.tankedPlayers,
+      { order: [...DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER),
+    ),
+    repairSettingsStoreFromBackend(
+      SETTINGS.history.columnOrder.tankedSkills,
+      { order: [...DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER] },
+      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER),
+    ),
+    repairSettingsStoreFromBackend(
       SETTINGS.appVersion,
       { value: "" },
     ),
@@ -2654,6 +2786,14 @@ export const settings = {
         tanked: {
           players: SETTINGS.history.tanked.players.state,
           skillBreakdown: SETTINGS.history.tanked.skillBreakdown.state,
+        },
+        columnOrder: {
+          dpsPlayers: SETTINGS.history.columnOrder.dpsPlayers.state,
+          dpsSkills: SETTINGS.history.columnOrder.dpsSkills.state,
+          healPlayers: SETTINGS.history.columnOrder.healPlayers.state,
+          healSkills: SETTINGS.history.columnOrder.healSkills.state,
+          tankedPlayers: SETTINGS.history.columnOrder.tankedPlayers.state,
+          tankedSkills: SETTINGS.history.columnOrder.tankedSkills.state,
         },
       },
     };
@@ -2825,6 +2965,42 @@ export function normalizePersistedSettings(): void {
     SETTINGS.live.columnOrder.tankedSkills.state,
     normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER)(
       SETTINGS.live.columnOrder.tankedSkills.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.columnOrder.dpsPlayers.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER)(
+      SETTINGS.history.columnOrder.dpsPlayers.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.columnOrder.dpsSkills.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER)(
+      SETTINGS.history.columnOrder.dpsSkills.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.columnOrder.healPlayers.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER)(
+      SETTINGS.history.columnOrder.healPlayers.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.columnOrder.healSkills.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER)(
+      SETTINGS.history.columnOrder.healSkills.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.columnOrder.tankedPlayers.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER)(
+      SETTINGS.history.columnOrder.tankedPlayers.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.columnOrder.tankedSkills.state,
+    normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER)(
+      SETTINGS.history.columnOrder.tankedSkills.state,
     ),
   );
 

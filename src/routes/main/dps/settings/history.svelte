@@ -2,6 +2,7 @@
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import SettingsSwitch from "./settings-switch.svelte";
   import SettingsSelect from "./settings-select.svelte";
+  import ColumnSettingsList from "./column-settings-list.svelte";
   import { historyDpsPlayerColumns, historyDpsSkillColumns, historyHealPlayerColumns, historyHealSkillColumns, historyTankedPlayerColumns, historyTankedSkillColumns } from "$lib/column-data";
   import { SETTINGS } from "$lib/settings-store";
   import { uiT } from "$lib/i18n";
@@ -26,6 +27,7 @@
 
   const t = uiT("dps/settings-history", () => SETTINGS.live.general.state.language);
   const colT = uiT("dps/history", () => SETTINGS.live.general.state.language);
+  const hiddenDpsColumns = ["effectiveTotal", "effectiveDps"];
 
   function colLabel(col: { label: string; labelKey?: string }): string {
     return col.labelKey ? colT(col.labelKey, col.label) : col.label;
@@ -117,9 +119,15 @@
       </button>
       {#if expandedSections.dpsPlayers}
         <div class="px-4 pb-3 space-y-1">
-          {#each historyDpsPlayerColumns.filter((col) => col.key !== "effectiveTotal" && col.key !== "effectiveDps") as col (col.key)}
-            <SettingsSwitch bind:checked={SETTINGS.history.dps.players.state[col.key]} label={colLabel(col)} description={colDescription(col)} />
-          {/each}
+          <ColumnSettingsList
+            columns={historyDpsPlayerColumns}
+            visibilityState={SETTINGS.history.dps.players.state}
+            orderState={SETTINGS.history.columnOrder.dpsPlayers.state}
+            hiddenKeys={hiddenDpsColumns}
+            hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
+            {colLabel}
+            {colDescription}
+          />
         </div>
       {/if}
     </div>
@@ -135,9 +143,15 @@
       </button>
       {#if expandedSections.dpsSkills}
         <div class="px-4 pb-3 space-y-1">
-          {#each historyDpsSkillColumns.filter((col) => col.key !== "effectiveTotal" && col.key !== "effectiveDps") as col (col.key)}
-            <SettingsSwitch bind:checked={SETTINGS.history.dps.skillBreakdown.state[col.key]} label={colLabel(col)} description={colDescription(col)} />
-          {/each}
+          <ColumnSettingsList
+            columns={historyDpsSkillColumns}
+            visibilityState={SETTINGS.history.dps.skillBreakdown.state}
+            orderState={SETTINGS.history.columnOrder.dpsSkills.state}
+            hiddenKeys={hiddenDpsColumns}
+            hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
+            {colLabel}
+            {colDescription}
+          />
         </div>
       {/if}
     </div>
@@ -153,9 +167,14 @@
       </button>
       {#if expandedSections.healPlayers}
         <div class="px-4 pb-3 space-y-1">
-          {#each historyHealPlayerColumns as col (col.key)}
-            <SettingsSwitch bind:checked={SETTINGS.history.heal.players.state[col.key]} label={colLabel(col)} description={colDescription(col)} />
-          {/each}
+          <ColumnSettingsList
+            columns={historyHealPlayerColumns}
+            visibilityState={SETTINGS.history.heal.players.state}
+            orderState={SETTINGS.history.columnOrder.healPlayers.state}
+            hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
+            {colLabel}
+            {colDescription}
+          />
         </div>
       {/if}
     </div>
@@ -171,9 +190,14 @@
       </button>
       {#if expandedSections.healSkills}
         <div class="px-4 pb-3 space-y-1">
-          {#each historyHealSkillColumns as col (col.key)}
-            <SettingsSwitch bind:checked={SETTINGS.history.heal.skillBreakdown.state[col.key]} label={colLabel(col)} description={colDescription(col)} />
-          {/each}
+          <ColumnSettingsList
+            columns={historyHealSkillColumns}
+            visibilityState={SETTINGS.history.heal.skillBreakdown.state}
+            orderState={SETTINGS.history.columnOrder.healSkills.state}
+            hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
+            {colLabel}
+            {colDescription}
+          />
         </div>
       {/if}
     </div>
@@ -189,9 +213,14 @@
       </button>
       {#if expandedSections.tankedPlayers}
         <div class="px-4 pb-3 space-y-1">
-          {#each historyTankedPlayerColumns as col (col.key)}
-            <SettingsSwitch bind:checked={SETTINGS.history.tanked.players.state[col.key]} label={colLabel(col)} description={colDescription(col)} />
-          {/each}
+          <ColumnSettingsList
+            columns={historyTankedPlayerColumns}
+            visibilityState={SETTINGS.history.tanked.players.state}
+            orderState={SETTINGS.history.columnOrder.tankedPlayers.state}
+            hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
+            {colLabel}
+            {colDescription}
+          />
         </div>
       {/if}
     </div>
@@ -207,9 +236,14 @@
       </button>
       {#if expandedSections.tankedSkills}
         <div class="px-4 pb-3 space-y-1">
-          {#each historyTankedSkillColumns as col (col.key)}
-            <SettingsSwitch bind:checked={SETTINGS.history.tanked.skillBreakdown.state[col.key]} label={colLabel(col)} description={colDescription(col)} />
-          {/each}
+          <ColumnSettingsList
+            columns={historyTankedSkillColumns}
+            visibilityState={SETTINGS.history.tanked.skillBreakdown.state}
+            orderState={SETTINGS.history.columnOrder.tankedSkills.state}
+            hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
+            {colLabel}
+            {colDescription}
+          />
         </div>
       {/if}
     </div>

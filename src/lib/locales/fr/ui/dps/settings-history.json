@@ -4,6 +4,7 @@
   "healSkillColumns": "Colonnes de soin (Détails des compétences)",
   "playerColumns": "Colonnes DPS (Joueurs)",
   "skillColumns": "Colonnes DPS (Détails des compétences)",
+  "reorderColumnsHint": "Utilisez les flèches pour réorganiser ; utilisez les interrupteurs pour afficher ou masquer les colonnes.",
   "tankedPlayerColumns": "Colonnes encaissées (Joueurs)",
   "tankedSkillColumns": "Colonnes encaissées (Détails des compétences)",
   "abbreviatedDecimalPlaces": "Abbreviated Decimal Places",

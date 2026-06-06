@@ -4,6 +4,7 @@
   "healSkillColumns": "คอลัมน์ฮีล (รายละเอียดสกิล)",
   "playerColumns": "คอลัมน์ DPS (ผู้เล่น)",
   "skillColumns": "คอลัมน์ DPS (รายละเอียดสกิล)",
+  "reorderColumnsHint": "ใช้ลูกศรเพื่อจัดลำดับ และใช้สวิตช์เพื่อแสดงหรือซ่อนคอลัมน์",
   "tankedPlayerColumns": "คอลัมน์รับดาเมจ (ผู้เล่น)",
   "tankedSkillColumns": "คอลัมน์รับดาเมจ (รายละเอียดสกิล)",
   "abbreviatedDecimalPlaces": "ตำแหน่งทศนิยมแบบย่อ",

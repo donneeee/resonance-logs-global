@@ -4,6 +4,7 @@
   "healSkillColumns": "Kolom Heal (Detail Skill)",
   "playerColumns": "Kolom DPS (Pemain)",
   "skillColumns": "Kolom DPS (Detail Skill)",
+  "reorderColumnsHint": "Gunakan panah untuk mengurutkan; gunakan switch untuk menampilkan atau menyembunyikan kolom.",
   "tankedPlayerColumns": "Kolom Tanked (Pemain)",
   "tankedSkillColumns": "Kolom Tanked (Detail Skill)",
   "abbreviatedDecimalPlaces": "Desimal Singkatan",

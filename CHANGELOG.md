@@ -23,6 +23,7 @@
 - Fixed restored-settings column toggles by coercing legacy column visibility values to real booleans and saving live settings before notifying the live meter to refresh, preventing stale backend state from re-showing hidden columns.
 - Expanded the Settings > Debug diagnostics bundle with redacted frontend/backend settings-store snapshots, store paths, AppData/config file summaries, and column-visibility issue detection so restored-settings bugs can be diagnosed from user-submitted debug ZIPs.
 - Repaired skipped-update/restored live DPS settings migration by unwrapping legacy `state`/`value`/`settings` payloads, replacing malformed live store contents before saving, and normalizing live DPS column order/sorting files instead of requiring users to delete those JSON files manually.
+- Added live-style column reordering to DPS Meter > Meter Settings > History, including persisted per-profile history column-order stores, startup normalization for older profiles, diagnostics coverage, and ordered rendering in saved-history player and skill detail tables.
 
 ## v1.1.0_beta3 - Global Beta
 

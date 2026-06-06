@@ -4,6 +4,7 @@
   "healSkillColumns": "Heilungs-Spalten (Fertigkeitsdetails)",
   "playerColumns": "DPS-Spalten (Spieler)",
   "skillColumns": "DPS-Spalten (Fertigkeitsdetails)",
+  "reorderColumnsHint": "Mit den Pfeilen kannst du die Reihenfolge ändern; mit den Schaltern kannst du Spalten ein- oder ausblenden.",
   "tankedPlayerColumns": "Getankt-Spalten (Spieler)",
   "tankedSkillColumns": "Getankt-Spalten (Fertigkeitsdetails)",
   "abbreviatedDecimalPlaces": "Abbreviated Decimal Places",

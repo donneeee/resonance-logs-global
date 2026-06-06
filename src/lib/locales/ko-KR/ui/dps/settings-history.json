@@ -4,6 +4,7 @@
   "healSkillColumns": "치유 (스킬 상세) 열",
   "playerColumns": "DPS(플레이어) 열",
   "skillColumns": "DPS(스킬 상세) 열",
+  "reorderColumnsHint": "화살표로 순서를 바꾸고 스위치로 열 표시 여부를 전환합니다.",
   "tankedPlayerColumns": "받은 피해 (플레이어) 열",
   "tankedSkillColumns": "받은 피해 (스킬 상세) 열",
   "abbreviatedDecimalPlaces": "축약 소수 자릿수",

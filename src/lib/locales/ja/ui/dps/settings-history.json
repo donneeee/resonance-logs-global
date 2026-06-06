@@ -4,6 +4,7 @@
   "healSkillColumns": "回復（スキル詳細）列",
   "playerColumns": "DPS（プレイヤー）列",
   "skillColumns": "DPS（スキル詳細）列",
+  "reorderColumnsHint": "矢印で順序を変更し、スイッチで表示/非表示を切り替えます。",
   "tankedPlayerColumns": "被ダメージ（プレイヤー）列",
   "tankedSkillColumns": "被ダメージ（スキル詳細）列",
   "abbreviatedDecimalPlaces": "短縮表示の小数桁",
