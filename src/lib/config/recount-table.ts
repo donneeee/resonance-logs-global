@@ -546,6 +546,34 @@ const DAMAGE_ID_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
   "2240427101": S2_SET_4B_SHIELD_NAMES,
 };
 
+const RUNTIME_DAMAGE_ID_ALIASES: Record<string, number> = {
+  // Lucy Imagine runtime packets use shortened parent ids; generated tables
+  // key the resolved names/icons/details by the full emitted damage ids.
+  "1250101": 125010101,
+  "1250201": 125020101,
+  "1250301": 125030101,
+  "1250402": 125040102,
+  "1250403": 125040103,
+  "1250404": 125040104,
+
+  // Natsu Imagine follows the same short runtime id -> full damage id shape.
+  "1260102": 126010102,
+  "1260202": 126020102,
+  "1260302": 126030102,
+  "1260401": 126040101,
+  "1260502": 126050102,
+  "1260602": 126060102,
+};
+
+function canonicalDamageIdKey(damageId: number | string): string {
+  return String(RUNTIME_DAMAGE_ID_ALIASES[String(damageId)] ?? damageId);
+}
+
+function canonicalDamageIdNumber(damageId: number | string): number | undefined {
+  const canonical = Number(canonicalDamageIdKey(damageId));
+  return Number.isFinite(canonical) ? canonical : undefined;
+}
+
 const DAMAGE_TO_RECOUNT = new Map<number, { recountId: number; recountName: string }>();
 
 for (const entry of Object.values(recountTable)) {
@@ -566,6 +594,14 @@ for (const factor of Object.values(factorsByBuffId)) {
       recountId,
       recountName: recount.RecountName,
     });
+  }
+}
+
+for (const [runtimeDamageId, canonicalDamageId] of Object.entries(RUNTIME_DAMAGE_ID_ALIASES)) {
+  const mapping = DAMAGE_TO_RECOUNT.get(canonicalDamageId);
+  const runtimeDamageIdNumber = Number(runtimeDamageId);
+  if (mapping && Number.isFinite(runtimeDamageIdNumber)) {
+    DAMAGE_TO_RECOUNT.set(runtimeDamageIdNumber, mapping);
   }
 }
 
@@ -627,7 +663,7 @@ function resolveDamageIdNameOverride(
   damageId: number | string,
   locale: string,
 ): string | undefined {
-  return resolveNameOverride(DAMAGE_ID_NAME_OVERRIDES[String(damageId)], locale);
+  return resolveNameOverride(DAMAGE_ID_NAME_OVERRIDES[canonicalDamageIdKey(damageId)], locale);
 }
 
 function resolveEffectSourceName(
@@ -736,10 +772,11 @@ function resolveDamageAttrName(
 }
 
 function lookupDamageAttrIconPath(damageId: number | string): string | undefined {
-  const overrideIconPath = resolveStaticIconUrl(ICON_OVERRIDES_BY_DAMAGE_ID[String(damageId)]);
+  const damageIdKey = canonicalDamageIdKey(damageId);
+  const overrideIconPath = resolveStaticIconUrl(ICON_OVERRIDES_BY_DAMAGE_ID[damageIdKey]);
   if (overrideIconPath) return overrideIconPath;
 
-  const entry = damageAttrIdNames[String(damageId)];
+  const entry = damageAttrIdNames[damageIdKey];
   if (!entry || typeof entry === "string") return undefined;
 
   return resolveStaticIconUrl(
@@ -766,13 +803,14 @@ export function lookupDamageIdName(damageId: number): string {
   const overrideName = resolveDamageIdNameOverride(damageId, "en");
   if (overrideName) return overrideName;
 
-  const recount = DAMAGE_TO_RECOUNT.get(damageId);
+  const canonicalDamageId = canonicalDamageIdNumber(damageId) ?? damageId;
+  const recount = DAMAGE_TO_RECOUNT.get(canonicalDamageId);
   if (recount) return recount.recountName;
-  return resolveDamageAttrName(damageAttrIdNames[String(damageId)]) ?? `Unknown (${damageId})`;
+  return resolveDamageAttrName(damageAttrIdNames[String(canonicalDamageId)]) ?? `Unknown (${damageId})`;
 }
 
 export function lookupChildDamageIdName(damageId: number): string {
-  const individual = resolveDamageAttrName(damageAttrIdNames[String(damageId)]);
+  const individual = resolveDamageAttrName(damageAttrIdNames[canonicalDamageIdKey(damageId)]);
   if (individual) return individual;
   return lookupDamageIdName(damageId);
 }
@@ -781,7 +819,8 @@ export function lookupLocalizedDamageIdName(damageId: number | string, locale: s
   const overrideName = resolveDamageIdNameOverride(damageId, locale);
   if (overrideName) return overrideName;
 
-  const damageIdNumber = Number(damageId);
+  const damageIdKey = canonicalDamageIdKey(damageId);
+  const damageIdNumber = Number(damageIdKey);
   if (Number.isFinite(damageIdNumber)) {
     const recount = DAMAGE_TO_RECOUNT.get(damageIdNumber);
     if (recount) {
@@ -790,7 +829,7 @@ export function lookupLocalizedDamageIdName(damageId: number | string, locale: s
     }
   }
 
-  const damageEntry = damageAttrIdNames[String(damageId)];
+  const damageEntry = damageAttrIdNames[damageIdKey];
   const sameIdRecountName = lookupSameIdRecountName(damageId, locale);
   if (
     sameIdRecountName
@@ -804,11 +843,12 @@ export function lookupLocalizedDamageIdName(damageId: number | string, locale: s
 export function lookupSkillBreakdownDetail(
   skillId: number | string,
 ): SkillBreakdownDetail | undefined {
-  return skillBreakdownDetails[String(skillId)];
+  return skillBreakdownDetails[canonicalDamageIdKey(skillId)];
 }
 
 export function lookupSkillBreakdownIconPath(skillId: number | string): string | undefined {
-  const overrideIconPath = resolveStaticIconUrl(ICON_OVERRIDES_BY_DAMAGE_ID[String(skillId)]);
+  const skillIdKey = canonicalDamageIdKey(skillId);
+  const overrideIconPath = resolveStaticIconUrl(ICON_OVERRIDES_BY_DAMAGE_ID[skillIdKey]);
   if (overrideIconPath) return overrideIconPath;
 
   const detail = lookupSkillBreakdownDetail(skillId);
@@ -1355,7 +1395,7 @@ export function lookupDeathReplaySkillName(
   options: { isMonsterDamage?: boolean } = {},
 ): string {
   const detail = lookupSkillBreakdownDetail(damageId);
-  const damageEntry = damageAttrIdNames[String(damageId)];
+  const damageEntry = damageAttrIdNames[canonicalDamageIdKey(damageId)];
   const designName = extractDesignDamageName(damageEntry, detail);
   const shouldTryMonsterFallback = options.isMonsterDamage || detail?.MonsterOwnerNames;
   const translatedDesignName = shouldTryMonsterFallback
@@ -2271,7 +2311,7 @@ function resolveRageCleaveLinkedSkillName(
 ): string | undefined {
   if (!resolveRageCleaveStageNumber(detail)) return undefined;
 
-  const damageEntry = damageAttrIdNames[String(skillId)];
+  const damageEntry = damageAttrIdNames[canonicalDamageIdKey(skillId)];
   const linkedDamageEntry = damageEntry && typeof damageEntry !== "string" ? damageEntry : undefined;
   const linkedNames =
     detail?.LinkedNames
@@ -2418,7 +2458,7 @@ export function buildSkillBreakdownHoverText(
     ]).join("\n");
   }
 
-  const damageEntry = damageAttrIdNames[String(skillId)];
+  const damageEntry = damageAttrIdNames[canonicalDamageIdKey(skillId)];
   const parentName = resolveLocalizedText(
     detail.ParentRecountNames,
     locale,
@@ -2921,7 +2961,7 @@ export function groupSkillsByRecount(
       row.runtimeSourceName = runtimeSource.sourceName;
       if (runtimeSource.sourceNames) row.runtimeSourceNames = runtimeSource.sourceNames;
     }
-    const mapping = DAMAGE_TO_RECOUNT.get(skillId);
+    const mapping = DAMAGE_TO_RECOUNT.get(canonicalDamageIdNumber(skillId) ?? skillId);
     if (!mapping) {
       ungrouped.push(row);
       continue;
