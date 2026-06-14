@@ -114,5 +114,18 @@
   "uptime.title": "Uptime Buff",
   "uptime.trueColumnAdjust": "True Column Width",
   "uptime.trueFontSize": "True Uptime Size",
-  "valueColor": "Warna Nilai"
+  "valueColor": "Warna Nilai",
+  "buff.stackCounterSize": "Stack counter size",
+  "buff.alert.title": "Peringatan hitung mundur buff",
+  "buff.alert.description": "Highlight monitored buff rows when their remaining timer drops below the configured threshold.",
+  "buff.alert.searchPlaceholder": "Search monitored buffs to add an alert",
+  "buff.alert.configured": "Terkonfigurasi",
+  "buff.alert.noAvailable": "No monitored buffs available for alerts",
+  "buff.alert.threshold": "Ambang",
+  "seconds": "d",
+  "buff.alert.flashMs": "Kedip ms",
+  "buff.alert.color": "Warna",
+  "buff.alert.flash": "Flash",
+  "buff.alert.progress": "Progres",
+  "buff.alert.empty": "No countdown alerts configured."
 }

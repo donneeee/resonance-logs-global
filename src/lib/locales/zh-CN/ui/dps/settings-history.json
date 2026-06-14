@@ -70,5 +70,8 @@
   "summaryField.encounterTime.label": "战斗时间",
   "summaryField.encounterTime.description": "在汇总中显示完整战斗时长。",
   "summaryField.trueDpsTime.label": "真实 DPS 时间",
-  "summaryField.trueDpsTime.description": "显示用于真实 DPS 计算的有效战斗时间。"
+  "summaryField.trueDpsTime.description": "显示用于真实 DPS 计算的有效战斗时间。",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "别名"
 }

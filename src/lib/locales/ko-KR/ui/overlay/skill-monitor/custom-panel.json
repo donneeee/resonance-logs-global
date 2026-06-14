@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "숙청, 열화의 숙청 파망 대미지 +. 숙청이 치명타 대미지를 줄 시 허망 에너지를 pt 획득합니다.",
   "sourceTemplate.verdant_oracle_x11.name": "실반 오라클X11",
   "sourceTemplate.verdant_oracle_x11.description": "행운의 일격 파망 대미지가 증가합니다. 단, 공생의 인장으로 전환되는 치료량이 감소합니다. 행운의 일격을 발동할 때, 허망 에너지를 pt 획득합니다.",
-  "customPanel.factorCounterTimer": "타이머"
+  "customPanel.factorCounterTimer": "타이머",
+  "customPanel.hideWhenZero": "카운트가 0이면 숨김"
 }

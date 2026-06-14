@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "Dégâts brise-illusion de Châtiment, Châtiment infernal +. Infliger des dégâts critiques avec Châtiment confère d'énergie illusoire.",
   "sourceTemplate.verdant_oracle_x11.name": "Oracle verdoyant X11",
   "sourceTemplate.verdant_oracle_x11.description": "Dégâts brise-illusion de Frappe chanceuse +, mais le soin converti par Marque symbiotique est réduit de . Déclencher Frappe chanceuse confère d'énergie illusoire.",
-  "customPanel.factorCounterTimer": "Minuteur"
+  "customPanel.factorCounterTimer": "Minuteur",
+  "customPanel.hideWhenZero": "Masquer quand le compteur vaut 0"
 }

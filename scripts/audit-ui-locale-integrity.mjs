@@ -20,6 +20,8 @@ function walk(dir, files = []) {
 }
 
 const issues = [];
+const mojibakeRegex =
+  /Ã[\u0080-\u00ff\u2018-\u203a]|Â[\u0080-\u00bf\u00a0-\u00bf]|ï¼|ã[ƒ‚€]|à[¸¹]|[åæ][\u0080-\u00ff\u2018-\u203a]/;
 
 for (const locale of manifest.locales ?? []) {
   const uiDir = path.join(localeRoot, locale, "ui");
@@ -34,6 +36,7 @@ for (const locale of manifest.locales ?? []) {
         (
           /\?{4,}/.test(value) ||
           /[A-Za-zÀ-ÿ]\?[A-Za-zÀ-ÿ]|\?[A-Za-zÀ-ÿ]/.test(value) ||
+          mojibakeRegex.test(value) ||
           questionCount >= 2 ||
           questionCount / Math.max(value.length, 1) > 0.25
         )

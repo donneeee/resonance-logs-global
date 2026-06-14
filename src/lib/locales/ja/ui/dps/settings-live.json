@@ -82,5 +82,8 @@
   "showPlayerImagineBadges": "バトルイマジンバッジ",
   "showPlayerImagineBadgesDescription": "クラスアイコンの横に装備中のバトルイマジンバッジを表示します。",
   "showOceanWeaponBadge": "遠海武器バッジ",
-  "showOceanWeaponBadgeDescription": "検出した遠海武器バッジをプレイヤー名の前に表示します。"
+  "showOceanWeaponBadgeDescription": "検出した遠海武器バッジをプレイヤー名の前に表示します。",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "別名"
 }

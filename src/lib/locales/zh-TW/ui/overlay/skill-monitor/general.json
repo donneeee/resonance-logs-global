@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID：{uuid} - baseId：{baseId}",
-  "shieldDetail.resizeAria": "調整生命與護盾區域大小"
+  "shieldDetail.resizeAria": "調整生命與護盾區域大小",
+  "tab.shieldDetail": "HP/護盾區域",
+  "shieldDetail.title": "HP/護盾區域",
+  "shieldDetail.description": "設定 HP/護盾區域的可見性與條形樣式。按設定檔儲存。",
+  "shieldDetail.display.title": "可見列",
+  "shieldDetail.display.description": "選擇哪些 HP 和護盾列顯示在浮窗中。",
+  "shieldDetail.showHpBar": "顯示 HP 列",
+  "shieldDetail.showTotalShieldBar": "顯示總護盾列",
+  "shieldDetail.showShieldEntries": "顯示護盾詳細",
+  "shieldDetail.style.title": "條形樣式",
+  "shieldDetail.style.description": "調整條形大小、間距與顏色。",
+  "style.fontSize": "字體大小",
+  "shieldDetail.barWidth": "條寬",
+  "style.gap": "間距",
+  "shieldDetail.hpColor": "HP 顏色",
+  "shieldDetail.shieldColor": "護盾顏色",
+  "shieldDetail.healShieldColor": "治療護盾顏色"
 }

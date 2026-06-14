@@ -82,5 +82,8 @@
   "showPlayerImagineBadges": "战斗幻象徽章",
   "showPlayerImagineBadgesDescription": "在职业图标旁显示已装备的战斗幻象徽章。",
   "showOceanWeaponBadge": "远海武器徽章",
-  "showOceanWeaponBadgeDescription": "检测到远海武器时在玩家名称前显示徽章。"
+  "showOceanWeaponBadgeDescription": "检测到远海武器时在玩家名称前显示徽章。",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "别名"
 }

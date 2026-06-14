@@ -57,5 +57,21 @@
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
   "shieldDetail.resizeAria": "Resize health and shield area",
-  "tab.buffUptime": "Buff Uptime"
+  "tab.buffUptime": "Buff Uptime",
+  "tab.shieldDetail": "HP/Shield Area",
+  "shieldDetail.title": "HP/Shield Area",
+  "shieldDetail.description": "Configure HP/shield area visibility and bar styles. Saved per profile.",
+  "shieldDetail.display.title": "Visible Rows",
+  "shieldDetail.display.description": "Choose which HP and shield rows appear in the overlay.",
+  "shieldDetail.showHpBar": "Show HP row",
+  "shieldDetail.showTotalShieldBar": "Show total shield row",
+  "shieldDetail.showShieldEntries": "Show shield details",
+  "shieldDetail.style.title": "Bar Style",
+  "shieldDetail.style.description": "Adjust bar size, spacing, and colors.",
+  "style.fontSize": "Font Size",
+  "shieldDetail.barWidth": "Bar width",
+  "style.gap": "Gap",
+  "shieldDetail.hpColor": "HP Color",
+  "shieldDetail.shieldColor": "Shield Color",
+  "shieldDetail.healShieldColor": "Heal Shield Color"
 }

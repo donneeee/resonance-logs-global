@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "Reckoning, Inferno Reckon Illusion-Breaking DMG +. Dealing Crit DMG with Reckoning grants Illusion Energy.",
   "sourceTemplate.verdant_oracle_x11.name": "Verdant Oracle X11",
   "sourceTemplate.verdant_oracle_x11.description": "Lucky Strike Illusion-Breaking DMG +, but Symbiotic Mark converted healing is reduced by . Triggering Lucky Strike grants Illusion Energy.",
-  "customPanel.factorCounterTimer": "Timer"
+  "customPanel.factorCounterTimer": "Timer",
+  "customPanel.hideWhenZero": "Hide when count is 0"
 }

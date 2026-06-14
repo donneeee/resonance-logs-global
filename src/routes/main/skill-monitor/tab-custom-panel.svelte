@@ -28,6 +28,10 @@
     addCustomPanelGroup: (kind?: CustomPanelGroupKind) => void;
     removeCustomPanelGroup: (groupId: string) => void;
     renameCustomPanelGroup: (groupId: string, name: string) => void;
+    setCustomPanelGroupHideZeroCounters: (
+      groupId: string,
+      checked: boolean,
+    ) => void;
     updateCustomPanelGroupStyle: (
       groupId: string,
       updater: (style: CustomPanelStyle) => CustomPanelStyle,
@@ -42,6 +46,11 @@
     removeUserCounterRule: (ruleId: number) => void;
     removeCustomPanelEntry: (groupId: string, entryId: string) => void;
     setCustomPanelEntryLabel: (groupId: string, entryId: string, label: string) => void;
+    setCustomPanelEntryHideWhenZero: (
+      groupId: string,
+      entryId: string,
+      checked: boolean,
+    ) => void;
     moveCustomPanelEntry: (
       groupId: string,
       entryId: string,
@@ -66,12 +75,14 @@
     addCustomPanelGroup,
     removeCustomPanelGroup,
     renameCustomPanelGroup,
+    setCustomPanelGroupHideZeroCounters,
     updateCustomPanelGroupStyle,
     addCustomPanelEntry,
     addUserCounterRule,
     removeUserCounterRule,
     removeCustomPanelEntry,
     setCustomPanelEntryLabel,
+    setCustomPanelEntryHideWhenZero,
     moveCustomPanelEntry,
   }: Props = $props();
 
@@ -528,6 +539,20 @@
                   (event.currentTarget as HTMLInputElement).value,
                 )}
             />
+            <label class="flex items-center gap-2 text-xs text-muted-foreground">
+              <input
+                type="checkbox"
+                class="h-4 w-4 rounded border-border bg-muted/30 text-primary focus:ring-primary/50"
+                checked={entry.hideWhenZero === true}
+                onchange={(event) =>
+                  setCustomPanelEntryHideWhenZero(
+                    selectedGroup.id,
+                    entry.id,
+                    (event.currentTarget as HTMLInputElement).checked,
+                  )}
+              />
+              <span>{t("customPanel.hideWhenZero", "Hide when count is 0")}</span>
+            </label>
           {:else}
             <div class="rounded border border-border/60 bg-muted/30 px-2 py-1.5 text-sm text-foreground">
               {buffName}
@@ -567,6 +592,20 @@
         <div class="text-sm font-medium text-foreground">{t("customPanel.factorSlots.title", "Factor Display Names")}</div>
         <p class="text-xs text-muted-foreground">{t("customPanel.factorSlots.description", "Set custom display names for factor slots. Names are saved per slot template, so they persist across build switches whenever that slot is shown.")}</p>
       </div>
+
+      <label class="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded border-border bg-muted/30 text-primary focus:ring-primary/50"
+          checked={selectedGroup.hideZeroCounters === true}
+          onchange={(event) =>
+            setCustomPanelGroupHideZeroCounters(
+              selectedGroup.id,
+              (event.currentTarget as HTMLInputElement).checked,
+            )}
+        />
+        <span>{t("customPanel.hideWhenZero", "Hide when count is 0")}</span>
+      </label>
 
       {#if customizedFactorSlots.length > 0}
         <div class="space-y-2">

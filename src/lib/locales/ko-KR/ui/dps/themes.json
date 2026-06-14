@@ -453,5 +453,11 @@
   "dynamicLiveWindow.maxPlayerRows": "최대 표시 플레이어 수",
   "dynamicLiveWindow.maxPlayerRows.description": "플레이어 표가 스크롤 가능해지기 전에 표시할 플레이어 행 수입니다.",
   "dynamicLiveWindow.playersUnit": "명",
-  "dynamicLiveWindow.title": "동적 라이브 창"
+  "dynamicLiveWindow.title": "동적 라이브 창",
+  "themes.general.backgroundImageOpacity": "Background image opacity",
+  "themes.general.backgroundImageOpacityDescription": "Controls how strongly the background image is drawn behind the app.",
+  "liveHeader.totalDamageLabelAlias": "라벨 별칭",
+  "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
+  "liveHeader.totalDpsLabelAlias": "라벨 별칭",
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
 }

@@ -70,5 +70,8 @@
   "summaryField.encounterTime.label": "Kampfzeit",
   "summaryField.encounterTime.description": "Zeigt die gesamte Dauer des Kampfes in der Zusammenfassung.",
   "summaryField.trueDpsTime.label": "True-DPS-Zeit",
-  "summaryField.trueDpsTime.description": "Zeigt die aktive Kampfzeit, die fuer True-DPS-Berechnungen verwendet wird."
+  "summaryField.trueDpsTime.description": "Zeigt die aktive Kampfzeit, die fuer True-DPS-Berechnungen verwendet wird.",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "Alias"
 }

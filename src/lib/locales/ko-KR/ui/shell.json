@@ -22,7 +22,7 @@
   "settings": "ì„¤ì •",
   "settings.locales": "Locale Settings",
   "settings.locales.subtitle": "Control translation sources, language display, and runtime locale maintenance tools.",
-  "settings.overlay": "Overlay",
+  "settings.overlay": "오버레이",
   "settings.overlay.sectionVisibilities": "Section Visibilities",
   "settings.overlay.sectionVisibilities.footer": "Click a button to toggle visibility. Changes are saved per profile.",
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
@@ -60,7 +60,7 @@
   "settings.selectTabPrompt": "Please select a tab above to view global settings",
   "settings.subtitle": "Configure themes, networking, hotkeys, monitor profiles, overlay publishing, locale handling, and global debug tools",
   "settings.viewThemes": "View Themes",
-  "sidebar.toggleOverlay": "Toggle Overlay",
+  "sidebar.toggleOverlay": "오버레이 전환",
   "sidebar.toolbox": "ë„êµ¬ ìƒìž",
   "sidebar.tools": "ë„êµ¬",
   "themes": "í…Œë§ˆ",
@@ -69,9 +69,9 @@
   "tool.localization": "í˜„ì§€í™” ë„êµ¬",
   "tool.moduleOptimizer": "ëª¨ë“ˆ ê³„ì‚°ê¸°",
   "tool.monsterTracker": "ëª¬ìŠ¤í„° ëª¨ë‹ˆí„°",
-  "tool.overlay": "Overlay",
+  "tool.overlay": "오버레이",
   "tool.overlaySubtitle": "Configure skill and monster monitors for the shared overlay",
-  "tool.settings": "Settings",
+  "tool.settings": "설정",
   "tool.skillMonitor": "ìŠ¤í‚¬ ëª¨ë‹ˆí„°",
   "update.downloadGithub": "GitHubì—ì„œ ë‹¤ìš´ë¡œë“œ",
   "update.emptyNotes": "ì´ ë²„ì „ì— ëŒ€í•œ ë¦´ë¦¬ìŠ¤ ë…¸íŠ¸ê°€ ì—†ìŠµë‹ˆë‹¤.",
@@ -80,5 +80,6 @@
   "settings.appBehavior": "ì•± ë™ìž‘",
   "settings.appBehavior.subtitle": "ë‹¨ì¼ ì˜¤ë²„ë ˆì´ë‚˜ ë¯¸í„° í™”ë©´ì— ì—°ê²°ë˜ì§€ ì•ŠëŠ” ì•± ì „ì²´ ë™ìž‘ì„ ì œì–´í•©ë‹ˆë‹¤.",
   "settings.hideMainWindowToTray": "ë‹«ì„ ë•Œ ë©”ì¸ ì°½ì„ íŠ¸ë ˆì´ë¡œ ìˆ¨ê¸°ê¸°",
-  "settings.hideMainWindowToTrayDescription": "í™œì„±í™”í•˜ë©´ ë©”ì¸ ì°½ì„ ë‹«ì•„ë„ ì¢…ë£Œí•˜ì§€ ì•Šê³  íŠ¸ë ˆì´ë¡œ ìˆ¨ê¹ë‹ˆë‹¤. ë³µì›í•˜ë ¤ë©´ íŠ¸ë ˆì´ ì•„ì´ì½˜ì„ ì‚¬ìš©í•˜ê³  ì™„ì „ížˆ ì¢…ë£Œí•˜ë ¤ë©´ ì¢…ë£Œë¥¼ ì„ íƒí•˜ì„¸ìš”."
+  "settings.hideMainWindowToTrayDescription": "í™œì„±í™”í•˜ë©´ ë©”ì¸ ì°½ì„ ë‹«ì•„ë„ ì¢…ë£Œí•˜ì§€ ì•Šê³  íŠ¸ë ˆì´ë¡œ ìˆ¨ê¹ë‹ˆë‹¤. ë³µì›í•˜ë ¤ë©´ íŠ¸ë ˆì´ ì•„ì´ì½˜ì„ ì‚¬ìš©í•˜ê³  ì™„ì „ížˆ ì¢…ë£Œí•˜ë ¤ë©´ ì¢…ë£Œë¥¼ ì„ íƒí•˜ì„¸ìš”.",
+  "sidebar.openChangelog": "변경 내역 보기"
 }

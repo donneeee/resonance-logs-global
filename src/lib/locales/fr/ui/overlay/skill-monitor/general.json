@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
-  "shieldDetail.resizeAria": "Redimensionner la zone santé et bouclier"
+  "shieldDetail.resizeAria": "Redimensionner la zone santé et bouclier",
+  "tab.shieldDetail": "Zone PV/Bouclier",
+  "shieldDetail.title": "Zone PV/Bouclier",
+  "shieldDetail.description": "Configure la visibilité et le style des barres de la zone PV/bouclier. Enregistré par profil.",
+  "shieldDetail.display.title": "Lignes visibles",
+  "shieldDetail.display.description": "Choisissez les lignes PV et bouclier à afficher dans l'overlay.",
+  "shieldDetail.showHpBar": "Afficher la ligne PV",
+  "shieldDetail.showTotalShieldBar": "Afficher la ligne bouclier total",
+  "shieldDetail.showShieldEntries": "Afficher les détails du bouclier",
+  "shieldDetail.style.title": "Style des barres",
+  "shieldDetail.style.description": "Ajustez la taille, l'espacement et les couleurs des barres.",
+  "style.fontSize": "Taille de police",
+  "shieldDetail.barWidth": "Largeur de barre",
+  "style.gap": "Espacement",
+  "shieldDetail.hpColor": "Couleur PV",
+  "shieldDetail.shieldColor": "Couleur du bouclier",
+  "shieldDetail.healShieldColor": "Couleur du bouclier de soin"
 }

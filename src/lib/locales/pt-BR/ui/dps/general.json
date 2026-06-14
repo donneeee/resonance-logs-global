@@ -15,7 +15,7 @@
   "detail.skillHitCount.other": "{count} acertos",
   "detail.skillHitCount": "{count} acertos",
   "history": "Histórico",
-  "meterSettings": "Meter Settings",
+  "meterSettings": "Configurações do medidor",
   "selectTabPrompt": "Please select a tab above to view detailed settings",
   "settings": "Configurações",
   "settings.debug": "Depuração",

@@ -70,5 +70,8 @@
   "summaryField.encounterTime.label": "Tempo do encontro",
   "summaryField.encounterTime.description": "Mostra a duracao completa do encontro no resumo.",
   "summaryField.trueDpsTime.label": "Tempo de DPS real",
-  "summaryField.trueDpsTime.description": "Mostra o tempo de combate ativo usado nos calculos de DPS real."
+  "summaryField.trueDpsTime.description": "Mostra o tempo de combate ativo usado nos calculos de DPS real.",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "Apelido"
 }

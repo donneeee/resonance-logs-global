@@ -114,5 +114,18 @@
   "uptime.title": "Buff 覆盖率",
   "uptime.trueColumnAdjust": "真实列调整",
   "uptime.trueFontSize": "真实字体大小",
-  "valueColor": "数值颜色"
+  "valueColor": "数值颜色",
+  "buff.stackCounterSize": "层数计数大小",
+  "buff.alert.title": "增益倒计时警报",
+  "buff.alert.description": "Highlight monitored buff rows when their remaining timer drops below the configured threshold.",
+  "buff.alert.searchPlaceholder": "Search monitored buffs to add an alert",
+  "buff.alert.configured": "已配置",
+  "buff.alert.noAvailable": "No monitored buffs available for alerts",
+  "buff.alert.threshold": "阈值",
+  "seconds": "秒",
+  "buff.alert.flashMs": "闪烁毫秒",
+  "buff.alert.color": "颜色",
+  "buff.alert.flash": "闪烁",
+  "buff.alert.progress": "进度",
+  "buff.alert.empty": "No countdown alerts configured."
 }

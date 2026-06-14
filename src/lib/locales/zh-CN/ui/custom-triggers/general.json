@@ -199,7 +199,7 @@
   "templates.procIcd": "触发内置 CD",
   "templates.title": "模板",
   "title": "自定义触发器",
-  "toggleEventLogger": "Toggle Event Logger",
+  "toggleEventLogger": "切换事件记录器",
   "triggers.add": "添加触发器",
   "triggers.description": "匹配解析器事件，并将其转换为计时器、激活窗口、通知、声音和计数器。",
   "triggers.empty": "还没有自定义触发器。先用事件日志器找出 ID，再在这里添加规则。",

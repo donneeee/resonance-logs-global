@@ -70,5 +70,8 @@
   "summaryField.encounterTime.label": "전투 시간",
   "summaryField.encounterTime.description": "요약에 전체 전투 시간을 표시합니다.",
   "summaryField.trueDpsTime.label": "True DPS 시간",
-  "summaryField.trueDpsTime.description": "True DPS 계산에 사용된 실제 전투 시간을 표시합니다."
+  "summaryField.trueDpsTime.description": "True DPS 계산에 사용된 실제 전투 시간을 표시합니다.",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "별칭"
 }

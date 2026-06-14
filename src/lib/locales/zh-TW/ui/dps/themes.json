@@ -453,5 +453,11 @@
   "dynamicLiveWindow.maxPlayerRows": "最大可見玩家數",
   "dynamicLiveWindow.maxPlayerRows.description": "玩家表格變為可捲動前顯示的玩家列數。",
   "dynamicLiveWindow.playersUnit": "名玩家",
-  "dynamicLiveWindow.title": "動態即時視窗"
+  "dynamicLiveWindow.title": "動態即時視窗",
+  "themes.general.backgroundImageOpacity": "Background image opacity",
+  "themes.general.backgroundImageOpacityDescription": "Controls how strongly the background image is drawn behind the app.",
+  "liveHeader.totalDamageLabelAlias": "標籤別名",
+  "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
+  "liveHeader.totalDpsLabelAlias": "標籤別名",
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
 }

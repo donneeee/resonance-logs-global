@@ -54,6 +54,12 @@
 - Added saved-history Skill Details scene metadata under the selected player header, with wrapping long text and a responsive layout fix for narrowed windows.
 - Added horizontal graph guide lines aligned to generated left-axis values so saved-history graph totals are easier to read.
 - Reinforced saved-history sticky table headers with opaque layered backgrounds so player, skill, and modifier rows no longer bleed over column headers while scrolling.
+- Filled missing supported-locale coverage for beta6 UI additions, including saved-history graph/modifier strings, skill-monitor countdown alerts, custom panel controls, HP/shield area controls, and shell labels, and expanded the locale integrity audit to catch mojibake.
+- Added HP/shield area settings for the shared overlay, including toggles for HP, total shield, and shield-detail rows plus bar sizing, spacing, and color controls.
+- Added optional zero-counter hiding for custom panel factor/counter rows so inactive factor counters can stay out of the overlay until they have visible state.
+- Fixed packet capture scene-server detection so multi-stream traffic no longer repeatedly emits synthetic server-change resets that could clear the meter, flood logs, or trigger WebView message quota pressure.
+- Restored self-only monster/on-hit monitoring for local-owned or unknown-source buff rows while still filtering known other-player sources, fixing Steel Beak and similar non-boss monster monitor rows.
+- Made the Clear Meter on Scene Change setting protect monster, teammate, modifier, and training-dummy runtime monitor state before any scene-change cleanup runs, so disabling it also prevents monitor overlays from being wiped.
 
 ## v1.1.0_beta4 - Global Beta
 

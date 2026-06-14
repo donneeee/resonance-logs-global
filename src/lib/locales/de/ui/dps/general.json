@@ -15,7 +15,7 @@
   "detail.skillHitCount.other": "{count} Treffer",
   "detail.skillHitCount": "{count} Treffer",
   "history": "Verlauf",
-  "meterSettings": "Meter Settings",
+  "meterSettings": "Anzeigeeinstellungen",
   "selectTabPrompt": "Please select a tab above to view detailed settings",
   "settings": "Einstellungen",
   "settings.debug": "Debug",

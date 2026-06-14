@@ -82,5 +82,8 @@
   "showPlayerImagineBadges": "배틀 이매진 배지",
   "showPlayerImagineBadgesDescription": "직업 아이콘 옆에 장착한 배틀 이매진 배지를 표시합니다.",
   "showOceanWeaponBadge": "먼바다 무기 배지",
-  "showOceanWeaponBadgeDescription": "감지된 먼바다 무기 배지를 플레이어 이름 앞에 표시합니다."
+  "showOceanWeaponBadgeDescription": "감지된 먼바다 무기 배지를 플레이어 이름 앞에 표시합니다.",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "별칭"
 }

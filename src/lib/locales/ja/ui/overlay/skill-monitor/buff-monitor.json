@@ -114,5 +114,18 @@
   "uptime.title": "Buff 稼働率",
   "uptime.trueColumnAdjust": "True Column Width",
   "uptime.trueFontSize": "True Uptime Size",
-  "valueColor": "値の色"
+  "valueColor": "値の色",
+  "buff.stackCounterSize": "スタック数サイズ",
+  "buff.alert.title": "バフカウントダウン警告",
+  "buff.alert.description": "Highlight monitored buff rows when their remaining timer drops below the configured threshold.",
+  "buff.alert.searchPlaceholder": "Search monitored buffs to add an alert",
+  "buff.alert.configured": "設定済み",
+  "buff.alert.noAvailable": "No monitored buffs available for alerts",
+  "buff.alert.threshold": "しきい値",
+  "seconds": "秒",
+  "buff.alert.flashMs": "点滅 ms",
+  "buff.alert.color": "色",
+  "buff.alert.flash": "点滅",
+  "buff.alert.progress": "進行",
+  "buff.alert.empty": "No countdown alerts configured."
 }

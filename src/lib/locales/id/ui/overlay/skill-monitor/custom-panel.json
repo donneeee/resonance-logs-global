@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "Sanity DMG dari Reckoning dan Blazing Reckon +. Mengakibatkan Crit DMG dengan Reckoning akan mendapat Delusion Energy.",
   "sourceTemplate.verdant_oracle_x11.name": "Verdant X11",
   "sourceTemplate.verdant_oracle_x11.description": "Sanity DMG dari Lucky Hit +, namun Healing yang dikonversi dari Symbiosis Mark berkurang . Memicu Lucky Hit akan mendapat Delusion Energy.",
-  "customPanel.factorCounterTimer": "Timer"
+  "customPanel.factorCounterTimer": "Timer",
+  "customPanel.hideWhenZero": "Sembunyikan saat hitungan 0"
 }

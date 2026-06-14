@@ -80,5 +80,6 @@
   "settings.appBehavior": "Perilaku Aplikasi",
   "settings.appBehavior.subtitle": "Mengatur perilaku aplikasi secara menyeluruh yang tidak terikat pada overlay atau tampilan meter tertentu.",
   "settings.hideMainWindowToTray": "Sembunyikan jendela utama ke tray",
-  "settings.hideMainWindowToTrayDescription": "Jika aktif, menutup jendela utama akan menyembunyikannya, bukan keluar. Gunakan ikon tray untuk memulihkan, atau Keluar untuk menutup sepenuhnya."
+  "settings.hideMainWindowToTrayDescription": "Jika aktif, menutup jendela utama akan menyembunyikannya, bukan keluar. Gunakan ikon tray untuk memulihkan, atau Keluar untuk menutup sepenuhnya.",
+  "sidebar.openChangelog": "Lihat changelog"
 }

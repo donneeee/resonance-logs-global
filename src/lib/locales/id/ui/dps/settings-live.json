@@ -82,5 +82,8 @@
   "showPlayerImagineBadges": "Badge Battle Imagine",
   "showPlayerImagineBadgesDescription": "Tampilkan badge Battle Imagine yang dipakai di samping ikon class.",
   "showOceanWeaponBadge": "Badge Ocean Weapon",
-  "showOceanWeaponBadgeDescription": "Tampilkan badge Ocean Weapon sebelum nama pemain saat terdeteksi."
+  "showOceanWeaponBadgeDescription": "Tampilkan badge Ocean Weapon sebelum nama pemain saat terdeteksi.",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "Alias"
 }

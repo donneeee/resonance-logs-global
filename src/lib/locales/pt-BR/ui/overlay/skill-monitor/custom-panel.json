@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "Dano de Quebra de Ilusão de Acerto de Contas e do Inferno do Juízo +. Causar Dano Crítico com Acerto de Contas concede de Energia de Ilusão.",
   "sourceTemplate.verdant_oracle_x11.name": "Oráculo Verdejante X11",
   "sourceTemplate.verdant_oracle_x11.description": "Dano de Quebra de Ilusão do Golpe de Sorte +, mas a cura convertida da Marca Simbiótica é reduzida em . Ativar Golpe de Sorte concede de Energia de Ilusão.",
-  "customPanel.factorCounterTimer": "Temporizador"
+  "customPanel.factorCounterTimer": "Temporizador",
+  "customPanel.hideWhenZero": "Ocultar quando a contagem for 0"
 }

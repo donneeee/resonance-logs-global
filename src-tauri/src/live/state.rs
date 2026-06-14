@@ -4,8 +4,8 @@ use crate::live::buff_monitor::{
     ActiveBuff, BossBuffMonitors, BuffChangeEvent, BuffChangeType, BuffMonitor,
 };
 use crate::live::commands_models::{
-    CounterUpdateState, DeathRecord, FightResourceEntry, FightResourceState, PanelAttrState,
-    ShieldDetailEntry, SkillCdState, TrainingDummyState,
+    BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceEntry, FightResourceState,
+    PanelAttrState, ShieldDetailEntry, SkillCdState, TrainingDummyState,
 };
 use crate::live::counter_tracker::{BuffCounterTracker, CounterRule};
 use crate::live::dungeon_log::{BattleStateMachine, EncounterResetReason};
@@ -319,9 +319,7 @@ fn emit_local_buff_update_snapshot(state: &mut AppState) {
 }
 
 fn emit_boss_buff_update_snapshot(state: &mut AppState) {
-    let mut payload = state
-        .boss_buff_monitors
-        .build_all_buff_snapshots(state.server_clock_offset);
+    let mut payload = build_monster_buff_snapshots(state);
     payload.retain(|&uid, _| !state.attr_store.is_dead(uid));
     state.event_manager.emit_boss_buff_update(
         payload
@@ -675,6 +673,45 @@ fn is_known_other_player_source(
             .unwrap_or(false)
 }
 
+fn known_other_player_sources(state: &AppState) -> (HashSet<i64>, HashSet<i64>) {
+    let local_player_uid = state.encounter.local_player_uid;
+    let local_player_uuid = current_local_player_uuid(&state.encounter);
+    let mut uids = HashSet::new();
+    let mut uuids = HashSet::new();
+
+    for (uid, entity) in state.encounter.entity_uid_entries() {
+        if entity.entity_type != EEntityType::EntChar {
+            continue;
+        }
+        if uid > 0 && uid != local_player_uid {
+            uids.insert(uid);
+        }
+        if let Some(uuid) = entity
+            .uuid
+            .filter(|uuid| *uuid > 0 && *uuid != local_player_uuid)
+        {
+            uuids.insert(uuid);
+            let derived_uid = uid_from_uuid(uuid);
+            if derived_uid > 0 && derived_uid != local_player_uid {
+                uids.insert(derived_uid);
+            }
+        }
+    }
+
+    for &uuid in &state.team.members {
+        if uuid == 0 || uuid == local_player_uuid {
+            continue;
+        }
+        uuids.insert(uuid);
+        let uid = uid_from_uuid(uuid);
+        if uid > 0 && uid != local_player_uid {
+            uids.insert(uid);
+        }
+    }
+
+    (uids, uuids)
+}
+
 fn remember_local_owned_source(
     state: &mut AppState,
     source_uid: i64,
@@ -789,6 +826,70 @@ fn monster_buff_source_matches_local(
             && source_config_id
                 .filter(|id| *id > 0)
                 .is_some_and(|id| local_owned_source_config_ids.contains(&id)))
+}
+
+fn monster_buff_source_allowed_for_self_monitor(
+    source_uid: i64,
+    source_uuid: Option<i64>,
+    source_config_id: Option<i32>,
+    local_player_uid: i64,
+    local_player_uuid: i64,
+    local_owned_source_uids: &HashSet<i64>,
+    local_owned_source_uuids: &HashSet<i64>,
+    local_owned_source_config_ids: &HashSet<i32>,
+    known_other_source_uids: &HashSet<i64>,
+    known_other_source_uuids: &HashSet<i64>,
+) -> bool {
+    if monster_buff_source_matches_local(
+        source_uid,
+        source_uuid,
+        source_config_id,
+        local_player_uid,
+        local_player_uuid,
+        local_owned_source_uids,
+        local_owned_source_uuids,
+        local_owned_source_config_ids,
+    ) {
+        return true;
+    }
+
+    if source_uid > 0 && known_other_source_uids.contains(&source_uid) {
+        return false;
+    }
+    if source_uuid
+        .filter(|uuid| *uuid > 0)
+        .is_some_and(|uuid| known_other_source_uuids.contains(&uuid))
+    {
+        return false;
+    }
+
+    true
+}
+
+fn build_monster_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdateState>> {
+    let local_player_uid = state.encounter.local_player_uid;
+    let local_player_uuid = current_local_player_uuid(&state.encounter);
+    let local_owned_source_uids = state.local_owned_source_uids.clone();
+    let local_owned_source_uuids = state.local_owned_source_uuids.clone();
+    let local_owned_source_config_ids = state.local_owned_source_config_ids.clone();
+    let (known_other_source_uids, known_other_source_uuids) = known_other_player_sources(state);
+
+    state
+        .boss_buff_monitors
+        .build_all_buff_snapshots_with_self_source_filter(state.server_clock_offset, |_, buff| {
+            monster_buff_source_allowed_for_self_monitor(
+                buff.source_uid,
+                buff.source_uuid,
+                buff.source_config_id,
+                local_player_uid,
+                local_player_uuid,
+                &local_owned_source_uids,
+                &local_owned_source_uuids,
+                &local_owned_source_config_ids,
+                &known_other_source_uids,
+                &known_other_source_uuids,
+            )
+        })
 }
 
 fn emit_training_dummy_update_if_changed(state: &mut AppState, previous: TrainingDummyState) {
@@ -3121,6 +3222,12 @@ impl AppStateManager {
     fn on_server_change(&self, state: &mut AppState) {
         use crate::live::opcodes_process::on_server_change;
         state.pending_auto_reset = None;
+
+        if !state.auto_clear_on_scene_change {
+            info!(target: "app::live", "server_change_auto_clear_skipped");
+            return;
+        }
+
         let segment_saved = state.training_dummy.segment_saved;
         let previous = build_training_dummy_state(&state.training_dummy);
         state.training_dummy.clear();
@@ -3132,11 +3239,6 @@ impl AppStateManager {
         state.local_owned_source_uuids.clear();
         state.local_owned_source_config_ids.clear();
         state.local_factor_selector_zero_slots.clear();
-
-        if !state.auto_clear_on_scene_change {
-            info!(target: "app::live", "server_change_auto_clear_skipped");
-            return;
-        }
 
         if !segment_saved {
             persist_and_save_encounter(state, false, "server_change");
@@ -3722,6 +3824,8 @@ impl AppStateManager {
                     let local_owned_source_uids = state.local_owned_source_uids.clone();
                     let local_owned_source_uuids = state.local_owned_source_uuids.clone();
                     let local_owned_source_config_ids = state.local_owned_source_config_ids.clone();
+                    let (known_other_source_uids, known_other_source_uuids) =
+                        known_other_player_sources(state);
                     let monitor = state
                         .boss_buff_monitors
                         .monitor_for(target_uuid.unwrap_or(target_uid));
@@ -3730,7 +3834,7 @@ impl AppStateManager {
                             &raw_bytes,
                             &mut state.server_clock_offset,
                             |_, source_uid, source_uuid, source_config_id, _| {
-                                monster_buff_source_matches_local(
+                                monster_buff_source_allowed_for_self_monitor(
                                     source_uid,
                                     source_uuid,
                                     source_config_id,
@@ -3739,6 +3843,8 @@ impl AppStateManager {
                                     &local_owned_source_uids,
                                     &local_owned_source_uuids,
                                     &local_owned_source_config_ids,
+                                    &known_other_source_uids,
+                                    &known_other_source_uuids,
                                 )
                             },
                         );
@@ -4075,9 +4181,7 @@ impl AppStateManager {
             state.death_snapshot_dirty = false;
         }
         let current_target_uuid = current_attack_target_uuid(state);
-        let raw_boss_buff_snapshot = state
-            .boss_buff_monitors
-            .build_all_buff_snapshots(state.server_clock_offset);
+        let raw_boss_buff_snapshot = build_monster_buff_snapshots(state);
         let raw_teammate_buff_snapshot = state
             .teammate_buff_monitors
             .build_all_buff_snapshots(state.server_clock_offset);

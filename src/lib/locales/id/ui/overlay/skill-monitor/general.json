@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
-  "shieldDetail.resizeAria": "Ubah ukuran area HP dan shield"
+  "shieldDetail.resizeAria": "Ubah ukuran area HP dan shield",
+  "tab.shieldDetail": "Area HP/Shield",
+  "shieldDetail.title": "Area HP/Shield",
+  "shieldDetail.description": "Atur visibilitas area HP/shield dan gaya bar. Disimpan per profil.",
+  "shieldDetail.display.title": "Baris terlihat",
+  "shieldDetail.display.description": "Pilih baris HP dan shield yang muncul di overlay.",
+  "shieldDetail.showHpBar": "Tampilkan baris HP",
+  "shieldDetail.showTotalShieldBar": "Tampilkan baris total shield",
+  "shieldDetail.showShieldEntries": "Tampilkan detail shield",
+  "shieldDetail.style.title": "Gaya bar",
+  "shieldDetail.style.description": "Atur ukuran bar, jarak, dan warna.",
+  "style.fontSize": "Ukuran font",
+  "shieldDetail.barWidth": "Lebar bar",
+  "style.gap": "Jarak",
+  "shieldDetail.hpColor": "Warna HP",
+  "shieldDetail.shieldColor": "Warna Shield",
+  "shieldDetail.healShieldColor": "Warna Shield Heal"
 }

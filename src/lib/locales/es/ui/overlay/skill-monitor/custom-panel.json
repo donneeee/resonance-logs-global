@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "DÑO rompeilusiones de Ajuste de Cuentas y Ajuste Infernal +. Al infligir DÑO crítico con Ajuste de Cuentas, otorga de energía ilusoria.",
   "sourceTemplate.verdant_oracle_x11.name": "Oráculo frondoso X11",
   "sourceTemplate.verdant_oracle_x11.description": "DÑO rompeilusiones de Golpe de Suerte +, pero la curación convertida por Marca Simbiótica se reduce en . Activar Golpe de Suerte otorga de energía ilusoria.",
-  "customPanel.factorCounterTimer": "Temporizador"
+  "customPanel.factorCounterTimer": "Temporizador",
+  "customPanel.hideWhenZero": "Ocultar cuando el contador sea 0"
 }

@@ -554,6 +554,7 @@ function buildSeasonCultivateThresholdRow(
   label: string,
   factorBuffMap: Map<number, BuffUpdateState>,
   now: number,
+  hideWhenZero = false,
 ): CustomPanelDisplayRow | null {
   const slot = rule.effectSlots[0];
   if (!slot) return null;
@@ -569,6 +570,9 @@ function buildSeasonCultivateThresholdRow(
     0,
     Math.min(100, (remainder / threshold) * 100),
   );
+  if (hideWhenZero && !active && procCount === 0 && remainder === 0) {
+    return null;
+  }
   return {
     key: `season_cultivate_factor_threshold_${itemId}`,
     label,
@@ -774,6 +778,7 @@ const _buffSnapshot = $derived.by(() => {
             label,
             factorBuffMap,
             now,
+            group.hideZeroCounters === true,
           );
           if (thresholdRow) thresholdRows.push(thresholdRow);
           continue;
@@ -784,6 +789,7 @@ const _buffSnapshot = $derived.by(() => {
           sourceId: ruleId,
           counterSlotId: rule.effectSlots[0]?.slotId ?? 1,
           counterDisplayMode: "factor",
+          hideWhenZero: group.hideZeroCounters === true,
           label,
           format: "timer",
         };
@@ -847,6 +853,7 @@ const _buffSnapshot = $derived.by(() => {
           label,
           factorBuffMap,
           now,
+          group.hideZeroCounters === true,
         );
         if (thresholdRow) {
           thresholdRows.push(thresholdRow);

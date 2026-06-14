@@ -453,5 +453,11 @@
   "dynamicLiveWindow.maxPlayerRows": "Pemain terlihat maksimum",
   "dynamicLiveWindow.maxPlayerRows.description": "Jumlah baris pemain yang ditampilkan sebelum tabel pemain dapat digulir.",
   "dynamicLiveWindow.playersUnit": "pemain",
-  "dynamicLiveWindow.title": "Jendela Live Dinamis"
+  "dynamicLiveWindow.title": "Jendela Live Dinamis",
+  "themes.general.backgroundImageOpacity": "Background image opacity",
+  "themes.general.backgroundImageOpacityDescription": "Controls how strongly the background image is drawn behind the app.",
+  "liveHeader.totalDamageLabelAlias": "Alias label",
+  "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
+  "liveHeader.totalDpsLabelAlias": "Alias label",
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
 }

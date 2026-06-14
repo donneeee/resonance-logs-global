@@ -35,7 +35,10 @@
   const totalShield = $derived(
     entries.reduce((sum, e) => sum + e.current, 0),
   );
-  const hasData = $derived(hp.max > 0 || entries.length > 0);
+  const showHpRow = $derived(style.showHpBar && hp.max > 0);
+  const showTotalShieldRow = $derived(style.showTotalShieldBar && totalShield > 0);
+  const showEntryRows = $derived(style.showShieldEntries && entries.length > 0);
+  const hasData = $derived(showHpRow || showTotalShieldRow || showEntryRows);
 
   let prevShieldMap = $state<Map<number, number>>(new Map());
   let lastReducedUuid = $state<number | null>(null);
@@ -154,20 +157,22 @@
 
     <div class="shield-detail-list" style:gap={`${style.gap}px`} style:font-size={`${style.fontSize}px`}>
       {#if hasData}
-        {@const hpPercent = hpPct(hp.current, hp.max)}
-        <div class="detail-row">
-          <span class="row-label hp-label">{t("shieldDetail.hp", "HP")}</span>
-          <div class="bar-container" style:width={`${style.barWidth}px`}>
-            <div class="bar-bg hp-bar-bg">
-              <div class="bar-fill" style:width={`${hpPercent}%`} style:background={style.hpColor}></div>
+        {#if showHpRow}
+          {@const hpPercent = hpPct(hp.current, hp.max)}
+          <div class="detail-row">
+            <span class="row-label hp-label">{t("shieldDetail.hp", "HP")}</span>
+            <div class="bar-container" style:width={`${style.barWidth}px`}>
+              <div class="bar-bg hp-bar-bg">
+                <div class="bar-fill" style:width={`${hpPercent}%`} style:background={style.hpColor}></div>
+              </div>
+              <span class="bar-text">
+                {formatNum(hp.current)} / {formatNum(hp.max)}
+              </span>
             </div>
-            <span class="bar-text">
-              {formatNum(hp.current)} / {formatNum(hp.max)}
-            </span>
           </div>
-        </div>
+        {/if}
 
-        {#if totalShield > 0}
+        {#if showTotalShieldRow}
           {@const layers = shieldLayers(totalShield, hp.max)}
           <div class="detail-row">
             <span class="row-label hp-label">{t("shieldDetail.shieldLabel", "SHD")}</span>
@@ -200,27 +205,29 @@
           </div>
         {/if}
 
-        {#each sortedEntries as entry (entry.buffUuid)}
-          {@const pct = entryPct(entry.current, entry.maxShield)}
-          {@const name = entryName(entry.baseId, entry.buffUuid, entry.displayType)}
-          {@const timeText = remainingText(entry.expireTimeMs)}
-          <div class="detail-row entry-row">
-            <span class="row-label entry-label" title={entryTitle(entry.buffUuid, entry.baseId)}>
-              {name}
-            </span>
-            <div class="bar-container" style:width={`${style.barWidth}px`}>
-              <div class="bar-bg">
-                <div class="bar-fill" style:width={`${pct}%`} style:background={entryColor(entry.displayType)}></div>
-              </div>
-              <span class="bar-text">
-                {formatNum(entry.current)} / {formatNum(entry.maxShield)}
+        {#if showEntryRows}
+          {#each sortedEntries as entry (entry.buffUuid)}
+            {@const pct = entryPct(entry.current, entry.maxShield)}
+            {@const name = entryName(entry.baseId, entry.buffUuid, entry.displayType)}
+            {@const timeText = remainingText(entry.expireTimeMs)}
+            <div class="detail-row entry-row">
+              <span class="row-label entry-label" title={entryTitle(entry.buffUuid, entry.baseId)}>
+                {name}
               </span>
+              <div class="bar-container" style:width={`${style.barWidth}px`}>
+                <div class="bar-bg">
+                  <div class="bar-fill" style:width={`${pct}%`} style:background={entryColor(entry.displayType)}></div>
+                </div>
+                <span class="bar-text">
+                  {formatNum(entry.current)} / {formatNum(entry.maxShield)}
+                </span>
+              </div>
+              {#if timeText}
+                <span class="time-text">{timeText}</span>
+              {/if}
             </div>
-            {#if timeText}
-              <span class="time-text">{timeText}</span>
-            {/if}
-          </div>
-        {/each}
+          {/each}
+        {/if}
       {/if}
     </div>
 

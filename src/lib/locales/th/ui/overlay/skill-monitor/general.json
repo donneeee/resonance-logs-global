@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
-  "shieldDetail.resizeAria": "ปรับขนาดพื้นที่ HP และโล่"
+  "shieldDetail.resizeAria": "ปรับขนาดพื้นที่ HP และโล่",
+  "tab.shieldDetail": "พื้นที่ HP/โล่",
+  "shieldDetail.title": "พื้นที่ HP/โล่",
+  "shieldDetail.description": "กำหนดการแสดงผลพื้นที่ HP/โล่และรูปแบบแถบ บันทึกแยกตามโปรไฟล์",
+  "shieldDetail.display.title": "แถวที่แสดง",
+  "shieldDetail.display.description": "เลือกแถว HP และโล่ที่จะแสดงบนโอเวอร์เลย์",
+  "shieldDetail.showHpBar": "แสดงแถว HP",
+  "shieldDetail.showTotalShieldBar": "แสดงแถวโล่รวม",
+  "shieldDetail.showShieldEntries": "แสดงรายละเอียดโล่",
+  "shieldDetail.style.title": "รูปแบบแถบ",
+  "shieldDetail.style.description": "ปรับขนาดแถบ ระยะห่าง และสี",
+  "style.fontSize": "ขนาดฟอนต์",
+  "shieldDetail.barWidth": "ความกว้างแถบ",
+  "style.gap": "ช่องว่าง",
+  "shieldDetail.hpColor": "สี HP",
+  "shieldDetail.shieldColor": "สีโล่",
+  "shieldDetail.healShieldColor": "สีโล่จากการฮีล"
 }

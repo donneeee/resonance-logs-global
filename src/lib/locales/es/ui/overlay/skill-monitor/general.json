@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
-  "shieldDetail.resizeAria": "Cambiar tamaño del área de salud y escudo"
+  "shieldDetail.resizeAria": "Cambiar tamaño del área de salud y escudo",
+  "tab.shieldDetail": "Área de HP/Escudo",
+  "shieldDetail.title": "Área de HP/Escudo",
+  "shieldDetail.description": "Configura la visibilidad y el estilo de barras del área de HP/escudo. Se guarda por perfil.",
+  "shieldDetail.display.title": "Filas visibles",
+  "shieldDetail.display.description": "Elige qué filas de HP y escudo aparecen en el overlay.",
+  "shieldDetail.showHpBar": "Mostrar fila de HP",
+  "shieldDetail.showTotalShieldBar": "Mostrar fila de escudo total",
+  "shieldDetail.showShieldEntries": "Mostrar detalles de escudo",
+  "shieldDetail.style.title": "Estilo de barra",
+  "shieldDetail.style.description": "Ajusta el tamaño, el espacio y los colores de las barras.",
+  "style.fontSize": "Tamaño de fuente",
+  "shieldDetail.barWidth": "Ancho de barra",
+  "style.gap": "Espacio",
+  "shieldDetail.hpColor": "Color de HP",
+  "shieldDetail.shieldColor": "Color de escudo",
+  "shieldDetail.healShieldColor": "Color de escudo de curación"
 }

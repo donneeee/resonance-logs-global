@@ -114,5 +114,18 @@
   "uptime.title": "Uptime บัฟ",
   "uptime.trueColumnAdjust": "True Column Width",
   "uptime.trueFontSize": "True Uptime Size",
-  "valueColor": "สีค่า"
+  "valueColor": "สีค่า",
+  "buff.stackCounterSize": "Stack counter size",
+  "buff.alert.title": "แจ้งเตือนนับถอยหลังบัฟ",
+  "buff.alert.description": "Highlight monitored buff rows when their remaining timer drops below the configured threshold.",
+  "buff.alert.searchPlaceholder": "Search monitored buffs to add an alert",
+  "buff.alert.configured": "ตั้งค่าแล้ว",
+  "buff.alert.noAvailable": "No monitored buffs available for alerts",
+  "buff.alert.threshold": "เกณฑ์",
+  "seconds": "วิ",
+  "buff.alert.flashMs": "กะพริบ ms",
+  "buff.alert.color": "สี",
+  "buff.alert.flash": "Flash",
+  "buff.alert.progress": "ความคืบหน้า",
+  "buff.alert.empty": "No countdown alerts configured."
 }

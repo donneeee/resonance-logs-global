@@ -80,5 +80,6 @@
   "update.downloadGithub": "Download from GitHub",
   "update.emptyNotes": "No release notes are available for this version.",
   "update.title": "New Version Available",
-  "update.versionLine": "Current version v{currentVersion}, latest version v{latestVersion}"
+  "update.versionLine": "Current version v{currentVersion}, latest version v{latestVersion}",
+  "sidebar.openChangelog": "View changelog"
 }

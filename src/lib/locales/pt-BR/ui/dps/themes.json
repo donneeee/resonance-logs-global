@@ -453,5 +453,11 @@
   "dynamicLiveWindow.maxPlayerRows": "Máx. de jogadores visíveis",
   "dynamicLiveWindow.maxPlayerRows.description": "Número de linhas de jogadores exibidas antes de a tabela de jogadores se tornar rolável.",
   "dynamicLiveWindow.playersUnit": "jogadores",
-  "dynamicLiveWindow.title": "Janela ao vivo dinâmica"
+  "dynamicLiveWindow.title": "Janela ao vivo dinâmica",
+  "themes.general.backgroundImageOpacity": "Background image opacity",
+  "themes.general.backgroundImageOpacityDescription": "Controls how strongly the background image is drawn behind the app.",
+  "liveHeader.totalDamageLabelAlias": "Apelido do rótulo",
+  "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
+  "liveHeader.totalDpsLabelAlias": "Apelido do rótulo",
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
 }

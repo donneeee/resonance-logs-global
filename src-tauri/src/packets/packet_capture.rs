@@ -14,9 +14,7 @@ use log::{debug, error, info, warn};
 use once_cell::sync::OnceCell;
 #[cfg(debug_assertions)]
 use serde::Serialize;
-use std::collections::HashMap;
-#[cfg(debug_assertions)]
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 #[cfg(debug_assertions)]
 use std::collections::hash_map::DefaultHasher;
 #[cfg(debug_assertions)]
@@ -1162,9 +1160,8 @@ fn read_packets(
         }
     };
 
-    let mut known_server: Option<Server> = None; // nothing at start
-    let mut tcp_reassembler: TCPReassembler = TCPReassembler::new();
-    let mut reassembler = Reassembler::new();
+    let mut known_servers: HashSet<Server> = HashSet::new();
+    let mut scene_streams: HashMap<Server, NonSceneStreamState> = HashMap::new();
     let mut non_scene_streams: HashMap<String, NonSceneStreamState> = HashMap::new();
     #[cfg(debug_assertions)]
     let mut capture_census_runtime = CaptureCensusRuntime::default();
@@ -1211,217 +1208,257 @@ fn read_packets(
         //     tcp_packet.payload(),
         // );
 
-        // 1. Try to identify game server via small packets
-        if known_server != Some(curr_server) {
-            let tcp_payload = tcp_packet.payload();
-            if tcp_payload.len() >= 10 && tcp_payload[4] == 0 {
-                const FRAG_LENGTH_SIZE: usize = 4;
-                const SIGNATURE: [u8; 6] = [0x00, 0x63, 0x33, 0x53, 0x42, 0x00];
-                const MAX_FRAG_ITERATIONS: usize = 2000; // Circuit breaker
-
-                let mut i = 0usize;
-                let mut offset = 10usize;
-                while tcp_payload.len().saturating_sub(offset) >= FRAG_LENGTH_SIZE {
-                    i += 1;
-                    if i >= MAX_FRAG_ITERATIONS {
-                        error!(
-                            "TCP fragment processing stuck after {i} iterations - forcing recovery. \
-                            remaining={}, line={}",
-                            tcp_payload.len().saturating_sub(offset),
-                            line!()
-                        );
-                        break;
-                    }
-                    if i % 1000 == 0 {
-                        warn!(
-                            "High iteration count in fragment processing: iteration={i}, remaining={}, line={}",
-                            tcp_payload.len().saturating_sub(offset),
-                            line!()
-                        );
-                    }
-
-                    let len_bytes = &tcp_payload[offset..offset + FRAG_LENGTH_SIZE];
-                    let tcp_frag_payload_len = u32::from_be_bytes([
-                        len_bytes[0],
-                        len_bytes[1],
-                        len_bytes[2],
-                        len_bytes[3],
-                    ])
-                    .saturating_sub(FRAG_LENGTH_SIZE as u32)
-                        as usize;
-                    offset += FRAG_LENGTH_SIZE;
-
-                    if tcp_payload.len().saturating_sub(offset) < tcp_frag_payload_len {
-                        break;
-                    }
-
-                    let tcp_frag = &tcp_payload[offset..offset + tcp_frag_payload_len];
-                    offset += tcp_frag_payload_len;
-
-                    if tcp_frag.len() >= 5 + SIGNATURE.len()
-                        && tcp_frag[5..5 + SIGNATURE.len()] == SIGNATURE
-                    {
-                        info!(
-                            target: "app::capture",
-                            "Got Scene Server Address (by change): {curr_server}"
-                        );
-                        known_server = Some(curr_server);
-                        let payload_len = u32::try_from(tcp_payload.len()).unwrap_or(u32::MAX);
-                        let seq_end = tcp_packet.sequence_number().wrapping_add(payload_len);
-                        reset_stream(&mut tcp_reassembler, &mut reassembler, Some(seq_end));
-                        if let Err(err) = packet_sender
-                            .send(CaptureEvent::Packet(Pkt::ServerChangeInfo, Bytes::new()))
-                        {
-                            debug!("Failed to send packet: {err}");
-                        } else {
-                            queue_depth.fetch_add(1, Ordering::Relaxed);
-                        }
-                    }
-                }
+        if known_servers.contains(&curr_server) {
+            let stream = scene_streams
+                .entry(curr_server)
+                .or_insert_with(NonSceneStreamState::new);
+            process_scene_stream_packet(
+                curr_server,
+                &tcp_packet,
+                stream,
+                packet_sender,
+                queue_depth,
+                #[cfg(debug_assertions)]
+                &mut capture_census_runtime,
+            );
+            if *restart_receiver.borrow() {
+                break;
             }
-            // 2. Payload length is 98 = Login packets?
-            if tcp_payload.len() == 98 {
-                const SIGNATURE_1: [u8; 10] =
-                    [0x00, 0x00, 0x00, 0x62, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01];
-                const SIGNATURE_2: [u8; 6] = [0x00, 0x00, 0x00, 0x00, 0x0a, 0x4e];
-                if tcp_payload.len() >= 20
-                    && tcp_payload[0..10] == SIGNATURE_1
-                    && tcp_payload[14..20] == SIGNATURE_2
-                {
-                    info!(
-                        target: "app::capture",
-                        "Got Scene Server Address by Login Return Packet: {curr_server}"
+            continue;
+        }
+
+        let tcp_payload = tcp_packet.payload();
+        // 1. Try to identify game server via small packets.
+        if tcp_payload.len() >= 10 && tcp_payload[4] == 0 {
+            const FRAG_LENGTH_SIZE: usize = 4;
+            const SIGNATURE: [u8; 6] = [0x00, 0x63, 0x33, 0x53, 0x42, 0x00];
+            const MAX_FRAG_ITERATIONS: usize = 2000; // Circuit breaker
+
+            let mut i = 0usize;
+            let mut offset = 10usize;
+            while tcp_payload.len().saturating_sub(offset) >= FRAG_LENGTH_SIZE {
+                i += 1;
+                if i >= MAX_FRAG_ITERATIONS {
+                    error!(
+                        "TCP fragment processing stuck after {i} iterations - forcing recovery. \
+                        remaining={}, line={}",
+                        tcp_payload.len().saturating_sub(offset),
+                        line!()
                     );
-                    known_server = Some(curr_server);
-                    let payload_len = u32::try_from(tcp_payload.len()).unwrap_or(u32::MAX);
-                    let seq_end = tcp_packet.sequence_number().wrapping_add(payload_len);
-                    reset_stream(&mut tcp_reassembler, &mut reassembler, Some(seq_end));
-                    if let Err(err) = packet_sender
-                        .send(CaptureEvent::Packet(Pkt::ServerChangeInfo, Bytes::new()))
-                    {
-                        debug!("Failed to send packet: {err}");
-                    } else {
-                        queue_depth.fetch_add(1, Ordering::Relaxed);
-                    }
+                    break;
                 }
-            }
-            if known_server.is_some() {
-                process_non_scene_chat_packet(
-                    &curr_server.to_string(),
-                    &tcp_packet,
-                    tcp_payload,
-                    &mut non_scene_streams,
-                    packet_sender,
-                    queue_depth,
-                    #[cfg(debug_assertions)]
-                    &mut capture_census_runtime,
-                    known_server,
-                );
-            }
-            continue;
-        }
-
-        let sequence_number = tcp_packet.sequence_number();
-        let payload = tcp_packet.payload();
-        let payload_len = payload.len();
-
-        if tcp_packet.syn() {
-            info!(
-                target: "app::capture",
-                "SYN observed for {curr_server}; resetting TCP reassembler state"
-            );
-            reset_stream(
-                &mut tcp_reassembler,
-                &mut reassembler,
-                Some(sequence_number.wrapping_add(1)),
-            );
-            if payload_len == 0 {
-                continue;
-            }
-        }
-
-        let mut defer_reset = false;
-        if tcp_packet.fin() || tcp_packet.rst() {
-            defer_reset = true;
-        }
-
-        if payload_len == 0 {
-            if defer_reset {
-                reset_stream(&mut tcp_reassembler, &mut reassembler, None);
-            }
-            continue;
-        }
-
-        if let Some(expected) = tcp_reassembler.next_sequence() {
-            if tcp_sequence_before(sequence_number, expected) {
-                let backwards = expected.wrapping_sub(sequence_number);
-                if backwards > MAX_BACKTRACK_BYTES {
+                if i % 1000 == 0 {
                     warn!(
-                        target: "app::capture",
-                        "Sequence regression detected for {curr_server}: expected {expected}, \
-                        got {sequence_number} (backwards {backwards} bytes). Resetting stream"
-                    );
-                    reset_stream(
-                        &mut tcp_reassembler,
-                        &mut reassembler,
-                        Some(sequence_number),
+                        "High iteration count in fragment processing: iteration={i}, remaining={}, line={}",
+                        tcp_payload.len().saturating_sub(offset),
+                        line!()
                     );
                 }
-            }
-        }
 
-        match tcp_reassembler.insert_segment(sequence_number, payload) {
-            TcpInsertResult::Contiguous(buffer) => {
-                reassembler.feed_owned(buffer);
-            }
-            TcpInsertResult::SkippedGap {
-                from,
-                to,
-                reason,
-                data,
-            } => {
-                debug!(
-                    target: "app::capture",
-                    "TCP gap skipped for {curr_server}: from={from} to={to} reason={reason:?}; clearing frame reassembler"
-                );
-                reassembler.take_remaining();
-                if !data.is_empty() {
-                    reassembler.feed_owned(data);
+                let len_bytes = &tcp_payload[offset..offset + FRAG_LENGTH_SIZE];
+                let tcp_frag_payload_len = u32::from_be_bytes([
+                    len_bytes[0],
+                    len_bytes[1],
+                    len_bytes[2],
+                    len_bytes[3],
+                ])
+                .saturating_sub(FRAG_LENGTH_SIZE as u32)
+                    as usize;
+                offset += FRAG_LENGTH_SIZE;
+
+                if tcp_payload.len().saturating_sub(offset) < tcp_frag_payload_len {
+                    break;
+                }
+
+                let tcp_frag = &tcp_payload[offset..offset + tcp_frag_payload_len];
+                offset += tcp_frag_payload_len;
+
+                if tcp_frag.len() >= 5 + SIGNATURE.len()
+                    && tcp_frag[5..5 + SIGNATURE.len()] == SIGNATURE
+                {
+                    register_scene_stream(
+                        &mut known_servers,
+                        &mut scene_streams,
+                        curr_server,
+                        &tcp_packet,
+                        tcp_payload.len(),
+                        "address-change-signature",
+                    );
+                    break;
                 }
             }
-            TcpInsertResult::Gap | TcpInsertResult::NoData => {}
         }
-
-        while let Some(packet) = reassembler.try_next() {
-            #[cfg(debug_assertions)]
-            if capture_census_enabled() {
-                let mut entries = Vec::new();
-                collect_capture_census_entries_from_frame(
-                    &packet,
-                    &curr_server.to_string(),
-                    known_server,
-                    &mut capture_census_runtime,
-                    &mut entries,
+        // 2. Payload length is 98 = Login packets?
+        if tcp_payload.len() == 98 {
+            const SIGNATURE_1: [u8; 10] =
+                [0x00, 0x00, 0x00, 0x62, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01];
+            const SIGNATURE_2: [u8; 6] = [0x00, 0x00, 0x00, 0x00, 0x0a, 0x4e];
+            if tcp_payload.len() >= 20
+                && tcp_payload[0..10] == SIGNATURE_1
+                && tcp_payload[14..20] == SIGNATURE_2
+            {
+                register_scene_stream(
+                    &mut known_servers,
+                    &mut scene_streams,
+                    curr_server,
+                    &tcp_packet,
+                    tcp_payload.len(),
+                    "login-return-signature",
                 );
-                if !entries.is_empty() {
-                    if let Err(err) = packet_sender.send(CaptureEvent::AuxiliaryEntries(entries)) {
-                        debug!("Failed to send capture census entries: {err}");
-                    } else {
-                        queue_depth.fetch_add(1, Ordering::Relaxed);
-                    }
-                }
             }
-            process_packet(&packet, packet_sender, queue_depth);
         }
-
-        if defer_reset {
-            reset_stream(&mut tcp_reassembler, &mut reassembler, None);
+        if !known_servers.is_empty() {
+            process_non_scene_chat_packet(
+                &curr_server.to_string(),
+                &tcp_packet,
+                tcp_payload,
+                &mut non_scene_streams,
+                packet_sender,
+                queue_depth,
+                #[cfg(debug_assertions)]
+                &mut capture_census_runtime,
+                known_servers.iter().next().copied(),
+            );
         }
         if *restart_receiver.borrow() {
             break;
         }
     } // todo: if it errors, it breaks out of the loop but will it ever error?
     // info!("{}", line!());
+}
+
+fn register_scene_stream(
+    known_servers: &mut HashSet<Server>,
+    scene_streams: &mut HashMap<Server, NonSceneStreamState>,
+    curr_server: Server,
+    tcp_packet: &etherparse::TcpSlice<'_>,
+    payload_len: usize,
+    reason: &str,
+) {
+    if !known_servers.insert(curr_server) {
+        return;
+    }
+
+    info!(
+        target: "app::capture",
+        "Registered scene TCP stream ({reason}): {curr_server}"
+    );
+    let payload_len = u32::try_from(payload_len).unwrap_or(u32::MAX);
+    let seq_end = tcp_packet.sequence_number().wrapping_add(payload_len);
+    let stream = scene_streams
+        .entry(curr_server)
+        .or_insert_with(NonSceneStreamState::new);
+    reset_stream(
+        &mut stream.tcp_reassembler,
+        &mut stream.reassembler,
+        Some(seq_end),
+    );
+}
+
+fn process_scene_stream_packet(
+    curr_server: Server,
+    tcp_packet: &etherparse::TcpSlice<'_>,
+    stream: &mut NonSceneStreamState,
+    packet_sender: &tokio::sync::mpsc::UnboundedSender<CaptureEvent>,
+    queue_depth: &AtomicUsize,
+    #[cfg(debug_assertions)] capture_census_runtime: &mut CaptureCensusRuntime,
+) {
+    let sequence_number = tcp_packet.sequence_number();
+    let payload = tcp_packet.payload();
+    let payload_len = payload.len();
+
+    if tcp_packet.syn() {
+        info!(
+            target: "app::capture",
+            "SYN observed for {curr_server}; resetting TCP reassembler state"
+        );
+        reset_stream(
+            &mut stream.tcp_reassembler,
+            &mut stream.reassembler,
+            Some(sequence_number.wrapping_add(1)),
+        );
+        if payload_len == 0 {
+            return;
+        }
+    }
+
+    let mut defer_reset = false;
+    if tcp_packet.fin() || tcp_packet.rst() {
+        defer_reset = true;
+    }
+
+    if payload_len == 0 {
+        if defer_reset {
+            reset_stream(&mut stream.tcp_reassembler, &mut stream.reassembler, None);
+        }
+        return;
+    }
+
+    if let Some(expected) = stream.tcp_reassembler.next_sequence() {
+        if tcp_sequence_before(sequence_number, expected) {
+            let backwards = expected.wrapping_sub(sequence_number);
+            if backwards > MAX_BACKTRACK_BYTES {
+                warn!(
+                    target: "app::capture",
+                    "Sequence regression detected for {curr_server}: expected {expected}, \
+                    got {sequence_number} (backwards {backwards} bytes). Resetting stream"
+                );
+                reset_stream(
+                    &mut stream.tcp_reassembler,
+                    &mut stream.reassembler,
+                    Some(sequence_number),
+                );
+            }
+        }
+    }
+
+    match stream.tcp_reassembler.insert_segment(sequence_number, payload) {
+        TcpInsertResult::Contiguous(buffer) => {
+            stream.reassembler.feed_owned(buffer);
+        }
+        TcpInsertResult::SkippedGap {
+            from,
+            to,
+            reason,
+            data,
+        } => {
+            debug!(
+                target: "app::capture",
+                "TCP gap skipped for {curr_server}: from={from} to={to} reason={reason:?}; clearing frame reassembler"
+            );
+            stream.reassembler.take_remaining();
+            if !data.is_empty() {
+                stream.reassembler.feed_owned(data);
+            }
+        }
+        TcpInsertResult::Gap | TcpInsertResult::NoData => {}
+    }
+
+    while let Some(packet) = stream.reassembler.try_next() {
+        #[cfg(debug_assertions)]
+        if capture_census_enabled() {
+            let mut entries = Vec::new();
+            collect_capture_census_entries_from_frame(
+                &packet,
+                &curr_server.to_string(),
+                Some(curr_server),
+                capture_census_runtime,
+                &mut entries,
+            );
+            if !entries.is_empty() {
+                if let Err(err) = packet_sender.send(CaptureEvent::AuxiliaryEntries(entries)) {
+                    debug!("Failed to send capture census entries: {err}");
+                } else {
+                    queue_depth.fetch_add(1, Ordering::Relaxed);
+                }
+            }
+        }
+        process_packet(&packet, packet_sender, queue_depth);
+    }
+
+    if defer_reset {
+        reset_stream(&mut stream.tcp_reassembler, &mut stream.reassembler, None);
+    }
 }
 
 // Function to send restart signal from another thread/task

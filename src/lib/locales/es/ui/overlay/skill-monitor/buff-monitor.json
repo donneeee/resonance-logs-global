@@ -114,5 +114,18 @@
   "uptime.title": "Buff Uptime",
   "uptime.trueColumnAdjust": "True Column Width",
   "uptime.trueFontSize": "True Uptime Size",
-  "valueColor": "Color del valor"
+  "valueColor": "Color del valor",
+  "buff.stackCounterSize": "Stack counter size",
+  "buff.alert.title": "Alertas de cuenta atrás de buffs",
+  "buff.alert.description": "Highlight monitored buff rows when their remaining timer drops below the configured threshold.",
+  "buff.alert.searchPlaceholder": "Search monitored buffs to add an alert",
+  "buff.alert.configured": "Configurado",
+  "buff.alert.noAvailable": "No monitored buffs available for alerts",
+  "buff.alert.threshold": "Umbral",
+  "seconds": "s",
+  "buff.alert.flashMs": "Parpadeo ms",
+  "buff.alert.color": "Color",
+  "buff.alert.flash": "Flash",
+  "buff.alert.progress": "Progreso",
+  "buff.alert.empty": "No countdown alerts configured."
 }

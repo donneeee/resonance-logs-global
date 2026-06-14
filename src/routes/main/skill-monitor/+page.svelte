@@ -4,6 +4,7 @@
   import TabPanelAttr from "./tab-panel-attr.svelte";
   import TabBuffUptime from "./tab-buff-uptime.svelte";
   import TabCustomPanel from "./tab-custom-panel.svelte";
+  import TabShieldDetailStyle from "./tab-shield-detail-style.svelte";
   import TabOverlay from "./tab-overlay.svelte";
   import {
     expandBuffSelection,
@@ -48,6 +49,7 @@
     type OverlayVisibility,
     type PanelAttrConfig,
     type PanelAreaRowRef,
+    type ShieldDetailStyle,
     type SkillMonitorProfile,
     type TextBuffPanelDisplayMode,
     type TextBuffPanelStyle,
@@ -72,7 +74,10 @@
     activeProfileOrDefault,
     updateActiveProfile as updateSharedActiveProfile,
   } from "$lib/skill-monitor-profile.svelte";
-  import { normalizeBuffGroupSelection } from "$lib/skill-monitor-normalize";
+  import {
+    ensureShieldDetailStyle,
+    normalizeBuffGroupSelection,
+  } from "$lib/skill-monitor-normalize";
 
   type CounterRuleOption = CounterRulePreset & { origin: "preset" | "user" };
 
@@ -93,7 +98,15 @@
   let resonanceSearchDataRevision = $state(0);
   let inlineBuffSearch = $state("");
   let inlineBuffSearchResults = $state<BuffNameInfo[]>([]);
-  let activeTab = $state<"skill-cd" | "buff" | "panel-attr" | "buff-uptime" | "custom-panel" | "overlay">("skill-cd");
+  let activeTab = $state<
+    | "skill-cd"
+    | "buff"
+    | "panel-attr"
+    | "buff-uptime"
+    | "custom-panel"
+    | "shield-detail"
+    | "overlay"
+  >("skill-cd");
   let attrSectionExpanded = $state(false);
   let buffAliasSectionExpanded = $state(false);
   let buffAlertSectionExpanded = $state(false);
@@ -159,6 +172,7 @@
   const skillCdShowSlotOutline = $derived(ensureOverlaySizes(activeProfile).skillCdShowSlotOutline);
   const skillCdShowEnhancedGlow = $derived(ensureOverlaySizes(activeProfile).skillCdShowEnhancedGlow);
   const textBuffPanelStyle = $derived.by(() => ensureTextBuffPanelStyle(activeProfile));
+  const shieldDetailStyle = $derived.by(() => ensureShieldDetailStyle(activeProfile));
   const showSkillCdGroup = $derived(activeProfile.overlayVisibility?.showSkillCdGroup ?? true);
   const showSkillDurationGroup = $derived(activeProfile.overlayVisibility?.showSkillDurationGroup ?? true);
   const showResourceGroup = $derived(activeProfile.overlayVisibility?.showResourceGroup ?? true);
@@ -1308,6 +1322,17 @@
     );
   }
 
+  function setCustomPanelGroupHideZeroCounters(
+    groupId: string,
+    checked: boolean,
+  ) {
+    updateCustomPanelGroups((groups) =>
+      groups.map((group) =>
+        group.id === groupId ? { ...group, hideZeroCounters: checked } : group
+      )
+    );
+  }
+
   function updateTextBuffPanelStyle(
     updater: (style: TextBuffPanelStyle) => TextBuffPanelStyle,
   ) {
@@ -1353,6 +1378,47 @@
       ...style,
       progressOpacity: Math.max(0, Math.min(1, value)),
     }));
+  }
+
+  function updateShieldDetailStyle(
+    updater: (style: ShieldDetailStyle) => ShieldDetailStyle,
+  ) {
+    updateActiveProfile((profile) => ({
+      ...profile,
+      shieldDetailStyle: updater(ensureShieldDetailStyle(profile)),
+    }));
+  }
+
+  function setShieldDetailStyleFlag(
+    key:
+      | "showHpBar"
+      | "showTotalShieldBar"
+      | "showShieldEntries",
+    value: boolean,
+  ) {
+    updateShieldDetailStyle((style) => ({ ...style, [key]: value }));
+  }
+
+  function setShieldDetailFontSize(value: number) {
+    const nextValue = Math.max(10, Math.min(28, Math.round(value)));
+    updateShieldDetailStyle((style) => ({ ...style, fontSize: nextValue }));
+  }
+
+  function setShieldDetailBarWidth(value: number) {
+    const nextValue = Math.max(120, Math.min(520, Math.round(value)));
+    updateShieldDetailStyle((style) => ({ ...style, barWidth: nextValue }));
+  }
+
+  function setShieldDetailGap(value: number) {
+    const nextValue = Math.max(0, Math.min(24, Math.round(value)));
+    updateShieldDetailStyle((style) => ({ ...style, gap: nextValue }));
+  }
+
+  function setShieldDetailColor(
+    key: "hpColor" | "shieldColor" | "healShieldColor",
+    value: string,
+  ) {
+    updateShieldDetailStyle((style) => ({ ...style, [key]: value }));
   }
 
   function addCustomPanelEntry(
@@ -1423,6 +1489,17 @@
 
   function setCustomPanelEntryLabel(groupId: string, entryId: string, label: string) {
     updateCustomPanelEntry(groupId, entryId, (entry) => ({ ...entry, label }));
+  }
+
+  function setCustomPanelEntryHideWhenZero(
+    groupId: string,
+    entryId: string,
+    checked: boolean,
+  ) {
+    updateCustomPanelEntry(groupId, entryId, (entry) => ({
+      ...entry,
+      ...(entry.sourceType === "counter" ? { hideWhenZero: checked } : {}),
+    }));
   }
 
   function movePanelAreaRow(row: PanelAreaRowRef, direction: "up" | "down") {
@@ -1777,6 +1854,15 @@
       </button>
       <button
         type="button"
+        class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors {activeTab === 'shield-detail'
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/30 text-foreground border-border/60 hover:bg-muted/50'}"
+        onclick={() => (activeTab = "shield-detail")}
+      >
+        {t("tab.shieldDetail", "HP/Shield Area")}
+      </button>
+      <button
+        type="button"
         class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors {activeTab === 'overlay'
           ? 'bg-primary text-primary-foreground border-primary'
           : 'bg-muted/30 text-foreground border-border/60 hover:bg-muted/50'}"
@@ -1973,13 +2059,24 @@
       {addCustomPanelGroup}
       {removeCustomPanelGroup}
       {renameCustomPanelGroup}
+      {setCustomPanelGroupHideZeroCounters}
       {updateCustomPanelGroupStyle}
       {addCustomPanelEntry}
       {addUserCounterRule}
       {removeUserCounterRule}
       {removeCustomPanelEntry}
       {setCustomPanelEntryLabel}
+      {setCustomPanelEntryHideWhenZero}
       {moveCustomPanelEntry}
+    />
+  {:else if activeTab === "shield-detail"}
+    <TabShieldDetailStyle
+      {shieldDetailStyle}
+      {setShieldDetailStyleFlag}
+      {setShieldDetailFontSize}
+      {setShieldDetailBarWidth}
+      {setShieldDetailGap}
+      {setShieldDetailColor}
     />
   {:else if activeTab === "overlay"}
     <TabOverlay

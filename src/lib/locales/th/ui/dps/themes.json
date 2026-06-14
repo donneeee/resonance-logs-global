@@ -453,5 +453,11 @@
   "dynamicLiveWindow.maxPlayerRows": "จำนวนผู้เล่นสูงสุดที่แสดง",
   "dynamicLiveWindow.maxPlayerRows.description": "จำนวนแถวผู้เล่นที่แสดงก่อนที่ตารางผู้เล่นจะเลื่อนได้",
   "dynamicLiveWindow.playersUnit": "คน",
-  "dynamicLiveWindow.title": "หน้าต่างสดแบบไดนามิก"
+  "dynamicLiveWindow.title": "หน้าต่างสดแบบไดนามิก",
+  "themes.general.backgroundImageOpacity": "Background image opacity",
+  "themes.general.backgroundImageOpacityDescription": "Controls how strongly the background image is drawn behind the app.",
+  "liveHeader.totalDamageLabelAlias": "นามแฝงป้ายกำกับ",
+  "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
+  "liveHeader.totalDpsLabelAlias": "นามแฝงป้ายกำกับ",
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
 }

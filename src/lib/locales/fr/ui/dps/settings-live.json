@@ -82,5 +82,8 @@
   "showPlayerImagineBadges": "Badges Imagine de combat",
   "showPlayerImagineBadgesDescription": "Afficher les badges Imagine de combat equipes a cote des icones de classe.",
   "showOceanWeaponBadge": "Badge arme oceanique",
-  "showOceanWeaponBadgeDescription": "Afficher le badge arme oceanique avant les noms de joueur quand il est detecte."
+  "showOceanWeaponBadgeDescription": "Afficher le badge arme oceanique avant les noms de joueur quand il est detecte.",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "Alias"
 }

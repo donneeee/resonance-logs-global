@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "Illusionsbruch-SCH von Abrechnung und Inferno-Abrechnung +. Das Verursachen von Krit-SCH mit Abrechnung gewährt Illusionsenergie.",
   "sourceTemplate.verdant_oracle_x11.name": "Grünes Orakel X11",
   "sourceTemplate.verdant_oracle_x11.description": "Illusionsbruch-SCH von Glückstreffer +, aber die durch Symbiotisches Mal umgewandelte Heilung wird um reduziert. Das Auslösen von Glückstreffer gewährt Illusionsenergie.",
-  "customPanel.factorCounterTimer": "Timer"
+  "customPanel.factorCounterTimer": "Timer",
+  "customPanel.hideWhenZero": "Ausblenden, wenn Zähler 0 ist"
 }

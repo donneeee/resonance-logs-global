@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "การชำระ Reckoning Inferno Reckon Wuthering Waves+ Reckoning สร้าง Crit DMG ได้รับ Hollow Energy แต้ม",
   "sourceTemplate.verdant_oracle_x11.name": "Verdant X11",
   "sourceTemplate.verdant_oracle_x11.description": "Lucky Strike ทำให้ Wuthering Waves + แต่ปริมาณการรักษาจาก Symbiotic Mark ลดลง เมื่อ Lucky Strike ทำงานจะได้รับ Hollow Energy แต้ม",
-  "customPanel.factorCounterTimer": "ตัวจับเวลา"
+  "customPanel.factorCounterTimer": "ตัวจับเวลา",
+  "customPanel.hideWhenZero": "ซ่อนเมื่อจำนวนเป็น 0"
 }

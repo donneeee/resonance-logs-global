@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
-  "shieldDetail.resizeAria": "HP とシールド領域のサイズを変更"
+  "shieldDetail.resizeAria": "HP とシールド領域のサイズを変更",
+  "tab.shieldDetail": "HP/シールドエリア",
+  "shieldDetail.title": "HP/シールドエリア",
+  "shieldDetail.description": "HP/シールド領域の表示とバーのスタイルを設定します。プロファイルごとに保存されます。",
+  "shieldDetail.display.title": "表示行",
+  "shieldDetail.display.description": "オーバーレイに表示する HP とシールドの行を選択します。",
+  "shieldDetail.showHpBar": "HP 行を表示",
+  "shieldDetail.showTotalShieldBar": "合計シールド行を表示",
+  "shieldDetail.showShieldEntries": "シールド詳細を表示",
+  "shieldDetail.style.title": "バーのスタイル",
+  "shieldDetail.style.description": "バーのサイズ、間隔、色を調整します。",
+  "style.fontSize": "フォントサイズ",
+  "shieldDetail.barWidth": "バー幅",
+  "style.gap": "間隔",
+  "shieldDetail.hpColor": "HP の色",
+  "shieldDetail.shieldColor": "シールドの色",
+  "shieldDetail.healShieldColor": "回復シールドの色"
 }

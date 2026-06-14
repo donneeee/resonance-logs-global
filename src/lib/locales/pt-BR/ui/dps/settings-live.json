@@ -82,5 +82,8 @@
   "showPlayerImagineBadges": "Distintivos de Imagine de Batalha",
   "showPlayerImagineBadgesDescription": "Mostra distintivos de Imagine de Batalha equipados ao lado dos icones de classe.",
   "showOceanWeaponBadge": "Distintivo de arma oceanica",
-  "showOceanWeaponBadgeDescription": "Mostra o distintivo de arma oceanica antes dos nomes dos jogadores quando detectado."
+  "showOceanWeaponBadgeDescription": "Mostra o distintivo de arma oceanica antes dos nomes dos jogadores quando detectado.",
+  "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
+  "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
+  "columnAliasPlaceholder": "Apelido"
 }

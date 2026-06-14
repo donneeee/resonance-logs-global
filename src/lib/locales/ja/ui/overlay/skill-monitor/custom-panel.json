@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "レコニング、ブレイズレコニングの滅妄ダメージ+。 レコニングが会心ダメージを与えると虚妄エネルギー+pt。",
   "sourceTemplate.verdant_oracle_x11.name": "ヴァーダントオラクルX11",
   "sourceTemplate.verdant_oracle_x11.description": "幸運の一撃の滅妄ダメージ+だが、共生の印が変換する回復量-。 幸運の一撃が発生すると虚妄エネルギー+pt。",
-  "customPanel.factorCounterTimer": "タイマー"
+  "customPanel.factorCounterTimer": "タイマー",
+  "customPanel.hideWhenZero": "カウントが 0 のとき非表示"
 }

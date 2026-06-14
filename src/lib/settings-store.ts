@@ -715,6 +715,9 @@ export type ShieldDetailStyle = {
   fontSize: number;
   barWidth: number;
   gap: number;
+  showHpBar: boolean;
+  showTotalShieldBar: boolean;
+  showShieldEntries: boolean;
   hpColor: string;
   shieldColor: string;
   healShieldColor: string;
@@ -736,6 +739,7 @@ export type InlineBuffEntry = {
   sourceId: number;
   counterSlotId?: number;
   counterDisplayMode?: "factor";
+  hideWhenZero?: boolean;
   label: string;
   format: InlineBuffFormat;
 };
@@ -756,6 +760,7 @@ export type CustomPanelGroup = {
   name: string;
   kind: CustomPanelGroupKind;
   entries: InlineBuffEntry[];
+  hideZeroCounters?: boolean;
   position: Point;
   scale: number;
   style: CustomPanelStyle;
@@ -1016,6 +1021,9 @@ function createDefaultShieldDetailStyle(): ShieldDetailStyle {
     fontSize: 13,
     barWidth: 220,
     gap: 4,
+    showHpBar: true,
+    showTotalShieldBar: true,
+    showShieldEntries: true,
     hpColor: "#ef4444",
     shieldColor: "#38bdf8",
     healShieldColor: "#22c55e",
@@ -1051,6 +1059,7 @@ export function createDefaultCustomPanelGroup(
     name,
     kind,
     entries: [],
+    hideZeroCounters: false,
     position: { x: 700 + (index - 1) * 40, y: 280 + (index - 1) * 40 },
     scale: 1,
     style: createDefaultCustomPanelStyle(),
@@ -1891,6 +1900,12 @@ function normalizeInlineBuffEntriesForPersistence(
       if (entry["counterDisplayMode"] === "factor") {
         normalized.counterDisplayMode = "factor";
       }
+      if (
+        normalized.sourceType === "counter" &&
+        entry["hideWhenZero"] === true
+      ) {
+        normalized.hideWhenZero = true;
+      }
       return normalized;
     });
 }
@@ -1925,6 +1940,7 @@ function normalizeCustomPanelGroupsForPersistence(
       name: `Monitor Area ${index + 1}`,
       kind,
       entries: [] as InlineBuffEntry[],
+      hideZeroCounters: false,
       position: fallbackPosition,
       scale: index === 0 ? legacyScale : 1,
       style: createDefaultCustomPanelStyle(),
@@ -1934,6 +1950,7 @@ function normalizeCustomPanelGroupsForPersistence(
       kind === "manual"
         ? normalizeInlineBuffEntriesForPersistence(normalized.entries)
         : [];
+    normalized.hideZeroCounters = group["hideZeroCounters"] === true;
     normalized.style = normalizeObjectWithDefaults(
       normalized.style,
       createDefaultCustomPanelStyle(),

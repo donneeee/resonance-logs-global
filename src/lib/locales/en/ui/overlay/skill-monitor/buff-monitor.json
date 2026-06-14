@@ -114,5 +114,18 @@
   "uptime.title": "Buff Uptime",
   "uptime.trueColumnAdjust": "True Column Width",
   "uptime.trueFontSize": "True Uptime Size",
-  "valueColor": "Value Color"
+  "valueColor": "Value Color",
+  "buff.stackCounterSize": "Stack counter size",
+  "buff.alert.title": "Buff Countdown Alerts",
+  "buff.alert.description": "Highlight monitored buff rows when their remaining timer drops below the configured threshold.",
+  "buff.alert.searchPlaceholder": "Search monitored buffs to add an alert",
+  "buff.alert.configured": "Configured",
+  "buff.alert.noAvailable": "No monitored buffs available for alerts",
+  "buff.alert.threshold": "Threshold",
+  "seconds": "s",
+  "buff.alert.flashMs": "Flash ms",
+  "buff.alert.color": "Color",
+  "buff.alert.flash": "Flash",
+  "buff.alert.progress": "Progress",
+  "buff.alert.empty": "No countdown alerts configured."
 }

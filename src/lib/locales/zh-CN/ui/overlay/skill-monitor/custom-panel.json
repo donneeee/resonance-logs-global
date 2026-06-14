@@ -694,5 +694,6 @@
   "sourceTemplate.holy_shield_x2.description": "清算、炽热清算破妄伤害+。 清算造成暴击伤害获得点虚妄能量。",
   "sourceTemplate.verdant_oracle_x11.name": "森语X11",
   "sourceTemplate.verdant_oracle_x11.description": "幸运一击破妄伤害+，但共生印记转换治疗量降低。 触发幸运一击获得点虚妄能量。",
-  "customPanel.factorCounterTimer": "计时"
+  "customPanel.factorCounterTimer": "计时",
+  "customPanel.hideWhenZero": "计数为 0 时隐藏"
 }

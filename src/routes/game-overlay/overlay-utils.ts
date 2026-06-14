@@ -326,6 +326,7 @@ export function getCustomPanelDisplayRow(
   const linkedBuff = buffMap.get(slotConfig?.resetBuffId ?? -1);
   const factorDisplay = entry.counterDisplayMode === "factor";
   if (!counter || !selectedSlot) {
+    if (entry.hideWhenZero === true) return null;
     return {
       key: `counter_${entry.id}`,
       label: entry.label,
@@ -335,6 +336,9 @@ export function getCustomPanelDisplayRow(
     };
   }
   if (selectedSlot.isCounting) {
+    if (entry.hideWhenZero === true && selectedSlot.currentCount === 0) {
+      return null;
+    }
     const linkedProgress = getLinkedBuffProgress(linkedBuff, now);
     const thresholdProgressPercent = getCounterThresholdProgressPercent(
       selectedSlot,
@@ -395,6 +399,7 @@ export function getCustomPanelDisplayRow(
   }
   const active = selectedSlot.resetBuffActive ?? isBuffActive(linkedBuff, now);
   const remainingMs = getBuffRemainingMs(linkedBuff, now);
+  if (entry.hideWhenZero === true && !active) return null;
   if (factorDisplay) {
     return {
       key: `inline_counter_${entry.id}`,

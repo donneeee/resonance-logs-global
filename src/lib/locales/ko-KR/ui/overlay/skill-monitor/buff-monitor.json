@@ -114,5 +114,18 @@
   "uptime.title": "버프 가동률",
   "uptime.trueColumnAdjust": "True Column Width",
   "uptime.trueFontSize": "True Uptime Size",
-  "valueColor": "값 색상"
+  "valueColor": "값 색상",
+  "buff.stackCounterSize": "중첩 카운터 크기",
+  "buff.alert.title": "버프 카운트다운 알림",
+  "buff.alert.description": "Highlight monitored buff rows when their remaining timer drops below the configured threshold.",
+  "buff.alert.searchPlaceholder": "Search monitored buffs to add an alert",
+  "buff.alert.configured": "설정됨",
+  "buff.alert.noAvailable": "No monitored buffs available for alerts",
+  "buff.alert.threshold": "임계값",
+  "seconds": "초",
+  "buff.alert.flashMs": "깜박임 ms",
+  "buff.alert.color": "색상",
+  "buff.alert.flash": "깜박임",
+  "buff.alert.progress": "진행률",
+  "buff.alert.empty": "No countdown alerts configured."
 }

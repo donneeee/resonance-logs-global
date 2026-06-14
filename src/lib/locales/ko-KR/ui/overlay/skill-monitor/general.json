@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
-  "shieldDetail.resizeAria": "체력 및 보호막 영역 크기 조정"
+  "shieldDetail.resizeAria": "체력 및 보호막 영역 크기 조정",
+  "tab.shieldDetail": "HP/보호막 영역",
+  "shieldDetail.title": "HP/보호막 영역",
+  "shieldDetail.description": "HP/보호막 영역의 표시 여부와 바 스타일을 설정합니다. 프로필별로 저장됩니다.",
+  "shieldDetail.display.title": "표시 행",
+  "shieldDetail.display.description": "오버레이에 표시할 HP 및 보호막 행을 선택합니다.",
+  "shieldDetail.showHpBar": "HP 행 표시",
+  "shieldDetail.showTotalShieldBar": "총 보호막 행 표시",
+  "shieldDetail.showShieldEntries": "보호막 상세 표시",
+  "shieldDetail.style.title": "바 스타일",
+  "shieldDetail.style.description": "바 크기, 간격, 색상을 조정합니다.",
+  "style.fontSize": "글꼴 크기",
+  "shieldDetail.barWidth": "바 너비",
+  "style.gap": "간격",
+  "shieldDetail.hpColor": "HP 색상",
+  "shieldDetail.shieldColor": "보호막 색상",
+  "shieldDetail.healShieldColor": "치유 보호막 색상"
 }

@@ -15,7 +15,7 @@
   "detail.skillHitCount.other": "{count} ヒット",
   "detail.skillHitCount": "{count} ヒット",
   "history": "履歴",
-  "meterSettings": "Meter Settings",
+  "meterSettings": "メーター設定",
   "selectTabPrompt": "上のタブを選択すると詳細設定を表示できます",
   "settings": "設定",
   "settings.debug": "デバッグ",

@@ -147,18 +147,6 @@ impl BuffMonitor {
                             .fight_source_info
                             .as_ref()
                             .and_then(|info| info.fight_source_type);
-                        let in_self_list = self.self_applied_buff_ids.contains(&base_id);
-                        if in_self_list
-                            && !is_self_source(
-                                base_id,
-                                source_uid,
-                                source_uuid,
-                                source_config_id,
-                                fight_source_type,
-                            )
-                        {
-                            continue;
-                        }
                         let layer = buff_info.layer.unwrap_or(1);
                         let duration = buff_info.duration.unwrap_or(0);
                         let create_time = buff_info.create_time.unwrap_or(now);
@@ -274,7 +262,16 @@ impl BuffMonitor {
             }
         }
 
-        let update_payload = self.build_update_payload(*server_clock_offset);
+        let update_payload =
+            self.build_update_payload_with_self_source_filter(*server_clock_offset, |buff| {
+                is_self_source(
+                    buff.base_id,
+                    buff.source_uid,
+                    buff.source_uuid,
+                    buff.source_config_id,
+                    buff.fight_source_type,
+                )
+            });
         BuffProcessResult {
             update_payload,
             changes,
@@ -285,6 +282,17 @@ impl BuffMonitor {
         &self,
         server_clock_offset: i64,
     ) -> Option<Vec<BuffUpdateState>> {
+        self.build_update_payload_with_self_source_filter(server_clock_offset, |_| true)
+    }
+
+    pub(crate) fn build_update_payload_with_self_source_filter<F>(
+        &self,
+        server_clock_offset: i64,
+        mut is_self_source: F,
+    ) -> Option<Vec<BuffUpdateState>>
+    where
+        F: FnMut(&ActiveBuff) -> bool,
+    {
         if self.monitored_buff_ids.is_empty()
             && self.self_applied_buff_ids.is_empty()
             && !self.monitor_all_buff
@@ -298,7 +306,8 @@ impl BuffMonitor {
                 .filter(|buff| {
                     self.monitor_all_buff
                         || self.monitored_buff_ids.contains(&buff.base_id)
-                        || self.self_applied_buff_ids.contains(&buff.base_id)
+                        || (self.self_applied_buff_ids.contains(&buff.base_id)
+                            && is_self_source(buff))
                 })
                 .map(|buff| BuffUpdateState {
                     base_id: buff.base_id,
@@ -370,10 +379,25 @@ impl BossBuffMonitors {
         &self,
         server_clock_offset: i64,
     ) -> HashMap<i64, Vec<BuffUpdateState>> {
+        self.build_all_buff_snapshots_with_self_source_filter(server_clock_offset, |_, _| true)
+    }
+
+    pub(crate) fn build_all_buff_snapshots_with_self_source_filter<F>(
+        &self,
+        server_clock_offset: i64,
+        mut is_self_source: F,
+    ) -> HashMap<i64, Vec<BuffUpdateState>>
+    where
+        F: FnMut(i64, &ActiveBuff) -> bool,
+    {
         let mut snapshots = HashMap::with_capacity(self.monitors.len());
 
         for (&boss_uid, monitor) in &self.monitors {
-            let Some(buffs) = monitor.build_update_payload(server_clock_offset) else {
+            let Some(buffs) = monitor
+                .build_update_payload_with_self_source_filter(server_clock_offset, |buff| {
+                    is_self_source(boss_uid, buff)
+                })
+            else {
                 continue;
             };
             if !buffs.is_empty() {
@@ -382,5 +406,60 @@ impl BossBuffMonitors {
         }
 
         snapshots
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn active_buff(base_id: i32, source_uid: i64) -> ActiveBuff {
+        ActiveBuff {
+            base_id,
+            buff_level: None,
+            part_id: None,
+            count: None,
+            layer: 1,
+            duration: 0,
+            create_time: 1_000,
+            received_time_ms: 1_000,
+            host_uuid: Some(10),
+            source_uuid: None,
+            host_uid: 10,
+            source_uid,
+            fight_source_type: None,
+            source_config_id: None,
+        }
+    }
+
+    #[test]
+    fn self_applied_payload_is_filtered_at_snapshot_time() {
+        let mut monitor = BuffMonitor::new();
+        monitor.self_applied_buff_ids.insert(100);
+        monitor.active_buffs.insert(1, active_buff(100, 42));
+
+        let hidden = monitor
+            .build_update_payload_with_self_source_filter(0, |_| false)
+            .expect("self-applied monitor should build a payload");
+        assert!(hidden.is_empty());
+
+        let visible = monitor
+            .build_update_payload_with_self_source_filter(0, |_| true)
+            .expect("self-applied monitor should build a payload");
+        assert_eq!(visible.len(), 1);
+        assert_eq!(visible[0].base_id, 100);
+    }
+
+    #[test]
+    fn global_payload_does_not_depend_on_self_source_filter() {
+        let mut monitor = BuffMonitor::new();
+        monitor.monitored_buff_ids.insert(100);
+        monitor.active_buffs.insert(1, active_buff(100, 42));
+
+        let visible = monitor
+            .build_update_payload_with_self_source_filter(0, |_| false)
+            .expect("global monitor should build a payload");
+        assert_eq!(visible.len(), 1);
+        assert_eq!(visible[0].base_id, 100);
     }
 }

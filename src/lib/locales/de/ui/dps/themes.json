@@ -453,5 +453,11 @@
   "dynamicLiveWindow.maxPlayerRows": "Max. sichtbare Spieler",
   "dynamicLiveWindow.maxPlayerRows.description": "Anzahl der Spielerzeilen, die angezeigt werden, bevor die Spielertabelle scrollbar wird.",
   "dynamicLiveWindow.playersUnit": "Spieler",
-  "dynamicLiveWindow.title": "Dynamisches Live-Fenster"
+  "dynamicLiveWindow.title": "Dynamisches Live-Fenster",
+  "themes.general.backgroundImageOpacity": "Background image opacity",
+  "themes.general.backgroundImageOpacityDescription": "Controls how strongly the background image is drawn behind the app.",
+  "liveHeader.totalDamageLabelAlias": "Label-Alias",
+  "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
+  "liveHeader.totalDpsLabelAlias": "Label-Alias",
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
 }

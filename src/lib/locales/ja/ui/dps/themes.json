@@ -453,5 +453,11 @@
   "dynamicLiveWindow.maxPlayerRows": "最大表示プレイヤー数",
   "dynamicLiveWindow.maxPlayerRows.description": "プレイヤー表がスクロール可能になる前に表示するプレイヤー行数。",
   "dynamicLiveWindow.playersUnit": "人",
-  "dynamicLiveWindow.title": "動的ライブウィンドウ"
+  "dynamicLiveWindow.title": "動的ライブウィンドウ",
+  "themes.general.backgroundImageOpacity": "Background image opacity",
+  "themes.general.backgroundImageOpacityDescription": "Controls how strongly the background image is drawn behind the app.",
+  "liveHeader.totalDamageLabelAlias": "ラベル別名",
+  "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
+  "liveHeader.totalDpsLabelAlias": "ラベル別名",
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
 }

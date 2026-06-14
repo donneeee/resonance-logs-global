@@ -57,5 +57,21 @@
   "shieldDetail.hp": "HP",
   "shieldDetail.seconds": "{value}s",
   "shieldDetail.entryTitle": "UUID: {uuid} - baseId: {baseId}",
-  "shieldDetail.resizeAria": "Lebens- und Schildbereich skalieren"
+  "shieldDetail.resizeAria": "Lebens- und Schildbereich skalieren",
+  "tab.shieldDetail": "HP-/Schildbereich",
+  "shieldDetail.title": "HP-/Schildbereich",
+  "shieldDetail.description": "Sichtbarkeit und Balkenstil des HP-/Schildbereichs konfigurieren. Wird pro Profil gespeichert.",
+  "shieldDetail.display.title": "Sichtbare Zeilen",
+  "shieldDetail.display.description": "Wähle aus, welche HP- und Schildzeilen im Overlay angezeigt werden.",
+  "shieldDetail.showHpBar": "HP-Zeile anzeigen",
+  "shieldDetail.showTotalShieldBar": "Gesamtschild-Zeile anzeigen",
+  "shieldDetail.showShieldEntries": "Schilddetails anzeigen",
+  "shieldDetail.style.title": "Balkenstil",
+  "shieldDetail.style.description": "Balkengröße, Abstand und Farben anpassen.",
+  "style.fontSize": "Schriftgröße",
+  "shieldDetail.barWidth": "Balkenbreite",
+  "style.gap": "Abstand",
+  "shieldDetail.hpColor": "HP-Farbe",
+  "shieldDetail.shieldColor": "Schildfarbe",
+  "shieldDetail.healShieldColor": "Heilschildfarbe"
 }
