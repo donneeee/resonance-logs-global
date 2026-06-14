@@ -123,6 +123,8 @@
   const CROWDED_SESSION_MIN_REFRESH_MS = 1000;
   const GAME_FOREGROUND_POLL_MS = 750;
   const LIVE_SETTINGS_REFRESH_FALLBACK_MS = 3000;
+  const DYNAMIC_WINDOW_HEIGHT_BUFFER_PX = 2;
+  const DYNAMIC_WINDOW_RESIZE_EPSILON_PX = 4;
 
   function clampLiveRefreshRateMs(value: unknown): number {
     const numberValue = Number(value);
@@ -868,7 +870,10 @@ t("live.resumeToast", "战斗已继续"),
     const liveWindow = getCurrentWindow();
 
     try {
-      if (dynamicHeightConstraint > 0 && Math.abs(targetHeight - dynamicHeightConstraint) >= 2) {
+      if (
+        dynamicHeightConstraint > 0 &&
+        Math.abs(targetHeight - dynamicHeightConstraint) > DYNAMIC_WINDOW_RESIZE_EPSILON_PX
+      ) {
         await liveWindow.setSizeConstraints(null);
         dynamicHeightConstraint = 0;
       }
@@ -900,10 +905,13 @@ t("live.resumeToast", "战斗已继续"),
         return;
       }
 
-      const targetHeight = Math.max(DYNAMIC_WINDOW_MIN_HEIGHT, Math.ceil(rootElement.scrollHeight));
+      const targetHeight = Math.max(
+        DYNAMIC_WINDOW_MIN_HEIGHT,
+        Math.ceil(rootElement.scrollHeight) + DYNAMIC_WINDOW_HEIGHT_BUFFER_PX,
+      );
       if (
-        Math.abs(targetHeight - lastDynamicHeight) < 2
-        && Math.abs(targetHeight - dynamicHeightConstraint) < 2
+        Math.abs(targetHeight - lastDynamicHeight) <= DYNAMIC_WINDOW_RESIZE_EPSILON_PX
+        && Math.abs(targetHeight - dynamicHeightConstraint) <= DYNAMIC_WINDOW_RESIZE_EPSILON_PX
       ) {
         return;
       }

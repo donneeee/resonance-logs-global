@@ -3658,14 +3658,14 @@
     "description": "Max HP +; When incoming damage exceeds current HP, that damage is reduced by (up to once every 30s)",
     "slot": {
       "threshold": null,
-      "resetBuffId": 3059051,
+      "resetBuffId": 3059050,
       "onBuffAdd": "resetAndFreeze",
       "onBuffChange": "resetAndFreeze",
       "onBuffRemove": "noOp",
       "freezeDurationMs": 30000
     },
     "effectBuffIds": [
-      3059051
+      3059050
     ],
     "itemIds": [
       20021031,

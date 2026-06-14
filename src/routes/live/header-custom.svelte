@@ -62,6 +62,13 @@
   const liveDisplayNowMs = $derived(getLiveDisplayNowMs());
   const runtimeTrainingDummyState = $derived(getTrainingDummyState());
 
+  type TrainingDummyCountdownAnchor = {
+    phase: TrainingDummyState["phase"];
+    durationMs: number;
+    remainingMs: number;
+    anchoredAtMs: number;
+  };
+
   const emptyTrainingDummy: TrainingDummyState = {
     phase: "idle",
     durationMs: 180_000,
@@ -69,6 +76,8 @@
   };
 
   let clientElapsedMs = $state(0);
+  let trainingDummyCountdownNowMs = $state(Date.now());
+  let trainingDummyCountdownAnchor = $state<TrainingDummyCountdownAnchor | null>(null);
   let animationFrameId: number | null = null;
   let trainingDummyBusy = $state(false);
 
@@ -166,20 +175,104 @@
     return Math.max(10, Math.min(600, Math.round(seconds)));
   });
   const configuredTrainingDummyDurationMs = $derived(configuredTrainingDummyDurationSeconds * 1000);
+
+  function trainingDummyDurationMs(state: TrainingDummyState): number {
+    const durationMs = Number(state.durationMs);
+    return Number.isFinite(durationMs) && durationMs > 0
+      ? durationMs
+      : configuredTrainingDummyDurationMs;
+  }
+
+  function anchoredTrainingDummyRemainingMsAt(nowMs: number): number | null {
+    const anchor = trainingDummyCountdownAnchor;
+    if (!anchor || anchor.phase !== "running") return null;
+    return Math.max(
+      0,
+      anchor.remainingMs - (nowMs - anchor.anchoredAtMs),
+    );
+  }
+
+  function anchoredTrainingDummyRemainingMs(): number | null {
+    return anchoredTrainingDummyRemainingMsAt(trainingDummyCountdownNowMs);
+  }
+
+  function trainingDummyDisplaySecond(remainingMs: number): number {
+    return Math.floor(Math.max(0, remainingMs) / 1000);
+  }
+
+  $effect(() => {
+    if (!isTrainingDummyCountdownActive) {
+      trainingDummyCountdownAnchor = null;
+      return;
+    }
+
+    const nowMs = Date.now();
+    const durationMs = trainingDummyDurationMs(trainingDummyState);
+    const rawRemainingMs = Number(trainingDummyState.remainingMs);
+    const remainingMs =
+      Number.isFinite(rawRemainingMs) && rawRemainingMs > 0
+        ? Math.min(rawRemainingMs, durationMs)
+        : trainingDummyState.phase === "armed"
+          ? durationMs
+          : 0;
+
+    trainingDummyCountdownNowMs = nowMs;
+    trainingDummyCountdownAnchor = {
+      phase: trainingDummyState.phase,
+      durationMs,
+      remainingMs,
+      anchoredAtMs: nowMs,
+    };
+  });
+
+  $effect(() => {
+    if (!isTrainingDummyCountdownActive || trainingDummyState.phase !== "running") {
+      return;
+    }
+
+    let interval: number | null = null;
+    let lastDisplaySecond = trainingDummyDisplaySecond(
+      anchoredTrainingDummyRemainingMsAt(Date.now()) ?? 0,
+    );
+    const tick = () => {
+      const nowMs = Date.now();
+      const remainingMs = anchoredTrainingDummyRemainingMsAt(nowMs);
+      if (remainingMs === null) return;
+
+      const displaySecond = trainingDummyDisplaySecond(remainingMs);
+      if (displaySecond !== lastDisplaySecond || remainingMs <= 0) {
+        lastDisplaySecond = displaySecond;
+        trainingDummyCountdownNowMs = nowMs;
+      }
+      if (
+        interval !== null &&
+        remainingMs <= 0
+      ) {
+        window.clearInterval(interval);
+        interval = null;
+      }
+    };
+
+    tick();
+    interval = window.setInterval(tick, 200);
+    return () => {
+      if (interval !== null) {
+        window.clearInterval(interval);
+      }
+    };
+  });
+
   const displayTimerMs = $derived.by(() => {
     if (!isTrainingDummyCountdownActive) return displayElapsedMs;
     if (trainingDummyState.phase === "finished") return 0;
-    const remainingMs = Number(trainingDummyState.remainingMs);
-    if (
-      Number.isFinite(remainingMs) &&
-      (trainingDummyState.phase === "running" || remainingMs > 0)
-    ) {
-      return Math.max(0, remainingMs);
+    if (trainingDummyState.phase === "running") {
+      const anchoredRemainingMs = anchoredTrainingDummyRemainingMs();
+      if (anchoredRemainingMs !== null) return anchoredRemainingMs;
     }
     if (trainingDummyState.phase === "armed") {
-      return trainingDummyState.durationMs || configuredTrainingDummyDurationMs;
+      return trainingDummyDurationMs(trainingDummyState);
     }
-    const durationMs = trainingDummyState.durationMs || configuredTrainingDummyDurationMs;
+    const durationMs = trainingDummyDurationMs(trainingDummyState);
     return Math.max(0, durationMs - displayElapsedMs);
   });
   const displayTimerTooltip = $derived(

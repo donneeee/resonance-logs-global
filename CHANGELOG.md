@@ -1,5 +1,11 @@
 # Changelog
 
+## v1.1.0_beta6 - Global Beta
+
+- Corrected Stasis X5 Phantom Factor proc/lockout matching to use the generated observed factor buff `3059050` instead of the unproven `3059051` mapping, so its proc timer can appear from live effect evidence.
+- Made the live Training Dummy countdown tick from a local timer anchored to the latest backend state, so the visible header timer keeps counting down between combat packets while the backend still owns segment completion.
+- Reduced live-window header/table flicker by limiting Training Dummy header countdown repaint churn and adding hysteresis to dynamic live-window height resizing.
+
 ## v1.1.0_beta5 - Global Beta
 
 - Made Skill CD overlay timers prefer packet-reported active cooldown duration/progress over static cooldown calculations, using calculated cooldowns only when packet duration is missing.
