@@ -79,6 +79,10 @@
   let unlisten: (() => void) | null = null;
   let resizeObserver: ResizeObserver | null = null;
   let dynamicResizeFrame = 0;
+  let dynamicResizeCooldownTimer: ReturnType<typeof setTimeout> | null = null;
+  let dynamicResizeInFlight = false;
+  let dynamicResizePending = false;
+  let lastDynamicResizeAtMs = 0;
   let lastDynamicHeight = 0;
   let dynamicHeightConstraint = 0;
   let dynamicWindowEnabled = $derived(SETTINGS.live.dynamicWindow.state.enabled === true);
@@ -125,6 +129,7 @@
   const LIVE_SETTINGS_REFRESH_FALLBACK_MS = 3000;
   const DYNAMIC_WINDOW_HEIGHT_BUFFER_PX = 2;
   const DYNAMIC_WINDOW_RESIZE_EPSILON_PX = 4;
+  const DYNAMIC_WINDOW_MIN_RESIZE_INTERVAL_MS = 250;
 
   function clampLiveRefreshRateMs(value: unknown): number {
     const numberValue = Number(value);
@@ -893,13 +898,34 @@ t("live.resumeToast", "战斗已继续"),
 
   function scheduleDynamicResize() {
     if (!dynamicWindowEnabled || !rootElement || typeof window === "undefined") {
+      dynamicResizePending = false;
+      if (dynamicResizeCooldownTimer) {
+        clearTimeout(dynamicResizeCooldownTimer);
+        dynamicResizeCooldownTimer = null;
+      }
       void clearDynamicWindowHeightConstraint();
       return;
     }
-    if (dynamicResizeFrame) cancelAnimationFrame(dynamicResizeFrame);
+
+    dynamicResizePending = true;
+    const timeUntilNextResize = Math.max(
+      0,
+      DYNAMIC_WINDOW_MIN_RESIZE_INTERVAL_MS - (Date.now() - lastDynamicResizeAtMs),
+    );
+    if (dynamicResizeInFlight || timeUntilNextResize > 0) {
+      if (!dynamicResizeCooldownTimer) {
+        dynamicResizeCooldownTimer = setTimeout(() => {
+          dynamicResizeCooldownTimer = null;
+          scheduleDynamicResize();
+        }, dynamicResizeInFlight ? DYNAMIC_WINDOW_MIN_RESIZE_INTERVAL_MS : timeUntilNextResize);
+      }
+      return;
+    }
+    if (dynamicResizeFrame) return;
 
     dynamicResizeFrame = requestAnimationFrame(async () => {
       dynamicResizeFrame = 0;
+      dynamicResizePending = false;
       if (!dynamicWindowEnabled || !rootElement) {
         void clearDynamicWindowHeightConstraint();
         return;
@@ -917,7 +943,14 @@ t("live.resumeToast", "战斗已继续"),
       }
       lastDynamicHeight = targetHeight;
 
-      await applyDynamicWindowHeight(targetHeight);
+      dynamicResizeInFlight = true;
+      try {
+        await applyDynamicWindowHeight(targetHeight);
+        lastDynamicResizeAtMs = Date.now();
+      } finally {
+        dynamicResizeInFlight = false;
+        if (dynamicResizePending) scheduleDynamicResize();
+      }
     });
   }
 
@@ -987,6 +1020,7 @@ t("live.resumeToast", "战斗已继续"),
     return () => {
       isDestroyed = true;
       if (dynamicResizeFrame) cancelAnimationFrame(dynamicResizeFrame);
+      if (dynamicResizeCooldownTimer) clearTimeout(dynamicResizeCooldownTimer);
       clearAutoHideTimer();
       stopGameBlurPolling();
       void clearDynamicWindowHeightConstraint();
