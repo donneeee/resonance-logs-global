@@ -1,0 +1,5 @@
+{
+  "oceanWeaponLevel": "Arma oceanica Nv.{level}",
+  "oceanWeaponLevelApprox": "Arma oceanica Nv.{level}+",
+  "oceanWeaponLevelRange": "Arma oceanica Nv.{min}-{max}"
+}

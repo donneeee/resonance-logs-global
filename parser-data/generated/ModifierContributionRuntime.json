@@ -3,31 +3,31 @@
   "generatedBy": "ModifierContributionTable.gen",
   "runtimeOf": "ModifierContributionTable.json",
   "stats": {
-    "sourceRules": 8757,
+    "sourceRules": 8762,
     "contributionModeCounts": {
       "exact-produced-damage": 760,
-      "defensive": 377,
-      "overlap-only": 6874,
+      "defensive": 376,
+      "overlap-only": 6880,
       "formula-replay-candidate": 435,
       "timing-only": 311
     },
     "contributionTierCounts": {
       "exact": 760,
-      "non-damage": 377,
-      "overlap-only": 6874,
+      "non-damage": 376,
+      "overlap-only": 6880,
       "replay-required": 435,
       "timing": 311
     },
     "exactProducedDamageRules": 760,
     "formulaReplayCandidateRules": 435,
     "timingOnlyRules": 311,
-    "overlapOnlyRules": 6874,
+    "overlapOnlyRules": 6880,
     "formulaZoneCounts": {
       "allRoundDamage": 16,
       "baseAttackTerm": 159,
       "critical": 140,
       "elementalDamage": 97,
-      "exactLuckyProducedDamage": 21,
+      "exactLuckyProducedDamage": 19,
       "finalDamage": 21,
       "generalDamage": 124,
       "luckyEnhancement": 122,
@@ -173,8 +173,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:edcb4697c628": {
-      "sourceRuleId": "mrs:edcb4697c628",
+    "mrs:3bfebbcf0a6e": {
+      "sourceRuleId": "mrs:3bfebbcf0a6e",
       "sourceId": "buff-source:4501",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -320,22 +320,110 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:415f5e6e3469": {
-      "sourceRuleId": "mrs:415f5e6e3469",
+    "mrs:3fd4c545d564": {
+      "sourceRuleId": "mrs:3fd4c545d564",
       "sourceId": "buff-source:21411",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:c3791c83cdcf": {
-      "sourceRuleId": "mrs:c3791c83cdcf",
+    "mrs:27f7c1a7bc9e": {
+      "sourceRuleId": "mrs:27f7c1a7bc9e",
+      "sourceId": "buff-source:21412",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:8089ffd0230f": {
+      "sourceRuleId": "mrs:8089ffd0230f",
+      "sourceId": "talent:562",
+      "contributionMode": "formula-replay-candidate",
+      "contributionTier": "replay-required",
+      "confidence": "needs-replay",
+      "formulaTermIds": [
+        "critMultiplier"
+      ],
+      "formulaZoneIds": [
+        "critical",
+        "timingCadence"
+      ],
+      "contributionGroups": [
+        "critical",
+        "hitTiming"
+      ],
+      "predicateTags": [
+        "activation.active-modifier-window",
+        "direction.stat",
+        "direction.timing"
+      ],
+      "requiredRuntimeEvidence": [
+        "attacker crit-damage snapshot at hit time",
+        "attacker crit-rate snapshot at hit time",
+        "cast timeline or cooldown state",
+        "cast timeline or per-hit window buckets",
+        "crit flag",
+        "damage id",
+        "hit timestamp",
+        "modifier value or component amount",
+        "modifier windows",
+        "observed final hit value",
+        "skill id",
+        "sourceRuleId active on hit"
+      ],
+      "componentValueHints": [
+        {
+          "componentKey": "critical-rate",
+          "label": "Crit",
+          "effectClass": "critical-stat",
+          "contributionScope": "global",
+          "direction": "stat",
+          "stat": "Crit",
+          "formulaTermIds": [
+            "critMultiplier"
+          ],
+          "contributionGroups": [
+            "critical"
+          ],
+          "predicateTags": [
+            "activation.active-modifier-window",
+            "direction.stat"
+          ],
+          "valueResolution": "owner-party-split",
+          "values": [
+            {
+              "scope": "owner",
+              "rawText": "50%",
+              "unit": "percent",
+              "value": 50,
+              "decimalValue": 0.5,
+              "formulaAmount": true,
+              "inferredFrom": "larger percent value is owner/self"
+            },
+            {
+              "scope": "party",
+              "rawText": "10%",
+              "unit": "percent",
+              "value": 10,
+              "decimalValue": 0.1,
+              "formulaAmount": true,
+              "inferredFrom": "smaller percent value is party/other players"
+            }
+          ]
+        }
+      ],
+      "notes": [
+        "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
+      ]
+    },
+    "mrs:4690bfced548": {
+      "sourceRuleId": "mrs:4690bfced548",
       "sourceId": "buff-source:21414",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:24c41dda072c": {
-      "sourceRuleId": "mrs:24c41dda072c",
+    "mrs:53fe38350951": {
+      "sourceRuleId": "mrs:53fe38350951",
       "sourceId": "buff-source:21418",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -355,8 +443,8 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
-    "mrs:7ca7b1f4069a": {
-      "sourceRuleId": "mrs:7ca7b1f4069a",
+    "mrs:73ba2f1918bf": {
+      "sourceRuleId": "mrs:73ba2f1918bf",
       "sourceId": "buff-source:21423",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -1080,8 +1168,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:1f6ab46c0d78": {
-      "sourceRuleId": "mrs:1f6ab46c0d78",
+    "mrs:63b22ce84cbe": {
+      "sourceRuleId": "mrs:63b22ce84cbe",
       "sourceId": "buff-source:35106",
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
@@ -1457,15 +1545,15 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:3b73c2ccd4a7": {
-      "sourceRuleId": "mrs:3b73c2ccd4a7",
+    "mrs:c7d5236b0131": {
+      "sourceRuleId": "mrs:c7d5236b0131",
       "sourceId": "buff-source:50041",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:153ae62748ae": {
-      "sourceRuleId": "mrs:153ae62748ae",
+    "mrs:d66db856fc18": {
+      "sourceRuleId": "mrs:d66db856fc18",
       "sourceId": "buff-source:50043",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -1643,8 +1731,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:079f2c48a290": {
-      "sourceRuleId": "mrs:079f2c48a290",
+    "mrs:d1649b6988b6": {
+      "sourceRuleId": "mrs:d1649b6988b6",
       "sourceId": "buff-source:55220",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -1656,6 +1744,20 @@
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
+    },
+    "mrs:133074e86783": {
+      "sourceRuleId": "mrs:133074e86783",
+      "sourceId": "buff-source:55413",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:9d2c238a397d": {
+      "sourceRuleId": "mrs:9d2c238a397d",
+      "sourceId": "buff-source:55414",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
     },
     "mrs:30d45c434359": {
       "sourceRuleId": "mrs:30d45c434359",
@@ -1803,8 +1905,8 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:d38dd2c7f232": {
-      "sourceRuleId": "mrs:d38dd2c7f232",
+    "mrs:37886c2b02c4": {
+      "sourceRuleId": "mrs:37886c2b02c4",
       "sourceId": "talent:1160",
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
@@ -1854,8 +1956,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:dce829ce8cff": {
-      "sourceRuleId": "mrs:dce829ce8cff",
+    "mrs:53aa18a9c82b": {
+      "sourceRuleId": "mrs:53aa18a9c82b",
       "sourceId": "talent:1157",
       "contributionMode": "formula-replay-candidate",
       "contributionTier": "replay-required",
@@ -2004,6 +2106,34 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
+    "mrs:c2a9521dfa84": {
+      "sourceRuleId": "mrs:c2a9521dfa84",
+      "sourceId": "buff-source:55330",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:cc4238d2d018": {
+      "sourceRuleId": "mrs:cc4238d2d018",
+      "sourceId": "talent:1308",
+      "contributionMode": "defensive",
+      "contributionTier": "non-damage",
+      "confidence": "not-applicable",
+      "formulaZoneIds": [
+        "generalDamage",
+        "luckyEnhancement"
+      ]
+    },
+    "mrs:46fe452e6ebf": {
+      "sourceRuleId": "mrs:46fe452e6ebf",
+      "sourceId": "talent:1316",
+      "contributionMode": "timing-only",
+      "contributionTier": "timing",
+      "confidence": "not-applicable",
+      "formulaZoneIds": [
+        "timingCadence"
+      ]
+    },
     "mrs:d1927f7e89e0": {
       "sourceRuleId": "mrs:d1927f7e89e0",
       "sourceId": "buff-source:55331",
@@ -2017,6 +2147,135 @@
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
+    },
+    "mrs:cc73424946fa": {
+      "sourceRuleId": "mrs:cc73424946fa",
+      "sourceId": "buff-source:55333",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:0921845145a5": {
+      "sourceRuleId": "mrs:0921845145a5",
+      "sourceId": "talent:1327",
+      "contributionMode": "formula-replay-candidate",
+      "contributionTier": "replay-required",
+      "confidence": "needs-replay",
+      "formulaTermIds": [
+        "critMultiplier"
+      ],
+      "formulaZoneIds": [
+        "critical"
+      ],
+      "contributionGroups": [
+        "critical",
+        "procDamage"
+      ],
+      "predicateTags": [
+        "activation.active-modifier-window",
+        "direction.damage-dealt",
+        "direction.healing",
+        "direction.stat"
+      ],
+      "requiredRuntimeEvidence": [
+        "attacker crit-damage snapshot at hit time",
+        "attacker crit-rate snapshot at hit time",
+        "attacker uid",
+        "crit flag",
+        "damage id",
+        "healing/lifesteal event lane",
+        "hit timestamp",
+        "modifier value or component amount",
+        "modifier windows",
+        "observed final hit value",
+        "produced damage row id",
+        "skill id",
+        "sourceRuleId active on hit",
+        "target uid"
+      ],
+      "componentValueHints": [
+        {
+          "componentKey": "critical-rate",
+          "label": "Crit",
+          "effectClass": "critical-stat",
+          "contributionScope": "global",
+          "direction": "stat",
+          "stat": "Crit",
+          "valueScope": "owner",
+          "formulaTermIds": [
+            "critMultiplier"
+          ],
+          "contributionGroups": [
+            "critical"
+          ],
+          "predicateTags": [
+            "activation.active-modifier-window",
+            "direction.stat"
+          ],
+          "valueResolution": "owner-party-split",
+          "values": [
+            {
+              "scope": "owner",
+              "rawText": "50%",
+              "unit": "percent",
+              "value": 50,
+              "decimalValue": 0.5,
+              "formulaAmount": true,
+              "inferredFrom": "larger percent value is owner/self"
+            },
+            {
+              "scope": "party",
+              "rawText": "30%",
+              "unit": "percent",
+              "value": 30,
+              "decimalValue": 0.3,
+              "formulaAmount": true,
+              "inferredFrom": "smaller percent value is party/other players"
+            }
+          ]
+        }
+      ],
+      "notes": [
+        "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
+      ]
+    },
+    "mrs:82b78ace20af": {
+      "sourceRuleId": "mrs:82b78ace20af",
+      "sourceId": "talent:1331",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:191070b501f4": {
+      "sourceRuleId": "mrs:191070b501f4",
+      "sourceId": "talent:1345",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:900db670ced5": {
+      "sourceRuleId": "mrs:900db670ced5",
+      "sourceId": "talent:1346",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:742cc85dd8d5": {
+      "sourceRuleId": "mrs:742cc85dd8d5",
+      "sourceId": "talent:1347",
+      "contributionMode": "timing-only",
+      "contributionTier": "timing",
+      "confidence": "not-applicable",
+      "formulaZoneIds": [
+        "timingCadence"
+      ]
+    },
+    "mrs:7af12e8c7296": {
+      "sourceRuleId": "mrs:7af12e8c7296",
+      "sourceId": "talent:1362",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
     },
     "mrs:c95508cb8aff": {
       "sourceRuleId": "mrs:c95508cb8aff",
@@ -2081,8 +2340,15 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:ff88e0b24c41": {
-      "sourceRuleId": "mrs:ff88e0b24c41",
+    "mrs:b5d5c3f92d9f": {
+      "sourceRuleId": "mrs:b5d5c3f92d9f",
+      "sourceId": "buff-source:2206121",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:69215e1cb671": {
+      "sourceRuleId": "mrs:69215e1cb671",
       "sourceId": "buff-source:55405",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -2259,8 +2525,8 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:c822d52623af": {
-      "sourceRuleId": "mrs:c822d52623af",
+    "mrs:2ba1e6a60599": {
+      "sourceRuleId": "mrs:2ba1e6a60599",
       "sourceId": "talent:1241",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
@@ -2277,15 +2543,15 @@
         "luckyStrikeBaseTerm"
       ]
     },
-    "mrs:a0193842b38f": {
-      "sourceRuleId": "mrs:a0193842b38f",
+    "mrs:90e16dd1539b": {
+      "sourceRuleId": "mrs:90e16dd1539b",
       "sourceId": "buff-source:55412",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:4e9aa912b2d2": {
-      "sourceRuleId": "mrs:4e9aa912b2d2",
+    "mrs:142369ecf079": {
+      "sourceRuleId": "mrs:142369ecf079",
       "sourceId": "talent:1218",
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
@@ -2317,12 +2583,43 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:66cccfbbc469": {
-      "sourceRuleId": "mrs:66cccfbbc469",
+    "mrs:3c73ffb62f87": {
+      "sourceRuleId": "mrs:3c73ffb62f87",
       "sourceId": "buff-source:55417",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
+    },
+    "mrs:64ae2e279e78": {
+      "sourceRuleId": "mrs:64ae2e279e78",
+      "sourceId": "talent:1119",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:e70f3bf728d3": {
+      "sourceRuleId": "mrs:e70f3bf728d3",
+      "sourceId": "talent:1159",
+      "contributionMode": "timing-only",
+      "contributionTier": "timing",
+      "confidence": "not-applicable",
+      "formulaZoneIds": [
+        "timingCadence"
+      ]
+    },
+    "mrs:b712182f2cb2": {
+      "sourceRuleId": "mrs:b712182f2cb2",
+      "sourceId": "talent:1161",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:61dee985a16a": {
+      "sourceRuleId": "mrs:61dee985a16a",
+      "sourceId": "talent:1225",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
     },
     "mrs:e167786a37a6": {
       "sourceRuleId": "mrs:e167786a37a6",
@@ -2369,6 +2666,13 @@
     "mrs:45651ab72d57": {
       "sourceRuleId": "mrs:45651ab72d57",
       "sourceId": "buff-source:510573",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:a2afd0c46685": {
+      "sourceRuleId": "mrs:a2afd0c46685",
+      "sourceId": "buff-source:510574",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
@@ -2541,36 +2845,36 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:5672aba27c77": {
-      "sourceRuleId": "mrs:5672aba27c77",
+    "mrs:d501ed8bb9d3": {
+      "sourceRuleId": "mrs:d501ed8bb9d3",
       "sourceId": "buff-source:700044",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:4db3ccb216cd": {
-      "sourceRuleId": "mrs:4db3ccb216cd",
+    "mrs:0f1d8265bbaa": {
+      "sourceRuleId": "mrs:0f1d8265bbaa",
       "sourceId": "buff-source:700045",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:e35812470774": {
-      "sourceRuleId": "mrs:e35812470774",
+    "mrs:63c03ed1e1d5": {
+      "sourceRuleId": "mrs:63c03ed1e1d5",
       "sourceId": "buff-source:700052",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:d4c7e3fc4b92": {
-      "sourceRuleId": "mrs:d4c7e3fc4b92",
+    "mrs:67d1c00506c0": {
+      "sourceRuleId": "mrs:67d1c00506c0",
       "sourceId": "buff-source:700071",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:15f69177dd4f": {
-      "sourceRuleId": "mrs:15f69177dd4f",
+    "mrs:358696fd3399": {
+      "sourceRuleId": "mrs:358696fd3399",
       "sourceId": "buff-source:700078",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -2611,22 +2915,22 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:46b707c3d87c": {
-      "sourceRuleId": "mrs:46b707c3d87c",
+    "mrs:99f2db918510": {
+      "sourceRuleId": "mrs:99f2db918510",
       "sourceId": "buff-source:700101",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:b06fd73eeae0": {
-      "sourceRuleId": "mrs:b06fd73eeae0",
+    "mrs:5dd4b629ef57": {
+      "sourceRuleId": "mrs:5dd4b629ef57",
       "sourceId": "buff-source:700106",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:645ebd77d3c2": {
-      "sourceRuleId": "mrs:645ebd77d3c2",
+    "mrs:7e3da65e2fad": {
+      "sourceRuleId": "mrs:7e3da65e2fad",
       "sourceId": "buff-source:700108",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -2737,8 +3041,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:09eb2e7d2223": {
-      "sourceRuleId": "mrs:09eb2e7d2223",
+    "mrs:f3ab19b15183": {
+      "sourceRuleId": "mrs:f3ab19b15183",
       "sourceId": "buff-source:701014",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -3089,15 +3393,15 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:d17fc801bb84": {
-      "sourceRuleId": "mrs:d17fc801bb84",
+    "mrs:14a705d30c18": {
+      "sourceRuleId": "mrs:14a705d30c18",
       "sourceId": "buff-source:823007",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:c5c05ad9a72b": {
-      "sourceRuleId": "mrs:c5c05ad9a72b",
+    "mrs:bcc57e05dfde": {
+      "sourceRuleId": "mrs:bcc57e05dfde",
       "sourceId": "buff-source:823009",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -3404,8 +3708,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:4d0fb846ebb3": {
-      "sourceRuleId": "mrs:4d0fb846ebb3",
+    "mrs:d72c3fff9c3e": {
+      "sourceRuleId": "mrs:d72c3fff9c3e",
       "sourceId": "buff-source:833018",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -3614,8 +3918,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:3c4ab5531b1c": {
-      "sourceRuleId": "mrs:3c4ab5531b1c",
+    "mrs:68fb1f191fe7": {
+      "sourceRuleId": "mrs:68fb1f191fe7",
       "sourceId": "buff-source:855137",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -3791,8 +4095,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:d6602753234c": {
-      "sourceRuleId": "mrs:d6602753234c",
+    "mrs:4ac1261bcb15": {
+      "sourceRuleId": "mrs:4ac1261bcb15",
       "sourceId": "buff-source:873003",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -3974,8 +4278,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:0232d9abc13a": {
-      "sourceRuleId": "mrs:0232d9abc13a",
+    "mrs:06b0c9a9f04c": {
+      "sourceRuleId": "mrs:06b0c9a9f04c",
       "sourceId": "buff-source:880665",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -3995,8 +4299,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:89e70665d988": {
-      "sourceRuleId": "mrs:89e70665d988",
+    "mrs:fca95129ac61": {
+      "sourceRuleId": "mrs:fca95129ac61",
       "sourceId": "buff-source:880805",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -4870,8 +5174,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:1d3769e44324": {
-      "sourceRuleId": "mrs:1d3769e44324",
+    "mrs:b835bc977645": {
+      "sourceRuleId": "mrs:b835bc977645",
       "sourceId": "buff-source:900125",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -5346,8 +5650,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:b282ecf8240f": {
-      "sourceRuleId": "mrs:b282ecf8240f",
+    "mrs:bfd13a4b5530": {
+      "sourceRuleId": "mrs:bfd13a4b5530",
       "sourceId": "buff-source:974340",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -5472,8 +5776,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:0914b04d18a9": {
-      "sourceRuleId": "mrs:0914b04d18a9",
+    "mrs:87309a93cf4f": {
+      "sourceRuleId": "mrs:87309a93cf4f",
       "sourceId": "buff-source:990810",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -11517,15 +11821,15 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:d3bf9d646b87": {
-      "sourceRuleId": "mrs:d3bf9d646b87",
+    "mrs:140e4b1c20fc": {
+      "sourceRuleId": "mrs:140e4b1c20fc",
       "sourceId": "buff-source:999990",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:aadfd904034e": {
-      "sourceRuleId": "mrs:aadfd904034e",
+    "mrs:72411a827a69": {
+      "sourceRuleId": "mrs:72411a827a69",
       "sourceId": "buff-source:999991",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -17881,15 +18185,15 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:bb267afe4fce": {
-      "sourceRuleId": "mrs:bb267afe4fce",
+    "mrs:7b7ffadcc2df": {
+      "sourceRuleId": "mrs:7b7ffadcc2df",
       "sourceId": "buff-source:2100006",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:078333fa12f8": {
-      "sourceRuleId": "mrs:078333fa12f8",
+    "mrs:b005c2325a12": {
+      "sourceRuleId": "mrs:b005c2325a12",
       "sourceId": "buff-source:2100104",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -17937,36 +18241,36 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:2b8a6bc152c5": {
-      "sourceRuleId": "mrs:2b8a6bc152c5",
+    "mrs:8ace5000794c": {
+      "sourceRuleId": "mrs:8ace5000794c",
       "sourceId": "buff-source:2100155",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:094c2ec29de3": {
-      "sourceRuleId": "mrs:094c2ec29de3",
+    "mrs:a4a5f8c0a638": {
+      "sourceRuleId": "mrs:a4a5f8c0a638",
       "sourceId": "buff-source:2100156",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:3a56b7d00c73": {
-      "sourceRuleId": "mrs:3a56b7d00c73",
+    "mrs:b1ec766aaaac": {
+      "sourceRuleId": "mrs:b1ec766aaaac",
       "sourceId": "buff-source:2100158",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:ba9c7c820973": {
-      "sourceRuleId": "mrs:ba9c7c820973",
+    "mrs:0bb2c480a96c": {
+      "sourceRuleId": "mrs:0bb2c480a96c",
       "sourceId": "buff-source:2100212",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:ed17f41a842f": {
-      "sourceRuleId": "mrs:ed17f41a842f",
+    "mrs:bab840cebe24": {
+      "sourceRuleId": "mrs:bab840cebe24",
       "sourceId": "buff-source:2100409",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -18062,7 +18366,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818172,
+              "sourceOffset": 827818076,
               "rowId": 6
             },
             {
@@ -18081,7 +18385,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818228,
+              "sourceOffset": 827818132,
               "rowId": 7
             },
             {
@@ -18100,7 +18404,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818284,
+              "sourceOffset": 827818188,
               "rowId": 8
             },
             {
@@ -18119,7 +18423,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818340,
+              "sourceOffset": 827818244,
               "rowId": 9
             },
             {
@@ -18138,7 +18442,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818396,
+              "sourceOffset": 827818300,
               "rowId": 10
             }
           ],
@@ -18242,7 +18546,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818172,
+              "sourceOffset": 827818076,
               "rowId": 6
             },
             {
@@ -18261,7 +18565,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818228,
+              "sourceOffset": 827818132,
               "rowId": 7
             },
             {
@@ -18280,7 +18584,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818284,
+              "sourceOffset": 827818188,
               "rowId": 8
             },
             {
@@ -18299,7 +18603,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818340,
+              "sourceOffset": 827818244,
               "rowId": 9
             },
             {
@@ -18318,7 +18622,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818396,
+              "sourceOffset": 827818300,
               "rowId": 10
             }
           ],
@@ -18459,7 +18763,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818172,
+              "sourceOffset": 827818076,
               "rowId": 6
             },
             {
@@ -18478,7 +18782,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818228,
+              "sourceOffset": 827818132,
               "rowId": 7
             },
             {
@@ -18497,7 +18801,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818284,
+              "sourceOffset": 827818188,
               "rowId": 8
             },
             {
@@ -18516,7 +18820,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818340,
+              "sourceOffset": 827818244,
               "rowId": 9
             },
             {
@@ -18535,7 +18839,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818396,
+              "sourceOffset": 827818300,
               "rowId": 10
             }
           ],
@@ -18639,7 +18943,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818172,
+              "sourceOffset": 827818076,
               "rowId": 6
             },
             {
@@ -18658,7 +18962,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818228,
+              "sourceOffset": 827818132,
               "rowId": 7
             },
             {
@@ -18677,7 +18981,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818284,
+              "sourceOffset": 827818188,
               "rowId": 8
             },
             {
@@ -18696,7 +19000,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818340,
+              "sourceOffset": 827818244,
               "rowId": 9
             },
             {
@@ -18715,7 +19019,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827818396,
+              "sourceOffset": 827818300,
               "rowId": 10
             }
           ],
@@ -18811,8 +19115,8 @@
         "timingCadence"
       ]
     },
-    "mrs:7dc59dc9b83d": {
-      "sourceRuleId": "mrs:7dc59dc9b83d",
+    "mrs:c46d572e7105": {
+      "sourceRuleId": "mrs:c46d572e7105",
       "sourceId": "buff-source:2110035",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -18906,7 +19210,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827819292,
+              "sourceOffset": 827819196,
               "rowId": 26
             },
             {
@@ -18925,7 +19229,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827819348,
+              "sourceOffset": 827819252,
               "rowId": 27
             },
             {
@@ -18944,7 +19248,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827819404,
+              "sourceOffset": 827819308,
               "rowId": 28
             },
             {
@@ -18963,7 +19267,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827819460,
+              "sourceOffset": 827819364,
               "rowId": 29
             },
             {
@@ -18982,7 +19286,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827819516,
+              "sourceOffset": 827819420,
               "rowId": 30
             }
           ],
@@ -19178,7 +19482,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827820972,
+              "sourceOffset": 827820876,
               "rowId": 56
             },
             {
@@ -19207,7 +19511,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827821028,
+              "sourceOffset": 827820932,
               "rowId": 57
             },
             {
@@ -19236,7 +19540,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827821084,
+              "sourceOffset": 827820988,
               "rowId": 58
             },
             {
@@ -19265,7 +19569,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827821140,
+              "sourceOffset": 827821044,
               "rowId": 59
             },
             {
@@ -19294,7 +19598,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827821196,
+              "sourceOffset": 827821100,
               "rowId": 60
             }
           ],
@@ -19658,7 +19962,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827830212,
+              "sourceOffset": 827830116,
               "rowId": 221
             },
             {
@@ -19677,7 +19981,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827830268,
+              "sourceOffset": 827830172,
               "rowId": 222
             },
             {
@@ -19696,7 +20000,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827830324,
+              "sourceOffset": 827830228,
               "rowId": 223
             },
             {
@@ -19715,7 +20019,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827830380,
+              "sourceOffset": 827830284,
               "rowId": 224
             },
             {
@@ -19734,7 +20038,7 @@
                 }
               ],
               "sourceTable": "SkillAoyiStarTable.ctb",
-              "sourceOffset": 827830436,
+              "sourceOffset": 827830340,
               "rowId": 225
             }
           ],
@@ -19827,15 +20131,15 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:ea0fa740a3a0": {
-      "sourceRuleId": "mrs:ea0fa740a3a0",
+    "mrs:37a69123a8fe": {
+      "sourceRuleId": "mrs:37a69123a8fe",
       "sourceId": "buff-source:2110090",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:93ccfefe3786": {
-      "sourceRuleId": "mrs:93ccfefe3786",
+    "mrs:8694f37c92f6": {
+      "sourceRuleId": "mrs:8694f37c92f6",
       "sourceId": "buff-source:2110091",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -24008,8 +24312,8 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
-    "mrs:9ca34d004297": {
-      "sourceRuleId": "mrs:9ca34d004297",
+    "mrs:30e474fb5b0e": {
+      "sourceRuleId": "mrs:30e474fb5b0e",
       "sourceId": "buff-source:2201343",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -24022,15 +24326,15 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:c77cdee14b36": {
-      "sourceRuleId": "mrs:c77cdee14b36",
+    "mrs:938873cde96f": {
+      "sourceRuleId": "mrs:938873cde96f",
       "sourceId": "buff-source:2201351",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:ae6840edacff": {
-      "sourceRuleId": "mrs:ae6840edacff",
+    "mrs:20e3731580ba": {
+      "sourceRuleId": "mrs:20e3731580ba",
       "sourceId": "buff-source:2201362",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -24247,8 +24551,8 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
-    "mrs:08b6aa72e298": {
-      "sourceRuleId": "mrs:08b6aa72e298",
+    "mrs:85fc72b5343e": {
+      "sourceRuleId": "mrs:85fc72b5343e",
       "sourceId": "buff-source:2201561",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -24292,6 +24596,13 @@
     "mrs:c7a2382fef31": {
       "sourceRuleId": "mrs:c7a2382fef31",
       "sourceId": "talent:960",
+      "contributionMode": "exact-produced-damage",
+      "contributionTier": "exact",
+      "confidence": "exact"
+    },
+    "mrs:01d94acd5e02": {
+      "sourceRuleId": "mrs:01d94acd5e02",
+      "sourceId": "buff-source:2201640",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
@@ -24746,8 +25057,8 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:07a263a8d0ef": {
-      "sourceRuleId": "mrs:07a263a8d0ef",
+    "mrs:0995fdec0b2b": {
+      "sourceRuleId": "mrs:0995fdec0b2b",
       "sourceId": "buff-source:2202112",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -24840,8 +25151,8 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:270d78b78585": {
-      "sourceRuleId": "mrs:270d78b78585",
+    "mrs:eae211d8cff4": {
+      "sourceRuleId": "mrs:eae211d8cff4",
       "sourceId": "buff-source:2202121",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -25279,15 +25590,12 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:abd6404b2c5f": {
-      "sourceRuleId": "mrs:abd6404b2c5f",
+    "mrs:484ab24b3456": {
+      "sourceRuleId": "mrs:484ab24b3456",
       "sourceId": "buff-source:2202291",
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
-      "confidence": "not-applicable",
-      "formulaZoneIds": [
-        "exactLuckyProducedDamage"
-      ]
+      "confidence": "not-applicable"
     },
     "mrs:d31896007798": {
       "sourceRuleId": "mrs:d31896007798",
@@ -25308,8 +25616,8 @@
         "timingCadence"
       ]
     },
-    "mrs:ee63368d2a15": {
-      "sourceRuleId": "mrs:ee63368d2a15",
+    "mrs:5c1bb7eeb1f5": {
+      "sourceRuleId": "mrs:5c1bb7eeb1f5",
       "sourceId": "buff-source:2202311",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -26073,87 +26381,6 @@
         "timingCadence"
       ]
     },
-    "mrs:08cb664e2adc": {
-      "sourceRuleId": "mrs:08cb664e2adc",
-      "sourceId": "talent:562",
-      "contributionMode": "formula-replay-candidate",
-      "contributionTier": "replay-required",
-      "confidence": "needs-replay",
-      "formulaTermIds": [
-        "critMultiplier"
-      ],
-      "formulaZoneIds": [
-        "critical",
-        "timingCadence"
-      ],
-      "contributionGroups": [
-        "critical",
-        "hitTiming"
-      ],
-      "predicateTags": [
-        "activation.active-modifier-window",
-        "direction.stat",
-        "direction.timing"
-      ],
-      "requiredRuntimeEvidence": [
-        "attacker crit-damage snapshot at hit time",
-        "attacker crit-rate snapshot at hit time",
-        "cast timeline or cooldown state",
-        "cast timeline or per-hit window buckets",
-        "crit flag",
-        "damage id",
-        "hit timestamp",
-        "modifier value or component amount",
-        "modifier windows",
-        "observed final hit value",
-        "skill id",
-        "sourceRuleId active on hit"
-      ],
-      "componentValueHints": [
-        {
-          "componentKey": "critical-rate",
-          "label": "Crit",
-          "effectClass": "critical-stat",
-          "contributionScope": "global",
-          "direction": "stat",
-          "stat": "Crit",
-          "formulaTermIds": [
-            "critMultiplier"
-          ],
-          "contributionGroups": [
-            "critical"
-          ],
-          "predicateTags": [
-            "activation.active-modifier-window",
-            "direction.stat"
-          ],
-          "valueResolution": "owner-party-split",
-          "values": [
-            {
-              "scope": "owner",
-              "rawText": "50%",
-              "unit": "percent",
-              "value": 50,
-              "decimalValue": 0.5,
-              "formulaAmount": true,
-              "inferredFrom": "larger percent value is owner/self"
-            },
-            {
-              "scope": "party",
-              "rawText": "10%",
-              "unit": "percent",
-              "value": 10,
-              "decimalValue": 0.1,
-              "formulaAmount": true,
-              "inferredFrom": "smaller percent value is party/other players"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
-      ]
-    },
     "mrs:96e7bcb1a538": {
       "sourceRuleId": "mrs:96e7bcb1a538",
       "sourceId": "talent:563",
@@ -26706,8 +26933,8 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:007ee6314d8f": {
-      "sourceRuleId": "mrs:007ee6314d8f",
+    "mrs:347b98b1d8e6": {
+      "sourceRuleId": "mrs:347b98b1d8e6",
       "sourceId": "buff-source:2203091",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -26720,15 +26947,15 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:25203b3cf888": {
-      "sourceRuleId": "mrs:25203b3cf888",
+    "mrs:0847cf1563dc": {
+      "sourceRuleId": "mrs:0847cf1563dc",
       "sourceId": "buff-source:2203101",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:8afd51cf7d1b": {
-      "sourceRuleId": "mrs:8afd51cf7d1b",
+    "mrs:805ca49810d5": {
+      "sourceRuleId": "mrs:805ca49810d5",
       "sourceId": "buff-source:2203102",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -26768,8 +26995,8 @@
         "timingCadence"
       ]
     },
-    "mrs:4bbc2bcf09cc": {
-      "sourceRuleId": "mrs:4bbc2bcf09cc",
+    "mrs:816b5ee507ad": {
+      "sourceRuleId": "mrs:816b5ee507ad",
       "sourceId": "buff-source:2203141",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -26792,19 +27019,12 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:7925fdb75133": {
-      "sourceRuleId": "mrs:7925fdb75133",
+    "mrs:6481d43847e4": {
+      "sourceRuleId": "mrs:6481d43847e4",
       "sourceId": "buff-source:2203181",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
-    },
-    "mrs:92ee7c530118": {
-      "sourceRuleId": "mrs:92ee7c530118",
-      "sourceId": "talent:1119",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
     },
     "mrs:e4c54357ef08": {
       "sourceRuleId": "mrs:e4c54357ef08",
@@ -27052,8 +27272,8 @@
         "timingCadence"
       ]
     },
-    "mrs:911cf59a2cc7": {
-      "sourceRuleId": "mrs:911cf59a2cc7",
+    "mrs:2e30d4351ad5": {
+      "sourceRuleId": "mrs:2e30d4351ad5",
       "sourceId": "buff-source:2203291",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -27066,8 +27286,8 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:76239a707058": {
-      "sourceRuleId": "mrs:76239a707058",
+    "mrs:0d8d54a9aa9b": {
+      "sourceRuleId": "mrs:0d8d54a9aa9b",
       "sourceId": "buff-source:2203302",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -27622,29 +27842,12 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
-    "mrs:d71f22658ff5": {
-      "sourceRuleId": "mrs:d71f22658ff5",
-      "sourceId": "talent:1159",
-      "contributionMode": "timing-only",
-      "contributionTier": "timing",
-      "confidence": "not-applicable",
-      "formulaZoneIds": [
-        "timingCadence"
-      ]
-    },
     "mrs:55dbd41a2c86": {
       "sourceRuleId": "mrs:55dbd41a2c86",
       "sourceId": "talent:1166",
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
-    },
-    "mrs:b41a7831e358": {
-      "sourceRuleId": "mrs:b41a7831e358",
-      "sourceId": "talent:1161",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
     },
     "mrs:dcfce237309c": {
       "sourceRuleId": "mrs:dcfce237309c",
@@ -30595,8 +30798,8 @@
         "timingCadence"
       ]
     },
-    "mrs:ab3192170cf4": {
-      "sourceRuleId": "mrs:ab3192170cf4",
+    "mrs:1624d78a75fa": {
+      "sourceRuleId": "mrs:1624d78a75fa",
       "sourceId": "buff-source:2205162",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -33510,15 +33713,15 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:168f24447825": {
-      "sourceRuleId": "mrs:168f24447825",
+    "mrs:cbe5e3fdf29b": {
+      "sourceRuleId": "mrs:cbe5e3fdf29b",
       "sourceId": "buff-source:2206151",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:8711ec5e87f0": {
-      "sourceRuleId": "mrs:8711ec5e87f0",
+    "mrs:d492c3371015": {
+      "sourceRuleId": "mrs:d492c3371015",
       "sourceId": "buff-source:2206152",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -33634,15 +33837,12 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
-    "mrs:7d7fd881cf24": {
-      "sourceRuleId": "mrs:7d7fd881cf24",
+    "mrs:1ab2484705f8": {
+      "sourceRuleId": "mrs:1ab2484705f8",
       "sourceId": "buff-source:2206240",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
-      "confidence": "exact",
-      "formulaZoneIds": [
-        "exactLuckyProducedDamage"
-      ]
+      "confidence": "exact"
     },
     "mrs:62dd9ed0b837": {
       "sourceRuleId": "mrs:62dd9ed0b837",
@@ -33651,15 +33851,15 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:77bc05a5a7f4": {
-      "sourceRuleId": "mrs:77bc05a5a7f4",
+    "mrs:7d60d1c50055": {
+      "sourceRuleId": "mrs:7d60d1c50055",
       "sourceId": "buff-source:2206241",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:43c5ffac9c60": {
-      "sourceRuleId": "mrs:43c5ffac9c60",
+    "mrs:be95790f74c1": {
+      "sourceRuleId": "mrs:be95790f74c1",
       "sourceId": "buff-source:2206243",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -33671,13 +33871,6 @@
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
-    },
-    "mrs:54683826610a": {
-      "sourceRuleId": "mrs:54683826610a",
-      "sourceId": "talent:1225",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
     },
     "mrs:c9f8a3f324a5": {
       "sourceRuleId": "mrs:c9f8a3f324a5",
@@ -33920,19 +34113,12 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:85445c2edcb9": {
-      "sourceRuleId": "mrs:85445c2edcb9",
+    "mrs:65ffd99f5339": {
+      "sourceRuleId": "mrs:65ffd99f5339",
       "sourceId": "buff-source:2206401",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
-    },
-    "mrs:7c3f40557180": {
-      "sourceRuleId": "mrs:7c3f40557180",
-      "sourceId": "buff-source:2206421",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
     },
     "mrs:5c98a6d45cdb": {
       "sourceRuleId": "mrs:5c98a6d45cdb",
@@ -34383,8 +34569,8 @@
         "timingCadence"
       ]
     },
-    "mrs:5888a9948006": {
-      "sourceRuleId": "mrs:5888a9948006",
+    "mrs:16431695de9e": {
+      "sourceRuleId": "mrs:16431695de9e",
       "sourceId": "buff-source:2206541",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -34407,8 +34593,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:89149b7b1a8d": {
-      "sourceRuleId": "mrs:89149b7b1a8d",
+    "mrs:fe47b91e713f": {
+      "sourceRuleId": "mrs:fe47b91e713f",
       "sourceId": "buff-source:2206561",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -34694,17 +34880,6 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:64cc5320a2e1": {
-      "sourceRuleId": "mrs:64cc5320a2e1",
-      "sourceId": "talent:1308",
-      "contributionMode": "defensive",
-      "contributionTier": "non-damage",
-      "confidence": "not-applicable",
-      "formulaZoneIds": [
-        "generalDamage",
-        "luckyEnhancement"
-      ]
-    },
     "mrs:a6e772333373": {
       "sourceRuleId": "mrs:a6e772333373",
       "sourceId": "talent:1309",
@@ -34981,16 +35156,6 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:84710d9006b7": {
-      "sourceRuleId": "mrs:84710d9006b7",
-      "sourceId": "talent:1316",
-      "contributionMode": "timing-only",
-      "contributionTier": "timing",
-      "confidence": "not-applicable",
-      "formulaZoneIds": [
-        "timingCadence"
-      ]
-    },
     "mrs:08aba8c4dc95": {
       "sourceRuleId": "mrs:08aba8c4dc95",
       "sourceId": "talent:1317",
@@ -35264,100 +35429,9 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:c9994138263d": {
-      "sourceRuleId": "mrs:c9994138263d",
-      "sourceId": "talent:1327",
-      "contributionMode": "formula-replay-candidate",
-      "contributionTier": "replay-required",
-      "confidence": "needs-replay",
-      "formulaTermIds": [
-        "critMultiplier"
-      ],
-      "formulaZoneIds": [
-        "critical"
-      ],
-      "contributionGroups": [
-        "critical",
-        "procDamage"
-      ],
-      "predicateTags": [
-        "activation.active-modifier-window",
-        "direction.damage-dealt",
-        "direction.healing",
-        "direction.stat"
-      ],
-      "requiredRuntimeEvidence": [
-        "attacker crit-damage snapshot at hit time",
-        "attacker crit-rate snapshot at hit time",
-        "attacker uid",
-        "crit flag",
-        "damage id",
-        "healing/lifesteal event lane",
-        "hit timestamp",
-        "modifier value or component amount",
-        "modifier windows",
-        "observed final hit value",
-        "produced damage row id",
-        "skill id",
-        "sourceRuleId active on hit",
-        "target uid"
-      ],
-      "componentValueHints": [
-        {
-          "componentKey": "critical-rate",
-          "label": "Crit",
-          "effectClass": "critical-stat",
-          "contributionScope": "global",
-          "direction": "stat",
-          "stat": "Crit",
-          "valueScope": "owner",
-          "formulaTermIds": [
-            "critMultiplier"
-          ],
-          "contributionGroups": [
-            "critical"
-          ],
-          "predicateTags": [
-            "activation.active-modifier-window",
-            "direction.stat"
-          ],
-          "valueResolution": "owner-party-split",
-          "values": [
-            {
-              "scope": "owner",
-              "rawText": "50%",
-              "unit": "percent",
-              "value": 50,
-              "decimalValue": 0.5,
-              "formulaAmount": true,
-              "inferredFrom": "larger percent value is owner/self"
-            },
-            {
-              "scope": "party",
-              "rawText": "30%",
-              "unit": "percent",
-              "value": 30,
-              "decimalValue": 0.3,
-              "formulaAmount": true,
-              "inferredFrom": "smaller percent value is party/other players"
-            }
-          ]
-        }
-      ],
-      "notes": [
-        "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
-      ]
-    },
     "mrs:f3401344018b": {
       "sourceRuleId": "mrs:f3401344018b",
       "sourceId": "talent:1328",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:c5530a38a229": {
-      "sourceRuleId": "mrs:c5530a38a229",
-      "sourceId": "talent:1331",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
@@ -35752,30 +35826,6 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:7b1a6e8dcac0": {
-      "sourceRuleId": "mrs:7b1a6e8dcac0",
-      "sourceId": "talent:1345",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:f584e2c73be5": {
-      "sourceRuleId": "mrs:f584e2c73be5",
-      "sourceId": "talent:1346",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:8da54e163719": {
-      "sourceRuleId": "mrs:8da54e163719",
-      "sourceId": "talent:1347",
-      "contributionMode": "timing-only",
-      "contributionTier": "timing",
-      "confidence": "not-applicable",
-      "formulaZoneIds": [
-        "timingCadence"
-      ]
-    },
     "mrs:ab45e73f44c6": {
       "sourceRuleId": "mrs:ab45e73f44c6",
       "sourceId": "talent:1348",
@@ -36059,13 +36109,6 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:a868bad98b52": {
-      "sourceRuleId": "mrs:a868bad98b52",
-      "sourceId": "talent:1362",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
     "mrs:54cd9dbdce26": {
       "sourceRuleId": "mrs:54cd9dbdce26",
       "sourceId": "talent:1363",
@@ -36090,8 +36133,8 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:4920256af371": {
-      "sourceRuleId": "mrs:4920256af371",
+    "mrs:b56696aa5c8f": {
+      "sourceRuleId": "mrs:b56696aa5c8f",
       "sourceId": "buff-source:2207681",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -36611,8 +36654,8 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:0b00db7c5103": {
-      "sourceRuleId": "mrs:0b00db7c5103",
+    "mrs:5b7f5e728880": {
+      "sourceRuleId": "mrs:5b7f5e728880",
       "sourceId": "buff-source:2208172",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -36625,8 +36668,8 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:a90832609db6": {
-      "sourceRuleId": "mrs:a90832609db6",
+    "mrs:598bb19a7c0c": {
+      "sourceRuleId": "mrs:598bb19a7c0c",
       "sourceId": "buff-source:2208181",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -38084,8 +38127,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:02bdabcfbe1a": {
-      "sourceRuleId": "mrs:02bdabcfbe1a",
+    "mrs:0898671452a2": {
+      "sourceRuleId": "mrs:0898671452a2",
       "sourceId": "buff-source:2300080",
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
@@ -38097,6 +38140,13 @@
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
+    },
+    "mrs:34a6621ccad3": {
+      "sourceRuleId": "mrs:34a6621ccad3",
+      "sourceId": "buff-source:2302320",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
     },
     "mrs:75cd9c70ab5e": {
       "sourceRuleId": "mrs:75cd9c70ab5e",
@@ -38140,36 +38190,43 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:24f7cc7dc131": {
-      "sourceRuleId": "mrs:24f7cc7dc131",
+    "mrs:c3c9f6ebccff": {
+      "sourceRuleId": "mrs:c3c9f6ebccff",
+      "sourceId": "buff-source:3001030",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:f92282ef92f1": {
+      "sourceRuleId": "mrs:f92282ef92f1",
       "sourceId": "buff-source:3001031",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:c58102785af8": {
-      "sourceRuleId": "mrs:c58102785af8",
+    "mrs:05aed61357a1": {
+      "sourceRuleId": "mrs:05aed61357a1",
       "sourceId": "buff-source:3001170",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:239f2cd664b3": {
-      "sourceRuleId": "mrs:239f2cd664b3",
+    "mrs:89ec17684654": {
+      "sourceRuleId": "mrs:89ec17684654",
       "sourceId": "buff-source:3001192",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:1f8cd39f4186": {
-      "sourceRuleId": "mrs:1f8cd39f4186",
+    "mrs:276c7d595faf": {
+      "sourceRuleId": "mrs:276c7d595faf",
       "sourceId": "buff-source:3001201",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:ea81e4c3b134": {
-      "sourceRuleId": "mrs:ea81e4c3b134",
+    "mrs:40889cc58f97": {
+      "sourceRuleId": "mrs:40889cc58f97",
       "sourceId": "buff-source:3001211",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -38182,8 +38239,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:a86d0315fde1": {
-      "sourceRuleId": "mrs:a86d0315fde1",
+    "mrs:43aa3fbcf961": {
+      "sourceRuleId": "mrs:43aa3fbcf961",
       "sourceId": "buff-source:3001231",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -38736,6 +38793,13 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
+    "mrs:354291768ba1": {
+      "sourceRuleId": "mrs:354291768ba1",
+      "sourceId": "buff-source:3002210",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
     "mrs:cfa4a01ac8b3": {
       "sourceRuleId": "mrs:cfa4a01ac8b3",
       "sourceId": "season-talent-node:1101",
@@ -38743,8 +38807,8 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:872be889ba37": {
-      "sourceRuleId": "mrs:872be889ba37",
+    "mrs:7fdf8ffd0a0b": {
+      "sourceRuleId": "mrs:7fdf8ffd0a0b",
       "sourceId": "buff-source:3002215",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -39564,8 +39628,8 @@
         "luckyStrikeBaseTerm"
       ]
     },
-    "mrs:d9e28a5ee4d0": {
-      "sourceRuleId": "mrs:d9e28a5ee4d0",
+    "mrs:9db23eab0d4d": {
+      "sourceRuleId": "mrs:9db23eab0d4d",
       "sourceId": "buff-source:3002671",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -39816,15 +39880,15 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:e5f47703089b": {
-      "sourceRuleId": "mrs:e5f47703089b",
+    "mrs:39b85a9618a0": {
+      "sourceRuleId": "mrs:39b85a9618a0",
       "sourceId": "buff-source:3003023",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:230c18f398bb": {
-      "sourceRuleId": "mrs:230c18f398bb",
+    "mrs:afe5af949a84": {
+      "sourceRuleId": "mrs:afe5af949a84",
       "sourceId": "buff-source:3003025",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -39932,6 +39996,13 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
+    "mrs:61af1749a103": {
+      "sourceRuleId": "mrs:61af1749a103",
+      "sourceId": "buff-source:3003210",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
     "mrs:a26968736dea": {
       "sourceRuleId": "mrs:a26968736dea",
       "sourceId": "season-talent-node:1601",
@@ -39975,8 +40046,8 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:1566c1d0d4ae": {
-      "sourceRuleId": "mrs:1566c1d0d4ae",
+    "mrs:53ab93e164fc": {
+      "sourceRuleId": "mrs:53ab93e164fc",
       "sourceId": "buff-source:3003213",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -45779,8 +45850,8 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
-    "mrs:5d69b8fbbcf6": {
-      "sourceRuleId": "mrs:5d69b8fbbcf6",
+    "mrs:6a84c723a25a": {
+      "sourceRuleId": "mrs:6a84c723a25a",
       "sourceId": "season-rogue-entry:296",
       "contributionMode": "formula-replay-candidate",
       "contributionTier": "replay-required",
@@ -46096,8 +46167,8 @@
         "timingCadence"
       ]
     },
-    "mrs:858e7bfa50fd": {
-      "sourceRuleId": "mrs:858e7bfa50fd",
+    "mrs:74209e7dd691": {
+      "sourceRuleId": "mrs:74209e7dd691",
       "sourceId": "season-rogue-entry:302",
       "contributionMode": "defensive",
       "contributionTier": "non-damage",
@@ -46294,8 +46365,8 @@
       "contributionTier": "non-damage",
       "confidence": "not-applicable"
     },
-    "mrs:9b44647e2ec5": {
-      "sourceRuleId": "mrs:9b44647e2ec5",
+    "mrs:96e4dbe68233": {
+      "sourceRuleId": "mrs:96e4dbe68233",
       "sourceId": "season-rogue-entry:309",
       "contributionMode": "timing-only",
       "contributionTier": "timing",
@@ -47815,8 +47886,8 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:e4f8c527b434": {
-      "sourceRuleId": "mrs:e4f8c527b434",
+    "mrs:f465860f2f23": {
+      "sourceRuleId": "mrs:f465860f2f23",
       "sourceId": "season-rogue-entry:264",
       "contributionMode": "timing-only",
       "contributionTier": "timing",
@@ -47924,12 +47995,12 @@
         "Final damage packets can only become net-added contribution after source-on/source-off formula replay validates the observed hit."
       ]
     },
-    "mrs:7c5719779419": {
-      "sourceRuleId": "mrs:7c5719779419",
+    "mrs:17eada55ea80": {
+      "sourceRuleId": "mrs:17eada55ea80",
       "sourceId": "season-rogue-entry:267",
-      "contributionMode": "exact-produced-damage",
-      "contributionTier": "exact",
-      "confidence": "exact"
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
     },
     "mrs:1a13e1df9726": {
       "sourceRuleId": "mrs:1a13e1df9726",
@@ -48009,8 +48080,8 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:977fc78117da": {
-      "sourceRuleId": "mrs:977fc78117da",
+    "mrs:1f6beb249c16": {
+      "sourceRuleId": "mrs:1f6beb249c16",
       "sourceId": "season-rogue-entry:271",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
@@ -48574,8 +48645,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:dee862ca35b4": {
-      "sourceRuleId": "mrs:dee862ca35b4",
+    "mrs:d28e0d133815": {
+      "sourceRuleId": "mrs:d28e0d133815",
       "sourceId": "season-rogue-entry:326",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
@@ -50925,8 +50996,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:7ecb6ac314fa": {
-      "sourceRuleId": "mrs:7ecb6ac314fa",
+    "mrs:7eba124e09eb": {
+      "sourceRuleId": "mrs:7eba124e09eb",
       "sourceId": "buff-source:3210061",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -50935,8 +51006,8 @@
         "critical"
       ]
     },
-    "mrs:b55fe55fff15": {
-      "sourceRuleId": "mrs:b55fe55fff15",
+    "mrs:a81c0fd9b651": {
+      "sourceRuleId": "mrs:a81c0fd9b651",
       "sourceId": "buff-source:3210081",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -50963,8 +51034,8 @@
       "contributionTier": "exact",
       "confidence": "exact"
     },
-    "mrs:1ef8667c430f": {
-      "sourceRuleId": "mrs:1ef8667c430f",
+    "mrs:59a68620823e": {
+      "sourceRuleId": "mrs:59a68620823e",
       "sourceId": "buff-source:3210171",
       "contributionMode": "exact-produced-damage",
       "contributionTier": "exact",
@@ -51700,13 +51771,6 @@
     "mrs:04a5ab6e0991": {
       "sourceRuleId": "mrs:04a5ab6e0991",
       "sourceId": "observed-buff:21410",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:ca2a4256798d": {
-      "sourceRuleId": "mrs:ca2a4256798d",
-      "sourceId": "observed-buff:21412",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
@@ -53188,20 +53252,6 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:0b22ee54d145": {
-      "sourceRuleId": "mrs:0b22ee54d145",
-      "sourceId": "observed-buff:55330",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:5e45a7154d04": {
-      "sourceRuleId": "mrs:5e45a7154d04",
-      "sourceId": "observed-buff:55333",
-      "contributionMode": "defensive",
-      "contributionTier": "non-damage",
-      "confidence": "not-applicable"
-    },
     "mrs:0bf924ca7eb6": {
       "sourceRuleId": "mrs:0bf924ca7eb6",
       "sourceId": "observed-buff:55334",
@@ -53408,13 +53458,6 @@
     "mrs:cc1c2ebc8bf7": {
       "sourceRuleId": "mrs:cc1c2ebc8bf7",
       "sourceId": "observed-buff:55410",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:53404f807c87": {
-      "sourceRuleId": "mrs:53404f807c87",
-      "sourceId": "observed-buff:55413",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
@@ -54129,13 +54172,6 @@
     "mrs:0aeff2aa19fe": {
       "sourceRuleId": "mrs:0aeff2aa19fe",
       "sourceId": "observed-buff:510572",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:23cc6f1b0114": {
-      "sourceRuleId": "mrs:23cc6f1b0114",
-      "sourceId": "observed-buff:510574",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
@@ -87971,13 +88007,6 @@
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
     },
-    "mrs:edba96ac8c77": {
-      "sourceRuleId": "mrs:edba96ac8c77",
-      "sourceId": "observed-buff:2206121",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
     "mrs:6d2847ee0e7c": {
       "sourceRuleId": "mrs:6d2847ee0e7c",
       "sourceId": "observed-buff:2206172",
@@ -88037,6 +88066,13 @@
     "mrs:3eeacda07aff": {
       "sourceRuleId": "mrs:3eeacda07aff",
       "sourceId": "observed-buff:2206321",
+      "contributionMode": "overlap-only",
+      "contributionTier": "overlap-only",
+      "confidence": "overlap-only"
+    },
+    "mrs:06b7f639f5d3": {
+      "sourceRuleId": "mrs:06b7f639f5d3",
+      "sourceId": "observed-buff:2206421",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"
@@ -88926,13 +88962,6 @@
     "mrs:65b521d493a1": {
       "sourceRuleId": "mrs:65b521d493a1",
       "sourceId": "observed-buff:2302310",
-      "contributionMode": "overlap-only",
-      "contributionTier": "overlap-only",
-      "confidence": "overlap-only"
-    },
-    "mrs:1bc023d7826a": {
-      "sourceRuleId": "mrs:1bc023d7826a",
-      "sourceId": "observed-buff:2302320",
       "contributionMode": "overlap-only",
       "contributionTier": "overlap-only",
       "confidence": "overlap-only"

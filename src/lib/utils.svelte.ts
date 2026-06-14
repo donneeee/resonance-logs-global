@@ -15,6 +15,12 @@ import classSpecIconsData from '$parserData/generated/class-spec-icons.json';
 import { resolveStaticIconUrl } from '$lib/config/static-icon-resolver';
 import { SETTINGS, DEFAULT_CLASS_COLORS, DEFAULT_CLASS_SPEC_COLORS, CLASS_SPEC_MAP } from '$lib/settings-store';
 
+let pendingDetachedTooltip: {
+  destroy: () => void;
+  hide: () => void;
+  state?: { isDestroyed?: boolean };
+} | null = null;
+
 export const CLASS_MAP: Record<number, string> = {
   1: 'Stormblade',
   2: 'Frost Mage',
@@ -53,15 +59,41 @@ const SPEC_ICON_ROLE_COLORS = {
   tank: "#7ea6c6",
 } as const;
 
-const SUPPORT_SPEC_ICONS = new Set(["Lifebind", "Recovery", "Concerto"]);
-const TANK_SPEC_ICONS = new Set(["Earthfort", "Block", "Shield"]);
+const SUPPORT_SPEC_ICONS = new Set(["Smite", "Lifebind", "Dissonance", "Concerto"]);
+const TANK_SPEC_ICONS = new Set(["Earthfort", "Block", "Recovery", "Shield"]);
+const DPS_HEALER_SPEC_ICONS = new Set(["Smite", "Dissonance"]);
 
-export function getClassIconTintColor(class_name: string, class_spec_name = ""): string {
+export const DPS_HEALER_SPEC_GLOW = "#ff4d5f";
+
+export function isDpsHealerSpec(class_spec_name = ""): boolean {
+  return DPS_HEALER_SPEC_ICONS.has(class_spec_name);
+}
+
+export function getClassSpecRoleTintColor(class_spec_name = ""): string {
   if (!class_spec_name) return "";
   if (SUPPORT_SPEC_ICONS.has(class_spec_name)) return SPEC_ICON_ROLE_COLORS.support;
   if (TANK_SPEC_ICONS.has(class_spec_name)) return SPEC_ICON_ROLE_COLORS.tank;
+  return "";
+}
+
+export function getClassIconTintColor(class_name: string, class_spec_name = ""): string {
+  if (!class_spec_name) return "";
+  const roleTint = getClassSpecRoleTintColor(class_spec_name);
+  if (roleTint) return roleTint;
   if (CLASS_SPEC_MAP[class_spec_name] || class_name) return SPEC_ICON_ROLE_COLORS.dps;
   return "";
+}
+
+export function getClassRowGlowColor(
+  class_name: string,
+  class_spec_name = "",
+  options: { highlightDpsHealerSpecIcons?: boolean } = {},
+): string {
+  if (options.highlightDpsHealerSpecIcons === true && isDpsHealerSpec(class_spec_name)) {
+    return DPS_HEALER_SPEC_GLOW;
+  }
+
+  return getClassSpecRoleTintColor(class_spec_name) || getClassColor(class_name, class_spec_name);
 }
 
 type ClassIconEntry = {
@@ -105,15 +137,22 @@ export function tooltip(getContent: () => string): Attachment {
       content: getContent(),
       theme: 'resonance',
       arrow: true,
+      interactive: true,
       appendTo: () => document.body,
-      delay: [200, 80],
-      duration: [120, 80],
+      delay: [200, 240],
+      duration: [120, 120],
       animation: 'fade',
       hideOnClick: false,
       moveTransition: 'transform 120ms ease-out',
       placement: 'top',
       maxWidth: 'min(420px, calc(100vw - 16px))',
       zIndex: 1000,
+      onShow() {
+        if (pendingDetachedTooltip && !pendingDetachedTooltip.state?.isDestroyed) {
+          pendingDetachedTooltip.destroy();
+        }
+        pendingDetachedTooltip = null;
+      },
       popperOptions: {
         modifiers: [
           {
@@ -146,7 +185,37 @@ export function tooltip(getContent: () => string): Attachment {
       instance.setContent(getContent());
     });
 
-    return () => instance.destroy();
+    return () => {
+      const shouldKeepReadable =
+        instance.state.isVisible ||
+        element.matches(":hover") ||
+        document.activeElement === element;
+
+      if (!shouldKeepReadable) {
+        instance.destroy();
+        return;
+      }
+
+      if (pendingDetachedTooltip && !pendingDetachedTooltip.state?.isDestroyed) {
+        pendingDetachedTooltip.destroy();
+      }
+
+      pendingDetachedTooltip = instance;
+      instance.disable();
+      window.setTimeout(() => {
+        if (pendingDetachedTooltip === instance) {
+          pendingDetachedTooltip = null;
+        }
+        if (!instance.state.isDestroyed) {
+          instance.hide();
+          window.setTimeout(() => {
+            if (!instance.state.isDestroyed) {
+              instance.destroy();
+            }
+          }, 160);
+        }
+      }, 2200);
+    };
   };
 }
 

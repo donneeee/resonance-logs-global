@@ -17,7 +17,12 @@
   import { page } from "$app/state";
   import { goto } from "$app/navigation";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
-  import { liveTankedSkillColumns, orderColumnsByKey } from "$lib/column-data";
+  import {
+    columnLabelWithAlias,
+    liveTankedSkillColumns,
+    orderColumnsByKey,
+    type ColumnDefinition,
+  } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
   import getDisplayName from "$lib/name-display";
@@ -135,14 +140,14 @@
     return resolveSkillTranslation(skill.skillId, language, skill.name);
   }
 
-  function thLabel(
-    col: { headerKey?: string; labelKey?: string; header: string; label?: string },
-  ): string {
+  function thLabel(col: ColumnDefinition): string {
     const language = SETTINGS.live.general.state.language;
 
     if (col.headerKey) {
       const translatedHeader = resolveNavigationTranslation(col.headerKey, language, "");
-      if (translatedHeader?.trim()) return translatedHeader;
+      if (translatedHeader?.trim()) {
+        return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, translatedHeader);
+      }
     }
 
     if (col.labelKey) {
@@ -151,10 +156,12 @@
         language,
         col.label ?? col.header,
       );
-      if (translatedLabel?.trim()) return translatedLabel;
+      if (translatedLabel?.trim()) {
+        return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, translatedLabel);
+      }
     }
 
-    return col.header;
+    return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, col.header);
   }
 
   function uiLabel(key: string, fallback: string): string {

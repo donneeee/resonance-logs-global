@@ -1,5 +1,6 @@
 use crate::live::entity_id::{EntityUuid, canonical_player_uuid};
 use crate::packets::opcodes::{GRPC_TEAM_NTF_SERVICE_ID, NotifyKey, grpc_team_method};
+use blueprotobuf_lib::blueprotobuf;
 use bytes::Bytes;
 use prost::Message;
 use std::collections::HashMap;
@@ -27,7 +28,7 @@ struct NoticeUpdateTeamMemberInfoRequest {
     #[prost(message, repeated, tag = "5")]
     team_member_sync_datas: Vec<TeamMemberFastSyncData>,
     #[prost(message, repeated, tag = "6")]
-    team_member_social_datas: Vec<TeamMemData>,
+    team_member_social_datas: Vec<blueprotobuf::TeamMemData>,
 }
 
 #[derive(Clone, PartialEq, Message)]
@@ -41,7 +42,7 @@ struct NotifyJoinTeamRequest {
     #[prost(message, optional, tag = "1")]
     base_info: Option<TeamBaseInfo>,
     #[prost(message, repeated, tag = "2")]
-    member_data: Vec<TeamMemData>,
+    member_data: Vec<blueprotobuf::TeamMemData>,
     #[prost(map = "int64, message", tag = "6")]
     member_sync_datas: HashMap<i64, TeamMemberFastSyncData>,
 }
@@ -64,12 +65,6 @@ struct TeamBaseInfo {
     team_id: Option<i64>,
     #[prost(int64, optional, tag = "3")]
     leader_id: Option<i64>,
-}
-
-#[derive(Clone, Copy, PartialEq, Message)]
-struct TeamMemData {
-    #[prost(int64, optional, tag = "1")]
-    char_id: Option<i64>,
 }
 
 #[derive(Clone, Copy, PartialEq, Message)]
@@ -96,13 +91,14 @@ impl TeamRuntimeState {
                 self.leader_uuid = leader_uuid;
                 self.add_member(leader_uuid);
             }
-            TeamEvent::MemberInfoUpdated { members } => {
+            TeamEvent::MemberInfoUpdated { members, .. } => {
                 self.upsert_members(members);
             }
             TeamEvent::Joined {
                 team_id,
                 leader_uuid,
                 members,
+                ..
             } => {
                 self.team_id = team_id;
                 self.leader_uuid = leader_uuid;
@@ -160,16 +156,31 @@ pub enum TeamEvent {
     },
     MemberInfoUpdated {
         members: Vec<EntityUuid>,
+        equipment: Vec<TeamMemberEquipment>,
     },
     Joined {
         team_id: i64,
         leader_uuid: EntityUuid,
         members: Vec<EntityUuid>,
+        equipment: Vec<TeamMemberEquipment>,
     },
     Left {
         member_uuid: EntityUuid,
     },
     Dissolved,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TeamMemberEquipment {
+    pub member_uuid: EntityUuid,
+    pub runtime_source: &'static str,
+    pub items: Vec<TeamEquipmentItem>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TeamEquipmentItem {
+    pub slot: i32,
+    pub item_config_id: i32,
 }
 
 pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
@@ -197,13 +208,19 @@ pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
             match NoticeUpdateTeamMemberInfo::decode(data) {
                 Ok(message) => message.v_request.map(|request| {
                     let mut members = Vec::new();
+                    let mut equipment = Vec::new();
                     for member in request.team_member_social_datas {
                         push_member_id(&mut members, member.char_id);
+                        push_member_equipment(
+                            &mut equipment,
+                            &member,
+                            "GrpcTeamNtf.NoticeUpdateTeamMemberInfo.social_data.equip_data",
+                        );
                     }
                     for member in request.team_member_sync_datas {
                         push_member_id(&mut members, member.char_id);
                     }
-                    TeamEvent::MemberInfoUpdated { members }
+                    TeamEvent::MemberInfoUpdated { members, equipment }
                 }),
                 Err(err) => {
                     log::warn!("Error decoding NoticeUpdateTeamMemberInfo.. ignoring: {err}");
@@ -215,8 +232,14 @@ pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
             Ok(message) => message.v_request.and_then(|request| {
                 let base_info = request.base_info?;
                 let mut members = Vec::new();
+                let mut equipment = Vec::new();
                 for member in request.member_data {
                     push_member_id(&mut members, member.char_id);
+                    push_member_equipment(
+                        &mut equipment,
+                        &member,
+                        "GrpcTeamNtf.NotifyJoinTeam.member_data.social_data.equip_data",
+                    );
                 }
                 let mut sync_members: Vec<_> = request.member_sync_datas.into_iter().collect();
                 sync_members.sort_by_key(|(char_id, _)| *char_id);
@@ -228,6 +251,7 @@ pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
                     team_id: base_info.team_id.unwrap_or_default(),
                     leader_uuid: canonical_player_uuid(base_info.leader_id.unwrap_or_default()),
                     members,
+                    equipment,
                 })
             }),
             Err(err) => {
@@ -269,6 +293,58 @@ fn push_member_id(members: &mut Vec<EntityUuid>, member_id: Option<i64>) {
     }
 }
 
+fn push_member_equipment(
+    equipment: &mut Vec<TeamMemberEquipment>,
+    member: &blueprotobuf::TeamMemData,
+    runtime_source: &'static str,
+) {
+    let member_uuid = canonical_player_uuid(member.char_id.unwrap_or_default());
+    if member_uuid == 0 {
+        return;
+    }
+
+    let Some(equip_data) = member
+        .social_data
+        .as_ref()
+        .and_then(|data| data.equip_data.as_ref())
+    else {
+        return;
+    };
+
+    let mut items: Vec<_> = equip_data
+        .equip_infos
+        .iter()
+        .filter_map(|item| {
+            let slot = item.slot.filter(|slot| *slot > 0)?;
+            let item_config_id = item.equip_id.filter(|equip_id| *equip_id > 0)?;
+            Some(TeamEquipmentItem {
+                slot,
+                item_config_id,
+            })
+        })
+        .collect();
+
+    if items.is_empty() {
+        return;
+    }
+
+    items.sort_by_key(|item| (item.slot, item.item_config_id));
+
+    if let Some(existing) = equipment
+        .iter_mut()
+        .find(|existing| existing.member_uuid == member_uuid)
+    {
+        existing.runtime_source = runtime_source;
+        existing.items = items;
+    } else {
+        equipment.push(TeamMemberEquipment {
+            member_uuid,
+            runtime_source,
+            items,
+        });
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -286,6 +362,7 @@ mod tests {
                 team_id: 7,
                 leader_uuid: c(2),
                 members: vec![c(1), 0, c(1)],
+                equipment: Vec::new(),
             },
             c(1),
         );
@@ -306,6 +383,7 @@ mod tests {
         state.apply_event(
             TeamEvent::MemberInfoUpdated {
                 members: vec![c(2), c(3), 0, c(3)],
+                equipment: Vec::new(),
             },
             c(1),
         );
@@ -348,11 +426,11 @@ mod tests {
         let message = NoticeUpdateTeamMemberInfo {
             v_request: Some(NoticeUpdateTeamMemberInfoRequest {
                 team_member_social_datas: vec![
-                    TeamMemData {
+                    blueprotobuf::TeamMemData {
                         char_id: Some(10),
                         ..Default::default()
                     },
-                    TeamMemData {
+                    blueprotobuf::TeamMemData {
                         char_id: Some(20),
                         ..Default::default()
                     },
@@ -382,6 +460,52 @@ mod tests {
             event,
             Some(TeamEvent::MemberInfoUpdated {
                 members: vec![c(10), c(20)],
+                equipment: Vec::new(),
+            })
+        );
+    }
+
+    #[test]
+    fn decode_member_update_extracts_social_equipment() {
+        let message = NoticeUpdateTeamMemberInfo {
+            v_request: Some(NoticeUpdateTeamMemberInfoRequest {
+                team_member_social_datas: vec![blueprotobuf::TeamMemData {
+                    char_id: Some(10),
+                    social_data: Some(blueprotobuf::TeamMemberSocialData {
+                        equip_data: Some(blueprotobuf::EquipData {
+                            equip_infos: vec![blueprotobuf::EquipNine {
+                                slot: Some(200),
+                                equip_id: Some(2000626),
+                            }],
+                        }),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }),
+        };
+
+        let event = decode_team_event(
+            NotifyKey {
+                service_id: GRPC_TEAM_NTF_SERVICE_ID,
+                method_id: grpc_team_method::NOTICE_UPDATE_TEAM_MEMBER_INFO,
+            },
+            Bytes::from(message.encode_to_vec()),
+        );
+
+        assert_eq!(
+            event,
+            Some(TeamEvent::MemberInfoUpdated {
+                members: vec![c(10)],
+                equipment: vec![TeamMemberEquipment {
+                    member_uuid: c(10),
+                    runtime_source: "GrpcTeamNtf.NoticeUpdateTeamMemberInfo.social_data.equip_data",
+                    items: vec![TeamEquipmentItem {
+                        slot: 200,
+                        item_config_id: 2000626,
+                    }],
+                }],
             })
         );
     }
@@ -410,7 +534,7 @@ mod tests {
                     leader_id: Some(10),
                     ..Default::default()
                 }),
-                member_data: vec![TeamMemData {
+                member_data: vec![blueprotobuf::TeamMemData {
                     char_id: Some(10),
                     ..Default::default()
                 }],
@@ -433,6 +557,7 @@ mod tests {
                 team_id: 7,
                 leader_uuid: c(10),
                 members: vec![c(10), c(20), c(25), c(30)],
+                equipment: Vec::new(),
             })
         );
     }

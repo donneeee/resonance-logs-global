@@ -15,6 +15,8 @@ import type {
   DamageSnapshot as BindingDamageSnapshot,
   DeathRecord as BindingDeathRecord,
 } from "./bindings";
+import type { EquippedItem, OceanWeaponInfo } from "$lib/player-equipment";
+import type { PlayerImagineInfo } from "$lib/player-imagines";
 
 // Type definitions for event payloads
 export type BossHealth = {
@@ -41,6 +43,8 @@ export type TrainingDummyPhase = "idle" | "armed" | "running" | "finished";
 
 export type TrainingDummyState = {
   phase: TrainingDummyPhase;
+  durationMs: number;
+  remainingMs: number;
 };
 
 export type PlayerRow = {
@@ -56,6 +60,7 @@ export type PlayerRow = {
   tdps: number;
   activeTimeMs: number;
   bossDps: number;
+  trueBossDps: number;
   dmgPct: number;
   critRate: number;
   critDmgRate: number;
@@ -69,6 +74,9 @@ export type PlayerRow = {
   bossDmgPct: number;
   effectiveTotal: number;
   effectiveDps: number;
+  equippedItems: EquippedItem[];
+  oceanWeapon: OceanWeaponInfo | null;
+  playerImagines: PlayerImagineInfo[];
 };
 
 export type PlayersWindow = {
@@ -95,6 +103,20 @@ export type SkillRow = {
   damageMode: number | null;
 };
 
+export type SkillCdSourceState = {
+  sourceKey: string;
+  sourceKind: string;
+  attrType: number;
+  tempAttrId?: number | null;
+  logicType?: number | null;
+  attrParams?: number[];
+  skillTags?: number[];
+  value: number;
+  contribution: number;
+  contributionKind: string;
+  scope: string;
+};
+
 export type SkillCdState = {
   skillLevelId: number;
   beginTime: number;
@@ -104,6 +126,11 @@ export type SkillCdState = {
   receivedAt: number;
   calculatedDuration: number;
   cdAccelerateRate: number;
+  observedProgressRate?: number;
+  packetSubCdRatio?: number;
+  packetSubCdFixed?: number;
+  packetAccelerateCdRatio?: number;
+  cdSources?: SkillCdSourceState[];
 };
 
 export type SkillCdUpdatePayload = {
@@ -348,8 +375,8 @@ export const onDeathReplay = (
 
 export const resetEncounter = (): Promise<Result<null, string>> => commands.resetEncounter();
 export const togglePauseEncounter = (): Promise<Result<null, string>> => commands.togglePauseEncounter();
-export const startTrainingDummy = (): Promise<Result<null, string>> =>
-  commands.startTrainingDummy();
+export const startTrainingDummy = (durationSeconds?: number | null): Promise<Result<null, string>> =>
+  commands.startTrainingDummy(durationSeconds ?? null);
 export const stopTrainingDummy = (): Promise<Result<null, string>> => commands.stopTrainingDummy();
 export const enableBlur = (): Promise<void> => commands.enableBlur();
 export const disableBlur = (): Promise<void> => commands.disableBlur();

@@ -8,29 +8,29 @@
     "talentSpecOwnership": "output/TalentSpecOwnership.json"
   },
   "stats": {
-    "sourceRules": 8757,
+    "sourceRules": 8762,
     "roleCounts": {
-      "offensive": 1398,
+      "offensive": 1399,
       "supportive": 555,
-      "unknown": 6675,
-      "defensive": 125,
+      "unknown": 6680,
+      "defensive": 124,
       "utility": 4
     },
     "rowModelCounts": {
-      "static-target": 826,
-      "runtime-window": 878,
-      "timing-window": 447,
-      "defensive-window": 106,
-      "proc-damage": 90,
-      "unknown": 6406,
+      "static-target": 820,
+      "runtime-window": 891,
+      "timing-window": 449,
+      "defensive-window": 107,
+      "proc-damage": 91,
+      "unknown": 6400,
       "utility-lockout": 4
     },
     "reportDomainCounts": {
-      "damage": 1953,
-      "healing": 392,
+      "damage": 1954,
+      "healing": 391,
       "support": 771,
-      "unknown": 6675,
-      "tanked": 275,
+      "unknown": 6680,
+      "tanked": 274,
       "utility": 4
     },
     "hardSpecFilterSources": 247
@@ -359,19 +359,19 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:edcb4697c628": {
-      "sourceRuleId": "mrs:edcb4697c628",
+    "mrs:3bfebbcf0a6e": {
+      "sourceRuleId": "mrs:3bfebbcf0a6e",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
+        "active-skill-window",
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
@@ -720,54 +720,98 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:415f5e6e3469": {
-      "sourceRuleId": "mrs:415f5e6e3469",
+    "mrs:3fd4c545d564": {
+      "sourceRuleId": "mrs:3fd4c545d564",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:c3791c83cdcf": {
-      "sourceRuleId": "mrs:c3791c83cdcf",
-      "rowModel": "static-target",
-      "primaryRole": "offensive",
+    "mrs:27f7c1a7bc9e": {
+      "sourceRuleId": "mrs:27f7c1a7bc9e",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
       "reportDomains": [
-        "damage"
+        "unknown"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
+        "active-skill-window",
         "actor-kind",
-        "domain:damage",
-        "offensive",
-        "produced-proc",
-        "static-target"
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:24c41dda072c": {
-      "sourceRuleId": "mrs:24c41dda072c",
+    "mrs:8089ffd0230f": {
+      "sourceRuleId": "mrs:8089ffd0230f",
+      "rowModel": "timing-window",
+      "primaryRole": "offensive",
+      "reportDomains": [
+        "damage",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:support",
+        "offensive",
+        "passive-talent-buff",
+        "timing-window"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 5,
+        "className": "Verdant Oracle",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
+    },
+    "mrs:4690bfced548": {
+      "sourceRuleId": "mrs:4690bfced548",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:53fe38350951": {
+      "sourceRuleId": "mrs:53fe38350951",
+      "rowModel": "static-target",
+      "primaryRole": "offensive",
+      "reportDomains": [
+        "damage"
+      ],
+      "offensiveKind": "talent-skill",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "offensive",
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -817,19 +861,19 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:7ca7b1f4069a": {
-      "sourceRuleId": "mrs:7ca7b1f4069a",
+    "mrs:73ba2f1918bf": {
+      "sourceRuleId": "mrs:73ba2f1918bf",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
+        "active-skill-window",
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
@@ -1497,8 +1541,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:1f6ab46c0d78": {
-      "sourceRuleId": "mrs:1f6ab46c0d78",
+    "mrs:63b22ce84cbe": {
+      "sourceRuleId": "mrs:63b22ce84cbe",
       "rowModel": "static-target",
       "primaryRole": "supportive",
       "reportDomains": [
@@ -1506,9 +1550,9 @@
         "healing",
         "support"
       ],
-      "offensiveKind": "active-buff",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
-        "active-buff",
+        "active-skill-window",
         "actor-kind",
         "domain:damage",
         "domain:healing",
@@ -2026,37 +2070,37 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:3b73c2ccd4a7": {
-      "sourceRuleId": "mrs:3b73c2ccd4a7",
+    "mrs:c7d5236b0131": {
+      "sourceRuleId": "mrs:c7d5236b0131",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:153ae62748ae": {
-      "sourceRuleId": "mrs:153ae62748ae",
+    "mrs:d66db856fc18": {
+      "sourceRuleId": "mrs:d66db856fc18",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -2648,8 +2692,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:079f2c48a290": {
-      "sourceRuleId": "mrs:079f2c48a290",
+    "mrs:d1649b6988b6": {
+      "sourceRuleId": "mrs:d1649b6988b6",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -2678,6 +2722,40 @@
         "actor-kind",
         "domain:unknown",
         "static-target",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:133074e86783": {
+      "sourceRuleId": "mrs:133074e86783",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:9d2c238a397d": {
+      "sourceRuleId": "mrs:9d2c238a397d",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
         "unknown"
       ],
       "providerAggregation": "actor-kind"
@@ -2757,8 +2835,8 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:d38dd2c7f232": {
-      "sourceRuleId": "mrs:d38dd2c7f232",
+    "mrs:37886c2b02c4": {
+      "sourceRuleId": "mrs:37886c2b02c4",
       "rowModel": "static-target",
       "primaryRole": "supportive",
       "reportDomains": [
@@ -2875,8 +2953,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:dce829ce8cff": {
-      "sourceRuleId": "mrs:dce829ce8cff",
+    "mrs:53aa18a9c82b": {
+      "sourceRuleId": "mrs:53aa18a9c82b",
       "rowModel": "timing-window",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -3105,6 +3183,90 @@
         "hardFilterEligible": false
       }
     },
+    "mrs:c2a9521dfa84": {
+      "sourceRuleId": "mrs:c2a9521dfa84",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:cc4238d2d018": {
+      "sourceRuleId": "mrs:cc4238d2d018",
+      "rowModel": "runtime-window",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "healing",
+        "support",
+        "tanked"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:healing",
+        "domain:support",
+        "domain:tanked",
+        "passive-talent-buff",
+        "runtime-window",
+        "supportive"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "spec-selector",
+        "ownershipStatus": "game-file-spec-selector",
+        "confidence": 100,
+        "hardFilterEligible": false,
+        "allowedSpecIds": [
+          1308
+        ]
+      }
+    },
+    "mrs:46fe452e6ebf": {
+      "sourceRuleId": "mrs:46fe452e6ebf",
+      "rowModel": "timing-window",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:support",
+        "passive-talent-buff",
+        "supportive",
+        "timing-window"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "spec-exclusive",
+        "ownershipStatus": "high-confidence",
+        "confidence": 99,
+        "hardFilterEligible": true,
+        "allowedSpecIds": [
+          1308
+        ],
+        "blacklistedSpecIds": [
+          1317
+        ]
+      }
+    },
     "mrs:d1927f7e89e0": {
       "sourceRuleId": "mrs:d1927f7e89e0",
       "rowModel": "static-target",
@@ -3138,6 +3300,197 @@
         "static-target"
       ],
       "providerAggregation": "actor-kind"
+    },
+    "mrs:cc73424946fa": {
+      "sourceRuleId": "mrs:cc73424946fa",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:0921845145a5": {
+      "sourceRuleId": "mrs:0921845145a5",
+      "rowModel": "runtime-window",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "healing",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:healing",
+        "domain:support",
+        "passive-talent-buff",
+        "runtime-window",
+        "supportive"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
+    },
+    "mrs:82b78ace20af": {
+      "sourceRuleId": "mrs:82b78ace20af",
+      "rowModel": "unknown",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "healing",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:healing",
+        "domain:support",
+        "passive-talent-buff",
+        "supportive",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
+    },
+    "mrs:191070b501f4": {
+      "sourceRuleId": "mrs:191070b501f4",
+      "rowModel": "unknown",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "healing",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:healing",
+        "domain:support",
+        "passive-talent-buff",
+        "supportive",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
+    },
+    "mrs:900db670ced5": {
+      "sourceRuleId": "mrs:900db670ced5",
+      "rowModel": "unknown",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "healing",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:healing",
+        "domain:support",
+        "passive-talent-buff",
+        "supportive",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
+    },
+    "mrs:742cc85dd8d5": {
+      "sourceRuleId": "mrs:742cc85dd8d5",
+      "rowModel": "timing-window",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "healing",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:healing",
+        "domain:support",
+        "passive-talent-buff",
+        "supportive",
+        "timing-window"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
+    },
+    "mrs:7af12e8c7296": {
+      "sourceRuleId": "mrs:7af12e8c7296",
+      "rowModel": "unknown",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "healing",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:healing",
+        "domain:support",
+        "passive-talent-buff",
+        "supportive",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 13,
+        "className": "Beat Performer",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
     },
     "mrs:c95508cb8aff": {
       "sourceRuleId": "mrs:c95508cb8aff",
@@ -3308,16 +3661,33 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:ff88e0b24c41": {
-      "sourceRuleId": "mrs:ff88e0b24c41",
+    "mrs:b5d5c3f92d9f": {
+      "sourceRuleId": "mrs:b5d5c3f92d9f",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:69215e1cb671": {
+      "sourceRuleId": "mrs:69215e1cb671",
       "rowModel": "static-target",
       "primaryRole": "unknown",
       "reportDomains": [
         "unknown"
       ],
-      "offensiveKind": "active-buff",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
-        "active-buff",
+        "active-skill-window",
         "actor-kind",
         "domain:unknown",
         "static-target",
@@ -3431,8 +3801,8 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:c822d52623af": {
-      "sourceRuleId": "mrs:c822d52623af",
+    "mrs:2ba1e6a60599": {
+      "sourceRuleId": "mrs:2ba1e6a60599",
       "rowModel": "proc-damage",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -3497,16 +3867,16 @@
         ]
       }
     },
-    "mrs:a0193842b38f": {
-      "sourceRuleId": "mrs:a0193842b38f",
+    "mrs:90e16dd1539b": {
+      "sourceRuleId": "mrs:90e16dd1539b",
       "rowModel": "static-target",
       "primaryRole": "unknown",
       "reportDomains": [
         "unknown"
       ],
-      "offensiveKind": "active-buff",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
-        "active-buff",
+        "active-skill-window",
         "actor-kind",
         "domain:unknown",
         "static-target",
@@ -3514,8 +3884,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:4e9aa912b2d2": {
-      "sourceRuleId": "mrs:4e9aa912b2d2",
+    "mrs:142369ecf079": {
+      "sourceRuleId": "mrs:142369ecf079",
       "rowModel": "timing-window",
       "primaryRole": "supportive",
       "reportDomains": [
@@ -3632,22 +4002,133 @@
         ]
       }
     },
-    "mrs:66cccfbbc469": {
-      "sourceRuleId": "mrs:66cccfbbc469",
+    "mrs:3c73ffb62f87": {
+      "sourceRuleId": "mrs:3c73ffb62f87",
       "rowModel": "static-target",
       "primaryRole": "unknown",
       "reportDomains": [
         "unknown"
       ],
-      "offensiveKind": "active-buff",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
-        "active-buff",
+        "active-skill-window",
         "actor-kind",
         "domain:unknown",
         "static-target",
         "unknown"
       ],
       "providerAggregation": "actor-kind"
+    },
+    "mrs:64ae2e279e78": {
+      "sourceRuleId": "mrs:64ae2e279e78",
+      "rowModel": "proc-damage",
+      "primaryRole": "offensive",
+      "reportDomains": [
+        "damage"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "offensive",
+        "passive-talent-buff",
+        "proc-damage"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 11,
+        "className": "Marksman",
+        "ownershipKind": "ambiguous",
+        "ownershipStatus": "needs-review",
+        "confidence": 34,
+        "hardFilterEligible": false,
+        "allowedSpecIds": [
+          1129
+        ]
+      }
+    },
+    "mrs:e70f3bf728d3": {
+      "sourceRuleId": "mrs:e70f3bf728d3",
+      "rowModel": "timing-window",
+      "primaryRole": "supportive",
+      "reportDomains": [
+        "damage",
+        "support"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "domain:support",
+        "passive-talent-buff",
+        "supportive",
+        "timing-window"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 11,
+        "className": "Marksman",
+        "ownershipKind": "spec-exclusive",
+        "ownershipStatus": "high-confidence",
+        "confidence": 99,
+        "hardFilterEligible": true,
+        "allowedSpecIds": [
+          1126
+        ],
+        "blacklistedSpecIds": [
+          1129
+        ]
+      }
+    },
+    "mrs:b712182f2cb2": {
+      "sourceRuleId": "mrs:b712182f2cb2",
+      "rowModel": "proc-damage",
+      "primaryRole": "offensive",
+      "reportDomains": [
+        "damage"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "offensive",
+        "passive-talent-buff",
+        "proc-damage"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 11,
+        "className": "Marksman",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
+    },
+    "mrs:61dee985a16a": {
+      "sourceRuleId": "mrs:61dee985a16a",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "passive-talent-buff",
+      "classificationTags": [
+        "actor-kind",
+        "domain:unknown",
+        "passive-talent-buff",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind",
+      "ownership": {
+        "classId": 12,
+        "className": "Shield Knight",
+        "ownershipKind": "class-wide-candidate",
+        "ownershipStatus": "unresolved-class-bucket",
+        "confidence": 0,
+        "hardFilterEligible": false
+      }
     },
     "mrs:e167786a37a6": {
       "sourceRuleId": "mrs:e167786a37a6",
@@ -3753,6 +4234,23 @@
     },
     "mrs:45651ab72d57": {
       "sourceRuleId": "mrs:45651ab72d57",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:a2afd0c46685": {
+      "sourceRuleId": "mrs:a2afd0c46685",
       "rowModel": "runtime-window",
       "primaryRole": "unknown",
       "reportDomains": [
@@ -4176,8 +4674,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:5672aba27c77": {
-      "sourceRuleId": "mrs:5672aba27c77",
+    "mrs:d501ed8bb9d3": {
+      "sourceRuleId": "mrs:d501ed8bb9d3",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -4193,8 +4691,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:4db3ccb216cd": {
-      "sourceRuleId": "mrs:4db3ccb216cd",
+    "mrs:0f1d8265bbaa": {
+      "sourceRuleId": "mrs:0f1d8265bbaa",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -4210,8 +4708,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:e35812470774": {
-      "sourceRuleId": "mrs:e35812470774",
+    "mrs:63c03ed1e1d5": {
+      "sourceRuleId": "mrs:63c03ed1e1d5",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -4227,8 +4725,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:d4c7e3fc4b92": {
-      "sourceRuleId": "mrs:d4c7e3fc4b92",
+    "mrs:67d1c00506c0": {
+      "sourceRuleId": "mrs:67d1c00506c0",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -4244,8 +4742,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:15f69177dd4f": {
-      "sourceRuleId": "mrs:15f69177dd4f",
+    "mrs:358696fd3399": {
+      "sourceRuleId": "mrs:358696fd3399",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -4346,54 +4844,54 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:46b707c3d87c": {
-      "sourceRuleId": "mrs:46b707c3d87c",
+    "mrs:99f2db918510": {
+      "sourceRuleId": "mrs:99f2db918510",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:b06fd73eeae0": {
-      "sourceRuleId": "mrs:b06fd73eeae0",
+    "mrs:5dd4b629ef57": {
+      "sourceRuleId": "mrs:5dd4b629ef57",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:645ebd77d3c2": {
-      "sourceRuleId": "mrs:645ebd77d3c2",
+    "mrs:7e3da65e2fad": {
+      "sourceRuleId": "mrs:7e3da65e2fad",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -4652,20 +5150,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:09eb2e7d2223": {
-      "sourceRuleId": "mrs:09eb2e7d2223",
+    "mrs:f3ab19b15183": {
+      "sourceRuleId": "mrs:f3ab19b15183",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -5331,37 +5829,37 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:d17fc801bb84": {
-      "sourceRuleId": "mrs:d17fc801bb84",
+    "mrs:14a705d30c18": {
+      "sourceRuleId": "mrs:14a705d30c18",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:c5c05ad9a72b": {
-      "sourceRuleId": "mrs:c5c05ad9a72b",
+    "mrs:bcc57e05dfde": {
+      "sourceRuleId": "mrs:bcc57e05dfde",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -6096,20 +6594,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:4d0fb846ebb3": {
-      "sourceRuleId": "mrs:4d0fb846ebb3",
+    "mrs:d72c3fff9c3e": {
+      "sourceRuleId": "mrs:d72c3fff9c3e",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -6614,19 +7112,19 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:3c4ab5531b1c": {
-      "sourceRuleId": "mrs:3c4ab5531b1c",
+    "mrs:68fb1f191fe7": {
+      "sourceRuleId": "mrs:68fb1f191fe7",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
+        "active-skill-window",
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
@@ -7071,19 +7569,19 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:d6602753234c": {
-      "sourceRuleId": "mrs:d6602753234c",
+    "mrs:4ac1261bcb15": {
+      "sourceRuleId": "mrs:4ac1261bcb15",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
+        "active-skill-window",
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
@@ -7380,20 +7878,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:0232d9abc13a": {
-      "sourceRuleId": "mrs:0232d9abc13a",
+    "mrs:06b0c9a9f04c": {
+      "sourceRuleId": "mrs:06b0c9a9f04c",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -7431,20 +7929,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:89e70665d988": {
-      "sourceRuleId": "mrs:89e70665d988",
+    "mrs:fca95129ac61": {
+      "sourceRuleId": "mrs:fca95129ac61",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -9560,8 +10058,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:1d3769e44324": {
-      "sourceRuleId": "mrs:1d3769e44324",
+    "mrs:b835bc977645": {
+      "sourceRuleId": "mrs:b835bc977645",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -10306,20 +10804,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:b282ecf8240f": {
-      "sourceRuleId": "mrs:b282ecf8240f",
+    "mrs:bfd13a4b5530": {
+      "sourceRuleId": "mrs:bfd13a4b5530",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -10612,20 +11110,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:0914b04d18a9": {
-      "sourceRuleId": "mrs:0914b04d18a9",
+    "mrs:87309a93cf4f": {
+      "sourceRuleId": "mrs:87309a93cf4f",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -16865,37 +17363,37 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:d3bf9d646b87": {
-      "sourceRuleId": "mrs:d3bf9d646b87",
+    "mrs:140e4b1c20fc": {
+      "sourceRuleId": "mrs:140e4b1c20fc",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:aadfd904034e": {
-      "sourceRuleId": "mrs:aadfd904034e",
+    "mrs:72411a827a69": {
+      "sourceRuleId": "mrs:72411a827a69",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -22237,37 +22735,37 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:bb267afe4fce": {
-      "sourceRuleId": "mrs:bb267afe4fce",
+    "mrs:7b7ffadcc2df": {
+      "sourceRuleId": "mrs:7b7ffadcc2df",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:078333fa12f8": {
-      "sourceRuleId": "mrs:078333fa12f8",
+    "mrs:b005c2325a12": {
+      "sourceRuleId": "mrs:b005c2325a12",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -22373,88 +22871,88 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:2b8a6bc152c5": {
-      "sourceRuleId": "mrs:2b8a6bc152c5",
+    "mrs:8ace5000794c": {
+      "sourceRuleId": "mrs:8ace5000794c",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:094c2ec29de3": {
-      "sourceRuleId": "mrs:094c2ec29de3",
+    "mrs:a4a5f8c0a638": {
+      "sourceRuleId": "mrs:a4a5f8c0a638",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:3a56b7d00c73": {
-      "sourceRuleId": "mrs:3a56b7d00c73",
+    "mrs:b1ec766aaaac": {
+      "sourceRuleId": "mrs:b1ec766aaaac",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:ba9c7c820973": {
-      "sourceRuleId": "mrs:ba9c7c820973",
+    "mrs:0bb2c480a96c": {
+      "sourceRuleId": "mrs:0bb2c480a96c",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:ed17f41a842f": {
-      "sourceRuleId": "mrs:ed17f41a842f",
+    "mrs:bab840cebe24": {
+      "sourceRuleId": "mrs:bab840cebe24",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -22600,20 +23098,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:7dc59dc9b83d": {
-      "sourceRuleId": "mrs:7dc59dc9b83d",
+    "mrs:c46d572e7105": {
+      "sourceRuleId": "mrs:c46d572e7105",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -23091,36 +23589,36 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:ea0fa740a3a0": {
-      "sourceRuleId": "mrs:ea0fa740a3a0",
+    "mrs:37a69123a8fe": {
+      "sourceRuleId": "mrs:37a69123a8fe",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "imagine-buff",
+      "offensiveKind": "produced-proc",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
-        "imagine-buff",
         "offensive",
+        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:93ccfefe3786": {
-      "sourceRuleId": "mrs:93ccfefe3786",
+    "mrs:8694f37c92f6": {
+      "sourceRuleId": "mrs:8694f37c92f6",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "imagine-buff",
+      "offensiveKind": "produced-proc",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
-        "imagine-buff",
         "offensive",
+        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
@@ -26552,20 +27050,20 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:9ca34d004297": {
-      "sourceRuleId": "mrs:9ca34d004297",
+    "mrs:30e474fb5b0e": {
+      "sourceRuleId": "mrs:30e474fb5b0e",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -26586,25 +27084,25 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:c77cdee14b36": {
-      "sourceRuleId": "mrs:c77cdee14b36",
+    "mrs:938873cde96f": {
+      "sourceRuleId": "mrs:938873cde96f",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:ae6840edacff": {
-      "sourceRuleId": "mrs:ae6840edacff",
+    "mrs:20e3731580ba": {
+      "sourceRuleId": "mrs:20e3731580ba",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -27202,20 +27700,20 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:08b6aa72e298": {
-      "sourceRuleId": "mrs:08b6aa72e298",
+    "mrs:85fc72b5343e": {
+      "sourceRuleId": "mrs:85fc72b5343e",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -27388,6 +27886,23 @@
         "confidence": 0,
         "hardFilterEligible": false
       }
+    },
+    "mrs:01d94acd5e02": {
+      "sourceRuleId": "mrs:01d94acd5e02",
+      "rowModel": "static-target",
+      "primaryRole": "offensive",
+      "reportDomains": [
+        "damage"
+      ],
+      "offensiveKind": "talent-skill",
+      "classificationTags": [
+        "actor-kind",
+        "domain:damage",
+        "offensive",
+        "static-target",
+        "talent-skill"
+      ],
+      "providerAggregation": "actor-kind"
     },
     "mrs:a3e792ccca08": {
       "sourceRuleId": "mrs:a3e792ccca08",
@@ -27840,20 +28355,20 @@
         ]
       }
     },
-    "mrs:07a263a8d0ef": {
-      "sourceRuleId": "mrs:07a263a8d0ef",
+    "mrs:0995fdec0b2b": {
+      "sourceRuleId": "mrs:0995fdec0b2b",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -27913,20 +28428,20 @@
         ]
       }
     },
-    "mrs:270d78b78585": {
-      "sourceRuleId": "mrs:270d78b78585",
+    "mrs:eae211d8cff4": {
+      "sourceRuleId": "mrs:eae211d8cff4",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -28509,8 +29024,8 @@
         ]
       }
     },
-    "mrs:abd6404b2c5f": {
-      "sourceRuleId": "mrs:abd6404b2c5f",
+    "mrs:484ab24b3456": {
+      "sourceRuleId": "mrs:484ab24b3456",
       "rowModel": "static-target",
       "primaryRole": "supportive",
       "reportDomains": [
@@ -28518,7 +29033,7 @@
         "healing",
         "support"
       ],
-      "offensiveKind": "unknown",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
@@ -28526,7 +29041,7 @@
         "domain:support",
         "static-target",
         "supportive",
-        "unknown"
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -28594,20 +29109,20 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:ee63368d2a15": {
-      "sourceRuleId": "mrs:ee63368d2a15",
+    "mrs:5c1bb7eeb1f5": {
+      "sourceRuleId": "mrs:5c1bb7eeb1f5",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -29658,33 +30173,6 @@
         ]
       }
     },
-    "mrs:08cb664e2adc": {
-      "sourceRuleId": "mrs:08cb664e2adc",
-      "rowModel": "timing-window",
-      "primaryRole": "offensive",
-      "reportDomains": [
-        "damage",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:support",
-        "offensive",
-        "passive-talent-buff",
-        "timing-window"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 5,
-        "className": "Verdant Oracle",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
-      }
-    },
     "mrs:96e7bcb1a538": {
       "sourceRuleId": "mrs:96e7bcb1a538",
       "rowModel": "timing-window",
@@ -30163,20 +30651,20 @@
         ]
       }
     },
-    "mrs:007ee6314d8f": {
-      "sourceRuleId": "mrs:007ee6314d8f",
+    "mrs:347b98b1d8e6": {
+      "sourceRuleId": "mrs:347b98b1d8e6",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -30208,37 +30696,37 @@
         ]
       }
     },
-    "mrs:25203b3cf888": {
-      "sourceRuleId": "mrs:25203b3cf888",
+    "mrs:0847cf1563dc": {
+      "sourceRuleId": "mrs:0847cf1563dc",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:8afd51cf7d1b": {
-      "sourceRuleId": "mrs:8afd51cf7d1b",
+    "mrs:805ca49810d5": {
+      "sourceRuleId": "mrs:805ca49810d5",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -30366,20 +30854,20 @@
         ]
       }
     },
-    "mrs:4bbc2bcf09cc": {
-      "sourceRuleId": "mrs:4bbc2bcf09cc",
+    "mrs:816b5ee507ad": {
+      "sourceRuleId": "mrs:816b5ee507ad",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -30438,50 +30926,22 @@
         ]
       }
     },
-    "mrs:7925fdb75133": {
-      "sourceRuleId": "mrs:7925fdb75133",
+    "mrs:6481d43847e4": {
+      "sourceRuleId": "mrs:6481d43847e4",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
-    },
-    "mrs:92ee7c530118": {
-      "sourceRuleId": "mrs:92ee7c530118",
-      "rowModel": "proc-damage",
-      "primaryRole": "offensive",
-      "reportDomains": [
-        "damage"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "offensive",
-        "passive-talent-buff",
-        "proc-damage"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 11,
-        "className": "Marksman",
-        "ownershipKind": "ambiguous",
-        "ownershipStatus": "needs-review",
-        "confidence": 34,
-        "hardFilterEligible": false,
-        "allowedSpecIds": [
-          1129
-        ]
-      }
     },
     "mrs:e4c54357ef08": {
       "sourceRuleId": "mrs:e4c54357ef08",
@@ -30739,8 +31199,8 @@
         ]
       }
     },
-    "mrs:911cf59a2cc7": {
-      "sourceRuleId": "mrs:911cf59a2cc7",
+    "mrs:2e30d4351ad5": {
+      "sourceRuleId": "mrs:2e30d4351ad5",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -30784,20 +31244,20 @@
         ]
       }
     },
-    "mrs:76239a707058": {
-      "sourceRuleId": "mrs:76239a707058",
+    "mrs:0d8d54a9aa9b": {
+      "sourceRuleId": "mrs:0d8d54a9aa9b",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -31545,39 +32005,6 @@
         ]
       }
     },
-    "mrs:d71f22658ff5": {
-      "sourceRuleId": "mrs:d71f22658ff5",
-      "rowModel": "timing-window",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:support",
-        "passive-talent-buff",
-        "supportive",
-        "timing-window"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 11,
-        "className": "Marksman",
-        "ownershipKind": "spec-exclusive",
-        "ownershipStatus": "high-confidence",
-        "confidence": 99,
-        "hardFilterEligible": true,
-        "allowedSpecIds": [
-          1126
-        ],
-        "blacklistedSpecIds": [
-          1129
-        ]
-      }
-    },
     "mrs:55dbd41a2c86": {
       "sourceRuleId": "mrs:55dbd41a2c86",
       "rowModel": "unknown",
@@ -31596,31 +32023,6 @@
         "passive-talent-buff",
         "supportive",
         "unknown"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 11,
-        "className": "Marksman",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
-      }
-    },
-    "mrs:b41a7831e358": {
-      "sourceRuleId": "mrs:b41a7831e358",
-      "rowModel": "proc-damage",
-      "primaryRole": "offensive",
-      "reportDomains": [
-        "damage"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "offensive",
-        "passive-talent-buff",
-        "proc-damage"
       ],
       "providerAggregation": "actor-kind",
       "ownership": {
@@ -33825,8 +34227,8 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:ab3192170cf4": {
-      "sourceRuleId": "mrs:ab3192170cf4",
+    "mrs:1624d78a75fa": {
+      "sourceRuleId": "mrs:1624d78a75fa",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -35615,37 +36017,37 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:168f24447825": {
-      "sourceRuleId": "mrs:168f24447825",
+    "mrs:cbe5e3fdf29b": {
+      "sourceRuleId": "mrs:cbe5e3fdf29b",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:8711ec5e87f0": {
-      "sourceRuleId": "mrs:8711ec5e87f0",
+    "mrs:d492c3371015": {
+      "sourceRuleId": "mrs:d492c3371015",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -35832,20 +36234,20 @@
         ]
       }
     },
-    "mrs:7d7fd881cf24": {
-      "sourceRuleId": "mrs:7d7fd881cf24",
+    "mrs:1ab2484705f8": {
+      "sourceRuleId": "mrs:1ab2484705f8",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -35884,37 +36286,37 @@
         ]
       }
     },
-    "mrs:77bc05a5a7f4": {
-      "sourceRuleId": "mrs:77bc05a5a7f4",
+    "mrs:7d60d1c50055": {
+      "sourceRuleId": "mrs:7d60d1c50055",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:43c5ffac9c60": {
-      "sourceRuleId": "mrs:43c5ffac9c60",
+    "mrs:be95790f74c1": {
+      "sourceRuleId": "mrs:be95790f74c1",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -35948,31 +36350,6 @@
         "allowedSpecIds": [
           1218
         ]
-      }
-    },
-    "mrs:54683826610a": {
-      "sourceRuleId": "mrs:54683826610a",
-      "rowModel": "runtime-window",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:unknown",
-        "passive-talent-buff",
-        "runtime-window",
-        "unknown"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 12,
-        "className": "Shield Knight",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
       }
     },
     "mrs:c9f8a3f324a5": {
@@ -36306,37 +36683,20 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:85445c2edcb9": {
-      "sourceRuleId": "mrs:85445c2edcb9",
+    "mrs:65ffd99f5339": {
+      "sourceRuleId": "mrs:65ffd99f5339",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
-      ],
-      "providerAggregation": "actor-kind"
-    },
-    "mrs:7c3f40557180": {
-      "sourceRuleId": "mrs:7c3f40557180",
-      "rowModel": "runtime-window",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "active-skill-window",
-      "classificationTags": [
-        "active-skill-window",
-        "actor-kind",
-        "domain:unknown",
-        "runtime-window",
-        "unknown"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -36649,20 +37009,20 @@
         ]
       }
     },
-    "mrs:5888a9948006": {
-      "sourceRuleId": "mrs:5888a9948006",
+    "mrs:16431695de9e": {
+      "sourceRuleId": "mrs:16431695de9e",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -36710,20 +37070,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:89149b7b1a8d": {
-      "sourceRuleId": "mrs:89149b7b1a8d",
+    "mrs:fe47b91e713f": {
+      "sourceRuleId": "mrs:fe47b91e713f",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -37225,40 +37585,6 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:64cc5320a2e1": {
-      "sourceRuleId": "mrs:64cc5320a2e1",
-      "rowModel": "runtime-window",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "healing",
-        "support",
-        "tanked"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:healing",
-        "domain:support",
-        "domain:tanked",
-        "passive-talent-buff",
-        "runtime-window",
-        "supportive"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "spec-selector",
-        "ownershipStatus": "game-file-spec-selector",
-        "confidence": 100,
-        "hardFilterEligible": false,
-        "allowedSpecIds": [
-          1308
-        ]
-      }
-    },
     "mrs:a6e772333373": {
       "sourceRuleId": "mrs:a6e772333373",
       "rowModel": "timing-window",
@@ -37514,39 +37840,6 @@
         "static-target"
       ],
       "providerAggregation": "actor-kind"
-    },
-    "mrs:84710d9006b7": {
-      "sourceRuleId": "mrs:84710d9006b7",
-      "rowModel": "timing-window",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:support",
-        "passive-talent-buff",
-        "supportive",
-        "timing-window"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "spec-exclusive",
-        "ownershipStatus": "high-confidence",
-        "confidence": 99,
-        "hardFilterEligible": true,
-        "allowedSpecIds": [
-          1308
-        ],
-        "blacklistedSpecIds": [
-          1317
-        ]
-      }
     },
     "mrs:08aba8c4dc95": {
       "sourceRuleId": "mrs:08aba8c4dc95",
@@ -37902,35 +38195,6 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:c9994138263d": {
-      "sourceRuleId": "mrs:c9994138263d",
-      "rowModel": "runtime-window",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "healing",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:healing",
-        "domain:support",
-        "passive-talent-buff",
-        "runtime-window",
-        "supportive"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
-      }
-    },
     "mrs:f3401344018b": {
       "sourceRuleId": "mrs:f3401344018b",
       "rowModel": "runtime-window",
@@ -37944,35 +38208,6 @@
         "domain:unknown",
         "passive-talent-buff",
         "runtime-window",
-        "unknown"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
-      }
-    },
-    "mrs:c5530a38a229": {
-      "sourceRuleId": "mrs:c5530a38a229",
-      "rowModel": "unknown",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "healing",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:healing",
-        "domain:support",
-        "passive-talent-buff",
-        "supportive",
         "unknown"
       ],
       "providerAggregation": "actor-kind",
@@ -38356,93 +38591,6 @@
         "blacklistedSpecIds": [
           1317
         ]
-      }
-    },
-    "mrs:7b1a6e8dcac0": {
-      "sourceRuleId": "mrs:7b1a6e8dcac0",
-      "rowModel": "unknown",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "healing",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:healing",
-        "domain:support",
-        "passive-talent-buff",
-        "supportive",
-        "unknown"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
-      }
-    },
-    "mrs:f584e2c73be5": {
-      "sourceRuleId": "mrs:f584e2c73be5",
-      "rowModel": "unknown",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "healing",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:healing",
-        "domain:support",
-        "passive-talent-buff",
-        "supportive",
-        "unknown"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
-      }
-    },
-    "mrs:8da54e163719": {
-      "sourceRuleId": "mrs:8da54e163719",
-      "rowModel": "timing-window",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "healing",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:healing",
-        "domain:support",
-        "passive-talent-buff",
-        "supportive",
-        "timing-window"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
       }
     },
     "mrs:ab45e73f44c6": {
@@ -38878,35 +39026,6 @@
         ]
       }
     },
-    "mrs:a868bad98b52": {
-      "sourceRuleId": "mrs:a868bad98b52",
-      "rowModel": "unknown",
-      "primaryRole": "supportive",
-      "reportDomains": [
-        "damage",
-        "healing",
-        "support"
-      ],
-      "offensiveKind": "passive-talent-buff",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "domain:healing",
-        "domain:support",
-        "passive-talent-buff",
-        "supportive",
-        "unknown"
-      ],
-      "providerAggregation": "actor-kind",
-      "ownership": {
-        "classId": 13,
-        "className": "Beat Performer",
-        "ownershipKind": "class-wide-candidate",
-        "ownershipStatus": "unresolved-class-bucket",
-        "confidence": 0,
-        "hardFilterEligible": false
-      }
-    },
     "mrs:54cd9dbdce26": {
       "sourceRuleId": "mrs:54cd9dbdce26",
       "rowModel": "timing-window",
@@ -38996,20 +39115,20 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:4920256af371": {
-      "sourceRuleId": "mrs:4920256af371",
+    "mrs:b56696aa5c8f": {
+      "sourceRuleId": "mrs:b56696aa5c8f",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -39443,20 +39562,20 @@
         ]
       }
     },
-    "mrs:0b00db7c5103": {
-      "sourceRuleId": "mrs:0b00db7c5103",
+    "mrs:5b7f5e728880": {
+      "sourceRuleId": "mrs:5b7f5e728880",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -39485,20 +39604,20 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:a90832609db6": {
-      "sourceRuleId": "mrs:a90832609db6",
+    "mrs:598bb19a7c0c": {
+      "sourceRuleId": "mrs:598bb19a7c0c",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -40929,8 +41048,8 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:02bdabcfbe1a": {
-      "sourceRuleId": "mrs:02bdabcfbe1a",
+    "mrs:0898671452a2": {
+      "sourceRuleId": "mrs:0898671452a2",
       "rowModel": "static-target",
       "primaryRole": "supportive",
       "reportDomains": [
@@ -40938,9 +41057,9 @@
         "healing",
         "support"
       ],
-      "offensiveKind": "active-buff",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
-        "active-buff",
+        "active-skill-window",
         "actor-kind",
         "domain:damage",
         "domain:healing",
@@ -40964,6 +41083,23 @@
         "offensive",
         "produced-proc",
         "static-target"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:34a6621ccad3": {
+      "sourceRuleId": "mrs:34a6621ccad3",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -41073,25 +41209,59 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:24f7cc7dc131": {
-      "sourceRuleId": "mrs:24f7cc7dc131",
+    "mrs:c3c9f6ebccff": {
+      "sourceRuleId": "mrs:c3c9f6ebccff",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:f92282ef92f1": {
+      "sourceRuleId": "mrs:f92282ef92f1",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "active-skill-window",
       "classificationTags": [
+        "active-skill-window",
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:c58102785af8": {
-      "sourceRuleId": "mrs:c58102785af8",
+    "mrs:05aed61357a1": {
+      "sourceRuleId": "mrs:05aed61357a1",
+      "rowModel": "static-target",
+      "primaryRole": "offensive",
+      "reportDomains": [
+        "damage"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:damage",
+        "offensive",
+        "static-target"
+      ],
+      "providerAggregation": "actor-kind"
+    },
+    "mrs:89ec17684654": {
+      "sourceRuleId": "mrs:89ec17684654",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
@@ -41107,54 +41277,37 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:239f2cd664b3": {
-      "sourceRuleId": "mrs:239f2cd664b3",
+    "mrs:276c7d595faf": {
+      "sourceRuleId": "mrs:276c7d595faf",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:1f8cd39f4186": {
-      "sourceRuleId": "mrs:1f8cd39f4186",
+    "mrs:40889cc58f97": {
+      "sourceRuleId": "mrs:40889cc58f97",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
-      ],
-      "providerAggregation": "actor-kind"
-    },
-    "mrs:ea81e4c3b134": {
-      "sourceRuleId": "mrs:ea81e4c3b134",
-      "rowModel": "static-target",
-      "primaryRole": "offensive",
-      "reportDomains": [
-        "damage"
-      ],
-      "offensiveKind": "produced-proc",
-      "classificationTags": [
-        "actor-kind",
-        "domain:damage",
-        "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -41175,20 +41328,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:a86d0315fde1": {
-      "sourceRuleId": "mrs:a86d0315fde1",
+    "mrs:43aa3fbcf961": {
+      "sourceRuleId": "mrs:43aa3fbcf961",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -41619,6 +41772,23 @@
       ],
       "providerAggregation": "actor-kind"
     },
+    "mrs:354291768ba1": {
+      "sourceRuleId": "mrs:354291768ba1",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
     "mrs:cfa4a01ac8b3": {
       "sourceRuleId": "mrs:cfa4a01ac8b3",
       "rowModel": "proc-damage",
@@ -41644,20 +41814,20 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:872be889ba37": {
-      "sourceRuleId": "mrs:872be889ba37",
+    "mrs:7fdf8ffd0a0b": {
+      "sourceRuleId": "mrs:7fdf8ffd0a0b",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -42342,20 +42512,20 @@
         ]
       }
     },
-    "mrs:d9e28a5ee4d0": {
-      "sourceRuleId": "mrs:d9e28a5ee4d0",
+    "mrs:9db23eab0d4d": {
+      "sourceRuleId": "mrs:9db23eab0d4d",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -42557,37 +42727,37 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:e5f47703089b": {
-      "sourceRuleId": "mrs:e5f47703089b",
+    "mrs:39b85a9618a0": {
+      "sourceRuleId": "mrs:39b85a9618a0",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:230c18f398bb": {
-      "sourceRuleId": "mrs:230c18f398bb",
+    "mrs:afe5af949a84": {
+      "sourceRuleId": "mrs:afe5af949a84",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -42701,6 +42871,23 @@
       ],
       "providerAggregation": "actor-kind"
     },
+    "mrs:61af1749a103": {
+      "sourceRuleId": "mrs:61af1749a103",
+      "rowModel": "runtime-window",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-skill-window",
+      "classificationTags": [
+        "active-skill-window",
+        "actor-kind",
+        "domain:unknown",
+        "runtime-window",
+        "unknown"
+      ],
+      "providerAggregation": "actor-kind"
+    },
     "mrs:a26968736dea": {
       "sourceRuleId": "mrs:a26968736dea",
       "rowModel": "runtime-window",
@@ -42718,20 +42905,20 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:1566c1d0d4ae": {
-      "sourceRuleId": "mrs:1566c1d0d4ae",
+    "mrs:53ab93e164fc": {
+      "sourceRuleId": "mrs:53ab93e164fc",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "produced-proc",
+      "offensiveKind": "talent-skill",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
         "offensive",
-        "produced-proc",
-        "static-target"
+        "static-target",
+        "talent-skill"
       ],
       "providerAggregation": "actor-kind"
     },
@@ -47631,9 +47818,9 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:5d69b8fbbcf6": {
-      "sourceRuleId": "mrs:5d69b8fbbcf6",
-      "rowModel": "static-target",
+    "mrs:6a84c723a25a": {
+      "sourceRuleId": "mrs:6a84c723a25a",
+      "rowModel": "runtime-window",
       "primaryRole": "supportive",
       "reportDomains": [
         "damage",
@@ -47646,8 +47833,8 @@
         "domain:damage",
         "domain:healing",
         "domain:support",
+        "runtime-window",
         "season-rogue-entry",
-        "static-target",
         "supportive"
       ],
       "providerAggregation": "actor-kind"
@@ -47775,9 +47962,9 @@
         "hardFilterEligible": false
       }
     },
-    "mrs:858e7bfa50fd": {
-      "sourceRuleId": "mrs:858e7bfa50fd",
-      "rowModel": "static-target",
+    "mrs:74209e7dd691": {
+      "sourceRuleId": "mrs:74209e7dd691",
+      "rowModel": "defensive-window",
       "primaryRole": "supportive",
       "reportDomains": [
         "damage",
@@ -47787,11 +47974,11 @@
       "offensiveKind": "season-rogue-entry",
       "classificationTags": [
         "actor-kind",
+        "defensive-window",
         "domain:damage",
         "domain:healing",
         "domain:support",
         "season-rogue-entry",
-        "static-target",
         "supportive"
       ],
       "providerAggregation": "actor-kind",
@@ -48053,9 +48240,9 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:9b44647e2ec5": {
-      "sourceRuleId": "mrs:9b44647e2ec5",
-      "rowModel": "static-target",
+    "mrs:96e4dbe68233": {
+      "sourceRuleId": "mrs:96e4dbe68233",
+      "rowModel": "timing-window",
       "primaryRole": "supportive",
       "reportDomains": [
         "damage",
@@ -48069,8 +48256,8 @@
         "domain:healing",
         "domain:support",
         "season-rogue-entry",
-        "static-target",
-        "supportive"
+        "supportive",
+        "timing-window"
       ],
       "providerAggregation": "actor-kind",
       "ownership": {
@@ -49505,9 +49692,9 @@
         ]
       }
     },
-    "mrs:e4f8c527b434": {
-      "sourceRuleId": "mrs:e4f8c527b434",
-      "rowModel": "static-target",
+    "mrs:f465860f2f23": {
+      "sourceRuleId": "mrs:f465860f2f23",
+      "rowModel": "timing-window",
       "primaryRole": "supportive",
       "reportDomains": [
         "damage",
@@ -49519,8 +49706,8 @@
         "domain:damage",
         "domain:support",
         "season-rogue-entry",
-        "static-target",
-        "supportive"
+        "supportive",
+        "timing-window"
       ],
       "providerAggregation": "actor-kind",
       "ownership": {
@@ -49591,9 +49778,9 @@
         ]
       }
     },
-    "mrs:7c5719779419": {
-      "sourceRuleId": "mrs:7c5719779419",
-      "rowModel": "static-target",
+    "mrs:17eada55ea80": {
+      "sourceRuleId": "mrs:17eada55ea80",
+      "rowModel": "proc-damage",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
@@ -49603,8 +49790,8 @@
         "actor-kind",
         "domain:damage",
         "offensive",
-        "season-rogue-entry",
-        "static-target"
+        "proc-damage",
+        "season-rogue-entry"
       ],
       "providerAggregation": "actor-kind",
       "ownership": {
@@ -49709,9 +49896,9 @@
         ]
       }
     },
-    "mrs:977fc78117da": {
-      "sourceRuleId": "mrs:977fc78117da",
-      "rowModel": "static-target",
+    "mrs:1f6beb249c16": {
+      "sourceRuleId": "mrs:1f6beb249c16",
+      "rowModel": "runtime-window",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
@@ -49721,8 +49908,8 @@
         "actor-kind",
         "domain:damage",
         "offensive",
-        "season-rogue-entry",
-        "static-target"
+        "runtime-window",
+        "season-rogue-entry"
       ],
       "providerAggregation": "actor-kind",
       "ownership": {
@@ -50338,9 +50525,9 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:dee862ca35b4": {
-      "sourceRuleId": "mrs:dee862ca35b4",
-      "rowModel": "static-target",
+    "mrs:d28e0d133815": {
+      "sourceRuleId": "mrs:d28e0d133815",
+      "rowModel": "runtime-window",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
@@ -50350,8 +50537,8 @@
         "actor-kind",
         "domain:damage",
         "offensive",
-        "season-rogue-entry",
-        "static-target"
+        "runtime-window",
+        "season-rogue-entry"
       ],
       "providerAggregation": "actor-kind",
       "ownership": {
@@ -52461,36 +52648,36 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:7ecb6ac314fa": {
-      "sourceRuleId": "mrs:7ecb6ac314fa",
+    "mrs:7eba124e09eb": {
+      "sourceRuleId": "mrs:7eba124e09eb",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "imagine-buff",
+      "offensiveKind": "unknown",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
-        "imagine-buff",
         "offensive",
-        "static-target"
+        "static-target",
+        "unknown"
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:b55fe55fff15": {
-      "sourceRuleId": "mrs:b55fe55fff15",
+    "mrs:a81c0fd9b651": {
+      "sourceRuleId": "mrs:a81c0fd9b651",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "imagine-buff",
+      "offensiveKind": "produced-proc",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
-        "imagine-buff",
         "offensive",
+        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
@@ -52546,19 +52733,19 @@
       ],
       "providerAggregation": "actor-kind"
     },
-    "mrs:1ef8667c430f": {
-      "sourceRuleId": "mrs:1ef8667c430f",
+    "mrs:59a68620823e": {
+      "sourceRuleId": "mrs:59a68620823e",
       "rowModel": "static-target",
       "primaryRole": "offensive",
       "reportDomains": [
         "damage"
       ],
-      "offensiveKind": "imagine-buff",
+      "offensiveKind": "produced-proc",
       "classificationTags": [
         "actor-kind",
         "domain:damage",
-        "imagine-buff",
         "offensive",
+        "produced-proc",
         "static-target"
       ],
       "providerAggregation": "actor-kind"
@@ -54264,22 +54451,6 @@
     },
     "mrs:04a5ab6e0991": {
       "sourceRuleId": "mrs:04a5ab6e0991",
-      "rowModel": "unknown",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "active-buff",
-      "classificationTags": [
-        "active-buff",
-        "domain:unknown",
-        "source-uid",
-        "unknown"
-      ],
-      "providerAggregation": "source-uid"
-    },
-    "mrs:ca2a4256798d": {
-      "sourceRuleId": "mrs:ca2a4256798d",
       "rowModel": "unknown",
       "primaryRole": "unknown",
       "reportDomains": [
@@ -57697,41 +57868,6 @@
       ],
       "providerAggregation": "source-uid"
     },
-    "mrs:0b22ee54d145": {
-      "sourceRuleId": "mrs:0b22ee54d145",
-      "rowModel": "unknown",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "active-buff",
-      "classificationTags": [
-        "active-buff",
-        "domain:unknown",
-        "source-uid",
-        "unknown"
-      ],
-      "providerAggregation": "source-uid"
-    },
-    "mrs:5e45a7154d04": {
-      "sourceRuleId": "mrs:5e45a7154d04",
-      "rowModel": "unknown",
-      "primaryRole": "defensive",
-      "reportDomains": [
-        "healing",
-        "tanked"
-      ],
-      "offensiveKind": "active-buff",
-      "classificationTags": [
-        "active-buff",
-        "defensive",
-        "domain:healing",
-        "domain:tanked",
-        "source-uid",
-        "unknown"
-      ],
-      "providerAggregation": "source-uid"
-    },
     "mrs:0bf924ca7eb6": {
       "sourceRuleId": "mrs:0bf924ca7eb6",
       "rowModel": "unknown",
@@ -58207,22 +58343,6 @@
     },
     "mrs:cc1c2ebc8bf7": {
       "sourceRuleId": "mrs:cc1c2ebc8bf7",
-      "rowModel": "unknown",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "active-buff",
-      "classificationTags": [
-        "active-buff",
-        "domain:unknown",
-        "source-uid",
-        "unknown"
-      ],
-      "providerAggregation": "source-uid"
-    },
-    "mrs:53404f807c87": {
-      "sourceRuleId": "mrs:53404f807c87",
       "rowModel": "unknown",
       "primaryRole": "unknown",
       "reportDomains": [
@@ -59861,22 +59981,6 @@
     },
     "mrs:0aeff2aa19fe": {
       "sourceRuleId": "mrs:0aeff2aa19fe",
-      "rowModel": "unknown",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "active-buff",
-      "classificationTags": [
-        "active-buff",
-        "domain:unknown",
-        "source-uid",
-        "unknown"
-      ],
-      "providerAggregation": "source-uid"
-    },
-    "mrs:23cc6f1b0114": {
-      "sourceRuleId": "mrs:23cc6f1b0114",
       "rowModel": "unknown",
       "primaryRole": "unknown",
       "reportDomains": [
@@ -137462,22 +137566,6 @@
       ],
       "providerAggregation": "source-uid"
     },
-    "mrs:edba96ac8c77": {
-      "sourceRuleId": "mrs:edba96ac8c77",
-      "rowModel": "unknown",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "active-buff",
-      "classificationTags": [
-        "active-buff",
-        "domain:unknown",
-        "source-uid",
-        "unknown"
-      ],
-      "providerAggregation": "source-uid"
-    },
     "mrs:6d2847ee0e7c": {
       "sourceRuleId": "mrs:6d2847ee0e7c",
       "rowModel": "unknown",
@@ -137608,6 +137696,22 @@
     },
     "mrs:3eeacda07aff": {
       "sourceRuleId": "mrs:3eeacda07aff",
+      "rowModel": "unknown",
+      "primaryRole": "unknown",
+      "reportDomains": [
+        "unknown"
+      ],
+      "offensiveKind": "active-buff",
+      "classificationTags": [
+        "active-buff",
+        "domain:unknown",
+        "source-uid",
+        "unknown"
+      ],
+      "providerAggregation": "source-uid"
+    },
+    "mrs:06b7f639f5d3": {
+      "sourceRuleId": "mrs:06b7f639f5d3",
       "rowModel": "unknown",
       "primaryRole": "unknown",
       "reportDomains": [
@@ -139646,22 +139750,6 @@
     },
     "mrs:65b521d493a1": {
       "sourceRuleId": "mrs:65b521d493a1",
-      "rowModel": "unknown",
-      "primaryRole": "unknown",
-      "reportDomains": [
-        "unknown"
-      ],
-      "offensiveKind": "active-buff",
-      "classificationTags": [
-        "active-buff",
-        "domain:unknown",
-        "source-uid",
-        "unknown"
-      ],
-      "providerAggregation": "source-uid"
-    },
-    "mrs:1bc023d7826a": {
-      "sourceRuleId": "mrs:1bc023d7826a",
       "rowModel": "unknown",
       "primaryRole": "unknown",
       "reportDomains": [

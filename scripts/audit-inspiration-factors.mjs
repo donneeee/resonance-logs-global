@@ -13,7 +13,7 @@ const classSkillConfigsPath = path.join(rulesDir, "class_skill_configs.json");
 const skillIconsPath = path.join(generatedDir, "skill_aoyi_icons.json");
 
 const CLASS_PREFIXES = [
-  ["stormablade", "Stormblade"],
+  ["stormblade", "Stormblade"],
   ["flame_berserker", "Twin Axe"],
   ["beat_performer", "Beat Performer"],
   ["marksman", "Marksman"],

@@ -1,6 +1,6 @@
 [
   {
-    "slotTemplateId": "stormablade_x1",
+    "slotTemplateId": "stormblade_x1",
     "name": "雷影真实因子X1, 释放居合斩时附加1记雷切刀气",
     "description": "释放居合斩时附加1记雷切刀气",
     "slot": {
@@ -27,7 +27,7 @@
     ]
   },
   {
-    "slotTemplateId": "stormablade_x2",
+    "slotTemplateId": "stormblade_x2",
     "name": "雷影真实因子X2, 额外获得雷之印",
     "description": "额外获得雷之印",
     "slot": {
@@ -54,7 +54,7 @@
     ]
   },
   {
-    "slotTemplateId": "stormablade_s3_x3",
+    "slotTemplateId": "stormblade_s3_x3",
     "name": "雷影真实因子X3, 下一次终极大招必定暴击且伤害提升",
     "description": "下一次终极大招必定暴击且虚妄伤害提升",
     "slot": {
@@ -81,7 +81,7 @@
     ]
   },
   {
-    "slotTemplateId": "stormablade_s3_x5",
+    "slotTemplateId": "stormblade_s3_x5",
     "name": "雷影真实因子X5, 幸运一击倍率和月刃幸运几率提升",
     "description": "10秒内自身幸运一击倍率提升，月刃获取的幸运几率提升",
     "slot": {
@@ -108,7 +108,7 @@
     ]
   },
   {
-    "slotTemplateId": "stormablade_s3_x6",
+    "slotTemplateId": "stormblade_s3_x6",
     "name": "雷影真实因子X6, 触发雷霆之镰",
     "description": "触发雷霆之镰",
     "slot": {
@@ -3659,9 +3659,10 @@
     "slot": {
       "threshold": null,
       "resetBuffId": 3059051,
-      "onBuffAdd": "reset",
-      "onBuffChange": "reset",
-      "onBuffRemove": "noOp"
+      "onBuffAdd": "resetAndFreeze",
+      "onBuffChange": "resetAndFreeze",
+      "onBuffRemove": "noOp",
+      "freezeDurationMs": 30000
     },
     "effectBuffIds": [
       3059051

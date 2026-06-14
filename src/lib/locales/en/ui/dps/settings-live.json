@@ -74,5 +74,13 @@
   "tankedSkillColumns": "Tanked (Skill Details) Columns",
   "targetDummy.enemyElite": "Elite Enemy Dummy",
   "targetDummy.guardianElite": "Elite Guardian Dummy",
-  "targetDummyMode": "Target Dummy Mode"
+  "targetDummyMode": "Target Dummy Mode",
+  "trainingDummyTimerLimitEnabled": "Training Dummy Timer",
+  "trainingDummyTimerLimitEnabledDescription": "Use a fixed target dummy segment timer. The live timer counts down and the segment finishes when this timer reaches zero.",
+  "trainingDummySegmentDurationSeconds": "Training Dummy Duration",
+  "trainingDummySegmentDurationSecondsDescription": "Sets the target dummy segment length. Default: 180 secs.",
+  "showPlayerImagineBadges": "Battle Imagine Badges",
+  "showPlayerImagineBadgesDescription": "Show equipped battle imagine badges beside class icons.",
+  "showOceanWeaponBadge": "Ocean Weapon Badge",
+  "showOceanWeaponBadgeDescription": "Show the ocean weapon badge before player names when detected."
 }

@@ -113,7 +113,11 @@ function buildSkillRuntimeSnapshot(): MonitorRuntimeSnapshot["skill"] {
     (buffDisplayMode === "individual" && !!individualAllGroup);
   const groupBuffIds =
     buffDisplayMode === "grouped"
-      ? buffGroups.flatMap((group) => (group.monitorAll ? [] : group.buffIds))
+      ? buffGroups.flatMap((group) =>
+          group.monitorAll
+            ? []
+            : expandBuffSelection(group.buffIds ?? [], group.buffCategories),
+        )
       : [];
   const inlineBuffIds = customPanelEntries
     .filter((entry) => entry.sourceType === "buff")

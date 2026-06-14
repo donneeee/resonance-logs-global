@@ -1,5 +1,12 @@
 <script lang="ts">
-  import { getClassIcon, getClassIconTintColor, tooltip } from "$lib/utils.svelte";
+  import { activeProfileOrDefault } from "$lib/skill-monitor-profile.svelte";
+  import {
+    DPS_HEALER_SPEC_GLOW,
+    getClassIcon,
+    getClassIconTintColor,
+    isDpsHealerSpec,
+    tooltip,
+  } from "$lib/utils.svelte";
 
   let {
     className = "",
@@ -20,8 +27,19 @@
   const iconUrl = $derived(getClassIcon(className, classSpecName));
   const tintColor = $derived(getClassIconTintColor(className, classSpecName));
   const shouldTint = $derived(Boolean(classSpecName && tintColor));
+  const shouldHighlightDpsHealerSpec = $derived(
+    Boolean(
+      activeProfileOrDefault().highlightDpsHealerSpecIcons === true
+        && isDpsHealerSpec(classSpecName),
+    ),
+  );
   const iconClass = $derived(
-    ["class-spec-icon", shouldTint ? "tinted" : "image", classAttr]
+    [
+      "class-spec-icon",
+      shouldTint ? "tinted" : "image",
+      shouldHighlightDpsHealerSpec ? "dps-healer-highlight" : "",
+      classAttr,
+    ]
       .filter(Boolean)
       .join(" "),
   );
@@ -32,6 +50,7 @@
       shouldTint
         ? `--class-icon-url: url("${cssIconUrl}"); --class-icon-color: ${tintColor}`
         : "",
+      shouldHighlightDpsHealerSpec ? `--class-icon-highlight: ${DPS_HEALER_SPEC_GLOW}` : "",
     ]
       .filter(Boolean)
       .join("; "),
@@ -83,5 +102,11 @@
     mask-repeat: no-repeat;
     -webkit-mask-size: contain;
     mask-size: contain;
+  }
+
+  .class-spec-icon.dps-healer-highlight {
+    filter:
+      drop-shadow(0 0 2px var(--class-icon-highlight))
+      drop-shadow(0 0 5px color-mix(in srgb, var(--class-icon-highlight) 78%, transparent));
   }
 </style>

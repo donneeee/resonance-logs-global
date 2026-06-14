@@ -9,6 +9,7 @@ import {
   getSeasonCultivateFactorRuleId,
   getSeasonCultivateFactorRuleMap,
   getSeasonCultivateFactorSourceIncrementMap,
+  getSeasonCultivateFactorThreshold,
   getSourceTemplates,
   getSlotTemplates,
   resolveSeasonCultivateSlotSkillLabel,
@@ -18,14 +19,17 @@ import {
   type SourceTemplate,
 } from "$lib/skill-mappings";
 import {
+  expandBuffSelection,
   getBuffCategoryLabel,
   getBuffIdsByCategory,
+  normalizeBuffCategoryKeys,
   resolveBuffCategoryKey,
   resolveBuffOverlayDisplayName,
+  type BuffCategoryKey,
 } from "$lib/config/buff-name-table";
 import { lookupLocalizedDamageIdName } from "$lib/config/recount-table";
 import { resolveKnownSkillStageDisplayName } from "$lib/skill-stage-labels";
-import type { BuffUpdateState } from "$lib/api";
+import type { BuffUpdateState, CounterSlotState } from "$lib/api";
 import type {
   CustomPanelDisplayRow,
   IconBuffDisplay,
@@ -41,6 +45,7 @@ import {
   ensureBuffGroups,
   ensureIndividualMonitorAllGroup,
   formatTimerText,
+  getBuffRemainingMs,
   getCustomPanelDisplayRow,
   getBuffRemainPercent,
   getResourcePreciseValue as getResourcePreciseValueValue,
@@ -49,7 +54,7 @@ import {
   resolveAlertState,
 } from "./overlay-utils";
 import { uiT } from "$lib/i18n";
-import { ensureBuffAlerts, SETTINGS, type InlineBuffEntry } from "$lib/settings-store";
+import { ensureBuffAlerts, SETTINGS, type BuffGroup, type InlineBuffEntry } from "$lib/settings-store";
 import {
   activeProfile,
   buffAliases,
@@ -102,6 +107,15 @@ const tCustomPanel = uiT(
   "overlay/skill-monitor/custom-panel",
   () => SETTINGS.live.general.state.language,
 );
+
+const tMonsterMonitor = uiT(
+  "overlay/monster-monitor",
+  () => SETTINGS.live.general.state.language,
+);
+
+function buffCategoryLabel(category: BuffCategoryKey): string {
+  return tMonsterMonitor(`teammate.category.${category}`, getBuffCategoryLabel(category));
+}
 
 const FACTOR_CLASS_KEYS = [
   "wind_knight",
@@ -260,20 +274,45 @@ function getLocalPlayerFactorBuffMap(): Map<number, BuffUpdateState> {
   return result;
 }
 
-function getInferredFactorEnergyTotal(): number {
+function isCounterSlotLocked(slot: CounterSlotState | undefined, now: number): boolean {
+  if (!slot) return false;
+  if (
+    slot.freezeUntilMs !== null &&
+    slot.freezeUntilMs !== undefined &&
+    slot.freezeUntilMs > now
+  ) {
+    return true;
+  }
+  return slot.isCounting === false;
+}
+
+function isRealityFactorItem(itemId: number): boolean {
+  const template = _seasonCultivateFactorSlotTemplateMap.get(itemId);
+  if (!template) return false;
+  return getFactorBaseLabel(template.name, "slot")
+    .toLowerCase()
+    .startsWith("reality ");
+}
+
+function getInferredFactorEnergyTotal(now: number): number {
   let total = 0;
   for (const itemId of seasonCultivateFactorSlotItemIds()) {
     const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
     if (!increment || increment <= 0) continue;
     const ruleId = getSeasonCultivateFactorRuleId(itemId);
-    const currentCount = getSeasonCultivateSourceCounterCount(itemId, ruleId, 1);
+    const currentCount = getSeasonCultivateSourceCounterCount(
+      itemId,
+      ruleId,
+      1,
+      now,
+    );
     total += currentCount;
   }
   return total;
 }
 
-function buildInferredFactorEnergyRow(): CustomPanelDisplayRow | null {
-  const total = getInferredFactorEnergyTotal();
+function buildInferredFactorEnergyRow(now: number): CustomPanelDisplayRow | null {
+  const total = getInferredFactorEnergyTotal(now);
   const hasSourceRows = seasonCultivateFactorSlotItemIds().some((itemId) => {
     const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
     return Boolean(increment && increment > 0);
@@ -295,17 +334,31 @@ function getSeasonCultivateProcPrefix(
   itemId: number,
   ruleId: number,
   slotId: number,
+  now: number,
 ): string | undefined {
   const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
+  const observedProcCount =
+    seasonCultivateFactorProcCounts().get(itemId) ?? 0;
+  if (
+    _seasonCultivateFactorSourceTemplateMap.has(itemId) &&
+    (!increment || increment <= 0)
+  ) {
+    const counterProcCount = getSeasonCultivateSourceCounterCount(
+      itemId,
+      ruleId,
+      slotId,
+      now,
+    );
+    return String(Math.max(counterProcCount, observedProcCount));
+  }
   if (!increment || increment <= 0) {
-    const observedProcCount =
-      seasonCultivateFactorProcCounts().get(itemId) ?? 0;
     return String(observedProcCount);
   }
   const currentCount = getSeasonCultivateSourceCounterCount(
     itemId,
     ruleId,
     slotId,
+    now,
   );
   const procCount = Math.floor(currentCount / increment);
   return String(procCount);
@@ -322,10 +375,21 @@ function getSeasonCultivateCounterCount(
 }
 
 function getSeasonCultivateSourceCounterCount(
-  _itemId: number,
+  itemId: number,
   ruleId: number,
   slotId: number,
+  now?: number,
 ): number {
+  const counter = factorCounterMap().get(ruleId);
+  const slot =
+    counter?.slots.find((item) => item.slotId === slotId) ?? counter?.slots[0];
+  if (
+    now !== undefined &&
+    isRealityFactorItem(itemId) &&
+    isCounterSlotLocked(slot, now)
+  ) {
+    return 0;
+  }
   return getSeasonCultivateCounterCount(ruleId, slotId);
 }
 
@@ -333,6 +397,7 @@ function getSeasonCultivateSourceValueText(
   itemId: number,
   ruleId: number,
   slotId: number,
+  now: number,
 ): string | undefined {
   const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
   if (!increment || increment <= 0) return undefined;
@@ -340,23 +405,20 @@ function getSeasonCultivateSourceValueText(
     itemId,
     ruleId,
     slotId,
+    now,
   );
   return String(currentCount);
 }
 
-function getSeasonCultivateSourceProgressPercent(
-  itemId: number,
-  ruleId: number,
-  slotId: number,
-): number | undefined {
-  const increment = _seasonCultivateFactorSourceIncrementMap.get(itemId);
-  if (!increment || increment <= 0) return undefined;
-  const currentCount = getSeasonCultivateSourceCounterCount(
-    itemId,
-    ruleId,
-    slotId,
-  );
-  return Math.max(0, Math.min(100, ((currentCount % increment) / increment) * 100));
+function getSeasonCultivateFactorTimerText(
+  linkedBuff: BuffUpdateState | undefined,
+  now: number,
+  hasTimer: boolean,
+): string | undefined {
+  if (!hasTimer) return undefined;
+  if (!linkedBuff || linkedBuff.durationMs <= 0 || !isBuffActive(linkedBuff, now)) return undefined;
+  const remainingMs = getBuffRemainingMs(linkedBuff, now);
+  return remainingMs > 0 ? formatTimerText(remainingMs) : undefined;
 }
 
 function getFirstSourceSkillBaseId(template: SourceTemplate): number | null {
@@ -471,7 +533,10 @@ function getSeasonCultivateCandidateSortRank(itemId: number): number {
   const template = _seasonCultivateFactorSlotTemplateMap.get(itemId);
   const templateId = template?.slotTemplateId ?? "";
   const name = (template?.name ?? "").toLowerCase();
-  const threshold = template?.slot.threshold;
+  const threshold = getSeasonCultivateFactorThreshold(
+    itemId,
+    template?.slot.threshold,
+  );
   if (threshold !== null && threshold !== undefined && threshold > 0) return 0;
   if (name.includes("reality") || templateId.includes("_x4")) return 0;
   if (name.includes("polarity") || templateId.startsWith("factor_3058")) {
@@ -492,9 +557,9 @@ function buildSeasonCultivateThresholdRow(
 ): CustomPanelDisplayRow | null {
   const slot = rule.effectSlots[0];
   if (!slot) return null;
-  const threshold = slot?.threshold ?? null;
+  const threshold = getSeasonCultivateFactorThreshold(itemId, slot.threshold);
   if (!threshold || threshold <= 0) return null;
-  const total = getInferredFactorEnergyTotal();
+  const total = getInferredFactorEnergyTotal(now);
   const procCount = Math.floor(total / threshold);
   const remainder = total % threshold;
   const linkedBuff = factorBuffMap.get(slot.resetBuffId);
@@ -509,6 +574,11 @@ function buildSeasonCultivateThresholdRow(
     label,
     prefixText: String(procCount),
     valueText: `${remainder}/${threshold}`,
+    timerText: getSeasonCultivateFactorTimerText(
+      linkedBuff,
+      now,
+      typeof slot.resetBuffId === "number" && slot.resetBuffId > 0,
+    ),
     progressPercent:
       active && linkedBuff?.durationMs ? timerProgressPercent : bucketProgressPercent,
     showProgress: active && linkedBuff?.durationMs
@@ -670,7 +740,7 @@ const _buffSnapshot = $derived.by(() => {
   for (const group of panelGroups) {
     const nextRows: CustomPanelDisplayRow[] = [];
     if (group.kind === "seasonCultivateFactor") {
-      const inferredEnergyRow = buildInferredFactorEnergyRow();
+      const inferredEnergyRow = buildInferredFactorEnergyRow(now);
       if (inferredEnergyRow) nextRows.push(inferredEnergyRow);
 
       const factorBuffMap = getLocalPlayerFactorBuffMap();
@@ -683,8 +753,10 @@ const _buffSnapshot = $derived.by(() => {
         const ruleId = getSeasonCultivateFactorRuleId(itemId);
         const rule = _seasonCultivateFactorRuleMap.get(ruleId);
         if (!rule) continue;
+        const sourceTemplate = _seasonCultivateFactorSourceTemplateMap.get(itemId);
         const sourceIncrement =
           _seasonCultivateFactorSourceIncrementMap.get(itemId);
+        const isEnergySource = Boolean(sourceIncrement && sourceIncrement > 0);
         const slotTemplateId =
           _seasonCultivateFactorItemSlotTemplateMap.get(itemId);
         const customLabel = slotTemplateId
@@ -693,9 +765,9 @@ const _buffSnapshot = $derived.by(() => {
         const label = customLabel || getSeasonCultivateDisplayLabel(
           itemId,
           rule.name,
-          sourceIncrement && sourceIncrement > 0 ? "source" : "slot",
+          isEnergySource ? "source" : "slot",
         );
-        if (!sourceIncrement || sourceIncrement <= 0) {
+        if (!sourceTemplate) {
           const thresholdRow = buildSeasonCultivateThresholdRow(
             itemId,
             rule,
@@ -730,22 +802,20 @@ const _buffSnapshot = $derived.by(() => {
             itemId,
             ruleId,
             slotId,
+            now,
           );
-          const sourceProgressPercent = getSeasonCultivateSourceProgressPercent(
-            itemId,
-            ruleId,
-            slotId,
-          );
+          const hasActiveTimerBar = Boolean(row.timerText && row.showProgress);
           sourceRows.push({
             ...row,
-            prefixText: getSeasonCultivateProcPrefix(itemId, ruleId, slotId),
-            valueText: sourceValueText ?? row.valueText,
-            progressPercent: row.showProgress
-              ? row.progressPercent
-              : sourceProgressPercent ?? row.progressPercent,
-            showProgress:
-              row.showProgress ||
-              (sourceProgressPercent !== undefined && sourceProgressPercent > 0),
+            prefixText: getSeasonCultivateProcPrefix(
+              itemId,
+              ruleId,
+              slotId,
+              now,
+            ),
+            valueText: sourceValueText ?? (isEnergySource ? row.valueText : "--"),
+            progressPercent: hasActiveTimerBar ? row.progressPercent : 0,
+            showProgress: hasActiveTimerBar,
             metaText: undefined,
           });
         }
@@ -795,6 +865,12 @@ const _buffSnapshot = $derived.by(() => {
           label,
           prefixText: String(procCount),
           valueText: "--",
+          timerText: getSeasonCultivateFactorTimerText(
+            linkedBuff,
+            now,
+            typeof rule.effectSlots[0]?.resetBuffId === "number"
+              && (rule.effectSlots[0]?.resetBuffId ?? 0) > 0,
+          ),
           progressPercent: getBuffRemainPercent(linkedBuff, now),
           showProgress: active && Boolean(linkedBuff && linkedBuff.durationMs > 0),
         });
@@ -976,6 +1052,41 @@ const _skillDurationDisplays = $derived.by(
   () => _skillSnapshot.skillDurationDisplays,
 );
 
+function getGroupSelectedBuffIdSet(group: BuffGroup): Set<number> {
+  return new Set(expandBuffSelection(group.buffIds ?? [], group.buffCategories));
+}
+
+function getGroupCategoryPlaceholders(
+  group: BuffGroup,
+  entries: IconBuffDisplay[],
+): IconBuffDisplay[] {
+  if (!overlayRuntime.isEditing) return [];
+  const activeCategoryKeys = new Set(
+    entries
+      .map((buff) => buff.categoryKey ?? resolveBuffCategoryKey(buff.baseId))
+      .filter((key): key is BuffCategoryKey => key !== undefined),
+  );
+  const placeholders: IconBuffDisplay[] = [];
+  for (const categoryKey of normalizeBuffCategoryKeys(group.buffCategories)) {
+    if (activeCategoryKeys.has(categoryKey)) continue;
+    const representativeId = getBuffIdsByCategory(categoryKey)[0];
+    if (representativeId === undefined) continue;
+    const definition = buffDefinitions().get(representativeId);
+    if (!definition?.spriteFile) continue;
+    placeholders.push({
+      baseId: representativeId,
+      name: buffCategoryLabel(categoryKey),
+      spriteFile: definition.spriteFile,
+      text: "--",
+      layer: 1,
+      isPlaceholder: true,
+      layoutKey: `group:${group.id}:category:${categoryKey}`,
+      categoryKey,
+    });
+  }
+  return placeholders;
+}
+
 const _groupedIconBuffs = $derived.by(() => {
   if (buffDisplayMode() !== "grouped") return new Map<string, IconBuffDisplay[]>();
   const groups = _normalizedBuffGroups;
@@ -985,17 +1096,21 @@ const _groupedIconBuffs = $derived.by(() => {
   const selectedBySpecificGroups = new Set<number>();
   for (const group of groups) {
     if (group.monitorAll) continue;
-    for (const buffId of group.buffIds) {
+    for (const buffId of getGroupSelectedBuffIdSet(group)) {
       selectedBySpecificGroups.add(buffId);
     }
   }
   const result = new Map<string, IconBuffDisplay[]>();
   for (const group of groups) {
     const maxVisible = Math.max(1, group.columns * group.rows);
+    const groupSelectedIds = getGroupSelectedBuffIdSet(group);
     const entries = group.monitorAll
       ? iconBuffs.filter((buff) => !selectedBySpecificGroups.has(buff.baseId))
-      : iconBuffs.filter((buff) => group.buffIds.includes(buff.baseId));
-    result.set(group.id, entries.slice(0, maxVisible));
+      : iconBuffs.filter((buff) => groupSelectedIds.has(buff.baseId));
+    result.set(
+      group.id,
+      [...entries, ...getGroupCategoryPlaceholders(group, entries)].slice(0, maxVisible),
+    );
   }
   return result;
 });
@@ -1041,7 +1156,7 @@ const _individualModeIconBuffs = $derived.by(() => {
     if (!definition?.spriteFile) continue;
     categoryBuffs.push({
       baseId: representativeId,
-      name: getBuffCategoryLabel(categoryKey),
+      name: buffCategoryLabel(categoryKey),
       spriteFile: definition.spriteFile,
       text: "--",
       layer: 1,
@@ -1072,7 +1187,7 @@ const _specialStandaloneBuffs = $derived.by(() => {
   if (groups.some((group) => group.monitorAll)) return specials;
   const selectedIds = new Set<number>();
   for (const group of groups) {
-    for (const buffId of group.buffIds) {
+    for (const buffId of getGroupSelectedBuffIdSet(group)) {
       selectedIds.add(buffId);
     }
   }

@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "格擋%",
   "columns.historyTankedSkills.luckyBlockRate.description": "顯示該承傷技能觸發幸運格擋的機率",
   "columns.historyTankedSkills.luckyBlockRate.header": "幸運格擋%",
-  "columns.historyTankedSkills.luckyBlockRate.label": "幸運格擋%"
+  "columns.historyTankedSkills.luckyBlockRate.label": "幸運格擋%",
+  "detail.graphIndividualView": "圖表 - 個人",
+  "detail.graphTeamView": "圖表 - 團隊DPS",
+  "detail.graphDeath": "死亡",
+  "detail.summary.aria": "玩家統計摘要",
+  "detail.summary.time": "時間",
+  "detail.summary.encounterTime": "戰鬥時間",
+  "detail.summary.trueDpsTime": "真DPS時間",
+  "detail.summary.damage": "傷害",
+  "detail.summary.boss": "首領",
+  "detail.summary.rates": "比率",
+  "detail.summary.healing": "治療",
+  "detail.summary.tanked": "承傷"
 }

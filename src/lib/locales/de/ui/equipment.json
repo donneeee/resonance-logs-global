@@ -1,0 +1,5 @@
+{
+  "oceanWeaponLevel": "Ozeanwaffe Lv.{level}",
+  "oceanWeaponLevelApprox": "Ozeanwaffe Lv.{level}+",
+  "oceanWeaponLevelRange": "Ozeanwaffe Lv.{min}-{max}"
+}

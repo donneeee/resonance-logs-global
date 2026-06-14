@@ -49,8 +49,41 @@ function tMonster(key: string, fallback: string): string {
   );
 }
 
+function buffCategoryLabel(category: BuffCategoryKey): string {
+  return tMonster(`teammate.category.${category}`, getBuffCategoryLabel(category));
+}
+
 function targetTitle(uid: number): string {
   return `${tMonster("placeholder.targetPrefix", "Target")} ${uid}`;
+}
+
+const SYNTHETIC_TARGET_PREFIXES = [
+  "Target",
+  "\u76ee\u6807",
+  "\u76ee\u6a19",
+  "\u5bfe\u8c61",
+  "\ub300\uc0c1",
+  "Alvo",
+  "Objetivo",
+  "Cible",
+  "Ziel",
+  "\u0e40\u0e1b\u0e49\u0e32\u0e2b\u0e21\u0e32\u0e22",
+];
+
+function escapeRegExp(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+const SYNTHETIC_TARGET_NAME_PATTERN = new RegExp(
+  `^(?:${SYNTHETIC_TARGET_PREFIXES.map(escapeRegExp).join("|")})\\s+(\\d+)(?:\\s+\\(You\\))?$`,
+  "i",
+);
+
+function syntheticTargetUid(rawName: string): number | null {
+  const match = SYNTHETIC_TARGET_NAME_PATTERN.exec(rawName.trim());
+  if (!match) return null;
+  const uid = Number(match[1]);
+  return Number.isSafeInteger(uid) && uid > 0 ? uid : null;
 }
 
 function resolveMonsterSectionTitle(uid: number): string {
@@ -61,6 +94,8 @@ function resolveMonsterSectionTitle(uid: number): string {
 
   const rawName = monsterRuntime.nameCache.get(uid)?.trim();
   if (rawName) {
+    const fallbackUid = syntheticTargetUid(rawName);
+    if (fallbackUid !== null) return targetTitle(fallbackUid);
     return localizeRawMonsterName(rawName, rawName);
   }
   return targetTitle(uid);
@@ -77,6 +112,8 @@ function resolveEntityDisplayName(uid: number): string {
 
   const rawName = monsterRuntime.nameCache.get(uid)?.trim();
   if (rawName) {
+    const fallbackUid = syntheticTargetUid(rawName);
+    if (fallbackUid !== null) return targetTitle(fallbackUid);
     return localizeRawMonsterName(rawName, rawName);
   }
 
@@ -219,7 +256,7 @@ function buildTeammateColumnDefinitions(
   for (const categoryKey of teammateBuffCategories) {
     columns.push({
       key: `category:${categoryKey}`,
-      label: getBuffCategoryLabel(categoryKey),
+      label: buffCategoryLabel(categoryKey),
       kind: "category",
       categoryKey,
       buffIds: getBuffIdsByCategory(categoryKey),

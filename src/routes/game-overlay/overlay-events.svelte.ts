@@ -52,6 +52,7 @@ import {
   activeProfile,
   buffUptimeMinStacks,
   buffUptimeMinStacksEnabled,
+  monitoredSkillIds,
   buffUptimeTrackingModes,
   monitoredSkillDurationIds,
   monitoredUptimeBuffIds,
@@ -317,9 +318,16 @@ export function initOverlay() {
     const next = new Map(overlayRuntime.cdMap);
     const nextDurationMap = new Map(overlayRuntime.skillDurationMap);
     const classKey = selectedClassKey();
+    const skillIds = new Set(monitoredSkillIds());
     const durationSkillIds = new Set(monitoredSkillDurationIds());
+    const monitoredIds = new Set([...skillIds, ...durationSkillIds]);
     for (const cd of event.payload.skillCds) {
-      const baseId = Math.floor(cd.skillLevelId / 100);
+      const levelBaseId = Math.floor(cd.skillLevelId / 100);
+      const baseId = monitoredIds.has(cd.skillLevelId)
+        ? cd.skillLevelId
+        : monitoredIds.has(levelBaseId)
+          ? levelBaseId
+          : levelBaseId;
       next.set(baseId, cd);
       if (!durationSkillIds.has(baseId)) continue;
       const skill = findAnySkillByBaseId(classKey, baseId);

@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "Bloqueio %",
   "columns.historyTankedSkills.luckyBlockRate.description": "Mostra a chance desta habilidade recebida acionar bloqueio de sorte",
   "columns.historyTankedSkills.luckyBlockRate.header": "Bloqueio de sorte %",
-  "columns.historyTankedSkills.luckyBlockRate.label": "Bloqueio de sorte %"
+  "columns.historyTankedSkills.luckyBlockRate.label": "Bloqueio de sorte %",
+  "detail.graphIndividualView": "Grafico - Individual",
+  "detail.graphTeamView": "Grafico - T.DPS",
+  "detail.graphDeath": "morte",
+  "detail.summary.aria": "Resumo de estatísticas do jogador",
+  "detail.summary.time": "Tempo",
+  "detail.summary.encounterTime": "Tempo do encontro",
+  "detail.summary.trueDpsTime": "Tempo de DPS real",
+  "detail.summary.damage": "Dano",
+  "detail.summary.boss": "Chefe",
+  "detail.summary.rates": "Taxas",
+  "detail.summary.healing": "Cura",
+  "detail.summary.tanked": "Dano recebido"
 }

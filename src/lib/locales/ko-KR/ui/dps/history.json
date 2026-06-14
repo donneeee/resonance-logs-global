@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "막기 %",
   "columns.historyTankedSkills.luckyBlockRate.description": "이 받은 스킬이 행운 막기로 처리된 비율 표시",
   "columns.historyTankedSkills.luckyBlockRate.header": "행운 막기 %",
-  "columns.historyTankedSkills.luckyBlockRate.label": "행운 막기 %"
+  "columns.historyTankedSkills.luckyBlockRate.label": "행운 막기 %",
+  "detail.graphIndividualView": "그래프 - 개인",
+  "detail.graphTeamView": "그래프 - 팀 DPS",
+  "detail.graphDeath": "사망",
+  "detail.summary.aria": "플레이어 통계 요약",
+  "detail.summary.time": "시간",
+  "detail.summary.encounterTime": "전투 시간",
+  "detail.summary.trueDpsTime": "실 DPS 시간",
+  "detail.summary.damage": "피해",
+  "detail.summary.boss": "보스",
+  "detail.summary.rates": "비율",
+  "detail.summary.healing": "치유",
+  "detail.summary.tanked": "받은 피해"
 }

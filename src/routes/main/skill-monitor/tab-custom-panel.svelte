@@ -147,7 +147,7 @@
   function buffStatusLabel(buffId: number): string | null {
     const location = getEntryLocation("buff", buffId);
     if (!location) return null;
-    return location.groupId === selectedGroup?.id ? t("currentGroupAdded", "当前组已添加") : `${t("alreadyInGroup", "已在")}${location.groupName}`;
+    return location.groupId === selectedGroup?.id ? t("currentGroupAdded", "Already in Current Group") : `${t("alreadyInGroup", "Already in ")}${location.groupName}`;
   }
 
   function toggleDraftRef(
@@ -217,9 +217,9 @@
 <div class="space-y-6">
   <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-4">
     <div>
-      <h2 class="text-base font-semibold text-foreground">{t("customPanel.title", "自定义监控区")}</h2>
+      <h2 class="text-base font-semibold text-foreground">{t("customPanel.title", "Custom Monitor Areas")}</h2>
       <p class="text-xs text-muted-foreground">
-        {t("customPanel.subtitle", "可创建多个文本监控区；同一个 Buff 或计数器在所有监控区内全局唯一。")}
+        {t("customPanel.subtitle", "Create multiple text monitor areas. The same buff or counter is globally unique across all areas.")}
       </p>
     </div>
 
@@ -229,7 +229,7 @@
         class="min-h-11 rounded-lg border border-border/60 bg-muted/20 px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-muted/40 cursor-pointer"
         onclick={() => addCustomPanelGroup("manual")}
       >
-        {t("customPanel.newGroup", "新建监控区")}
+        {t("customPanel.newGroup", "New Monitor Area")}
       </button>
       <button
         type="button"
@@ -240,9 +240,9 @@
       </button>
       <div class="text-xs text-muted-foreground" role="status" aria-live="polite">
         {#if selectedGroup}
-          {t("customPanel.editing", "当前编辑：")}{selectedGroup.name}
+          {t("customPanel.editing", "Currently Editing: ")}{selectedGroup.name}
         {:else}
-          {t("customPanel.selectOrCreate", "请选择或新建一个监控区")}
+          {t("customPanel.selectOrCreate", "Please select or create a monitor area")}
         {/if}
       </div>
     </div>
@@ -266,7 +266,7 @@
                 {#if group.kind === "seasonCultivateFactor"}
                   {t("customPanel.newFactor", "New Factor Area")}
                 {:else}
-                  {t("entries", "条目")} {group.entries.length}
+                  {t("entries", "Entries")} {group.entries.length}
                 {/if}
               </div>
             </button>
@@ -275,7 +275,7 @@
               class="min-h-11 rounded-md border border-border/60 px-3 py-1.5 text-xs text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
               onclick={() => removeCustomPanelGroup(group.id)}
             >
-              {t("deleteGroup", "删除分组")}
+              {t("deleteGroup", "Delete Group")}
             </button>
           </div>
         </div>
@@ -286,13 +286,13 @@
   {#if selectedGroup}
     <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-4">
       <div class="space-y-1">
-        <div class="text-sm font-medium text-foreground">{t("customPanel.currentGroup", "当前监控区")}</div>
+        <div class="text-sm font-medium text-foreground">{t("customPanel.currentGroup", "Current Monitor Area")}</div>
         <p class="text-xs text-muted-foreground">
-          {t("customPanel.currentGroupDescription", "该监控区中的条目会在 overlay 中作为独立文本区域显示，并可单独拖拽和缩放。")}
+          {t("customPanel.currentGroupDescription", "Entries in this area are shown in the overlay as an independent text block and can be dragged and resized separately.")}
         </p>
       </div>
       <label class="block text-xs text-muted-foreground">
-        {t("customPanel.groupName", "监控区名称")}
+        {t("customPanel.groupName", "Monitor Area Name")}
         <input
           class="mt-1 w-full max-w-sm rounded border border-border/60 bg-muted/30 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
           value={selectedGroup.name}
@@ -305,12 +305,12 @@
     {#if isSelectedManualGroup}
     <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-3">
       <div class="space-y-1">
-        <div class="text-sm font-medium text-foreground">{t("customPanel.addBuff", "添加 Buff")}</div>
-        <p class="text-xs text-muted-foreground">{t("customPanel.addBuffDescription", "仅添加到当前监控区的文本区域")}</p>
+        <div class="text-sm font-medium text-foreground">{t("customPanel.addBuff", "Add Buff")}</div>
+        <p class="text-xs text-muted-foreground">{t("customPanel.addBuffDescription", "Add only to the current monitor area text block")}</p>
       </div>
       <input
         class="w-full sm:w-80 rounded border border-border/60 bg-muted/30 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
-        placeholder={t("customPanel.searchAddBuff", "搜索并添加 Buff")}
+        placeholder={t("customPanel.searchAddBuff", "Search and add buff")}
         value={inlineBuffSearch}
         oninput={(event) => setInlineBuffSearch((event.currentTarget as HTMLInputElement).value)}
       />
@@ -321,15 +321,15 @@
           onSelect={(buffId) => addCustomPanelEntry(selectedGroup.id, "buff", buffId)}
           isDisabled={(buffId) => Boolean(getEntryLocation("buff", buffId))}
           getStatusLabel={buffStatusLabel}
-          emptyMessage={t("noMatchingBuff", "没有匹配的 Buff")}
+          emptyMessage={t("noMatchingBuff", "No matching buffs")}
         />
       {/if}
     </div>
 
     <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-3">
       <div class="space-y-1">
-        <div class="text-sm font-medium text-foreground">{t("customPanel.addCounter", "添加计数器")}</div>
-        <p class="text-xs text-muted-foreground">{t("customPanel.addCounterDescription", "计数器同样全局唯一，只能属于一个监控区。")}</p>
+        <div class="text-sm font-medium text-foreground">{t("customPanel.addCounter", "Add Counter")}</div>
+        <p class="text-xs text-muted-foreground">{t("customPanel.addCounterDescription", "Counters are also globally unique and can only belong to one monitor area.")}</p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
         {#each counterRules as rule (rule.ruleId)}
@@ -363,11 +363,11 @@
               <div class="text-sm font-medium text-foreground">{rule.name}</div>
               <div class="text-xs {exists ? 'text-primary' : 'text-muted-foreground'}">
                 {#if !exists}
-                  {t("clickToAdd", "点击添加")}
+                  {t("clickToAdd", "Click to Add")}
                 {:else if location?.groupId === selectedGroup.id}
-                  {t("currentGroupAdded", "当前组已添加")}
+                  {t("currentGroupAdded", "Already in Current Group")}
                 {:else}
-                  {t("alreadyInGroup", "已在")}{location?.groupName}
+                  {t("alreadyInGroup", "Already in ")}{location?.groupName}
                 {/if}
               </div>
               <button
@@ -375,7 +375,7 @@
                 class="min-h-11 rounded-md border border-border/60 px-3 py-1.5 text-xs text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
                 onclick={(event) => { event.stopPropagation(); removeUserCounterRule(rule.ruleId); }}
               >
-                {t("delete", "删除")}
+                {t("delete", "Delete")}
               </button>
             </div>
           </div>
@@ -385,17 +385,17 @@
       {#if isCreatingUserRule}
         <div class="rounded-lg border border-primary/30 bg-primary/5 p-4 space-y-4">
           <label class="block text-xs text-muted-foreground">
-            {t("customPanel.ruleName", "规则名称")}
+            {t("customPanel.ruleName", "Rule Name")}
             <input
               class="mt-1 w-full rounded border border-border/60 bg-muted/30 px-3 py-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               value={draftRuleName}
-              placeholder={t("customPanel.ruleNamePlaceholder", "例如：居合 + Tick 能量")}
+              placeholder={t("customPanel.ruleNamePlaceholder", "For example: Iaijutsu + Tick Energy")}
               oninput={(event) => (draftRuleName = (event.currentTarget as HTMLInputElement).value)}
             />
           </label>
 
           <div class="space-y-2">
-            <div class="text-sm font-medium text-foreground">{t("customPanel.selectSources", "选择 Sources")}</div>
+            <div class="text-sm font-medium text-foreground">{t("customPanel.selectSources", "Select Sources")}</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
               {#each sourceTemplates as template (template.sourceId)}
                 {@const selected = draftSourceRefs.includes(template.sourceId)}
@@ -413,7 +413,7 @@
           </div>
 
           <div class="space-y-2">
-            <div class="text-sm font-medium text-foreground">{t("customPanel.selectSlots", "选择 Slots")}</div>
+            <div class="text-sm font-medium text-foreground">{t("customPanel.selectSlots", "Select Slots")}</div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
               {#each slotTemplates as template (template.slotTemplateId)}
                 {@const selected = draftSlotRefs.includes(template.slotTemplateId)}
@@ -436,7 +436,7 @@
               class="min-h-11 rounded border border-border/60 px-4 py-2 text-sm text-foreground hover:bg-muted/40 cursor-pointer"
               onclick={resetDraftRule}
             >
-              {t("cancel", "取消")}
+              {t("cancel", "Cancel")}
             </button>
             <button
               type="button"
@@ -444,7 +444,7 @@
               onclick={submitDraftRule}
               disabled={!canSaveDraftRule}
             >
-              {t("customPanel.saveRule", "保存规则")}
+              {t("customPanel.saveRule", "Save Rule")}
             </button>
           </div>
         </div>
@@ -453,9 +453,9 @@
 
     <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-3">
       <div class="space-y-1">
-        <div class="text-sm font-medium text-foreground">{t("customPanel.addCounter", "添加计数器")}</div>
+        <div class="text-sm font-medium text-foreground">{t("customPanel.addCounter", "Add Counter")}</div>
         <p class="text-xs text-muted-foreground">
-          {t("customPanel.addCounterListDescription", "计数器槽位全局唯一，只能属于一个监控区。预设规则与自定义规则会一起显示。")}
+          {t("customPanel.addCounterListDescription", "Counter slots are globally unique and can only belong to one monitor area. Preset and custom rules are shown together.")}
         </p>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
@@ -478,17 +478,17 @@
                   </div>
                   <div class="mt-1 text-xs text-muted-foreground">
                     <span class="inline-block rounded border border-border/60 bg-muted/30 px-1.5 py-0.5">
-                      {rule.origin === "user" ? t("custom", "自定义") : t("preset", "预设")}
+                      {rule.origin === "user" ? t("custom", "Custom") : t("preset", "Preset")}
                     </span>
                   </div>
                 </div>
                 <div class="text-xs {exists ? 'text-primary' : 'text-muted-foreground'}">
                   {#if !exists}
-                    {t("clickToAdd", "点击添加")}
+                    {t("clickToAdd", "Click to Add")}
                   {:else if location?.groupId === selectedGroup.id}
-                    {t("currentGroupAdded", "当前组已添加")}
+                    {t("currentGroupAdded", "Already in Current Group")}
                   {:else}
-                    {t("alreadyInGroup", "已在")}{location?.groupName}
+                    {t("alreadyInGroup", "Already in ")}{location?.groupName}
                   {/if}
                 </div>
               </div>
@@ -499,10 +499,10 @@
     </div>
 
     <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-3">
-      <div class="text-sm font-medium text-foreground">{t("customPanel.currentGroupEntries", "当前组条目")}</div>
+      <div class="text-sm font-medium text-foreground">{t("customPanel.currentGroupEntries", "Current Group Entries")}</div>
       {#if selectedGroup.entries.length === 0}
         <div class="rounded-lg border border-dashed border-border/60 bg-muted/10 px-3 py-6 text-center text-sm text-muted-foreground">
-          {t("customPanel.noEntries", "当前监控区暂无条目")}
+          {t("customPanel.noEntries", "No entries in the current monitor area")}
         </div>
       {/if}
       {#each selectedGroup.entries as entry, idx (entry.id)}
@@ -512,15 +512,15 @@
         {@const buffName = entry.sourceType === "buff" ? getBuffDisplayName(entry.sourceId) : null}
         <div class="rounded-lg border border-border/60 bg-muted/20 p-3 space-y-2">
           <div class="text-xs text-muted-foreground">
-            {t("source", "来源")}：{entry.sourceType === "counter"
-              ? `${t("counter", "计数器")} - ${counterRule?.name ?? `#${entry.sourceId}`}`
+            {t("source", "Source")}：{entry.sourceType === "counter"
+              ? `${t("counter", "Counter")} - ${counterRule?.name ?? `#${entry.sourceId}`}`
               : `Buff - ${buffName}`}
           </div>
           {#if entry.sourceType === "counter"}
             <input
               class="w-full rounded border border-border/60 bg-muted/30 px-2 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
               value={entry.label}
-              placeholder={t("displayName", "显示名称")}
+              placeholder={t("displayName", "Display Name")}
               oninput={(event) =>
                 setCustomPanelEntryLabel(
                   selectedGroup.id,
@@ -540,7 +540,7 @@
               onclick={() => moveCustomPanelEntry(selectedGroup.id, entry.id, "up")}
               disabled={idx === 0}
             >
-              {t("moveUp", "上移")}
+              {t("moveUp", "Move Up")}
             </button>
             <button
               type="button"
@@ -548,14 +548,14 @@
               onclick={() => moveCustomPanelEntry(selectedGroup.id, entry.id, "down")}
               disabled={idx === selectedGroup.entries.length - 1}
             >
-              {t("moveDown", "下移")}
+              {t("moveDown", "Move Down")}
             </button>
             <button
               type="button"
               class="min-h-11 rounded border border-border/60 px-3 py-1 text-xs text-destructive transition-colors hover:bg-destructive/10 cursor-pointer"
               onclick={() => removeCustomPanelEntry(selectedGroup.id, entry.id)}
             >
-              {t("deleteGroup", "删除分组")}
+              {t("deleteGroup", "Delete Group")}
             </button>
           </div>
         </div>
@@ -638,20 +638,20 @@
     {/if}
   {:else}
     <div class="rounded-lg border border-border/60 bg-card/40 p-6 text-sm text-muted-foreground shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
-      {t("customPanel.emptyState", "还没有任何自定义监控区。先点击上方“新建监控区”，再向其中添加 Buff 或计数器。")}
+      {t("customPanel.emptyState", "There are no custom monitor areas yet. Click “New Monitor Area” above first, then add buffs or counters.")}
     </div>
   {/if}
 
   {#if selectedGroup}
   <div class="rounded-lg border border-border/60 bg-card/40 p-4 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)] space-y-4">
     <div>
-      <h2 class="text-base font-semibold text-foreground">{t("customPanel.sharedStyleTitle", "共享样式")}</h2>
-      <p class="text-xs text-muted-foreground">{t("customPanel.sharedStyleDescription", "所有自定义监控区共用以下文字与进度条样式。")}</p>
+      <h2 class="text-base font-semibold text-foreground">{t("customPanel.sharedStyleTitle", "Shared Style")}</h2>
+      <p class="text-xs text-muted-foreground">{t("customPanel.sharedStyleDescription", "All custom monitor areas share the following text and progress bar styles.")}</p>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       <label class="text-xs text-muted-foreground">
-        {t("buff.gap", "间距")}: {selectedGroup.style.gap}px
+        {t("buff.gap", "Gap")}: {selectedGroup.style.gap}px
         <input
           class="mt-1 w-full"
           type="range"
@@ -663,7 +663,7 @@
         />
       </label>
       <label class="text-xs text-muted-foreground">
-        {t("textBuff.fontSize", "字体大小")}: {selectedGroup.style.fontSize}px
+        {t("textBuff.fontSize", "Font Size")}: {selectedGroup.style.fontSize}px
         <input
           class="mt-1 w-full"
           type="range"
@@ -675,7 +675,7 @@
         />
       </label>
       <label class="text-xs text-muted-foreground">
-        {t("textBuff.nameValueGap", "名称-数值间距")}: {selectedGroup.style.columnGap}px
+        {t("textBuff.nameValueGap", "Name-Value Gap")}: {selectedGroup.style.columnGap}px
         <input
           class="mt-1 w-full"
           type="range"
@@ -690,7 +690,7 @@
 
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
       <label class="flex items-center justify-between gap-2 rounded border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-        {t("nameColor", "名称颜色")}
+        {t("nameColor", "Name Color")}
         <input
           type="color"
           value={selectedGroup.style.nameColor}
@@ -699,7 +699,7 @@
         />
       </label>
       <label class="flex items-center justify-between gap-2 rounded border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-        {t("valueColor", "数值颜色")}
+        {t("valueColor", "Value Color")}
         <input
           type="color"
           value={selectedGroup.style.valueColor}
@@ -708,7 +708,7 @@
         />
       </label>
       <label class="flex items-center justify-between gap-2 rounded border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-        {t("progressColor", "进度条颜色")}
+        {t("progressColor", "Progress Bar Color")}
         <input
           type="color"
           value={selectedGroup.style.progressColor}
@@ -717,7 +717,7 @@
         />
       </label>
       <label class="rounded border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground">
-        <div>{t("progressOpacity", "进度条透明度")}: {Math.round(selectedGroup.style.progressOpacity * 100)}%</div>
+        <div>{t("progressOpacity", "Progress Bar Opacity")}: {Math.round(selectedGroup.style.progressOpacity * 100)}%</div>
         <input
           class="mt-2 w-full"
           type="range"

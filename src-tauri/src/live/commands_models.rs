@@ -59,6 +59,7 @@ pub struct LiveDataPayload {
     pub active_combat_time_ms: u128,
     pub fight_start_timestamp_ms: u128,
     pub dps_display_paused: bool,
+    pub training_dummy: TrainingDummyState,
     pub total_dmg: u128,
     pub total_dmg_boss_only: u128,
     pub total_heal: u128,
@@ -75,6 +76,8 @@ pub struct LiveDataPayload {
 #[serde(rename_all = "camelCase")]
 pub struct TrainingDummyState {
     pub phase: TrainingDummyPhase,
+    pub duration_ms: u64,
+    pub remaining_ms: u64,
 }
 
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
@@ -109,6 +112,10 @@ pub struct RawEntityData {
     pub skill_cooldown_events: Vec<SkillCooldownEventState>,
     pub active_effect_sources: Vec<ActiveEffectSourceState>,
     pub active_factor_items: Vec<ActiveFactorItemState>,
+    #[serde(default)]
+    pub equipped_items: Vec<EquippedItemState>,
+    #[serde(default)]
+    pub active_gear_sets: Vec<GearSetState>,
     pub active_passive_skills: Vec<ActivePassiveSkillState>,
     pub active_profession_skills: Vec<ActiveProfessionSkillState>,
     pub active_profession_talents: Vec<ActiveProfessionTalentState>,
@@ -146,11 +153,17 @@ pub struct HistoryEntityData {
     pub skill_cooldown_events: Vec<SkillCooldownEventState>,
     pub active_effect_sources: Vec<ActiveEffectSourceState>,
     pub active_factor_items: Vec<ActiveFactorItemState>,
+    #[serde(default)]
+    pub equipped_items: Vec<EquippedItemState>,
+    #[serde(default)]
+    pub active_gear_sets: Vec<GearSetState>,
     pub active_passive_skills: Vec<ActivePassiveSkillState>,
     pub active_profession_skills: Vec<ActiveProfessionSkillState>,
     pub active_profession_talents: Vec<ActiveProfessionTalentState>,
     #[serde(default)]
     pub modifier_source_actors: Vec<ModifierSourceActorState>,
+    #[serde(default)]
+    pub combat_timeline: Vec<CombatTimelineBucketState>,
     pub dmg_per_target: Vec<PerTargetStats>,
     pub heal_per_target: Vec<PerTargetStats>,
     pub deaths: Vec<DeathRecord>,
@@ -431,6 +444,37 @@ pub struct ActiveFactorItemState {
 
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
+pub struct EquippedItemState {
+    pub slot: i32,
+    pub item_config_id: i32,
+    pub item_uuid: Option<i64>,
+    pub package_key: Option<i32>,
+    pub package_type: Option<i32>,
+    pub item_quality: Option<i32>,
+    pub equip_slot_refine_level: Option<u32>,
+    pub break_through_time: Option<i32>,
+    pub perfection_level: Option<i32>,
+    pub runtime_source: String,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GearSetAttrState {
+    pub attr_id: i32,
+    pub value: i32,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct GearSetState {
+    pub suit_id: i32,
+    pub attr_type: Option<i32>,
+    pub suit_attrs: Vec<GearSetAttrState>,
+    pub runtime_source: String,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
 pub struct ActivePassiveSkillState {
     pub passive_uuid: Option<i64>,
     pub target_uid: Option<i64>,
@@ -521,6 +565,23 @@ pub struct PerSourceStats {
     pub skills: HashMap<i64, RawSkillStats>,
 }
 
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct CombatTimelineBucketState {
+    pub timestamp_ms: i64,
+    #[serde(default)]
+    pub target_uuid: Option<i64>,
+    pub target_uid: i64,
+    pub target_monster_type_id: Option<i32>,
+    pub damage_value: u128,
+    pub effective_damage_value: u128,
+    pub healing_value: u128,
+    pub effective_healing_value: u128,
+    pub taken_value: u128,
+    pub hp_loss_value: u128,
+    pub shield_loss_value: u128,
+}
+
 pub fn to_raw_combat_stats(stats: &CombatStats) -> RawCombatStats {
     RawCombatStats {
         total: stats.total,
@@ -550,6 +611,24 @@ pub fn to_raw_skill_stats(skill: &Skill) -> RawSkillStats {
         trigger_hits: skill.trigger_hits,
         block_hits: skill.block_hits,
         lucky_block_hits: skill.lucky_block_hits,
+    }
+}
+
+pub fn to_combat_timeline_bucket_state(
+    bucket: &crate::live::opcodes_models::ObservedCombatTimelineBucket,
+) -> CombatTimelineBucketState {
+    CombatTimelineBucketState {
+        timestamp_ms: bucket.timestamp_ms,
+        target_uuid: bucket.target_uuid,
+        target_uid: bucket.target_uid,
+        target_monster_type_id: bucket.target_monster_type_id,
+        damage_value: bucket.damage_value,
+        effective_damage_value: bucket.effective_damage_value,
+        healing_value: bucket.healing_value,
+        effective_healing_value: bucket.effective_healing_value,
+        taken_value: bucket.taken_value,
+        hp_loss_value: bucket.hp_loss_value,
+        shield_loss_value: bucket.shield_loss_value,
     }
 }
 
@@ -806,6 +885,39 @@ pub fn to_active_factor_item_state(item: &ObservedFactorItem) -> ActiveFactorIte
     }
 }
 
+pub fn to_equipped_item_state(
+    item: &crate::live::opcodes_models::ObservedEquippedItem,
+) -> EquippedItemState {
+    EquippedItemState {
+        slot: item.slot,
+        item_config_id: item.item_config_id,
+        item_uuid: item.item_uuid,
+        package_key: item.package_key,
+        package_type: item.package_type,
+        item_quality: item.item_quality,
+        equip_slot_refine_level: item.equip_slot_refine_level,
+        break_through_time: item.break_through_time,
+        perfection_level: item.perfection_level,
+        runtime_source: item.runtime_source.clone(),
+    }
+}
+
+pub fn to_gear_set_state(set: &crate::live::opcodes_models::ObservedGearSet) -> GearSetState {
+    GearSetState {
+        suit_id: set.suit_id,
+        attr_type: set.attr_type,
+        suit_attrs: set
+            .suit_attrs
+            .iter()
+            .map(|attr| GearSetAttrState {
+                attr_id: attr.attr_id,
+                value: attr.value,
+            })
+            .collect(),
+        runtime_source: set.runtime_source.clone(),
+    }
+}
+
 pub fn to_active_passive_skill_state(skill: &ObservedPassiveSkill) -> ActivePassiveSkillState {
     ActivePassiveSkillState {
         passive_uuid: skill.passive_uuid,
@@ -1028,6 +1140,40 @@ pub struct SkillCdState {
     pub calculated_duration: i32,
     /// Cooldown accelerate rate for this skill
     pub cd_accelerate_rate: f32,
+    /// Packet-observed cooldown progress rate, measured from consecutive server cooldown updates.
+    #[serde(default)]
+    pub observed_progress_rate: f32,
+    /// Raw packet SubCDRatio field, if present.
+    #[serde(default)]
+    pub packet_sub_cd_ratio: i32,
+    /// Raw packet SubCDFixed field, if present.
+    #[serde(default)]
+    pub packet_sub_cd_fixed: i64,
+    /// Raw packet AccelerateCDRatio field, if present.
+    #[serde(default)]
+    pub packet_accelerate_cd_ratio: i32,
+    /// Cooldown modification sources that contributed to the calculated duration/rate.
+    #[serde(default)]
+    pub cd_sources: Vec<SkillCdSourceState>,
+}
+
+/// Represents one cooldown calculation source for diagnostics and timer tuning.
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct SkillCdSourceState {
+    pub source_key: String,
+    pub source_kind: String,
+    pub attr_type: i32,
+    pub temp_attr_id: Option<i32>,
+    pub logic_type: Option<i32>,
+    #[serde(default)]
+    pub attr_params: Vec<i32>,
+    #[serde(default)]
+    pub skill_tags: Vec<i32>,
+    pub value: f32,
+    pub contribution: f32,
+    pub contribution_kind: String,
+    pub scope: String,
 }
 
 /// Represents a buff update state.

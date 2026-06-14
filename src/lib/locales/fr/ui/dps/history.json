@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "Blocage %",
   "columns.historyTankedSkills.luckyBlockRate.description": "Affiche la chance que cette compétence reçue déclenche un blocage chanceux",
   "columns.historyTankedSkills.luckyBlockRate.header": "Blocage chanceux %",
-  "columns.historyTankedSkills.luckyBlockRate.label": "Blocage chanceux %"
+  "columns.historyTankedSkills.luckyBlockRate.label": "Blocage chanceux %",
+  "detail.graphIndividualView": "Graphe - individuel",
+  "detail.graphTeamView": "Graphe - DPS equipe",
+  "detail.graphDeath": "mort",
+  "detail.summary.aria": "Résumé des stats du joueur",
+  "detail.summary.time": "Temps",
+  "detail.summary.encounterTime": "Temps du combat",
+  "detail.summary.trueDpsTime": "Temps DPS réel",
+  "detail.summary.damage": "Dégâts",
+  "detail.summary.boss": "Boss",
+  "detail.summary.rates": "Taux",
+  "detail.summary.healing": "Soins",
+  "detail.summary.tanked": "Dégâts subis"
 }

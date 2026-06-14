@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "Quand le masquage automatique de la fenêtre live est activé, masque les overlays de jeu ou de monstres visibles avec le compteur live, puis restaure uniquement ceux qui étaient visibles avant le masquage.",
   "autoHideLiveWindowDelaySeconds": "Délai de masquage automatique",
   "autoHideLiveWindowDelaySecondsDescription": "Nombre de secondes à attendre sans nouveau dégât avant de masquer le compteur live. Mettez 0 pour masquer immédiatement.",
-  "secondsUnit": "s"
+  "secondsUnit": "s",
+  "trainingDummyTimerLimitEnabled": "Chronometre du mannequin",
+  "trainingDummyTimerLimitEnabledDescription": "Utilise un chronometre fixe pour le segment du mannequin d'entrainement. Le minuteur en direct decompte et le segment se termine lorsqu'il atteint zero.",
+  "trainingDummySegmentDurationSeconds": "Duree du mannequin",
+  "trainingDummySegmentDurationSecondsDescription": "Definit la duree du segment du mannequin d'entrainement. Par defaut : 180 s.",
+  "showPlayerImagineBadges": "Badges Imagine de combat",
+  "showPlayerImagineBadgesDescription": "Afficher les badges Imagine de combat equipes a cote des icones de classe.",
+  "showOceanWeaponBadge": "Badge arme oceanique",
+  "showOceanWeaponBadgeDescription": "Afficher le badge arme oceanique avant les noms de joueur quand il est detecte."
 }

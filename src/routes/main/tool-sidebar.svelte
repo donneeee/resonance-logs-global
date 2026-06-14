@@ -3,13 +3,12 @@
    * @file Tool sidebar component for the toolbox layout.
    * Displays the list of available tools in the left panel.
    */
+  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import { getVersion } from "@tauri-apps/api/app";
-  import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
   import { LOCALE_OPTIONS, uiT, type LocaleCode } from "$lib/i18n";
   import { commands } from "$lib/bindings";
   import { toggleEventLoggerWindow } from "$lib/event-logger-window";
-  import { showLiveWindowWithoutFocus } from "$lib/utils.svelte";
   import MonitorUpIcon from "virtual:icons/lucide/monitor-up";
   import PanelBottomOpenIcon from "virtual:icons/lucide/panel-bottom-open";
   import ClipboardListIcon from "virtual:icons/lucide/clipboard-list";
@@ -72,14 +71,9 @@
 
   async function toggleDpsWindow() {
     try {
-      const liveWindow = await WebviewWindow.getByLabel("live");
-      if (liveWindow !== null) {
-        const isVisible = await liveWindow.isVisible();
-        if (isVisible) {
-          await liveWindow.hide();
-        } else {
-          await showLiveWindowWithoutFocus(liveWindow);
-        }
+      const result = await commands.toggleLiveWindow();
+      if (result.status === "error") {
+        throw new Error(result.error);
       }
     } catch (error) {
       console.error("Failed to toggle DPS window from sidebar", error);
@@ -105,6 +99,15 @@
   function isActiveRoute(toolPath: string): boolean {
     const pathname = page.url.pathname;
     return pathname === toolPath || pathname.startsWith(toolPath + "/");
+  }
+
+  function navigate(event: MouseEvent, href: string) {
+    event.preventDefault();
+    languageMenuOpen = false;
+    void goto(href).catch((error) => {
+      console.error("Failed to navigate from sidebar", href, error);
+      window.location.href = href;
+    });
   }
 </script>
 
@@ -169,6 +172,7 @@
     {#each Object.entries(TOOL_ROUTES) as [href, route] (route.label)}
       <a
         {href}
+        onclick={(event) => navigate(event, href)}
         class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {isActiveRoute(href)
           ? 'bg-muted text-foreground shadow-sm'
           : 'text-muted-foreground hover:text-foreground hover:bg-popover/50'}"
@@ -182,6 +186,7 @@
   <div class="p-3 border-t border-border/50 space-y-3">
     <a
       href="/main/settings"
+      onclick={(event) => navigate(event, "/main/settings")}
       class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 {isActiveRoute('/main/settings')
         ? 'bg-muted text-foreground shadow-sm'
         : 'text-muted-foreground hover:text-foreground hover:bg-popover/50'}"

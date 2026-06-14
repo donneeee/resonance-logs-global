@@ -1395,7 +1395,7 @@
         ]
       }
     },
-    "stormablade_s3_x10": {
+    "stormblade_s3_x10": {
       "label": {
         "de": "Sturmblitz",
         "en": "Stormflash",
@@ -1414,7 +1414,7 @@
         "text": "Stormflash"
       }
     },
-    "stormablade_s3_x3": {
+    "stormblade_s3_x3": {
       "label": {
         "de": "Drachenhammer / Raijin-Flitzer-Hieb",
         "en": "Dragonhammer / Raijin Dash Slash",
@@ -1436,7 +1436,7 @@
         ]
       }
     },
-    "stormablade_s3_x6": {
+    "stormblade_s3_x6": {
       "label": {
         "de": "Donnerschnitter / Donnerschnitter – Finaler Hieb",
         "en": "Thundercut / Thundercut - Final Slash",
@@ -1460,7 +1460,7 @@
         ]
       }
     },
-    "stormablade_s3_x9": {
+    "stormblade_s3_x9": {
       "label": {
         "de": "Mondschlag",
         "en": "Moonstrike",
@@ -1481,7 +1481,7 @@
         ]
       }
     },
-    "stormablade_x1": {
+    "stormblade_x1": {
       "label": {
         "de": "Iaido-Hieb",
         "en": "Iaido Slash",
@@ -1502,7 +1502,7 @@
         ]
       }
     },
-    "stormablade_x2": {
+    "stormblade_x2": {
       "label": {
         "de": "Raijin-Flitzer / Leuchtblitz",
         "en": "Raijin Dash / Flash Strike",
@@ -1524,7 +1524,7 @@
         ]
       }
     },
-    "stormablade_x4": {
+    "stormblade_x4": {
       "label": {
         "de": "Donner-Iaido-Hieb",
         "en": "Thunder Iaido Slash",
@@ -1545,7 +1545,7 @@
         ]
       }
     },
-    "stormablade_x5": {
+    "stormblade_x5": {
       "label": {
         "de": "Spannungsspitze",
         "en": "Volt Surge",
@@ -1564,7 +1564,7 @@
         "text": "Volt Surge"
       }
     },
-    "stormablade_x7": {
+    "stormblade_x7": {
       "label": {
         "de": "Sturmsense / Göttliche Sichel",
         "en": "Storm Scythe / Divine Sickle",
@@ -1583,7 +1583,7 @@
         "text": "Storm Scythe, Divine Sickle"
       }
     },
-    "stormablade_x8": {
+    "stormblade_x8": {
       "label": {
         "de": "Mondklinge",
         "en": "Moonblades",
@@ -2902,7 +2902,7 @@
         "text": "Celestial Eagle"
       }
     },
-    "stormablade_s3_x3": {
+    "stormblade_s3_x3": {
       "label": {
         "de": "Ultimative",
         "en": "Ultimate",
@@ -2921,7 +2921,7 @@
         "text": "Ultimate"
       }
     },
-    "stormablade_s3_x5": {
+    "stormblade_s3_x5": {
       "label": {
         "de": "Glückstreffer",
         "en": "Lucky Strike",
@@ -2940,7 +2940,7 @@
         "text": "Lucky Strike Multiplier"
       }
     },
-    "stormablade_s3_x6": {
+    "stormblade_s3_x6": {
       "label": {
         "de": "Sturmsense",
         "en": "Storm Scythe",
@@ -2959,7 +2959,7 @@
         "text": "Storm Scythe"
       }
     },
-    "stormablade_x1": {
+    "stormblade_x1": {
       "label": {
         "de": "Iaido-Hieb",
         "en": "Iaido Slash",
@@ -2978,7 +2978,7 @@
         "text": "Iaido Slash"
       }
     },
-    "stormablade_x2": {
+    "stormblade_x2": {
       "label": {
         "de": "Donnersiegel-Amulett",
         "en": "Thunder Sigil Charm",

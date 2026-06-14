@@ -13,10 +13,40 @@ export type ColumnDefinition<K extends string = string> = {
   label: string;
   description: string;
   format: (v: number | null) => string;
+  aliasKey?: string;
   headerKey?: string;
   labelKey?: string;
   descriptionKey?: string;
 };
+
+export type ColumnAliasState = Record<string, string | undefined>;
+
+export function columnAliasKey(col: ColumnDefinition): string {
+  if (col.aliasKey) return col.aliasKey;
+  if (col.headerKey?.endsWith(".header")) {
+    return col.headerKey.slice(0, -".header".length);
+  }
+  if (col.labelKey?.endsWith(".label")) {
+    return col.labelKey.slice(0, -".label".length);
+  }
+  return col.key;
+}
+
+export function columnAliasValue(
+  aliases: ColumnAliasState | null | undefined,
+  col: ColumnDefinition,
+): string {
+  return aliases?.[columnAliasKey(col)] ?? "";
+}
+
+export function columnLabelWithAlias(
+  aliases: ColumnAliasState | null | undefined,
+  col: ColumnDefinition,
+  fallback: string,
+): string {
+  const alias = columnAliasValue(aliases, col).trim();
+  return alias || fallback;
+}
 
 export function orderColumnsByKey<T extends { key: string }>(
   columns: readonly T[],
@@ -56,6 +86,7 @@ function makeColumn<K extends string>(
     label,
     description,
     format,
+    aliasKey: `${section}.${key}`,
     headerKey: `${section}.${key}.header`,
     labelKey: `${section}.${key}.label`,
     descriptionKey: `${section}.${key}.description`,
@@ -63,143 +94,147 @@ function makeColumn<K extends string>(
 }
 
 export const historyDpsPlayerColumns = [
-  makeColumn("columns.historyPlayers", "totalDmg", "伤害", "伤害", "显示玩家造成的总伤害", integer),
-  makeColumn("columns.historyPlayers", "dps", "秒伤", "秒伤", "显示玩家每秒造成的伤害 (DPS)", fixed1),
-  makeColumn("columns.historyPlayers", "effectiveTotal", "有效伤害", "有效伤害", "显示玩家造成的有效伤害", integer),
-  makeColumn("columns.historyPlayers", "effectiveDps", "有效秒伤", "有效秒伤", "显示玩家每秒造成的有效伤害 (EDPS)", fixed1),
-  makeColumn("columns.historyPlayers", "tdps", "真秒伤", "真秒伤", "显示玩家的真实 DPS（基于全局活跃战斗时间）", fixed1),
-  makeColumn("columns.historyPlayers", "bossDmg", "首领伤害", "首领伤害", "显示玩家对首领造成的伤害", integer),
-  makeColumn("columns.historyPlayers", "bossDps", "首领秒伤", "首领秒伤", "显示玩家对首领的秒伤 (Boss DPS)", fixed1),
-  makeColumn("columns.historyPlayers", "dmgPct", "占比%", "占比%", "显示玩家伤害占比", percent1),
-  makeColumn("columns.historyPlayers", "critRate", "暴击%", "暴击%", "显示玩家的暴击率", percent1),
-  makeColumn("columns.historyPlayers", "critDmgRate", "暴击伤%", "暴击伤%", "显示玩家造成的暴击伤害比例", percent1),
-  makeColumn("columns.historyPlayers", "luckyRate", "幸运%", "幸运%", "显示玩家的幸运一击率", percent1),
-  makeColumn("columns.historyPlayers", "luckyDmgRate", "幸运伤%", "幸运伤%", "显示玩家造成的幸运一击伤害比例", percent1),
-  makeColumn("columns.historyPlayers", "hits", "命中数", "命中数", "显示玩家的总命中次数", integer),
-  makeColumn("columns.historyPlayers", "hitsPerMinute", "分均命中", "分均命中", "显示玩家每分钟的命中次数", fixed1),
+  makeColumn("columns.historyPlayers", "totalDmg", "Damage", "Damage", "Show the total damage dealt by the player", integer),
+  makeColumn("columns.historyPlayers", "dps", "DPS", "DPS", "Show the player's damage per second (DPS)", fixed1),
+  makeColumn("columns.historyPlayers", "effectiveTotal", "Effective Damage", "Effective Damage", "Show the player's effective damage dealt", integer),
+  makeColumn("columns.historyPlayers", "effectiveDps", "Effective DPS", "Effective DPS", "Show the player's effective damage per second (EDPS)", fixed1),
+  makeColumn("columns.historyPlayers", "tdps", "True DPS", "True DPS", "Show the player's true DPS based on global active combat time", fixed1),
+  makeColumn("columns.historyPlayers", "bossDmg", "Boss Damage", "Boss Damage", "Show the damage dealt by the player to the boss", integer),
+  makeColumn("columns.historyPlayers", "bossDps", "Boss DPS", "Boss DPS", "Show the player's DPS against the boss", fixed1),
+  makeColumn("columns.historyPlayers", "dmgPct", "Share %", "Share %", "Show the player's damage share", percent1),
+  makeColumn("columns.historyPlayers", "critRate", "Crit %", "Crit %", "Show the player's critical hit rate", percent1),
+  makeColumn("columns.historyPlayers", "critDmgRate", "Crit Dmg %", "Crit Dmg %", "Show the proportion of damage dealt as critical damage", percent1),
+  makeColumn("columns.historyPlayers", "luckyRate", "Lucky %", "Lucky %", "Show the player's lucky hit rate", percent1),
+  makeColumn("columns.historyPlayers", "luckyDmgRate", "Lucky Dmg %", "Lucky Dmg %", "Show the proportion of damage dealt as lucky-hit damage", percent1),
+  makeColumn("columns.historyPlayers", "hits", "Hits", "Hits", "Show the player's total number of hits", integer),
+  makeColumn("columns.historyPlayers", "hitsPerMinute", "Hits/Min", "Hits/Min", "Show the player's hits per minute", fixed1),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const historyDpsSkillColumns = [
-  makeColumn("columns.historySkills", "totalDmg", "伤害", "伤害", "显示技能造成的总伤害", integer),
-  makeColumn("columns.historySkills", "dps", "秒伤", "秒伤", "显示技能的每秒伤害 (DPS)", fixed1),
-  makeColumn("columns.historySkills", "effectiveTotal", "有效伤害", "有效伤害", "显示技能造成的有效伤害", integer),
-  makeColumn("columns.historySkills", "effectiveDps", "有效秒伤", "有效秒伤", "显示技能的每秒有效伤害 (EDPS)", fixed1),
-  makeColumn("columns.historySkills", "dmgPct", "占比%", "占比%", "显示技能伤害占比", percent1),
-  makeColumn("columns.historySkills", "critRate", "暴击%", "暴击%", "显示技能的暴击率", percent1),
-  makeColumn("columns.historySkills", "critDmgRate", "暴击伤%", "暴击伤%", "显示技能造成的暴击伤害比例", percent1),
-  makeColumn("columns.historySkills", "luckyRate", "幸运%", "幸运%", "显示技能的幸运一击率", percent1),
-  makeColumn("columns.historySkills", "luckyDmgRate", "幸运伤%", "幸运伤%", "显示技能造成的幸运一击伤害比例", percent1),
-  makeColumn("columns.historySkills", "hits", "命中数", "命中数", "显示技能的总命中次数", integer),
-  makeColumn("columns.historySkills", "hitsPerMinute", "分均命中", "分均命中", "显示技能每分钟的命中次数", fixed1),
+  makeColumn("columns.historySkills", "totalDmg", "Damage", "Damage", "Show the total damage dealt by the skill", integer),
+  makeColumn("columns.historySkills", "dps", "DPS", "DPS", "Show the skill's damage per second (DPS)", fixed1),
+  makeColumn("columns.historySkills", "effectiveTotal", "Effective Damage", "Effective Damage", "Show the skill's effective damage dealt", integer),
+  makeColumn("columns.historySkills", "effectiveDps", "Effective DPS", "Effective DPS", "Show the skill's effective damage per second (EDPS)", fixed1),
+  makeColumn("columns.historySkills", "dmgPct", "Share %", "Share %", "Show the skill's damage share", percent1),
+  makeColumn("columns.historySkills", "critRate", "Crit %", "Crit %", "Show the skill's critical hit rate", percent1),
+  makeColumn("columns.historySkills", "critDmgRate", "Crit Dmg %", "Crit Dmg %", "Show the proportion of damage dealt as critical damage", percent1),
+  makeColumn("columns.historySkills", "luckyRate", "Lucky %", "Lucky %", "Show the skill's lucky hit rate", percent1),
+  makeColumn("columns.historySkills", "luckyDmgRate", "Lucky Dmg %", "Lucky Dmg %", "Show the proportion of damage dealt as lucky-hit damage", percent1),
+  makeColumn("columns.historySkills", "hits", "Hits", "Hits", "Show the skill's total number of hits", integer),
+  makeColumn("columns.historySkills", "hitsPerMinute", "Hits/Min", "Hits/Min", "Show the skill's hits per minute", fixed1),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const historyHealPlayerColumns = [
-  makeColumn("columns.historyHealPlayers", "healDealt", "治疗", "治疗", "显示玩家造成的总治疗量", integer),
-  makeColumn("columns.historyHealPlayers", "hps", "秒疗", "秒疗", "显示玩家每秒造成的治疗量 (HPS)", fixed1),
-  makeColumn("columns.historyHealPlayers", "effectiveHeal", "有效治疗", "有效治疗", "显示玩家造成的有效治疗量", integer),
-  makeColumn("columns.historyHealPlayers", "ehps", "有效秒疗", "有效秒疗", "显示玩家每秒造成的有效治疗量 (EHPS)", fixed1),
-  makeColumn("columns.historyHealPlayers", "healPct", "占比%", "占比%", "显示玩家治疗占比", percent1),
-  makeColumn("columns.historyHealPlayers", "critHealRate", "暴击%", "暴击%", "显示玩家的治疗暴击率", percent1),
-  makeColumn("columns.historyHealPlayers", "critDmgRate", "暴击疗%", "暴击疗%", "显示玩家造成的暴击治疗比例", percent1),
-  makeColumn("columns.historyHealPlayers", "luckyRate", "幸运%", "幸运%", "显示玩家的治疗幸运一击率", percent1),
-  makeColumn("columns.historyHealPlayers", "luckyDmgRate", "幸运疗%", "幸运疗%", "显示玩家造成的幸运一击治疗比例", percent1),
-  makeColumn("columns.historyHealPlayers", "hitsHeal", "次数", "次数", "显示玩家的总治疗次数", integer),
-  makeColumn("columns.historyHealPlayers", "hitsPerMinute", "分均次数", "分均次数", "显示玩家每分钟的治疗次数", fixed1),
+  makeColumn("columns.historyHealPlayers", "healDealt", "Healing", "Healing", "Show the total healing done by the player", integer),
+  makeColumn("columns.historyHealPlayers", "hps", "HPS", "HPS", "Show the player's healing per second (HPS)", fixed1),
+  makeColumn("columns.historyHealPlayers", "effectiveHeal", "Effective Healing", "Effective Healing", "Show the player's effective healing done", integer),
+  makeColumn("columns.historyHealPlayers", "ehps", "EHPS", "EHPS", "Show the player's effective healing per second (EHPS)", fixed1),
+  makeColumn("columns.historyHealPlayers", "healPct", "Share %", "Share %", "Show the player's healing share", percent1),
+  makeColumn("columns.historyHealPlayers", "critHealRate", "Crit %", "Crit %", "Show the player's healing critical hit rate", percent1),
+  makeColumn("columns.historyHealPlayers", "critDmgRate", "Crit Heal %", "Crit Heal %", "Show the proportion of healing done as critical healing", percent1),
+  makeColumn("columns.historyHealPlayers", "luckyRate", "Lucky %", "Lucky %", "Show the player's lucky hit rate", percent1),
+  makeColumn("columns.historyHealPlayers", "luckyDmgRate", "Lucky Heal %", "Lucky Heal %", "Show the proportion of healing done as lucky-hit healing", percent1),
+  makeColumn("columns.historyHealPlayers", "hitsHeal", "Count", "Count", "Show the player's total number of healing events", integer),
+  makeColumn("columns.historyHealPlayers", "hitsPerMinute", "Count/Min", "Count/Min", "Show the player's healing events per minute", fixed1),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const liveHealPlayerColumns = [
-  makeColumn("columns.liveHealPlayers", "totalDmg", "治疗", "治疗", "显示玩家造成的总治疗量", integer),
-  makeColumn("columns.liveHealPlayers", "dps", "秒疗", "秒疗", "显示玩家每秒造成的治疗量 (HPS)", fixed1),
-  makeColumn("columns.liveHealPlayers", "effectiveTotal", "有效治疗", "有效治疗", "显示玩家造成的有效治疗量", integer),
-  makeColumn("columns.liveHealPlayers", "effectiveDps", "有效秒疗", "有效秒疗", "显示玩家每秒造成的有效治疗量 (EHPS)", fixed1),
-  makeColumn("columns.liveHealPlayers", "dmgPct", "占比%", "占比%", "显示玩家治疗占比", percent1),
-  makeColumn("columns.liveHealPlayers", "critRate", "暴击%", "暴击%", "显示玩家的暴击率", percent1),
-  makeColumn("columns.liveHealPlayers", "critDmgRate", "暴击疗%", "暴击疗%", "显示玩家造成的暴击治疗比例", percent1),
-  makeColumn("columns.liveHealPlayers", "luckyRate", "幸运%", "幸运%", "显示玩家的幸运一击率", percent1),
-  makeColumn("columns.liveHealPlayers", "luckyDmgRate", "幸运疗%", "幸运疗%", "显示玩家造成的幸运一击治疗比例", percent1),
-  makeColumn("columns.liveHealPlayers", "hits", "次数", "次数", "显示玩家的总治疗次数", integer),
-  makeColumn("columns.liveHealPlayers", "hitsPerMinute", "分均次数", "分均次数", "显示玩家每分钟的治疗次数", fixed1),
+  makeColumn("columns.liveHealPlayers", "totalDmg", "Healing", "Healing", "Show the total healing done by the player", integer),
+  makeColumn("columns.liveHealPlayers", "dps", "HPS", "HPS", "Show the player's healing per second (HPS)", fixed1),
+  makeColumn("columns.liveHealPlayers", "effectiveTotal", "Effective Healing", "Effective Healing", "Show the player's effective healing done", integer),
+  makeColumn("columns.liveHealPlayers", "effectiveDps", "EHPS", "EHPS", "Show the player's effective healing per second (EHPS)", fixed1),
+  makeColumn("columns.liveHealPlayers", "dmgPct", "Share %", "Share %", "Show the player's healing share", percent1),
+  makeColumn("columns.liveHealPlayers", "critRate", "Crit %", "Crit %", "Show the player's crit rate", percent1),
+  makeColumn("columns.liveHealPlayers", "critDmgRate", "Crit Heal %", "Crit Heal %", "Show the proportion of healing done as critical healing", percent1),
+  makeColumn("columns.liveHealPlayers", "luckyRate", "Lucky %", "Lucky %", "Show the player's lucky hit rate", percent1),
+  makeColumn("columns.liveHealPlayers", "luckyDmgRate", "Lucky Heal %", "Lucky Heal %", "Show the proportion of healing done as lucky-hit healing", percent1),
+  makeColumn("columns.liveHealPlayers", "hits", "Count", "Count", "Show the player's total healing count", integer),
+  makeColumn("columns.liveHealPlayers", "hitsPerMinute", "Count/Min", "Count/Min", "Show the player's healing count per minute", fixed1),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const liveTankedPlayerColumns = [
-  makeColumn("columns.liveTankedPlayers", "blockRate", "Block%", "Block%", "Show the player's chance to block incoming hits", percent1),
-  makeColumn("columns.liveTankedPlayers", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the player's chance to trigger a lucky block", percent1),
-  makeColumn("columns.liveTankedPlayers", "totalDmg", "承伤", "承伤", "显示玩家承受的总伤害", integer),
-  makeColumn("columns.liveTankedPlayers", "dps", "秒承伤", "秒承伤", "显示玩家每秒承受的伤害 (TPS)", fixed1),
-  makeColumn("columns.liveTankedPlayers", "effectiveTotal", "有效承伤", "有效承伤", "显示玩家承受的有效伤害", integer),
-  makeColumn("columns.liveTankedPlayers", "effectiveDps", "有效秒承伤", "有效秒承伤", "显示玩家每秒承受的有效伤害 (ETPS)", fixed1),
-  makeColumn("columns.liveTankedPlayers", "dmgPct", "占比%", "占比%", "显示玩家承伤占比", percent1),
-  makeColumn("columns.liveTankedPlayers", "critRate", "被暴击%", "被暴击%", "显示玩家被暴击的几率", percent1),
-  makeColumn("columns.liveTankedPlayers", "critDmgRate", "暴击承伤%", "暴击承伤%", "显示玩家承受的暴击伤害比例", percent1),
-  makeColumn("columns.liveTankedPlayers", "luckyRate", "被幸运%", "被幸运%", "显示玩家被幸运一击的几率", percent1),
-  makeColumn("columns.liveTankedPlayers", "luckyDmgRate", "幸运承伤%", "幸运承伤%", "显示玩家承受的幸运一击伤害比例", percent1),
-  makeColumn("columns.liveTankedPlayers", "hits", "受击数", "受击数", "显示玩家的总受击次数", integer),
-  makeColumn("columns.liveTankedPlayers", "hitsPerMinute", "分均受击", "分均受击", "显示玩家每分钟的受击次数", fixed1),
+  makeColumn("columns.liveTankedPlayers", "blockRate", "Block %", "Block %", "Show the chance that incoming hits were blocked", percent1),
+  makeColumn("columns.liveTankedPlayers", "luckyBlockRate", "Lucky Block %", "Lucky Block %", "Show the chance that incoming hits triggered lucky block", percent1),
+  makeColumn("columns.liveTankedPlayers", "totalDmg", "Damage Taken", "Damage Taken", "Show the total damage taken by the player", integer),
+  makeColumn("columns.liveTankedPlayers", "dps", "TPS", "TPS", "Show the player's damage taken per second (TPS)", fixed1),
+  makeColumn("columns.liveTankedPlayers", "effectiveTotal", "Effective Tanked", "Effective Tanked", "Show the player's effective damage taken", integer),
+  makeColumn("columns.liveTankedPlayers", "effectiveDps", "ETPS", "ETPS", "Show the player's effective damage taken per second (ETPS)", fixed1),
+  makeColumn("columns.liveTankedPlayers", "dmgPct", "Share %", "Share %", "Show the player's damage taken share", percent1),
+  makeColumn("columns.liveTankedPlayers", "critRate", "Crit Taken %", "Crit Taken %", "Show the player's chance to be critically hit", percent1),
+  makeColumn("columns.liveTankedPlayers", "critDmgRate", "Crit Tanked %", "Crit Taken Dmg %", "Show the proportion of taken damage received as critical damage", percent1),
+  makeColumn("columns.liveTankedPlayers", "luckyRate", "Lucky Taken %", "Lucky Taken %", "Show the player's chance to be hit by lucky attacks", percent1),
+  makeColumn("columns.liveTankedPlayers", "luckyDmgRate", "Lucky Tanked %", "Lucky Taken Dmg %", "Show the proportion of taken damage received as lucky-hit damage", percent1),
+  makeColumn("columns.liveTankedPlayers", "hits", "Hits Taken", "Hits Taken", "Show the player's total number of hits taken", integer),
+  makeColumn("columns.liveTankedPlayers", "hitsPerMinute", "Hits/Min", "Hits Taken/Min", "Show the player's hits taken per minute", fixed1),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const liveTankedSkillColumns = [
-  makeColumn("columns.liveTankedSkills", "blockRate", "Block%", "Block%", "Show the chance that this incoming skill was blocked", percent1),
-  makeColumn("columns.liveTankedSkills", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the chance that this incoming skill triggered a lucky block", percent1),
-  makeColumn("columns.liveTankedSkills", "totalDmg", "承伤", "承伤", "显示技能造成的总承伤", integer),
-  makeColumn("columns.liveTankedSkills", "dps", "秒承伤", "秒承伤", "显示技能每秒造成的承伤 (DTPS)", fixed1),
-  makeColumn("columns.liveTankedSkills", "effectiveTotal", "有效承伤", "有效承伤", "显示技能造成的有效承伤", integer),
-  makeColumn("columns.liveTankedSkills", "effectiveDps", "有效秒承伤", "有效秒承伤", "显示技能每秒造成的有效承伤 (ETPS)", fixed1),
-  makeColumn("columns.liveTankedSkills", "dmgPct", "占比%", "占比%", "显示技能承伤占比", percent1),
-  makeColumn("columns.liveTankedSkills", "critRate", "被暴击%", "被暴击%", "显示该技能被暴击的几率", percent1),
-  makeColumn("columns.liveTankedSkills", "critDmgRate", "暴击承伤%", "暴击承伤%", "显示该技能承受的暴击伤害比例", percent1),
-  makeColumn("columns.liveTankedSkills", "luckyRate", "被幸运%", "被幸运%", "显示该技能被幸运一击的几率", percent1),
-  makeColumn("columns.liveTankedSkills", "luckyDmgRate", "幸运承伤%", "幸运承伤%", "显示该技能承受的幸运一击伤害比例", percent1),
-  makeColumn("columns.liveTankedSkills", "hits", "受击数", "受击数", "显示该技能造成的总受击次数", integer),
-  makeColumn("columns.liveTankedSkills", "hitsPerMinute", "分均受击", "分均受击", "显示该技能每分钟造成的受击次数", fixed1),
+  makeColumn("columns.liveTankedSkills", "blockRate", "Block %", "Block %", "Show the chance that this incoming skill was blocked", percent1),
+  makeColumn("columns.liveTankedSkills", "luckyBlockRate", "Lucky Block %", "Lucky Block %", "Show the chance that this incoming skill triggered lucky block", percent1),
+  makeColumn("columns.liveTankedSkills", "totalDmg", "Damage Taken", "Damage Taken", "Show the total damage taken by the skill entry", integer),
+  makeColumn("columns.liveTankedSkills", "dps", "DTPS", "DTPS", "Show the damage taken per second for the skill entry (DTPS)", fixed1),
+  makeColumn("columns.liveTankedSkills", "effectiveTotal", "Effective Tanked", "Effective Tanked", "Show the skill's effective damage taken", integer),
+  makeColumn("columns.liveTankedSkills", "effectiveDps", "ETPS", "ETPS", "Show the skill's effective damage taken per second (ETPS)", fixed1),
+  makeColumn("columns.liveTankedSkills", "dmgPct", "Share %", "Share %", "Show the skill entry's damage taken share", percent1),
+  makeColumn("columns.liveTankedSkills", "critRate", "Crit Taken %", "Crit Taken %", "Show the chance for this skill entry to be critically hit", percent1),
+  makeColumn("columns.liveTankedSkills", "critDmgRate", "Crit Tanked %", "Crit Taken Dmg %", "Show the proportion of damage taken as critical damage for this skill entry", percent1),
+  makeColumn("columns.liveTankedSkills", "luckyRate", "Lucky Taken %", "Lucky Taken %", "Show the chance for this skill entry to be hit by lucky attacks", percent1),
+  makeColumn("columns.liveTankedSkills", "luckyDmgRate", "Lucky Tanked %", "Lucky Taken Dmg %", "Show the proportion of damage taken as lucky-hit damage for this skill entry", percent1),
+  makeColumn("columns.liveTankedSkills", "hits", "Hits Taken", "Hits Taken", "Show the total hits taken for this skill entry", integer),
+  makeColumn("columns.liveTankedSkills", "hitsPerMinute", "Hits/Min", "Hits Taken/Min", "Show the hits taken per minute for this skill entry", fixed1),
   makeColumn("columns.liveTankedSkills", "property", "Element", "Element", "Skill damage element property", propertyLabel),
   makeColumn("columns.liveTankedSkills", "damageMode", "P/M", "P/M", "Physical or magical damage type", damageModeLabel),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const historyTankedPlayerColumns = [
-  makeColumn("columns.historyTankedPlayers", "blockRate", "Block%", "Block%", "Show the player's chance to block incoming hits", percent1),
-  makeColumn("columns.historyTankedPlayers", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the player's chance to trigger a lucky block", percent1),
-  makeColumn("columns.historyTankedPlayers", "damageTaken", "承伤", "承伤", "显示玩家承受的总伤害", integer),
-  makeColumn("columns.historyTankedPlayers", "tankedPS", "秒承伤", "秒承伤", "显示玩家每秒承受的伤害 (TPS)", fixed1),
-  makeColumn("columns.historyTankedPlayers", "tankedPct", "占比%", "占比%", "显示玩家承伤占比", percent1),
-  makeColumn("columns.historyTankedPlayers", "critTakenRate", "被暴击%", "被暴击%", "显示玩家被暴击的几率", percent1),
-  makeColumn("columns.historyTankedPlayers", "critDmgRate", "暴击承伤%", "暴击承伤%", "显示玩家承受的暴击伤害比例", percent1),
-  makeColumn("columns.historyTankedPlayers", "luckyRate", "被幸运%", "被幸运%", "显示玩家被幸运一击的几率", percent1),
-  makeColumn("columns.historyTankedPlayers", "luckyDmgRate", "幸运承伤%", "幸运承伤%", "显示玩家承受的幸运一击伤害比例", percent1),
-  makeColumn("columns.historyTankedPlayers", "hitsTaken", "受击数", "受击数", "显示玩家的总受击次数", integer),
-  makeColumn("columns.historyTankedPlayers", "hitsPerMinute", "分均受击", "分均受击", "显示玩家每分钟的受击次数", fixed1),
+  makeColumn("columns.historyTankedPlayers", "blockRate", "Block %", "Block %", "Show the chance that incoming hits were blocked", percent1),
+  makeColumn("columns.historyTankedPlayers", "luckyBlockRate", "Lucky Block %", "Lucky Block %", "Show the chance that incoming hits triggered lucky block", percent1),
+  makeColumn("columns.historyTankedPlayers", "damageTaken", "Damage Taken", "Damage Taken", "Show the total damage taken by the player", integer),
+  makeColumn("columns.historyTankedPlayers", "tankedPS", "DTPS", "DTPS", "Show the player's damage taken per second (DTPS)", fixed1),
+  makeColumn("columns.historyTankedPlayers", "tankedPct", "Share %", "Share %", "Show the player's damage-taken share", percent1),
+  makeColumn("columns.historyTankedPlayers", "critTakenRate", "Crit Taken %", "Crit Taken %", "Show the player's chance to be critically hit", percent1),
+  makeColumn("columns.historyTankedPlayers", "critDmgRate", "Crit Taken Dmg %", "Crit Taken Dmg %", "Show the proportion of taken damage received as critical damage", percent1),
+  makeColumn("columns.historyTankedPlayers", "luckyRate", "Lucky Taken %", "Lucky Taken %", "Show the player's chance to be hit by lucky attacks", percent1),
+  makeColumn("columns.historyTankedPlayers", "luckyDmgRate", "Lucky Taken Dmg %", "Lucky Taken Dmg %", "Show the proportion of taken damage received as lucky-hit damage", percent1),
+  makeColumn("columns.historyTankedPlayers", "hitsTaken", "Hits Taken", "Hits Taken", "Show the player's total number of hits taken", integer),
+  makeColumn("columns.historyTankedPlayers", "hitsPerMinute", "Hits Taken/Min", "Hits Taken/Min", "Show the player's hits taken per minute", fixed1),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const historyTankedSkillColumns = [
-  makeColumn("columns.historyTankedSkills", "blockRate", "Block%", "Block%", "Show the chance that this incoming skill was blocked", percent1),
-  makeColumn("columns.historyTankedSkills", "luckyBlockRate", "Lucky Block%", "Lucky Block%", "Show the chance that this incoming skill triggered a lucky block", percent1),
-  makeColumn("columns.historyTankedSkills", "totalDmg", "承伤", "承伤", "显示技能造成的总承伤", integer),
-  makeColumn("columns.historyTankedSkills", "dps", "秒承伤", "秒承伤", "显示技能每秒造成的承伤 (DTPS)", fixed1),
-  makeColumn("columns.historyTankedSkills", "dmgPct", "占比%", "占比%", "显示技能承伤占比", percent1),
-  makeColumn("columns.historyTankedSkills", "critRate", "被暴击%", "被暴击%", "显示该技能被暴击的几率", percent1),
-  makeColumn("columns.historyTankedSkills", "critDmgRate", "暴击承伤%", "暴击承伤%", "显示该技能承受的暴击伤害比例", percent1),
-  makeColumn("columns.historyTankedSkills", "luckyRate", "被幸运%", "被幸运%", "显示该技能被幸运一击的几率", percent1),
-  makeColumn("columns.historyTankedSkills", "luckyDmgRate", "幸运承伤%", "幸运承伤%", "显示该技能承受的幸运一击伤害比例", percent1),
-  makeColumn("columns.historyTankedSkills", "hits", "受击数", "受击数", "显示该技能造成的总受击次数", integer),
-  makeColumn("columns.historyTankedSkills", "hitsPerMinute", "分均受击", "分均受击", "显示该技能每分钟造成的受击次数", fixed1),
+  makeColumn("columns.historyTankedSkills", "blockRate", "Block %", "Block %", "Show the chance that this incoming skill was blocked", percent1),
+  makeColumn("columns.historyTankedSkills", "luckyBlockRate", "Lucky Block %", "Lucky Block %", "Show the chance that this incoming skill triggered lucky block", percent1),
+  makeColumn("columns.historyTankedSkills", "totalDmg", "Damage Taken", "Damage Taken", "Show the total damage taken for this skill", integer),
+  makeColumn("columns.historyTankedSkills", "dps", "DTPS", "DTPS", "Show the skill's damage taken per second (DTPS)", fixed1),
+  makeColumn("columns.historyTankedSkills", "dmgPct", "Share %", "Share %", "Show the skill's damage-taken share", percent1),
+  makeColumn("columns.historyTankedSkills", "critRate", "Crit Taken %", "Crit Taken %", "Show the chance for this skill to be critically hit", percent1),
+  makeColumn("columns.historyTankedSkills", "critDmgRate", "Crit Taken Dmg %", "Crit Taken Dmg %", "Show the proportion of taken damage received as critical damage for this skill", percent1),
+  makeColumn("columns.historyTankedSkills", "luckyRate", "Lucky Taken %", "Lucky Taken %", "Show the chance for this skill to be hit by lucky attacks", percent1),
+  makeColumn("columns.historyTankedSkills", "luckyDmgRate", "Lucky Taken Dmg %", "Lucky Taken Dmg %", "Show the proportion of taken damage received as lucky-hit damage for this skill", percent1),
+  makeColumn("columns.historyTankedSkills", "hits", "Hits Taken", "Hits Taken", "Show the total number of hits taken for this skill", integer),
+  makeColumn("columns.historyTankedSkills", "hitsPerMinute", "Hits Taken/Min", "Hits Taken/Min", "Show the skill's hits taken per minute", fixed1),
   makeColumn("columns.historyTankedSkills", "property", "Element", "Element", "Skill damage element property", propertyLabel),
   makeColumn("columns.historyTankedSkills", "damageMode", "P/M", "P/M", "Physical or magical damage type", damageModeLabel),
 ] as const satisfies readonly ColumnDefinition[];
 
 export const historyHealSkillColumns = [
-  makeColumn("columns.historyHealSkills", "totalDmg", "治疗", "治疗", "显示技能造成的总治疗量", integer),
-  makeColumn("columns.historyHealSkills", "dps", "秒疗", "秒疗", "显示技能每秒造成的治疗量 (HPS)", fixed1),
-  makeColumn("columns.historyHealSkills", "effectiveTotal", "有效治疗", "有效治疗", "显示技能造成的有效治疗量", integer),
-  makeColumn("columns.historyHealSkills", "effectiveDps", "有效秒疗", "有效秒疗", "显示技能每秒造成的有效治疗量 (EHPS)", fixed1),
-  makeColumn("columns.historyHealSkills", "dmgPct", "占比%", "占比%", "显示技能治疗占比", percent1),
-  makeColumn("columns.historyHealSkills", "critRate", "暴击%", "暴击%", "显示技能的暴击率", percent1),
-  makeColumn("columns.historyHealSkills", "critDmgRate", "暴击疗%", "暴击疗%", "显示技能造成的暴击治疗比例", percent1),
-  makeColumn("columns.historyHealSkills", "luckyRate", "幸运%", "幸运%", "显示技能的幸运一击率", percent1),
-  makeColumn("columns.historyHealSkills", "luckyDmgRate", "幸运疗%", "幸运疗%", "显示技能造成的幸运一击治疗比例", percent1),
-  makeColumn("columns.historyHealSkills", "hits", "次数", "次数", "显示技能的总治疗次数", integer),
-  makeColumn("columns.historyHealSkills", "hitsPerMinute", "分均次数", "分均次数", "显示技能每分钟的治疗次数", fixed1),
+  makeColumn("columns.historyHealSkills", "totalDmg", "Healing", "Healing", "Show the total healing done by the skill", integer),
+  makeColumn("columns.historyHealSkills", "dps", "HPS", "HPS", "Show the skill's healing per second (HPS)", fixed1),
+  makeColumn("columns.historyHealSkills", "effectiveTotal", "Effective Healing", "Effective Healing", "Show the skill's effective healing done", integer),
+  makeColumn("columns.historyHealSkills", "effectiveDps", "EHPS", "EHPS", "Show the skill's effective healing per second (EHPS)", fixed1),
+  makeColumn("columns.historyHealSkills", "dmgPct", "Share %", "Share %", "Show the skill's healing share", percent1),
+  makeColumn("columns.historyHealSkills", "critRate", "Crit %", "Crit %", "Show the skill's critical hit rate", percent1),
+  makeColumn("columns.historyHealSkills", "critDmgRate", "Crit Heal %", "Crit Heal %", "Show the proportion of healing done as critical healing", percent1),
+  makeColumn("columns.historyHealSkills", "luckyRate", "Lucky %", "Lucky %", "Show the skill's lucky hit rate", percent1),
+  makeColumn("columns.historyHealSkills", "luckyDmgRate", "Lucky Heal %", "Lucky Heal %", "Show the proportion of healing done as lucky-hit healing", percent1),
+  makeColumn("columns.historyHealSkills", "hits", "Count", "Count", "Show the skill's total number of healing events", integer),
+  makeColumn("columns.historyHealSkills", "hitsPerMinute", "Count/Min", "Count/Min", "Show the skill's healing events per minute", fixed1),
 ] as const satisfies readonly ColumnDefinition[];
 
-// Aliases for live views: reuse history DPS/Heal skill definitions where appropriate
-export const liveDpsPlayerColumns = historyDpsPlayerColumns;
+// Aliases for live views: reuse history DPS/Heal skill definitions where appropriate.
+// True Boss DPS is live-only because history can drill into each boss target directly.
+export const liveDpsPlayerColumns = [
+  ...historyDpsPlayerColumns,
+  makeColumn("columns.livePlayers", "trueBossDps", "True Boss DPS", "True Boss DPS", "Show boss-only DPS based on global active combat time", fixed1),
+] as const satisfies readonly ColumnDefinition[];
 export const liveDpsSkillColumns = historyDpsSkillColumns;
 export const liveHealSkillColumns = historyHealSkillColumns;

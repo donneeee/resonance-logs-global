@@ -295,6 +295,28 @@ const BURN_EFFECT_NAMES: MultiLangValue = {
   id: "Burn",
 };
 
+const DAMAGE_STACK_BUFF_IDS = new Set<number>([2300620, 2300621]);
+const DAMAGE_STACK_ALIAS_KEYS = new Set<string>([
+  "dmg stack",
+  "damage stack",
+  "ultimate - dmg stack",
+  "ultimate dmg stack",
+]);
+const DAMAGE_STACK_NAMES: MultiLangValue = {
+  en: "Damage Stack",
+  "zh-CN": "\u4f24\u5bb3\u53e0\u52a0",
+  "zh-TW": "\u50b7\u5bb3\u758a\u52a0",
+  ja: "\u30c0\u30e1\u30fc\u30b8\u30b9\u30bf\u30c3\u30af",
+  "ko-KR": "\ud53c\ud574 \uc911\ucca9",
+  fr: "Cumul de d\u00e9g\u00e2ts",
+  de: "Schadensstapel",
+  es: "Acumulaci\u00f3n de da\u00f1o",
+  "pt-BR": "Ac\u00famulo de dano",
+  th: "\u0e2a\u0e41\u0e15\u0e47\u0e01\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22",
+  id: "Stack Damage",
+  design: "DMG Stack",
+};
+
 const S2_SET_4B_DESIGN_NAME = "\u3010S2\u5957\u88c54B\u3011";
 const S2_SET_4B_SUB_BUFF_DESIGN_NAME = `${S2_SET_4B_DESIGN_NAME}-\u5b50BUFF`;
 
@@ -350,6 +372,34 @@ const BUFF_ID_NAME_FALLBACKS: Record<number, MultiLangValue> = {
   2208181: BURN_EFFECT_NAMES,
   2202705: MOONLIGHT_SOLACE_SHIELD_NAMES,
   2404271: S2_SET_4B_SHIELD_NAMES,
+  510072: {
+    en: "Dungeon Reset: refresh cooldowns, HP, and stamina",
+    "zh-CN": "副本重置：刷新冷却、生命值和耐力",
+    "zh-TW": "副本重置：刷新冷卻、生命值和耐力",
+    ja: "ダンジョンリセット：クールダウン、HP、スタミナを回復",
+    "ko-KR": "던전 초기화: 재사용 대기시간, HP, 스태미나 회복",
+    fr: "Reinitialisation de donjon : recharge les delais, les PV et l'endurance",
+    de: "Dungeon-Reset: aktualisiert Abklingzeiten, LP und Ausdauer",
+    es: "Reinicio de mazmorra: recarga enfriamientos, PV y aguante",
+    "pt-BR": "Reinicio de masmorra: recarrega recargas, PV e vigor",
+    th: "รีเซ็ตดันเจี้ยน: รีเฟรชคูลดาวน์ HP และสตามินา",
+    id: "Reset dungeon: segarkan cooldown, HP, dan stamina",
+    design: "英雄本通用团灭恢复血量清理CD",
+  },
+  900122: {
+    en: "Encounter Reset: refresh cooldowns, HP, and stamina",
+    "zh-CN": "战斗重置：刷新冷却、生命值和耐力",
+    "zh-TW": "戰鬥重置：刷新冷卻、生命值和耐力",
+    ja: "戦闘リセット：クールダウン、HP、スタミナを回復",
+    "ko-KR": "전투 초기화: 재사용 대기시간, HP, 스태미나 회복",
+    fr: "Reinitialisation du combat : recharge les delais, les PV et l'endurance",
+    de: "Kampf-Reset: aktualisiert Abklingzeiten, LP und Ausdauer",
+    es: "Reinicio de combate: recarga enfriamientos, PV y aguante",
+    "pt-BR": "Reinicio de combate: recarrega recargas, PV e vigor",
+    th: "รีเซ็ตการต่อสู้: รีเฟรชคูลดาวน์ HP และสตามินา",
+    id: "Reset encounter: segarkan cooldown, HP, dan stamina",
+    design: "清cd和回满生命",
+  },
 };
 
 const DESIGN_ONLY_BUFF_NAME_FALLBACKS: Record<string, MultiLangValue> = {
@@ -549,8 +599,8 @@ const BUFF_CATEGORY_CATALOG: Record<
   BuffCategoryKey,
   { label: string; buffIds: number[] }
 > = {
-  food: { label: "食物", buffIds: [] },
-  alchemy: { label: "炼金", buffIds: [] },
+  food: { label: "Food", buffIds: [] },
+  alchemy: { label: "Alchemy", buffIds: [] },
 };
 
 for (const fileName of BUFF_ICON_FILES) {
@@ -989,6 +1039,22 @@ function resolveBuffOverlayAlias(baseId: number, localeOverride?: LocaleCode): s
   return resolveMultiLangValue(lookupBuffSearchEntry(baseId)?.overlayAlias, "", localeOverride);
 }
 
+function resolveBuiltInBuffOverlayAlias(baseId: number, localeOverride?: LocaleCode): string {
+  if (!DAMAGE_STACK_BUFF_IDS.has(baseId)) return "";
+  return resolveMultiLangValue(DAMAGE_STACK_NAMES, "", localeOverride);
+}
+
+function resolveKnownBuffAliasTranslation(
+  baseId: number,
+  alias: string,
+  localeOverride?: LocaleCode,
+): string {
+  if (!DAMAGE_STACK_BUFF_IDS.has(baseId)) return "";
+  const aliasKey = alias.trim().toLowerCase().replace(/\s+/g, " ");
+  if (!DAMAGE_STACK_ALIAS_KEYS.has(aliasKey)) return "";
+  return resolveMultiLangValue(DAMAGE_STACK_NAMES, alias, localeOverride);
+}
+
 export function getDirectBuffOverlayAlias(baseId: number): string {
   return getDirectMultiLangValue(lookupBuffSearchEntry(baseId)?.overlayAlias);
 }
@@ -1288,9 +1354,15 @@ export function resolveBuffOverlayDisplayName(
   localeOverride?: LocaleCode,
 ): string {
   const alias = getAlias(baseId, aliases);
-  if (alias) return alias;
+  if (alias) {
+    const localizedKnownAlias = resolveKnownBuffAliasTranslation(baseId, alias, localeOverride);
+    if (localizedKnownAlias) return localizedKnownAlias;
+    return alias;
+  }
 
-  const overlayAlias = resolveBuffOverlayAlias(baseId, localeOverride);
+  const overlayAlias =
+    resolveBuffOverlayAlias(baseId, localeOverride) ||
+    resolveBuiltInBuffOverlayAlias(baseId, localeOverride);
   if (overlayAlias) return overlayAlias;
 
   return resolveBuffSearchDisplayName(baseId, aliases, localeOverride);

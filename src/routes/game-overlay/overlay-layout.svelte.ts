@@ -28,6 +28,7 @@ type OverlaySizeKey = keyof Omit<
   typeof DEFAULT_OVERLAY_SIZES,
   | "skillCdShowSlotOutline"
   | "skillCdShowEnhancedGlow"
+  | "skillCdShowAcceleration"
   | "iconBuffStackCounterSize"
   | "iconBuffSizes"
   | "standaloneIconSizes"

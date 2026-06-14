@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "「ライブウィンドウを自動非表示」が有効な場合、ライブメーターと一緒に表示中のゲーム/モンスターオーバーレイを非表示にし、自動非表示前に表示されていたものだけを復元します。",
   "autoHideLiveWindowDelaySeconds": "自動非表示の遅延",
   "autoHideLiveWindowDelaySecondsDescription": "新しいダメージが検出されなくなってから、ライブメーターを非表示にするまでの秒数。0 にすると即時に非表示にします。",
-  "secondsUnit": "秒"
+  "secondsUnit": "秒",
+  "trainingDummyTimerLimitEnabled": "ターゲットダミータイマー",
+  "trainingDummyTimerLimitEnabledDescription": "固定のターゲットダミー計測タイマーを使います。ライブタイマーは残り時間を表示し、0 になるとセグメントが終了します。",
+  "trainingDummySegmentDurationSeconds": "ターゲットダミー時間",
+  "trainingDummySegmentDurationSecondsDescription": "ターゲットダミー計測の長さを設定します。既定値: 180 秒。",
+  "showPlayerImagineBadges": "バトルイマジンバッジ",
+  "showPlayerImagineBadgesDescription": "クラスアイコンの横に装備中のバトルイマジンバッジを表示します。",
+  "showOceanWeaponBadge": "遠海武器バッジ",
+  "showOceanWeaponBadgeDescription": "検出した遠海武器バッジをプレイヤー名の前に表示します。"
 }

@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "เมื่อเปิดซ่อนหน้าต่างสดอัตโนมัติ โอเวอร์เลย์เกมหรือมอนสเตอร์ที่มองเห็นอยู่จะถูกซ่อนไปพร้อมมิเตอร์สด และจะคืนเฉพาะโอเวอร์เลย์ที่เคยมองเห็นก่อนถูกซ่อนอัตโนมัติ",
   "autoHideLiveWindowDelaySeconds": "ดีเลย์ซ่อนอัตโนมัติ",
   "autoHideLiveWindowDelaySecondsDescription": "จำนวนวินาทีที่รอหลังไม่พบดาเมจใหม่ก่อนซ่อนมิเตอร์สด ตั้งเป็น 0 เพื่อซ่อนทันที",
-  "secondsUnit": "วิ"
+  "secondsUnit": "วิ",
+  "trainingDummyTimerLimitEnabled": "ตัวจับเวลา Target Dummy",
+  "trainingDummyTimerLimitEnabledDescription": "ใช้ตัวจับเวลาช่วง Target Dummy แบบคงที่ ตัวจับเวลาสดจะนับถอยหลังและจบช่วงเมื่อถึงศูนย์",
+  "trainingDummySegmentDurationSeconds": "ระยะเวลา Target Dummy",
+  "trainingDummySegmentDurationSecondsDescription": "ตั้งความยาวช่วง Target Dummy ค่าเริ่มต้น: 180 วินาที",
+  "showPlayerImagineBadges": "ตรา Battle Imagine",
+  "showPlayerImagineBadgesDescription": "แสดงตรา Battle Imagine ที่สวมใส่ไว้ข้างไอคอนคลาส",
+  "showOceanWeaponBadge": "ตราอาวุธ Ocean",
+  "showOceanWeaponBadgeDescription": "แสดงตราอาวุธ Ocean หน้าชื่อผู้เล่นเมื่อตรวจพบ"
 }

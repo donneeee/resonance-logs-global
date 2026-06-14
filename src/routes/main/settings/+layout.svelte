@@ -3,6 +3,7 @@
    * @file Layout for global application settings.
    * Contains tabs for themes, network, hotkeys, locale, and debug settings.
    */
+  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import SettingsIcon from "virtual:icons/lucide/settings";
   import { uiT } from "$lib/i18n";
@@ -39,6 +40,14 @@
     return key.scope === "shell" ? tShell(key.key, fallback) : tDps(key.key, fallback);
   }
 
+  function navigate(event: MouseEvent, href: string) {
+    event.preventDefault();
+    void goto(href).catch((error) => {
+      console.error("Failed to navigate from settings layout", href, error);
+      window.location.href = href;
+    });
+  }
+
   let isBasePath = $derived(page.url.pathname === "/main/settings" || page.url.pathname === "/main/settings/");
 </script>
 
@@ -60,6 +69,7 @@
       {#each Object.entries(SETTINGS_SUB_ROUTES) as [href, route] (route.label)}
         <a
           {href}
+          onclick={(event) => navigate(event, href)}
           class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors {isActiveTab(href)
             ? 'border-primary text-foreground'
             : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}"
@@ -77,6 +87,7 @@
         <p class="text-muted-foreground mb-4">{tShell("settings.selectTabPrompt", "Please select a tab above to view global settings")}</p>
         <a
           href={getDefaultTabPath()}
+          onclick={(event) => navigate(event, getDefaultTabPath())}
           class="px-4 py-2 rounded-lg bg-muted hover:bg-muted/80 text-foreground text-sm font-medium transition-colors"
         >
           {tShell("settings.viewThemes", "View Themes")}

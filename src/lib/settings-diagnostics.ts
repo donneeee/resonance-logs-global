@@ -308,6 +308,7 @@ function getFrontendStoreSnapshots(): JsonRecord {
     },
     history: {
       general: redact(SETTINGS.history.general.state),
+      summary: redact(SETTINGS.history.summary.state),
       dps: {
         players: redact(SETTINGS.history.dps.players.state),
         skillBreakdown: redact(SETTINGS.history.dps.skillBreakdown.state),

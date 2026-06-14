@@ -1,29 +1,69 @@
 # Changelog
 
+## v1.1.0_beta5 - Global Beta
+
+- Made Skill CD overlay timers prefer packet-reported active cooldown duration/progress over static cooldown calculations, using calculated cooldowns only when packet duration is missing.
+- Fixed accelerated Skill CD timer display so packet cooldown duration remains the visible starting value while CD Boost / acceleration speeds local countdown progress, preventing Focus from starting too low or jumping when the next packet arrives.
+- Kept packet-observed cooldown progress rate as Skill CD diagnostics while display progress uses packet progress checkpoints plus calculated cooldown acceleration.
+- Fixed Skill CD timer drift caused by duplicate or stale cooldown packets refreshing the local receive anchor without advancing server progress, which could make Focus count down too slowly during continuous combat until a later packet snapped it closer to the in-game timer.
+- Tightened monitored Skill CD interpolation by normalizing base/level cooldown IDs, preventing observed packet speed from leaking into a fresh cooldown cast, blending same-cooldown packet progress corrections from the calculated baseline, and adding compact runtime trace logging for monitored cooldown packets.
+- Fixed selected talent matching for Skill CD acceleration sources that arrive as full node IDs, so Celestial Eagle-style nodes match their talent family and can apply haste-scaled Focus CD Boost.
+- Applied the corrected Skill CD acceleration path through the shared Skill CD monitor so selected class skills and selected battle-imagine cooldown rows use the same packet checkpoint plus calculated acceleration display behavior.
+- Hid the verbose Skill CD diagnostic hover text during normal overlay use; it remains available behind the existing Show Skill CD acceleration diagnostic toggle.
+- Exposed raw packet cooldown ratio placeholders in Skill CD diagnostics and confirmed the current live cooldown sync path does not carry `subCdRatio`, `subCdFixed`, or `accelerateCdRatio`; those richer fields exist on a separate generated `SkillCdInfo` message and still need a packet bridge before they can drive timers.
+- Fixed saved-history graph mode for new encounters by persisting a lightweight combat timeline at save time instead of relying on modifier replay rows, so Damage/Healing/Tanked graphs work without enabling the WIP modifier ledger.
+- Clarified the saved-history graph empty state so older encounters without timeline samples explain that they cannot be backfilled and require a newly saved encounter.
+- Expanded saved-history graph mode into a two-panel timeline with cumulative overall rate, moving-average rate, per-player lines, death markers, and total/average/peak legend values.
+- Restyled saved-history graph mode with per-series high-contrast colors, transparent plot panels, lighter area fills, stronger dashed guide lines, and player-colored death markers so overlapping player lines and deaths are easier to distinguish.
+- Rounded saved-history graph axis scales to clean tick values and trimmed `.0` suffixes from compact axis labels.
+- Made saved-history graph legend entries interactive so individual player lines can be toggled on/off without changing the saved encounter.
+- Preserved local equipped-item and profession-skill metadata across partial character syncs, encounter resets, and modifier-state cleanup so local imagine badges do not intermittently disappear from newly saved history rows.
+- Added an opt-in Skill CD acceleration diagnostic overlay badge and tooltip so cooldown reduction/acceleration sources can be checked against the live cooldown timer.
+- Expanded Skill CD cooldown diagnostics to include the matched cooldown attr/temp-attr source rows, scope, raw skill tag IDs, and calculated cooldown source mode, and to apply parsed acceleration while cooldown timers advance between packets.
+- Added generated localized skill tag labels to Skill CD diagnostics so tag-scoped cooldown sources show names such as Expertise Skill and Haste instead of raw IDs only.
+- Kept selected profession talent-node snapshots available outside the WIP modifier ledger and included active talent IDs in Skill CD diagnostics, so cooldown-reduction tests can compare timers against the player's actual selected talents before talent math is applied.
+- Kept selected psychoscope/Season Medal nodes available outside the WIP modifier ledger and applied Swiftflow's Endless Mind CD Boost as cooldown acceleration for Expertise-tagged skills.
+- Added a dev raid/class gear set effect audit that gathers localized 2401xxx-2409xxx set descriptions, class/spec grouping, 2-piece/4-piece thresholds, cooldown/duration/speed/trigger categories, and the requirement to prove each player's active suit counts up to 6 equipped pieces before applying set-effect math.
+- Added a runtime gear-set evidence bridge for local character syncs, exposing `SuitInfoDict` / `SuitAttr` suit-family data through live/history/debug entity payloads so cooldown and factor rules can be wired from proven equipped-set state instead of static assumptions.
+- Added gear-set evidence rows to Skill CD diagnostics so cooldown tests can show the observed suit family and raw suit attrs in the hover tooltip before any gear-set cooldown math is enabled.
+- Hardened first-launch settings repair after upgrades from older `1.0.x` installs by saving the final normalized store state, restarting repaired frontend stores, and broadcasting a settings refresh so users do not need a second install or AppData reset for new UI settings to apply.
+- Hardened native packet-capture startup after skipped/restored upgrades by validating saved Npcap adapters, repairing missing/stale/empty `packetCapture` stores before capture starts, and syncing packet-capture settings to both Roaming and Local AppData stores.
+- Made Season Cultivate / Phantom Factor counters grade-aware by deriving per-item grade metadata, resolved descriptions, factor IDs, thresholds, and energy grants from generated factor data, so Reality factors use the selected `G#` threshold instead of a shared fallback.
+- Enlarged live/history battle-imagine and ocean-weapon badges, strengthened T1-T4 imagine glows, restored live-window imagine badge hover hit-testing, corrected the Lv.200 ocean weapon ID family mapping, and made ocean weapon hover text use a single localized tooltip.
+- Derived local-player ocean weapon badge levels from equipped item breakthrough data while keeping remote-player ocean badges on the safest config-family fallback when only slot/config ID is available.
+- Expanded the dev-only remote equipment probe to decode raw team/social equipment item rows directly, so future Event Logger exports can show whether remote ocean weapons carry hidden level or breakthrough fields beyond slot/config ID.
+- Prevented saved-history player UID hover text from stacking on top of battle-imagine and ocean-weapon badge tooltips.
+- Changed custom background image handling to copy selected files into Local AppData and store only the imported file path/display name in settings, while keeping legacy data-URL backgrounds readable.
+- Added supported-locale strings for ocean weapon levels, saved-history graph mode buttons, graph death markers, and graph bucket/window settings.
+- Added supported-locale strings for the Target Dummy timer toggle, duration slider, and countdown tooltip.
+- Removed the hardcoded CN live-reset toast fallback so missing locale data falls back to English instead of untranslated CN text.
+- Added a timer column to the Season Cultivate / Phantom Factor custom monitor rows, showing active cooldown/tick/freeze timers beside proc and Illusion Energy values, with localized Timer headers across supported UI locales.
+- Smoothed Season Cultivate / Phantom Factor overlay countdown updates and guarded the shared overlay clock against tight reschedule loops when timers land exactly on an interval boundary.
+- Replaced grouped buff Food/Alchemy UUID clutter with category quick-listen controls so grouped monitor setup matches the cleaner individual-mode category flow.
+- Added user-editable label aliases for live/history meter columns and live header Total Damage / Total DPS labels.
+- Redesigned saved-history summary panels for team and individual breakdowns with compact grouped sections, tab-aware Damage/Healing/Tanked fields, and colored metric labels.
+- Added saved-history Skill Details scene metadata under the selected player header, with wrapping long text and a responsive layout fix for narrowed windows.
+- Added horizontal graph guide lines aligned to generated left-axis values so saved-history graph totals are easier to read.
+- Reinforced saved-history sticky table headers with opaque layered backgrounds so player, skill, and modifier rows no longer bleed over column headers while scrolling.
+
 ## v1.1.0_beta4 - Global Beta
 
 - Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta4` beta release.
 - Corrected Earthfort spec styling to use the tank/blue accent instead of DPS/gold coloring.
 - Excluded Dark Mist Fortress Divine Defense Tower objective entities from boss HP/boss metric display, including localized saved-history boss-name filtering.
 - Shared Rage Cleave stage labeling between history/detail rows and the Twin Axe Skill CD monitor so the 1608-1611 variants display localized stage suffixes.
+- Corrected Twin Axe factor/class presentation labels and marked expired Rhapsody factor rows for Season 3 in Season Cultivate factor audit exports.
+- Reinstated live-only True Boss DPS as a toggleable/reorderable DPS player column, using boss-only damage over the same active combat timer as True DPS while keeping saved history unchanged.
 - Moved Module Calculator filter/profile selections into the active profile while migrating the older per-index Module Calculator memory bucket when present.
-- Made live DPS/HPS/TPS rows and T.DPS visually age from the encounter start clock between backend combat packets, so normal DPS decreases while attacking stops; sessions with more than 20 combat players now clamp the visual refresh tick to at least 1000ms to reduce raid-load churn.
-- Added a linked Auto-hide Overlays with Live Window option in both Live settings and Settings > Overlay; when enabled, visible game/monster overlay windows hide with the live meter and only previously visible overlays are restored.
-- Fixed Auto-hide Live Window so pressing the live window minimize button remains a manual hide choice; later damage no longer reopens the live meter unless auto-hide itself hid it.
-- Corrected Twin Axe factor/class presentation labels so Season Cultivate settings, Skill CD locale fallbacks, and factor audit exports no longer display the old Flame Vanguard/Flame Berserker class names.
-- Marked Rhapsody factor rows as expired for Season 3 in the Season Cultivate factor audit exports so old-season data is not treated as current actionable counter work.
+- Improved live DPS timing so rows visually age between backend packets, large sessions throttle visual refresh, and idle/no-change or dungeon-objective boundary pauses stop DPS decay when encounter activity ends.
 - Widened the live Boss header row so long boss/objective names and HP summaries use the full header width before truncating.
-- Added a display-only live DPS/timer pause at dungeon objective boundaries detected from dungeon flow/objective packets, so mobbing-complete and boss-complete states stop visually aging the active meter without pausing packet parsing.
-- Added a per-profile option under Settings > Profile to hide the live meter and visible overlay windows whenever Blue Protocol: Star Resonance is no longer the active foreground window, using OS foreground-window metadata only.
-- Fixed live/history table header pinning across normal live view, dynamic live view, live skill breakdowns, tanked drilldowns, and history detail tables; live column visibility now reads the same split settings stores that the settings screen writes to, and the legacy settings facade now resolves current store state so old persisted settings no longer drift from fresh/default installs.
-- Hardened live/history sticky table headers with opaque high-layer header cells and separated table borders so scrolled rows, row glow underlines, and history skill details no longer bleed through the pinned header area.
-- Synced live-window settings from the backend store while the live meter is already open, so DPS/Heal/Tanked column visibility, column order, and related live settings update without requiring deleted settings or a restarted live window.
-- Added a configurable no-change live DPS pause, enabled by default at 5 seconds, so repeated unchanged dungeon dirty packets no longer keep visually aging DPS after combat/objective data stops changing.
-- Added startup repair for older/restored Tauri settings folders so empty or legacy split-store JSON files are normalized and saved in place instead of requiring users to delete AppData.
-- Fixed restored-settings column toggles by coercing legacy column visibility values to real booleans and saving live settings before notifying the live meter to refresh, preventing stale backend state from re-showing hidden columns.
+- Added/expanded auto-hide controls: visible overlays can follow live-window auto-hide, manual live-window minimization stays respected, and profile game-inactive auto-hide hides live/overlays only while neither Blue Protocol: Star Resonance nor Resonance Logs - Global is the foreground window.
+- Stabilized live/history sticky table headers and column rendering across normal live view, dynamic live view, live skill breakdowns, tanked drilldowns, and history detail tables so headers stay pinned/opaque and settings changes apply while the live window is open.
+- Normalized older/restored/skipped-update settings stores at startup, including malformed live DPS column visibility/order/sorting JSON, so users do not need to delete AppData to recover column toggles.
+- Centralized startup settings-store repair so new additive setting keys are written into existing AppData JSON automatically, and normalized single-profile library JSON files on load/save for safer upgrades from older versions.
 - Expanded the Settings > Debug diagnostics bundle with redacted frontend/backend settings-store snapshots, store paths, AppData/config file summaries, and column-visibility issue detection so restored-settings bugs can be diagnosed from user-submitted debug ZIPs.
-- Repaired skipped-update/restored live DPS settings migration by unwrapping legacy `state`/`value`/`settings` payloads, replacing malformed live store contents before saving, and normalizing live DPS column order/sorting files instead of requiring users to delete those JSON files manually.
 - Added live-style column reordering to DPS Meter > Meter Settings > History, including persisted per-profile history column-order stores, startup normalization for older profiles, diagnostics coverage, and ordered rendering in saved-history player and skill detail tables.
+- Made Skill CD overlay timers prefer packet-reported cooldown duration/progress over static calculated cooldowns, improving accuracy when psychoscopes or talents modify cooldowns.
 
 ## v1.1.0_beta3 - Global Beta
 

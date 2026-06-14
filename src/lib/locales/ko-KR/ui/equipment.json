@@ -1,0 +1,5 @@
+{
+  "oceanWeaponLevel": "먼바다 무기 Lv.{level}",
+  "oceanWeaponLevelApprox": "먼바다 무기 Lv.{level}+",
+  "oceanWeaponLevelRange": "먼바다 무기 Lv.{min}-{max}"
+}

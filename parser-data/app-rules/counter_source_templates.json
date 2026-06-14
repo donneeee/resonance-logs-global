@@ -1,6 +1,6 @@
 [
   {
-    "sourceId": "stormablade_x1",
+    "sourceId": "stormblade_x1",
     "name": "雷影X1, 释放居合斩获得 25 点能量",
     "description": "雷影X1, 释放居合斩获得 25 点能量",
     "source": {
@@ -35,7 +35,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_x2",
+    "sourceId": "stormblade_x2",
     "name": "雷影X2, 释放一闪, 飞雷神获得 24 点能量",
     "description": "释放一闪, 飞雷神获得 24 点能量",
     "source": {
@@ -71,7 +71,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_s3_x3",
+    "sourceId": "stormblade_s3_x3",
     "name": "雷影S3 X3, 释放坠龙闪、神影斩获得 24 点能量",
     "description": "释放坠龙闪、神影斩获得 24 点能量",
     "source": {
@@ -97,7 +97,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_x4",
+    "sourceId": "stormblade_x4",
     "name": "雷影X4, 释放雷切获得 120 点能量",
     "description": "雷影X4, 释放雷切获得 120 点能量",
     "source": {
@@ -132,7 +132,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_x5",
+    "sourceId": "stormblade_x5",
     "name": "雷影X5, 无穷雷霆之力期间每秒获得 26 点能量",
     "description": "雷影X5, 无穷雷霆之力期间每秒获得 26 点能量",
     "source": {
@@ -166,7 +166,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_s3_x6",
+    "sourceId": "stormblade_s3_x6",
     "name": "雷影S3 X6, 释放霹雳连斩获得 16 点能量",
     "description": "释放霹雳连斩获得 16 点能量",
     "source": {
@@ -194,7 +194,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_x7",
+    "sourceId": "stormblade_x7",
     "name": "雷影X7, 每消耗10枚电荷之种获得 12 点能量",
     "description": "每消耗10枚电荷之种获得 12 点能量",
     "source": {
@@ -218,7 +218,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_x8",
+    "sourceId": "stormblade_x8",
     "name": "雷影X8, 战斗状态站立不动每秒获得 12 点能量",
     "description": "雷影X8, 战斗状态站立不动每秒获得 12 点能量",
     "source": {
@@ -256,7 +256,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_s3_x9",
+    "sourceId": "stormblade_s3_x9",
     "name": "雷影S3 X9, 释放月影获得 29 点能量",
     "description": "释放月影获得 29 点能量",
     "source": {
@@ -281,7 +281,7 @@
     ]
   },
   {
-    "sourceId": "stormablade_s3_x10",
+    "sourceId": "stormblade_s3_x10",
     "name": "雷影S3 X10, 千雷闪影之意期间每秒获得 20 点能量",
     "description": "千雷闪影之意期间每秒获得 20 点能量",
     "source": {
@@ -302,6 +302,33 @@
       20020098,
       20020099,
       20020100
+    ]
+  },
+  {
+    "sourceId": "stormblade_s3_x11",
+    "name": "Stormblade X11, consuming 5 Thunder Sigils grants 24 Illusion Energy while Volt Surge is inactive",
+    "description": "When Volt Surge is not active, every 5 Thunder Sigils consumed grants 24 Illusion Energy.",
+    "source": {
+      "fightResourceSpent": {
+        "resourceId": 12041,
+        "unitsRequired": 5,
+        "increment": 24,
+        "excludedBuffIds": [
+          43101
+        ]
+      }
+    },
+    "itemIds": [
+      20020101,
+      20020102,
+      20020103,
+      20020104,
+      20020105,
+      20020106,
+      20020107,
+      20020108,
+      20020109,
+      20020110
     ]
   },
   {
@@ -2598,6 +2625,54 @@
     ]
   },
   {
+    "sourceId": "verdant_oracle_x6",
+    "name": "Verdant Oracle X6, Nature Ward state grants 40 Illusion Energy per second",
+    "description": "While in Nature Ward state, grants 40 Illusion Energy per second.",
+    "source": {
+      "buffDurationTick": {
+        "buffId": 3056061,
+        "tickIntervalMs": 1000,
+        "increment": 40
+      }
+    },
+    "itemIds": [
+      20020711,
+      20020712,
+      20020713,
+      20020714,
+      20020715,
+      20020716,
+      20020717,
+      20020718,
+      20020719,
+      20020720
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_x7",
+    "name": "Verdant Oracle X7, post Fast Growth or Nature Ward state grants 40 Illusion Energy per second",
+    "description": "Within 10s after casting Fast Growth or Nature Ward, MATK increases. While in this state, grants 40 Illusion Energy per second.",
+    "source": {
+      "buffDurationTick": {
+        "buffId": 3056071,
+        "tickIntervalMs": 1000,
+        "increment": 40
+      }
+    },
+    "itemIds": [
+      20020721,
+      20020722,
+      20020723,
+      20020724,
+      20020725,
+      20020726,
+      20020727,
+      20020728,
+      20020729,
+      20020730
+    ]
+  },
+  {
     "sourceId": "verdant_oracle_x8",
     "name": "Verdant Oracle X8, casting Blossom Charge grants 63 Illusion Energy",
     "description": "Casting Blossom Charge grants 63 Illusion Energy.",
@@ -2746,6 +2821,131 @@
       20020848,
       20020849,
       20020850
+    ]
+  },
+  {
+    "sourceId": "stasis_x5_proc",
+    "name": "Stasis X5 proc",
+    "description": "Counts Stasis X5 when its damage-prevention effect buff is applied.",
+    "countsAsEnergy": false,
+    "source": {
+      "buffAdded": {
+        "buffId": 3059051,
+        "sourceConfigId": 3059050,
+        "increment": 1
+      }
+    },
+    "itemIds": [
+      20021031,
+      20021032,
+      20021033,
+      20021034,
+      20021035,
+      20021036,
+      20021037,
+      20021038,
+      20021039,
+      20021040
+    ]
+  },
+  {
+    "sourceId": "stasis_x7_proc",
+    "name": "Stasis X7 proc",
+    "description": "Counts Stasis X7 when its ultimate-skill mitigation effect buff is applied.",
+    "countsAsEnergy": false,
+    "source": {
+      "buffAdded": {
+        "buffId": 3059071,
+        "sourceConfigId": 3059070,
+        "increment": 1
+      }
+    },
+    "itemIds": [
+      20021051,
+      20021052,
+      20021053,
+      20021054,
+      20021055,
+      20021056,
+      20021057,
+      20021058,
+      20021059,
+      20021060
+    ]
+  },
+  {
+    "sourceId": "stasis_x8_proc",
+    "name": "Stasis X8 proc",
+    "description": "Counts Stasis X8 when its damage-taken heal effect buff is applied.",
+    "countsAsEnergy": false,
+    "source": {
+      "buffAdded": {
+        "buffId": 3059081,
+        "sourceConfigId": 3059080,
+        "increment": 1
+      }
+    },
+    "itemIds": [
+      20021061,
+      20021062,
+      20021063,
+      20021064,
+      20021065,
+      20021066,
+      20021067,
+      20021068,
+      20021069,
+      20021070
+    ]
+  },
+  {
+    "sourceId": "heavy_guardian_stasis_x1_proc",
+    "name": "Heavy Guardian Stasis X1 proc",
+    "description": "Counts Heavy Guardian Stasis X1 when its magic-damage resistance effect buff is applied.",
+    "countsAsEnergy": false,
+    "source": {
+      "buffAdded": {
+        "buffId": 3059201,
+        "sourceConfigId": 3059200,
+        "increment": 1
+      }
+    },
+    "itemIds": [
+      20021181,
+      20021182,
+      20021183,
+      20021184,
+      20021185,
+      20021186,
+      20021187,
+      20021188,
+      20021189,
+      20021190
+    ]
+  },
+  {
+    "sourceId": "verdant_oracle_stasis_x1_proc",
+    "name": "Verdant Oracle Stasis X1 proc",
+    "description": "Counts Verdant Oracle Stasis X1 when its excess-healing shield effect buff is applied.",
+    "countsAsEnergy": false,
+    "source": {
+      "buffAdded": {
+        "buffId": 3059221,
+        "sourceConfigId": 3059220,
+        "increment": 1
+      }
+    },
+    "itemIds": [
+      20021201,
+      20021202,
+      20021203,
+      20021204,
+      20021205,
+      20021206,
+      20021207,
+      20021208,
+      20021209,
+      20021210
     ]
   }
 ]

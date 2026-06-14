@@ -1,5 +1,10 @@
 <script lang="ts">
-  import type { ColumnDefinition } from "$lib/column-data";
+  import {
+    columnAliasKey,
+    columnAliasValue,
+    type ColumnAliasState,
+    type ColumnDefinition,
+  } from "$lib/column-data";
   import { notifySettingsChanged } from "$lib/settings-store";
   import ChevronDown from "virtual:icons/lucide/chevron-down";
   import ChevronUp from "virtual:icons/lucide/chevron-up";
@@ -16,6 +21,8 @@
     hint = "",
     colLabel,
     colDescription,
+    aliasState,
+    aliasPlaceholder = "Alias",
   }: {
     columns: readonly ColumnDefinition[];
     visibilityState: ColumnVisibilityState;
@@ -24,6 +31,8 @@
     hint?: string;
     colLabel: (col: ColumnDefinition) => string;
     colDescription: (col: ColumnDefinition) => string;
+    aliasState?: ColumnAliasState;
+    aliasPlaceholder?: string;
   } = $props();
 
   const hiddenKeySet = $derived(new Set(hiddenKeys));
@@ -47,6 +56,12 @@
     nextOrder[currentIndex] = swapKey;
     nextOrder[swapIndex] = currentKey;
     orderState.order = nextOrder;
+    notifySettingsChanged();
+  }
+
+  function setColumnAlias(col: ColumnDefinition, value: string) {
+    if (!aliasState) return;
+    aliasState[columnAliasKey(col)] = value;
     notifySettingsChanged();
   }
 </script>
@@ -77,11 +92,23 @@
           aria-label="Move column down"><ChevronDown class="size-3" /></button
         >
       </div>
-      <SettingsSwitch
-        bind:checked={visibilityState[col.key]}
-        label={colLabel(col)}
-        description={colDescription(col)}
-      />
+      <div class="min-w-0 flex-1">
+        <SettingsSwitch
+          bind:checked={visibilityState[col.key]}
+          label={colLabel(col)}
+          description={colDescription(col)}
+        />
+      </div>
+      {#if aliasState}
+        <input
+          type="text"
+          class="h-9 w-36 shrink-0 rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+          value={columnAliasValue(aliasState, col)}
+          placeholder={aliasPlaceholder}
+          aria-label={`Alias for ${colLabel(col)}`}
+          oninput={(event) => setColumnAlias(col, event.currentTarget.value)}
+        />
+      {/if}
     </div>
   {/if}
 {/each}

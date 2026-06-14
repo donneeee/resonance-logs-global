@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import MonitorUpIcon from "virtual:icons/lucide/monitor-up";
   import { resolveMonsterMonitorTranslation, uiT } from "$lib/i18n";
@@ -26,6 +27,14 @@
 
     return fallback;
   }
+
+  function navigate(event: MouseEvent, href: string) {
+    event.preventDefault();
+    void goto(href).catch((error) => {
+      console.error("Failed to navigate from overlay layout", href, error);
+      window.location.href = href;
+    });
+  }
 </script>
 
 <div class="space-y-6">
@@ -46,6 +55,7 @@
       {#each Object.entries(OVERLAY_SUB_ROUTES) as [href, route] (route.label)}
         <a
           {href}
+          onclick={(event) => navigate(event, href)}
           class="flex items-center gap-2 px-4 py-2.5 text-sm font-medium border-b-2 transition-colors {isActiveTab(href)
             ? 'border-primary text-foreground'
             : 'border-transparent text-muted-foreground hover:text-foreground hover:border-border'}"

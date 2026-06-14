@@ -75,6 +75,8 @@ pub enum CounterSource {
         #[serde(rename = "unitsRequired")]
         units_required: u32,
         increment: u32,
+        #[serde(default, rename = "excludedBuffIds")]
+        excluded_buff_ids: Vec<i32>,
     },
     BuffAdded {
         #[serde(rename = "buffId")]
@@ -255,6 +257,8 @@ pub(crate) struct FightResourceSpentState {
     pub accumulated_spent: u32,
     pub units_required: u32,
     pub increment: u32,
+    pub excluded_buff_ids: Vec<i32>,
+    pub excluded_buff_active: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -428,12 +432,15 @@ impl BuffCounterTracker {
                         resource_id,
                         units_required,
                         increment,
+                        excluded_buff_ids,
                     } => Some(FightResourceSpentState {
                         resource_id: *resource_id,
                         previous_value: None,
                         accumulated_spent: 0,
                         units_required: (*units_required).max(1),
                         increment: *increment,
+                        excluded_buff_ids: excluded_buff_ids.clone(),
+                        excluded_buff_active: false,
                     }),
                     _ => None,
                 })
@@ -679,6 +686,11 @@ impl BuffCounterTracker {
                 else {
                     continue;
                 };
+                if resource_state.excluded_buff_active {
+                    resource_state.previous_value = Some(entry.value);
+                    resource_state.accumulated_spent = 0;
+                    continue;
+                }
                 pending_increment = pending_increment
                     .saturating_add(apply_fight_resource_spent(resource_state, entry.value));
             }
@@ -778,6 +790,33 @@ impl BuffCounterTracker {
                 let Some(state) = states.get_mut(&rule.rule_id) else {
                     continue;
                 };
+                for (slot_config, slot_state) in
+                    rule.effect_slots.iter().zip(&mut state.slot_states)
+                {
+                    if !slot_matches_buff_change(slot_config, change) {
+                        continue;
+                    }
+                    let action = action_for_buff_change(slot_config, &change.change_type);
+                    if !action_starts_freeze(action) {
+                        continue;
+                    }
+                    changed |= apply_action(slot_state, action);
+                    changed |= start_freeze_with_resolved_duration(
+                        slot_config,
+                        slot_state,
+                        action,
+                        change.create_time_ms,
+                        attr_store,
+                        local_attr_id,
+                    );
+                }
+            }
+        }
+        for change in changes {
+            for rule in rules {
+                let Some(state) = states.get_mut(&rule.rule_id) else {
+                    continue;
+                };
                 for tick_state in &mut state.tick_states {
                     if tick_state.buff_id != change.base_id {
                         continue;
@@ -809,6 +848,9 @@ impl BuffCounterTracker {
                     pending_increment = pending_increment
                         .saturating_add(apply_buff_layer_spent(layer_spent_state, change));
                 }
+                for resource_state in &mut state.fight_resource_spent_states {
+                    changed |= apply_fight_resource_excluded_buff_change(resource_state, change);
+                }
                 if pending_increment > 0 {
                     changed |= add_increment_to_slots(state, pending_increment);
                 }
@@ -832,19 +874,10 @@ impl BuffCounterTracker {
                             }
                         }
                     }
-                    if slot_config.reset_buff_id != change.base_id {
+                    if !slot_matches_buff_change(slot_config, change) {
                         continue;
                     }
-                    if let Some(required_source_config_id) = slot_config.reset_source_config_id {
-                        if change.source_config_id != Some(required_source_config_id) {
-                            continue;
-                        }
-                    }
-                    let action = match change.change_type {
-                        BuffChangeType::Added => slot_config.on_buff_add,
-                        BuffChangeType::Changed => slot_config.on_buff_change,
-                        BuffChangeType::Removed => slot_config.on_buff_remove,
-                    };
+                    let action = action_for_buff_change(slot_config, &change.change_type);
                     match change.change_type {
                         BuffChangeType::Added => {
                             if !slot_state.reset_buff_active {
@@ -1070,6 +1103,7 @@ impl BuffCounterTracker {
             for resource in &mut state.fight_resource_spent_states {
                 resource.previous_value = None;
                 resource.accumulated_spent = 0;
+                resource.excluded_buff_active = false;
             }
             for movement in &mut state.movement_distance_states {
                 movement.is_active = false;
@@ -1200,6 +1234,38 @@ fn scaled_increment(increment: u32, matches: usize) -> Option<u32> {
     Some(increment.saturating_mul(u32::try_from(matches).unwrap_or(u32::MAX)))
 }
 
+fn slot_matches_buff_change(slot_config: &EffectSlotConfig, change: &BuffChangeEvent) -> bool {
+    if slot_config.reset_buff_id != change.base_id {
+        return false;
+    }
+    if let Some(required_source_config_id) = slot_config.reset_source_config_id {
+        if change.source_config_id != Some(required_source_config_id) {
+            return false;
+        }
+    }
+    true
+}
+
+fn action_for_buff_change(
+    slot_config: &EffectSlotConfig,
+    change_type: &BuffChangeType,
+) -> CounterAction {
+    match change_type {
+        BuffChangeType::Added => slot_config.on_buff_add,
+        BuffChangeType::Changed => slot_config.on_buff_change,
+        BuffChangeType::Removed => slot_config.on_buff_remove,
+    }
+}
+
+fn action_starts_freeze(action: CounterAction) -> bool {
+    matches!(
+        action,
+        CounterAction::Freeze
+            | CounterAction::ResetAndFreeze
+            | CounterAction::ResetAndFreezeKeepCounting
+    )
+}
+
 fn apply_damage_by_skill_key_once_max(
     events: &[LocalDamageEvent],
     skill_keys: &[i64],
@@ -1291,6 +1357,28 @@ fn apply_fight_resource_spent(state: &mut FightResourceSpentState, current_value
     let triggers = state.accumulated_spent / state.units_required.max(1);
     state.accumulated_spent %= state.units_required.max(1);
     state.increment.saturating_mul(triggers)
+}
+
+fn apply_fight_resource_excluded_buff_change(
+    state: &mut FightResourceSpentState,
+    change: &BuffChangeEvent,
+) -> bool {
+    if state.excluded_buff_ids.is_empty() || !state.excluded_buff_ids.contains(&change.base_id) {
+        return false;
+    }
+
+    let next_active = match change.change_type {
+        BuffChangeType::Added | BuffChangeType::Changed => true,
+        BuffChangeType::Removed => false,
+    };
+    if state.excluded_buff_active == next_active {
+        return false;
+    }
+
+    state.excluded_buff_active = next_active;
+    state.previous_value = None;
+    state.accumulated_spent = 0;
+    true
 }
 
 fn apply_buff_layer_spent(state: &mut BuffLayerSpentState, change: &BuffChangeEvent) -> u32 {
@@ -1472,12 +1560,7 @@ fn start_freeze_with_resolved_duration(
     attr_store: &EntityAttrStore,
     local_player_uid: i64,
 ) -> bool {
-    if !matches!(
-        action,
-        CounterAction::Freeze
-            | CounterAction::ResetAndFreeze
-            | CounterAction::ResetAndFreezeKeepCounting
-    ) {
+    if !action_starts_freeze(action) {
         return false;
     }
     let Some(duration) =
@@ -1625,5 +1708,75 @@ fn apply_action(state: &mut SlotState, action: CounterAction) -> bool {
             changed
         }
         CounterAction::NoOp => false,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn effect_slot_config(reset_buff_id: i32) -> EffectSlotConfig {
+        EffectSlotConfig {
+            slot_id: 1,
+            threshold: Some(100),
+            reset_buff_id,
+            reset_source_config_id: None,
+            on_buff_add: CounterAction::Freeze,
+            on_buff_change: CounterAction::NoOp,
+            on_buff_remove: CounterAction::NoOp,
+            freeze_duration_ms: Some(5_000),
+            on_freeze_expire: CounterAction::ResetAndStartCount,
+            alt_freeze: None,
+            threshold_modifier: None,
+            freeze_duration_modifier: None,
+            reset_skill_keys: None,
+            on_reset_skill: CounterAction::NoOp,
+        }
+    }
+
+    fn buff_added(base_id: i32, create_time_ms: i64) -> BuffChangeEvent {
+        BuffChangeEvent {
+            base_id,
+            buff_uuid: base_id,
+            change_type: BuffChangeType::Added,
+            create_time_ms: Some(create_time_ms),
+            event_time_ms: create_time_ms,
+            duration_ms: None,
+            buff_level: None,
+            part_id: None,
+            count: None,
+            fight_source_type: None,
+            source_config_id: None,
+            layer: 1,
+            previous_layer: None,
+            current_layer: Some(1),
+            host_uuid: None,
+            source_uuid: None,
+            host_uid: 0,
+            source_uid: 0,
+        }
+    }
+
+    #[test]
+    fn freeze_buff_in_same_batch_blocks_source_increment() {
+        let mut tracker = BuffCounterTracker::default();
+        tracker.set_rules(vec![CounterRule {
+            rule_id: 1,
+            sources: vec![CounterSource::BuffAdded {
+                buff_id: 100,
+                source_config_id: None,
+                increment: 50,
+            }],
+            effect_slots: vec![effect_slot_config(200)],
+        }]);
+
+        let changes = vec![buff_added(100, 1_000), buff_added(200, 1_000)];
+        let changed = tracker.on_buff_changes(&changes, &EntityAttrStore::default(), 1, 0);
+
+        assert!(changed);
+        let slot = &tracker.states.get(&1).unwrap().slot_states[0];
+        assert_eq!(slot.current_count, 0);
+        assert!(!slot.is_counting);
+        assert_eq!(slot.freeze_until_ms, Some(6_000));
     }
 }

@@ -5,8 +5,10 @@
   import SettingsSwitch from "../settings/settings-switch.svelte";
   import SettingsColor from "../settings/settings-color.svelte";
   import SettingsColorAlpha from "../settings/settings-color-alpha.svelte";
+  import SettingsInput from "../settings/settings-input.svelte";
   import SettingsFilePicker from "../settings/settings-file-picker.svelte";
   import HeaderLayoutEditor from "../settings/header-layout-editor.svelte";
+  import { invoke } from "@tauri-apps/api/core";
   import {
     SETTINGS,
     DEFAULT_CLASS_COLORS,
@@ -30,6 +32,29 @@
   ];
 
   const t = uiT("dps/themes", () => SETTINGS.live.general.state.language);
+
+  async function importBackgroundImage(sourcePath: string, fileName: string) {
+    try {
+      const importedPath = await invoke<string>("import_background_image", {
+        sourcePath,
+      });
+      SETTINGS.accessibility.state.backgroundImage = importedPath;
+      SETTINGS.accessibility.state.backgroundImageName = fileName;
+    } catch (error) {
+      console.error("Failed to import background image", error);
+    }
+  }
+
+  async function clearBackgroundImage() {
+    try {
+      await invoke("clear_imported_background_image");
+    } catch (error) {
+      console.warn("Failed to clear imported background image", error);
+    } finally {
+      SETTINGS.accessibility.state.backgroundImage = "";
+      SETTINGS.accessibility.state.backgroundImageName = "";
+    }
+  }
 
   function themeLabel(colorKey: keyof typeof DEFAULT_CUSTOM_THEME_COLORS, fallback: string): string {
     return t(`themeLabel.${String(colorKey)}.label`, fallback);
@@ -1320,12 +1345,10 @@
                     description={t("themes.general.selectImageDescription", "选择图片文件（PNG/JPG/WebP）")}
                     accept="image/*"
                     value={SETTINGS.accessibility.state.backgroundImage}
-                    onchange={(dataUrl, _fileName) => {
-                      SETTINGS.accessibility.state.backgroundImage = dataUrl;
-                    }}
-                    onclear={() => {
-                      SETTINGS.accessibility.state.backgroundImage = "";
-                    }}
+                    displayName={SETTINGS.accessibility.state.backgroundImageName}
+                    storage="path"
+                    onchange={importBackgroundImage}
+                    onclear={clearBackgroundImage}
                   />
                   <SettingsSlider
                     bind:value={
@@ -1915,6 +1938,15 @@
                     description={t("liveHeader.showTotalDamage.description", "显示造成的总伤害")}
                   />
                   {#if SETTINGS.live.headerCustomization.state.showTotalDamage}
+                    <SettingsInput
+                      bind:value={
+                        SETTINGS.live.headerCustomization.state
+                          .totalDamageLabelAlias
+                      }
+                      label={t("liveHeader.totalDamageLabelAlias", "Label Alias")}
+                      description={t("liveHeader.totalDamageLabelAlias.description", "Rename the total damage label. Leave blank to use T.DMG.")}
+                      placeholder="T.DMG"
+                    />
                     <SettingsSlider
                       bind:value={
                         SETTINGS.live.headerCustomization.state
@@ -1955,6 +1987,15 @@
                     description={t("liveHeader.showTotalDps.description", "显示总每秒伤害")}
                   />
                   {#if SETTINGS.live.headerCustomization.state.showTotalDps}
+                    <SettingsInput
+                      bind:value={
+                        SETTINGS.live.headerCustomization.state
+                          .totalDpsLabelAlias
+                      }
+                      label={t("liveHeader.totalDpsLabelAlias", "Label Alias")}
+                      description={t("liveHeader.totalDpsLabelAlias.description", "Rename the total DPS label. Leave blank to use T.DPS.")}
+                      placeholder="T.DPS"
+                    />
                     <SettingsSlider
                       bind:value={
                         SETTINGS.live.headerCustomization.state

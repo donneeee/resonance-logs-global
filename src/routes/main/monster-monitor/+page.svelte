@@ -102,6 +102,10 @@
     );
   }
 
+  function buffCategoryLabel(category: BuffCategoryKey): string {
+    return t(`teammate.category.${category}`, getBuffCategoryLabel(category));
+  }
+
   function updateMonsterMonitor(
     updater: (state: typeof SETTINGS.monsterMonitor.state) => Partial<typeof SETTINGS.monsterMonitor.state>,
   ) {
@@ -859,9 +863,9 @@
                 ? 'border-primary bg-primary text-primary-foreground'
                 : 'border-border/60 bg-muted/30 text-foreground hover:bg-muted/50'}"
               onclick={() => toggleTeammateBuffCategory(category.key)}
-              title={`${getBuffCategoryLabel(category.key)} (${getBuffIdsByCategory(category.key).length})`}
+              title={`${buffCategoryLabel(category.key)} (${getBuffIdsByCategory(category.key).length})`}
             >
-              {getBuffCategoryLabel(category.key)}
+              {buffCategoryLabel(category.key)}
             </button>
           {/each}
         </div>
@@ -899,7 +903,7 @@
                 onclick={() => removeTeammateBuffCategory(category.key)}
                 title={t("removeHint", "Click to remove")}
               >
-                <span>{getBuffCategoryLabel(category.key)}</span>
+                <span>{buffCategoryLabel(category.key)}</span>
               </button>
             {/each}
           </div>

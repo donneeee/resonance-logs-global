@@ -1,4 +1,5 @@
 use crate::live::chat_feed;
+use crate::live::entity_id::uid_from_uuid;
 use crate::live::state::{AppState, AppStateManager, StateEvent, resolve_entity_display_name};
 use crate::live::{
     attribution_census::flush_current_census_to_file,
@@ -25,6 +26,7 @@ use bytes::Bytes;
 use log::{debug, info, trace, warn};
 use prost::Message;
 use std::collections::{HashMap, HashSet, VecDeque};
+use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Mutex, OnceLock};
 use std::time::{Duration, Instant};
@@ -33,6 +35,26 @@ use tokio::sync::mpsc::UnboundedReceiver;
 
 static RAW_SERVICE_PROBE_ALL_COUNT: AtomicUsize = AtomicUsize::new(0);
 static RAW_SERVICE_PROBE_NEAR_DELTA_COUNT: AtomicUsize = AtomicUsize::new(0);
+const EQUIPMENT_PROBE_ATTR_ID: i32 = 200;
+const EQUIPMENT_PROBE_WEAPON_SLOT: u64 = 200;
+const OCEAN_WEAPON_ITEM_ID_MIN: u64 = 2_000_617;
+const OCEAN_WEAPON_ITEM_ID_MAX: u64 = 2_000_634;
+const EMBER_OCEAN_WEAPON_ITEM_ID_MIN: u64 = 2_000_626;
+
+fn equipment_probe_ocean_weapon_family(value: u64) -> Option<serde_json::Value> {
+    if !(OCEAN_WEAPON_ITEM_ID_MIN..=OCEAN_WEAPON_ITEM_ID_MAX).contains(&value) {
+        return None;
+    }
+
+    let is_ember = value >= EMBER_OCEAN_WEAPON_ITEM_ID_MIN;
+    Some(serde_json::json!({
+        "family": if is_ember { "emberFarSea" } else { "farSea" },
+        "baseLevel": if is_ember { 220 } else { 100 },
+        "maxLevel": if is_ember { 280 } else { 180 },
+        "breakthroughSteps": if is_ember { vec![20, 20, 20] } else { vec![40, 20, 20] },
+        "needsItemInstanceBreakthrough": true,
+    }))
+}
 
 fn debug_env_flag_enabled(name: &str) -> bool {
     cfg!(debug_assertions)
@@ -74,6 +96,12 @@ fn container_probes_verbose_enabled() -> bool {
     static ENABLED: OnceLock<bool> = OnceLock::new();
 
     *ENABLED.get_or_init(|| debug_env_flag_enabled("RESONANCE_ENABLE_CONTAINER_PROBES_VERBOSE"))
+}
+
+fn equipment_probes_enabled() -> bool {
+    static ENABLED: OnceLock<bool> = OnceLock::new();
+
+    *ENABLED.get_or_init(|| debug_env_flag_enabled("RESONANCE_ENABLE_EQUIPMENT_PROBES"))
 }
 
 fn emit_auxiliary_entries(app_handle: &AppHandle, entries: Vec<EventLoggerEntry>) {
@@ -3583,6 +3611,1216 @@ fn build_factor_energy_tuple_probe_logger_entries(
     entries
 }
 
+fn equipment_probe_attr_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_ATTR_LIMIT", 20))
+}
+
+fn equipment_probe_item_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_ITEM_LIMIT", 32))
+}
+
+fn equipment_probe_raw_hex_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_RAW_HEX_LIMIT", 256))
+}
+
+fn equipment_probe_field_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_FIELD_LIMIT", 16))
+}
+
+fn equipment_probe_neighbor_attr_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_NEIGHBOR_ATTR_LIMIT", 48))
+}
+
+fn equipment_probe_map_attr_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_MAP_ATTR_LIMIT", 24))
+}
+
+fn equipment_probe_tree_depth() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_TREE_DEPTH", 4))
+}
+
+fn equipment_probe_len_hex_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_LEN_HEX_LIMIT", 96))
+}
+
+fn equipment_probe_finding_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_EQUIPMENT_PROBE_FINDING_LIMIT", 64))
+}
+
+fn equipment_probe_utf8_preview(buf: &[u8]) -> Option<String> {
+    let text = std::str::from_utf8(buf)
+        .ok()?
+        .trim_matches(char::from(0))
+        .trim();
+    if text.is_empty() || !text.chars().any(|ch| !ch.is_control()) {
+        return None;
+    }
+
+    Some(text.chars().take(160).collect())
+}
+
+fn equipment_probe_varint_notes(value: u64) -> Vec<&'static str> {
+    let mut notes = Vec::new();
+    if (OCEAN_WEAPON_ITEM_ID_MIN..=OCEAN_WEAPON_ITEM_ID_MAX).contains(&value) {
+        notes.push("oceanWeaponConfigId");
+    }
+    if (EMBER_OCEAN_WEAPON_ITEM_ID_MIN..=OCEAN_WEAPON_ITEM_ID_MAX).contains(&value) {
+        notes.push("emberOceanWeaponConfigId");
+    }
+    if (2_000_000..=2_999_999).contains(&value) {
+        notes.push("equipmentConfigIdLike");
+    }
+    if (1..=300).contains(&value) {
+        notes.push("smallCountOrSlotLike");
+    }
+    notes
+}
+
+fn equipment_probe_candidate_kind(value: u64) -> Option<&'static str> {
+    if (OCEAN_WEAPON_ITEM_ID_MIN..=OCEAN_WEAPON_ITEM_ID_MAX).contains(&value) {
+        return Some("oceanWeaponConfigId");
+    }
+    if (2_000_000..=2_999_999).contains(&value) {
+        return Some("equipmentConfigIdLike");
+    }
+    if value == EQUIPMENT_PROBE_WEAPON_SLOT {
+        return Some("weaponSlotOrOceanLevelLike");
+    }
+    if matches!(value, 100 | 140 | 160 | 180 | 220 | 240 | 260 | 280) {
+        return Some("oceanWeaponLevelLike");
+    }
+    if (0..=6).contains(&value) {
+        return Some("breakthroughOrStackCountLike");
+    }
+    None
+}
+
+fn equipment_probe_varint_summary(value: u64) -> serde_json::Value {
+    let signed_i64 = i64::try_from(value).ok();
+    let signed_i32 = i32::try_from(value).ok();
+    let zigzag_i64 = i64::try_from(value >> 1)
+        .ok()
+        .map(|half| half ^ (-((value & 1) as i64)));
+
+    serde_json::json!({
+        "u64": value,
+        "i64": signed_i64,
+        "i32": signed_i32,
+        "zigzagI64": zigzag_i64,
+        "hex": format!("0x{:X}", value),
+        "notes": equipment_probe_varint_notes(value),
+    })
+}
+
+fn equipment_probe_hex_preview(buf: &[u8], limit: usize) -> (String, bool) {
+    let hex_len = buf.len().min(limit);
+    (hex::encode(&buf[..hex_len]), buf.len() > hex_len)
+}
+
+fn equipment_probe_candidate_findings(
+    buf: &[u8],
+    depth_remaining: usize,
+    finding_limit: usize,
+) -> Vec<serde_json::Value> {
+    fn visit(
+        buf: &[u8],
+        depth_remaining: usize,
+        path: &mut Vec<u32>,
+        findings: &mut Vec<serde_json::Value>,
+        finding_limit: usize,
+    ) {
+        if findings.len() >= finding_limit {
+            return;
+        }
+
+        proto_visit_fields(buf, |field_number, value| {
+            if findings.len() >= finding_limit {
+                return false;
+            }
+
+            path.push(field_number);
+            match value {
+                ProtoFieldValue::Varint(value) => {
+                    if let Some(kind) = equipment_probe_candidate_kind(value) {
+                        findings.push(serde_json::json!({
+                            "path": path
+                                .iter()
+                                .map(|field| field.to_string())
+                                .collect::<Vec<_>>()
+                                .join("."),
+                            "field": field_number,
+                            "kind": kind,
+                            "value": equipment_probe_varint_summary(value),
+                        }));
+                    }
+                }
+                ProtoFieldValue::Len(slice) if depth_remaining > 0 => {
+                    visit(
+                        slice,
+                        depth_remaining.saturating_sub(1),
+                        path,
+                        findings,
+                        finding_limit,
+                    );
+                }
+                ProtoFieldValue::Len(_) | ProtoFieldValue::Fixed32 | ProtoFieldValue::Fixed64 => {}
+            }
+            path.pop();
+
+            findings.len() < finding_limit
+        });
+    }
+
+    let mut findings = Vec::new();
+    let mut path = Vec::new();
+    visit(
+        buf,
+        depth_remaining,
+        &mut path,
+        &mut findings,
+        finding_limit,
+    );
+    findings
+}
+
+fn equipment_probe_field_tree(
+    buf: &[u8],
+    depth_remaining: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+) -> (Vec<serde_json::Value>, bool) {
+    let mut fields = Vec::new();
+    let mut total = 0usize;
+
+    proto_visit_fields(buf, |field_number, value| {
+        total += 1;
+        if fields.len() < field_limit {
+            let row = match value {
+                ProtoFieldValue::Varint(value) => serde_json::json!({
+                    "field": field_number,
+                    "wire": "varint",
+                    "value": equipment_probe_varint_summary(value),
+                }),
+                ProtoFieldValue::Len(slice) => {
+                    let (hex_preview, hex_truncated) =
+                        equipment_probe_hex_preview(slice, len_hex_limit);
+                    let (nested, nested_truncated) = if depth_remaining == 0 {
+                        (Vec::new(), false)
+                    } else {
+                        equipment_probe_field_tree(
+                            slice,
+                            depth_remaining.saturating_sub(1),
+                            field_limit,
+                            len_hex_limit,
+                        )
+                    };
+                    serde_json::json!({
+                        "field": field_number,
+                        "wire": "len",
+                        "len": slice.len(),
+                        "hex": hex_preview,
+                        "hexTruncated": hex_truncated,
+                        "utf8Preview": equipment_probe_utf8_preview(slice),
+                        "nestedTruncated": nested_truncated,
+                        "nested": nested,
+                    })
+                }
+                ProtoFieldValue::Fixed32 => serde_json::json!({
+                    "field": field_number,
+                    "wire": "fixed32",
+                }),
+                ProtoFieldValue::Fixed64 => serde_json::json!({
+                    "field": field_number,
+                    "wire": "fixed64",
+                }),
+            };
+            fields.push(row);
+        }
+        true
+    });
+
+    (fields, total > field_limit)
+}
+
+fn build_equipment_probe_item_row(
+    index: usize,
+    item_raw: &[u8],
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> serde_json::Value {
+    let slot = proto_first_varint(item_raw, 1);
+    let item_config_id = proto_first_varint(item_raw, 2);
+    let mut extra_field_numbers = Vec::new();
+    proto_visit_fields(item_raw, |field_number, _value| {
+        if field_number != 1 && field_number != 2 && !extra_field_numbers.contains(&field_number) {
+            extra_field_numbers.push(field_number);
+        }
+        true
+    });
+    extra_field_numbers.sort_unstable();
+
+    let (field_tree, field_tree_truncated) =
+        equipment_probe_field_tree(item_raw, tree_depth, field_limit, len_hex_limit);
+    let candidate_findings =
+        equipment_probe_candidate_findings(item_raw, tree_depth, finding_limit);
+    let ocean_weapon_family = item_config_id.and_then(equipment_probe_ocean_weapon_family);
+    let ocean_weapon_missing_instance_fields =
+        ocean_weapon_family.is_some() && extra_field_numbers.is_empty();
+
+    serde_json::json!({
+        "index": index,
+        "slot": slot,
+        "itemConfigId": item_config_id,
+        "itemConfigNotes": item_config_id
+            .map(equipment_probe_varint_notes)
+            .unwrap_or_default(),
+        "extraFieldNumbers": extra_field_numbers,
+        "hasPotentialInstanceFields": !extra_field_numbers.is_empty(),
+        "oceanWeaponFamily": ocean_weapon_family,
+        "oceanWeaponMissingInstanceFields": ocean_weapon_missing_instance_fields,
+        "candidateFindings": candidate_findings,
+        "fieldTreeTruncated": field_tree_truncated,
+        "fieldTree": field_tree,
+    })
+}
+
+fn equipment_probe_json_bool(row: &serde_json::Value, key: &str) -> bool {
+    row.get(key)
+        .and_then(|value| value.as_bool())
+        .unwrap_or(false)
+}
+
+fn equipment_probe_json_present(row: &serde_json::Value, key: &str) -> bool {
+    row.get(key)
+        .map(|value| !value.is_null())
+        .unwrap_or(false)
+}
+
+fn build_team_equipment_probe_raw_member_rows(
+    source: &'static str,
+    notify: &crate::packets::parser::ParsedNotifyFragment,
+    member_limit: usize,
+    item_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> (Vec<serde_json::Value>, bool) {
+    let social_member_field = match source {
+        "GrpcTeamNtf.NoticeUpdateTeamMemberInfo" => 6,
+        "GrpcTeamNtf.NotifyJoinTeam" => 2,
+        _ => return (Vec::new(), false),
+    };
+
+    let Some(request_raw) = proto_first_len(&notify.payload, 1) else {
+        return (Vec::new(), false);
+    };
+
+    let member_raw_rows = proto_all_len(request_raw, social_member_field);
+    let truncated = member_raw_rows.len() > member_limit;
+    let rows = member_raw_rows
+        .iter()
+        .take(member_limit)
+        .enumerate()
+        .map(|(member_index, member_raw)| {
+            let member_uid = proto_first_varint(member_raw, 1);
+            let member_uuid = member_uid.map(|uid| {
+                crate::live::entity_id::canonical_player_uuid(
+                    i64::try_from(uid).unwrap_or_default(),
+                )
+            });
+            let social_data_raw = proto_first_len(member_raw, 9);
+            let equip_data_raw = social_data_raw.and_then(|raw| proto_first_len(raw, 5));
+            let item_raw_rows = equip_data_raw
+                .map(|raw| proto_all_len(raw, 1))
+                .unwrap_or_default();
+            let items_truncated = item_raw_rows.len() > item_limit;
+            let items = item_raw_rows
+                .iter()
+                .take(item_limit)
+                .enumerate()
+                .map(|(item_index, item_raw)| {
+                    build_equipment_probe_item_row(
+                        item_index,
+                        item_raw,
+                        tree_depth,
+                        field_limit,
+                        len_hex_limit,
+                        finding_limit,
+                    )
+                })
+                .collect::<Vec<_>>();
+            let (member_field_tree, member_field_tree_truncated) =
+                equipment_probe_field_tree(member_raw, tree_depth, field_limit, len_hex_limit);
+            let member_candidate_findings =
+                equipment_probe_candidate_findings(member_raw, tree_depth, finding_limit);
+
+            serde_json::json!({
+                "memberIndex": member_index,
+                "memberUid": member_uid,
+                "memberUuid": member_uuid,
+                "teamMemberDataRawLen": member_raw.len(),
+                "socialDataRawLen": social_data_raw.map(|raw| raw.len()),
+                "equipDataRawLen": equip_data_raw.map(|raw| raw.len()),
+                "equipItemCount": item_raw_rows.len(),
+                "itemsTruncated": items_truncated,
+                "items": items,
+                "memberCandidateFindings": member_candidate_findings,
+                "memberFieldTreeTruncated": member_field_tree_truncated,
+                "memberFieldTree": member_field_tree,
+            })
+        })
+        .collect();
+
+    (rows, truncated)
+}
+
+fn build_equipment_probe_attr_row(
+    source_kind: &'static str,
+    source_uuid: Option<i64>,
+    attrs_collection: &blueprotobuf::AttrCollection,
+    attr_index: usize,
+    attr: &blueprotobuf::Attr,
+    item_limit: usize,
+    raw_hex_limit: usize,
+    neighbor_attr_limit: usize,
+    map_attr_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> Option<serde_json::Value> {
+    let raw = attr.raw_data.as_deref().unwrap_or_default();
+    if raw.is_empty() {
+        return None;
+    }
+
+    let (raw_hex, raw_hex_truncated) = equipment_probe_hex_preview(raw, raw_hex_limit);
+    let item_raw_rows = proto_all_len(raw, 1);
+    let mut items = Vec::new();
+    let mut extra_item_field_count = 0usize;
+
+    for (index, item_raw) in item_raw_rows.iter().take(item_limit).enumerate() {
+        let item_row = build_equipment_probe_item_row(
+            index,
+            item_raw,
+            tree_depth,
+            field_limit,
+            len_hex_limit,
+            finding_limit,
+        );
+        if item_row
+            .get("hasPotentialInstanceFields")
+            .and_then(|value| value.as_bool())
+            .unwrap_or(false)
+        {
+            extra_item_field_count += 1;
+        }
+        items.push(item_row);
+    }
+
+    let (wrapper_field_tree, wrapper_field_tree_truncated) =
+        equipment_probe_field_tree(raw, tree_depth, field_limit, len_hex_limit);
+    let wrapper_candidate_findings =
+        equipment_probe_candidate_findings(raw, tree_depth, finding_limit);
+    let neighbor_attrs = build_equipment_probe_neighbor_attr_rows(
+        attrs_collection,
+        attr_index,
+        neighbor_attr_limit,
+        raw_hex_limit,
+        tree_depth,
+        field_limit,
+        len_hex_limit,
+        finding_limit,
+    );
+    let map_attrs = build_equipment_probe_map_attr_rows(
+        attrs_collection,
+        map_attr_limit,
+        raw_hex_limit,
+        tree_depth,
+        field_limit,
+        len_hex_limit,
+        finding_limit,
+    );
+
+    Some(serde_json::json!({
+        "sourceKind": source_kind,
+        "sourceUuid": source_uuid,
+        "sourceUid": source_uuid.map(uid_from_uuid),
+        "deltaUuid": source_uuid,
+        "attrCollectionUuid": attrs_collection.uuid,
+        "attrIndex": attr_index,
+        "attrId": EQUIPMENT_PROBE_ATTR_ID,
+        "attrIdHex": format!("0x{:X}", EQUIPMENT_PROBE_ATTR_ID),
+        "rawLen": raw.len(),
+        "rawHex": raw_hex,
+        "rawHexTruncated": raw_hex_truncated,
+        "itemCount": item_raw_rows.len(),
+        "itemsTruncated": item_raw_rows.len() > items.len(),
+        "extraItemFieldCount": extra_item_field_count,
+        "wrapperCandidateFindings": wrapper_candidate_findings,
+        "wrapperFieldTreeTruncated": wrapper_field_tree_truncated,
+        "wrapperFieldTree": wrapper_field_tree,
+        "neighborAttrCount": attrs_collection.attrs.len().saturating_sub(1),
+        "neighborAttrsTruncated": attrs_collection.attrs.len().saturating_sub(1) > neighbor_attrs.len(),
+        "neighborAttrs": neighbor_attrs,
+        "mapAttrCount": attrs_collection.map_attrs.len(),
+        "mapAttrsTruncated": attrs_collection.map_attrs.len() > map_attrs.len(),
+        "mapAttrs": map_attrs,
+        "items": items,
+    }))
+}
+
+fn build_equipment_probe_neighbor_attr_rows(
+    attrs_collection: &blueprotobuf::AttrCollection,
+    current_attr_index: usize,
+    attr_limit: usize,
+    raw_hex_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> Vec<serde_json::Value> {
+    if attr_limit == 0 {
+        return Vec::new();
+    }
+
+    let mut neighbors = attrs_collection
+        .attrs
+        .iter()
+        .enumerate()
+        .filter(|(index, attr)| {
+            *index != current_attr_index
+                && attr
+                    .raw_data
+                    .as_ref()
+                    .map(|raw| !raw.is_empty())
+                    .unwrap_or(false)
+        })
+        .collect::<Vec<_>>();
+    neighbors.sort_by_key(|(index, _attr)| index.abs_diff(current_attr_index));
+
+    neighbors
+        .into_iter()
+        .take(attr_limit)
+        .map(|(index, attr)| {
+            let raw = attr.raw_data.as_deref().unwrap_or_default();
+            let (raw_hex, raw_hex_truncated) = equipment_probe_hex_preview(raw, raw_hex_limit);
+            let (field_tree, field_tree_truncated) =
+                equipment_probe_field_tree(raw, tree_depth, field_limit, len_hex_limit);
+            let candidate_findings =
+                equipment_probe_candidate_findings(raw, tree_depth, finding_limit);
+
+            serde_json::json!({
+                "attrIndex": index,
+                "attrId": attr.id,
+                "attrIdHex": attr.id.map(|id| format!("0x{:X}", id)),
+                "rawLen": raw.len(),
+                "rawHex": raw_hex,
+                "rawHexTruncated": raw_hex_truncated,
+                "candidateFindings": candidate_findings,
+                "fieldTreeTruncated": field_tree_truncated,
+                "fieldTree": field_tree,
+            })
+        })
+        .collect()
+}
+
+fn build_equipment_probe_map_attr_value_row(
+    value_index: usize,
+    value: &blueprotobuf::MapAttrValue,
+    raw_hex_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> serde_json::Value {
+    let key = value.key.as_deref().unwrap_or_default();
+    let raw_value = value.value.as_deref().unwrap_or_default();
+    let (key_hex, key_hex_truncated) = equipment_probe_hex_preview(key, raw_hex_limit);
+    let (value_hex, value_hex_truncated) = equipment_probe_hex_preview(raw_value, raw_hex_limit);
+    let (key_field_tree, key_field_tree_truncated) =
+        equipment_probe_field_tree(key, tree_depth, field_limit, len_hex_limit);
+    let (value_field_tree, value_field_tree_truncated) =
+        equipment_probe_field_tree(raw_value, tree_depth, field_limit, len_hex_limit);
+    let key_candidate_findings = equipment_probe_candidate_findings(key, tree_depth, finding_limit);
+    let value_candidate_findings =
+        equipment_probe_candidate_findings(raw_value, tree_depth, finding_limit);
+
+    serde_json::json!({
+        "valueIndex": value_index,
+        "isRemove": value.is_remove,
+        "keyLen": key.len(),
+        "keyHex": key_hex,
+        "keyHexTruncated": key_hex_truncated,
+        "keyUtf8Preview": equipment_probe_utf8_preview(key),
+        "keyCandidateFindings": key_candidate_findings,
+        "keyFieldTreeTruncated": key_field_tree_truncated,
+        "keyFieldTree": key_field_tree,
+        "valueLen": raw_value.len(),
+        "valueHex": value_hex,
+        "valueHexTruncated": value_hex_truncated,
+        "valueUtf8Preview": equipment_probe_utf8_preview(raw_value),
+        "valueCandidateFindings": value_candidate_findings,
+        "valueFieldTreeTruncated": value_field_tree_truncated,
+        "valueFieldTree": value_field_tree,
+    })
+}
+
+fn build_equipment_probe_map_attr_rows(
+    attrs_collection: &blueprotobuf::AttrCollection,
+    map_attr_limit: usize,
+    raw_hex_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> Vec<serde_json::Value> {
+    attrs_collection
+        .map_attrs
+        .iter()
+        .enumerate()
+        .take(map_attr_limit)
+        .map(|(map_attr_index, map_attr)| {
+            let value_rows = map_attr
+                .attrs
+                .iter()
+                .enumerate()
+                .take(map_attr_limit)
+                .map(|(value_index, value)| {
+                    build_equipment_probe_map_attr_value_row(
+                        value_index,
+                        value,
+                        raw_hex_limit,
+                        tree_depth,
+                        field_limit,
+                        len_hex_limit,
+                        finding_limit,
+                    )
+                })
+                .collect::<Vec<_>>();
+
+            serde_json::json!({
+                "mapAttrIndex": map_attr_index,
+                "mapAttrId": map_attr.id,
+                "mapAttrIdHex": map_attr.id.map(|id| format!("0x{:X}", id)),
+                "isClear": map_attr.is_clear,
+                "valueCount": map_attr.attrs.len(),
+                "valuesTruncated": map_attr.attrs.len() > value_rows.len(),
+                "values": value_rows,
+            })
+        })
+        .collect()
+}
+
+fn build_equipment_probe_delta_rows(
+    delta: &blueprotobuf::AoiSyncDelta,
+    attr_limit_remaining: &mut usize,
+    item_limit: usize,
+    raw_hex_limit: usize,
+    neighbor_attr_limit: usize,
+    map_attr_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> Vec<serde_json::Value> {
+    let Some(attrs_collection) = delta.attrs.as_ref() else {
+        return Vec::new();
+    };
+
+    let mut rows = Vec::new();
+    for (attr_index, attr) in attrs_collection.attrs.iter().enumerate() {
+        if *attr_limit_remaining == 0 {
+            break;
+        }
+        if attr.id != Some(EQUIPMENT_PROBE_ATTR_ID) {
+            continue;
+        }
+        if let Some(row) = build_equipment_probe_attr_row(
+            "AoiSyncDelta",
+            delta.uuid,
+            attrs_collection,
+            attr_index,
+            attr,
+            item_limit,
+            raw_hex_limit,
+            neighbor_attr_limit,
+            map_attr_limit,
+            tree_depth,
+            field_limit,
+            len_hex_limit,
+            finding_limit,
+        ) {
+            rows.push(row);
+            *attr_limit_remaining = attr_limit_remaining.saturating_sub(1);
+        }
+    }
+    rows
+}
+
+fn build_equipment_probe_sync_near_entity_rows(
+    sync_near_entities: &blueprotobuf::SyncNearEntities,
+    attr_limit_remaining: &mut usize,
+    item_limit: usize,
+    raw_hex_limit: usize,
+    neighbor_attr_limit: usize,
+    map_attr_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> Vec<serde_json::Value> {
+    let mut rows = Vec::new();
+    for (entity_index, entity) in sync_near_entities.appear.iter().enumerate() {
+        if *attr_limit_remaining == 0 {
+            break;
+        }
+        let Some(attrs_collection) = entity.attrs.as_ref() else {
+            continue;
+        };
+
+        for (attr_index, attr) in attrs_collection.attrs.iter().enumerate() {
+            if *attr_limit_remaining == 0 {
+                break;
+            }
+            if attr.id != Some(EQUIPMENT_PROBE_ATTR_ID) {
+                continue;
+            }
+            let Some(mut row) = build_equipment_probe_attr_row(
+                "SyncNearEntities.appear",
+                entity.uuid,
+                attrs_collection,
+                attr_index,
+                attr,
+                item_limit,
+                raw_hex_limit,
+                neighbor_attr_limit,
+                map_attr_limit,
+                tree_depth,
+                field_limit,
+                len_hex_limit,
+                finding_limit,
+            ) else {
+                continue;
+            };
+            if let Some(object) = row.as_object_mut() {
+                object.insert("entityIndex".to_string(), serde_json::json!(entity_index));
+            }
+            rows.push(row);
+            *attr_limit_remaining = attr_limit_remaining.saturating_sub(1);
+        }
+    }
+    rows
+}
+
+fn build_equipment_probe_logger_entry(
+    ts_ms: i64,
+    source: &'static str,
+    attrs: Vec<serde_json::Value>,
+    item_limit: usize,
+    raw_hex_limit: usize,
+    neighbor_attr_limit: usize,
+    map_attr_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> EventLoggerEntry {
+    let total_items = attrs
+        .iter()
+        .filter_map(|row| row.get("itemCount").and_then(|value| value.as_u64()))
+        .sum::<u64>();
+    let extra_item_field_count = attrs
+        .iter()
+        .filter_map(|row| {
+            row.get("extraItemFieldCount")
+                .and_then(|value| value.as_u64())
+        })
+        .sum::<u64>();
+    let total_neighbor_attrs = attrs
+        .iter()
+        .filter_map(|row| {
+            row.get("neighborAttrCount")
+                .and_then(|value| value.as_u64())
+        })
+        .sum::<u64>();
+    let total_map_attrs = attrs
+        .iter()
+        .filter_map(|row| row.get("mapAttrCount").and_then(|value| value.as_u64()))
+        .sum::<u64>();
+    let total_ocean_items = attrs
+        .iter()
+        .filter_map(|row| row.get("items").and_then(|value| value.as_array()))
+        .flat_map(|items| items.iter())
+        .filter(|item| {
+            item.get("oceanWeaponFamily")
+                .is_some_and(|value| !value.is_null())
+        })
+        .count();
+    let ocean_items_missing_instance_fields = attrs
+        .iter()
+        .filter_map(|row| row.get("items").and_then(|value| value.as_array()))
+        .flat_map(|items| items.iter())
+        .filter(|item| {
+            item.get("oceanWeaponMissingInstanceFields")
+                .and_then(|value| value.as_bool())
+                .unwrap_or(false)
+        })
+        .count();
+
+    let raw = serde_json::json!({
+        "probe": "equipment",
+        "source": source,
+        "runtimeSourceCandidate": "remoteItemInstance",
+        "currentConfirmedRemoteSource": "remoteEquipConfig",
+        "attrId": EQUIPMENT_PROBE_ATTR_ID,
+        "limits": {
+            "itemLimit": item_limit,
+            "rawHexLimit": raw_hex_limit,
+            "neighborAttrLimit": neighbor_attr_limit,
+            "mapAttrLimit": map_attr_limit,
+            "treeDepth": tree_depth,
+            "fieldLimit": field_limit,
+            "lenHexLimit": len_hex_limit,
+            "findingLimit": finding_limit,
+        },
+        "attrs": attrs,
+        "totalItems": total_items,
+        "extraItemFieldCount": extra_item_field_count,
+        "totalNeighborAttrs": total_neighbor_attrs,
+        "totalMapAttrs": total_map_attrs,
+        "totalOceanItems": total_ocean_items,
+        "oceanItemsMissingInstanceFields": ocean_items_missing_instance_fields,
+    });
+
+    EventLoggerEntry {
+        ts_ms,
+        category: "equipment_probe".to_string(),
+        action: match source {
+            "SyncToMeDeltaInfo" => "sync_to_me_attr_equip_data".to_string(),
+            "SyncNearDeltaInfo" => "sync_near_attr_equip_data".to_string(),
+            "SyncNearEntities" => "sync_near_entities_attr_equip_data".to_string(),
+            _ => "attr_equip_data".to_string(),
+        },
+        uid: None,
+        target_uid: None,
+        source_uid: None,
+        source_label: Some(source.to_string()),
+        target_label: Some(format!("AttrEquipData({EQUIPMENT_PROBE_ATTR_ID})")),
+        name_hint: Some("Remote equipment payload probe".to_string()),
+        summary: Some(format!(
+            "source={source} attr200Rows={} items={} oceanItems={} oceanMissingInstance={} extraItemFieldRows={} neighbors={} mapAttrs={}",
+            raw["attrs"].as_array().map(|rows| rows.len()).unwrap_or(0),
+            total_items,
+            total_ocean_items,
+            ocean_items_missing_instance_fields,
+            extra_item_field_count,
+            total_neighbor_attrs,
+            total_map_attrs
+        )),
+        stacks: i32::try_from(total_items).ok(),
+        duration_ms: None,
+        remaining_ms: None,
+        value: Some(format!("{extra_item_field_count}/{total_map_attrs}")),
+        raw: serde_json::to_string_pretty(&raw).unwrap_or_else(|_| "null".to_string()),
+    }
+}
+
+fn build_team_equipment_probe_logger_entry(
+    ts_ms: i64,
+    source: &'static str,
+    notify: &crate::packets::parser::ParsedNotifyFragment,
+    equipment: &[crate::live::team::TeamMemberEquipment],
+    item_limit: usize,
+    raw_hex_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> EventLoggerEntry {
+    let mut total_items = 0usize;
+    let mut total_ocean_items = 0usize;
+    let mut ocean_items_missing_instance_fields = 0usize;
+    let members = equipment
+        .iter()
+        .map(|member| {
+            let items = member
+                .items
+                .iter()
+                .take(item_limit)
+                .map(|item| {
+                    let ocean_weapon_family =
+                        equipment_probe_ocean_weapon_family(item.item_config_id as u64);
+                    let ocean_weapon_missing_instance_fields = ocean_weapon_family.is_some();
+                    if ocean_weapon_missing_instance_fields {
+                        total_ocean_items += 1;
+                        ocean_items_missing_instance_fields += 1;
+                    }
+                    serde_json::json!({
+                        "slot": item.slot,
+                        "itemConfigId": item.item_config_id,
+                        "itemConfigNotes": equipment_probe_varint_notes(item.item_config_id as u64),
+                        "oceanWeaponFamily": ocean_weapon_family,
+                        "oceanWeaponMissingInstanceFields": ocean_weapon_missing_instance_fields,
+                    })
+                })
+                .collect::<Vec<_>>();
+            total_items += member.items.len();
+            serde_json::json!({
+                "memberUuid": member.member_uuid,
+                "memberUid": uid_from_uuid(member.member_uuid),
+                "runtimeSource": member.runtime_source,
+                "itemCount": member.items.len(),
+                "itemsTruncated": member.items.len() > items.len(),
+                "items": items,
+            })
+        })
+        .collect::<Vec<_>>();
+    let raw_member_limit = item_limit.max(equipment.len()).max(32);
+    let (raw_members, raw_members_truncated) = build_team_equipment_probe_raw_member_rows(
+        source,
+        notify,
+        raw_member_limit,
+        item_limit,
+        tree_depth,
+        field_limit,
+        len_hex_limit,
+        finding_limit,
+    );
+    let mut raw_total_items = 0usize;
+    let mut raw_total_ocean_items = 0usize;
+    let mut raw_ocean_items_missing_instance_fields = 0usize;
+    let mut raw_extra_item_field_count = 0usize;
+    for member in &raw_members {
+        raw_total_items += member
+            .get("equipItemCount")
+            .and_then(|value| value.as_u64())
+            .unwrap_or_default() as usize;
+        if let Some(items) = member.get("items").and_then(|value| value.as_array()) {
+            for item in items {
+                if equipment_probe_json_present(item, "oceanWeaponFamily") {
+                    raw_total_ocean_items += 1;
+                }
+                if equipment_probe_json_bool(item, "oceanWeaponMissingInstanceFields") {
+                    raw_ocean_items_missing_instance_fields += 1;
+                }
+                if equipment_probe_json_bool(item, "hasPotentialInstanceFields") {
+                    raw_extra_item_field_count += 1;
+                }
+            }
+        }
+    }
+    let raw_member_count = raw_members.len();
+    let (payload_hex, payload_hex_truncated) =
+        equipment_probe_hex_preview(&notify.payload, raw_hex_limit);
+    let (payload_field_tree, payload_field_tree_truncated) =
+        equipment_probe_field_tree(&notify.payload, tree_depth, field_limit, len_hex_limit);
+    let payload_candidate_findings =
+        equipment_probe_candidate_findings(&notify.payload, tree_depth, finding_limit);
+
+    let raw = serde_json::json!({
+        "probe": "equipment",
+        "source": source,
+        "runtimeSourceCandidate": "teamSocialEquipData",
+        "currentConfirmedRemoteSource": "remoteEquipConfig",
+        "decodeBoundary": "generated TeamMemData exposes slot/equip_id only; raw tree is included for follow-up field discovery",
+        "serviceId": notify.service_id,
+        "methodId": notify.method_id,
+        "payloadLen": notify.payload.len(),
+        "limits": {
+            "itemLimit": item_limit,
+            "rawHexLimit": raw_hex_limit,
+            "treeDepth": tree_depth,
+            "fieldLimit": field_limit,
+            "lenHexLimit": len_hex_limit,
+            "findingLimit": finding_limit,
+        },
+        "memberCount": equipment.len(),
+        "members": members,
+        "totalItems": total_items,
+        "totalOceanItems": total_ocean_items,
+        "oceanItemsMissingInstanceFields": ocean_items_missing_instance_fields,
+        "rawTeamMemberField": match source {
+            "GrpcTeamNtf.NoticeUpdateTeamMemberInfo" => "payload.1.request.6.team_member_social_datas",
+            "GrpcTeamNtf.NotifyJoinTeam" => "payload.1.request.2.member_data",
+            _ => "unknown",
+        },
+        "rawMemberLimit": raw_member_limit,
+        "rawTeamMemberCount": raw_member_count,
+        "rawTeamMembersTruncated": raw_members_truncated,
+        "rawEquipItemCount": raw_total_items,
+        "rawOceanItems": raw_total_ocean_items,
+        "rawOceanItemsMissingInstanceFields": raw_ocean_items_missing_instance_fields,
+        "rawExtraItemFieldCount": raw_extra_item_field_count,
+        "rawMembers": raw_members,
+        "payloadHex": payload_hex,
+        "payloadHexTruncated": payload_hex_truncated,
+        "payloadCandidateFindings": payload_candidate_findings,
+        "payloadFieldTreeTruncated": payload_field_tree_truncated,
+        "payloadFieldTree": payload_field_tree,
+    });
+
+    EventLoggerEntry {
+        ts_ms,
+        category: "equipment_probe".to_string(),
+        action: "team_social_equip_data".to_string(),
+        uid: None,
+        target_uid: None,
+        source_uid: None,
+        source_label: Some(source.to_string()),
+        target_label: Some("Team equipment".to_string()),
+        name_hint: Some("Remote team equipment payload probe".to_string()),
+        summary: Some(format!(
+            "source={source} members={} items={} oceanItems={} oceanMissingInstance={} rawMembers={} rawItems={} rawExtraItems={} generatedFields=slot/equip_id",
+            equipment.len(),
+            total_items,
+            total_ocean_items,
+            ocean_items_missing_instance_fields,
+            raw_member_count,
+            raw_total_items,
+            raw_extra_item_field_count,
+        )),
+        stacks: i32::try_from(total_items.max(raw_total_items)).ok(),
+        duration_ms: None,
+        remaining_ms: None,
+        value: Some(format!("{raw_extra_item_field_count}/{raw_total_items}")),
+        raw: serde_json::to_string_pretty(&raw).unwrap_or_else(|_| "null".to_string()),
+    }
+}
+
+fn decode_team_equipment_probe_entries(
+    notify: &crate::packets::parser::ParsedNotifyFragment,
+    item_limit: usize,
+    raw_hex_limit: usize,
+    tree_depth: usize,
+    field_limit: usize,
+    len_hex_limit: usize,
+    finding_limit: usize,
+) -> Vec<EventLoggerEntry> {
+    if notify.service_id != packets::opcodes::GRPC_TEAM_NTF_SERVICE_ID {
+        return Vec::new();
+    }
+
+    let key = packets::opcodes::NotifyKey {
+        service_id: notify.service_id,
+        method_id: notify.method_id,
+    };
+    let Some(team_event) = crate::live::team::decode_team_event(key, notify.payload.clone()) else {
+        return Vec::new();
+    };
+
+    let (source, equipment) = match &team_event {
+        crate::live::team::TeamEvent::MemberInfoUpdated { equipment, .. } => {
+            ("GrpcTeamNtf.NoticeUpdateTeamMemberInfo", equipment)
+        }
+        crate::live::team::TeamEvent::Joined { equipment, .. } => {
+            ("GrpcTeamNtf.NotifyJoinTeam", equipment)
+        }
+        _ => return Vec::new(),
+    };
+
+    vec![build_team_equipment_probe_logger_entry(
+        now_ms(),
+        source,
+        notify,
+        equipment,
+        item_limit,
+        raw_hex_limit,
+        tree_depth,
+        field_limit,
+        len_hex_limit,
+        finding_limit,
+    )]
+}
+
+fn decode_equipment_probe_entries(
+    notify: &crate::packets::parser::ParsedNotifyFragment,
+) -> Vec<EventLoggerEntry> {
+    if !equipment_probes_enabled() {
+        return Vec::new();
+    }
+
+    let attr_limit = equipment_probe_attr_limit();
+    if attr_limit == 0 {
+        return Vec::new();
+    }
+
+    let item_limit = equipment_probe_item_limit();
+    let raw_hex_limit = equipment_probe_raw_hex_limit();
+    let neighbor_attr_limit = equipment_probe_neighbor_attr_limit();
+    let map_attr_limit = equipment_probe_map_attr_limit();
+    let tree_depth = equipment_probe_tree_depth();
+    let field_limit = equipment_probe_field_limit();
+    let len_hex_limit = equipment_probe_len_hex_limit();
+    let finding_limit = equipment_probe_finding_limit();
+    let ts_ms = now_ms();
+
+    let team_entries = decode_team_equipment_probe_entries(
+        notify,
+        item_limit,
+        raw_hex_limit,
+        tree_depth,
+        field_limit,
+        len_hex_limit,
+        finding_limit,
+    );
+    if !team_entries.is_empty() {
+        return team_entries;
+    }
+
+    match notify.recognized_pkt {
+        Some(packets::opcodes::Pkt::SyncNearEntities) => {
+            let Ok(sync_near_entities) =
+                blueprotobuf::SyncNearEntities::decode(notify.payload.clone())
+            else {
+                return Vec::new();
+            };
+
+            let mut attr_limit_remaining = attr_limit;
+            let attrs = build_equipment_probe_sync_near_entity_rows(
+                &sync_near_entities,
+                &mut attr_limit_remaining,
+                item_limit,
+                raw_hex_limit,
+                neighbor_attr_limit,
+                map_attr_limit,
+                tree_depth,
+                field_limit,
+                len_hex_limit,
+                finding_limit,
+            );
+            if attrs.is_empty() {
+                Vec::new()
+            } else {
+                vec![build_equipment_probe_logger_entry(
+                    ts_ms,
+                    "SyncNearEntities",
+                    attrs,
+                    item_limit,
+                    raw_hex_limit,
+                    neighbor_attr_limit,
+                    map_attr_limit,
+                    tree_depth,
+                    field_limit,
+                    len_hex_limit,
+                    finding_limit,
+                )]
+            }
+        }
+        Some(packets::opcodes::Pkt::SyncToMeDeltaInfo) => {
+            let Ok(sync_to_me_delta_info) =
+                blueprotobuf::SyncToMeDeltaInfo::decode(notify.payload.clone())
+            else {
+                return Vec::new();
+            };
+            let Some(delta_info) = sync_to_me_delta_info.delta_info.as_ref() else {
+                return Vec::new();
+            };
+            let Some(base_delta) = delta_info.base_delta.as_ref() else {
+                return Vec::new();
+            };
+
+            let mut attr_limit_remaining = attr_limit;
+            let attrs = build_equipment_probe_delta_rows(
+                base_delta,
+                &mut attr_limit_remaining,
+                item_limit,
+                raw_hex_limit,
+                neighbor_attr_limit,
+                map_attr_limit,
+                tree_depth,
+                field_limit,
+                len_hex_limit,
+                finding_limit,
+            );
+            if attrs.is_empty() {
+                Vec::new()
+            } else {
+                vec![build_equipment_probe_logger_entry(
+                    ts_ms,
+                    "SyncToMeDeltaInfo",
+                    attrs,
+                    item_limit,
+                    raw_hex_limit,
+                    neighbor_attr_limit,
+                    map_attr_limit,
+                    tree_depth,
+                    field_limit,
+                    len_hex_limit,
+                    finding_limit,
+                )]
+            }
+        }
+        Some(packets::opcodes::Pkt::SyncNearDeltaInfo) => {
+            let Ok(sync_near_delta_info) =
+                blueprotobuf::SyncNearDeltaInfo::decode(notify.payload.clone())
+            else {
+                return Vec::new();
+            };
+
+            let mut attr_limit_remaining = attr_limit;
+            let mut attrs = Vec::new();
+            for delta in &sync_near_delta_info.delta_infos {
+                attrs.extend(build_equipment_probe_delta_rows(
+                    delta,
+                    &mut attr_limit_remaining,
+                    item_limit,
+                    raw_hex_limit,
+                    neighbor_attr_limit,
+                    map_attr_limit,
+                    tree_depth,
+                    field_limit,
+                    len_hex_limit,
+                    finding_limit,
+                ));
+                if attr_limit_remaining == 0 {
+                    break;
+                }
+            }
+
+            if attrs.is_empty() {
+                Vec::new()
+            } else {
+                vec![build_equipment_probe_logger_entry(
+                    ts_ms,
+                    "SyncNearDeltaInfo",
+                    attrs,
+                    item_limit,
+                    raw_hex_limit,
+                    neighbor_attr_limit,
+                    map_attr_limit,
+                    tree_depth,
+                    field_limit,
+                    len_hex_limit,
+                    finding_limit,
+                )]
+            }
+        }
+        _ => Vec::new(),
+    }
+}
+
 fn decode_factor_energy_delta_attr_probe_entries(
     notify: &crate::packets::parser::ParsedNotifyFragment,
 ) -> Vec<EventLoggerEntry> {
@@ -4098,7 +5336,7 @@ fn collect_container_probe_equipped_factor_items(
                     "packageKey": package_key,
                     "packageType": package.r#type,
                     "grade": factor_grade.grade,
-                    "runtimeSource": "SyncContainerData.v_data.equip.equip_list.item_uuid->item_package.config_id",
+                    "runtimeSource": "selfItemInstance:SyncContainerData.v_data.equip.equip_list.item_uuid->item_package.config_id",
                 }));
             }
         }
@@ -5016,6 +6254,7 @@ fn decode_auxiliary_logger_entries(
 ) -> Vec<EventLoggerEntry> {
     let mut entries = Vec::new();
     let mut factor_delta_attr_entries = decode_factor_energy_delta_attr_probe_entries(notify);
+    let mut equipment_probe_entries = decode_equipment_probe_entries(notify);
 
     let mut promoted_entries = decode_promoted_service_entries(notify);
     if !promoted_entries.is_empty() {
@@ -5023,6 +6262,7 @@ fn decode_auxiliary_logger_entries(
             promoted_entries.insert(0, build_raw_service_probe_logger_entry(now_ms(), notify));
         }
         promoted_entries.append(&mut factor_delta_attr_entries);
+        promoted_entries.append(&mut equipment_probe_entries);
         promoted_entries.extend(entries);
         return promoted_entries;
     }
@@ -5030,6 +6270,7 @@ fn decode_auxiliary_logger_entries(
     if should_emit_raw_service_probe(notify) {
         entries.insert(0, build_raw_service_probe_logger_entry(now_ms(), notify));
         entries.append(&mut factor_delta_attr_entries);
+        entries.append(&mut equipment_probe_entries);
         return entries;
     }
 
@@ -5104,6 +6345,7 @@ fn decode_auxiliary_logger_entries(
     }
 
     decoded_entries.append(&mut factor_delta_attr_entries);
+    decoded_entries.append(&mut equipment_probe_entries);
     decoded_entries.append(&mut entries);
     decoded_entries
 }
@@ -6504,8 +7746,10 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                             target_label: None,
                             name_hint: None,
                             summary: Some(format!(
-                                "type={} accelerate={:.2}",
-                                skill_cd.skill_cd_type, skill_cd.cd_accelerate_rate
+                                "type={} accelerate={:.2} observed_rate={:.2}",
+                                skill_cd.skill_cd_type,
+                                skill_cd.cd_accelerate_rate,
+                                skill_cd.observed_progress_rate
                             )),
                             stacks: None,
                             duration_ms: Some(skill_cd.calculated_duration),
@@ -6636,17 +7880,175 @@ fn flush_selected_factor_cache_if_needed(app_handle: &AppHandle, state: &mut App
     }
 }
 
-fn get_capture_device(app: &AppHandle) -> String {
-    let filename_candidates = ["packetCapture.json", "packetCapture.bin", "packetCapture"];
+fn push_unique_path(paths: &mut Vec<PathBuf>, path: PathBuf) {
+    if !paths.iter().any(|existing| existing == &path) {
+        paths.push(path);
+    }
+}
+
+fn packet_capture_config_dirs(app: &AppHandle) -> Vec<PathBuf> {
     let mut dir_candidates = Vec::new();
     if let Some(dir) = app.path().app_data_dir().ok() {
-        dir_candidates.push(dir.join("stores"));
-        dir_candidates.push(dir.clone());
+        push_unique_path(&mut dir_candidates, dir.join("stores"));
+        push_unique_path(&mut dir_candidates, dir);
     }
     if let Some(dir) = app.path().app_local_data_dir().ok() {
-        dir_candidates.push(dir.join("stores"));
-        dir_candidates.push(dir.clone());
+        push_unique_path(&mut dir_candidates, dir.join("stores"));
+        push_unique_path(&mut dir_candidates, dir);
     }
+
+    dir_candidates
+}
+
+fn packet_capture_store_dirs(app: &AppHandle) -> Vec<PathBuf> {
+    let mut dirs = Vec::new();
+    if let Some(dir) = app.path().app_data_dir().ok() {
+        push_unique_path(&mut dirs, dir.join("stores"));
+    }
+    if let Some(dir) = app.path().app_local_data_dir().ok() {
+        push_unique_path(&mut dirs, dir.join("stores"));
+    }
+    dirs
+}
+
+fn read_packet_capture_config(path: &PathBuf) -> Option<(String, String)> {
+    let file = match std::fs::File::open(path) {
+        Ok(file) => file,
+        Err(error) => {
+            warn!(
+                target: "app::capture",
+                "Failed to open packet capture config at {}: {}",
+                path.display(),
+                error
+            );
+            return None;
+        }
+    };
+
+    let json = match serde_json::from_reader::<_, serde_json::Value>(file) {
+        Ok(json) => json,
+        Err(error) => {
+            warn!(
+                target: "app::capture",
+                "Failed to parse packet capture config at {}: {}",
+                path.display(),
+                error
+            );
+            return None;
+        }
+    };
+
+    let legacy_method = json
+        .get("method")
+        .and_then(|v| v.as_str())
+        .unwrap_or("Npcap")
+        .to_string();
+    let device = json
+        .get("npcapDevice")
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string();
+
+    info!(
+        target: "app::capture",
+        "Packet capture config found at {} (legacy_method={}, device={})",
+        path.display(),
+        legacy_method,
+        device
+    );
+
+    Some((legacy_method, device))
+}
+
+fn available_npcap_device_names() -> Option<Vec<String>> {
+    let context = match packets::npcap::NpcapContext::new() {
+        Ok(context) => context,
+        Err(error) => {
+            warn!(
+                target: "app::capture",
+                "Unable to validate packet capture config because Npcap is unavailable: {}",
+                error
+            );
+            return None;
+        }
+    };
+
+    match context.list_devices() {
+        Ok(devices) => Some(devices.into_iter().map(|device| device.name).collect()),
+        Err(error) => {
+            warn!(
+                target: "app::capture",
+                "Unable to validate packet capture config because device enumeration failed: {}",
+                error
+            );
+            None
+        }
+    }
+}
+
+fn is_known_npcap_device(device: &str, available_devices: &Option<Vec<String>>) -> bool {
+    match available_devices {
+        Some(devices) => devices.iter().any(|candidate| candidate == device),
+        None => true,
+    }
+}
+
+fn choose_default_npcap_device(available_devices: &[String]) -> Option<String> {
+    available_devices
+        .iter()
+        .find(|device| !device.to_ascii_lowercase().contains("loopback"))
+        .or_else(|| available_devices.first())
+        .cloned()
+}
+
+fn persist_repaired_packet_capture_config(app: &AppHandle, device: &str, reason: &str) {
+    let payload = serde_json::json!({
+        "npcapDevice": device,
+    });
+    let Ok(bytes) = serde_json::to_vec_pretty(&payload) else {
+        warn!(
+            target: "app::capture",
+            "Failed to serialize repaired packet capture config"
+        );
+        return;
+    };
+
+    for dir in packet_capture_store_dirs(app) {
+        if let Err(error) = std::fs::create_dir_all(&dir) {
+            warn!(
+                target: "app::capture",
+                "Failed to create packet capture config dir {}: {}",
+                dir.display(),
+                error
+            );
+            continue;
+        }
+
+        let path = dir.join("packetCapture.json");
+        match std::fs::write(&path, &bytes) {
+            Ok(_) => info!(
+                target: "app::capture",
+                "Repaired packet capture config at {} reason={} device={}",
+                path.display(),
+                reason,
+                device
+            ),
+            Err(error) => warn!(
+                target: "app::capture",
+                "Failed to write repaired packet capture config at {}: {}",
+                path.display(),
+                error
+            ),
+        }
+    }
+}
+
+fn get_capture_device(app: &AppHandle) -> String {
+    let filename_candidates = ["packetCapture.json", "packetCapture.bin", "packetCapture"];
+    let dir_candidates = packet_capture_config_dirs(app);
+    let available_devices = available_npcap_device_names();
+    let mut first_config_path: Option<PathBuf> = None;
+    let mut saw_stale_or_empty_config = false;
 
     for dir in dir_candidates.into_iter() {
         for file_name in filename_candidates {
@@ -6654,35 +8056,33 @@ fn get_capture_device(app: &AppHandle) -> String {
             if !path.exists() {
                 continue;
             }
-            if let Ok(file) = std::fs::File::open(&path) {
-                if let Ok(json) = serde_json::from_reader::<_, serde_json::Value>(file) {
-                    let legacy_method = json
-                        .get("method")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("Npcap");
-                    let device = json
-                        .get("npcapDevice")
-                        .and_then(|v| v.as_str())
-                        .unwrap_or("");
-
-                    info!(
-                        target: "app::capture",
-                        "Packet capture config found at {} (legacy_method={}, device={})",
-                        path.display(),
-                        legacy_method,
-                        device
-                    );
-
-                    if !device.trim().is_empty() {
-                        info!(target: "app::capture", "Using Npcap capture method device={}", device);
-                    }
-                    return device.to_string();
-                } else {
+            if let Some((_legacy_method, device)) = read_packet_capture_config(&path) {
+                if first_config_path.is_none() {
+                    first_config_path = Some(path.clone());
+                }
+                let device = device.trim();
+                if device.is_empty() {
+                    saw_stale_or_empty_config = true;
                     warn!(
-                        "Failed to parse packet capture config at {}",
+                        target: "app::capture",
+                        "Ignoring empty packet capture device from {}",
                         path.display()
                     );
+                    continue;
                 }
+                if !is_known_npcap_device(device, &available_devices) {
+                    saw_stale_or_empty_config = true;
+                    warn!(
+                        target: "app::capture",
+                        "Ignoring stale packet capture device from {} device={}",
+                        path.display(),
+                        device
+                    );
+                    continue;
+                }
+
+                info!(target: "app::capture", "Using Npcap capture method device={}", device);
+                return device.to_string();
             }
         }
 
@@ -6695,37 +8095,54 @@ fn get_capture_device(app: &AppHandle) -> String {
                         continue;
                     }
                 }
-                if let Ok(file) = std::fs::File::open(&path) {
-                    if let Ok(json) = serde_json::from_reader::<_, serde_json::Value>(file) {
-                        let legacy_method = json
-                            .get("method")
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("Npcap");
-                        let device = json
-                            .get("npcapDevice")
-                            .and_then(|v| v.as_str())
-                            .unwrap_or("");
-
-                        info!(
-                            target: "app::capture",
-                            "Packet capture config found at {} (legacy_method={}, device={})",
-                            path.display(),
-                            legacy_method,
-                            device
-                        );
-
-                        if !device.trim().is_empty() {
-                            info!(target: "app::capture", "Using Npcap capture method device={}", device);
-                        }
-                        return device.to_string();
-                    } else {
+                if let Some((_legacy_method, device)) = read_packet_capture_config(&path) {
+                    if first_config_path.is_none() {
+                        first_config_path = Some(path.clone());
+                    }
+                    let device = device.trim();
+                    if device.is_empty() {
+                        saw_stale_or_empty_config = true;
                         warn!(
-                            "Failed to parse packet capture config at {}",
+                            target: "app::capture",
+                            "Ignoring empty packet capture device from {}",
                             path.display()
                         );
+                        continue;
                     }
+                    if !is_known_npcap_device(device, &available_devices) {
+                        saw_stale_or_empty_config = true;
+                        warn!(
+                            target: "app::capture",
+                            "Ignoring stale packet capture device from {} device={}",
+                            path.display(),
+                            device
+                        );
+                        continue;
+                    }
+
+                    info!(target: "app::capture", "Using Npcap capture method device={}", device);
+                    return device.to_string();
                 }
             }
+        }
+    }
+
+    if let Some(devices) = &available_devices {
+        if let Some(device) = choose_default_npcap_device(devices) {
+            let reason = if saw_stale_or_empty_config || first_config_path.is_some() {
+                "stale_or_empty_device"
+            } else {
+                "missing_config"
+            };
+            warn!(
+                target: "app::capture",
+                "Packet capture config repair selected fallback Npcap device={} reason={}",
+                device,
+                reason
+            );
+            persist_repaired_packet_capture_config(app, &device, reason);
+            info!(target: "app::capture", "Using Npcap capture method device={}", device);
+            return device;
         }
     }
 

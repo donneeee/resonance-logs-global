@@ -1,6 +1,6 @@
 {
   "name": "resonance-logs-global",
-  "version": "1.1.0-beta.4",
+  "version": "1.1.0-beta.5",
   "description": "",
   "type": "module",
   "scripts": {
@@ -34,6 +34,7 @@
     "export:item:names": "node scripts/export-item-names.mjs",
     "export:season:factors": "node scripts/export-season-phantom-factors.mjs",
     "export:effect:sources": "node scripts/export-effect-sources.mjs",
+    "export:talent:recount": "node scripts/export-talent-recount-table.mjs",
     "scan:attribution": "node scripts/scan-attribution-surface.mjs",
     "scan:attribution:logs": "node scripts/scan-latest-attribution-logs.mjs",
     "lab:formula": "node scripts/formula-semantics-lab.mjs",
@@ -125,6 +126,7 @@
     "audit:generated:locales": "node scripts/audit-generated-locale-coverage.mjs",
     "audit:runtime:localization-gaps": "node scripts/audit-runtime-localization-gaps.mjs",
     "audit:visible:localization": "node scripts/audit-visible-localization-surfaces.mjs",
+    "audit:gear:set-effects": "node scripts/audit-raid-gear-set-effects.mjs",
     "sync:modifier:dev-generated": "node scripts/sync-modifier-dev-generated.mjs"
   },
   "license": "AGPL-3.0-only",

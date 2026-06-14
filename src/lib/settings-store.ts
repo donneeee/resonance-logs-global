@@ -23,6 +23,7 @@ export const DEFAULT_STATS = {
   tdps: false,
   bossDmg: true,
   bossDps: true,
+  trueBossDps: true,
   dmgPct: true,
   critRate: true,
   critDmgRate: true,
@@ -90,14 +91,108 @@ export const DEFAULT_HISTORY_HEAL_STATS = {
   hitsPerMinute: false,
 };
 
+export type HistorySummarySettings = {
+  time: {
+    encounterTime: boolean;
+    trueDpsTime: boolean;
+  };
+  damage: {
+    totalDmg: boolean;
+    dps: boolean;
+    tdps: boolean;
+    bossDmg: boolean;
+    bossDps: boolean;
+    dmgPct: boolean;
+    critRate: boolean;
+    critDmgRate: boolean;
+    luckyRate: boolean;
+    luckyDmgRate: boolean;
+    hits: boolean;
+    hitsPerMinute: boolean;
+  };
+  healing: {
+    healDealt: boolean;
+    hps: boolean;
+    effectiveHeal: boolean;
+    ehps: boolean;
+    healPct: boolean;
+    critHealRate: boolean;
+    critDmgRate: boolean;
+    luckyRate: boolean;
+    luckyDmgRate: boolean;
+    hitsHeal: boolean;
+    hitsPerMinute: boolean;
+  };
+  tanked: {
+    damageTaken: boolean;
+    tankedPS: boolean;
+    tankedPct: boolean;
+    blockRate: boolean;
+    luckyBlockRate: boolean;
+    critTakenRate: boolean;
+    critDmgRate: boolean;
+    luckyRate: boolean;
+    luckyDmgRate: boolean;
+    hitsTaken: boolean;
+    hitsPerMinute: boolean;
+  };
+};
+
+export const DEFAULT_HISTORY_SUMMARY_FIELDS: HistorySummarySettings = {
+  time: {
+    encounterTime: true,
+    trueDpsTime: true,
+  },
+  damage: {
+    totalDmg: true,
+    dps: true,
+    tdps: true,
+    bossDmg: true,
+    bossDps: true,
+    dmgPct: true,
+    critRate: true,
+    critDmgRate: false,
+    luckyRate: true,
+    luckyDmgRate: false,
+    hits: true,
+    hitsPerMinute: false,
+  },
+  healing: {
+    healDealt: true,
+    hps: true,
+    effectiveHeal: true,
+    ehps: true,
+    healPct: true,
+    critHealRate: true,
+    critDmgRate: false,
+    luckyRate: true,
+    luckyDmgRate: false,
+    hitsHeal: true,
+    hitsPerMinute: false,
+  },
+  tanked: {
+    damageTaken: true,
+    tankedPS: true,
+    tankedPct: true,
+    blockRate: true,
+    luckyBlockRate: true,
+    critTakenRate: true,
+    critDmgRate: false,
+    luckyRate: true,
+    luckyDmgRate: false,
+    hitsTaken: true,
+    hitsPerMinute: false,
+  },
+};
+
 // Default column order for live tables (keys from column-data.ts)
-export const DEFAULT_DPS_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'tdps', 'bossDmg', 'bossDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
+export const DEFAULT_DPS_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'tdps', 'bossDmg', 'bossDps', 'trueBossDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_DPS_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_HEAL_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'effectiveTotal', 'effectiveDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_HEAL_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'effectiveTotal', 'effectiveDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_TANKED_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'blockRate', 'luckyBlockRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_TANKED_SKILL_COLUMN_ORDER = ['totalDmg', 'dps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'blockRate', 'luckyBlockRate', 'hits', 'hitsPerMinute', 'property', 'damageMode'];
-export const DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER = [...DEFAULT_DPS_PLAYER_COLUMN_ORDER];
+export const DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER = ['totalDmg', 'dps', 'tdps', 'bossDmg', 'bossDps', 'dmgPct', 'critRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hits', 'hitsPerMinute'];
 export const DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER = [...DEFAULT_DPS_SKILL_COLUMN_ORDER];
 export const DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER = ['healDealt', 'hps', 'effectiveHeal', 'ehps', 'healPct', 'critHealRate', 'critDmgRate', 'luckyRate', 'luckyDmgRate', 'hitsHeal', 'hitsPerMinute'];
 export const DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER = [...DEFAULT_HEAL_SKILL_COLUMN_ORDER];
@@ -114,12 +209,19 @@ export const DEFAULT_LIVE_SORT_SETTINGS = {
   tankedSkills: { sortKey: "totalDmg", sortDesc: true },
 };
 
+export const DEFAULT_LIVE_COLUMN_ALIASES: Record<string, string> = {
+  "columns.historyPlayers.tdps": "T.DPS",
+};
+
+export const DEFAULT_HISTORY_COLUMN_ALIASES: Record<string, string> = {};
+
 type MutableRecord = Record<string, unknown>;
 
 export const SETTINGS_CHANGED_EVENT = "settings-store-changed";
 
 let settingsChangedTimer: ReturnType<typeof setTimeout> | null = null;
 let liveSettingsRefreshInFlight: Promise<void> | null = null;
+let settingsRepairInFlight: Promise<void> | null = null;
 
 export function notifySettingsChanged(): void {
   if (typeof window === "undefined") return;
@@ -250,6 +352,28 @@ function normalizeBooleanSettingsState<T extends MutableRecord>(
     }
   }
   return next as T;
+}
+
+function cloneHistorySummaryDefaults(): HistorySummarySettings {
+  return cloneSettingValue(DEFAULT_HISTORY_SUMMARY_FIELDS) as HistorySummarySettings;
+}
+
+function normalizeHistorySummarySettingsState(value: unknown): HistorySummarySettings {
+  const defaults = cloneHistorySummaryDefaults();
+  const payload = normalizeObjectWithDefaults(
+    value,
+    defaults as unknown as MutableRecord,
+  ) as MutableRecord;
+  const next = cloneHistorySummaryDefaults() as unknown as MutableRecord;
+
+  for (const [groupKey, defaultGroup] of Object.entries(defaults)) {
+    next[groupKey] = normalizeBooleanSettingsState(
+      isMutableRecord(payload[groupKey]) ? payload[groupKey] : {},
+      defaultGroup as unknown as MutableRecord,
+    );
+  }
+
+  return next as unknown as HistorySummarySettings;
 }
 
 function normalizeColumnOrder(
@@ -475,6 +599,7 @@ export type OverlaySizes = {
   skillCdGroupScale: number;
   skillCdShowSlotOutline: boolean;
   skillCdShowEnhancedGlow: boolean;
+  skillCdShowAcceleration: boolean;
   resourceGroupScale: number;
   textBuffPanelScale: number;
   panelAttrGroupScale: number;
@@ -640,6 +765,7 @@ export type BuffGroup = {
   id: string;
   name: string;
   buffIds: number[];
+  buffCategories: BuffCategoryKey[];
   priorityBuffIds: number[];
   monitorAll: boolean;
   position: Point;
@@ -704,6 +830,7 @@ export type SkillMonitorProfile = {
   textBuffMaxVisible: number;
   moduleCalc?: ModuleCalcProfileSettings;
   autoHideWindowsOnGameBlur?: boolean;
+  highlightDpsHealerSpecIcons?: boolean;
   showTrueUptime?: boolean;
   showBuffUptimeActiveIndicator?: boolean;
   overlayPositions: OverlayPositions;
@@ -788,6 +915,7 @@ function createDefaultOverlaySizes(): OverlaySizes {
     skillCdGroupScale: 1,
     skillCdShowSlotOutline: true,
     skillCdShowEnhancedGlow: true,
+    skillCdShowAcceleration: false,
     resourceGroupScale: 1,
     textBuffPanelScale: 1,
     panelAttrGroupScale: 1,
@@ -894,11 +1022,12 @@ function createDefaultShieldDetailStyle(): ShieldDetailStyle {
   };
 }
 
-export function createDefaultBuffGroup(name = "新分组", index = 1): BuffGroup {
+export function createDefaultBuffGroup(name = "New Group", index = 1): BuffGroup {
   return {
     id: `group_${Date.now()}_${index}`,
     name,
     buffIds: [],
+    buffCategories: [],
     priorityBuffIds: [],
     monitorAll: false,
     position: { x: 40 + (index - 1) * 40, y: 310 + (index - 1) * 40 },
@@ -913,7 +1042,7 @@ export function createDefaultBuffGroup(name = "新分组", index = 1): BuffGroup
 }
 
 export function createDefaultCustomPanelGroup(
-  name = "监控区 1",
+  name = "Monitor Area 1",
   index = 1,
   kind: CustomPanelGroupKind = "manual",
 ): CustomPanelGroup {
@@ -1038,6 +1167,7 @@ export function createDefaultSkillMonitorProfile(
     textBuffMaxVisible: 10,
     moduleCalc: createDefaultModuleCalcProfileSettings(),
     autoHideWindowsOnGameBlur: false,
+    highlightDpsHealerSpecIcons: false,
     showTrueUptime: true,
     showBuffUptimeActiveIndicator: true,
     overlayPositions: createDefaultOverlayPositions(),
@@ -1152,6 +1282,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOthersAbilityScore: boolean;
   showYourSeasonStrength: boolean;
   showOthersSeasonStrength: boolean;
+  showOceanWeaponBadge: boolean;
+  showPlayerImagineBadges: boolean;
   relativeToTopDPSPlayer: boolean;
   relativeToTopDPSSkill: boolean;
   relativeToTopHealPlayer: boolean;
@@ -1166,6 +1298,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   eventUpdateRateMs: number;
   idleDisplayPauseEnabled: boolean;
   idleDisplayPauseDelaySeconds: number;
+  historyGraphBucketSeconds: number;
+  historyGraphWindowSeconds: number;
   autoClearOnSceneChange: boolean;
   autoHideLiveWindow: boolean;
   autoHideOverlaysWithLiveWindow: boolean;
@@ -1181,6 +1315,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOthersAbilityScore: true,
   showYourSeasonStrength: false,
   showOthersSeasonStrength: false,
+  showOceanWeaponBadge: true,
+  showPlayerImagineBadges: true,
   relativeToTopDPSPlayer: true,
   relativeToTopDPSSkill: true,
   relativeToTopHealPlayer: true,
@@ -1195,6 +1331,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   eventUpdateRateMs: 200,
   idleDisplayPauseEnabled: true,
   idleDisplayPauseDelaySeconds: 5,
+  historyGraphBucketSeconds: 5,
+  historyGraphWindowSeconds: 15,
   autoClearOnSceneChange: true,
   autoHideLiveWindow: false,
   autoHideOverlaysWithLiveWindow: false,
@@ -1261,16 +1399,25 @@ export const DEFAULT_CLASS_SPEC_COLORS: Record<string, string> = {
   Lifebind: "#3b6d00",
   // Heavy Guardian
   Earthfort: "#7ea6c6",
-  Block: "#7b5b08",
+  Block: "#7ea6c6",
   // Marksman
   Wildpack: "#fff9a6",
   Falconry: "#cab400",
   // Shield Knight
-  Recovery: "#b6d1d6",
-  Shield: "#4f6b70",
+  Recovery: "#7ea6c6",
+  Shield: "#7ea6c6",
   // Beat Performer
-  Dissonance: "#ff7b94",
-  Concerto: "#9f1322",
+  Dissonance: "#b9f36e",
+  Concerto: "#3b6d00",
+};
+
+const LEGACY_CLASS_SPEC_COLOR_MIGRATIONS: Record<string, Record<string, string>> = {
+  Dissonance: {
+    "#ff7b94": "#b9f36e",
+  },
+  Concerto: {
+    "#9f1322": "#3b6d00",
+  },
 };
 
 export const DEFAULT_FONT_SIZES = {
@@ -1509,6 +1656,7 @@ const DEFAULT_SETTINGS = {
     customThemeColors: { ...DEFAULT_CUSTOM_THEME_COLORS },
     // Background image settings
     backgroundImage: "" as string,
+    backgroundImageName: "" as string,
     backgroundImageEnabled: false,
     backgroundImageMode: "cover" as "cover" | "contain" | "fit-width",
     backgroundImageContainColor: "rgba(0, 0, 0, 0)",
@@ -1596,6 +1744,8 @@ const DEFAULT_SETTINGS = {
   monsterMonitor: createDefaultMonsterMonitorConfig(),
   trainingDummy: {
     showHeaderControl: true,
+    timerLimitEnabled: true,
+    segmentDurationSeconds: 180,
   },
   appBehavior: {
     hideMainWindowToTray: false,
@@ -1643,8 +1793,10 @@ const DEFAULT_SETTINGS = {
       settingsButtonPadding: 8,
       minimizeButtonSize: 20,
       minimizeButtonPadding: 8,
+      totalDamageLabelAlias: "",
       totalDamageLabelFontSize: 14,
       totalDamageValueFontSize: 18,
+      totalDpsLabelAlias: "",
       totalDpsLabelFontSize: 14,
       totalDpsValueFontSize: 18,
       bossHealthLabelFontSize: 14,
@@ -1659,6 +1811,7 @@ const DEFAULT_SETTINGS = {
   },
   history: {
     general: { ...DEFAULT_GENERAL_SETTINGS },
+    summary: cloneHistorySummaryDefaults(),
     dpsPlayers: { ...DEFAULT_HISTORY_STATS },
     dpsSkillBreakdown: { ...DEFAULT_HISTORY_DPS_SKILL_STATS },
     healPlayers: { ...DEFAULT_HISTORY_HEAL_STATS },
@@ -1673,6 +1826,35 @@ function normalizeStringRecord(value: unknown): Record<string, string> {
   if (!isMutableRecord(value)) return next;
   for (const [key, item] of Object.entries(value)) {
     if (typeof item === "string") next[key] = item;
+  }
+  return next;
+}
+
+function normalizeColumnAliasSettingsState(
+  value: unknown,
+  defaults: Record<string, string>,
+): Record<string, string> {
+  const payload = unwrapPersistedSettingsPayload(value, defaults);
+  const next: Record<string, string> = { ...defaults };
+  if (!isMutableRecord(payload)) return next;
+  for (const [key, item] of Object.entries(payload)) {
+    if (typeof item === "string") next[key] = item;
+  }
+  return next;
+}
+
+function normalizeFactorTemplateKey(value: string): string {
+  return value.replace(/\bstorma?blade/g, "stormblade");
+}
+
+function normalizeFactorSlotLabels(value: unknown): Record<string, string> {
+  const raw = normalizeStringRecord(value);
+  const next: Record<string, string> = {};
+  for (const [key, item] of Object.entries(raw)) {
+    const normalizedKey = normalizeFactorTemplateKey(key);
+    if (next[normalizedKey] === undefined || normalizedKey === key) {
+      next[normalizedKey] = item;
+    }
   }
   return next;
 }
@@ -1740,7 +1922,7 @@ function normalizeCustomPanelGroupsForPersistence(
     };
     const normalized = normalizeObjectWithDefaults(group, {
       id: `custom_panel_group_${index + 1}`,
-      name: `监控区 ${index + 1}`,
+      name: `Monitor Area ${index + 1}`,
       kind,
       entries: [] as InlineBuffEntry[],
       position: fallbackPosition,
@@ -1790,7 +1972,8 @@ export function normalizeSkillMonitorProfileForPersistence(
   next.buffUptimeMinStacks = ensureBuffUptimeMinStacks(next.buffUptimeMinStacks);
   next.moduleCalc = normalizeModuleCalcProfileSettings(next.moduleCalc);
   next.autoHideWindowsOnGameBlur = next.autoHideWindowsOnGameBlur === true;
-  next.factorSlotLabels = normalizeStringRecord(next.factorSlotLabels);
+  next.highlightDpsHealerSpecIcons = next.highlightDpsHealerSpecIcons === true;
+  next.factorSlotLabels = normalizeFactorSlotLabels(next.factorSlotLabels);
   next.inlineBuffEntries = normalizeInlineBuffEntriesForPersistence(
     next.inlineBuffEntries,
   );
@@ -1853,10 +2036,46 @@ function normalizeMonsterMonitorSettingsState(
   ) as MonsterMonitorConfig;
 }
 
+function normalizeAccessibilitySettingsState(
+  value: unknown,
+): typeof DEFAULT_SETTINGS.accessibility {
+  const next = normalizeObjectWithDefaults(
+    value,
+    DEFAULT_SETTINGS.accessibility,
+  );
+  next.classColors = {
+    ...DEFAULT_CLASS_COLORS,
+    ...normalizeStringRecord(next.classColors),
+  };
+  const classSpecColors = {
+    ...DEFAULT_CLASS_SPEC_COLORS,
+    ...normalizeStringRecord(next.classSpecColors),
+  };
+
+  for (const [specName, migration] of Object.entries(LEGACY_CLASS_SPEC_COLOR_MIGRATIONS)) {
+    const color = classSpecColors[specName]?.toLowerCase();
+    const replacement = color ? migration[color] : undefined;
+    if (replacement !== undefined) {
+      classSpecColors[specName] = replacement;
+    }
+  }
+
+  next.classSpecColors = classSpecColors;
+  return next;
+}
+
 type SettingsStoreNormalizer<T extends MutableRecord> = (value: unknown) => T;
 type SettingsStoreRefreshOptions = {
   persistRepair?: boolean;
+  restartAfterRepair?: boolean;
 };
+type SettingsStoreRepairRegistration<T extends MutableRecord = MutableRecord> = {
+  store: RuneStore<T>;
+  defaults: T;
+  normalize: SettingsStoreNormalizer<T>;
+};
+
+const persistedSettingsRepairRegistry: SettingsStoreRepairRegistration[] = [];
 
 function createSettingsStore<T extends MutableRecord>(
   id: string,
@@ -1864,7 +2083,7 @@ function createSettingsStore<T extends MutableRecord>(
   normalize: SettingsStoreNormalizer<T> = (value) =>
     normalizeObjectWithDefaults(value, defaults),
 ): RuneStore<T> {
-  return new RuneStore(id, cloneSettingValue(defaults), {
+  const store = new RuneStore(id, cloneSettingValue(defaults), {
     autoStart: true,
     saveOnChange: true,
     hooks: {
@@ -1872,6 +2091,12 @@ function createSettingsStore<T extends MutableRecord>(
       beforeBackendSync: normalize,
     },
   });
+  persistedSettingsRepairRegistry.push({
+    store: store as RuneStore<MutableRecord>,
+    defaults: defaults as MutableRecord,
+    normalize: normalize as SettingsStoreNormalizer<MutableRecord>,
+  });
+  return store;
 }
 
 // We need flattened settings for every update to be able to auto-detect new changes
@@ -1879,6 +2104,7 @@ export const SETTINGS = {
   accessibility: createSettingsStore(
     "accessibility",
     DEFAULT_SETTINGS.accessibility,
+    normalizeAccessibilitySettingsState,
   ),
   shortcuts: createSettingsStore(
     "shortcuts",
@@ -2005,6 +2231,11 @@ export const SETTINGS = {
         normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
       ),
     },
+    columnAliases: createSettingsStore(
+      "liveColumnAliases",
+      DEFAULT_LIVE_COLUMN_ALIASES,
+      (value) => normalizeColumnAliasSettingsState(value, DEFAULT_LIVE_COLUMN_ALIASES),
+    ),
     // Sort settings
     sorting: {
       dpsPlayers: createSettingsStore(
@@ -2043,6 +2274,11 @@ export const SETTINGS = {
     general: createSettingsStore(
       "historyGeneral",
       DEFAULT_SETTINGS.history.general,
+    ),
+    summary: createSettingsStore(
+      "historySummary",
+      DEFAULT_SETTINGS.history.summary,
+      normalizeHistorySummarySettingsState,
     ),
     dps: {
       players: createSettingsStore(
@@ -2112,6 +2348,11 @@ export const SETTINGS = {
         normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER),
       ),
     },
+    columnAliases: createSettingsStore(
+      "historyColumnAliases",
+      DEFAULT_HISTORY_COLUMN_ALIASES,
+      (value) => normalizeColumnAliasSettingsState(value, DEFAULT_HISTORY_COLUMN_ALIASES),
+    ),
   },
   // persisted app metadata (tracks which app version the user last saw)
   appVersion: createSettingsStore("appVersion", { value: "" }),
@@ -2146,6 +2387,10 @@ async function refreshSettingsStoreFromBackend<T extends MutableRecord>(
     await patchStoreState(store.id, nextState);
     await saveStoreNow(store.id);
   }
+  if (options.restartAfterRepair) {
+    await store.stop();
+    await store.start();
+  }
 }
 
 function repairSettingsStoreFromBackend<T extends MutableRecord>(
@@ -2178,6 +2423,7 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
     persistSettingsStoreState(
       SETTINGS.accessibility,
       DEFAULT_SETTINGS.accessibility,
+      normalizeAccessibilitySettingsState,
     ),
     persistSettingsStoreState(
       SETTINGS.trainingDummy,
@@ -2260,6 +2506,11 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
       normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
     ),
     persistSettingsStoreState(
+      SETTINGS.live.columnAliases,
+      DEFAULT_LIVE_COLUMN_ALIASES,
+      (value) => normalizeColumnAliasSettingsState(value, DEFAULT_LIVE_COLUMN_ALIASES),
+    ),
+    persistSettingsStoreState(
       SETTINGS.live.sorting.dpsPlayers,
       DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
       (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers),
@@ -2292,6 +2543,11 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
     persistSettingsStoreState(
       SETTINGS.history.general,
       DEFAULT_SETTINGS.history.general,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.summary,
+      DEFAULT_SETTINGS.history.summary,
+      normalizeHistorySummarySettingsState,
     ),
     persistSettingsStoreState(
       SETTINGS.history.dps.players,
@@ -2353,6 +2609,11 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
       { order: [...DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER] },
       normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER),
     ),
+    persistSettingsStoreState(
+      SETTINGS.history.columnAliases,
+      DEFAULT_HISTORY_COLUMN_ALIASES,
+      (value) => normalizeColumnAliasSettingsState(value, DEFAULT_HISTORY_COLUMN_ALIASES),
+    ),
   ]).then(() => undefined);
 }
 
@@ -2363,6 +2624,7 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
     repairSettingsStoreFromBackend(
       SETTINGS.accessibility,
       DEFAULT_SETTINGS.accessibility,
+      normalizeAccessibilitySettingsState,
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.skillMonitor,
@@ -2453,6 +2715,11 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
       SETTINGS.live.columnOrder.tankedSkills,
       { order: [...DEFAULT_TANKED_SKILL_COLUMN_ORDER] },
       normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
+    ),
+    repairSettingsStoreFromBackend(
+      SETTINGS.live.columnAliases,
+      DEFAULT_LIVE_COLUMN_ALIASES,
+      (value) => normalizeColumnAliasSettingsState(value, DEFAULT_LIVE_COLUMN_ALIASES),
     ),
     repairSettingsStoreFromBackend(
       SETTINGS.live.sorting.dpsPlayers,
@@ -2497,231 +2764,38 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
 }
 
 export async function repairPersistedSettingsStores(): Promise<void> {
-  await Promise.all([
-    repairSettingsStoreFromBackend(
-      SETTINGS.accessibility,
-      DEFAULT_SETTINGS.accessibility,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.shortcuts,
-      DEFAULT_SETTINGS.shortcuts,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.moduleSync,
-      DEFAULT_SETTINGS.moduleSync,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.moduleCalc,
-      DEFAULT_SETTINGS.moduleCalc,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.skillMonitor,
-      DEFAULT_SETTINGS.skillMonitor,
-      normalizeSkillMonitorSettingsState,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.profileLibrary,
-      DEFAULT_SETTINGS.profileLibrary,
-      normalizeProfileLibrarySettingsState,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.customTriggers,
-      DEFAULT_SETTINGS.customTriggers,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.monsterMonitor,
-      DEFAULT_SETTINGS.monsterMonitor,
-      normalizeMonsterMonitorSettingsState,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.trainingDummy,
-      DEFAULT_SETTINGS.trainingDummy,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.appBehavior,
-      DEFAULT_SETTINGS.appBehavior,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.general,
-      DEFAULT_SETTINGS.live.general,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.dps.players,
-      DEFAULT_SETTINGS.live.dpsPlayers,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.dps.skillBreakdown,
-      DEFAULT_SETTINGS.live.dpsSkillBreakdown,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.dpsSkillBreakdown),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.heal.players,
-      DEFAULT_SETTINGS.live.healPlayers,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.heal.skillBreakdown,
-      DEFAULT_SETTINGS.live.healSkillBreakdown,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.healSkillBreakdown),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.tanked.players,
-      DEFAULT_SETTINGS.live.tankedPlayers,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.tanked.skills,
-      DEFAULT_SETTINGS.live.tankedSkillBreakdown,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.live.tankedSkillBreakdown),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.tableCustomization,
-      DEFAULT_SETTINGS.live.tableCustomization,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.dynamicWindow,
-      DEFAULT_SETTINGS.live.dynamicWindow,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.headerCustomization,
-      DEFAULT_SETTINGS.live.headerCustomization,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.columnOrder.dpsPlayers,
-      { order: [...DEFAULT_DPS_PLAYER_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_DPS_PLAYER_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.columnOrder.dpsSkills,
-      { order: [...DEFAULT_DPS_SKILL_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_DPS_SKILL_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.columnOrder.healPlayers,
-      { order: [...DEFAULT_HEAL_PLAYER_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HEAL_PLAYER_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.columnOrder.healSkills,
-      { order: [...DEFAULT_HEAL_SKILL_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HEAL_SKILL_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.columnOrder.tankedPlayers,
-      { order: [...DEFAULT_TANKED_PLAYER_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_TANKED_PLAYER_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.columnOrder.tankedSkills,
-      { order: [...DEFAULT_TANKED_SKILL_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_TANKED_SKILL_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.sorting.dpsPlayers,
-      DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers,
-      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.sorting.dpsSkills,
-      DEFAULT_LIVE_SORT_SETTINGS.dpsSkills,
-      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.dpsSkills),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.sorting.healPlayers,
-      DEFAULT_LIVE_SORT_SETTINGS.healPlayers,
-      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.sorting.healSkills,
-      DEFAULT_LIVE_SORT_SETTINGS.healSkills,
-      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.healSkills),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.sorting.tankedPlayers,
-      DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers,
-      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.live.sorting.tankedSkills,
-      DEFAULT_LIVE_SORT_SETTINGS.tankedSkills,
-      (value) => normalizeLiveSortSettingsState(value, DEFAULT_LIVE_SORT_SETTINGS.tankedSkills),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.general,
-      DEFAULT_SETTINGS.history.general,
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.dps.players,
-      DEFAULT_SETTINGS.history.dpsPlayers,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.dps.skillBreakdown,
-      DEFAULT_SETTINGS.history.dpsSkillBreakdown,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.dpsSkillBreakdown),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.heal.players,
-      DEFAULT_SETTINGS.history.healPlayers,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.heal.skillBreakdown,
-      DEFAULT_SETTINGS.history.healSkillBreakdown,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.healSkillBreakdown),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.tanked.players,
-      DEFAULT_SETTINGS.history.tankedPlayers,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedPlayers),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.tanked.skillBreakdown,
-      DEFAULT_SETTINGS.history.tankedSkillBreakdown,
-      (value) => normalizeBooleanSettingsState(value, DEFAULT_SETTINGS.history.tankedSkillBreakdown),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.columnOrder.dpsPlayers,
-      { order: [...DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.columnOrder.dpsSkills,
-      { order: [...DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_SKILL_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.columnOrder.healPlayers,
-      { order: [...DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_PLAYER_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.columnOrder.healSkills,
-      { order: [...DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_HEAL_SKILL_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.columnOrder.tankedPlayers,
-      { order: [...DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_PLAYER_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.history.columnOrder.tankedSkills,
-      { order: [...DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER] },
-      normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER),
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.appVersion,
-      { value: "" },
-    ),
-    repairSettingsStoreFromBackend(
-      SETTINGS.packetCapture,
-      { npcapDevice: "" },
-    ),
-  ]);
+  if (settingsRepairInFlight) return settingsRepairInFlight;
 
-  normalizePersistedSettings();
+  settingsRepairInFlight = Promise.all(
+    persistedSettingsRepairRegistry.map((entry) =>
+      refreshSettingsStoreFromBackend(
+        entry.store,
+        entry.defaults,
+        entry.normalize,
+        {
+          persistRepair: true,
+          restartAfterRepair: true,
+        },
+      ),
+    ),
+  )
+    .then(async () => {
+      normalizePersistedSettings();
+      await Promise.all(
+        persistedSettingsRepairRegistry.map((entry) =>
+          persistSettingsStoreState(
+            entry.store,
+            entry.defaults,
+            entry.normalize,
+          ),
+        ),
+      );
+    })
+    .finally(() => {
+      settingsRepairInFlight = null;
+    });
+
+  return settingsRepairInFlight;
 }
 
 // Create flattened settings object for backwards compatibility
@@ -2763,6 +2837,7 @@ export const settings = {
           tankedPlayers: SETTINGS.live.columnOrder.tankedPlayers.state,
           tankedSkills: SETTINGS.live.columnOrder.tankedSkills.state,
         },
+        columnAliases: SETTINGS.live.columnAliases.state,
         sorting: {
           dpsPlayers: SETTINGS.live.sorting.dpsPlayers.state,
           dpsSkills: SETTINGS.live.sorting.dpsSkills.state,
@@ -2773,8 +2848,10 @@ export const settings = {
         },
       },
       appVersion: SETTINGS.appVersion.state,
+      packetCapture: SETTINGS.packetCapture.state,
       history: {
         general: SETTINGS.history.general.state,
+        summary: SETTINGS.history.summary.state,
         dps: {
           players: SETTINGS.history.dps.players.state,
           skillBreakdown: SETTINGS.history.dps.skillBreakdown.state,
@@ -2795,6 +2872,7 @@ export const settings = {
           tankedPlayers: SETTINGS.history.columnOrder.tankedPlayers.state,
           tankedSkills: SETTINGS.history.columnOrder.tankedSkills.state,
         },
+        columnAliases: SETTINGS.history.columnAliases.state,
       },
     };
   },
@@ -2803,6 +2881,10 @@ export const settings = {
 
 
 export function normalizePersistedSettings(): void {
+  Object.assign(
+    SETTINGS.accessibility.state,
+    normalizeAccessibilitySettingsState(SETTINGS.accessibility.state),
+  );
   Object.assign(
     SETTINGS.skillMonitor.state,
     normalizeSkillMonitorSettingsState(SETTINGS.skillMonitor.state),
@@ -2822,6 +2904,26 @@ export function normalizePersistedSettings(): void {
   Object.assign(
     SETTINGS.appBehavior.state,
     normalizeObjectWithDefaults(SETTINGS.appBehavior.state, DEFAULT_SETTINGS.appBehavior),
+  );
+  Object.assign(
+    SETTINGS.shortcuts.state,
+    normalizeObjectWithDefaults(SETTINGS.shortcuts.state, DEFAULT_SETTINGS.shortcuts),
+  );
+  Object.assign(
+    SETTINGS.moduleSync.state,
+    normalizeObjectWithDefaults(SETTINGS.moduleSync.state, DEFAULT_SETTINGS.moduleSync),
+  );
+  Object.assign(
+    SETTINGS.moduleCalc.state,
+    normalizeObjectWithDefaults(SETTINGS.moduleCalc.state, DEFAULT_SETTINGS.moduleCalc),
+  );
+  Object.assign(
+    SETTINGS.customTriggers.state,
+    normalizeObjectWithDefaults(SETTINGS.customTriggers.state, DEFAULT_SETTINGS.customTriggers),
+  );
+  Object.assign(
+    SETTINGS.packetCapture.state,
+    normalizeObjectWithDefaults(SETTINGS.packetCapture.state, { npcapDevice: "" }),
   );
   Object.assign(
     SETTINGS.live.general.state,
@@ -2887,6 +2989,10 @@ export function normalizePersistedSettings(): void {
   Object.assign(
     SETTINGS.history.general.state,
     normalizeObjectWithDefaults(SETTINGS.history.general.state, DEFAULT_SETTINGS.history.general),
+  );
+  Object.assign(
+    SETTINGS.history.summary.state,
+    normalizeHistorySummarySettingsState(SETTINGS.history.summary.state),
   );
   Object.assign(
     SETTINGS.history.dps.players.state,
@@ -2968,6 +3074,13 @@ export function normalizePersistedSettings(): void {
     ),
   );
   Object.assign(
+    SETTINGS.live.columnAliases.state,
+    normalizeColumnAliasSettingsState(
+      SETTINGS.live.columnAliases.state,
+      DEFAULT_LIVE_COLUMN_ALIASES,
+    ),
+  );
+  Object.assign(
     SETTINGS.history.columnOrder.dpsPlayers.state,
     normalizeColumnOrderSettingsState(DEFAULT_HISTORY_DPS_PLAYER_COLUMN_ORDER)(
       SETTINGS.history.columnOrder.dpsPlayers.state,
@@ -3001,6 +3114,13 @@ export function normalizePersistedSettings(): void {
     SETTINGS.history.columnOrder.tankedSkills.state,
     normalizeColumnOrderSettingsState(DEFAULT_HISTORY_TANKED_SKILL_COLUMN_ORDER)(
       SETTINGS.history.columnOrder.tankedSkills.state,
+    ),
+  );
+  Object.assign(
+    SETTINGS.history.columnAliases.state,
+    normalizeColumnAliasSettingsState(
+      SETTINGS.history.columnAliases.state,
+      DEFAULT_HISTORY_COLUMN_ALIASES,
     ),
   );
 

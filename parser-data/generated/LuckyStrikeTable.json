@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedBy": "LuckyStrikeRuntime.gen",
-  "generatedAt": "2026-05-28T21:24:35.038Z",
+  "generatedAt": "2026-06-09T10:48:41.758Z",
   "generatedFrom": {
     "effectSources": "output/EffectSources.json",
     "modifierSourceIndex": "output/ModifierSourceIndex.json",
@@ -16,11 +16,11 @@
     "ownerPartySplit": "When a source description exposes two percent values and no better actor scope, the larger absolute percent is treated as owner/self and the smaller as party/other players."
   },
   "stats": {
-    "sources": 173,
+    "sources": 171,
     "buffIds": 190,
     "sourceKindCounts": {
       "imagine": 4,
-      "lucky-strike": 21,
+      "lucky-strike": 19,
       "phantom-factor": 16,
       "season-rogue-entry": 45,
       "season-talent-node": 15,
@@ -28,11 +28,11 @@
     },
     "formulaPolicyCounts": {
       "behavior-only": 63,
-      "exact-produced-damage": 21,
+      "exact-produced-damage": 19,
       "expected-value-candidate": 89
     },
     "termCounts": {
-      "exactLuckyDamage": 21,
+      "exactLuckyDamage": 19,
       "guaranteedLucky": 3,
       "luckChancePct": 14,
       "luckEntryAcquisition": 5,
@@ -47,7 +47,7 @@
       "luckyChancePct": 6,
       "luckyCritInteraction": 8,
       "luckyDamagePct": 16,
-      "luckyEvidence": 23,
+      "luckyEvidence": 21,
       "luckyFinalDamagePct": 5,
       "luckyMultiplierPct": 17,
       "luckyTimingOrResource": 27,
@@ -259,14 +259,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "狂熱の斬撃",
-        "ko-KR": "광열의 참격",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "ฟันอย่างบ้าคลั่ง",
-        "id": "Zealous Slash"
+        "th": "Lucky Strike",
+        "id": "Lucky Hit"
       },
       "runtimeDetection": "active-buff",
       "buffIds": [
@@ -449,14 +449,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "深葉・ブルームサークル",
-        "ko-KR": "만개・희망의 결계",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "Divine Circle Bloom",
-        "id": "Flourish - Hope Barrier"
+        "th": "Lucky Strike",
+        "id": "Lucky Hit"
       },
       "runtimeDetection": "active-buff",
       "buffIds": [
@@ -904,14 +904,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "ブレイヴバッシュ",
-        "ko-KR": "용맹의 방패",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "Valor Bash",
-        "id": "Valor Shield Bash"
+        "th": "Lucky Strike",
+        "id": "Lucky Hit"
       },
       "runtimeDetection": "active-buff",
       "buffIds": [
@@ -999,14 +999,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "コーラスヒーリング",
-        "ko-KR": "치유의 비트",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "Healing Beat",
-        "id": "Healing Beat"
+        "th": "Lucky Strike",
+        "id": "Lucky Hit"
       },
       "runtimeDetection": "active-buff",
       "buffIds": [
@@ -1772,195 +1772,6 @@
         "ModifierContributionRuntime"
       ]
     },
-    "buff-source:2202291": {
-      "sourceId": "buff-source:2202291",
-      "sourceKind": "lucky-strike",
-      "sourceType": "lucky-strike",
-      "sourceEntityId": 2202291,
-      "sourceName": "Healing Orb",
-      "sourceNames": {
-        "design": "生命馈赠-治疗子buff",
-        "en": "Healing Orb",
-        "zh-CN": "治疗球",
-        "zh-TW": "治療球",
-        "ja": "幸運の一撃",
-        "ko-KR": "행운의 일격",
-        "fr": "Orbe de soin",
-        "de": "Heilungskugel",
-        "es": "Orbe curativo",
-        "pt-BR": "Orbe de Cura",
-        "th": "Lucky Strike",
-        "id": "Lucky Hit"
-      },
-      "runtimeDetection": "active-buff",
-      "buffIds": [
-        2202291
-      ],
-      "sourceRuleIds": [
-        "mrs:abd6404b2c5f"
-      ],
-      "targetDamageIds": [
-        2220229101
-      ],
-      "targetRecountIds": [
-        194
-      ],
-      "reportPolicies": [
-        "ignore"
-      ],
-      "rowPolicies": [
-        "static-target"
-      ],
-      "contributionStatuses": [
-        "defensive-or-non-damage"
-      ],
-      "contributionModes": [
-        "defensive"
-      ],
-      "contributionTiers": [
-        "non-damage"
-      ],
-      "componentClasses": [
-        "healing-or-lifesteal"
-      ],
-      "predicateTags": [
-        "activation.active-modifier-window",
-        "direction.healing"
-      ],
-      "relationshipKinds": [
-        "buff-source-damage-row",
-        "buff-source-recount-row"
-      ],
-      "formulaPolicy": "exact-produced-damage",
-      "luckyTerms": [
-        {
-          "termId": "exactLuckyDamage",
-          "evidenceText": "Lucky Strike damage row is packet-emitted and target-mapped by generated damage/recount IDs.",
-          "confidence": "target-map"
-        },
-        {
-          "termId": "luckyEvidence",
-          "evidenceText": "Lucky Hit",
-          "confidence": "description-pattern"
-        },
-        {
-          "termId": "luckyEvidence",
-          "evidenceText": "Lucky Strike",
-          "confidence": "description-pattern"
-        }
-      ],
-      "requiredRuntimeEvidence": [
-        "attacker uid",
-        "damage id",
-        "healing/lifesteal event lane",
-        "modifier windows",
-        "observed final lucky hit value",
-        "produced damage row id",
-        "source-specific trigger predicate",
-        "target uid"
-      ],
-      "inputSources": [
-        "EffectSources",
-        "ModifierRecountTable",
-        "ModifierSourceIndex"
-      ],
-      "evidenceSources": [
-        "[object Object]",
-        "generated:buff-source:2202291",
-        "ModifierContributionRuntime"
-      ]
-    },
-    "buff-source:2206240": {
-      "sourceId": "buff-source:2206240",
-      "sourceKind": "lucky-strike",
-      "sourceType": "talent",
-      "sourceEntityId": 2206240,
-      "sourceName": "Holy Radiance",
-      "sourceNames": {
-        "en": "Holy Radiance",
-        "zh-CN": "神圣光辉",
-        "zh-TW": "神聖光輝",
-        "ja": "神聖光輝",
-        "ko-KR": "신성한 빛",
-        "fr": "Radiance sacrée",
-        "de": "Heiliges Strahlen",
-        "es": "Resplandor Sagrado",
-        "pt-BR": "Radiância Sagrada",
-        "th": "Holy Radiance",
-        "id": "Holy Radiance"
-      },
-      "iconPath": "ui/atlas/talent_passive_12/jiandun1223",
-      "runtimeDetection": "active-buff",
-      "buffIds": [
-        2206240
-      ],
-      "sourceRuleIds": [
-        "mrs:7d7fd881cf24"
-      ],
-      "targetDamageIds": [
-        2220624004
-      ],
-      "targetRecountIds": [
-        165
-      ],
-      "reportPolicies": [
-        "include"
-      ],
-      "rowPolicies": [
-        "static-target"
-      ],
-      "contributionStatuses": [
-        "proc-damage"
-      ],
-      "contributionModes": [
-        "exact-produced-damage"
-      ],
-      "contributionTiers": [
-        "exact"
-      ],
-      "contributionGroups": [
-        "procDamage"
-      ],
-      "componentClasses": [
-        "proc-damage"
-      ],
-      "predicateTags": [
-        "direction.damage-dealt",
-        "relationship.produced-damage-row"
-      ],
-      "relationshipKinds": [
-        "buff-source-damage-row",
-        "buff-source-recount-row"
-      ],
-      "formulaPolicy": "exact-produced-damage",
-      "luckyTerms": [
-        {
-          "termId": "exactLuckyDamage",
-          "evidenceText": "Lucky Strike damage row is packet-emitted and target-mapped by generated damage/recount IDs.",
-          "confidence": "target-map"
-        }
-      ],
-      "requiredRuntimeEvidence": [
-        "attacker uid",
-        "damage id",
-        "observed final lucky hit value",
-        "produced damage row id",
-        "target uid"
-      ],
-      "ownership": {
-        "talentId": 2206240
-      },
-      "inputSources": [
-        "EffectSources",
-        "ModifierRecountTable",
-        "ModifierSourceIndex"
-      ],
-      "evidenceSources": [
-        "[object Object]",
-        "generated:buff-source:2206240",
-        "ModifierContributionRuntime"
-      ]
-    },
     "buff-source:3601": {
       "sourceId": "buff-source:3601",
       "sourceKind": "lucky-strike",
@@ -2157,6 +1968,7 @@
         "id": "Buff belum dipetakan 997441",
         "design": "[幸运]：命运洪流—aoe伤害"
       },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry073",
       "runtimeDetection": "active-buff",
       "buffIds": [
         997441
@@ -10922,10 +10734,11 @@
       "iconPath": "ui/atlas/talent_passive_13/gita1308",
       "runtimeDetection": "row-observed-or-active-buff",
       "buffIds": [
+        55330,
         2207090
       ],
       "sourceRuleIds": [
-        "mrs:64cc5320a2e1"
+        "mrs:cc4238d2d018"
       ],
       "reportPolicies": [
         "ignore"
@@ -11213,10 +11026,11 @@
       "iconPath": "ui/atlas/talent_passive_13/gita1316",
       "runtimeDetection": "row-observed-or-active-buff",
       "buffIds": [
+        55330,
         2207170
       ],
       "sourceRuleIds": [
-        "mrs:84710d9006b7"
+        "mrs:46fe452e6ebf"
       ],
       "reportPolicies": [
         "include"
@@ -11334,10 +11148,11 @@
       "iconPath": "ui/atlas/talent_passive_13/gita1331",
       "runtimeDetection": "row-observed-or-active-buff",
       "buffIds": [
+        55333,
         2207320
       ],
       "sourceRuleIds": [
-        "mrs:c5530a38a229"
+        "mrs:82b78ace20af"
       ],
       "reportPolicies": [
         "debug-only"
@@ -11799,10 +11614,11 @@
       "iconPath": "ui/atlas/talent_passive_13/gita1346",
       "runtimeDetection": "row-observed-or-active-buff",
       "buffIds": [
+        55333,
         2207470
       ],
       "sourceRuleIds": [
-        "mrs:f584e2c73be5"
+        "mrs:900db670ced5"
       ],
       "reportPolicies": [
         "debug-only"
@@ -11966,10 +11782,11 @@
       "iconPath": "ui/atlas/talent_passive_13/gita1347",
       "runtimeDetection": "row-observed-or-active-buff",
       "buffIds": [
+        55333,
         2207480
       ],
       "sourceRuleIds": [
-        "mrs:8da54e163719"
+        "mrs:742cc85dd8d5"
       ],
       "reportPolicies": [
         "include"
@@ -15303,17 +15120,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "class-wide-candidate",
         "ownershipStatus": "unresolved-class-bucket",
@@ -15419,17 +15236,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "class-wide-candidate",
         "ownershipStatus": "unresolved-class-bucket",
@@ -15517,17 +15334,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "spec-exclusive",
         "ownershipStatus": "high-confidence",
@@ -15655,17 +15472,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "ambiguous",
         "ownershipStatus": "needs-review",
@@ -15826,17 +15643,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "class-wide-candidate",
         "ownershipStatus": "unresolved-class-bucket",
@@ -15995,17 +15812,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "class-wide-candidate",
         "ownershipStatus": "unresolved-class-bucket",
@@ -16168,17 +15985,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "class-wide-candidate",
         "ownershipStatus": "unresolved-class-bucket",
@@ -16284,17 +16101,17 @@
         "classId": 3,
         "className": "Flame Berserker",
         "classNames": {
-          "en": "Flame Berserker",
+          "en": "Twin Axe",
           "zh-CN": "赤炎狂战士",
           "zh-TW": "赤炎狂戰士",
-          "ja": "Flame Berserker",
-          "ko-KR": "Flame Berserker",
-          "fr": "Flame Berserker",
-          "de": "Flame Berserker",
-          "es": "Flame Berserker",
-          "pt-BR": "Flame Berserker",
-          "th": "Flame Berserker",
-          "id": "Flame Berserker"
+          "ja": "Twin Axe",
+          "ko-KR": "Twin Axe",
+          "fr": "Twin Axe",
+          "de": "Twin Axe",
+          "es": "Twin Axe",
+          "pt-BR": "Twin Axe",
+          "th": "Twin Axe",
+          "id": "Twin Axe"
         },
         "ownershipKind": "class-wide-candidate",
         "ownershipStatus": "unresolved-class-bucket",
@@ -20095,8 +19912,7 @@
         "es": "Persecución de Furia de Granito",
         "pt-BR": "Perseguição da Fúria de Granito",
         "th": "Rock Heal",
-        "id": "Rock Fist Recovery",
-        "design": "岩拳回复"
+        "id": "Rock Fist Recovery"
       },
       "description": "Every 50 times damage is taken, the next Granite Fury deals additional fixed damage equal to 7,000% of Armor. Can trigger at most once every 20s. Every 2% Mastery reduces the required times of damage taken by 1. Every 1% Luck reduces the trigger interval by 1% (up to 50%).",
       "descriptions": {
@@ -20155,8 +19971,6 @@
         "source.armor-or-defense-scaling"
       ],
       "relationshipKinds": [
-        "buff-source-damage-row",
-        "buff-source-recount-row",
         "produces-damage-row",
         "produces-recount-row"
       ],
@@ -20671,6 +20485,15 @@
       "talent:923",
       "talent:962"
     ],
+    "55330": [
+      "talent:1308",
+      "talent:1316"
+    ],
+    "55333": [
+      "talent:1331",
+      "talent:1346",
+      "talent:1347"
+    ],
     "997025": [
       "talent:7"
     ],
@@ -20947,9 +20770,6 @@
     "2202142": [
       "buff-source:2202142"
     ],
-    "2202291": [
-      "buff-source:2202291"
-    ],
     "2202310": [
       "talent:529"
     ],
@@ -21045,9 +20865,6 @@
     ],
     "2205680": [
       "talent:470"
-    ],
-    "2206240": [
-      "buff-source:2206240"
     ],
     "2207090": [
       "talent:1308"
@@ -21261,8 +21078,6 @@
       "buff-source:2202130",
       "buff-source:2202131",
       "buff-source:2202142",
-      "buff-source:2202291",
-      "buff-source:2206240",
       "buff-source:3601",
       "buff-source:997419",
       "buff-source:997441",
@@ -21279,7 +21094,6 @@
       "buff-source:2031110",
       "buff-source:2031111",
       "buff-source:2110110",
-      "buff-source:2202291",
       "phantom-factor:3052100",
       "phantom-factor:3056110",
       "phantom-factor:3057120",
@@ -21574,8 +21388,6 @@
       "buff-source:2202130",
       "buff-source:2202131",
       "buff-source:2202142",
-      "buff-source:2202291",
-      "buff-source:2206240",
       "buff-source:3601",
       "buff-source:997419",
       "buff-source:997441",

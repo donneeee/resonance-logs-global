@@ -5,7 +5,11 @@
   */
   import "../app.css";
   import { onMount } from "svelte";
-  import { repairPersistedSettingsStores, SETTINGS } from "$lib/settings-store";
+  import {
+    repairPersistedSettingsStores,
+    SETTINGS,
+    SETTINGS_CHANGED_EVENT,
+  } from "$lib/settings-store";
   import PersistentTitleTooltip from "$lib/components/persistent-title-tooltip.svelte";
   // Only allow warnings and errors to be printed to console in production builds
   if (typeof window !== "undefined" && import.meta.env.PROD) {
@@ -16,6 +20,7 @@
   }
 
   let { children } = $props();
+  let settingsReady = $state(false);
   let isMainWindow = $state(false);
   let lastSyncedHideMainWindowToTray: boolean | null = null;
 
@@ -62,18 +67,29 @@
 
   onMount(() => {
     void (async () => {
-      const { getCurrentWebviewWindow } = await import("@tauri-apps/api/webviewWindow");
-      const { hideEventLoggerWindow, showEventLoggerWindow } = await import("$lib/event-logger-window");
-      const { loadProfileLibraryFromSettings } = await import("$lib/profile-library.svelte");
-      const currentWindow = getCurrentWebviewWindow();
-      if (currentWindow.label !== "main") return;
-      isMainWindow = true;
+      let isCurrentMainWindow = false;
 
       try {
+        const { getCurrentWebviewWindow } = await import("@tauri-apps/api/webviewWindow");
+        const currentWindow = getCurrentWebviewWindow();
+        isCurrentMainWindow = currentWindow.label === "main";
+
         await repairPersistedSettingsStores();
+        if (isCurrentMainWindow) {
+          const { emit } = await import("@tauri-apps/api/event");
+          await emit(SETTINGS_CHANGED_EVENT);
+        }
       } catch (error) {
         console.warn("Failed to repair persisted settings stores:", error);
+      } finally {
+        settingsReady = true;
       }
+
+      if (!isCurrentMainWindow) return;
+      isMainWindow = true;
+
+      const { hideEventLoggerWindow, showEventLoggerWindow } = await import("$lib/event-logger-window");
+      const { loadProfileLibraryFromSettings } = await import("$lib/profile-library.svelte");
 
       void loadProfileLibraryFromSettings();
 
@@ -139,5 +155,7 @@
   });
 })()}
 
-{@render children()}
+{#if settingsReady}
+  {@render children()}
+{/if}
 <PersistentTitleTooltip />

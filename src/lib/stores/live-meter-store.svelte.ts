@@ -8,7 +8,6 @@ let crowdedLiveSession = $state(false);
 
 export function setLiveData(data: LiveDataPayload) {
   liveData = data;
-  liveDisplayNowMs = Date.now();
   if (data.entities.length > 20) {
     crowdedLiveSession = true;
   }

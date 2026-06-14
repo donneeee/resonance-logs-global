@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "Saat Sembunyikan otomatis jendela live aktif, overlay game atau monster yang sedang terlihat ikut disembunyikan bersama meter live, lalu hanya overlay yang sebelumnya terlihat yang dipulihkan.",
   "autoHideLiveWindowDelaySeconds": "Jeda sembunyi otomatis",
   "autoHideLiveWindowDelaySecondsDescription": "Jumlah detik tanpa damage baru sebelum meter live disembunyikan. Atur ke 0 untuk langsung menyembunyikan.",
-  "secondsUnit": "d"
+  "secondsUnit": "d",
+  "trainingDummyTimerLimitEnabled": "Timer Target Dummy",
+  "trainingDummyTimerLimitEnabledDescription": "Gunakan timer segmen target dummy tetap. Timer live menghitung mundur dan segmen selesai saat timer mencapai nol.",
+  "trainingDummySegmentDurationSeconds": "Durasi Target Dummy",
+  "trainingDummySegmentDurationSecondsDescription": "Mengatur panjang segmen target dummy. Default: 180 dtk.",
+  "showPlayerImagineBadges": "Badge Battle Imagine",
+  "showPlayerImagineBadgesDescription": "Tampilkan badge Battle Imagine yang dipakai di samping ikon class.",
+  "showOceanWeaponBadge": "Badge Ocean Weapon",
+  "showOceanWeaponBadgeDescription": "Tampilkan badge Ocean Weapon sebelum nama pemain saat terdeteksi."
 }

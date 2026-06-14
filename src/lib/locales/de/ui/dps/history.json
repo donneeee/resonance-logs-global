@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "Block %",
   "columns.historyTankedSkills.luckyBlockRate.description": "Zeigt die Chance, dass diese eingehende Fähigkeit einen Glücksblock auslöste",
   "columns.historyTankedSkills.luckyBlockRate.header": "Glücksblock %",
-  "columns.historyTankedSkills.luckyBlockRate.label": "Glücksblock %"
+  "columns.historyTankedSkills.luckyBlockRate.label": "Glücksblock %",
+  "detail.graphIndividualView": "Diagramm - Einzel",
+  "detail.graphTeamView": "Diagramm - Team-DPS",
+  "detail.graphDeath": "Tod",
+  "detail.summary.aria": "Spielerstatistik-Zusammenfassung",
+  "detail.summary.time": "Zeit",
+  "detail.summary.encounterTime": "Kampfzeit",
+  "detail.summary.trueDpsTime": "Echte DPS-Zeit",
+  "detail.summary.damage": "Schaden",
+  "detail.summary.boss": "Boss",
+  "detail.summary.rates": "Raten",
+  "detail.summary.healing": "Heilung",
+  "detail.summary.tanked": "Erlitten"
 }

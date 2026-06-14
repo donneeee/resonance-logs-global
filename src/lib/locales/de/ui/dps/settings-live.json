@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "Wenn das automatische Ausblenden des Live-Fensters aktiv ist, werden sichtbare Spiel- oder Monster-Overlays zusammen mit dem Live-Meter ausgeblendet und nur die zuvor sichtbaren Overlays wiederhergestellt.",
   "autoHideLiveWindowDelaySeconds": "Verzögerung für automatisches Ausblenden",
   "autoHideLiveWindowDelaySecondsDescription": "Sekunden ohne neuen Schaden, bevor der Live-Meter ausgeblendet wird. Auf 0 setzen, um sofort auszublenden.",
-  "secondsUnit": "s"
+  "secondsUnit": "s",
+  "trainingDummyTimerLimitEnabled": "Trainingspuppen-Timer",
+  "trainingDummyTimerLimitEnabledDescription": "Verwendet einen festen Trainingspuppen-Segmenttimer. Der Live-Timer zaehlt herunter und das Segment endet, wenn er null erreicht.",
+  "trainingDummySegmentDurationSeconds": "Trainingspuppen-Dauer",
+  "trainingDummySegmentDurationSecondsDescription": "Legt die Laenge des Trainingspuppen-Segments fest. Standard: 180 Sek.",
+  "showPlayerImagineBadges": "Kampf-Imagine-Abzeichen",
+  "showPlayerImagineBadgesDescription": "Zeigt ausgeruestete Kampf-Imagine-Abzeichen neben den Klassensymbolen.",
+  "showOceanWeaponBadge": "Ozeanwaffen-Abzeichen",
+  "showOceanWeaponBadgeDescription": "Zeigt das Ozeanwaffen-Abzeichen vor Spielernamen, wenn es erkannt wird."
 }

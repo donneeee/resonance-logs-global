@@ -7,6 +7,8 @@ import type {
   RawSkillStats,
   SkillRow,
 } from "$lib/api";
+import { classifyOceanWeapon, type EquippedItem } from "$lib/player-equipment";
+import { derivePlayerImagines } from "$lib/player-imagines";
 
 type Metric = "dps" | "heal" | "tanked";
 
@@ -78,6 +80,8 @@ export function computePlayerRowsFromEntities(
   return source.entities
     .map((entity) => {
       const stats = statsByMetric(entity, metric);
+      const equippedItems = (entity.equippedItems ?? []) as EquippedItem[];
+      const playerImagines = derivePlayerImagines(entity.activeProfessionSkills ?? []);
       const total = Number(stats.total || 0);
       const hits = Number(stats.hits || 0);
       const triggerHits = Number(stats.triggerHits || stats.hits || 0);
@@ -101,6 +105,8 @@ export function computePlayerRowsFromEntities(
         tdps: metric === "dps" && activeCombatSecs > 0 ? total / activeCombatSecs : 0,
         activeTimeMs: metric === "dps" ? effectiveActiveCombatMs : 0,
         bossDps: metric === "dps" && elapsedSecs > 0 ? bossDmg / elapsedSecs : 0,
+        trueBossDps:
+          metric === "dps" && activeCombatSecs > 0 ? bossDmg / activeCombatSecs : 0,
         dmgPct: percent(total, totalMetric),
         critRate: rate(Number(stats.critHits || 0), hits),
         critDmgRate: percent(Number(stats.critTotal || 0), total),
@@ -113,6 +119,9 @@ export function computePlayerRowsFromEntities(
         hitsPerMinute: elapsedSecs > 0 ? (hits / elapsedSecs) * 60 : 0,
         bossDmg,
         bossDmgPct: metric === "dps" ? percent(bossDmg, bossTotal) : 0,
+        equippedItems,
+        oceanWeapon: classifyOceanWeapon(equippedItems),
+        playerImagines,
       };
 
       return row;

@@ -71,6 +71,19 @@ function extractProfilePayloads(parsed: unknown): unknown[] {
   return [];
 }
 
+async function writeNormalizedProfileFile(
+  directory: string,
+  fileName: string,
+  profile: SkillMonitorProfile,
+): Promise<void> {
+  const content = `${JSON.stringify(profile, null, 2)}\n`;
+  await invoke("write_profile_library_file", {
+    directory,
+    fileName,
+    content,
+  });
+}
+
 function selectLoadedProfile(profiles: SkillMonitorProfile[], profileFiles: Record<string, string>) {
   const currentProfile =
     SETTINGS.skillMonitor.state.profiles[SETTINGS.skillMonitor.state.activeProfileIndex];
@@ -120,7 +133,7 @@ export async function loadProfileLibraryFromSettings(): Promise<boolean> {
           continue;
         }
 
-        payloads.forEach((payload, payloadIndex) => {
+        for (const [payloadIndex, payload] of payloads.entries()) {
           const fallbackId =
             payloads.length === 1
               ? fileStem(file.fileName)
@@ -133,7 +146,17 @@ export async function loadProfileLibraryFromSettings(): Promise<boolean> {
           profile.id = uniqueProfileId(profile.id, seenIds);
           profiles.push(profile);
           profileFiles[profile.id] = file.fileName;
-        });
+          if (payloads.length === 1) {
+            try {
+              await writeNormalizedProfileFile(folder, file.fileName, profile);
+            } catch (error) {
+              console.warn(
+                `[profile-library] loaded '${file.fileName}' but failed to write normalized profile JSON`,
+                error,
+              );
+            }
+          }
+        }
       } catch (error) {
         skipped.push({
           fileName: file.fileName,
@@ -170,7 +193,12 @@ export async function saveActiveProfileToLibrary(): Promise<string> {
 
   const existingFileName = SETTINGS.profileLibrary.state.profileFiles[profile.id];
   const fileName = existingFileName || nextProfileFileName(profile);
-  const content = JSON.stringify(profile);
+  const normalizedProfile = normalizeSkillMonitorProfileForPersistence(
+    profile,
+    SETTINGS.skillMonitor.state.activeProfileIndex,
+    { fallbackId: profile.id },
+  );
+  const content = `${JSON.stringify(normalizedProfile, null, 2)}\n`;
   const path = await invoke<string>("write_profile_library_file", {
     directory: folder,
     fileName,

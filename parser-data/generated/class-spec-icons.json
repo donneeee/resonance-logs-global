@@ -118,7 +118,7 @@
       "talentId": 931,
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_shieldcounter",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947793781,
+      "sourceOffset": 947793693,
       "weaponStyleBuffId": 960141,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud06",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -131,7 +131,7 @@
       "talentId": 930,
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_sup_inspireex",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947793721,
+      "sourceOffset": 947793633,
       "weaponStyleBuffId": 960140,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud06",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -144,7 +144,7 @@
       "talentId": 130,
       "iconPath": "ui/atlas/talent_passive_1/talent_passive_icon_general_dps_joy",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947773201,
+      "sourceOffset": 947773113,
       "weaponStyleBuffId": 960132,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud03",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -157,7 +157,7 @@
       "talentId": 157,
       "iconPath": "ui/atlas/talent_passive_1/talent_passive_icon_general_dps_sickleget",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947774821,
+      "sourceOffset": 947774733,
       "weaponStyleBuffId": 960133,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud03",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -170,7 +170,7 @@
       "talentId": 433,
       "iconPath": "ui/atlas/talent_passive_4/talent_passive_icon_general_dps_backhitget",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947785741,
+      "sourceOffset": 947785653,
       "weaponStyleBuffId": 960142,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud02",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -183,7 +183,7 @@
       "talentId": 432,
       "iconPath": "ui/atlas/talent_passive_4/talent_passive_icon_general_dps_flyhitget",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947785681,
+      "sourceOffset": 947785593,
       "weaponStyleBuffId": 960143,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud02",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -196,7 +196,7 @@
       "talentId": 1126,
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_petbig",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947797741,
+      "sourceOffset": 947797653,
       "weaponStyleBuffId": 960138,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud07",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -209,7 +209,7 @@
       "talentId": 1129,
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_skyhitget",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947797921,
+      "sourceOffset": 947797833,
       "weaponStyleBuffId": 960139,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud07",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -222,7 +222,7 @@
       "talentId": 233,
       "iconPath": "ui/atlas/talent_passive_2/talent_passive_icon_general_dps_skilltriggericearrow",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947777581,
+      "sourceOffset": 947777493,
       "weaponStyleBuffId": 960135,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud05",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -235,7 +235,7 @@
       "talentId": 212,
       "iconPath": "ui/atlas/talent_passive_2/talent_passive_icon_general_dps_icespearget",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947776501,
+      "sourceOffset": 947776413,
       "weaponStyleBuffId": 960134,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud05",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -248,7 +248,7 @@
       "talentId": 312,
       "iconPath": "ui/atlas/talent_passive_3/shuangfu312",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947780641
+      "sourceOffset": 947780553
     },
     "Blazecrimson": {
       "key": "Blazecrimson",
@@ -258,7 +258,7 @@
       "talentId": 342,
       "iconPath": "ui/atlas/talent_passive_3/shuangfu342",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947782441
+      "sourceOffset": 947782353
     },
     "Smite": {
       "key": "Smite",
@@ -268,7 +268,7 @@
       "talentId": 510,
       "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_aoyitrigger",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947788621,
+      "sourceOffset": 947788533,
       "weaponStyleBuffId": 960136,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud04",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -281,7 +281,7 @@
       "talentId": 531,
       "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_healringget",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947789761,
+      "sourceOffset": 947789673,
       "weaponStyleBuffId": 960137,
       "weaponStyleIconPath": "ui/atlas/hud/profession/profession_horizontal_hud04",
       "weaponStyleIconSource": "BuffTable.weapon-style"
@@ -294,7 +294,7 @@
       "talentId": 1208,
       "iconPath": "ui/atlas/talent_passive_12/jiandun1208",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947800741
+      "sourceOffset": 947800653
     },
     "Shield": {
       "key": "Shield",
@@ -304,7 +304,7 @@
       "talentId": 1218,
       "iconPath": "ui/atlas/talent_passive_12/jiandun1218",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947801341
+      "sourceOffset": 947801253
     },
     "Concerto": {
       "key": "Concerto",
@@ -314,7 +314,7 @@
       "talentId": 1317,
       "iconPath": "ui/atlas/talent_passive_13/gita1317",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947805361
+      "sourceOffset": 947805273
     },
     "Dissonance": {
       "key": "Dissonance",
@@ -324,7 +324,7 @@
       "talentId": 1308,
       "iconPath": "ui/atlas/talent_passive_13/gita1308",
       "iconSource": "CTB:3345237628",
-      "sourceOffset": 947804821
+      "sourceOffset": 947804733
     }
   }
 }

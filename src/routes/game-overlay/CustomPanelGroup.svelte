@@ -46,6 +46,7 @@
             prefixText={row.prefixText}
             valueText={row.valueText}
             metaText={row.metaText}
+            timerText={row.timerText}
             progressPercent={row.progressPercent}
             showProgress={row.showProgress}
             nameColor={styleConfig.nameColor}
@@ -54,6 +55,7 @@
             progressOpacity={styleConfig.progressOpacity}
             fontSize={styleConfig.fontSize}
             columnGap={styleConfig.columnGap}
+            reserveTimerColumn={group.kind === "seasonCultivateFactor"}
             placeholder={row.isPlaceholder}
             alert={row.alert}
           />

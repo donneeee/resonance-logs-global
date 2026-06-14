@@ -486,6 +486,22 @@ pub struct ObservedDamageHit {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct ObservedCombatTimelineBucket {
+    pub timestamp_ms: i64,
+    #[serde(default)]
+    pub target_uuid: Option<EntityUuid>,
+    pub target_uid: i64,
+    pub target_monster_type_id: Option<i32>,
+    pub damage_value: u128,
+    pub effective_damage_value: u128,
+    pub healing_value: u128,
+    pub effective_healing_value: u128,
+    pub taken_value: u128,
+    pub hp_loss_value: u128,
+    pub shield_loss_value: u128,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ObservedFormulaAttr {
     pub attr_id: i32,
     pub value_int: Option<i64>,
@@ -647,6 +663,34 @@ pub struct ObservedFactorItem {
 }
 
 #[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct ObservedEquippedItem {
+    pub slot: i32,
+    pub item_config_id: i32,
+    pub item_uuid: Option<i64>,
+    pub package_key: Option<i32>,
+    pub package_type: Option<i32>,
+    pub item_quality: Option<i32>,
+    pub equip_slot_refine_level: Option<u32>,
+    pub break_through_time: Option<i32>,
+    pub perfection_level: Option<i32>,
+    pub runtime_source: String,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct ObservedGearSetAttr {
+    pub attr_id: i32,
+    pub value: i32,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
+pub struct ObservedGearSet {
+    pub suit_id: i32,
+    pub attr_type: Option<i32>,
+    pub suit_attrs: Vec<ObservedGearSetAttr>,
+    pub runtime_source: String,
+}
+
+#[derive(Debug, Default, Clone, Serialize, Deserialize)]
 pub struct ObservedPassiveSkill {
     pub passive_uuid: Option<i64>,
     pub target_uid: Option<i64>,
@@ -727,6 +771,12 @@ pub struct Entity {
     /// Runtime-only hit log used to build exact modifier-window attribution at save time.
     #[serde(skip)]
     pub observed_damage_hits: Vec<ObservedDamageHit>,
+    /// Runtime-only lightweight hit log used to build saved-history graphs.
+    #[serde(skip)]
+    pub combat_timeline_hits: Vec<ObservedDamageHit>,
+    /// Persisted lightweight combat timeline for saved-history graph views.
+    #[serde(default)]
+    pub combat_timeline: Vec<ObservedCombatTimelineBucket>,
     /// Persisted per-skill/per-target hit buckets for damage or healing done during modifier windows.
     #[serde(default)]
     pub modifier_hit_buckets: Vec<ObservedModifierHitBucket>,
@@ -743,6 +793,10 @@ pub struct Entity {
     pub active_effect_sources: Vec<ObservedEffectSource>,
     #[serde(default)]
     pub active_factor_items: Vec<ObservedFactorItem>,
+    #[serde(default)]
+    pub equipped_items: Vec<ObservedEquippedItem>,
+    #[serde(default)]
+    pub active_gear_sets: Vec<ObservedGearSet>,
     #[serde(default)]
     pub active_passive_skills: Vec<ObservedPassiveSkill>,
     #[serde(default)]
@@ -1115,14 +1169,14 @@ impl Encounter {
             entity.active_effect_buffs.clear();
             entity.modifier_windows.clear();
             entity.observed_damage_hits.clear();
+            entity.combat_timeline_hits.clear();
+            entity.combat_timeline.clear();
             entity.modifier_hit_buckets.clear();
             entity.skill_cast_events.clear();
             entity.skill_cooldown_events.clear();
             entity.active_effect_sources.clear();
             entity.active_factor_items.clear();
             entity.active_passive_skills.clear();
-            entity.active_profession_skills.clear();
-            entity.active_profession_talents.clear();
             entity.recent_taken_events.clear();
             entity.deaths.clear();
         }
@@ -1172,6 +1226,22 @@ pub mod attr_type {
     pub const ATTR_FIGHT_POINT: i32 = 0x272e;
     pub const ATTR_LEVEL: i32 = 0x2710;
     pub const ATTR_RANK_LEVEL: i32 = 0x274c;
+    pub const ATTR_PANEL_STRENGTH: i32 = 11010;
+    pub const ATTR_PANEL_INTELLIGENCE: i32 = 11020;
+    pub const ATTR_PANEL_AGILITY: i32 = 11030;
+    pub const ATTR_PANEL_PHYSICAL_ATTACK: i32 = 11330;
+    pub const ATTR_PANEL_MAGIC_ATTACK: i32 = 11340;
+    pub const ATTR_PANEL_CRIT_RATE: i32 = 11710;
+    pub const ATTR_PANEL_ATTACK_SPEED: i32 = 11720;
+    pub const ATTR_PANEL_CAST_SPEED: i32 = 11730;
+    pub const ATTR_PANEL_LUCKY: i32 = 11780;
+    pub const ATTR_PANEL_HASTE: i32 = 11930;
+    pub const ATTR_PANEL_MASTERY: i32 = 11940;
+    pub const ATTR_PANEL_VERSATILITY: i32 = 11950;
+    pub const ATTR_PANEL_BLOCK: i32 = 11970;
+    pub const ATTR_PANEL_CRIT_DAMAGE: i32 = 12510;
+    pub const ATTR_PANEL_LUCKY_DAMAGE_MULTIPLIER: i32 = 12530;
+    pub const ATTR_PANEL_BLOCK_DAMAGE_REDUCTION: i32 = 12540;
     pub const ATTR_CRIT: i32 = 0x2b66;
     pub const ATTR_LUCKY: i32 = 0x2b7a;
     pub const ATTR_CURRENT_HP: i32 = 0x2c2e;

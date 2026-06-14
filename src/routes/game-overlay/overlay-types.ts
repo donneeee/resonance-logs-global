@@ -10,6 +10,8 @@ export type SkillDisplay = {
   percent: number;
   text: string;
   chargesText?: string;
+  accelerationText?: string;
+  debugTitle?: string;
 };
 
 export type BuffAlertState = {
@@ -53,6 +55,7 @@ export type TextBuffRowDisplay = {
   prefixText?: string | undefined;
   valueText: string;
   metaText?: string | undefined;
+  timerText?: string | undefined;
   progressPercent: number;
   showProgress: boolean;
   isPlaceholder?: boolean | undefined;
@@ -108,6 +111,7 @@ export type ResizeTarget =
         OverlaySizes,
         | "skillCdShowSlotOutline"
         | "skillCdShowEnhancedGlow"
+        | "skillCdShowAcceleration"
         | "iconBuffStackCounterSize"
         | "iconBuffSizes"
         | "standaloneIconSizes"

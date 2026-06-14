@@ -9,11 +9,18 @@ import {
   type SkillMonitorProfile,
   type TextBuffPanelStyle,
 } from "$lib/settings-store";
+import {
+  getBuffCategoryDefinitions,
+  getBuffIdsByCategory,
+  normalizeBuffCategoryKeys,
+  type BuffCategoryKey,
+} from "$lib/config/buff-name-table";
 
 export const DEFAULT_OVERLAY_SIZES: OverlaySizes = {
   skillCdGroupScale: 1,
   skillCdShowSlotOutline: true,
   skillCdShowEnhancedGlow: true,
+  skillCdShowAcceleration: false,
   resourceGroupScale: 1,
   textBuffPanelScale: 1,
   panelAttrGroupScale: 1,
@@ -46,11 +53,56 @@ export function clampDecimal(value: number, min: number, max: number): number {
   return Math.max(min, Math.min(max, value));
 }
 
+function uniqueIds(ids: number[]): number[] {
+  return Array.from(new Set(ids));
+}
+
+export function normalizeBuffGroupSelection(
+  buffIds?: number[] | null,
+  categories?: BuffCategoryKey[] | null,
+): { buffIds: number[]; buffCategories: BuffCategoryKey[] } {
+  let remainingBuffIds = uniqueIds(buffIds ?? []);
+  const categorySet = new Set(normalizeBuffCategoryKeys(categories));
+
+  for (const category of getBuffCategoryDefinitions()) {
+    const categoryBuffIds = getBuffIdsByCategory(category.key);
+    if (categoryBuffIds.length === 0) continue;
+    if (!categoryBuffIds.every((buffId) => remainingBuffIds.includes(buffId))) {
+      continue;
+    }
+
+    categorySet.add(category.key);
+    const categoryBuffIdSet = new Set(categoryBuffIds);
+    remainingBuffIds = remainingBuffIds.filter(
+      (buffId) => !categoryBuffIdSet.has(buffId),
+    );
+  }
+
+  const selectedCategoryBuffIds = new Set(
+    Array.from(categorySet).flatMap((categoryKey) =>
+      getBuffIdsByCategory(categoryKey),
+    ),
+  );
+  remainingBuffIds = remainingBuffIds.filter(
+    (buffId) => !selectedCategoryBuffIds.has(buffId),
+  );
+
+  return {
+    buffIds: remainingBuffIds,
+    buffCategories: normalizeBuffCategoryKeys(Array.from(categorySet)),
+  };
+}
+
 export function ensureBuffGroup(group: BuffGroup, index: number): BuffGroup {
+  const selection = normalizeBuffGroupSelection(
+    group.buffIds,
+    group.buffCategories,
+  );
   return {
     id: group.id ?? `group_${index + 1}`,
     name: group.name ?? `分组 ${index + 1}`,
-    buffIds: group.buffIds ?? [],
+    buffIds: selection.buffIds,
+    buffCategories: selection.buffCategories,
     priorityBuffIds: group.priorityBuffIds ?? [],
     monitorAll: group.monitorAll ?? false,
     position: group.position ?? { x: 40 + index * 40, y: 310 + index * 40 },
@@ -78,6 +130,7 @@ export function ensureIndividualMonitorAllGroup(
     id: group.id ?? "individual_all_group",
     name: group.name ?? "全部 Buff",
     buffIds: [],
+    buffCategories: [],
     priorityBuffIds: group.priorityBuffIds ?? [],
     monitorAll: true,
     position: group.position ?? { x: 40, y: 310 },
@@ -148,6 +201,8 @@ export function ensureOverlaySizes(profile: SkillMonitorProfile): OverlaySizes {
       current?.skillCdShowSlotOutline ?? DEFAULT_OVERLAY_SIZES.skillCdShowSlotOutline,
     skillCdShowEnhancedGlow:
       current?.skillCdShowEnhancedGlow ?? DEFAULT_OVERLAY_SIZES.skillCdShowEnhancedGlow,
+    skillCdShowAcceleration:
+      current?.skillCdShowAcceleration ?? DEFAULT_OVERLAY_SIZES.skillCdShowAcceleration,
     resourceGroupScale:
       current?.resourceGroupScale ?? DEFAULT_OVERLAY_SIZES.resourceGroupScale,
     textBuffPanelScale:

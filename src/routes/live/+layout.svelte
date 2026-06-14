@@ -280,21 +280,27 @@
     return frozenLiveDisplayNowMs;
   }
 
-  function setLiveDataWithDisplayClock(
+  function ingestLiveDataPayload(
     payload: LiveDataPayload,
     nowMs = Date.now(),
   ): void {
     updateLiveActivityFromPayload(payload, nowMs);
-    setLiveData(payload);
+  }
+
+  function refreshLiveDisplay(nowMs = Date.now()): void {
+    const payload = latestLivePayload;
+    if (payload && payload.fightStartTimestampMs > 0) {
+      setLiveData(payload);
+    }
     setLiveDisplayNowMs(currentLiveDisplayNowMs(nowMs));
   }
 
   $effect(() => {
     if (typeof window === "undefined") return;
     const refreshRateMs = liveDisplayRefreshRateMs();
-    setLiveDisplayNowMs(currentLiveDisplayNowMs(Date.now()));
+    refreshLiveDisplay(Date.now());
     const timer = setInterval(() => {
-      setLiveDisplayNowMs(currentLiveDisplayNowMs(Date.now()));
+      refreshLiveDisplay(Date.now());
     }, refreshRateMs);
     return () => clearInterval(timer);
   });
@@ -400,11 +406,11 @@
     }
   }
 
-  async function queryGameWindowForeground(): Promise<boolean> {
+  async function queryGameOrParserWindowForeground(): Promise<boolean> {
     try {
       return await invoke<boolean>("is_game_window_foreground");
     } catch (error) {
-      console.warn("Failed to check foreground game window:", error);
+      console.warn("Failed to check foreground game/parser window:", error);
       return true;
     }
   }
@@ -458,7 +464,7 @@
     await restorePassiveOverlayWindows(hiddenLabels);
   }
 
-  async function applyGameBlurAutoHideState(gameIsForeground: boolean): Promise<void> {
+  async function applyGameBlurAutoHideState(gameOrParserIsForeground: boolean): Promise<void> {
     if (isDestroyed) return;
 
     if (!autoHideOnGameBlurEnabled) {
@@ -467,7 +473,7 @@
       return;
     }
 
-    if (!gameIsForeground) {
+    if (!gameOrParserIsForeground) {
       await hideWindowsForGameBlur();
       return;
     }
@@ -480,14 +486,14 @@
     gameBlurOperation = gameBlurOperation
       .catch(() => undefined)
       .then(async () => {
-        const gameIsForeground = autoHideOnGameBlurEnabled
-          ? await queryGameWindowForeground()
+        const gameOrParserIsForeground = autoHideOnGameBlurEnabled
+          ? await queryGameOrParserWindowForeground()
           : true;
-        if (!force && gameBlurLastForeground === gameIsForeground) {
+        if (!force && gameBlurLastForeground === gameOrParserIsForeground) {
           return;
         }
-        gameBlurLastForeground = gameIsForeground;
-        await applyGameBlurAutoHideState(gameIsForeground);
+        gameBlurLastForeground = gameOrParserIsForeground;
+        await applyGameBlurAutoHideState(gameOrParserIsForeground);
       });
     return gameBlurOperation;
   }
@@ -622,7 +628,7 @@
         hadAnyEvent = true;
         void syncAutoHideLiveWindow(livePayloadHasDamageEvent(event.payload));
         if (event.payload.fightStartTimestampMs > 0) {
-          setLiveDataWithDisplayClock(event.payload, lastEventTime);
+          ingestLiveDataPayload(event.payload, lastEventTime);
         } else if (event.payload.totalDmg === 0 && event.payload.totalHeal === 0) {
           resetLiveActivityTracking(lastEventTime);
           clearMeterData();
@@ -646,7 +652,7 @@
         clearMeterData();
         notificationToast?.showToast(
           "notice",
-t("live.resetToast", "战斗记录已重置"),
+t("live.resetToast", "Encounter reset"),
         );
       });
 

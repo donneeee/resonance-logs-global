@@ -27,7 +27,7 @@ export function ensureCustomPanelEntries(
       : {}),
     label:
       entry.sourceType === "counter"
-        ? (entry.label ?? `计数器 ${entry.sourceId}`)
+        ? (entry.label ?? `Counter ${entry.sourceId}`)
         : (entry.label ?? ""),
     format: entry.format ?? "timer",
   }));
@@ -58,7 +58,7 @@ export function ensureCustomPanelGroups(
   if (groups.length > 0) {
     return groups.map((group, index) => ({
       id: group.id ?? `custom_panel_group_${index + 1}`,
-      name: group.name ?? `监控区 ${index + 1}`,
+      name: group.name ?? `Monitor Area ${index + 1}`,
       kind: normalizeCustomPanelGroupKind(group.kind),
       entries:
         normalizeCustomPanelGroupKind(group.kind) === "manual"
@@ -84,7 +84,7 @@ export function ensureCustomPanelGroups(
   return [
     {
       id: "custom_panel_group_1",
-      name: "监控区 1",
+      name: "Monitor Area 1",
       kind: "manual",
       entries: legacyEntries,
       position: legacyPosition,

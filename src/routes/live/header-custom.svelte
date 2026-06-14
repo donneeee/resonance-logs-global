@@ -50,12 +50,22 @@
   const h = $derived(SETTINGS.live.headerCustomization.state);
   const trainingDummySettings = $derived(SETTINGS.trainingDummy.state);
 
+  function headerLabelAlias(value: unknown, fallback: string): string {
+    const alias = typeof value === "string" ? value.trim() : "";
+    return alias || fallback;
+  }
+
+  const totalDamageLabel = $derived(headerLabelAlias(h.totalDamageLabelAlias, "T.DMG"));
+  const totalDpsLabel = $derived(headerLabelAlias(h.totalDpsLabelAlias, "T.DPS"));
+
   const liveData = $derived(getLiveData());
   const liveDisplayNowMs = $derived(getLiveDisplayNowMs());
   const runtimeTrainingDummyState = $derived(getTrainingDummyState());
 
   const emptyTrainingDummy: TrainingDummyState = {
     phase: "idle",
+    durationMs: 180_000,
+    remainingMs: 0,
   };
 
   let clientElapsedMs = $state(0);
@@ -147,6 +157,36 @@
   const displaySceneName = $derived(localizeRawSceneName(headerInfo.sceneName, headerInfo.sceneName));
   const displayBosses = $derived(headerInfo.bosses);
   const isTrainingDummyActive = $derived(trainingDummyState.phase !== "idle");
+  const isTrainingDummyCountdownActive = $derived(
+    isTrainingDummyActive && trainingDummySettings.timerLimitEnabled !== false,
+  );
+  const configuredTrainingDummyDurationSeconds = $derived.by(() => {
+    const seconds = Number(trainingDummySettings.segmentDurationSeconds);
+    if (!Number.isFinite(seconds)) return 180;
+    return Math.max(10, Math.min(600, Math.round(seconds)));
+  });
+  const configuredTrainingDummyDurationMs = $derived(configuredTrainingDummyDurationSeconds * 1000);
+  const displayTimerMs = $derived.by(() => {
+    if (!isTrainingDummyCountdownActive) return displayElapsedMs;
+    if (trainingDummyState.phase === "finished") return 0;
+    const remainingMs = Number(trainingDummyState.remainingMs);
+    if (
+      Number.isFinite(remainingMs) &&
+      (trainingDummyState.phase === "running" || remainingMs > 0)
+    ) {
+      return Math.max(0, remainingMs);
+    }
+    if (trainingDummyState.phase === "armed") {
+      return trainingDummyState.durationMs || configuredTrainingDummyDurationMs;
+    }
+    const durationMs = trainingDummyState.durationMs || configuredTrainingDummyDurationMs;
+    return Math.max(0, durationMs - displayElapsedMs);
+  });
+  const displayTimerTooltip = $derived(
+    isTrainingDummyCountdownActive
+      ? t("header.training.timeRemaining", "Training Dummy Time Remaining")
+      : t("header.timeElapsed", "Time Elapsed"),
+  );
 
   let appWindow = $state<ReturnType<typeof getCurrentWebviewWindow> | null>(null);
 
@@ -194,12 +234,44 @@
       if (isTrainingDummyActive) {
         await stopTrainingDummy();
       } else {
-        await startTrainingDummy();
+        await startTrainingDummy(
+          trainingDummySettings.timerLimitEnabled !== false
+            ? configuredTrainingDummyDurationSeconds
+            : null,
+        );
       }
     } finally {
       trainingDummyBusy = false;
     }
   }
+
+  let lastTrainingDummyConfigKey = $state<string | null>(null);
+
+  $effect(() => {
+    const key = `${trainingDummySettings.timerLimitEnabled !== false}:${configuredTrainingDummyDurationSeconds}`;
+    if (lastTrainingDummyConfigKey === null) {
+      lastTrainingDummyConfigKey = key;
+      return;
+    }
+
+    if (key === lastTrainingDummyConfigKey) {
+      return;
+    }
+    lastTrainingDummyConfigKey = key;
+
+    if (!isTrainingDummyActive || trainingDummyBusy) {
+      return;
+    }
+
+    trainingDummyBusy = true;
+    void startTrainingDummy(
+      trainingDummySettings.timerLimitEnabled !== false
+        ? configuredTrainingDummyDurationSeconds
+        : null,
+    ).finally(() => {
+      trainingDummyBusy = false;
+    });
+  });
 
   // Check if we have any row 1 left content
   const hasRow1Left = $derived(
@@ -245,8 +317,8 @@
       <span
         class="font-bold text-foreground tabular-nums tracking-tight leading-none"
         style="font-size: {h.timerFontSize}px"
-        {@attach tooltip(() => t("header.timeElapsed", "Time Elapsed"))}
-        >{formatElapsed(displayElapsedMs)}</span
+        {@attach tooltip(() => displayTimerTooltip)}
+        >{formatElapsed(displayTimerMs)}</span
       >
       {#if h.showActiveTimer}
         <span
@@ -296,9 +368,9 @@
   {#if h.showTotalDamage}
     <div class="flex items-center gap-2 shrink-0">
       <span
-        class="font-bold text-muted-foreground uppercase tracking-wider"
+        class="font-bold text-muted-foreground tracking-wider"
         style="font-size: {h.totalDamageLabelFontSize}px"
-        {@attach tooltip(() => t("header.totalDamage", "Total Damage Dealt"))}>T.DMG</span
+        {@attach tooltip(() => t("header.totalDamage", "Total Damage Dealt"))}>{totalDamageLabel}</span
       >
       <span
         class="font-bold text-foreground"
@@ -314,9 +386,9 @@
   {#if h.showTotalDps}
     <div class="flex items-center gap-2 shrink-0">
       <span
-        class="font-bold text-muted-foreground uppercase tracking-wider"
+        class="font-bold text-muted-foreground tracking-wider"
         style="font-size: {h.totalDpsLabelFontSize}px"
-        {@attach tooltip(() => t("header.totalDps", "Total Damage per Second"))}>T.DPS</span
+        {@attach tooltip(() => t("header.totalDps", "Total Damage per Second"))}>{totalDpsLabel}</span
       >
       <span
         class="font-bold text-foreground"
@@ -601,8 +673,8 @@
             <span
               class="font-bold text-foreground tabular-nums tracking-tight leading-none"
               style="font-size: {h.timerFontSize}px"
-              {@attach tooltip(() => t("header.timeElapsed", "Time Elapsed"))}
-              >{formatElapsed(displayElapsedMs)}</span
+              {@attach tooltip(() => displayTimerTooltip)}
+              >{formatElapsed(displayTimerMs)}</span
             >
             {#if h.showActiveTimer}
               <span
@@ -746,9 +818,9 @@
           {#if h.showTotalDamage}
             <div class="flex items-center gap-2 shrink-0">
               <span
-                class="font-bold text-muted-foreground uppercase tracking-wider"
+                class="font-bold text-muted-foreground tracking-wider"
                 style="font-size: {h.totalDamageLabelFontSize}px"
-                {@attach tooltip(() => t("header.totalDamage", "Total Damage Dealt"))}>T.DMG</span
+                {@attach tooltip(() => t("header.totalDamage", "Total Damage Dealt"))}>{totalDamageLabel}</span
               >
               <span
                 class="font-bold text-foreground"
@@ -766,9 +838,9 @@
           {#if h.showTotalDps}
             <div class="flex items-center gap-2 shrink-0">
               <span
-                class="font-bold text-muted-foreground uppercase tracking-wider"
+                class="font-bold text-muted-foreground tracking-wider"
                 style="font-size: {h.totalDpsLabelFontSize}px"
-                {@attach tooltip(() => t("header.totalDps", "Total Damage per Second"))}>T.DPS</span
+                {@attach tooltip(() => t("header.totalDps", "Total Damage per Second"))}>{totalDpsLabel}</span
               >
               <span
                 class="font-bold text-foreground"

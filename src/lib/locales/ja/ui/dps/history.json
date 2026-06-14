@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "ブロック%",
   "columns.historyTankedSkills.luckyBlockRate.description": "この被弾スキルでラッキーブロックが発生した割合を表示",
   "columns.historyTankedSkills.luckyBlockRate.header": "ラッキーブロック%",
-  "columns.historyTankedSkills.luckyBlockRate.label": "ラッキーブロック%"
+  "columns.historyTankedSkills.luckyBlockRate.label": "ラッキーブロック%",
+  "detail.graphIndividualView": "グラフ - 個人",
+  "detail.graphTeamView": "グラフ - T.DPS",
+  "detail.graphDeath": "死亡",
+  "detail.summary.aria": "プレイヤー統計サマリー",
+  "detail.summary.time": "時間",
+  "detail.summary.encounterTime": "戦闘時間",
+  "detail.summary.trueDpsTime": "実DPS時間",
+  "detail.summary.damage": "ダメージ",
+  "detail.summary.boss": "ボス",
+  "detail.summary.rates": "率",
+  "detail.summary.healing": "回復",
+  "detail.summary.tanked": "被ダメージ"
 }

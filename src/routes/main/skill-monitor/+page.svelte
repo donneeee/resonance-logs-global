@@ -72,6 +72,7 @@
     activeProfileOrDefault,
     updateActiveProfile as updateSharedActiveProfile,
   } from "$lib/skill-monitor-profile.svelte";
+  import { normalizeBuffGroupSelection } from "$lib/skill-monitor-normalize";
 
   type CounterRuleOption = CounterRulePreset & { origin: "preset" | "user" };
 
@@ -219,6 +220,14 @@
     return Array.from(new Set(ids));
   }
 
+  function getExpandedGroupBuffIds(group: BuffGroup): number[] {
+    const selection = normalizeBuffGroupSelection(
+      group.buffIds,
+      group.buffCategories,
+    );
+    return expandBuffSelection(selection.buffIds, selection.buffCategories);
+  }
+
   function updateActiveProfile(
     updater: (profile: SkillMonitorProfile) => SkillMonitorProfile,
   ) {
@@ -243,15 +252,20 @@
     if (group.monitorAll) {
       return uniqueIds(group.priorityBuffIds ?? []);
     }
-    const inGroup = new Set(group.buffIds);
+    const inGroup = new Set(getExpandedGroupBuffIds(group));
     return uniqueIds((group.priorityBuffIds ?? []).filter((id) => inGroup.has(id)));
   }
 
   function ensureBuffGroup(group: BuffGroup, index: number): BuffGroup {
+    const selection = normalizeBuffGroupSelection(
+      group.buffIds,
+      group.buffCategories,
+    );
     return {
       id: group.id ?? `group_${index + 1}`,
-      name: group.name ?? `${t("buffGroupDefault", "分组")} ${index + 1}`,
-      buffIds: group.buffIds ?? [],
+      name: group.name ?? `${t("buffGroupDefault", "Group")} ${index + 1}`,
+      buffIds: selection.buffIds,
+      buffCategories: selection.buffCategories,
       priorityBuffIds: group.priorityBuffIds ?? [],
       monitorAll: group.monitorAll ?? false,
       position: group.position ?? { x: 40 + index * 40, y: 310 + index * 40 },
@@ -276,7 +290,7 @@
     return {
       ...normalized,
       monitorAll: true,
-      name: normalized.name || t("allBuffs", "全部 Buff"),
+      name: normalized.name || t("allBuffs", "All Buffs"),
     };
   }
 
@@ -303,7 +317,7 @@
       sourceType: entry.sourceType ?? "buff",
       sourceId: entry.sourceId,
       label: entry.sourceType === "counter"
-        ? (entry.label ?? `${t("counterDefault", "计数器")} ${entry.sourceId}`)
+        ? (entry.label ?? `${t("counterDefault", "Counter")} ${entry.sourceId}`)
         : (entry.label ?? ""),
       format: entry.format ?? "timer",
     }));
@@ -315,7 +329,7 @@
       sourceType: entry.sourceType ?? "buff",
       sourceId: entry.sourceId,
       label: entry.sourceType === "counter"
-        ? (entry.label ?? `${t("counterDefault", "计数器")} ${entry.sourceId}`)
+        ? (entry.label ?? `${t("counterDefault", "Counter")} ${entry.sourceId}`)
         : (entry.label ?? ""),
       format: entry.format ?? "timer",
     }));
@@ -332,7 +346,7 @@
     if (groups.length > 0) {
       return groups.map((group, idx) => ({
         id: group.id ?? `custom_panel_group_${idx + 1}`,
-        name: group.name ?? `${t("monitorAreaDefault", "监控区")} ${idx + 1}`,
+        name: group.name ?? `${t("monitorAreaDefault", "Monitor Area")} ${idx + 1}`,
         kind: group.kind === "seasonCultivateFactor" ? "seasonCultivateFactor" : "manual",
         entries:
           group.kind === "seasonCultivateFactor"
@@ -354,7 +368,7 @@
     return [
       {
         id: "custom_panel_group_1",
-        name: `${t("monitorAreaDefault", "监控区")} 1`,
+        name: `${t("monitorAreaDefault", "Monitor Area")} 1`,
         kind: "manual",
         entries: legacyEntries,
         position: legacyPosition,
@@ -395,6 +409,7 @@
       skillCdGroupScale: current?.skillCdGroupScale ?? 1,
       skillCdShowSlotOutline: current?.skillCdShowSlotOutline ?? true,
       skillCdShowEnhancedGlow: current?.skillCdShowEnhancedGlow ?? true,
+      skillCdShowAcceleration: current?.skillCdShowAcceleration ?? false,
       resourceGroupScale: current?.resourceGroupScale ?? 1,
       textBuffPanelScale: current?.textBuffPanelScale ?? 1,
       panelAttrGroupScale: current?.panelAttrGroupScale ?? 1,
@@ -572,7 +587,7 @@
     );
     const groupBuffIds = ensureBuffGroups(profile)
       .filter((group) => !group.monitorAll)
-      .flatMap((group) => group.buffIds);
+      .flatMap((group) => getExpandedGroupBuffIds(group));
     const customPanelBuffIds = ensureCustomPanelGroups(profile)
       .flatMap((group) => group.entries)
       .filter((entry) => entry.sourceType === "buff")
@@ -1256,7 +1271,7 @@
     }
     updateCustomPanelGroups((groups) => [
       ...groups,
-      createDefaultCustomPanelGroup(`${t("monitorAreaDefault", "监控区")} ${groups.length + 1}`, groups.length + 1),
+      createDefaultCustomPanelGroup(`${t("monitorAreaDefault", "Monitor Area")} ${groups.length + 1}`, groups.length + 1),
     ]);
   }
 
@@ -1352,7 +1367,7 @@
         return profile;
       }
       const label = sourceType === "counter"
-        ? (counterRules.find((rule) => rule.ruleId === sourceId)?.name ?? `${t("counterDefault", "计数器")} ${sourceId}`)
+        ? (counterRules.find((rule) => rule.ruleId === sourceId)?.name ?? `${t("counterDefault", "Counter")} ${sourceId}`)
         : "";
       const nextEntry: InlineBuffEntry = {
         id: `inline_${Date.now()}_${Math.floor(Math.random() * 10000)}`,
@@ -1513,7 +1528,7 @@
       const groups = ensureBuffGroups(profile);
       return {
         ...profile,
-        buffGroups: [...groups, createDefaultBuffGroup(`${t("buffGroupDefault", "分组")} ${groups.length + 1}`, groups.length + 1)],
+        buffGroups: [...groups, createDefaultBuffGroup(`${t("buffGroupDefault", "Group")} ${groups.length + 1}`, groups.length + 1)],
       };
     });
   }
@@ -1550,7 +1565,7 @@
       return {
         ...profile,
         individualMonitorAllGroup: {
-          ...createDefaultBuffGroup(t("allBuffs", "全部 Buff"), 1),
+          ...createDefaultBuffGroup(t("allBuffs", "All Buffs"), 1),
           monitorAll: true,
         },
       };
@@ -1616,9 +1631,10 @@
   function getGroupSearchResults(group: BuffGroup): BuffNameInfo[] {
     const results = groupSearchResults[group.id] ?? [];
     const ids = new Set<number>();
+    const selectedIds = new Set(getExpandedGroupBuffIds(group));
     return results.filter((item) => {
       if (ids.has(item.baseId)) return false;
-      if (group.buffIds.includes(item.baseId)) return false;
+      if (selectedIds.has(item.baseId)) return false;
       if (group.priorityBuffIds.includes(item.baseId)) return false;
       ids.add(item.baseId);
       return true;
@@ -1628,9 +1644,10 @@
   function getGroupPrioritySearchResults(group: BuffGroup): BuffNameInfo[] {
     const results = groupPrioritySearchResults[group.id] ?? [];
     const ids = new Set<number>();
+    const selectedIds = new Set(getExpandedGroupBuffIds(group));
     return results.filter((item) => {
       if (ids.has(item.baseId)) return false;
-      if (!group.monitorAll && !group.buffIds.includes(item.baseId)) return false;
+      if (!group.monitorAll && !selectedIds.has(item.baseId)) return false;
       if (group.priorityBuffIds.includes(item.baseId)) return false;
       ids.add(item.baseId);
       return true;
@@ -1660,22 +1677,17 @@
     const categoryBuffIds = getBuffIdsByCategory(categoryKey);
     if (categoryBuffIds.length === 0) return;
     updateBuffGroup(groupId, (group) => {
-      const hasCompleteCategory = categoryBuffIds.every((buffId) =>
-        group.buffIds.includes(buffId),
-      );
-      if (hasCompleteCategory) {
-        const categoryBuffIdSet = new Set(categoryBuffIds);
-        return {
-          ...group,
-          buffIds: group.buffIds.filter((buffId) => !categoryBuffIdSet.has(buffId)),
-          priorityBuffIds: group.priorityBuffIds.filter(
-            (buffId) => !categoryBuffIdSet.has(buffId),
-          ),
-        };
-      }
+      const currentCategories = normalizeBuffCategoryKeys(group.buffCategories);
+      const hasCategory = currentCategories.includes(categoryKey);
+      const categoryBuffIdSet = new Set(categoryBuffIds);
       return {
         ...group,
-        buffIds: uniqueIds([...group.buffIds, ...categoryBuffIds]),
+        buffCategories: hasCategory
+          ? currentCategories.filter((key) => key !== categoryKey)
+          : [...currentCategories, categoryKey],
+        priorityBuffIds: hasCategory
+          ? group.priorityBuffIds.filter((buffId) => !categoryBuffIdSet.has(buffId))
+          : group.priorityBuffIds,
       };
     });
   }
@@ -1684,9 +1696,7 @@
     group: BuffGroup,
     categoryKey: BuffCategoryKey,
   ): boolean {
-    const categoryBuffIds = getBuffIdsByCategory(categoryKey);
-    return categoryBuffIds.length > 0
-      && categoryBuffIds.every((buffId) => group.buffIds.includes(buffId));
+    return normalizeBuffCategoryKeys(group.buffCategories).includes(categoryKey);
   }
 
   function togglePriorityInGroup(groupId: string, buffId: number) {

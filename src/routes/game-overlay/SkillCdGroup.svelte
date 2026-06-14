@@ -26,6 +26,7 @@
   const groupScale = $derived(getGroupScale("skillCdGroupScale"));
   const showSlotOutline = $derived(getOverlaySizes().skillCdShowSlotOutline);
   const showEnhancedGlow = $derived(getOverlaySizes().skillCdShowEnhancedGlow);
+  const showAcceleration = $derived(getOverlaySizes().skillCdShowAcceleration);
   const skillIds = $derived(monitoredSkillIds());
   const displays = $derived(displayMap());
   const classKey = $derived(selectedClassKey());
@@ -76,6 +77,10 @@
       {@const percent = isOnCd ? effectiveDisplay?.percent ?? 0 : 0}
       {@const cooldownAngle = `${Math.max(0, Math.min(1, percent)) * 360}deg`}
       {@const displayText = effectiveDisplay?.text ?? ""}
+      {@const hoverTitle =
+        showAcceleration && effectiveDisplay?.debugTitle
+          ? effectiveDisplay.debugTitle
+          : displaySkill?.name ?? ""}
 
       <div
         class="skill-cell"
@@ -83,6 +88,7 @@
         class:on-cd={isOnCd}
         class:derived-active={isDerivedActive}
         class:enhanced-glow={isDerivedActive && showEnhancedGlow}
+        title={hoverTitle}
       >
         {#if displaySkill?.imagePath}
           <img
@@ -97,6 +103,10 @@
 
         {#if effectiveDisplay?.chargesText}
           <div class="charges-badge">{effectiveDisplay.chargesText}</div>
+        {/if}
+
+        {#if showAcceleration && effectiveDisplay?.accelerationText}
+          <div class="cd-accel-badge">{effectiveDisplay.accelerationText}</div>
         {/if}
 
         {#if isOnCd}
@@ -235,5 +245,25 @@
     font-size: 9px;
     font-weight: 600;
     line-height: 1;
+  }
+
+  .cd-accel-badge {
+    position: absolute;
+    z-index: 4;
+    left: 2px;
+    top: 2px;
+    max-width: calc(100% - 4px);
+    padding: 1px 3px;
+    border-radius: 4px;
+    background: rgba(8, 16, 28, 0.72);
+    color: #d6f4ff;
+    font-size: 8px;
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: 0;
+    text-shadow: 0 0 3px rgba(0, 0, 0, 0.95);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 </style>

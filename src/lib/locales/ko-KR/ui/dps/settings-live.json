@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "라이브 창 자동 숨기기가 켜져 있으면 라이브 미터가 숨겨질 때 현재 보이는 게임/몬스터 오버레이도 함께 숨기고, 자동 숨김 전 보이던 오버레이만 복원합니다.",
   "autoHideLiveWindowDelaySeconds": "자동 숨김 지연",
   "autoHideLiveWindowDelaySecondsDescription": "새 피해가 감지되지 않은 뒤 라이브 미터를 숨기기 전까지 기다릴 초 수입니다. 0으로 설정하면 즉시 숨깁니다.",
-  "secondsUnit": "초"
+  "secondsUnit": "초",
+  "trainingDummyTimerLimitEnabled": "타겟 더미 타이머",
+  "trainingDummyTimerLimitEnabledDescription": "고정 타겟 더미 구간 타이머를 사용합니다. 라이브 타이머는 남은 시간을 표시하고 0이 되면 구간이 종료됩니다.",
+  "trainingDummySegmentDurationSeconds": "타겟 더미 시간",
+  "trainingDummySegmentDurationSecondsDescription": "타겟 더미 구간 길이를 설정합니다. 기본값: 180초.",
+  "showPlayerImagineBadges": "배틀 이매진 배지",
+  "showPlayerImagineBadgesDescription": "직업 아이콘 옆에 장착한 배틀 이매진 배지를 표시합니다.",
+  "showOceanWeaponBadge": "먼바다 무기 배지",
+  "showOceanWeaponBadgeDescription": "감지된 먼바다 무기 배지를 플레이어 이름 앞에 표시합니다."
 }

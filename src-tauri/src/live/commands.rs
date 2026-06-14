@@ -105,8 +105,9 @@ pub fn toggle_pause_encounter(
 #[specta::specta]
 pub fn start_training_dummy(
     state_manager: tauri::State<'_, AppStateManager>,
+    duration_seconds: Option<u64>,
 ) -> Result<(), String> {
-    state_manager.start_training_dummy()?;
+    state_manager.start_training_dummy(duration_seconds)?;
     Ok(())
 }
 

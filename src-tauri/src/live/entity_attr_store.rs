@@ -1,5 +1,5 @@
 use crate::live::commands_models::{HateEntry, PanelAttrState, ShieldDetailEntry};
-use crate::live::opcodes_models::{AttrType, AttrValue, Entity, PositionAttr};
+use crate::live::opcodes_models::{AttrType, AttrValue, Entity, PositionAttr, attr_type};
 use blueprotobuf_lib::blueprotobuf::EActorState;
 use std::collections::HashMap;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -142,12 +142,7 @@ impl EntityAttrStore {
                 .insert(attr_type, value);
         }
         let is_local_player = uid == self.local_player_uid || uid == self.local_player_uuid;
-        if is_local_player
-            && matches!(
-                attr_type,
-                AttrType::SkillCd | AttrType::SkillCdPct | AttrType::CdAcceleratePct
-            )
-        {
+        if is_local_player && attr_affects_skill_cd(attr_type) {
             self.cd_dirty = true;
         }
         if is_local_player && matches!(attr_type, AttrType::CurrentHp | AttrType::MaxHp) {
@@ -170,6 +165,9 @@ impl EntityAttrStore {
         let prev = self.panel_attr_values.insert(attr_id, value);
         if prev == Some(value) {
             return false;
+        }
+        if panel_attr_affects_skill_cd(attr_id) {
+            self.cd_dirty = true;
         }
         self.panel_dirty_attrs
             .push(PanelAttrState { attr_id, value });
@@ -317,6 +315,11 @@ impl EntityAttrStore {
         (attr_skill_cd, attr_skill_cd_pct, attr_cd_accelerate_pct)
     }
 
+    pub fn local_attr_int(&self, attr_type: AttrType) -> Option<i64> {
+        self.attr(self.local_attr_key(), attr_type)
+            .and_then(AttrValue::as_int)
+    }
+
     pub fn mark_cd_dirty(&mut self) {
         self.cd_dirty = true;
     }
@@ -357,4 +360,40 @@ impl EntityAttrStore {
             death_events: std::mem::take(&mut self.death_events),
         }
     }
+}
+
+fn attr_affects_skill_cd(attr_type: AttrType) -> bool {
+    match attr_type {
+        AttrType::SkillCd
+        | AttrType::SkillCdPct
+        | AttrType::CdAcceleratePct
+        | AttrType::BaseStrength
+        | AttrType::Endurance
+        | AttrType::Crit
+        | AttrType::Lucky
+        | AttrType::Haste
+        | AttrType::Mastery => true,
+        AttrType::Unknown(attr_id) => panel_attr_affects_skill_cd(attr_id),
+        _ => false,
+    }
+}
+
+fn panel_attr_affects_skill_cd(attr_id: i32) -> bool {
+    matches!(
+        attr_id,
+        attr_type::ATTR_PANEL_STRENGTH
+            | attr_type::ATTR_PANEL_AGILITY
+            | attr_type::ATTR_PANEL_CRIT_RATE
+            | attr_type::ATTR_PANEL_ATTACK_SPEED
+            | attr_type::ATTR_PANEL_CAST_SPEED
+            | attr_type::ATTR_PANEL_LUCKY
+            | attr_type::ATTR_PANEL_HASTE
+            | attr_type::ATTR_PANEL_MASTERY
+            | attr_type::ATTR_PANEL_VERSATILITY
+            | attr_type::ATTR_SKILL_CD_PCT
+            | attr_type::ATTR_CD_ACCELERATE_PCT
+            | attr_type::ATTR_PANEL_CRIT_DAMAGE
+            | attr_type::ATTR_PANEL_LUCKY_DAMAGE_MULTIPLIER
+            | attr_type::ATTR_PANEL_BLOCK_DAMAGE_REDUCTION
+    )
 }

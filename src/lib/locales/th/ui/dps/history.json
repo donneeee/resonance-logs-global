@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "บล็อก %",
   "columns.historyTankedSkills.luckyBlockRate.description": "แสดงโอกาสที่สกิลที่ได้รับนี้เกิดบล็อกโชคดี",
   "columns.historyTankedSkills.luckyBlockRate.header": "บล็อกโชคดี %",
-  "columns.historyTankedSkills.luckyBlockRate.label": "บล็อกโชคดี %"
+  "columns.historyTankedSkills.luckyBlockRate.label": "บล็อกโชคดี %",
+  "detail.graphIndividualView": "กราฟ - รายคน",
+  "detail.graphTeamView": "กราฟ - T.DPS",
+  "detail.graphDeath": "ตาย",
+  "detail.summary.aria": "สรุปสถิติผู้เล่น",
+  "detail.summary.time": "เวลา",
+  "detail.summary.encounterTime": "เวลาในการต่อสู้",
+  "detail.summary.trueDpsTime": "เวลา DPS จริง",
+  "detail.summary.damage": "ความเสียหาย",
+  "detail.summary.boss": "บอส",
+  "detail.summary.rates": "อัตรา",
+  "detail.summary.healing": "การรักษา",
+  "detail.summary.tanked": "รับความเสียหาย"
 }

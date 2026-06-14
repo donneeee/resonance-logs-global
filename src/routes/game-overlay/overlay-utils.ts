@@ -2,8 +2,10 @@ import type {
   BuffUpdateState,
   CounterSlotState,
   CounterUpdateState,
+  SkillCdSourceState,
   SkillCdState,
 } from "$lib/api";
+import skillTagLabelsData from "$parserData/generated/SkillTagLabels.json";
 export {
   ensureCustomPanelEntries,
   ensureCustomPanelGroups,
@@ -22,6 +24,7 @@ export {
   ensureTextBuffPanelStyle,
 } from "$lib/skill-monitor-normalize";
 import { ensurePanelAreaRowOrder } from "$lib/skill-monitor-normalize";
+import { SETTINGS } from "$lib/settings-store";
 import type {
   BuffAlertRule,
   InlineBuffEntry,
@@ -276,6 +279,18 @@ function getLinkedBuffProgress(
   };
 }
 
+function getLinkedTimerText(
+  linkedBuff: BuffUpdateState | undefined,
+  now: number,
+  showInactive = false,
+): string | undefined {
+  if (!linkedBuff) return showInactive ? "--" : undefined;
+  if (linkedBuff.durationMs <= 0) return showInactive ? "--" : undefined;
+  if (!isBuffActive(linkedBuff, now)) return showInactive ? "--" : undefined;
+  const remainingMs = getBuffRemainingMs(linkedBuff, now);
+  return remainingMs > 0 ? formatTimerText(remainingMs) : showInactive ? "--" : undefined;
+}
+
 export function getCustomPanelDisplayRow(
   entry: InlineBuffEntry,
   now: number,
@@ -329,6 +344,9 @@ export function getCustomPanelDisplayRow(
       label: entry.label,
       valueText: formatCounterCountText(selectedSlot, slotConfig),
       metaText: undefined,
+      timerText: factorDisplay
+        ? getLinkedTimerText(linkedBuff, now, false)
+        : undefined,
       progressPercent: factorDisplay && linkedProgress.showProgress
         ? linkedProgress.progressPercent
         : thresholdProgressPercent,
@@ -361,6 +379,7 @@ export function getCustomPanelDisplayRow(
         label: entry.label,
         valueText: formatCounterCountText(selectedSlot, slotConfig),
         metaText: undefined,
+        timerText: fixedRemainingMs > 0 ? formatTimerText(fixedRemainingMs) : "--",
         progressPercent,
         showProgress: freezeDurationMs > 0,
       };
@@ -382,6 +401,7 @@ export function getCustomPanelDisplayRow(
       label: entry.label,
       valueText: formatCounterCountText(selectedSlot, slotConfig),
       metaText: undefined,
+      timerText: getLinkedTimerText(linkedBuff, now, false),
       progressPercent: getBuffRemainPercent(linkedBuff, now),
       showProgress: active && Boolean(linkedBuff && linkedBuff.durationMs > 0),
     };
@@ -425,12 +445,45 @@ export function computeDisplay(
 ): SkillDisplay | null {
   const skill = findAnySkillByBaseId(selectedClassKey, skillId);
   const cdAccelerateRate = Math.max(0, cd.cdAccelerateRate ?? 0);
+  const observedProgressRate = Math.max(0, cd.observedProgressRate ?? 0);
   const elapsed = Math.max(0, now - cd.receivedAt);
-  const baseDuration = cd.duration > 0 ? Math.max(1, cd.duration) : 1;
-  const reducedDuration = cd.duration > 0 ? Math.max(0, cd.calculatedDuration) : 0;
-  const validCdScale = cd.duration > 0 ? reducedDuration / baseDuration : 1;
-  const scaledValidCdTime = cd.validCdTime * validCdScale;
-  const progressed = scaledValidCdTime + elapsed * (1 + cdAccelerateRate);
+  const packetDuration = cd.duration > 0 ? Math.max(1, cd.duration) : 0;
+  const calculatedDuration = cd.calculatedDuration > 0
+    ? Math.max(1, cd.calculatedDuration)
+    : 0;
+  const usesCalculatedDuration =
+    calculatedDuration > 0 &&
+    packetDuration <= 0;
+  const effectiveDuration = usesCalculatedDuration
+    ? calculatedDuration
+    : packetDuration || calculatedDuration;
+  const serverProgress = Math.max(0, cd.validCdTime ?? 0);
+  const formulaProgressRate = Math.max(1, 1 + cdAccelerateRate);
+  const progressRate = formulaProgressRate;
+  const progressed = serverProgress + elapsed * progressRate;
+  const targetEndAt =
+    effectiveDuration > 0
+      ? cd.receivedAt + Math.max(0, effectiveDuration - serverProgress) / progressRate
+      : 0;
+  const accelerationText = formatCooldownAcceleration(cdAccelerateRate);
+  const observedRateText =
+    observedProgressRate > 0 ? `${observedProgressRate.toFixed(2)}x` : "--";
+  const sourceLines = formatCooldownSourceLines(cd);
+  const debugTitle = [
+    `CD accel: ${accelerationText}`,
+    `display rate: ${progressRate.toFixed(2)}x`,
+    `observed rate: ${observedRateText}`,
+    `packet: ${formatCooldownDebugMs(packetDuration)}`,
+    `calculated: ${formatCooldownDebugMs(calculatedDuration)}`,
+    `progress: ${formatCooldownDebugMs(serverProgress)}`,
+    `elapsed: ${formatCooldownDebugMs(elapsed)}`,
+    `display progress: ${formatCooldownDebugMs(progressed)}`,
+    `target end: ${targetEndAt > 0 ? formatCooldownDebugMs(Math.max(0, targetEndAt - now)) : "--"}`,
+    `packet ratios: sub=${cd.packetSubCdRatio ?? 0} fixed=${cd.packetSubCdFixed ?? 0} accel=${cd.packetAccelerateCdRatio ?? 0}`,
+    `source: ${usesCalculatedDuration ? "calculated duration" : packetDuration ? "packet duration" : calculatedDuration ? "calculated fallback" : "none"}`,
+    ...sourceLines,
+  ].join(" | ");
+  const debugFields = { accelerationText, debugTitle };
 
   if (cd.duration === -1 && cd.skillCdType === 1) {
     if (!skill?.maxValidCdTime) return null;
@@ -442,13 +495,14 @@ export function computeDisplay(
       isActive: chargePercent < 1,
       percent: 1 - chargePercent,
       text: `${Math.round(chargePercent * 100)}%`,
+      ...debugFields,
     };
   }
 
   if (cd.skillCdType === 1 && cd.duration > 0) {
     const maxCharges = Math.max(1, skill?.maxCharges ?? 1);
-    if (maxCharges > 1) {
-      const chargeDuration = Math.max(1, cd.calculatedDuration);
+    if (maxCharges > 1 && effectiveDuration > 0) {
+      const chargeDuration = effectiveDuration;
       const maxVct = maxCharges * chargeDuration;
       const currentVct = Math.min(maxVct, progressed);
       const chargesAvailable = Math.min(
@@ -462,6 +516,7 @@ export function computeDisplay(
           percent: 0,
           text: "",
           chargesText: `${maxCharges}/${maxCharges}`,
+          ...debugFields,
         };
       }
       const timeToNextCharge = Math.max(
@@ -473,17 +528,19 @@ export function computeDisplay(
         percent: Math.min(1, timeToNextCharge / chargeDuration),
         text: formatTenthsDown(timeToNextCharge / 1000),
         chargesText: `${chargesAvailable}/${maxCharges}`,
+        ...debugFields,
       };
     }
   }
 
   const remaining =
-    reducedDuration > 0 ? Math.max(0, reducedDuration - progressed) : 0;
-  const duration = reducedDuration > 0 ? reducedDuration : 1;
+    effectiveDuration > 0 ? Math.max(0, effectiveDuration - progressed) : 0;
+  const duration = effectiveDuration > 0 ? effectiveDuration : 1;
   return {
     isActive: remaining > 0,
     percent: remaining > 0 ? Math.min(1, remaining / duration) : 0,
     text: remaining > 0 ? formatTenthsDown(remaining / 1000) : "",
+    ...debugFields,
   };
 }
 
@@ -515,4 +572,168 @@ export function getResourcePreciseValue(
 
 function formatTenthsDown(value: number): string {
   return (Math.floor(Math.max(0, value) * 10) / 10).toFixed(1);
+}
+
+function formatCooldownDebugMs(value: number): string {
+  return value > 0 ? `${(value / 1000).toFixed(2)}s` : "--";
+}
+
+function formatCooldownAcceleration(rate: number): string {
+  const percent = rate * 100;
+  const digits = Math.abs(percent) >= 10 || percent === 0 ? 0 : 1;
+  return `${percent >= 0 ? "+" : ""}${percent.toFixed(digits)}%`;
+}
+
+type SkillTagLabelEntry = {
+  Name?: string;
+  Names?: Record<string, string>;
+};
+
+const skillTagLabels = (
+  skillTagLabelsData as { labels?: Record<string, SkillTagLabelEntry> }
+).labels ?? {};
+
+function resolveSkillTagLabel(tagId: number): string {
+  const entry = skillTagLabels[String(tagId)];
+  const locale = SETTINGS.live.general.state.language;
+  return entry?.Names?.[locale] ?? entry?.Names?.["en"] ?? entry?.Name ?? String(tagId);
+}
+
+function formatSkillTagList(tagIds: number[] | undefined): string {
+  const ids = (tagIds ?? []).slice(0, 8);
+  if (!ids.length) return "";
+  return ids.map((tagId) => `${resolveSkillTagLabel(tagId)} (${tagId})`).join(", ");
+}
+
+function formatCooldownSourceLines(cd: SkillCdState): string[] {
+  const sources = cd.cdSources ?? [];
+  if (sources.length === 0) return ["sources: none"];
+  const lines = sources.slice(0, 8).map((source) => {
+  if (source.sourceKind === "professionTalentSnapshot") {
+    const nodes = source.attrParams?.length ? source.attrParams.join(", ") : "none";
+    return `active talents: ${nodes}`;
+  }
+  if (source.sourceKind === "gearSet") {
+    return formatCooldownGearSetSource(source);
+  }
+  if (source.contributionKind === "activeBuffStack") {
+    const stacks = source.attrParams?.[1] ?? source.value ?? 0;
+    return `${source.sourceKind}: active stack x${Math.max(0, Math.round(stacks))}`;
+  }
+  if (source.contributionKind === "activeDuration") {
+    const duration = source.attrParams?.[2] ?? 0;
+    return `${source.sourceKind}: active ${formatCooldownDebugMs(duration)}`;
+  }
+  if (source.contributionKind === "durationExtend") {
+    return `${source.sourceKind}: active duration +${formatCooldownDebugMs(source.contribution)}`;
+  }
+  if (source.contributionKind === "focusHasteCdBoostEvidence") {
+    return `${source.sourceKind}: Focus haste CD boost evidence, haste raw ${formatCooldownRaw(source.contribution)}`;
+  }
+  if (source.contributionKind === "hasteEvidence") {
+    return `haste attr: raw ${formatCooldownRaw(source.value)}`;
+  }
+  if (source.contributionKind === "finalStatEvidence") {
+    return `${formatCooldownFinalStatLabel(source.attrType)}: ${formatCooldownPanelPercent(source.value)}`;
+  }
+  if (source.contributionKind === "accelerateCandidate") {
+    return `${source.sourceKind}: ${formatCooldownAcceleration(source.contribution)} accel candidate`;
+  }
+  const id = source.tempAttrId
+    ? `tempAttr ${source.tempAttrId}`
+    : source.sourceKey || source.sourceKind;
+    const scope = source.scope ? ` ${source.scope}` : "";
+    const logic = source.logicType !== null && source.logicType !== undefined
+      ? ` logic ${source.logicType}`
+      : "";
+    const params = source.attrParams?.length
+      ? source.logicType === 3
+        ? ` params ${formatSkillTagList(source.attrParams.slice(0, 6))}`
+        : ` params ${source.attrParams.slice(0, 6).join(",")}`
+      : "";
+    const tags = source.skillTags?.length
+      ? ` tags ${formatSkillTagList(source.skillTags)}`
+      : "";
+    return `source ${id}${scope}${logic}: ${formatCooldownSourceContribution(source.contributionKind, source.contribution)}${params}${tags}`;
+  });
+  if (sources.length > lines.length) {
+    lines.push(`sources: +${sources.length - lines.length} more`);
+  }
+  return lines;
+}
+
+function formatCooldownGearSetSource(source: SkillCdSourceState): string {
+  const params = source.attrParams ?? [];
+  const suitId = params[0] ?? source.attrType;
+  const attrType = params[1];
+  const attrPairs: string[] = [];
+  for (let index = 2; index + 1 < params.length; index += 2) {
+    attrPairs.push(`${params[index]}=${params[index + 1]}`);
+  }
+  const attrs = attrPairs.length ? ` attrs ${attrPairs.join(", ")}` : " attrs none";
+  const typeText = attrType === undefined || attrType < 0 ? "" : ` type ${attrType}`;
+  return `gear set ${suitId}${typeText}:${attrs}`;
+}
+
+function formatCooldownSourceContribution(kind: string, contribution: number): string {
+  if (kind === "flatReduceMs") {
+    return `-${formatCooldownDebugMs(Math.abs(contribution))}`;
+  }
+  if (kind === "pctReduce") {
+    return `-${formatCooldownPercent(Math.abs(contribution))} cd`;
+  }
+  if (kind === "accelerate") {
+    return `${formatCooldownAcceleration(contribution)} accel`;
+  }
+  if (kind === "noCdReduction") {
+    return "no cooldown reduction";
+  }
+  if (kind === "evidence") {
+    return "observed";
+  }
+  if (kind === "activeBuffStack") {
+    return `stack x${Math.max(0, Math.round(contribution))}`;
+  }
+  if (kind === "activeDuration") {
+    return "active";
+  }
+  if (kind === "durationExtend") {
+    return `+${formatCooldownDebugMs(contribution)} active duration`;
+  }
+  if (kind === "focusHasteCdBoostEvidence" || kind === "hasteEvidence") {
+    return `raw ${formatCooldownRaw(contribution)}`;
+  }
+  if (kind === "finalStatEvidence") {
+    return "final stat";
+  }
+  if (kind === "accelerateCandidate") {
+    return `${formatCooldownAcceleration(contribution)} accel candidate`;
+  }
+  return contribution.toString();
+}
+
+function formatCooldownFinalStatLabel(attrId: number): string {
+  if (attrId === 11930) return "final Haste";
+  if (attrId === 11710) return "final Crit";
+  if (attrId === 11780) return "final Lucky";
+  if (attrId === 11940) return "final Mastery";
+  if (attrId === 11950) return "final Versatility";
+  if (attrId === 12510) return "final Crit Damage";
+  return "final stat";
+}
+
+function formatCooldownPanelPercent(value: number): string {
+  if (!Number.isFinite(value)) return "0.00%";
+  return `${(value / 100).toFixed(2)}%`;
+}
+
+function formatCooldownRaw(value: number): string {
+  if (!Number.isFinite(value)) return "0";
+  return Math.round(value).toString();
+}
+
+function formatCooldownPercent(rate: number): string {
+  const percent = rate * 100;
+  const digits = Math.abs(percent) >= 10 || percent === 0 ? 0 : 1;
+  return `${percent.toFixed(digits)}%`;
 }

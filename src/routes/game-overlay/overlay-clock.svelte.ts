@@ -24,7 +24,8 @@ function clearOverlayClockTimer() {
 function scheduleNextOverlayClockTick() {
   clearOverlayClockTimer();
   const now = Date.now();
-  const delay = CLOCK_INTERVAL_MS - (now % CLOCK_INTERVAL_MS || CLOCK_INTERVAL_MS);
+  const remainder = now % CLOCK_INTERVAL_MS;
+  const delay = remainder === 0 ? CLOCK_INTERVAL_MS : CLOCK_INTERVAL_MS - remainder;
   overlayClock.timerId = window.setTimeout(() => {
     refreshOverlayClockNow();
     scheduleNextOverlayClockTick();

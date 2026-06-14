@@ -63,9 +63,9 @@ async togglePauseEncounter() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
-async startTrainingDummy() : Promise<Result<null, string>> {
+async startTrainingDummy(durationSeconds: number | null) : Promise<Result<null, string>> {
     try {
-    return { status: "ok", data: await TAURI_INVOKE("start_training_dummy") };
+    return { status: "ok", data: await TAURI_INVOKE("start_training_dummy", { durationSeconds }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -361,6 +361,22 @@ async savePacketCaptureSettings(npcapDevice: string) : Promise<Result<null, stri
     else return { status: "error", error: e  as any };
 }
 },
+async clearImportedBackgroundImage() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("clear_imported_background_image") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async importBackgroundImage(sourcePath: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("import_background_image", { sourcePath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async readCustomDefinitions() : Promise<Result<CustomDefinitionsFile, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("read_custom_definitions") };
@@ -388,6 +404,30 @@ async readCustomTriggers() : Promise<Result<string, string>> {
 async writeCustomTriggers(payload: string) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("write_custom_triggers", { payload }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async readProfileLibraryFiles(directory: string) : Promise<Result<ProfileLibraryJsonFile[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("read_profile_library_files", { directory }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async writeProfileLibraryFile(directory: string, fileName: string, content: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("write_profile_library_file", { directory, fileName, content }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async openProfileLibraryDir(directory: string) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("open_profile_library_dir", { directory }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -643,6 +683,14 @@ async toggleGameOverlayWindow() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async toggleLiveWindow() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("toggle_live_window") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async setHideMainWindowToTray(enabled: boolean) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("set_hide_main_window_to_tray", { enabled }) };
@@ -662,6 +710,14 @@ async toggleGameOverlayEditMode() : Promise<Result<null, string>> {
 async syncMonsterOverlayWindowToGameOverlay() : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("sync_monster_overlay_window_to_game_overlay") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async isGameWindowForeground() : Promise<Result<boolean, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("is_game_window_foreground") };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -713,12 +769,13 @@ maxHp: number | null;
  * Whether the boss was defeated.
  */
 isDefeated: boolean }
+export type CombatTimelineBucketState = { timestampMs: number; targetUuid?: number | null; targetUid: number; targetMonsterTypeId: number | null; damageValue: number; effectiveDamageValue: number; healingValue: number; effectiveHealingValue: number; takenValue: number; hpLossValue: number; shieldLossValue: number }
 export type CounterAction = "reset" | "freeze" | "resetAndFreeze" | "resetAndFreezeKeepCounting" | "resetAndStartCount" | "startCount" | "noOp"
 export type CounterRule = { ruleId: number; sources: CounterSource[]; effectSlots: EffectSlotConfig[] }
-export type DamageHitFilter = { crit?: boolean | null; lucky?: boolean | null }
-export type CounterSource = { damageBySkillKey: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { damageBySkillKeyOnce: { skillKeys: number[]; increment: number; hitFilter?: DamageHitFilter | null } } | { damageBySkillKeySelfTarget: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { anyDamage: { increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { damageTaken: { skillKeys?: number[] | null; increment: number; hitsRequired?: number | null } } | { fightResourceSpent: { resourceId: number; unitsRequired: number; increment: number } } | { buffAdded: { buffId: number; sourceConfigId?: number | null; increment: number } } | { buffLayerSpent: { buffId: number; unitsRequired: number; increment: number } } | { buffDurationTick: { buffId: number; tickIntervalMs: number; increment: number; attrCondition?: TickAttrCondition | null } } | { skillCast: { skillBaseIds: number[]; increment: number } } | { skillDurationTick: { skillBaseId: number; tickIntervalMs: number; increment: number } } | { skillCastComplete: { skillBaseIds: number[]; increment: number } } | { movementDistance: { buffId: number; attrId: number; metersRequired: number; increment: number } }
+export type CounterSource = { damageBySkillKey: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { damageBySkillKeyOnce: { skillKeys: number[]; increment: number; hitFilter?: DamageHitFilter | null } } | { damageBySkillKeySelfTarget: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { anyDamage: { increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { damageTaken: { skillKeys?: number[] | null; increment: number; hitsRequired?: number | null } } | { fightResourceSpent: { resourceId: number; unitsRequired: number; increment: number; excludedBuffIds?: number[] } } | { buffAdded: { buffId: number; sourceConfigId?: number | null; increment: number } } | { buffLayerSpent: { buffId: number; unitsRequired: number; increment: number } } | { buffDurationTick: { buffId: number; tickIntervalMs: number; increment: number; attrCondition?: TickAttrCondition | null } } | { skillCast: { skillBaseIds: number[]; increment: number } } | { skillDurationTick: { skillBaseId: number; tickIntervalMs: number; increment: number } } | { skillCastComplete: { skillBaseIds: number[]; increment: number } } | { movementDistance: { buffId: number; attrId: number; metersRequired: number; increment: number } }
 export type CustomDefinitionEntry = { uid: number; type: string; name: string; shortName: string | null; notes: string | null; icon: string | null; color: string | null }
 export type CustomDefinitionsFile = { version: number; definitions: CustomDefinitionEntry[] }
+export type DamageHitFilter = { crit?: boolean | null; lucky?: boolean | null }
 /**
  * A single damage event recorded in the 2s sliding window used for death replay.
  */
@@ -834,13 +891,16 @@ remoteEncounterId: number | null;
  * Whether the encounter is favorited.
  */
 isFavorite: boolean }
+export type EquippedItemState = { slot: number; itemConfigId: number; itemUuid: number | null; packageKey: number | null; packageType: number | null; itemQuality: number | null; equipSlotRefineLevel: number | null; breakThroughTime: number | null; perfectionLevel: number | null; runtimeSource: string }
 export type EventLoggerBatchPayload = { entries: EventLoggerEntry[] }
 export type EventLoggerEntry = { tsMs: number; category: string; action: string; uid: number | null; targetUid: number | null; sourceUid: number | null; sourceLabel: string | null; targetLabel: string | null; nameHint: string | null; summary: string | null; stacks: number | null; durationMs: number | null; remainingMs: number | null; value: string | null; raw: string }
 export type EventLoggerFileStoragePayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean; enabled: boolean; storeLogFiles: boolean; includeRepeatedSnapshotRows: boolean; deleteOlderThanDays: number | null; captureCensusEnabled: boolean; attributionCensusEnabled: boolean }
 export type EventLoggerSessionDirectoryPayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean }
 export type FactorCounterTemplate = { itemIds?: number[]; sources?: CounterSource[]; effectSlots?: EffectSlotConfig[] }
+export type GearSetAttrState = { attrId: number; value: number }
+export type GearSetState = { suitId: number; attrType: number | null; suitAttrs: GearSetAttrState[]; runtimeSource: string }
 export type GpuSupport = { cuda_available: boolean; opencl_available: boolean }
-export type HistoryEntityData = { uid: number; uuid?: number | null; name: string; classId: number; classSpec: number; className: string; classSpecName: string; abilityScore: number; seasonStrength: number; damage: RawCombatStats; damageBossOnly: RawCombatStats; healing: RawCombatStats; taken: RawCombatStats; dmgSkills: Partial<{ [key in number]: RawSkillStats }>; healSkills: Partial<{ [key in number]: RawSkillStats }>; takenSkills: Partial<{ [key in number]: RawSkillStats }>; takenPerSource?: PerSourceStats[]; activeBuffs: ActiveBuffState[]; activeFactorBuffs: ActiveFactorBuffState[]; activeEffectBuffs: ActiveEffectBuffState[]; modifierWindows: ModifierWindowState[]; modifierHitBuckets: ModifierHitBucketState[]; modifierReplayHits: ModifierReplayHitState[]; skillCastEvents: SkillCastEventState[]; skillCooldownEvents: SkillCooldownEventState[]; activeEffectSources: ActiveEffectSourceState[]; activeFactorItems: ActiveFactorItemState[]; activePassiveSkills: ActivePassiveSkillState[]; activeProfessionSkills: ActiveProfessionSkillState[]; activeProfessionTalents: ActiveProfessionTalentState[]; modifierSourceActors?: ModifierSourceActorState[]; dmgPerTarget: PerTargetStats[]; healPerTarget: PerTargetStats[]; deaths: DeathRecord[] }
+export type HistoryEntityData = { uid: number; uuid?: number | null; name: string; classId: number; classSpec: number; className: string; classSpecName: string; abilityScore: number; seasonStrength: number; damage: RawCombatStats; damageBossOnly: RawCombatStats; healing: RawCombatStats; taken: RawCombatStats; dmgSkills: Partial<{ [key in number]: RawSkillStats }>; healSkills: Partial<{ [key in number]: RawSkillStats }>; takenSkills: Partial<{ [key in number]: RawSkillStats }>; takenPerSource?: PerSourceStats[]; activeBuffs: ActiveBuffState[]; activeFactorBuffs: ActiveFactorBuffState[]; activeEffectBuffs: ActiveEffectBuffState[]; modifierWindows: ModifierWindowState[]; modifierHitBuckets: ModifierHitBucketState[]; modifierReplayHits: ModifierReplayHitState[]; skillCastEvents: SkillCastEventState[]; skillCooldownEvents: SkillCooldownEventState[]; activeEffectSources: ActiveEffectSourceState[]; activeFactorItems: ActiveFactorItemState[]; equippedItems?: EquippedItemState[]; activeGearSets?: GearSetState[]; activePassiveSkills: ActivePassiveSkillState[]; activeProfessionSkills: ActiveProfessionSkillState[]; activeProfessionTalents: ActiveProfessionTalentState[]; modifierSourceActors?: ModifierSourceActorState[]; combatTimeline?: CombatTimelineBucketState[]; dmgPerTarget: PerTargetStats[]; healPerTarget: PerTargetStats[]; deaths: DeathRecord[] }
 export type LiveRuntimeSnapshot = { eventUpdateRateMs: number; autoClearOnSceneChange?: boolean; modifierReportsEnabled: boolean; modifierReportsOptInVersion: string | null }
 export type ModifierHitBucketState = { modifierBuffUuid: number; modifierBaseId: number; modifierBuffLevel: number | null; modifierPartId: number | null; modifierCount: number | null; modifierFightSourceType: number | null; modifierSourceConfigId: number | null; modifierLayer: number; modifierDurationMs: number; modifierStartTimeMs: number; modifierEndTimeMs: number | null; modifierHostUuid?: number | null; modifierSourceUuid?: number | null; modifierHostUid: number; modifierSourceUid: number; skillKey: number; damageId: number; ownerId: number; ownerLevel: number | null; hitEventId: number | null; damageSource: number | null; property: number | null; damageMode: number | null; attackerUuid?: number | null; originalAttackerUuid?: number | null; topSummonerUuid?: number | null; targetUuid?: number | null; attackerUid: number; originalAttackerUid: number; topSummonerUid: number | null; targetUid: number; targetMonsterTypeId: number | null; isHeal: boolean; hits: number; totalValue: number; effectiveTotalValue: number; critHits: number; critTotalValue: number; luckyHits: number; luckyTotalValue: number; hpLossTotal: number; shieldLossTotal: number; firstHitTimeMs: number; lastHitTimeMs: number }
 export type ModifierReplayAttrState = { attrId: number; valueInt: number | null; valueFloat: number | null; valueBool: boolean | null }
@@ -892,6 +952,7 @@ classSpec: number;
  * The class specialization name of the player.
  */
 classSpecName: string }
+export type ProfileLibraryJsonFile = { fileName: string; path: string; content: string }
 export type RawCombatStats = { total: number; effectiveTotal: number; hits: number; critHits: number; critTotal: number; luckyHits: number; luckyTotal: number; triggerHits: number; blockHits: number; luckyBlockHits: number }
 export type RawSkillStats = { totalValue: number; effectiveTotalValue: number; hits: number; critHits: number; critTotalValue: number; luckyHits: number; luckyTotalValue: number; property: number | null; damageMode: number | null; triggerHits: number; blockHits: number; luckyBlockHits: number }
 /**

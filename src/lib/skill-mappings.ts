@@ -5,6 +5,7 @@ import counterRulesRaw from "$parserData/app-rules/counter_rules.json";
 import seasonCultivateFactorSkillLabelsRaw from "$parserData/app-rules/season_cultivate_factor_skill_labels.json";
 import counterSlotTemplatesRaw from "$parserData/app-rules/counter_slot_templates.json";
 import counterSourceTemplatesRaw from "$parserData/app-rules/counter_source_templates.json";
+import seasonPhantomFactorsRaw from "$parserData/generated/SeasonPhantomFactors.json";
 import resonanceSkillIcons from "$parserData/generated/skill_aoyi_icons.json";
 import {
   DEFAULT_LOCALE,
@@ -96,6 +97,51 @@ type SeasonCultivateFactorSkillLabels = {
   version?: number;
   sources?: Record<string, SeasonCultivateFactorSkillLabelEntry>;
   slots?: Record<string, SeasonCultivateFactorSkillLabelEntry>;
+};
+
+type SeasonPhantomFactorGradeRowRaw = {
+  grade?: number;
+  itemId?: number;
+  itemQualityTier?: number;
+  parameterValues?: number[];
+  valueTexts?: string[];
+  cleanResolvedDescription?: string;
+  sourceOffset?: number;
+};
+
+type SeasonPhantomFactorRaw = {
+  familyId?: number;
+  buffId?: number;
+  familyName?: string;
+  familyNames?: MultiLangValue;
+  descriptionId?: number;
+  descriptions?: MultiLangValue;
+  modifierEvidence?: {
+    gradeRows?: SeasonPhantomFactorGradeRowRaw[];
+  };
+};
+
+type SeasonPhantomFactorsData = {
+  factorsByBuffId?: Record<string, SeasonPhantomFactorRaw>;
+};
+
+export type SeasonCultivateFactorGradeInfo = {
+  itemId: number;
+  grade: number | null;
+  itemQualityTier: number | null;
+  familyId: number | null;
+  factorBuffId: number;
+  familyName: string;
+  familyNames: MultiLangValue;
+  descriptionId: number | null;
+  descriptions: MultiLangValue;
+  resolvedDescriptions: MultiLangValue;
+  cleanResolvedDescription: string;
+  valueTexts: string[];
+  parameterValues: number[];
+  sourceOffset: number | null;
+  threshold: number | null;
+  energyGain: number | null;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -291,6 +337,7 @@ export type SourceTemplate = {
   name: string;
   description: string;
   source: CounterSource;
+  countsAsEnergy?: boolean;
 };
 
 export type SlotTemplate = {
@@ -390,7 +437,14 @@ export const SLOT_TEMPLATES: SlotTemplate[] =
 
 const SEASON_CULTIVATE_FACTOR_SKILL_LABELS =
   seasonCultivateFactorSkillLabelsRaw as SeasonCultivateFactorSkillLabels;
+const SEASON_PHANTOM_FACTORS =
+  seasonPhantomFactorsRaw as SeasonPhantomFactorsData;
 const FACTOR_RULE_ID_BASE = 900_000_000;
+const DECISION_PLACEHOLDER_RE =
+  /<style="[^"]*">\{\*Decision\.[^*]+?\*\}<\/style>|\{\*Decision\.[^*]+?\*\}/g;
+let seasonCultivateFactorGradeInfoMapCache:
+  | Map<number, SeasonCultivateFactorGradeInfo>
+  | null = null;
 
 function resolveSeasonCultivateFactorSkillLabel(
   entry: SeasonCultivateFactorSkillLabelEntry | undefined,
@@ -536,6 +590,178 @@ export function getSeasonCultivateFactorRuleId(itemId: number): number {
   return FACTOR_RULE_ID_BASE + itemId;
 }
 
+function cleanResolvedFactorDescription(value: string): string {
+  return value
+    .replace(/<break\s*\/?>/gi, ". ")
+    .replace(/<br\s*\/?>/gi, ". ")
+    .replace(/<[^>]+>/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([.,;:!?])/g, "$1")
+    .trim();
+}
+
+function resolveFactorDescriptions(
+  descriptions: MultiLangValue | undefined,
+  valueTexts: string[],
+): MultiLangValue {
+  const result: MultiLangValue = {};
+  if (!descriptions) return result;
+
+  for (const locale of SUPPORTED_LOCALES) {
+    const template = descriptions[locale];
+    if (!template) continue;
+    let index = 0;
+    const resolved = template.replace(DECISION_PLACEHOLDER_RE, () => {
+      const value = valueTexts[index] ?? "";
+      index += 1;
+      return value;
+    });
+    const clean = cleanResolvedFactorDescription(resolved);
+    if (clean) result[locale] = clean;
+  }
+
+  return result;
+}
+
+function extractIllusionEnergyThreshold(description: string): number | null {
+  const match = description.match(
+    /Illusion Energy reaches\s+(\d+(?:\.\d+)?)\s+points/i,
+  );
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
+function extractIllusionEnergyGain(description: string): number | null {
+  const match = description.match(
+    /\bgrants\s+(\d+(?:\.\d+)?)\s+Illusion Energy\b/i,
+  );
+  if (!match) return null;
+  const value = Number(match[1]);
+  return Number.isFinite(value) ? value : null;
+}
+
+function buildSeasonCultivateFactorGradeInfoMap(): Map<
+  number,
+  SeasonCultivateFactorGradeInfo
+> {
+  const map = new Map<number, SeasonCultivateFactorGradeInfo>();
+  for (const [buffIdKey, factor] of Object.entries(
+    SEASON_PHANTOM_FACTORS.factorsByBuffId ?? {},
+  )) {
+    const factorBuffId = Number(factor.buffId ?? buffIdKey);
+    if (!Number.isFinite(factorBuffId) || factorBuffId <= 0) continue;
+
+    for (const row of factor.modifierEvidence?.gradeRows ?? []) {
+      const itemId = Number(row.itemId);
+      if (!Number.isInteger(itemId) || itemId <= 0) continue;
+
+      const valueTexts = (row.valueTexts ?? []).map((value) => String(value));
+      const resolvedDescriptions = resolveFactorDescriptions(
+        factor.descriptions,
+        valueTexts,
+      );
+      const cleanResolvedDescription =
+        row.cleanResolvedDescription?.trim()
+        || resolvedDescriptions[PRIMARY_FALLBACK_LOCALE]
+        || "";
+      const threshold =
+        extractIllusionEnergyThreshold(cleanResolvedDescription)
+        ?? extractIllusionEnergyThreshold(
+          resolvedDescriptions[PRIMARY_FALLBACK_LOCALE] ?? "",
+        )
+        ?? extractIllusionEnergyThreshold(resolvedDescriptions[DEFAULT_LOCALE] ?? "");
+      const energyGain =
+        extractIllusionEnergyGain(cleanResolvedDescription)
+        ?? extractIllusionEnergyGain(
+          resolvedDescriptions[PRIMARY_FALLBACK_LOCALE] ?? "",
+        )
+        ?? extractIllusionEnergyGain(resolvedDescriptions[DEFAULT_LOCALE] ?? "");
+
+      map.set(itemId, {
+        itemId,
+        grade: Number.isInteger(row.grade) ? Number(row.grade) : null,
+        itemQualityTier: Number.isInteger(row.itemQualityTier)
+          ? Number(row.itemQualityTier)
+          : null,
+        familyId: Number.isInteger(factor.familyId)
+          ? Number(factor.familyId)
+          : null,
+        factorBuffId,
+        familyName: factor.familyName?.trim() || `Factor ${factorBuffId}`,
+        familyNames: factor.familyNames ?? {},
+        descriptionId: Number.isInteger(factor.descriptionId)
+          ? Number(factor.descriptionId)
+          : null,
+        descriptions: factor.descriptions ?? {},
+        resolvedDescriptions,
+        cleanResolvedDescription,
+        valueTexts,
+        parameterValues: (row.parameterValues ?? []).filter((value) =>
+          Number.isFinite(value),
+        ),
+        sourceOffset: Number.isInteger(row.sourceOffset)
+          ? Number(row.sourceOffset)
+          : null,
+        threshold,
+        energyGain,
+      });
+    }
+  }
+  return map;
+}
+
+export function getSeasonCultivateFactorGradeInfoMap(): Map<
+  number,
+  SeasonCultivateFactorGradeInfo
+> {
+  if (!seasonCultivateFactorGradeInfoMapCache) {
+    seasonCultivateFactorGradeInfoMapCache =
+      buildSeasonCultivateFactorGradeInfoMap();
+  }
+  return seasonCultivateFactorGradeInfoMapCache;
+}
+
+export function getSeasonCultivateFactorGradeInfo(
+  itemId: number | null | undefined,
+): SeasonCultivateFactorGradeInfo | undefined {
+  const id = Number(itemId);
+  if (!Number.isInteger(id) || id <= 0) return undefined;
+  return getSeasonCultivateFactorGradeInfoMap().get(id);
+}
+
+export function getSeasonCultivateFactorThreshold(
+  itemId: number | null | undefined,
+  fallback: number | null | undefined,
+): number | null {
+  const gradeThreshold = getSeasonCultivateFactorGradeInfo(itemId)?.threshold;
+  if (
+    typeof gradeThreshold === "number"
+    && Number.isFinite(gradeThreshold)
+    && gradeThreshold > 0
+  ) {
+    return gradeThreshold;
+  }
+  if (
+    typeof fallback === "number"
+    && Number.isFinite(fallback)
+    && fallback > 0
+  ) {
+    return fallback;
+  }
+  return null;
+}
+
+function applySeasonCultivateItemThreshold(
+  slots: CounterEffectSlotPreset[],
+  itemId: number,
+): CounterEffectSlotPreset[] {
+  return slots.map((slot) => ({
+    ...slot,
+    threshold: getSeasonCultivateFactorThreshold(itemId, slot.threshold),
+  }));
+}
+
 function normalizeTemplateItemIds(item: { itemIds?: number[] }): number[] {
   return Array.from(
     new Set(
@@ -566,11 +792,16 @@ export function getSeasonCultivateFactorTemplates(): FactorCounterTemplate[] {
       sources: [template.source],
       effectSlots: [],
     })),
-    ...SLOT_TEMPLATES.map((template) => ({
-      itemIds: normalizeTemplateItemIds(template),
-      sources: [],
-      effectSlots: resolveCounterEffectSlots([template.slotTemplateId]),
-    })),
+    ...SLOT_TEMPLATES.flatMap((template) =>
+      normalizeTemplateItemIds(template).map((itemId) => ({
+        itemIds: [itemId],
+        sources: [],
+        effectSlots: applySeasonCultivateItemThreshold(
+          resolveCounterEffectSlots([template.slotTemplateId]),
+          itemId,
+        ),
+      })),
+    ),
   ];
 }
 
@@ -578,8 +809,11 @@ export function getSeasonCultivateFactorRuleMap(): Map<number, CounterRulePreset
   const map = new Map<number, CounterRulePreset>();
   for (const template of getSlotTemplates()) {
     const itemIds = normalizeTemplateItemIds(template);
-    const effectSlots = resolveCounterEffectSlots([template.slotTemplateId]);
     for (const itemId of itemIds) {
+      const effectSlots = applySeasonCultivateItemThreshold(
+        resolveCounterEffectSlots([template.slotTemplateId]),
+        itemId,
+      );
       map.set(getSeasonCultivateFactorRuleId(itemId), {
         ruleId: getSeasonCultivateFactorRuleId(itemId),
         name: template.name,
@@ -679,6 +913,7 @@ export function getSeasonCultivateFactorSourceIncrementMap(): Map<
   const map = new Map<number, number>();
   const conflicts = new Set<number>();
   for (const template of SOURCE_TEMPLATES) {
+    if (template.countsAsEnergy === false) continue;
     const increment = getCounterSourceIncrement(template.source);
     if (!Number.isFinite(increment) || increment === null || increment <= 0) {
       continue;
@@ -774,7 +1009,7 @@ export function ensureUserCounterRules(
 ): UserCounterRule[] {
   return (rules ?? []).map((rule, idx) => ({
     ruleId: Number.isInteger(rule.ruleId) ? rule.ruleId : 10001 + idx,
-    name: rule.name?.trim() || `自定义计数器 ${idx + 1}`,
+    name: rule.name?.trim() || `Custom Counter ${idx + 1}`,
     sourceRefs: Array.from(
       new Set(
         (rule.sourceRefs ?? []).filter(

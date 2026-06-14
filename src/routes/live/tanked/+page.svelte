@@ -9,8 +9,15 @@
   import { computePlayerRows } from "$lib/live-derived";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
+  import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
+  import PlayerImagineBadges from "$lib/components/player-imagine-badges.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
-  import { liveTankedPlayerColumns, orderColumnsByKey } from "$lib/column-data";
+  import {
+    columnLabelWithAlias,
+    liveTankedPlayerColumns,
+    orderColumnsByKey,
+    type ColumnDefinition,
+  } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
   import getDisplayName, {
@@ -53,16 +60,16 @@
     );
   }
 
-  function thLabel(
-    col: { headerKey?: string; labelKey?: string; header: string; label?: string },
-  ): string {
+  function thLabel(col: ColumnDefinition): string {
     if (col.headerKey) {
       const translatedHeader = resolveUiTranslation(
         col.headerKey,
         SETTINGS.live.general.state.language,
         "",
       );
-      if (translatedHeader?.trim()) return translatedHeader;
+      if (translatedHeader?.trim()) {
+        return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, translatedHeader);
+      }
     }
 
     if (col.labelKey) {
@@ -71,10 +78,12 @@
         SETTINGS.live.general.state.language,
         col.label ?? col.header,
       );
-      if (translatedLabel?.trim()) return translatedLabel;
+      if (translatedLabel?.trim()) {
+        return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, translatedLabel);
+      }
     }
 
-    return col.header;
+    return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, col.header);
   }
 
   function openTankedDetails(playerUid: number): void {
@@ -298,6 +307,18 @@
                     classSpecName={iconSpecName}
                     alt={t("live.classIconAlt", "Class icon")}
                   />
+                  {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
+                    <PlayerImagineBadges
+                      imagines={player.playerImagines}
+                      size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                    />
+                  {/if}
+                  {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
+                    <OceanWeaponBadge
+                      weapon={player.oceanWeapon}
+                      size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                    />
+                  {/if}
                   <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
                   {#if player.classSpecName || player.className}
                     <span class="text-muted-foreground truncate">
@@ -395,6 +416,12 @@
                 tooltipText={formatClassSpecLabel(player.className, player.classSpecName) ||
                   t("live.unknownClass", "Unknown Class")}
               />
+              {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
+                <PlayerImagineBadges
+                  imagines={player.playerImagines}
+                  size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                />
+              {/if}
               {#if player.abilityScore > 0 && (isLocalPlayer ? SETTINGS.live.general.state.showYourAbilityScore : SETTINGS.live.general.state.showOthersAbilityScore)}
                 {#if SETTINGS.live.general.state.shortenAbilityScore}
                   <span
@@ -420,6 +447,12 @@
                   style="color: {customThemeColors.tableTextColor};"
                   >({player.seasonStrength})</span
                 >
+              {/if}
+              {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
+                <OceanWeaponBadge
+                  weapon={player.oceanWeapon}
+                  size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                />
               {/if}
               <span
                 class="truncate font-medium"

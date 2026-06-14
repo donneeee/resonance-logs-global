@@ -6,12 +6,15 @@
   import { notifySettingsChanged, SETTINGS } from "$lib/settings-store";
   import ChevronDown from "virtual:icons/lucide/chevron-down";
   import {
+    columnAliasKey,
+    columnAliasValue,
     liveDpsPlayerColumns,
     liveDpsSkillColumns,
     liveHealPlayerColumns,
     liveHealSkillColumns,
     liveTankedPlayerColumns,
     liveTankedSkillColumns,
+    type ColumnDefinition,
   } from "$lib/column-data";
   import { uiT } from "$lib/i18n";
 
@@ -41,6 +44,15 @@
 
   function colDescription(col: { description: string; descriptionKey?: string }): string {
     return col.descriptionKey ? colT(col.descriptionKey, col.description) : col.description;
+  }
+
+  function liveAliasValue(col: ColumnDefinition): string {
+    return columnAliasValue(SETTINGS.live.columnAliases.state, col);
+  }
+
+  function setLiveColumnAlias(col: ColumnDefinition, value: string): void {
+    SETTINGS.live.columnAliases.state[columnAliasKey(col)] = value;
+    notifySettingsChanged();
   }
   // Drag state for column reordering (unused - keeping for potential future use)
 </script>
@@ -159,6 +171,16 @@
             bind:checked={SETTINGS.live.general.state.showOthersSeasonStrength}
             label={t("showOthersSeasonStrength", "他人赛季强度")}
             description={t("showOthersSeasonStrengthDescription", "显示他人的赛季强度")}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.live.general.state.showPlayerImagineBadges}
+            label={t("showPlayerImagineBadges", "Battle Imagine Badges")}
+            description={t("showPlayerImagineBadgesDescription", "Show equipped battle imagine badges beside each player's class icon.")}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.live.general.state.showOceanWeaponBadge}
+            label={t("showOceanWeaponBadge", "Ocean Weapon Badge")}
+            description={t("showOceanWeaponBadgeDescription", "Show the ocean weapon badge before player names when detected.")}
           />
           <SettingsSwitch
             bind:checked={SETTINGS.live.general.state.relativeToTopDPSPlayer}
@@ -290,6 +312,21 @@
             label={t("showHeaderTargetDummyButton", "显示头部打桩按钮")}
             description={t("showHeaderTargetDummyButtonDescription", "在实时窗口头部显示“打桩模式”开关和状态提示。")}
           />
+          <SettingsSwitch
+            bind:checked={SETTINGS.trainingDummy.state.timerLimitEnabled}
+            label={t("trainingDummyTimerLimitEnabled", "Training Dummy Timer")}
+            description={t("trainingDummyTimerLimitEnabledDescription", "Use a fixed target dummy segment timer. The live timer counts down and the segment finishes when this timer reaches zero.")}
+          />
+          <SettingsSlider
+            bind:value={SETTINGS.trainingDummy.state.segmentDurationSeconds}
+            disabled={!SETTINGS.trainingDummy.state.timerLimitEnabled}
+            label={t("trainingDummySegmentDurationSeconds", "Training Dummy Duration")}
+            description={t("trainingDummySegmentDurationSecondsDescription", "Sets the target dummy segment length. Default: 180 secs.")}
+            min={10}
+            max={600}
+            step={10}
+            unit={t("secondsUnit", "s")}
+          />
         </div>
       {/if}
     </div>
@@ -369,6 +406,14 @@
                   }
                   label={colLabel(col)}
                   description={colDescription(col)}
+                />
+                <input
+                  type="text"
+                  class="ml-auto h-9 w-36 shrink-0 rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+                  value={liveAliasValue(col)}
+                  placeholder={t("columnAliasPlaceholder", "Alias")}
+                  aria-label={`Alias for ${colLabel(col)}`}
+                  oninput={(event) => setLiveColumnAlias(col, event.currentTarget.value)}
                 />
               </div>
             {/if}
@@ -453,6 +498,14 @@
                   label={colLabel(col)}
                   description={colDescription(col)}
                 />
+                <input
+                  type="text"
+                  class="ml-auto h-9 w-36 shrink-0 rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+                  value={liveAliasValue(col)}
+                  placeholder={t("columnAliasPlaceholder", "Alias")}
+                  aria-label={`Alias for ${colLabel(col)}`}
+                  oninput={(event) => setLiveColumnAlias(col, event.currentTarget.value)}
+                />
               </div>
             {/if}
           {/each}
@@ -536,6 +589,14 @@
                   label={colLabel(col)}
                   description={colDescription(col)}
                 />
+                <input
+                  type="text"
+                  class="ml-auto h-9 w-36 shrink-0 rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+                  value={liveAliasValue(col)}
+                  placeholder={t("columnAliasPlaceholder", "Alias")}
+                  aria-label={`Alias for ${colLabel(col)}`}
+                  oninput={(event) => setLiveColumnAlias(col, event.currentTarget.value)}
+                />
               </div>
             {/if}
           {/each}
@@ -618,6 +679,14 @@
                   }
                   label={colLabel(col)}
                   description={colDescription(col)}
+                />
+                <input
+                  type="text"
+                  class="ml-auto h-9 w-36 shrink-0 rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+                  value={liveAliasValue(col)}
+                  placeholder={t("columnAliasPlaceholder", "Alias")}
+                  aria-label={`Alias for ${colLabel(col)}`}
+                  oninput={(event) => setLiveColumnAlias(col, event.currentTarget.value)}
                 />
               </div>
             {/if}
@@ -705,6 +774,14 @@
                   label={colLabel(col)}
                   description={colDescription(col)}
                 />
+                <input
+                  type="text"
+                  class="ml-auto h-9 w-36 shrink-0 rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+                  value={liveAliasValue(col)}
+                  placeholder={t("columnAliasPlaceholder", "Alias")}
+                  aria-label={`Alias for ${colLabel(col)}`}
+                  oninput={(event) => setLiveColumnAlias(col, event.currentTarget.value)}
+                />
               </div>
             {/if}
           {/each}
@@ -790,6 +867,14 @@
                   }
                   label={colLabel(col)}
                   description={colDescription(col)}
+                />
+                <input
+                  type="text"
+                  class="ml-auto h-9 w-36 shrink-0 rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+                  value={liveAliasValue(col)}
+                  placeholder={t("columnAliasPlaceholder", "Alias")}
+                  aria-label={`Alias for ${colLabel(col)}`}
+                  oninput={(event) => setLiveColumnAlias(col, event.currentTarget.value)}
                 />
               </div>
             {/if}

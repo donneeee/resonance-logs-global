@@ -9,8 +9,15 @@
   import { computePlayerRows } from "$lib/live-derived";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
+  import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
+  import PlayerImagineBadges from "$lib/components/player-imagine-badges.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
-  import { liveDpsPlayerColumns, orderColumnsByKey } from "$lib/column-data";
+  import {
+    columnLabelWithAlias,
+    liveDpsPlayerColumns,
+    orderColumnsByKey,
+    type ColumnDefinition,
+  } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
   import getDisplayName, {
@@ -176,13 +183,15 @@ function t(key: string, fallback: string): string {
   );
 }
 
-function thLabel(col: { headerKey?: string; header: string }): string {
-  if (!col.headerKey) return col.header;
-  return resolveUiTranslation(
-    col.headerKey,
-    SETTINGS.live.general.state.language,
-    col.header,
-  );
+function thLabel(col: ColumnDefinition): string {
+  const fallback = col.headerKey
+    ? resolveUiTranslation(
+        col.headerKey,
+        SETTINGS.live.general.state.language,
+        col.header,
+      )
+    : col.header;
+  return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, fallback);
 }
 
 </script>
@@ -271,15 +280,27 @@ function thLabel(col: { headerKey?: string; header: string }): string {
                     classSpecName={iconSpecName}
                     alt={t("historyDetail.classIcon", "Class icon")}
                   />
-                  <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
-                  {#if player.classSpecName || player.className}
-                    <span class="text-muted-foreground truncate">
-                      {formatClassSpecLabel(player.className, player.classSpecName)}
-                    </span>
+                  {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
+                    <PlayerImagineBadges
+                      imagines={player.playerImagines}
+                      size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                    />
                   {/if}
                   {#if player.abilityScore > 0 || player.seasonStrength > 0}
                     <span class="tabular-nums text-muted-foreground">
                       ({player.abilityScore}{player.seasonStrength > 0 ? ` - ${player.seasonStrength}` : ""})
+                    </span>
+                  {/if}
+                  {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
+                    <OceanWeaponBadge
+                      weapon={player.oceanWeapon}
+                      size={Math.max(25, Math.round(tableSettings.playerIconSize * 1.3))}
+                    />
+                  {/if}
+                  <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
+                  {#if player.classSpecName || player.className}
+                    <span class="text-muted-foreground truncate">
+                      {formatClassSpecLabel(player.className, player.classSpecName)}
                     </span>
                   {/if}
                 </span>
@@ -373,6 +394,12 @@ function thLabel(col: { headerKey?: string; header: string }): string {
                 tooltipText={formatClassSpecLabel(player.className, player.classSpecName) ||
                     t("historyDetail.unknownClass", "Unknown Class")}
               />
+              {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
+                <PlayerImagineBadges
+                  imagines={player.playerImagines}
+                  size={Math.max(26, Math.round(tableSettings.playerIconSize * 1.22))}
+                />
+              {/if}
               {#if (player.abilityScore > 0 && (isLocalPlayer ? SETTINGS.live.general.state.showYourAbilityScore : SETTINGS.live.general.state.showOthersAbilityScore)) || (player.seasonStrength > 0 && (isLocalPlayer ? SETTINGS.live.general.state.showYourSeasonStrength : SETTINGS.live.general.state.showOthersSeasonStrength))}
                 <span
                   class="inline-flex items-center gap-1 tabular-nums whitespace-nowrap"
@@ -397,6 +424,12 @@ function thLabel(col: { headerKey?: string; header: string }): string {
                     >
                   {/if}
                 </span>
+              {/if}
+              {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
+                <OceanWeaponBadge
+                  weapon={player.oceanWeapon}
+                  size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                />
               {/if}
               <span
                 class="truncate font-medium"
@@ -442,6 +475,17 @@ function thLabel(col: { headerKey?: string; header: string }): string {
                   />
                 {:else}
                   {Math.round(player.bossDps).toLocaleString()}
+                {/if}
+              {:else if col.key === "trueBossDps"}
+                {#if SETTINGS.live.general.state.shortenDps}
+                  <AbbreviatedNumber
+                    num={player.trueBossDps}
+                    decimalPlaces={abbreviatedDecimalPlaces}
+                    suffixFontSize={tableSettings.abbreviatedFontSize}
+                    suffixColor={customThemeColors.tableAbbreviatedColor}
+                  />
+                {:else}
+                  {Math.round(player.trueBossDps).toLocaleString()}
                 {/if}
               {:else if col.key === "dps" || col.key === "effectiveDps"}
                 {#if SETTINGS.live.general.state.shortenDps}

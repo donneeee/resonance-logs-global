@@ -12,8 +12,9 @@ use crate::live::opcodes_models::class::{
 };
 use crate::live::opcodes_models::{
     AttrType, AttrValue, Encounter, Entity, ObservedDamageHit, ObservedEffectSource,
-    ObservedFormulaAttr, ObservedPassiveSkill, ObservedProfessionSkill, ObservedProfessionTalent,
-    PositionAttr, Skill, attr_type, damage_type_flag,
+    ObservedEquippedItem, ObservedFormulaAttr, ObservedGearSet, ObservedGearSetAttr,
+    ObservedPassiveSkill, ObservedProfessionSkill, ObservedProfessionTalent, PositionAttr, Skill,
+    attr_type, damage_type_flag,
 };
 use crate::live::training_dummy::CombatGate;
 use blueprotobuf_lib::blueprotobuf;
@@ -21,10 +22,13 @@ use blueprotobuf_lib::blueprotobuf::{Attr, EDamageType, EEntityType};
 use bytes::Buf;
 use log::{info, warn};
 use prost::Message;
+use std::collections::HashMap;
 use std::default::Default;
 
 /// Attr ID for the shield display data (nested protobuf with current/max shield values).
 const ATTR_SHIELD_DISPLAY: i32 = 60050;
+const ATTR_EQUIP_DATA: i32 = 200;
+const ATTR_SKILL_LEVEL_ID_LIST: i32 = 116;
 
 /// Parses packed varints from ATTR_FIGHT_RESOURCES (50002) raw data.
 /// The raw data is expected to be a protobuf message with field 1 containing packed varints.
@@ -472,6 +476,76 @@ fn record_observed_damage_hit(
         });
 }
 
+#[allow(clippy::too_many_arguments)]
+fn record_combat_timeline_hit(
+    timestamp_ms: u128,
+    skill_key: i64,
+    damage_id: i64,
+    owner_id: i32,
+    owner_level: Option<i32>,
+    hit_event_id: Option<i32>,
+    damage_source: Option<i32>,
+    property: Option<i32>,
+    damage_mode: Option<i32>,
+    attacker_uuid: Option<i64>,
+    original_attacker_uuid: Option<i64>,
+    top_summoner_uuid: Option<i64>,
+    target_uuid: Option<i64>,
+    attacker_uid: i64,
+    original_attacker_uid: i64,
+    top_summoner_uid: Option<i64>,
+    target_uid: i64,
+    target_monster_type_id: Option<i32>,
+    value: u128,
+    effective_value: u128,
+    hp_loss_value: u128,
+    shield_loss_value: u128,
+    is_heal: bool,
+    is_crit: bool,
+    is_lucky: bool,
+    attacker_entity: &mut Entity,
+) {
+    if attacker_entity.combat_timeline_hits.len() >= MAX_OBSERVED_MODIFIER_DAMAGE_HITS {
+        let overflow = attacker_entity
+            .combat_timeline_hits
+            .len()
+            .saturating_sub(MAX_OBSERVED_MODIFIER_DAMAGE_HITS)
+            + 1;
+        attacker_entity.combat_timeline_hits.drain(0..overflow);
+    }
+    attacker_entity
+        .combat_timeline_hits
+        .push(ObservedDamageHit {
+            timestamp_ms: timestamp_ms.min(i64::MAX as u128) as i64,
+            skill_key,
+            damage_id,
+            owner_id,
+            owner_level,
+            hit_event_id,
+            damage_source,
+            property,
+            damage_mode,
+            attacker_uuid,
+            original_attacker_uuid,
+            top_summoner_uuid,
+            target_uuid,
+            attacker_uid,
+            original_attacker_uid,
+            top_summoner_uid,
+            target_uid,
+            target_monster_type_id,
+            value,
+            effective_value,
+            hp_loss_value,
+            shield_loss_value,
+            is_heal,
+            is_crit,
+            is_lucky,
+            attacker_attrs: Vec::new(),
+            target_attrs: Vec::new(),
+        });
+}
+
 #[derive(Debug, Default, Clone, Copy)]
 struct TargetHpState {
     current_hp: Option<u128>,
@@ -529,6 +603,9 @@ pub struct ParsedSkillCd {
     pub duration: Option<i32>,
     pub skill_cd_type: Option<i32>,
     pub valid_cd_time: Option<i32>,
+    pub sub_cd_ratio: Option<i32>,
+    pub sub_cd_fixed: Option<i64>,
+    pub accelerate_cd_ratio: Option<i32>,
 }
 
 #[derive(Debug, Default)]
@@ -643,7 +720,7 @@ pub fn process_sync_container_data(
     encounter: &mut Encounter,
     attr_store: &mut EntityAttrStore,
     sync_container_data: blueprotobuf::SyncContainerData,
-    capture_modifier_evidence: bool,
+    _capture_modifier_evidence: bool,
 ) -> Option<SyncContainerProcessResult> {
     let v_data = sync_container_data.v_data?;
     let season_cultivate_line_data = v_data.season_cultivate_line_data.clone();
@@ -696,17 +773,22 @@ pub fn process_sync_container_data(
         AttrType::Level,
         AttrValue::Int(target_entity.level as i64),
     );
-    if capture_modifier_evidence {
-        target_entity.active_effect_sources = selected_season_medal_effect_sources(&v_data);
-        target_entity.active_factor_items = observed_season_phantom_factor_items(&v_data);
-        target_entity.active_profession_skills = selected_profession_skills(&v_data);
-        target_entity.active_profession_talents = selected_profession_talents(&v_data);
-    } else {
-        target_entity.active_effect_sources.clear();
-        target_entity.active_factor_items.clear();
-        target_entity.active_profession_skills.clear();
-        target_entity.active_profession_talents.clear();
+    let equipped_items = observed_equipped_items(&v_data);
+    if !equipped_items.is_empty() {
+        target_entity.equipped_items = equipped_items;
     }
+    if v_data.equip.is_some() {
+        target_entity.active_gear_sets = observed_gear_sets(&v_data);
+    }
+    let active_profession_skills = selected_profession_skills(&v_data);
+    if !active_profession_skills.is_empty() {
+        target_entity.active_profession_skills = active_profession_skills;
+    }
+    if let Some(active_profession_talents) = selected_profession_talents(&v_data) {
+        target_entity.active_profession_talents = active_profession_talents;
+    }
+    target_entity.active_factor_items = observed_season_phantom_factor_items(&v_data);
+    target_entity.active_effect_sources = selected_season_medal_effect_sources(&v_data);
 
     // Note: HP data comes from attribute packets (ATTR_CURRENT_HP, ATTR_MAX_HP)
     // CharBaseInfo doesn't contain HP fields
@@ -904,15 +986,15 @@ fn selected_season_medal_effect_sources(
 
 fn selected_profession_talents(
     v_data: &blueprotobuf::CharSerialize,
-) -> Vec<ObservedProfessionTalent> {
+) -> Option<Vec<ObservedProfessionTalent>> {
     let Some(profession_list) = v_data.profession_list.as_ref() else {
-        return Vec::new();
+        return None;
     };
     let Some(current_profession_id) = profession_list.cur_profession_id else {
-        return Vec::new();
+        return None;
     };
     let Some(info) = profession_list.talent_list.get(&current_profession_id) else {
-        return Vec::new();
+        return None;
     };
 
     let mut talents = Vec::new();
@@ -928,7 +1010,7 @@ fn selected_profession_talents(
     }
 
     talents.sort_by_key(|talent| (talent.profession_id, talent.talent_node_id));
-    talents
+    Some(talents)
 }
 
 fn selected_profession_skills(
@@ -989,13 +1071,15 @@ fn selected_profession_skills(
     }
 
     for (skill_id, skill_info) in &profession_list.aoyi_skill_info_map {
+        let slot = slot_for_battle_imagine_skill(v_data.slots.as_ref(), *skill_id, skill_info);
+        let equipped = Some(slot.is_some());
         skills.push(observed_profession_skill(
             *skill_id,
             skill_info,
-            None,
-            None,
+            slot,
+            equipped,
             "battle-imagine",
-            "CharSerialize.profession_list.aoyi_skill_info_map",
+            "CharSerialize.profession_list.aoyi_skill_info_map+CharSerialize.slots",
         ));
     }
 
@@ -1072,6 +1156,127 @@ fn slot_for_profession_skill(
     None
 }
 
+fn slot_for_battle_imagine_skill(
+    slots: Option<&blueprotobuf::Slot>,
+    skill_id: i32,
+    skill_info: &blueprotobuf::ProfessionSkillInfo,
+) -> Option<i32> {
+    let slots = slots?;
+    let mut matches = slots
+        .slots
+        .iter()
+        .filter_map(|(slot_key, slot_info)| {
+            let slot_skill_id = slot_info.skill_id.filter(|id| *id > 0)?;
+            if slot_skill_id == skill_id
+                || skill_info.skill_id == Some(slot_skill_id)
+                || skill_info
+                    .replace_skill_ids
+                    .iter()
+                    .any(|replacement| *replacement == slot_skill_id)
+            {
+                let slot_id = slot_info.id.filter(|id| *id > 0).unwrap_or(*slot_key);
+                return Some(slot_id);
+            }
+            None
+        })
+        .collect::<Vec<_>>();
+    matches.sort_unstable();
+    matches.into_iter().next()
+}
+
+fn observed_equipped_items(v_data: &blueprotobuf::CharSerialize) -> Vec<ObservedEquippedItem> {
+    let Some(item_package) = v_data.item_package.as_ref() else {
+        return Vec::new();
+    };
+    let Some(equip) = v_data.equip.as_ref() else {
+        return Vec::new();
+    };
+
+    let mut item_by_uuid: HashMap<u64, (&blueprotobuf::Item, i32, Option<i32>)> = HashMap::new();
+    for (package_key, package) in &item_package.packages {
+        for item in package.items.values() {
+            let Some(item_uuid) = item.uuid.and_then(|uuid| u64::try_from(uuid).ok()) else {
+                continue;
+            };
+            if item.config_id.unwrap_or_default() <= 0 {
+                continue;
+            }
+            item_by_uuid.insert(item_uuid, (item, *package_key, package.r#type));
+        }
+    }
+
+    let mut equipped = Vec::new();
+    for (slot_key, info) in &equip.equip_list {
+        let Some(equipped_uuid) = info.item_uuid else {
+            continue;
+        };
+        let Some((item, package_key, package_type)) = item_by_uuid.get(&equipped_uuid) else {
+            continue;
+        };
+        let Some(config_id) = item.config_id.filter(|config_id| *config_id > 0) else {
+            continue;
+        };
+        let slot = info.equip_slot.unwrap_or(*slot_key);
+        if slot <= 0 {
+            continue;
+        }
+        let item_equip_attr = item.equip_attr.as_ref();
+        equipped.push(ObservedEquippedItem {
+            slot,
+            item_config_id: config_id,
+            item_uuid: item.uuid,
+            package_key: Some(*package_key),
+            package_type: *package_type,
+            item_quality: item.quality,
+            equip_slot_refine_level: info.equip_slot_refine_level,
+            break_through_time: item_equip_attr.and_then(|attr| attr.break_through_time),
+            perfection_level: item_equip_attr.and_then(|attr| attr.perfection_level),
+            runtime_source:
+                "selfItemInstance:CharSerialize.equip.equip_list.item_uuid->item_package.config_id"
+                    .to_string(),
+        });
+    }
+
+    equipped.sort_by_key(|item| (item.slot, item.item_config_id, item.item_uuid.unwrap_or(0)));
+    equipped
+}
+
+fn observed_gear_sets(v_data: &blueprotobuf::CharSerialize) -> Vec<ObservedGearSet> {
+    let Some(equip) = v_data.equip.as_ref() else {
+        return Vec::new();
+    };
+
+    let mut sets = equip
+        .suit_info_dict
+        .iter()
+        .filter_map(|(suit_id, suit)| {
+            if *suit_id <= 0 {
+                return None;
+            }
+
+            let mut suit_attrs = suit
+                .suit_attr
+                .iter()
+                .map(|(attr_id, value)| ObservedGearSetAttr {
+                    attr_id: *attr_id,
+                    value: *value,
+                })
+                .collect::<Vec<_>>();
+            suit_attrs.sort_by_key(|attr| (attr.attr_id, attr.value));
+
+            Some(ObservedGearSet {
+                suit_id: *suit_id,
+                attr_type: suit.attr_type,
+                suit_attrs,
+                runtime_source: "CharSerialize.equip.suit_info_dict".to_string(),
+            })
+        })
+        .collect::<Vec<_>>();
+
+    sets.sort_by_key(|set| (set.suit_id, set.attr_type.unwrap_or(0)));
+    sets
+}
+
 fn observed_season_phantom_factor_items(
     v_data: &blueprotobuf::CharSerialize,
 ) -> Vec<crate::live::opcodes_models::ObservedFactorItem> {
@@ -1112,7 +1317,7 @@ fn observed_season_phantom_factor_items(
                     grade: factor_grade.grade,
                     family_id: factor_grade.family_id,
                     runtime_source:
-                        "CharSerialize.equip.equip_list.item_uuid->item_package.config_id"
+                        "selfItemInstance:CharSerialize.equip.equip_list.item_uuid->item_package.config_id"
                             .to_string(),
                     selector_path: None,
                     selector_signature: None,
@@ -1137,21 +1342,26 @@ pub fn process_sync_container_dirty_data<'a>(
     encounter: &mut Encounter,
     sync_container_dirty_data: &'a blueprotobuf::SyncContainerDirtyData,
     capture_modifier_evidence: bool,
+    loadout_updates_allowed: bool,
 ) -> Option<SyncContainerDirtyProcessResult<'a>> {
     let result = SyncContainerDirtyProcessResult {
-        season_cultivate_dirty_bytes: sync_container_dirty_data
-            .v_data
-            .as_ref()
-            .and_then(|v_data| v_data.buffer.as_deref()),
+        season_cultivate_dirty_bytes: if loadout_updates_allowed {
+            sync_container_dirty_data
+                .v_data
+                .as_ref()
+                .and_then(|v_data| v_data.buffer.as_deref())
+        } else {
+            None
+        },
     };
-
-    if !capture_modifier_evidence {
-        return Some(result);
-    }
 
     // SyncContainerDirtyData.v_data is a BufferStream (raw bytes)
     // Incremental attribute updates come through process_player_attrs via AoiSyncDelta
     // which handles attr packets with proper typing
+    if !loadout_updates_allowed {
+        return Some(result);
+    }
+
     let selected_factor_items =
         crate::live::seasonal_factor_selector::selected_factor_items_from_dirty_data(
             &sync_container_dirty_data,
@@ -1184,6 +1394,10 @@ pub fn process_sync_container_dirty_data<'a>(
             item.item_uuid.unwrap_or(0),
         )
     });
+
+    if !capture_modifier_evidence {
+        return Some(result);
+    }
 
     Some(result)
 }
@@ -1343,6 +1557,9 @@ pub fn process_sync_to_me_delta_info(
             duration: cd.duration,
             skill_cd_type: cd.skill_cd_type,
             valid_cd_time: cd.valid_cd_time,
+            sub_cd_ratio: None,
+            sub_cd_fixed: None,
+            accelerate_cd_ratio: None,
         })
         .collect();
 
@@ -1934,6 +2151,36 @@ pub fn process_aoi_sync_delta(
                     target_formula_attrs.clone(),
                     attacker_entity,
                 );
+                if attacker_entity.entity_type == EEntityType::EntChar {
+                    record_combat_timeline_hit(
+                        timestamp_ms,
+                        skill_key,
+                        damage_id,
+                        owner_id,
+                        sync_damage_info.owner_level,
+                        sync_damage_info.hit_event_id,
+                        sync_damage_info.damage_source,
+                        sync_damage_info.property,
+                        sync_damage_info.damage_mode,
+                        Some(attacker_uuid),
+                        Some(original_attacker_uuid),
+                        sync_damage_info.top_summoner_id,
+                        Some(target_uuid),
+                        attacker_uid,
+                        original_attacker_uid,
+                        top_summoner_uid,
+                        target_uid,
+                        target_monster_type_id,
+                        actual_value,
+                        effective_heal_value,
+                        hp_loss_value,
+                        shield_loss_value,
+                        true,
+                        is_crit,
+                        is_attacker_lucky_trigger,
+                        attacker_entity,
+                    );
+                }
                 if capture_modifier_evidence
                     && is_local_damage_source
                     && attacker_entity.entity_type == EEntityType::EntChar
@@ -2097,6 +2344,36 @@ pub fn process_aoi_sync_delta(
                     target_formula_attrs.clone(),
                     attacker_entity,
                 );
+                if attacker_entity.entity_type == EEntityType::EntChar {
+                    record_combat_timeline_hit(
+                        timestamp_ms,
+                        skill_key,
+                        damage_id,
+                        owner_id,
+                        sync_damage_info.owner_level,
+                        sync_damage_info.hit_event_id,
+                        sync_damage_info.damage_source,
+                        sync_damage_info.property,
+                        sync_damage_info.damage_mode,
+                        Some(attacker_uuid),
+                        Some(original_attacker_uuid),
+                        sync_damage_info.top_summoner_id,
+                        Some(target_uuid),
+                        attacker_uid,
+                        original_attacker_uid,
+                        top_summoner_uid,
+                        target_uid,
+                        target_monster_type_id,
+                        actual_value,
+                        effective_damage_value,
+                        hp_loss_value,
+                        shield_loss_value,
+                        false,
+                        is_crit,
+                        is_attacker_lucky_trigger,
+                        attacker_entity,
+                    );
+                }
                 if capture_modifier_evidence
                     && is_local_damage_source
                     && attacker_entity.entity_type == EEntityType::EntChar
@@ -2272,6 +2549,36 @@ struct HateInfoWire {
     hate_val: u32,
 }
 
+#[derive(Clone, PartialEq, prost::Message)]
+struct AttrEquipDataWire {
+    #[prost(message, repeated, tag = "1")]
+    items: Vec<AttrEquipItemWire>,
+}
+
+#[derive(Clone, PartialEq, prost::Message)]
+struct AttrEquipItemWire {
+    #[prost(int32, optional, tag = "1")]
+    slot: Option<i32>,
+    #[prost(int32, optional, tag = "2")]
+    config_id: Option<i32>,
+}
+
+#[derive(Clone, PartialEq, prost::Message)]
+struct AttrSkillLevelIdListWire {
+    #[prost(message, repeated, tag = "1")]
+    items: Vec<AttrSkillLevelInfoWire>,
+}
+
+#[derive(Clone, PartialEq, prost::Message)]
+struct AttrSkillLevelInfoWire {
+    #[prost(int32, optional, tag = "1")]
+    skill_id: Option<i32>,
+    #[prost(int32, optional, tag = "2")]
+    current_level: Option<i32>,
+    #[prost(int32, optional, tag = "3")]
+    remodel_level: Option<i32>,
+}
+
 fn parse_hate_list_into(raw: &[u8], entries: &mut Vec<HateEntry>) -> Option<()> {
     let mut buf = raw;
     entries.clear();
@@ -2291,6 +2598,149 @@ fn parse_hate_list_into(raw: &[u8], entries: &mut Vec<HateEntry>) -> Option<()> 
     }
 
     Some(())
+}
+
+fn decode_attr_equip_data(raw: &[u8]) -> Vec<ObservedEquippedItem> {
+    let Ok(decoded) = AttrEquipDataWire::decode(raw) else {
+        return Vec::new();
+    };
+
+    let mut items: Vec<_> = decoded
+        .items
+        .into_iter()
+        .filter_map(|item| {
+            let slot = item.slot.filter(|slot| *slot > 0)?;
+            let item_config_id = item.config_id.filter(|config_id| *config_id > 0)?;
+            Some(ObservedEquippedItem {
+                slot,
+                item_config_id,
+                item_uuid: None,
+                package_key: None,
+                package_type: None,
+                item_quality: None,
+                equip_slot_refine_level: None,
+                break_through_time: None,
+                perfection_level: None,
+                runtime_source: "remoteEquipConfig:AttrEquipData(200).items.slot/config_id"
+                    .to_string(),
+            })
+        })
+        .collect();
+    items.sort_by_key(|item| (item.slot, item.item_config_id));
+    items
+}
+
+fn decode_attr_skill_level_id_list(raw: &[u8]) -> Vec<ObservedProfessionSkill> {
+    let mut rows = decode_attr_skill_level_wrapper(raw);
+    if rows.is_empty() {
+        rows = decode_attr_skill_level_tagged_sequence(raw);
+    }
+    if rows.is_empty() {
+        rows = decode_attr_skill_level_length_sequence(raw);
+    }
+
+    rows.sort_by_key(|skill| (skill.skill_id, skill.level.unwrap_or(0)));
+    rows.dedup_by_key(|skill| skill.skill_id);
+    rows
+}
+
+fn decode_attr_skill_level_wrapper(raw: &[u8]) -> Vec<ObservedProfessionSkill> {
+    AttrSkillLevelIdListWire::decode(raw)
+        .map(|decoded| {
+            decoded
+                .items
+                .into_iter()
+                .filter_map(observed_remote_skill_level)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn decode_attr_skill_level_tagged_sequence(raw: &[u8]) -> Vec<ObservedProfessionSkill> {
+    let mut buf = raw;
+    let mut rows = Vec::new();
+    while buf.has_remaining() {
+        let Some(tag) = prost::encoding::decode_varint(&mut buf).ok() else {
+            return Vec::new();
+        };
+        if tag != 0x0A {
+            return Vec::new();
+        }
+        let Ok(info) =
+            <AttrSkillLevelInfoWire as prost::Message>::decode_length_delimited(&mut buf)
+        else {
+            return Vec::new();
+        };
+        if let Some(row) = observed_remote_skill_level(info) {
+            rows.push(row);
+        }
+    }
+    rows
+}
+
+fn decode_attr_skill_level_length_sequence(raw: &[u8]) -> Vec<ObservedProfessionSkill> {
+    let mut buf = raw;
+    let mut rows = Vec::new();
+    while buf.has_remaining() {
+        let Ok(info) =
+            <AttrSkillLevelInfoWire as prost::Message>::decode_length_delimited(&mut buf)
+        else {
+            return Vec::new();
+        };
+        if let Some(row) = observed_remote_skill_level(info) {
+            rows.push(row);
+        }
+    }
+    rows
+}
+
+fn observed_remote_skill_level(info: AttrSkillLevelInfoWire) -> Option<ObservedProfessionSkill> {
+    let skill_id = info.skill_id.filter(|id| *id > 0)?;
+    let level = info.current_level.filter(|level| *level > 0);
+    Some(ObservedProfessionSkill {
+        skill_id,
+        base_skill_id: None,
+        skill_level_id: level.and_then(|level| skill_id.checked_mul(100)?.checked_add(level)),
+        level,
+        remodel_level: info.remodel_level.filter(|level| *level >= 0),
+        slot: None,
+        equipped: None,
+        source_kind: "remote-skill-level".to_string(),
+        replace_skill_ids: Vec::new(),
+        runtime_source: "AttrSkillLevelIdList(116).skill_level_info".to_string(),
+    })
+}
+
+fn upsert_remote_skill_levels(
+    target: &mut Vec<ObservedProfessionSkill>,
+    incoming: Vec<ObservedProfessionSkill>,
+) {
+    target.retain(|skill| skill.runtime_source != "AttrSkillLevelIdList(116).skill_level_info");
+    target.extend(incoming);
+    target.sort_by_key(|skill| {
+        (
+            skill.source_kind.clone(),
+            skill.skill_id,
+            skill.slot.unwrap_or(-1),
+        )
+    });
+}
+
+fn upsert_equipped_items(
+    target: &mut Vec<ObservedEquippedItem>,
+    incoming: Vec<ObservedEquippedItem>,
+) {
+    for item in incoming {
+        if let Some(existing) = target
+            .iter_mut()
+            .find(|existing| existing.slot == item.slot)
+        {
+            *existing = item;
+        } else {
+            target.push(item);
+        }
+    }
+    target.sort_by_key(|item| (item.slot, item.item_config_id, item.item_uuid.unwrap_or(0)));
 }
 
 fn decode_varint_i64_or_default(raw: Option<&[u8]>) -> i64 {
@@ -2484,6 +2934,26 @@ fn process_player_attrs(
                 AttrType::CurrentShield,
                 AttrValue::Int(total_shield),
             );
+            continue;
+        }
+
+        if attr_id == ATTR_EQUIP_DATA {
+            if let Some(items) = raw_bytes_opt
+                .map(decode_attr_equip_data)
+                .filter(|items| !items.is_empty())
+            {
+                upsert_equipped_items(&mut player_entity.equipped_items, items);
+            }
+            continue;
+        }
+
+        if attr_id == ATTR_SKILL_LEVEL_ID_LIST {
+            if let Some(skills) = raw_bytes_opt
+                .map(decode_attr_skill_level_id_list)
+                .filter(|skills| !skills.is_empty())
+            {
+                upsert_remote_skill_levels(&mut player_entity.active_profession_skills, skills);
+            }
             continue;
         }
 

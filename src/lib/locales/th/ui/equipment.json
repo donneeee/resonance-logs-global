@@ -1,0 +1,5 @@
+{
+  "oceanWeaponLevel": "อาวุธ Ocean Lv.{level}",
+  "oceanWeaponLevelApprox": "อาวุธ Ocean Lv.{level}+",
+  "oceanWeaponLevelRange": "อาวุธ Ocean Lv.{min}-{max}"
+}

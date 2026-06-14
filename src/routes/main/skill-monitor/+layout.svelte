@@ -13,8 +13,8 @@
       <SwordsIcon class="w-5 h-5" />
     </div>
     <div>
-      <h1 class="text-xl font-bold text-foreground">{t("title", "实时监控")}</h1>
-      <p class="text-sm text-muted-foreground">{t("subtitle", "自定义监控技能CD, 战斗资源等")}</p>
+      <h1 class="text-xl font-bold text-foreground">{t("title", "Skill Monitor")}</h1>
+      <p class="text-sm text-muted-foreground">{t("subtitle", "Customize skill cooldowns, combat resources, and more")}</p>
     </div>
   </div>
 

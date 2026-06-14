@@ -3,7 +3,9 @@ use crate::live::opcodes_models::{Encounter, attr_type};
 use blueprotobuf_lib::blueprotobuf::{AoiSyncDelta, EDamageType};
 use std::time::{Duration, Instant};
 
-pub const TRAINING_SEGMENT_DURATION: Duration = Duration::from_secs(183);
+pub const DEFAULT_TRAINING_SEGMENT_DURATION: Duration = Duration::from_secs(180);
+pub const MIN_TRAINING_SEGMENT_DURATION_SECS: u64 = 10;
+pub const MAX_TRAINING_SEGMENT_DURATION_SECS: u64 = 600;
 
 #[derive(
     Debug, Default, Clone, Copy, PartialEq, Eq, serde::Serialize, serde::Deserialize, specta::Type,
@@ -62,20 +64,46 @@ pub struct TrainingDummyMatch {
     pub has_local_player_damage: bool,
 }
 
-#[derive(Debug, Clone, Default)]
+#[derive(Debug, Clone)]
 pub struct TrainingDummyRuntime {
     pub phase: TrainingDummyPhase,
     pub locked_target_uuid: Option<i64>,
     pub rollover_ready_at: Option<Instant>,
     pub segment_saved: bool,
+    pub segment_duration: Duration,
+}
+
+impl Default for TrainingDummyRuntime {
+    fn default() -> Self {
+        Self {
+            phase: TrainingDummyPhase::Idle,
+            locked_target_uuid: None,
+            rollover_ready_at: None,
+            segment_saved: false,
+            segment_duration: DEFAULT_TRAINING_SEGMENT_DURATION,
+        }
+    }
+}
+
+fn clamp_training_segment_duration(duration_seconds: Option<u64>) -> Duration {
+    let seconds = duration_seconds.unwrap_or(DEFAULT_TRAINING_SEGMENT_DURATION.as_secs());
+    Duration::from_secs(seconds.clamp(
+        MIN_TRAINING_SEGMENT_DURATION_SECS,
+        MAX_TRAINING_SEGMENT_DURATION_SECS,
+    ))
 }
 
 impl TrainingDummyRuntime {
     pub fn arm(&mut self) {
+        self.arm_with_duration(None);
+    }
+
+    pub fn arm_with_duration(&mut self, duration_seconds: Option<u64>) {
         self.phase = TrainingDummyPhase::Armed;
         self.locked_target_uuid = None;
         self.rollover_ready_at = None;
         self.segment_saved = false;
+        self.segment_duration = clamp_training_segment_duration(duration_seconds);
     }
 
     pub fn clear(&mut self) {
@@ -88,7 +116,7 @@ impl TrainingDummyRuntime {
 
     pub fn rearm(&mut self) {
         if self.is_active() {
-            self.arm();
+            self.arm_with_duration(Some(self.segment_duration.as_secs()));
         } else {
             self.clear();
         }
@@ -126,8 +154,27 @@ impl TrainingDummyRuntime {
         let now = Instant::now();
         self.phase = TrainingDummyPhase::Running;
         self.locked_target_uuid = Some(matched.target_entity_uuid);
-        self.rollover_ready_at = Some(now + TRAINING_SEGMENT_DURATION);
+        self.rollover_ready_at = Some(now + self.segment_duration);
         self.segment_saved = false;
+    }
+
+    pub fn duration_ms(&self) -> u64 {
+        u64::try_from(self.segment_duration.as_millis()).unwrap_or(u64::MAX)
+    }
+
+    pub fn remaining_ms(&self) -> u64 {
+        match self.phase {
+            TrainingDummyPhase::Armed => self.duration_ms(),
+            TrainingDummyPhase::Running => self.rollover_ready_at.map_or(0, |ready_at| {
+                u64::try_from(
+                    ready_at
+                        .saturating_duration_since(Instant::now())
+                        .as_millis(),
+                )
+                .unwrap_or(u64::MAX)
+            }),
+            TrainingDummyPhase::Idle | TrainingDummyPhase::Finished => 0,
+        }
     }
 }
 

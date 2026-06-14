@@ -3,11 +3,12 @@
   import BuffSearchResultGrid from "$lib/components/BuffSearchResultGrid.svelte";
   import { SETTINGS } from "$lib/settings-store";
   import { uiT } from "$lib/i18n";
-  import type {
-    BuffCategoryDefinition,
-    BuffCategoryKey,
-    BuffDefinition,
-    BuffNameInfo,
+  import {
+    getBuffIdsByCategory,
+    type BuffCategoryDefinition,
+    type BuffCategoryKey,
+    type BuffDefinition,
+    type BuffNameInfo,
   } from "$lib/config/buff-name-table";
   import type {
     BuffAlertMap,
@@ -19,6 +20,11 @@
   } from "$lib/settings-store";
 
   type BuffGroupUpdateHandler = (updater: (curr: BuffGroup) => BuffGroup) => void;
+  type GroupPreviewItem = {
+    key: string;
+    label: string;
+    spriteFile?: string | undefined;
+  };
 
   interface Props {
     buffSearch: string;
@@ -237,6 +243,49 @@
       seen.add(item.baseId);
       return true;
     });
+  }
+
+  function getSelectedGroupCategories(group: BuffGroup): BuffCategoryDefinition[] {
+    const selectedKeys = new Set(group.buffCategories ?? []);
+    return buffCategoryDefinitions.filter((category) => selectedKeys.has(category.key));
+  }
+
+  function getGroupSelectionCount(group: BuffGroup): number {
+    return group.buffIds.length
+      + getSelectedGroupCategories(group).reduce(
+        (total, category) => total + category.count,
+        0,
+      );
+  }
+
+  function getGroupCategoryRepresentative(
+    categoryKey: BuffCategoryKey,
+  ): BuffDefinition | undefined {
+    const representativeId = getBuffIdsByCategory(categoryKey).find((buffId) =>
+      availableBuffMap.has(buffId),
+    );
+    if (representativeId === undefined) return undefined;
+    return availableBuffMap.get(representativeId);
+  }
+
+  function getGroupPreviewItems(group: BuffGroup): GroupPreviewItem[] {
+    const buffItems = group.buffIds.map((buffId) => {
+      const buff = availableBuffMap.get(buffId);
+      return {
+        key: `buff:${buffId}`,
+        label: getBuffDisplayName(buffId),
+        spriteFile: buff?.spriteFile,
+      };
+    });
+    const categoryItems = getSelectedGroupCategories(group).map((category) => {
+      const representative = getGroupCategoryRepresentative(category.key);
+      return {
+        key: `category:${category.key}`,
+        label: `${buffCategoryLabel(category)} (${category.count})`,
+        spriteFile: representative?.spriteFile,
+      };
+    });
+    return [...categoryItems, ...buffItems];
   }
 </script>
 
@@ -1007,21 +1056,32 @@
               </label>
             </div>
 
-            <div class="space-y-2">
+            <div class="space-y-2 rounded border border-border/60 bg-background/30 p-2">
+              <div class="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                {t("categoryQuickListen", "Category Quick Listen")}
+              </div>
               <div class="flex flex-wrap gap-2">
                 {#each buffCategoryDefinitions as category (category.key)}
+                  {@const hasCategory = hasCompleteBuffCategoryInGroup(group, category.key)}
                   <button
                     type="button"
-                    class="rounded-md border px-3 py-1.5 text-xs transition-colors {hasCompleteBuffCategoryInGroup(group, category.key)
+                    class="inline-flex items-center gap-2 rounded-md border px-3 py-1.5 text-xs font-medium transition-colors {hasCategory
                       ? 'border-primary/60 bg-primary/10 text-foreground'
                       : 'border-border/60 bg-muted/20 text-muted-foreground hover:bg-muted/40 hover:text-foreground'}"
                     onclick={() => toggleBuffCategoryInGroup(group.id, category.key)}
                     disabled={group.monitorAll}
+                    aria-pressed={hasCategory}
+                    title={`${buffCategoryLabel(category)} (${category.count})`}
                   >
-                    {hasCompleteBuffCategoryInGroup(group, category.key) ? t("removeThisCategory", "移除") : t("addThisCategory", "添加")}{buffCategoryLabel(category)} ({category.count})
+                    <span>{buffCategoryLabel(category)}</span>
+                    <span class="rounded bg-background/40 px-1.5 py-0.5 tabular-nums text-[10px] text-muted-foreground">
+                      {category.count}
+                    </span>
                   </button>
                 {/each}
               </div>
+            </div>
+            <div class="space-y-2">
               <input
                 class="w-full sm:w-72 rounded border border-border/60 bg-muted/30 px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
                 placeholder={t("addToThisGroupPlaceholder", "搜索并添加到此分组")}
@@ -1040,8 +1100,33 @@
               {/if}
 
               {#if !group.monitorAll}
+                {@const selectedGroupCategories = getSelectedGroupCategories(group)}
                 <div class="space-y-2">
-                  <div class="text-xs text-muted-foreground">{t("inGroupCount", "已加入分组")} {group.buffIds.length}</div>
+                  <div class="text-xs text-muted-foreground">
+                    {t("inGroupCount", "Added to Group")} {getGroupSelectionCount(group)}
+                  </div>
+                  {#if selectedGroupCategories.length > 0}
+                    <div class="space-y-1">
+                      <div class="text-xs font-medium text-muted-foreground">
+                        {t("selectedCategories", "Selected Categories")}
+                      </div>
+                      <div class="flex flex-wrap gap-2">
+                        {#each selectedGroupCategories as category (category.key)}
+                          <button
+                            type="button"
+                            class="inline-flex items-center gap-2 rounded-md border border-primary/60 bg-primary/10 px-3 py-1.5 text-xs font-medium text-foreground hover:bg-primary/15"
+                            title={`${buffCategoryLabel(category)} (${category.count})`}
+                            onclick={() => toggleBuffCategoryInGroup(group.id, category.key)}
+                          >
+                            <span>{buffCategoryLabel(category)}</span>
+                            <span class="rounded bg-background/40 px-1.5 py-0.5 tabular-nums text-[10px] text-muted-foreground">
+                              {category.count}
+                            </span>
+                          </button>
+                        {/each}
+                      </div>
+                    </div>
+                  {/if}
                   <div class="flex flex-wrap gap-2">
                     {#if group.buffIds.length > 0}
                       {#each group.buffIds as buffId (buffId)}
@@ -1070,8 +1155,8 @@
                           </button>
                         {/if}
                       {/each}
-                    {:else}
-                      <div class="text-xs text-muted-foreground">{t("noBuffsInGroup", "尚未添加 Buff 到此分组")}</div>
+                    {:else if selectedGroupCategories.length === 0}
+                      <div class="text-xs text-muted-foreground">{t("noBuffsInGroup", "No buffs added to this group")}</div>
                     {/if}
                   </div>
                 </div>
@@ -1132,12 +1217,11 @@
                     <img src={`/images/buff/${buff.spriteFile}`} alt={buff.name} class="w-full aspect-square object-contain rounded border border-border/30 bg-muted/20" />
                   {/each}
                 {:else}
-                  {#each group.buffIds.slice(0, Math.max(6, group.columns * group.rows)) as buffId (buffId)}
-                    {@const buff = availableBuffMap.get(buffId)}
-                    {#if buff}
-                      <img src={`/images/buff/${buff.spriteFile}`} alt={buff.name} class="w-full aspect-square object-contain rounded border border-border/30 bg-muted/20" />
+                  {#each getGroupPreviewItems(group).slice(0, Math.max(6, group.columns * group.rows)) as item (item.key)}
+                    {#if item.spriteFile}
+                      <img src={`/images/buff/${item.spriteFile}`} alt={item.label} class="w-full aspect-square object-contain rounded border border-border/30 bg-muted/20" />
                     {:else}
-                      <div class="w-full aspect-square rounded border border-border/30 bg-muted/20"></div>
+                      <div class="w-full aspect-square rounded border border-border/30 bg-muted/20" title={item.label}></div>
                     {/if}
                   {/each}
                 {/if}

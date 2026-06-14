@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { getClassColor } from '$lib/utils.svelte';
+  import { activeProfileOrDefault } from "$lib/skill-monitor-profile.svelte";
+  import { getClassRowGlowColor } from '$lib/utils.svelte';
   import { SETTINGS } from '$lib/settings-store';
 
   let {
@@ -14,40 +15,86 @@
     isSkill?: boolean;
   } = $props();
 
-  let classColor = $derived(getClassColor(className, classSpecName));
+  let classColor = $derived.by(() =>
+    getClassRowGlowColor(className, classSpecName, {
+      highlightDpsHealerSpecIcons: activeProfileOrDefault().highlightDpsHealerSpecIcons === true,
+    }),
+  );
+  let clampedPercentage = $derived(
+    Number.isFinite(percentage) ? Math.max(0, Math.min(100, percentage)) : 0,
+  );
 
   // derive customization from live table settings using runes-friendly $derived
   // Choose skill-specific settings when rendering skill rows
   let mode = $derived.by(() => isSkill ? SETTINGS.live.tableCustomization.state.skillRowGlowMode : SETTINGS.live.tableCustomization.state.rowGlowMode);
   let opacity = $derived.by(() => isSkill ? SETTINGS.live.tableCustomization.state.skillRowGlowOpacity : SETTINGS.live.tableCustomization.state.rowGlowOpacity);
   let borderHeight = $derived(SETTINGS.live.tableCustomization.state.rowGlowBorderHeight);
-  let spread = $derived(SETTINGS.live.tableCustomization.state.rowGlowSpread);
   let rowBorderRadius = $derived.by(() => isSkill ? SETTINGS.live.tableCustomization.state.skillRowBorderRadius : SETTINGS.live.tableCustomization.state.rowBorderRadius);
   
 
   // glowColor is always the class/spec color
   let glowColor = $derived.by(() => classColor);
+
+  let anchor: HTMLTableCellElement | undefined = $state();
+
+  function percent(value: number): string {
+    return `${Math.max(0, Math.min(100, value)).toFixed(3)}%`;
+  }
+
+  function alphaColor(color: string, alpha: number): string {
+    const weight = Math.max(0, Math.min(100, alpha * 100));
+    return `color-mix(in srgb, ${color} ${weight.toFixed(1)}%, transparent)`;
+  }
+
+  $effect(() => {
+    const row = anchor?.parentElement as HTMLElement | null | undefined;
+    if (!row) return;
+
+    const width = percent(clampedPercentage);
+    const fillColor = alphaColor(glowColor, opacity);
+    const softFillColor = alphaColor(glowColor, opacity * 0.72);
+    const layers: string[] = [];
+    const sizes: string[] = [];
+
+    if (mode === "solid") {
+      layers.push(`linear-gradient(to right, ${fillColor}, ${fillColor})`);
+      sizes.push(`${width} 100%`);
+    } else {
+      if (mode !== "gradient") {
+        layers.push(`linear-gradient(to right, ${glowColor}, ${glowColor})`);
+        sizes.push(`${width} ${Math.max(1, borderHeight)}px`);
+      }
+      layers.push(`linear-gradient(to top, ${softFillColor}, transparent)`);
+      sizes.push(`${width} 100%`);
+      layers.push(`linear-gradient(to right, ${fillColor} 0%, ${fillColor} 70%, transparent 100%)`);
+      sizes.push(`${width} 100%`);
+    }
+
+    row.style.backgroundImage = layers.join(", ");
+    row.style.backgroundSize = sizes.join(", ");
+    row.style.backgroundRepeat = layers.map(() => "no-repeat").join(", ");
+    row.style.backgroundPosition = layers.map(() => "left bottom").join(", ");
+    row.style.borderRadius = `${rowBorderRadius}px`;
+
+    return () => {
+      row.style.removeProperty("background-image");
+      row.style.removeProperty("background-size");
+      row.style.removeProperty("background-repeat");
+      row.style.removeProperty("background-position");
+      row.style.removeProperty("border-radius");
+    };
+  });
 </script>
-{#if mode === 'solid'}
-  <!-- Solid full-color fill (no gradient, no underline) -->
-  <td
-    class="absolute left-0 bottom-0 top-0 pointer-events-none"
-    style="background-color: {glowColor}; width: {percentage}%; opacity: {opacity}; border-radius: {rowBorderRadius}px;"
-  ></td>
-{:else if mode === 'gradient'}
-  <!-- Gradient fill only -->
-  <td
-    class="absolute left-0 bottom-0 h-full pointer-events-none"
-    style="background: linear-gradient(to top, {glowColor}, transparent), linear-gradient(to right, {glowColor} 0%, {glowColor} 70%, transparent 100%); width: {percentage}%; opacity: {opacity}; border-radius: {rowBorderRadius}px;"
-  ></td>
-{:else}
-  <!-- gradient-underline: gradient fill with neon underline -->
-  <td
-    class="absolute left-0 bottom-0 h-full pointer-events-none"
-    style="background: linear-gradient(to top, {glowColor}, transparent), linear-gradient(to right, {glowColor} 0%, {glowColor} 70%, transparent 100%); width: {percentage}%; opacity: {opacity}; border-radius: {rowBorderRadius}px;"
-  ></td>
-  <td
-    class="absolute left-0 bottom-0 pointer-events-none z-20"
-    style="height: {borderHeight}px; background-color: {glowColor}; width: {percentage}%; box-shadow: 0 0 {Math.max(2, spread/2)}px {glowColor}, 0 0 {spread}px {glowColor}; border-radius: 0 0 {rowBorderRadius}px {rowBorderRadius}px;"
-  ></td>
-{/if}
+
+<td
+  bind:this={anchor}
+  aria-hidden="true"
+  class="table-row-glow-anchor"
+  style="display: none !important;"
+></td>
+
+<style>
+  .table-row-glow-anchor {
+    display: none;
+  }
+</style>

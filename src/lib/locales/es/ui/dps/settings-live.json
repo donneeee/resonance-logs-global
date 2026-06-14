@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "Cuando Ocultar automáticamente la ventana en vivo está activado, oculta cualquier overlay de juego o monstruos visible junto al medidor en vivo y restaura solo los overlays que estaban visibles antes.",
   "autoHideLiveWindowDelaySeconds": "Retraso de ocultación automática",
   "autoHideLiveWindowDelaySecondsDescription": "Segundos que se esperan sin daño nuevo antes de ocultar el medidor en vivo. Usa 0 para ocultarlo inmediatamente.",
-  "secondsUnit": "s"
+  "secondsUnit": "s",
+  "trainingDummyTimerLimitEnabled": "Temporizador de muneco",
+  "trainingDummyTimerLimitEnabledDescription": "Usa un temporizador fijo para el segmento del muneco de entrenamiento. El temporizador en vivo cuenta hacia atras y el segmento termina cuando llega a cero.",
+  "trainingDummySegmentDurationSeconds": "Duracion del muneco",
+  "trainingDummySegmentDurationSecondsDescription": "Define la duracion del segmento del muneco de entrenamiento. Predeterminado: 180 s.",
+  "showPlayerImagineBadges": "Insignias de Battle Imagine",
+  "showPlayerImagineBadgesDescription": "Muestra las insignias de Battle Imagine equipadas junto a los iconos de clase.",
+  "showOceanWeaponBadge": "Insignia de arma oceanica",
+  "showOceanWeaponBadgeDescription": "Muestra la insignia de arma oceanica antes de los nombres de jugador cuando se detecte."
 }

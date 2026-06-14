@@ -10,21 +10,24 @@ use crate::live::commands_models::{
 use crate::live::counter_tracker::{BuffCounterTracker, CounterRule};
 use crate::live::dungeon_log::{BattleStateMachine, EncounterResetReason};
 use crate::live::entity_attr_store::EntityAttrStore;
-use crate::live::entity_id::{canonical_player_uuid, entity_uuid_string};
+use crate::live::entity_id::{canonical_player_uuid, entity_uuid_string, uid_from_uuid};
 use crate::live::event_manager::EventManager;
 use crate::live::opcodes_models::{
-    AttrType, AttrValue, Encounter, Entity, ObservedActiveBuff, ObservedDamageHit,
-    ObservedEffectBuff, ObservedEffectSource, ObservedFactorBuff, ObservedFactorItem,
-    ObservedModifierHitBucket, ObservedModifierReplayHit, ObservedModifierReplaySource,
-    ObservedModifierWindow, ObservedSkillCastEvent, ObservedSkillCooldownEvent,
+    AttrType, AttrValue, Encounter, Entity, ObservedActiveBuff, ObservedCombatTimelineBucket,
+    ObservedDamageHit, ObservedEffectBuff, ObservedEffectSource, ObservedEquippedItem,
+    ObservedFactorBuff, ObservedFactorItem, ObservedModifierHitBucket, ObservedModifierReplayHit,
+    ObservedModifierReplaySource, ObservedModifierWindow, ObservedSkillCastEvent,
+    ObservedSkillCooldownEvent,
 };
 use crate::live::opcodes_process::ParsedSkillCd;
 use crate::live::season_cultivate::{FactorCounterTemplate, SeasonCultivateRuntimeState};
 use crate::live::seasonal_factor_selector::{
     FactorSelectorDirtyNode, SELECTED_FACTOR_TRANSITION_RUNTIME_SOURCE,
 };
-use crate::live::skill_cd_monitor::{SkillCdMonitor, calculate_skill_cd};
-use crate::live::team::{TeamEvent, TeamRuntimeState};
+use crate::live::skill_cd_monitor::{
+    SkillCdMonitor, SkillCdRuntimeSnapshot, buff_changes_affect_skill_cd, calculate_skill_cd,
+};
+use crate::live::team::{TeamEquipmentItem, TeamEvent, TeamMemberEquipment, TeamRuntimeState};
 use crate::live::training_dummy::{CombatGate, TrainingDummyRuntime, inspect_aoi_delta};
 use blueprotobuf_lib::blueprotobuf;
 use blueprotobuf_lib::blueprotobuf::AoiSyncDelta;
@@ -35,6 +38,8 @@ use std::time::{Duration, Instant};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
 
 const MAX_SKILL_TIMING_EVENTS: usize = 2_000;
+const COMBAT_TIMELINE_BUCKET_MS: i64 = 1_000;
+const MAX_COMBAT_TIMELINE_BUCKETS_PER_ENTITY: usize = 20_000;
 const ACTIVE_EFFECT_BUFF_SOURCE_RUNTIME_PREFIX: &str = "activeEffectBuffs.";
 const SELECTED_FACTOR_RUNTIME_PREFIX: &str = "SyncContainerDirtyData.v_data.dirty_tree.";
 const MAX_FACTOR_SELECTOR_ZERO_SLOTS: usize = 128;
@@ -183,7 +188,9 @@ pub enum LiveControlCommand {
     StateEvent(StateEvent),
     TogglePauseEncounter,
     ApplyMonitorRuntimeSnapshot(MonitorRuntimeSnapshot),
-    StartTrainingDummy,
+    StartTrainingDummy {
+        duration_seconds: Option<u64>,
+    },
     StopTrainingDummy,
     SetEventUpdateRateMs(u64),
     SetAutoClearOnSceneChange(bool),
@@ -270,7 +277,29 @@ fn emit_skill_cd_update_if_needed(state: &mut AppState, payload: Vec<SkillCdStat
             .len()
     );
     debug!("[skill-cd] payload={:?}", payload);
+    let published = payload
+        .iter()
+        .map(|cd| {
+            format!(
+                "{}:begin={} duration={} valid={} received={} calc={} accel={:.3} observed={:.3}",
+                cd.skill_level_id,
+                cd.begin_time,
+                cd.duration,
+                cd.valid_cd_time,
+                cd.received_at,
+                cd.calculated_duration,
+                cd.cd_accelerate_rate,
+                cd.observed_progress_rate
+            )
+        })
+        .collect::<Vec<_>>()
+        .join("; ");
+    info!("[skill-cd-publish] {}", published);
     state.event_manager.emit_skill_cd_update(payload);
+}
+
+fn skill_cd_matches_monitored(skill_id: i32, monitored_skill_id: i32) -> bool {
+    skill_id == monitored_skill_id || skill_id / 100 == monitored_skill_id
 }
 
 fn emit_panel_attr_update_if_needed(state: &mut AppState, payload: Vec<PanelAttrState>) {
@@ -360,6 +389,76 @@ fn emit_season_cultivate_factor_counter_update(state: &mut AppState) {
     state
         .event_manager
         .emit_season_cultivate_factor_counter_update(selection, snapshot, counters);
+}
+
+fn collect_dungeon_player_equipment(
+    v_data: &blueprotobuf::DungeonSyncData,
+) -> Vec<TeamMemberEquipment> {
+    let Some(player_list) = v_data.dungeon_player_list.as_ref() else {
+        return Vec::new();
+    };
+
+    let mut equipment = Vec::new();
+    let mut player_infos: Vec<_> = player_list.player_infos.iter().collect();
+    player_infos.sort_by_key(|(key, _)| **key);
+
+    for (_, player_info) in player_infos {
+        let social_data = player_info.social_data.as_ref();
+        let char_id = player_info
+            .char_id
+            .or_else(|| social_data.and_then(|data| data.char_id));
+        let member_uuid = canonical_player_uuid(char_id.unwrap_or_default());
+        if member_uuid == 0 {
+            continue;
+        }
+
+        let Some(equip_data) = social_data.and_then(|data| data.equip_data.as_ref()) else {
+            continue;
+        };
+
+        let mut items: Vec<_> = equip_data
+            .equip_infos
+            .iter()
+            .filter_map(|item| {
+                let slot = item.slot.filter(|slot| *slot > 0)?;
+                let item_config_id = item.equip_id.filter(|equip_id| *equip_id > 0)?;
+                Some(TeamEquipmentItem {
+                    slot,
+                    item_config_id,
+                })
+            })
+            .collect();
+
+        if items.is_empty() {
+            continue;
+        }
+
+        items.sort_by_key(|item| (item.slot, item.item_config_id));
+        equipment.push(TeamMemberEquipment {
+            member_uuid,
+            runtime_source: "SyncDungeonData.v_data.dungeon_player_list.social_data.equip_data",
+            items,
+        });
+    }
+
+    equipment
+}
+
+fn upsert_remote_equipped_items<I>(target: &mut Vec<ObservedEquippedItem>, incoming: I)
+where
+    I: IntoIterator<Item = ObservedEquippedItem>,
+{
+    for item in incoming {
+        if let Some(existing) = target
+            .iter_mut()
+            .find(|existing| existing.slot == item.slot)
+        {
+            *existing = item;
+        } else {
+            target.push(item);
+        }
+    }
+    target.sort_by_key(|item| (item.slot, item.item_config_id, item.item_uuid.unwrap_or(0)));
 }
 
 fn refresh_season_cultivate_factor_rules(state: &mut AppState) {
@@ -552,6 +651,8 @@ fn encounter_has_stats(encounter: &Encounter) -> bool {
 fn build_training_dummy_state(runtime: &TrainingDummyRuntime) -> TrainingDummyState {
     TrainingDummyState {
         phase: runtime.phase,
+        duration_ms: runtime.duration_ms(),
+        remaining_ms: runtime.remaining_ms(),
     }
 }
 
@@ -695,6 +796,30 @@ fn emit_training_dummy_update_if_changed(state: &mut AppState, previous: Trainin
     if current != previous && state.event_manager.should_emit_events() {
         state.event_manager.emit_training_dummy_update(current);
     }
+}
+
+fn finish_training_dummy_if_due(state: &mut AppState, source: &str) -> bool {
+    if !state.training_dummy.is_active() {
+        return false;
+    }
+
+    let previous = build_training_dummy_state(&state.training_dummy);
+    if !state.training_dummy.maybe_finish() {
+        return false;
+    }
+
+    persist_segment_unless_saved(state, false, "training_dummy_segment");
+    state.training_dummy.segment_saved = true;
+    if !state.encounter.is_encounter_paused {
+        state.set_encounter_paused(true);
+    }
+    emit_training_dummy_update_if_changed(state, previous);
+    info!(
+        target: "app::live",
+        "training_dummy_segment_finished source={}",
+        source
+    );
+    true
 }
 
 fn build_encounter_metadata(
@@ -1066,8 +1191,6 @@ fn clear_modifier_capture_state(state: &mut AppState) {
         entity.active_effect_sources.clear();
         entity.active_factor_items.clear();
         entity.active_passive_skills.clear();
-        entity.active_profession_skills.clear();
-        entity.active_profession_talents.clear();
         entity.modifier_windows.clear();
         entity.modifier_hit_buckets.clear();
         entity.modifier_replay_hits.clear();
@@ -1414,9 +1537,7 @@ fn sync_active_buffs_to_encounter(state: &mut AppState) {
             .sort_by(|left, right| left.source_id.cmp(&right.source_id));
     }
 
-    if state.modifier_capture_enabled {
-        sync_selected_factor_items_to_local_entity(state);
-    }
+    sync_selected_factor_items_to_local_entity(state);
 }
 
 fn modifier_window_host_uid(change: &BuffChangeEvent, fallback_host_uid: i64) -> i64 {
@@ -2104,12 +2225,147 @@ fn build_modifier_replay_hits(
     rows
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct CombatTimelineIdentityKey {
+    uid: i64,
+    uuid: Option<i64>,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+struct CombatTimelineBucketKey {
+    timestamp_ms: i64,
+    target_uid: i64,
+    target_uuid: Option<i64>,
+    target_monster_type_id: Option<i32>,
+}
+
+fn combat_timeline_bucket_timestamp(timestamp_ms: i64) -> i64 {
+    if timestamp_ms <= 0 {
+        return 0;
+    }
+    (timestamp_ms / COMBAT_TIMELINE_BUCKET_MS) * COMBAT_TIMELINE_BUCKET_MS
+}
+
+fn combat_timeline_bucket_key(hit: &ObservedDamageHit) -> CombatTimelineBucketKey {
+    CombatTimelineBucketKey {
+        timestamp_ms: combat_timeline_bucket_timestamp(hit.timestamp_ms),
+        target_uid: hit.target_uid,
+        target_uuid: hit.target_uuid,
+        target_monster_type_id: hit.target_monster_type_id,
+    }
+}
+
+fn empty_combat_timeline_bucket(key: CombatTimelineBucketKey) -> ObservedCombatTimelineBucket {
+    ObservedCombatTimelineBucket {
+        timestamp_ms: key.timestamp_ms,
+        target_uid: key.target_uid,
+        target_uuid: key.target_uuid,
+        target_monster_type_id: key.target_monster_type_id,
+        ..Default::default()
+    }
+}
+
+fn combat_timeline_entry<'a>(
+    timeline_by_entity: &'a mut HashMap<
+        CombatTimelineIdentityKey,
+        HashMap<CombatTimelineBucketKey, ObservedCombatTimelineBucket>,
+    >,
+    identity: CombatTimelineIdentityKey,
+    key: CombatTimelineBucketKey,
+) -> &'a mut ObservedCombatTimelineBucket {
+    timeline_by_entity
+        .entry(identity)
+        .or_default()
+        .entry(key)
+        .or_insert_with(|| empty_combat_timeline_bucket(key))
+}
+
+fn finalize_combat_timeline_for_save(state: &mut AppState) {
+    let mut timeline_by_entity = HashMap::<
+        CombatTimelineIdentityKey,
+        HashMap<CombatTimelineBucketKey, ObservedCombatTimelineBucket>,
+    >::new();
+
+    for (entity_uid, entity) in state.encounter.entity_uid_entries() {
+        if entity.combat_timeline_hits.is_empty() {
+            continue;
+        }
+        let source_identity = CombatTimelineIdentityKey {
+            uid: entity_uid,
+            uuid: entity.uuid,
+        };
+
+        for hit in &entity.combat_timeline_hits {
+            let bucket_key = combat_timeline_bucket_key(hit);
+            if hit.is_heal {
+                let bucket =
+                    combat_timeline_entry(&mut timeline_by_entity, source_identity, bucket_key);
+                bucket.healing_value += hit.value;
+                bucket.effective_healing_value += hit.effective_value;
+            } else {
+                let bucket =
+                    combat_timeline_entry(&mut timeline_by_entity, source_identity, bucket_key);
+                bucket.damage_value += hit.value;
+                bucket.effective_damage_value += hit.effective_value;
+
+                if hit.target_uid > 0 || hit.target_uuid.is_some_and(|uuid| uuid != 0) {
+                    let target_identity = CombatTimelineIdentityKey {
+                        uid: hit.target_uid,
+                        uuid: hit.target_uuid,
+                    };
+                    let target_bucket =
+                        combat_timeline_entry(&mut timeline_by_entity, target_identity, bucket_key);
+                    target_bucket.hp_loss_value += hit.hp_loss_value;
+                    target_bucket.shield_loss_value += hit.shield_loss_value;
+                    target_bucket.taken_value +=
+                        (hit.hp_loss_value + hit.shield_loss_value).max(hit.effective_value);
+                }
+            }
+        }
+    }
+
+    for (entity_uid, entity_uuid) in state.encounter.entity_identity_keys() {
+        if let Some(entity) = state
+            .encounter
+            .entity_mut_by_identity(entity_uid, entity_uuid)
+        {
+            entity.combat_timeline.clear();
+        }
+    }
+
+    for (identity, buckets) in timeline_by_entity {
+        let Some(entity) = state
+            .encounter
+            .entity_mut_by_identity(identity.uid, identity.uuid)
+        else {
+            continue;
+        };
+        let mut rows: Vec<_> = buckets.into_values().collect();
+        rows.sort_by(|left, right| {
+            left.timestamp_ms
+                .cmp(&right.timestamp_ms)
+                .then_with(|| left.target_uid.cmp(&right.target_uid))
+                .then_with(|| left.target_uuid.cmp(&right.target_uuid))
+                .then_with(|| {
+                    left.target_monster_type_id
+                        .cmp(&right.target_monster_type_id)
+                })
+        });
+        if rows.len() > MAX_COMBAT_TIMELINE_BUCKETS_PER_ENTITY {
+            let overflow = rows.len() - MAX_COMBAT_TIMELINE_BUCKETS_PER_ENTITY;
+            rows.drain(0..overflow);
+        }
+        entity.combat_timeline = rows;
+    }
+}
+
 fn finalize_modifier_hit_buckets_for_save(state: &mut AppState) {
     if !state.modifier_capture_enabled {
         for entity in state.encounter.entities_mut() {
             entity.modifier_hit_buckets.clear();
             entity.modifier_replay_hits.clear();
             entity.observed_damage_hits.clear();
+            entity.combat_timeline_hits.clear();
         }
         return;
     }
@@ -2230,6 +2486,52 @@ fn record_local_skill_cooldown_events(state: &mut AppState, skill_cds: &[ParsedS
     trim_skill_timing_events(entity);
 }
 
+fn local_active_profession_talent_node_ids(state: &AppState) -> Vec<u32> {
+    let local_uid = state.encounter.local_player_uid;
+    state
+        .encounter
+        .entity_by_uid(local_uid)
+        .map(|entity| {
+            entity
+                .active_profession_talents
+                .iter()
+                .map(|talent| talent.talent_node_id)
+                .collect()
+        })
+        .unwrap_or_default()
+}
+
+fn local_active_profession_skills(
+    state: &AppState,
+) -> Vec<crate::live::opcodes_models::ObservedProfessionSkill> {
+    let local_uid = state.encounter.local_player_uid;
+    state
+        .encounter
+        .entity_by_uid(local_uid)
+        .map(|entity| entity.active_profession_skills.clone())
+        .unwrap_or_default()
+}
+
+fn local_active_effect_sources(
+    state: &AppState,
+) -> Vec<crate::live::opcodes_models::ObservedEffectSource> {
+    let local_uid = state.encounter.local_player_uid;
+    state
+        .encounter
+        .entity_by_uid(local_uid)
+        .map(|entity| entity.active_effect_sources.clone())
+        .unwrap_or_default()
+}
+
+fn local_active_gear_sets(state: &AppState) -> Vec<crate::live::opcodes_models::ObservedGearSet> {
+    let local_uid = state.encounter.local_player_uid;
+    state
+        .encounter
+        .entity_by_uid(local_uid)
+        .map(|entity| entity.active_gear_sets.clone())
+        .unwrap_or_default()
+}
+
 fn collect_factor_skill_casts_from_cooldown_starts(
     factor_skill_cd_begin_times: &mut HashMap<i32, i64>,
     skill_cds: &[ParsedSkillCd],
@@ -2305,6 +2607,7 @@ fn persist_and_save_encounter(state: &mut AppState, is_manual: bool, source: &st
             .ended_at_ms
             .unwrap_or_else(|| state.encounter.time_last_combat_packet_ms as i64),
     );
+    finalize_combat_timeline_for_save(state);
     finalize_modifier_hit_buckets_for_save(state);
 
     if metadata.started_at_ms > 0 {
@@ -2497,8 +2800,14 @@ impl AppStateManager {
 
     fn process_team_event(&self, state: &mut AppState, event: TeamEvent) {
         let local_player_uuid = current_local_player_uuid(&state.encounter);
+        let equipment = match &event {
+            TeamEvent::MemberInfoUpdated { equipment, .. }
+            | TeamEvent::Joined { equipment, .. } => equipment.clone(),
+            _ => Vec::new(),
+        };
         info!(target: "app::live", "team event: {:?}", event);
         state.team.apply_event(event, local_player_uuid);
+        self.merge_remote_player_equipment(state, equipment);
         info!(
             target: "app::live",
             "team state team_id={} leader_uuid={} members={:?}",
@@ -2506,6 +2815,47 @@ impl AppStateManager {
             state.team.leader_uuid,
             state.team.members
         );
+    }
+
+    fn merge_remote_player_equipment(
+        &self,
+        state: &mut AppState,
+        equipment: Vec<TeamMemberEquipment>,
+    ) {
+        for member in equipment {
+            let uid = uid_from_uuid(member.member_uuid);
+            if uid <= 0 || member.items.is_empty() {
+                continue;
+            }
+
+            let entity = state
+                .encounter
+                .entity_by_uuid_or_insert_with(member.member_uuid, || {
+                    let mut entity = Entity::default();
+                    entity.uuid = Some(member.member_uuid);
+                    entity.entity_type = EEntityType::EntChar;
+                    entity
+                });
+            entity.entity_type = EEntityType::EntChar;
+            upsert_remote_equipped_items(
+                &mut entity.equipped_items,
+                member.items.into_iter().map(|item| ObservedEquippedItem {
+                    slot: item.slot,
+                    item_config_id: item.item_config_id,
+                    item_uuid: None,
+                    package_key: None,
+                    package_type: None,
+                    item_quality: None,
+                    equip_slot_refine_level: None,
+                    break_through_time: None,
+                    perfection_level: None,
+                    runtime_source: format!(
+                        "remoteEquipConfig:{}.equip_infos.slot/equip_id",
+                        member.runtime_source
+                    ),
+                }),
+            );
+        }
     }
 
     pub(crate) fn apply_control_command(&self, state: &mut AppState, command: LiveControlCommand) {
@@ -2520,10 +2870,17 @@ impl AppStateManager {
             LiveControlCommand::ApplyMonitorRuntimeSnapshot(snapshot) => {
                 self.apply_monitor_runtime_snapshot_with_state(state, snapshot);
             }
-            LiveControlCommand::StartTrainingDummy => {
+            LiveControlCommand::StartTrainingDummy { duration_seconds } => {
                 let previous = build_training_dummy_state(&state.training_dummy);
-                info!(target: "app::live", "training_dummy_start requested");
-                state.training_dummy.arm();
+                info!(target: "app::live", "training_dummy_start requested duration_seconds={:?}", duration_seconds);
+                if state.encounter.is_encounter_paused {
+                    info!(
+                        target: "app::live",
+                        "training_dummy_start cleared paused state so parsing can resume"
+                    );
+                    state.set_encounter_paused(false);
+                }
+                state.training_dummy.arm_with_duration(duration_seconds);
                 emit_training_dummy_update_if_changed(state, previous);
             }
             LiveControlCommand::StopTrainingDummy => {
@@ -2536,6 +2893,13 @@ impl AppStateManager {
                         "training_dummy_stop resetting active training dummy encounter"
                     );
                     self.reset_encounter(state, false);
+                }
+                if state.encounter.is_encounter_paused {
+                    info!(
+                        target: "app::live",
+                        "training_dummy_stop cleared paused state so parsing can resume"
+                    );
+                    state.set_encounter_paused(false);
                 }
                 state.training_dummy.clear();
                 emit_training_dummy_update_if_changed(state, previous);
@@ -2609,7 +2973,9 @@ impl AppStateManager {
                 state.local_monitor.skill_cd_monitor.skill_cd_map = old_map
                     .into_iter()
                     .filter(|(skill_level_id, _)| {
-                        monitored_skill_ids.contains(&(skill_level_id / 100))
+                        monitored_skill_ids.iter().any(|monitored_skill_id| {
+                            skill_cd_matches_monitored(*skill_level_id, *monitored_skill_id)
+                        })
                     })
                     .collect();
             }
@@ -2888,9 +3254,7 @@ impl AppStateManager {
             refresh_season_cultivate_factor_rules(state);
         }
 
-        if state.modifier_capture_enabled {
-            sync_selected_factor_items_to_local_entity(state);
-        }
+        sync_selected_factor_items_to_local_entity(state);
         season_cultivate_changed
     }
 
@@ -2900,27 +3264,32 @@ impl AppStateManager {
         sync_container_dirty_data: blueprotobuf::SyncContainerDirtyData,
     ) -> bool {
         use crate::live::opcodes_process::process_sync_container_dirty_data;
-        if state.modifier_capture_enabled {
-            let mut selected_factor_items =
-                crate::live::seasonal_factor_selector::selected_factor_items_from_dirty_data(
-                    &sync_container_dirty_data,
-                );
+        let loadout_updates_allowed = !encounter_has_stats(&state.encounter);
+        let mut selected_factor_items = if loadout_updates_allowed {
+            crate::live::seasonal_factor_selector::selected_factor_items_from_dirty_data(
+                &sync_container_dirty_data,
+            )
+        } else {
+            Vec::new()
+        };
+        if loadout_updates_allowed {
             selected_factor_items.extend(selected_factor_items_from_dirty_transitions(
                 state,
                 &sync_container_dirty_data,
             ));
-            if !selected_factor_items.is_empty() {
-                upsert_selected_factor_items(
-                    &mut state.local_selected_factor_items,
-                    &selected_factor_items,
-                );
-                state.selected_factor_cache_dirty = true;
-            }
+        }
+        if !selected_factor_items.is_empty() {
+            upsert_selected_factor_items(
+                &mut state.local_selected_factor_items,
+                &selected_factor_items,
+            );
+            state.selected_factor_cache_dirty = true;
         }
         let Some(result) = process_sync_container_dirty_data(
             &mut state.encounter,
             &sync_container_dirty_data,
             state.modifier_capture_enabled,
+            loadout_updates_allowed,
         ) else {
             warn!("Error processing SyncContainerDirtyData.. ignoring.");
             return false;
@@ -2937,7 +3306,7 @@ impl AppStateManager {
             }
         }
 
-        if state.modifier_capture_enabled {
+        if loadout_updates_allowed {
             sync_selected_factor_items_to_local_entity(state);
         }
         season_cultivate_changed
@@ -2958,6 +3327,11 @@ impl AppStateManager {
             .and_then(|v| v.dungeon_scene_info.as_ref())
             .and_then(|info| info.difficulty);
         let inferred_scene_id = scene_uuid.and_then(infer_scene_id_from_scene_uuid);
+
+        if let Some(v_data) = sync_dungeon_data.v_data.as_ref() {
+            let equipment = collect_dungeon_player_equipment(v_data);
+            self.merge_remote_player_equipment(state, equipment);
+        }
 
         if let Some(difficulty) = difficulty {
             state.encounter.current_dungeon_difficulty = Some(difficulty);
@@ -3185,6 +3559,10 @@ impl AppStateManager {
             if state.modifier_capture_enabled {
                 record_local_skill_cooldown_events(state, &result.skill_cds);
             }
+            let active_talent_node_ids = local_active_profession_talent_node_ids(state);
+            let active_profession_skills = local_active_profession_skills(state);
+            let active_effect_sources = local_active_effect_sources(state);
+            let active_gear_sets = local_active_gear_sets(state);
             // Factor SkillCast energy uses cooldown-start edges. AttrSkillId can echo while a
             // skill is active, which overcounts cast-based factors such as Blast Shot/Powerdraw.
             let skill_casts_from_cds = collect_factor_skill_casts_from_cooldown_starts(
@@ -3200,10 +3578,18 @@ impl AppStateManager {
                     .on_skill_cast(skill_base_id);
             }
             state.attr_store.mark_cd_dirty();
-            state
-                .local_monitor
-                .skill_cd_monitor
-                .apply_skill_cd_updates(&result.skill_cds, &state.attr_store);
+            state.local_monitor.skill_cd_monitor.apply_skill_cd_updates(
+                &result.skill_cds,
+                &state.attr_store,
+                &active_talent_node_ids,
+                SkillCdRuntimeSnapshot::from_attr_store(
+                    &state.local_monitor.buff_monitor.active_buffs,
+                    &state.attr_store,
+                )
+                .with_active_profession_skills(&active_profession_skills)
+                .with_active_effect_sources(&active_effect_sources)
+                .with_active_gear_sets(&active_gear_sets),
+            );
         }
 
         if let Some(raw_bytes) = result.buff_effect_bytes {
@@ -3214,6 +3600,9 @@ impl AppStateManager {
                 current_local_player_uuid(&state.encounter),
             );
             remember_local_owned_sources_from_buff_changes(state, &buff_process_result.changes);
+            if buff_changes_affect_skill_cd(&buff_process_result.changes) {
+                state.attr_store.mark_cd_dirty();
+            }
             if let Some(payload) = buff_process_result.update_payload {
                 state.event_manager.emit_buff_update(payload);
             }
@@ -3458,10 +3847,24 @@ impl AppStateManager {
         }
 
         if changes.cd_dirty {
+            let active_talent_node_ids = local_active_profession_talent_node_ids(state);
+            let active_profession_skills = local_active_profession_skills(state);
+            let active_effect_sources = local_active_effect_sources(state);
+            let active_gear_sets = local_active_gear_sets(state);
             state
                 .local_monitor
                 .skill_cd_monitor
-                .recalculate_cached_skill_cds(&state.attr_store);
+                .recalculate_cached_skill_cds(
+                    &state.attr_store,
+                    &active_talent_node_ids,
+                    SkillCdRuntimeSnapshot::from_attr_store(
+                        &state.local_monitor.buff_monitor.active_buffs,
+                        &state.attr_store,
+                    )
+                    .with_active_profession_skills(&active_profession_skills)
+                    .with_active_effect_sources(&active_effect_sources)
+                    .with_active_gear_sets(&active_gear_sets),
+                );
             let filtered = state
                 .local_monitor
                 .skill_cd_monitor
@@ -3548,6 +3951,7 @@ impl AppStateManager {
         let cleared_live_data = crate::live::event_manager::generate_live_data_payload(
             &state.encounter,
             &state.attr_store,
+            build_training_dummy_state(&state.training_dummy),
         );
         state.event_manager.emit_live_data(cleared_live_data);
         if is_manual {
@@ -3634,8 +4038,8 @@ impl AppStateManager {
         self.send_control(LiveControlCommand::ApplyMonitorRuntimeSnapshot(snapshot))
     }
 
-    pub fn start_training_dummy(&self) -> Result<(), String> {
-        self.send_control(LiveControlCommand::StartTrainingDummy)
+    pub fn start_training_dummy(&self, duration_seconds: Option<u64>) -> Result<(), String> {
+        self.send_control(LiveControlCommand::StartTrainingDummy { duration_seconds })
     }
 
     pub fn stop_training_dummy(&self) -> Result<(), String> {
@@ -3650,10 +4054,12 @@ impl AppStateManager {
             return;
         }
 
+        finish_training_dummy_if_due(state, "heartbeat");
         sync_active_buffs_to_encounter(state);
         let payload = crate::live::event_manager::generate_live_data_payload(
             &state.encounter,
             &state.attr_store,
+            build_training_dummy_state(&state.training_dummy),
         );
 
         state.event_manager.emit_live_data(payload);
@@ -3809,16 +4215,7 @@ impl AppStateManager {
             return CombatGate::AllowAll;
         }
 
-        let previous = build_training_dummy_state(&state.training_dummy);
-        if state.training_dummy.maybe_finish() {
-            persist_segment_unless_saved(state, false, "training_dummy_segment");
-            state.training_dummy.segment_saved = true;
-            emit_training_dummy_update_if_changed(state, previous);
-            info!(
-                target: "app::live",
-                "training_dummy_segment_finished source={}",
-                source
-            );
+        if finish_training_dummy_if_due(state, source) {
             return CombatGate::BlockAll;
         }
 
@@ -3866,6 +4263,9 @@ mod tests {
             duration: Some(1000),
             skill_cd_type: Some(0),
             valid_cd_time: Some(1000),
+            sub_cd_ratio: None,
+            sub_cd_fixed: None,
+            accelerate_cd_ratio: None,
         }
     }
 

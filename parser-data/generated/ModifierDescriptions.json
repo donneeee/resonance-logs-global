@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-05-28T21:24:30.742Z",
+  "generatedAt": "2026-06-09T10:48:38.454Z",
   "sourcesByRuleId": {
     "mrs:10821ca3d6ef": {
       "description": "Courage A key resource for unleashing Special Attacks and select Expertise Skills. Regenerates 3 points per second, with a starting maximum of 100. Basic Attack: Windborne Grace Executes a sequence of up to four attacks, dealing Attack DMG Tips: Fill the gaps with Basic Attacks when Courage is too low for other offensive skills.",
@@ -32,6 +32,22 @@
         "pt-BR": "Intenção da Lâmina Acumula 2 de Intenção da Lâmina por segundo. Quando totalmente carregada, o Ataque Especial é melhorado: consome 100 de Intenção da Lâmina para aumentar drasticamente sua velocidade de conjuração. Ataque Básico: Justiça Veloz Desfere até quatro golpes amplos em forma de espada longa, cada um causando Dano de Ataque. Dica: Use o Ataque Especial assim que a Intenção da Lâmina atingir o máximo para maximizar o dano.",
         "th": "Blade Intent สะสม 2 แต้ม Blade Intent ทุกวินาที เมื่อ Blade Intent สะสมพอ การโจมตีพิเศษ จะได้รับการเพิ่มพลัง: ใช้ 100 แต้ม Blade Intent เพื่อเพิ่มความเร็วในการใช้อย่างมาก การโจมตีปกติ - ฟันปีศาจ ทำการโจมตีสูงสุดสี่ครั้งในรูปแบบดาบยาว แต่ละครั้งสร้าง P.DMG กลยุทธ์: สังเกตการใช้การโจมตีพิเศษทันทีเมื่อ Blade Intent เต็ม",
         "id": "Bladewill Mengumpulkan 2 poin Bladewill setiap detik. Saat Bladewill cukup, Special Attack akan diperkuat: mengonsumsi 100 poin Bladewill untuk meningkatkan Casting Speed secara signifikan. Normal Attack - Swift Justice Melancarkan hingga 4 serangan, masing-masing mengakibatkan PDMG. Strategi: Gunakan Special Attack segera saat Bladewill telah penuh."
+      }
+    },
+    "mrs:8089ffd0230f": {
+      "description": "During Fast Growth, increases Energy REG SPD by 50%. Increases Grove Wish's Crit by 10%",
+      "descriptions": {
+        "en": "During Fast Growth, increases Energy REG SPD by 50%. Increases Grove Wish's Crit by 10%",
+        "zh-CN": "加速生长持续期间，能量回复速度+50%。 森之祈愿暴击+10%。",
+        "zh-TW": "加速生長持續期間，能量回復速度+50%。 森之祈願暴擊+10%。",
+        "ja": "ファストグロウスの有効中、エネルギー回復速度+50%。 グローヴウィッシュの会心+10%。",
+        "ko-KR": "가속 성장 지속 시간 동안 에너지 회복 속도 +50%. 숲의 기도 치명타 +10%.",
+        "fr": "Pendant Croissance rapide, augmente la vitesse de régénération d'énergie de 50 %. Augmente la critique de Souhait du bosquet de 10 %",
+        "de": "Während Schnelles Wachstum erhöht sich die Energie-REG-GES um 50 %. Erhöht den Krit von Hainwunsch um 10 %",
+        "es": "Durante Crecimiento Rápido, aumenta la VEL de REG de energía en un 50 %. Aumenta el crítico de Deseo Arbolado en un 10 %.",
+        "pt-BR": "Durante Crescimento Rápido, aumenta a VEL de REG. de Energia em 50%. Aumenta o Crítico de Desejo do Bosque em 10%",
+        "th": "ในช่วงเวลาต่อเนื่องของ Accelerated Growth ความเร็วฟื้นฟู ERG +50% Forest Prayer CRIT +10%",
+        "id": "Selama durasi Accelerated Growth, kecepatan pemulihan Energi +50%. Forest Blessing Crit +10%."
       }
     },
     "mrs:f2bb4ef08c33": {
@@ -786,7 +802,7 @@
         "id": "Selama durasi Mental Focus setiap 0,5 detik, Crit +0,5% dan Crit DMG +1%. Maks. 15 tumpuk."
       }
     },
-    "mrs:d38dd2c7f232": {
+    "mrs:37886c2b02c4": {
       "description": "While Focus is active, Radiance Barrage summons 1 Celestial Eagle at the target's location. Now, each 1% of Haste increases the CD Boost of Focus by 1%.",
       "descriptions": {
         "en": "While Focus is active, Radiance Barrage summons 1 Celestial Eagle at the target's location. Now, each 1% of Haste increases the CD Boost of Focus by 1%. Celestial Eagle: Creates a storm with a 5-meter radius, dealing 80% ATK as Attack DMG ignoring Armor to targets marked with Steel Beak inside the storm every 0.5s. After 5s, Celestial Eagle dives to the ground, dealing 500% ATK as Attack DMG ignoring Armor.",
@@ -818,7 +834,7 @@
         "id": "Menembakkan 1 Explosive Arrow yang meledak saat mengenai target. Explosive Arrow akan mengakibatkan PDMG kepada musuh di sekitarnya. Saat Class Skill mengakibatkan Crit DMG, Explosive Arrow akan mendapat 1 tumpuk Charge. Setelah mencapai 5 tumpuk atau setelah 6 detik, Explosive Arrow akan meledak. Setiap 1 tumpuk Charge, +100% DMG Explosive Arrow. Strategi: Kombinasikan dengan Falconer. Usahakan lebih banyak Crit DMG saat menambahkan Explosive Shot untuk meningkatkan kekuatan skill."
       }
     },
-    "mrs:dce829ce8cff": {
+    "mrs:53aa18a9c82b": {
       "description": "When Radiance Barrage hits a target, it applies Light Energy Stasis to them. Light Energy Stasis: movement speed -30%. Being hit by Powerdraw is bound to deal Crit DMG. Lasts for 5s.",
       "descriptions": {
         "en": "When Radiance Barrage hits a target, it applies Light Energy Stasis to them. Light Energy Stasis: movement speed -30%. Being hit by Powerdraw is bound to deal Crit DMG. Lasts for 5s.",
@@ -864,6 +880,134 @@
         "pt-BR": "Quando Melodia está ativa, há 15% de chance fixa por segundo de ganhar Surto da Paixão. Surto da Paixão: Ataques Especiais custam zero de Paixão de Performance por 10 s. Removido após usar um Ataque Especial. Melodia Heroica ou Melodia Curativa",
         "th": "เมื่อสกิลดนตรีเปิดใช้ ทุกวินาทีมีโอกาสคงที่ 15% ได้รับเอฟเฟกต์ Passion Burst Passion Burst: การโจมตีพิเศษไม่ใช้ Performance Passion ต่อเนื่อง 10s หลังจากปล่อยการโจมตีพิเศษเอฟเฟกต์นี้จะถูกลบ สกิลดนตรี: โซนาต้า - บทเพลงกล้าหาญหรือโซนาต้า - บทเพลงเยียวยา",
         "id": "Saat Melody Skill aktif, setiap detik terdapat 15% peluang tetap untuk mendapat efek Passion Outburst. Passion Outburst: Selama 10 detik, Special Attack tidak akan mengonsumsi Performance Passion. Efek ini akan hilang setelah Special Attack dilancarkan. Melody Skill: Melody - Valor Movement atau Melody - Healing Movement."
+      }
+    },
+    "mrs:cc4238d2d018": {
+      "description": "While in Rhapsody of Flame, increases all Luck Chance acquired by any means by 50% and increases DMG Reduction by 25%. Healing of Stillness: If you deal no DMG to enemies for 5s, each hit of your Basic Attack will heal up to 10 allies (party members prioritized), with the full 4-hit combo restoring 15.75% of their max HP in total. After casting an Ultimate, Basic Attacks immediately start healing, and Fierce Strike can trigger the 4th hit healing effect, but this is disabled upon dealing DMG to enemies. Maintaining Heroic Melody and Rhapsody of Flame is crucial. Heroic Melody enhances healing while consecutive Fierce Strikes accelerate Harmonic Anthem casting frequency.",
+      "descriptions": {
+        "en": "While in Rhapsody of Flame, increases all Luck Chance acquired by any means by 50% and increases DMG Reduction by 25%. Healing of Stillness: If you deal no DMG to enemies for 5s, each hit of your Basic Attack will heal up to 10 allies (party members prioritized), with the full 4-hit combo restoring 15.75% of their max HP in total. After casting an Ultimate, Basic Attacks immediately start healing, and Fierce Strike can trigger the 4th hit healing effect, but this is disabled upon dealing DMG to enemies. Maintaining Heroic Melody and Rhapsody of Flame is crucial. Heroic Melody enhances healing while consecutive Fierce Strikes accelerate Harmonic Anthem casting frequency.",
+        "zh-CN": "处于烈焰狂想中时，以任何方式获取的幸运几率提升50%，同时受到伤害减免+25%。 休止的治愈：5秒时间内没有对敌方目标造成伤害，你的普通攻击每一段将会为最多10名友方（优先队友）回复生命值，四段攻击总计回复15.75%最大生命值。施放终极技能后，普攻可以立即开始回血，且猛烈挥击可以触发普攻第4段回血，对敌方目标造成伤害后失效。 维持鸣奏·英勇乐章和烈焰狂想是关键，鸣奏·英勇乐章带来治疗效果增强的同时可以连续的派生猛烈挥击加快聚合乐章的施放频率。",
+        "zh-TW": "處於烈焰狂想中時，以任何方式獲取的幸運機率提升50%，同時受到傷害減免+25%。 休止的治癒：5秒時間內沒有對敵方目標造成傷害，你的普通攻擊每一段將會為最多10名友方（優先隊友）回復生命值，四段攻擊總計回復15.75%最大生命值。施放終極技能後，普攻可以立即開始回血，且猛烈揮擊可以觸發普攻第4段回血，對敵方目標造成傷害後失效。 維持鳴奏·英勇樂章和烈焰狂想是關鍵，鳴奏·英勇樂章帶來治療效果增強的同時可以連續的派生猛烈揮擊加快聚合樂章的施放頻率。",
+        "ja": "フレイムラプソディー状態時、任意の方法で取得した幸運確率+50%。さらにダメージ軽減+25%。 小休止の癒し：5秒間、エネミーにダメージを与えなかった場合、自身の通常攻撃が1段ごとに味方の最大10名（パーティメンバー優先）のHPを回復する。攻撃4段の合計回復量は最大HPの15.05%。 ブレイブメロディーとフレイムラプソディーの維持がカギ。ブレイブメロディーがもたらす回復効果が強化され、連続派生するバイオレントスイングがハーモニックアンセムの発動頻度をアップさせる。",
+        "ko-KR": "불꽃의 랩소디 상태일 때, 모든 방식으로 획득한 행운 확률이 50% 증가합니다. 동시에 받는 대미지 감면 효과가 25% 증가합니다. 멈춰버린 치유: 5초 동안 적에게 대미지를 입히지 않았다면, 일반 공격이 1회마다 최대 아군 10명(파티원 우선)의 체력을 회복시켜, 4회 총합 최대 체력의 15.05%만큼 회복시킵니다. 울림・용맹의 악장과 불꽃의 랩소디를 유지하는 것이 관건입니다. 울림・용맹의 악장은 치료 효과를 강화하는 동시에 맹렬한 휘두르기를 연속으로 파생시켜 결집의 악장의 시전 빈도를 높일 수 있습니다.",
+        "fr": "Pendant Rhapsodie de flammes, toutes les chances obtenues, quelle qu'en soit la source, augmentent de 50 % et la réduction de dégâts augmente de 25 %. Guérison du calme : si aucun dégât n'est infligé aux ennemis pendant 5 s, chaque coup de l'attaque de base soignera jusqu'à 10 alliés (membres du groupe en priorité), le combo complet de 4 coups restaurant un total de 15,75 % de leurs PV max. Après le lancement d'un ultime, les attaques de base commencent immédiatement à soigner, et Frappe féroce peut déclencher l'effet de soin du 4e coup, mais cet effet est désactivé lorsque des dégâts sont infligés aux ennemis. Il est crucial de maintenir Mélodie héroïque et Rhapsodie de flammes. Mélodie héroïque renforce les soins, tandis que les Frappes féroces consécutives accélèrent la fréquence de lancement d'Hymne harmonique.",
+        "de": "Während Rhapsodie der Flamme aktiv ist, erhöht sich die gesamte durch beliebige Quellen erhaltene Glückschance um 50 % und die SCH-Reduktion um 25 %. Heilung der Stille: Wenn Gegnern 5 Sek. lang kein SCH zugefügt wird, heilt jeder Treffer des Standardangriffs bis zu 10 Verbündete (Gruppenmitglieder priorisiert), wobei die vollständige 4-Treffer-Kombo insgesamt 15,75 % ihrer Max. LP wiederherstellt. Nach dem Wirken einer Ultimafähigkeit beginnen Standardangriffe sofort zu heilen, und Heftiger Schlag kann den Heilungseffekt des 4. Treffers auslösen. Dies wird jedoch deaktiviert, sobald Gegnern SCH zugefügt wird. Das Aufrechterhalten von Heroische Melodie und Rhapsodie der Flamme ist entscheidend. Heroische Melodie verbessert die Heilung, während aufeinanderfolgende Heftige Schläge die Wirkfrequenz von Harmonische Hymne beschleunigen.",
+        "es": "Durante Rapsodia de la Flama, aumenta toda la probabilidad de suerte adquirida por cualquier medio en un 50 % y la reducción de DÑO en un 25 %. Curación de Quietud: Si no se inflige DÑO a los enemigos durante 5 s, cada golpe del ataque básico curará hasta a 10 aliados (se da prioridad a los miembros del grupo) y el combo completo de 4 golpes les restaurará un total del 15.75 % de sus PS máx. Tras lanzar una definitiva, los ataques básicos comienzan a curar de inmediato, y Golpe Feroz puede activar el efecto de curación del cuarto golpe, pero esto se desactiva al infligir DÑO a los enemigos. Es crucial mantener Melodía Heroica y Rapsodia de la Flama. Melodía Heroica mejora la curación, mientras que los Golpes Feroces consecutivos aceleran la frecuencia de lanzamiento de Himno Armonioso.",
+        "pt-BR": "Durante a Rapsódia de Chamas, aumenta em 50% toda a Chance de Sorte adquirida por qualquer meio e aumenta a Redução de Dano em 25%. Cura da Quietude: Se não houver Dano causado a inimigos por 5 s, cada acerto do Ataque Básico curará até 10 aliados (membros do grupo são priorizados), com a combinação completa de 4 acertos restaurando 15,75% do PV Máximo deles no total. Após conjurar a Habilidade Suprema, os Ataques Básicos começam a curar imediatamente, e o Golpe Feroz pode acionar o efeito de cura do 4º acerto, mas isso é desativado ao causar Dano a inimigos. Manter a Melodia Heroica e a Rapsódia de Chamas é crucial. A Melodia Heroica aprimora a cura enquanto Golpes Ferozes consecutivos aceleram a frequência de conjuração do Hino Harmônico.",
+        "th": "เมื่ออยู่ในเพลงเพลิงคลั่ง โอกาส Lucky ที่ได้รับมาด้วยวิธีใดก็ได้จะเพิ่ม 50% ในขณะเดียวกัน DMG ที่ได้รับลดลง +25% รักษายามพักผ่อน: ภายในเวลา 5s หากไม่ได้สร้าง DMG แก่เป้าหมายฝ่ายศัตรู โจมตีทั่วไปของคุณทุก 1 ขั้นจะฟื้นฟู HP แก่ฝ่ายพันธมิตรมากสุด 10 คน (เพื่อนร่วมทีมก่อน) การโจมตีขั้น 4 จะฟื้นฟู MaxHP รวม 15.05% คงโซนาต้า - บทเพลงกล้าหาญและเพลงเพลิงคลั่งคือกุญแจสำคัญ โซนาต้า - บทเพลงกล้าหาญมีเอฟเฟกต์ Heal ที่เพิ่มพลังในขณะเดียวกันสามารถเพิ่มความถี่การปล่อยบทเพลงผสานด้วย Fierce Strike อย่างต่อเนื่อง",
+        "id": "Saat berada dalam status Flame Fantasy, Lucky Chance dari semua sumber meningkat 50%, dan DR +25%. Paused Healing: Jika tidak mengakibatkan DMG terhadap target selama 5 detik, Normal Attack yang kamu lancarkan akan memulihkan HP hingga 10 rekan (rekan tim akan diprioritaskan). Total pemulihan dari empat tahap serangan adalah 15,05% dari Max HP. Menjaga Melody - Valor Movement dan Flame Fantasy tetap aktif adalah kunci. Melody - Valor Movement tidak hanya meningkatkan Healing Effect, tetapi juga memungkinkan Fierce Swing berantai yang mempercepat frekuensi cast Harmonic Movement."
+      }
+    },
+    "mrs:46fe452e6ebf": {
+      "description": "When Harmonic Anthem or Fierce Strike triggers a Lucky Strike, limited to a single activation when striking multiple targets, immediately resets Rhapsody of Flame's CD and allows Rhapsody of Flame not to consume Performance Passion for 10s, this effect is nullified upon casting Rhapsody of Flame.",
+      "descriptions": {
+        "en": "When Harmonic Anthem or Fierce Strike triggers a Lucky Strike, limited to a single activation when striking multiple targets, immediately resets Rhapsody of Flame's CD and allows Rhapsody of Flame not to consume Performance Passion for 10s, this effect is nullified upon casting Rhapsody of Flame.",
+        "zh-CN": "聚合乐章、猛烈挥击触发幸运一击时（命中多个目标时只触发一次），使得烈焰狂想立即冷却结束，同时在接下来10秒内施放烈焰狂想不消耗演奏热情，施放烈焰狂想后该效果移除。",
+        "zh-TW": "聚合樂章、猛烈揮擊觸發幸運一擊時（命中多個目標時只觸發一次），使得烈焰狂想立即冷卻結束，同時在接下來10秒內施放烈焰狂想不消耗演奏熱情，施放烈焰狂想後該效果移除。",
+        "ja": "ハーモニックアンセム、バイオレントスイングが幸運の一撃になった場合（複数対象に命中しても発動するのは1回のみ）、フレイムラプソディーのリキャストを直ちに終了し、以後10秒間に発動するフレイムラプソディーが熱響を消費しない。この効果はフレイムラプソディー発動後に消失する。",
+        "ko-KR": "결집의 악장, 맹렬한 휘두르기가 행운의 일격을 발동하면(적중한 대상의 수와 관계없이 1회만 발동), 불꽃의 랩소디의 쿨타임이 즉시 회복됩니다. 또한 10초 동안 불꽃의 랩소디 시전 시 연주 열정을 소모하지 않습니다. 이 효과는 불꽃의 랩소디 시전 후 사라집니다.",
+        "fr": "Quand Hymne harmonique ou Frappe féroce déclenche Frappe chanceuse, limité à une seule activation en cas de frappe sur plusieurs cibles, réinitialise immédiatement le temps de rechargement de Rhapsodie de flammes et permet à Rhapsodie de flammes de ne pas consommer de Passion de performance pendant 10 s, cet effet est annulé au lancement de Rhapsodie de flammes.",
+        "de": "Wenn Harmonische Hymne oder Heftiger Schlag einen Glückstreffer auslösen, begrenzt auf eine einzige Aktivierung, wenn mehrere Ziele getroffen werden, wird die AZ von Rhapsodie der Flamme sofort zurückgesetzt und Rhapsodie der Flamme verbraucht keine Auftrittleidenschaft für 10 Sek. Dieser Effekt wird beim Wirken von Rhapsodie der Flamme ausgehoben.",
+        "es": "Cuando Himno Armonioso o Golpe Feroz activa un golpe de suerte (limitado a una sola activación al golpear múltiples objetivos), restablece de inmediato el TdR de Rapsodia de la Flama y permite que Rapsodia de la Flama no consuma pasión escénica durante 10 s. Este efecto se anula al lanzar Rapsodia de la Flama.",
+        "pt-BR": "Quando Hino Harmônico ou Golpe Feroz gera um Golpe de Sorte, limitado a uma ativação ao atingir múltiplos alvos, zera imediatamente o TR de Rapsódia de Chamas e permite que Rapsódia de Chamas não consuma Paixão de Performance por 10 s. Este efeito é anulado ao lançar Rapsódia de Chamas.",
+        "th": "เมื่อ บทเพลงผสาน และ Fierce Strike ทำงาน Lucky Strike (เมื่อโจมตีโดนเป้าหมายหลายตัวทำงานเพียง 1 ครั้ง) ทำให้ได้รับเพลงเพลิงคลั่งและสิ้นสุด CD ทันที ในขณะเดียวกันตามด้วยภายใน 10s จะปล่อยเพลงเพลิงคลั่งไม่ใช้Performance Passion หลังจากปล่อยเพลงเพลิงคลั่งจะลบเอฟเฟกต์นี้",
+        "id": "Saat Harmonic Movement atau Fierce Swing memicu Lucky Hit (hanya dapat terpicu satu kali saat mengenai banyak target),waktu CD Flame Fantasy akan langsung berakhir. Selain itu, selama 10 detik berikutnya, menggunakan Flame Fantasy tidak akan mengonsumsi Performance Passion. Setelah Flame Fantasy digunakan, efek ini akan dihapus."
+      }
+    },
+    "mrs:0921845145a5": {
+      "description": "During Center Stage, triggering Encore Strings has a 30% fixed chance to grant Passion Surge. Passion Surge: Special Attack costs zero Performance Passion for 10s. Removed after Special Attack is cast.",
+      "descriptions": {
+        "en": "During Center Stage, triggering Encore Strings has a 30% fixed chance to grant Passion Surge. Passion Surge: Special Attack costs zero Performance Passion for 10s. Removed after Special Attack is cast. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
+        "zh-CN": "万众瞩目持续期间，自身触发安可琴弦有30%固定几率获得热情迸发。 热情迸发：特殊攻击不消耗演奏热情，持续10秒，施放特殊攻击后该效果移除。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
+        "zh-TW": "萬眾矚目持續期間，自身觸發安可琴弦有30%固定機率獲得熱情迸發。 熱情迸發：特殊攻擊不消耗演奏熱情，持續10秒，施放特殊攻擊後該效果移除。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
+        "ja": "スポットライトの有効中、自身が発動する追奏弦音が30%の固定確率でラッシュパッションを獲得する。 ラッシュパッション：特殊攻撃が熱響を消費しない。持続10秒、この効果は特殊攻撃発動後に消失する。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
+        "ko-KR": "어텐션 지속 시간 동안, 자신이 앵콜 스트링을 발동하면 30%의 고정 확률로 열정 폭발을 획득합니다. 열정 폭발: 특수 공격이 연주 열정을 소모하지 않습니다. 10초 지속, 특수 공격 시전 후 사라집니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
+        "fr": "Pendant Scène centrale, déclencher Cordes de rappel a 30 % de chances fixes d'octroyer Vague de passion. Vague de passion : l'attaque spéciale ne consomme pas de Passion de performance pendant 10 s. Se dissipe après le lancement d'une attaque spéciale. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
+        "de": "Während Hauptbühne besteht beim Auslösen von Zugabe-Saiten eine feste Chance von 30 %, Leidenschaftsschub zu gewähren. Leidenschaftsschub: Spezialangriff kostet für 10 Sek. keine Auftrittspassion. Wird nach dem Wirken des Spezialangriffs entfernt. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
+        "es": "Durante Escenario Central, activar Cuerdas del Bis tiene un 30 % de probabilidad fija de otorgar Oleada Pasional. Oleada Pasional: El ataque especial no consume pasión escénica durante 10 s. Se elimina tras lanzar el ataque especial. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
+        "pt-BR": "Durante Palco Central, acionar Cordas de Bis tem 30% de chance fixa de conceder Surto da Paixão. Surto da Paixão: Ataques Especiais custam zero Paixão de Performance por 10 s. Removido após lançar Ataque Especial. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
+        "th": "ในช่วงต่อเนื่องของศูนย์กลางความสนใจ ตัวเองทำงานสายพิณ Encore มีโอกาสคงที่ 30% จะได้รับ Passion Burst Passion Burst: การโจมตีพิเศษไม่ใช้ Performance Passion ต่อเนื่อง 10s หลังจากปล่อยการโจมตีพิเศษเอฟเฟกต์นี้จะถูกลบ สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
+        "id": "Selama durasi Crowd Focus, setiap kali Encore Chords terpicu, terdapat 30% peluang tetap untuk mendapat Passion Outburst. Passion Outburst: Selama 10 detik, Special Attack tidak akan mengonsumsi Performance Passion. Efek ini akan hilang setelah Special Attack dilancarkan. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
+      }
+    },
+    "mrs:82b78ace20af": {
+      "description": "When Encore Strings triggers, it activates a second time on the same target.",
+      "descriptions": {
+        "en": "When Encore Strings triggers, it activates a second time on the same target. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
+        "zh-CN": "自身触发安可琴弦时对同一目标再次触发。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
+        "zh-TW": "自身觸發安可琴弦時對同一目標再次觸發。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
+        "ja": "自身が追奏弦音を発動すると、同一対象に自動的に再発動される。 幸運の一撃の倍率-20%。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
+        "ko-KR": "자신이 앵콜 스트링을 발동할 때, 같은 대상에게 한 번 더 발동됩니다. 행운의 일격 배율이 20% 감소합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
+        "fr": "Lorsque Cordes de rappel se déclenche, l'effet s'active une deuxième fois sur la même cible. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
+        "de": "Wenn Zugabe-Saiten ausgelöst wird, aktiviert es sich ein zweites Mal auf demselben Ziel. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
+        "es": "Cuando Cuerdas del Bis se activa, se aplica una segunda vez sobre el mismo objetivo. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
+        "pt-BR": "Quando as Cordas de Bis são ativadas, elas são ativadas uma segunda vez no mesmo alvo. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
+        "th": "เมื่อตัวเองทำให้เกิดสายพิณ Encore จะเกิดผลซ้ำกับเป้าหมายเดิมอีกครั้ง อัตราคูณ Lucky Strike -20% สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
+        "id": "Saat pengguna memicu Encore Chords, efek tersebut akan dipicu kembali pada target yang sama. Lucky Hit Multiplier -20%. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
+      }
+    },
+    "mrs:191070b501f4": {
+      "description": "Permanently benefits from Encore effect. For every 5 triggers of Encore Strings, the next Amplified Beat and Harmonic Anthem deal 50% more DMG.",
+      "descriptions": {
+        "en": "Permanently benefits from Encore effect. For every 5 triggers of Encore Strings, the next Amplified Beat and Harmonic Anthem deal 50% more DMG. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
+        "zh-CN": "自身永久携带安可效果。 自身每触发5次安可琴弦，下一次增幅节拍、聚合乐章伤害+50%。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
+        "zh-TW": "自身永久攜帶安可效果。 自身每觸發5次安可琴弦，下一次增幅節拍、聚合樂章傷害+50%。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
+        "ja": "自身に永続的にアンコール効果が付与される。 自身が追奏弦音を5回発動するたびに、次のハードディストーション、ハーモニックアンセムのダメージ+50%。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
+        "ko-KR": "자신이 영구적으로 앵콜 효과를 획득합니다. 자신이 앵콜 스트링을 5회 발동할 때마다 다음 증폭하는 비트, 결집의 악장 대미지 +50%. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
+        "fr": "Bénéficie en permanence de l'effet de Rappel. Toutes les 5 activations de Cordes de rappel, le prochain Rythme amplifié et la prochaine Hymne harmonique infligent 50 % de dégâts supplémentaires. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
+        "de": "Profitiert dauerhaft vom Zugabe-Effekt. Für jeweils 5 Auslösungen von Zugabe-Saiten verursachen die nächsten Verstärkter Takt und Harmonische Hymne weitere 50 % SCH. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
+        "es": "Se beneficia permanentemente del efecto de Bis. Cada 5 activaciones de Cuerdas del Bis, el próximo Ritmo Amplificado e Himno Armonioso infligen un 50 % más de DÑO. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
+        "pt-BR": "Beneficia permanentemente do efeito de Bis. A cada 5 acionamentos de Cordas de Bis, a próxima Batida Amplificada e Hino Harmônico causam 50% mais dano. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
+        "th": "ตัวเองจะมีเอฟเฟกต์ Encore ถาวร ตัวเองทำงานทุก 5 ครั้งที่เป็นสายพิณ Encore จังหวะขยายพลังครั้งถัดไปจะทำให้บทเพลงผสาน DMG +50% สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
+        "id": "Diri sendiri membawa efek Encore secara permanen. Setiap kali diri sendiri memicu 5 kali Encore Chords, DMG Amplify Beat dan Harmonic Movement berikutnya +50%. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
+      }
+    },
+    "mrs:900db670ced5": {
+      "description": "Every 1% Luck Chance grants 1% trigger chance for Encore Strings.",
+      "descriptions": {
+        "en": "Every 1% Luck Chance grants 1% trigger chance for Encore Strings. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
+        "zh-CN": "每1%幸运几率提供1%安可琴弦触发几率。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
+        "zh-TW": "每1%幸運機率提供1%安可琴弦觸發機率。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
+        "ja": "幸運1%ごとに追奏弦音の発動率+1%。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
+        "ko-KR": "행운 1%당 앵콜 스트링 발동 확률이 1% 증가합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
+        "fr": "Chaque 1 % de taux de chance confère 1 % de chance de déclencher Cordes de rappel. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
+        "de": "Nach je 1 % Glückschance wird 1 % Auslösechance für Zugabe-Saiten gewährt. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
+        "es": "Por cada 1 % de probabilidad de suerte, se otorga un 1 % de probabilidad de activación de Cuerdas del Bis. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
+        "pt-BR": "Cada 1% de Chance de Sorte concede 1% chance de acionar Cordas de Bis. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
+        "th": "โอกาส Lucky ทุก 1% เพิ่มโอกาสทำงาน 1% ของสายพิณ Encore สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
+        "id": "Setiap 1% Lucky Chance akan memberikan 1% peluang memicu Encore Chords. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
+      }
+    },
+    "mrs:742cc85dd8d5": {
+      "description": "Triggering Encore Strings to deal DMG or healing grants 2 Performance Energy. If the Encore Strings triggers Lucky Strike, grants 3 additional Performance Energy.",
+      "descriptions": {
+        "en": "Triggering Encore Strings to deal DMG or healing grants 2 Performance Energy. If the Encore Strings triggers Lucky Strike, grants 3 additional Performance Energy. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
+        "zh-CN": "自身触发安可琴弦造成伤害或治疗时获得2点演奏能量，如果该安可琴弦触发幸运一击则再额外获得3点演奏能量。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
+        "zh-TW": "自身觸發安可琴弦造成傷害或治療時獲得2點演奏能量，如果該安可琴弦觸發幸運一擊則再額外獲得3點演奏能量。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
+        "ja": "自身が追奏弦音を発動してダメージまたは回復を与えたとき、奏源を2pt獲得する。その追奏弦音が幸運の一撃を発動させた場合、追加で奏源を3pt獲得する。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
+        "ko-KR": "자신이 앵콜 스트링을 발동해 대미지를 입히거나 치료할 때, 연주 에너지를 2pt 획득합니다. 만약 해당 앵콜 스트링이 행운의 일격을 발동하면 추가로 연주 에너지를 3pt 획득합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
+        "fr": "Lorsque vous déclenchez Cordes de rappel pour infliger des dégâts ou prodiguer des soins, vous obtenez 2 points d'Énergie de performance. Si les Cordes de rappel déclenchent une Frappe chanceuse, vous obtenez 3 points d'Énergie de performance supplémentaires. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
+        "de": "Das Auslösen von Zugabe-Saiten, um SCH zu verursachen oder Heilung zu bewirken, gewährt 2 Auftrittsenergie. Wenn die Zugabe-Saiten einen Glückstreffer auslösen, gewähren sie 3 zusätzliche Auftrittsenergie. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
+        "es": "Activar Cuerdas del Bis para infligir DÑO o curar otorga 2 de energía escénica. Si Cuerdas del Bis activa un golpe de suerte, otorga 3 de energía escénica adicional. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
+        "pt-BR": "Acionar Cordas de Bis para causar dano ou cura concede 2 Energia de Performance. Se Cordas de Bis acionar Golpe de Sorte, concede 3 Energia de Performance adicional. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
+        "th": "เมื่อตัวเองทำงานสายพิณ Encore สร้าง DMG หรือ Heal จะได้รับ 2 แต้มที่เป็นพลังงานบรรเลง หากสายพิณ Encore นี้ทำงาน Lucky Strike จะได้รับเพิ่มเติม 3 แต้มที่เป็นพลังงานบรรเลง สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
+        "id": "Saat diri sendiri memicu Encore Chords dan memberikan DMG atau Heal, akan memperoleh 2 poin Performance Energy. Jika Encore Chords ini memicu Lucky Hit, akan memperoleh 3 poin Performance Energy tambahan. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
+      }
+    },
+    "mrs:7af12e8c7296": {
+      "description": "Within 10s after you cast Encore, each use of Expertise Skill triggers Encore Strings for targets affected by Encore.",
+      "descriptions": {
+        "en": "Within 10s after you cast Encore, each use of Expertise Skill triggers Encore Strings for targets affected by Encore. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
+        "zh-CN": "施放安可后的10秒内，每次施放专精技能，使得受到安可作用的目标立即触发安可琴弦。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
+        "zh-TW": "施放安可後的10秒內，每次施放專精技能，使得受到安可作用的目標立即觸發安可琴弦。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
+        "ja": "アンコールを使用後10秒間、マスタリースキルを発動するたびに、アンコールの効果を受けているターゲットに直ちに追奏弦音を発動させる。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
+        "ko-KR": "앵콜 시전 후 10초 동안 마스터리 스킬을 시전할 때마다, 앵콜 효과를 받는 대상이 즉시 앵콜 스트링을 발동합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
+        "fr": "Dans les 10 s suivant le lancement de Rappel, chaque utilisation d'une compétence d'expertise déclenche Cordes de rappel sur les cibles affectées par Rappel. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
+        "de": "Innerhalb von 10 Sek. nach deinem Wirken von Zugabe löst jeder Einsatz der Expertisefähigkeit Zugabe-Saiten für Ziele aus, die von Zugabe betroffen sind. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
+        "es": "Durante los 10 s posteriores a lanzar Bis, cada uso de habilidad de pericia activa Cuerdas del Bis en objetivos afectados por Bis. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
+        "pt-BR": "Em 10 s após lançar Bis, cada uso de Habilidade de Perícia aciona Cordas de Bis para alvos afetados por Bis. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
+        "th": "หลังจากปล่อย Encore ภายใน 10s ทุกครั้งที่ปล่อยสกิลเชี่ยวชาญ จะทำให้เป้าหมายได้รับประโยชน์จาก Encore ทำงานสายพิณ Encore ทันที สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
+        "id": "Dalam 10 detik setelah menggunakan Encore, setiap kali melancarkan Expertise Skill, target yang terkena efek Encore akan langsung memicu Encore Chords. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
       }
     },
     "mrs:94eb80352ea0": {
@@ -930,7 +1074,7 @@
         "id": "Selama durasi Holylight Guard, peluang memicu Holy Strike menjadi dua kali lipat. Setiap kali Holy Strike terpicu 3 kali, durasi Holylight Guard bertambah 1 detik. Holy Strike: Mengakibatkan PDMG setara dengan 50% ATK, membuat target yang terkena efek mengalami penurunan 25% Move Speed."
       }
     },
-    "mrs:c822d52623af": {
+    "mrs:2ba1e6a60599": {
       "description": "When Valor Bash deals Crit DMG, gain Blazing. Casting Aegis Ward guarantees Blazing. Scorching Heat: For the next 10s, Reckoning evolves into Inferno Reckon.",
       "descriptions": {
         "en": "When Valor Bash deals Crit DMG, gain Blazing. Casting Aegis Ward guarantees Blazing. Scorching Heat: For the next 10s, Reckoning evolves into Inferno Reckon.",
@@ -962,7 +1106,7 @@
         "id": "Valor Shield Bash DMG +10%."
       }
     },
-    "mrs:4e9aa912b2d2": {
+    "mrs:142369ecf079": {
       "description": "Replaces Special Attack with Vanguard Strike and enhances its power. Each additional enemy hit by Vanguard Strike grants 2 extra Photon Energy, up to 10. Successfully Block prevents losing the stacks of Lightforged Barrier. Lightforged Barrier: Each stack increases Max HP by 2%, up to 10 stacks, with each instance of DMG removing 1 stack. It lasts 25s or until all stacks are consumed. gaining stacks resets the duration. Managing Lightforged Barrier is crucial for sustaining high HP and triggering self-healing and DMG Reduction effects from Judgment, Zeal Crusade, and Radiance.",
       "descriptions": {
         "en": "Replaces Special Attack with Vanguard Strike and enhances its power. Each additional enemy hit by Vanguard Strike grants 2 extra Photon Energy, up to 10. Successfully Block prevents losing the stacks of Lightforged Barrier. Lightforged Barrier: Each stack increases Max HP by 2%, up to 10 stacks, with each instance of DMG removing 1 stack. It lasts 25s or until all stacks are consumed. gaining stacks resets the duration. Managing Lightforged Barrier is crucial for sustaining high HP and triggering self-healing and DMG Reduction effects from Judgment, Zeal Crusade, and Radiance.",
@@ -1024,6 +1168,70 @@
         "pt-BR": "Enquanto Cruzada do Zelo está ativa, Investida do Vanguardeiro evolui para Caçada do Vanguardeiro. Caçada do Vanguardeiro: Causa Dano de Ataque igual a 240% do ATQ ao alvo, que escala com o Nível/Categoria de Investida do Vanguardeiro. Quando Caçada do Vanguardeiro causa dano, restaura 2% do PV Máximo e concede Coragem Indomável.",
         "th": "ในช่วงCold Conquest นำVanguard Strikeกลายเป็นVanguard Pursuit Vanguard Hunt: เป้าหมายถูกสร้าง 240% P.DMG ของ ATK พัฒนาตามการอัป Lv./อัปขั้นสกิล Vanguard Strike เมื่อ Vanguard Pursuit สร้าง DMG จะฟื้นฟู MaxHP ตัวเอง 2% และได้รับ ValorFearless",
         "id": "Selama durasi Cruel Conquest, Vanguard Strike diubah menjadi Vanguard Pursuit. Vanguard Pursuit: Mengakibatkan PDMG sebesar 240% ATK pada target. Skala serangan meningkat seiring level/upgrade Vanguard Strike. Vanguard Pursuit mengakibatkan DMG, memulihkan 2% Max HP diri sendiri dan mendapatkan efek Fearless Valor."
+      }
+    },
+    "mrs:64ae2e279e78": {
+      "description": "When the Falcon strikes, grants you a fixed 30% chance to gain 1 stack of Weak Point Aim. Using Quadraflare leaves behind a Radiance Rift midair. Radiance Rift fires Photon Arrows equal to the current number of Weak Point Aim stacks.",
+      "descriptions": {
+        "en": "When the Falcon strikes, grants you a fixed 30% chance to gain 1 stack of Weak Point Aim. Using Quadraflare leaves behind a Radiance Rift midair. Radiance Rift fires Photon Arrows equal to the current number of Weak Point Aim stacks. Photon Arrow: Deals 80% ATK Attack DMG to enemy targets.",
+        "zh-CN": "猎鹰出击时有30%固定几率获得一层弱点瞄准。 施放光意·四连矢时在空中留下光能裂隙，光能裂隙根据当前弱点瞄准层数发射相同数量的光能箭矢。 光能箭矢: 对敌方目标造成80%攻击力物理伤害。",
+        "zh-TW": "獵鷹出擊時有30%固定機率獲得一層弱點瞄準。 施放光意·四連矢時在空中留下光能裂隙，光能裂隙根據當前弱點瞄準層數發射相同數量的光能箭矢。 光能箭矢: 對敵方目標造成80%攻擊力物理傷害。",
+        "ja": "臣鷹出撃時、30%の固定確率で弱点エイムを1スタック獲得する。 クアッドブラスト発動時、空中に光エナジースリットを残す。光エナジースリットはその時点の弱点エイムスタック数に基づいて同数の閃心矢を放つ。 閃心矢: エネミーに攻撃力の80%の物理ダメージを与える。",
+        "ko-KR": "팔콘 출격 시 30%의 고정 확률로 약점 조준을 1스택 획득합니다. 빛의 의지・쿼드러플 애로우 시전 시 공중에 빛의 균열을 남기며, 빛의 균열은 현재 보유한 약점 조준 스택 수만큼 루미너스 애로우를 발사합니다. 루미너스 애로우: 적에게 공격력 80%만큼의 물리 대미지를 입힙니다.",
+        "fr": "Lorsque le Faucon frappe, vous avez 30 % de chances fixes de gagner 1 cumul de Visée sur point faible. Utiliser Quadraflamboiement laisse une Faille radieuse dans les airs. Faille radieuse tire un nombre de Flèches photoniques égal au nombre actuel de cumuls de Visée sur point faible. Flèche photonique: Inflige 80 % de l'attaque en dégâts d'attaque aux cibles ennemies.",
+        "de": "Wenn der Falke zuschlägt, wird dir eine feste Chance von 30 % gewährt, 1 Stapel Schwachstellenziel zu erhalten. Das Wirken von Quadralodern hinterlässt in der Luft einen Strahlungsriss. Strahlungsriss feuert Photonenpfeile entsprechend der aktuellen Anzahl der Schwachstellenziel-Stapel ab. Photonenpfeil: Verursacht 80 % des ANG-Angriff-SCH bei gegnerischen Zielen.",
+        "es": "Cuando el halcón golpea, otorga una probabilidad fija del 30 % de ganar 1 acumulación de Disparo al Punto Débil. Usar Llamarada Cuádruple deja una Fisura de Resplandor en el aire. Fisura de Resplandor dispara una cantidad de flechas fotónicas igual a la cantidad de acumulaciones de Disparo al Punto Débil. Flecha fotónica: Inflige el 80 % del ATQ como DÑO de ataque a los objetivos enemigos.",
+        "pt-BR": "Quando o Falcão ataca, concede 30% de chance fixa de ganhar 1 acúmulo de Mira no Ponto Fraco. Usar Explosão Quádrupla deixa para trás uma Fenda de Radiância no ar. Fenda de Radiância dispara Flechas de Fóton igual ao número atual de acúmulos de Mira no Ponto Fraco. Flecha de Fótons: Causa 80% do ATQ como Dano de Ataque a alvos inimigos.",
+        "th": "เมื่อ Falcon โจมตีมีโอกาสคงที่ 30% ได้รับ Weak Spot Targeting 1 Stack เมื่อปล่อย Light Intent - Quadruple Arrow จะทิ้ง Light Energy Rift ไว้กลางอากาศ Light Energy Rift อิงตามจำนวน Stack ของ Weak Spot Targeting ในปัจจุบันเพื่อยิง Light Energy Arrow ตามจำนวนที่เท่ากัน Photon Arrow: สร้างการโจมตีแก่เป้าหมายฝ่ายศัตรู80%ของP.DMG",
+        "id": "Serangan Hawk berpeluang tetap 30% mendapat satu tumpuk Weak Point Aim. Meninggalkan Light Rift di udara saat melancarkan Lightwill - Quadraflare. Light Rift akan menembakkan Light Arrow sejumlah tumpukan Weak Point Aim saat ini. Light Arrow: Mengakibatkan PDMG sebesar 80% ATK pada target musuh."
+      }
+    },
+    "mrs:e70f3bf728d3": {
+      "description": "When Photon Energy is above 50%, casting Radiance Barrage counts as Photon Reforge.",
+      "descriptions": {
+        "en": "When Photon Energy is above 50%, casting Radiance Barrage counts as Photon Reforge. Photon Reforge: When Photon Energy is full, using a Special Attack allows you to enter Photon Reforge. In this state, Special Attacks and certain Expertise are enhanced. Photon Reforge gradually depletes, and the state ends when it reaches 0.",
+        "zh-CN": "当光能大于50%时，施放光能轰炸视为光能重铸状态。 光能重铸: 当光能充满时，施放特殊攻击可进入光能重铸状态。状态内，特殊攻击和个别专精技能获得强化。期间光能持续减少，减少到0后退出状态。",
+        "zh-TW": "當光能大於50%時，施放光能轟炸視為光能重鑄狀態。 光能重鑄: 當光能充滿時，施放特殊攻擊可進入光能重鑄狀態。狀態內，特殊攻擊和個別專精技能獲得強化。期間光能持續減少，減少到0後退出狀態。",
+        "ja": "閃心が50%以上だった場合、エナジーショットを発動すると閃心強化状態と見なされる。 閃心強化: 閃心が満タンの場合、特殊攻撃を発動すると閃心強化状態になり、その間は特殊攻撃と各マスタリースキルが強化される。閃心が減少し続けて0になると状態を終了する。",
+        "ko-KR": "라이트 에너지가 50%보다 높을 때, 라이트 봄버를 시전하면 라이트 리캐스트 상태로 간주됩니다. 라이트 리캐스트: 라이트 에너지가 가득 찼을 때, 특수 공격을 시전하면 라이트 리캐스트 상태에 진입합니다. 이 상태에서는 특수 공격과 일부 마스터리 스킬이 강화됩니다. 지속 시간 동안 라이트 에너지가 지속적으로 감소하며, 0이 되면 상태가 해제됩니다.",
+        "fr": "Si l'Énergie photonique dépasse 50 %, le lancement de Déluge de radiance compte comme une Refonte photonique. Refonte photonique: Quand l'Énergie photonique est pleine, utiliser une attaque spéciale permet d'entrer en état de Refonte photonique. Dans cet état, les attaques spéciales et certaines expertises sont améliorées. La Refonte photonique se vide progressivement et l'état prend fin lorsqu'elle atteint 0.",
+        "de": "Wenn die Photonenenergie über 50 % liegt, zählt das Wirken von Strahlungskanonade als Photonenumschmiedung. Photonenumschmiedung: Wenn Photonenenergie voll ist, erlaubt der Einsatz eines Spezialangriffs, in Photonenumschmiedung einzutreten. In diesem Zustand werden Spezialangriffe und bestimmte Expertise verbessert. Photonenumschmiedung wird allmählich aufgebraucht und der Zustand endet, wenn der Wert 0 erreicht ist.",
+        "es": "Cuando la energía fotónica supera el 50 %, lanzar Aluvión de Resplandor cuenta como reforja fotónica. Reforja fotónica: Cuando la energía fotónica está llena, usar un ataque especial permite entrar en reforja fotónica. En este estado, los ataques especiales y ciertas pericias se mejoran. La reforja fotónica se agota de a poco, y el estado termina cuando llega a 0.",
+        "pt-BR": "Quando a Energia de Fóton estiver acima de 50%, usar Rajada de Radiância conta como uma Reforja de Fóton. Reforja de Fóton: Quando Energia de Fóton estiver cheia, usar um Ataque Especial permite entrar em Reforja de Fóton. Neste estado, Ataques Especiais e certas Habilidades de Perícia são melhoradas. Reforja de Fóton se esgota gradualmente, e o estado termina ao atingir 0.",
+        "th": "เมื่อ Light Energy มากกว่า 50% การร่าย Radiance Barrage จะถือว่าอยู่ในสถานะ Photon Reforge Photon Reforge: เมื่อพลังงานแสงเติมจนเต็ม สามารถร่ายการโจมตีพิเศษเพื่อเข้าสู่สถานะ Photon Reforge ในสถานะนี้ การโจมตีพิเศษและสกิลพิเศษบางอย่างจะได้รับการเพิ่มพลัง ระหว่างนี้พลังงานแสงจะลดลงอย่างต่อเนื่อง เมื่อลดลงถึง0จะออกจากสถานะนี้",
+        "id": "Saat Light lebih dari 50%, melancarkan Light Bombard akan dianggap sebagai status Light Reforge. Light Reforge: Saat Light penuh, melancarkan Special Attack akan memasuki status Light Reforge. Dalam status ini, Special Attack dan beberapa Expertise Skill akan diperkuat. Light terus berkurang dalam status ini. Status akan berakhir saat Light mencapai 0."
+      }
+    },
+    "mrs:b712182f2cb2": {
+      "description": "When an arrow fired from Radiance Rift deals DMG for 1 time, increases the DMG of the next Blast Shot by 20%, up to a maximum of 100%.",
+      "descriptions": {
+        "en": "When an arrow fired from Radiance Rift deals DMG for 1 time, increases the DMG of the next Blast Shot by 20%, up to a maximum of 100%.",
+        "zh-CN": "光能裂隙发射的箭矢每造成1次伤害，使得下一次爆炸射击伤害+20%，最高不超过100%。",
+        "zh-TW": "光能裂隙發射的箭矢每造成1次傷害，使得下一次爆炸射擊傷害+20%，最高不超過100%。",
+        "ja": "光エナジースリットが放った矢がダメージを1回与えるたび、次のブラストショットのダメージ+20%、最大で100%を超えない",
+        "ko-KR": "빛의 균열에서 발사된 화살이 대미지를 1회 입힐 때마다, 다음에 시전되는 익스플로전 샷의 대미지 +20%, 최대 100% 증가.",
+        "fr": "Quand une flèche tirée depuis Faille radieuse inflige des dégâts 1 fois, augmente les dégâts du Tir explosif suivant de 20 %, jusqu'à un maximum de 100 %.",
+        "de": "Wird ein Pfeil von Strahlungsriss abgeschossen, wird 1-mal SCH verursacht, was den SCH des nächsten Sprengschusses um 20 % erhöht, bis zu maximal 100 %.",
+        "es": "Cuando una flecha disparada con Fisura de Resplandor inflige DÑO 1 vez, aumenta el DÑO del próximo Tiro Explosivo en un 20 % (hasta el 100 %).",
+        "pt-BR": "Quando uma flecha disparada de Fenda de Radiância causa dano 1 vez, aumenta o dano do próximo Tiro Explosivo em 20%, até no máximo 100%.",
+        "th": "ศรที่ Light Energy Rift ยิงสร้าง DMG ทุก 1 ครั้ง จะทำให้ Explosive Shot ครั้งถัดไป DMG +20% สูงสุดไม่เกิน 100%",
+        "id": "Setiap kali panah dari Light Rift mengakibatkan 1 kali DMG, Explosive Shot berikutnya mendapatkan +20% DMG, hingga maksimum 100%."
+      }
+    },
+    "mrs:61dee985a16a": {
+      "description": "When casting Radiance, it automatically releases Judgment to up to 5 nearby enemy targets.",
+      "descriptions": {
+        "en": "When casting Radiance, it automatically releases Judgment to up to 5 nearby enemy targets.",
+        "zh-CN": "施放光明决心时，自动向周围最多5个敌方目标释放裁决。",
+        "zh-TW": "施放光明決心時，自動向周圍最多5個敵方目標釋放裁決。",
+        "ja": "セイクリッドオース発動時、周囲のエネミー最大5体にジャッジメントを自動発動する。",
+        "ko-KR": "결의의 빛을 시전할 때, 자동으로 주위 최대 5명의 적에게 심판을 시전합니다.",
+        "fr": "Lors du lancement de radiance, déclenche automatiquement Jugement sur jusqu'à 5 cibles ennemies proches.",
+        "de": "Beim Wirken von Strahlen wird automatisch Urteil auf bis zu 5 gegnerische Ziele in der Nähe angewendet.",
+        "es": "Al lanzar Resplandor, se lanza automáticamente Juicio contra un máximo de 5 objetivos enemigos cercanos.",
+        "pt-BR": "Ao lançar Radiância, libera automaticamente Julgamento em até 5 alvos inimigos próximos.",
+        "th": "เมื่อใช้Light Determination เป้าหมายฝ่ายศัตรูมากสุด5ตัวโดยรอบจะถูกปล่อยJudgmentโดยอัตโนมัติ",
+        "id": "Saat melancarkan Light Resolve, secara otomatis akan melancarkan Judgement ke maksimal 5 musuh di sekitar."
       }
     },
     "mrs:1050f4bf77c3": {
@@ -10236,22 +10444,6 @@
         "id": "Melancarkan Life Bloom membuat efek Heal Life Bloom berikutnya dalam 4 detik +20%, namun konsumsi Energi +10%. Maks. 5 tumpuk."
       }
     },
-    "mrs:08cb664e2adc": {
-      "description": "During Fast Growth, increases Energy REG SPD by 50%. Increases Grove Wish's Crit by 10%",
-      "descriptions": {
-        "en": "During Fast Growth, increases Energy REG SPD by 50%. Increases Grove Wish's Crit by 10%",
-        "zh-CN": "加速生长持续期间，能量回复速度+50%。 森之祈愿暴击+10%。",
-        "zh-TW": "加速生長持續期間，能量回復速度+50%。 森之祈願暴擊+10%。",
-        "ja": "ファストグロウスの有効中、エネルギー回復速度+50%。 グローヴウィッシュの会心+10%。",
-        "ko-KR": "가속 성장 지속 시간 동안 에너지 회복 속도 +50%. 숲의 기도 치명타 +10%.",
-        "fr": "Pendant Croissance rapide, augmente la vitesse de régénération d'énergie de 50 %. Augmente la critique de Souhait du bosquet de 10 %",
-        "de": "Während Schnelles Wachstum erhöht sich die Energie-REG-GES um 50 %. Erhöht den Krit von Hainwunsch um 10 %",
-        "es": "Durante Crecimiento Rápido, aumenta la VEL de REG de energía en un 50 %. Aumenta el crítico de Deseo Arbolado en un 10 %.",
-        "pt-BR": "Durante Crescimento Rápido, aumenta a VEL de REG. de Energia em 50%. Aumenta o Crítico de Desejo do Bosque em 10%",
-        "th": "ในช่วงเวลาต่อเนื่องของ Accelerated Growth ความเร็วฟื้นฟู ERG +50% Forest Prayer CRIT +10%",
-        "id": "Selama durasi Accelerated Growth, kecepatan pemulihan Energi +50%. Forest Blessing Crit +10%."
-      }
-    },
     "mrs:96e7bcb1a538": {
       "description": "Every 60 self-heals from Nourish grants Transcendence.",
       "descriptions": {
@@ -10618,22 +10810,6 @@
         "pt-BR": "A cada 3 instâncias de Dano Crítico causado por Ataques Especiais, o Falcão lança instantaneamente Golpe Relâmpago. Golpe Relâmpago: Causa Dano de Ataque igual a 350% do ATQ ao inimigo.",
         "th": "โจมตีพิเศษ CRIT ทุก 3 ครั้ง Falcon จะปล่อย Electric Surge ทันที Electric Surge: สร้างการโจมตีแก่เป้าหมายฝ่ายศัตรู350%ของP.DMG",
         "id": "Setiap mengakibatkan 3 kali Crit dengan Special Attack, Hawk akan langsung melancarkan Lightning Impact. Lightning Impact: Mengakibatkan PDMG sebesar 350% ATK pada target musuh."
-      }
-    },
-    "mrs:92ee7c530118": {
-      "description": "When the Falcon strikes, grants you a fixed 30% chance to gain 1 stack of Weak Point Aim. Using Quadraflare leaves behind a Radiance Rift midair. Radiance Rift fires Photon Arrows equal to the current number of Weak Point Aim stacks.",
-      "descriptions": {
-        "en": "When the Falcon strikes, grants you a fixed 30% chance to gain 1 stack of Weak Point Aim. Using Quadraflare leaves behind a Radiance Rift midair. Radiance Rift fires Photon Arrows equal to the current number of Weak Point Aim stacks. Photon Arrow: Deals 80% ATK Attack DMG to enemy targets.",
-        "zh-CN": "猎鹰出击时有30%固定几率获得一层弱点瞄准。 施放光意·四连矢时在空中留下光能裂隙，光能裂隙根据当前弱点瞄准层数发射相同数量的光能箭矢。 光能箭矢: 对敌方目标造成80%攻击力物理伤害。",
-        "zh-TW": "獵鷹出擊時有30%固定機率獲得一層弱點瞄準。 施放光意·四連矢時在空中留下光能裂隙，光能裂隙根據當前弱點瞄準層數發射相同數量的光能箭矢。 光能箭矢: 對敵方目標造成80%攻擊力物理傷害。",
-        "ja": "臣鷹出撃時、30%の固定確率で弱点エイムを1スタック獲得する。 クアッドブラスト発動時、空中に光エナジースリットを残す。光エナジースリットはその時点の弱点エイムスタック数に基づいて同数の閃心矢を放つ。 閃心矢: エネミーに攻撃力の80%の物理ダメージを与える。",
-        "ko-KR": "팔콘 출격 시 30%의 고정 확률로 약점 조준을 1스택 획득합니다. 빛의 의지・쿼드러플 애로우 시전 시 공중에 빛의 균열을 남기며, 빛의 균열은 현재 보유한 약점 조준 스택 수만큼 루미너스 애로우를 발사합니다. 루미너스 애로우: 적에게 공격력 80%만큼의 물리 대미지를 입힙니다.",
-        "fr": "Lorsque le Faucon frappe, vous avez 30 % de chances fixes de gagner 1 cumul de Visée sur point faible. Utiliser Quadraflamboiement laisse une Faille radieuse dans les airs. Faille radieuse tire un nombre de Flèches photoniques égal au nombre actuel de cumuls de Visée sur point faible. Flèche photonique: Inflige 80 % de l'attaque en dégâts d'attaque aux cibles ennemies.",
-        "de": "Wenn der Falke zuschlägt, wird dir eine feste Chance von 30 % gewährt, 1 Stapel Schwachstellenziel zu erhalten. Das Wirken von Quadralodern hinterlässt in der Luft einen Strahlungsriss. Strahlungsriss feuert Photonenpfeile entsprechend der aktuellen Anzahl der Schwachstellenziel-Stapel ab. Photonenpfeil: Verursacht 80 % des ANG-Angriff-SCH bei gegnerischen Zielen.",
-        "es": "Cuando el halcón golpea, otorga una probabilidad fija del 30 % de ganar 1 acumulación de Disparo al Punto Débil. Usar Llamarada Cuádruple deja una Fisura de Resplandor en el aire. Fisura de Resplandor dispara una cantidad de flechas fotónicas igual a la cantidad de acumulaciones de Disparo al Punto Débil. Flecha fotónica: Inflige el 80 % del ATQ como DÑO de ataque a los objetivos enemigos.",
-        "pt-BR": "Quando o Falcão ataca, concede 30% de chance fixa de ganhar 1 acúmulo de Mira no Ponto Fraco. Usar Explosão Quádrupla deixa para trás uma Fenda de Radiância no ar. Fenda de Radiância dispara Flechas de Fóton igual ao número atual de acúmulos de Mira no Ponto Fraco. Flecha de Fótons: Causa 80% do ATQ como Dano de Ataque a alvos inimigos.",
-        "th": "เมื่อ Falcon โจมตีมีโอกาสคงที่ 30% ได้รับ Weak Spot Targeting 1 Stack เมื่อปล่อย Light Intent - Quadruple Arrow จะทิ้ง Light Energy Rift ไว้กลางอากาศ Light Energy Rift อิงตามจำนวน Stack ของ Weak Spot Targeting ในปัจจุบันเพื่อยิง Light Energy Arrow ตามจำนวนที่เท่ากัน Photon Arrow: สร้างการโจมตีแก่เป้าหมายฝ่ายศัตรู80%ของP.DMG",
-        "id": "Serangan Hawk berpeluang tetap 30% mendapat satu tumpuk Weak Point Aim. Meninggalkan Light Rift di udara saat melancarkan Lightwill - Quadraflare. Light Rift akan menembakkan Light Arrow sejumlah tumpukan Weak Point Aim saat ini. Light Arrow: Mengakibatkan PDMG sebesar 80% ATK pada target musuh."
       }
     },
     "mrs:e4c54357ef08": {
@@ -11196,22 +11372,6 @@
         "id": "Hawk mengabaikan 20% PDEF target. Saat mengakibatkan Crit DMG, mengabaikan 40% PDEF target."
       }
     },
-    "mrs:d71f22658ff5": {
-      "description": "When Photon Energy is above 50%, casting Radiance Barrage counts as Photon Reforge.",
-      "descriptions": {
-        "en": "When Photon Energy is above 50%, casting Radiance Barrage counts as Photon Reforge. Photon Reforge: When Photon Energy is full, using a Special Attack allows you to enter Photon Reforge. In this state, Special Attacks and certain Expertise are enhanced. Photon Reforge gradually depletes, and the state ends when it reaches 0.",
-        "zh-CN": "当光能大于50%时，施放光能轰炸视为光能重铸状态。 光能重铸: 当光能充满时，施放特殊攻击可进入光能重铸状态。状态内，特殊攻击和个别专精技能获得强化。期间光能持续减少，减少到0后退出状态。",
-        "zh-TW": "當光能大於50%時，施放光能轟炸視為光能重鑄狀態。 光能重鑄: 當光能充滿時，施放特殊攻擊可進入光能重鑄狀態。狀態內，特殊攻擊和個別專精技能獲得強化。期間光能持續減少，減少到0後退出狀態。",
-        "ja": "閃心が50%以上だった場合、エナジーショットを発動すると閃心強化状態と見なされる。 閃心強化: 閃心が満タンの場合、特殊攻撃を発動すると閃心強化状態になり、その間は特殊攻撃と各マスタリースキルが強化される。閃心が減少し続けて0になると状態を終了する。",
-        "ko-KR": "라이트 에너지가 50%보다 높을 때, 라이트 봄버를 시전하면 라이트 리캐스트 상태로 간주됩니다. 라이트 리캐스트: 라이트 에너지가 가득 찼을 때, 특수 공격을 시전하면 라이트 리캐스트 상태에 진입합니다. 이 상태에서는 특수 공격과 일부 마스터리 스킬이 강화됩니다. 지속 시간 동안 라이트 에너지가 지속적으로 감소하며, 0이 되면 상태가 해제됩니다.",
-        "fr": "Si l'Énergie photonique dépasse 50 %, le lancement de Déluge de radiance compte comme une Refonte photonique. Refonte photonique: Quand l'Énergie photonique est pleine, utiliser une attaque spéciale permet d'entrer en état de Refonte photonique. Dans cet état, les attaques spéciales et certaines expertises sont améliorées. La Refonte photonique se vide progressivement et l'état prend fin lorsqu'elle atteint 0.",
-        "de": "Wenn die Photonenenergie über 50 % liegt, zählt das Wirken von Strahlungskanonade als Photonenumschmiedung. Photonenumschmiedung: Wenn Photonenenergie voll ist, erlaubt der Einsatz eines Spezialangriffs, in Photonenumschmiedung einzutreten. In diesem Zustand werden Spezialangriffe und bestimmte Expertise verbessert. Photonenumschmiedung wird allmählich aufgebraucht und der Zustand endet, wenn der Wert 0 erreicht ist.",
-        "es": "Cuando la energía fotónica supera el 50 %, lanzar Aluvión de Resplandor cuenta como reforja fotónica. Reforja fotónica: Cuando la energía fotónica está llena, usar un ataque especial permite entrar en reforja fotónica. En este estado, los ataques especiales y ciertas pericias se mejoran. La reforja fotónica se agota de a poco, y el estado termina cuando llega a 0.",
-        "pt-BR": "Quando a Energia de Fóton estiver acima de 50%, usar Rajada de Radiância conta como uma Reforja de Fóton. Reforja de Fóton: Quando Energia de Fóton estiver cheia, usar um Ataque Especial permite entrar em Reforja de Fóton. Neste estado, Ataques Especiais e certas Habilidades de Perícia são melhoradas. Reforja de Fóton se esgota gradualmente, e o estado termina ao atingir 0.",
-        "th": "เมื่อ Light Energy มากกว่า 50% การร่าย Radiance Barrage จะถือว่าอยู่ในสถานะ Photon Reforge Photon Reforge: เมื่อพลังงานแสงเติมจนเต็ม สามารถร่ายการโจมตีพิเศษเพื่อเข้าสู่สถานะ Photon Reforge ในสถานะนี้ การโจมตีพิเศษและสกิลพิเศษบางอย่างจะได้รับการเพิ่มพลัง ระหว่างนี้พลังงานแสงจะลดลงอย่างต่อเนื่อง เมื่อลดลงถึง0จะออกจากสถานะนี้",
-        "id": "Saat Light lebih dari 50%, melancarkan Light Bombard akan dianggap sebagai status Light Reforge. Light Reforge: Saat Light penuh, melancarkan Special Attack akan memasuki status Light Reforge. Dalam status ini, Special Attack dan beberapa Expertise Skill akan diperkuat. Light terus berkurang dalam status ini. Status akan berakhir saat Light mencapai 0."
-      }
-    },
     "mrs:55dbd41a2c86": {
       "description": "When Celestial Eagle hits a target, it prevents the target's Steel Beak from naturally decaying.",
       "descriptions": {
@@ -11226,22 +11386,6 @@
         "pt-BR": "Quando Águia Celestial acerta um alvo, impede que o Bico de Aço do alvo decaia naturalmente. Bico de Aço: Quando os acúmulos de Bico de Aço atingem 5 ou mais, cada acúmulo de Bico de Aço adicional obtido tem 30% de chance fixa de acionar Implosão, causando Dano de Ataque equivalente a 200% do ATQ aos alvos inimigos. O Bico de Aço perde 1 acúmulo por segundo. Águia Celestial: Cria uma tempestade com raio de 5 metros, causando 80% do ATQ como Dano de Ataque, ignorando a Armadura de alvos marcados com Bico de Aço dentro da tempestade a cada 0,5 s. Após 5 s, Águia Celestial mergulha no chão, causando 500% do ATQ como Dano de Ataque ignorando a Armadura.",
         "th": "เมื่อCelestial Eagleโจมตีโดนเป้าหมาย จะทำให้เป้าหมายได้รับSteel Beakและไม่ใช้ตามธรรมชาติ Steel Beak: เมื่อมี Steel Beak ตั้งแต่ 5 Stack ขึ้นไป ทุกครั้งที่ทับซ้อน Steel Beak จะมีโอกาสคงที่ 30% ที่จะเกิดการ Implosion สร้าง P.DMG 100% ของ ATK ใส่ศัตรูในระยะ Steel Beak จะลดลง 1 Stack ทุกๆ 1 วินาที ทับซ้อนได้สูงสุด 20 Stack Celestial Eagle: พัดสร้างพายุรัศมี 5 เมตร ทุก 0.5s เป้าหมายที่มีเครื่องหมาย Steel Beak ในพายุจะถูกสร้าง 80% P.DMG ของการโจมตีโดยไม่สน DEF หลังจากนั้น 5s Celestial Eagle จะถลาลงมายังพื้น สร้าง 500% P.DMG ของการโจมตีโดยไม่สน DEF",
         "id": "Saat Celestial Eagle mengenai target, Steel Beak pada target tidak akan berkurang secara otomatis. Steel Beak: Saat Steel Beak mencapai 5 tumpuk atau lebih, setiap kali Steel Beak ditumpuk memiliki 30% peluang tetap untuk memicu Implosion, yang mengakibatkan PDMG sebesar 100% ATK pada musuh di dalam area. Steel Beak -1 tumpuk setiap 1 detik. Maks. 20 tumpuk. Celestial Eagle: Menciptakan badai dengan radius 5 meter, mengakibatkan PDMG yang mengabaikan Defense sebesar 80% ATK setiap 0,5 detik pada target di dalam badai yang memiliki tanda Steel Beak. Setelah 5 detik, Celestial Eagle menukik ke tanah, mengakibatkan PDMG yang mengabaikan Defense sebesar 500% ATK."
-      }
-    },
-    "mrs:b41a7831e358": {
-      "description": "When an arrow fired from Radiance Rift deals DMG for 1 time, increases the DMG of the next Blast Shot by 20%, up to a maximum of 100%.",
-      "descriptions": {
-        "en": "When an arrow fired from Radiance Rift deals DMG for 1 time, increases the DMG of the next Blast Shot by 20%, up to a maximum of 100%.",
-        "zh-CN": "光能裂隙发射的箭矢每造成1次伤害，使得下一次爆炸射击伤害+20%，最高不超过100%。",
-        "zh-TW": "光能裂隙發射的箭矢每造成1次傷害，使得下一次爆炸射擊傷害+20%，最高不超過100%。",
-        "ja": "光エナジースリットが放った矢がダメージを1回与えるたび、次のブラストショットのダメージ+20%、最大で100%を超えない",
-        "ko-KR": "빛의 균열에서 발사된 화살이 대미지를 1회 입힐 때마다, 다음에 시전되는 익스플로전 샷의 대미지 +20%, 최대 100% 증가.",
-        "fr": "Quand une flèche tirée depuis Faille radieuse inflige des dégâts 1 fois, augmente les dégâts du Tir explosif suivant de 20 %, jusqu'à un maximum de 100 %.",
-        "de": "Wird ein Pfeil von Strahlungsriss abgeschossen, wird 1-mal SCH verursacht, was den SCH des nächsten Sprengschusses um 20 % erhöht, bis zu maximal 100 %.",
-        "es": "Cuando una flecha disparada con Fisura de Resplandor inflige DÑO 1 vez, aumenta el DÑO del próximo Tiro Explosivo en un 20 % (hasta el 100 %).",
-        "pt-BR": "Quando uma flecha disparada de Fenda de Radiância causa dano 1 vez, aumenta o dano do próximo Tiro Explosivo em 20%, até no máximo 100%.",
-        "th": "ศรที่ Light Energy Rift ยิงสร้าง DMG ทุก 1 ครั้ง จะทำให้ Explosive Shot ครั้งถัดไป DMG +20% สูงสุดไม่เกิน 100%",
-        "id": "Setiap kali panah dari Light Rift mengakibatkan 1 kali DMG, Explosive Shot berikutnya mendapatkan +20% DMG, hingga maksimum 100%."
       }
     },
     "mrs:dcfce237309c": {
@@ -13548,22 +13692,6 @@
         "id": "Saat Lightforged Barrier berada pada 5 tumpuk atau kurang, maka tumpukan tersebut tidak akan berkurang saat menerima DMG. Saat Lightforged Barrier memiliki lebih dari 5 tumpuk, terdapat 50% peluang tetap untuk tidak kehilangan tumpukannya saat menerima DMG. Lightforged Barrier: Setiap tumpukan meningkatkan Max HP akhir diri sendiri 2%. Dapat memiliki hingga 10 tumpuk Lightforged Barrier, dan setiap kali menerima DMG akan mengonsumsi 1 tumpuk. Berlangsung selama 25 detik atau hingga semua tumpuk habis, setiap kali mendapatkan tumpukan baru, durasi akan direset."
       }
     },
-    "mrs:54683826610a": {
-      "description": "When casting Radiance, it automatically releases Judgment to up to 5 nearby enemy targets.",
-      "descriptions": {
-        "en": "When casting Radiance, it automatically releases Judgment to up to 5 nearby enemy targets.",
-        "zh-CN": "施放光明决心时，自动向周围最多5个敌方目标释放裁决。",
-        "zh-TW": "施放光明決心時，自動向周圍最多5個敵方目標釋放裁決。",
-        "ja": "セイクリッドオース発動時、周囲のエネミー最大5体にジャッジメントを自動発動する。",
-        "ko-KR": "결의의 빛을 시전할 때, 자동으로 주위 최대 5명의 적에게 심판을 시전합니다.",
-        "fr": "Lors du lancement de radiance, déclenche automatiquement Jugement sur jusqu'à 5 cibles ennemies proches.",
-        "de": "Beim Wirken von Strahlen wird automatisch Urteil auf bis zu 5 gegnerische Ziele in der Nähe angewendet.",
-        "es": "Al lanzar Resplandor, se lanza automáticamente Juicio contra un máximo de 5 objetivos enemigos cercanos.",
-        "pt-BR": "Ao lançar Radiância, libera automaticamente Julgamento em até 5 alvos inimigos próximos.",
-        "th": "เมื่อใช้Light Determination เป้าหมายฝ่ายศัตรูมากสุด5ตัวโดยรอบจะถูกปล่อยJudgmentโดยอัตโนมัติ",
-        "id": "Saat melancarkan Light Resolve, secara otomatis akan melancarkan Judgement ke maksimal 5 musuh di sekitar."
-      }
-    },
     "mrs:878b91c8b5b6": {
       "description": "For each enemy inside Divine Circle, increases Divine Circle DMG by 25% and Divine Circle Healing by 5% (caps at 10 enemies).",
       "descriptions": {
@@ -14168,22 +14296,6 @@
         "id": "Flamepillar Impact berubah menjadi Double Strike. Flamepillar Impact: Mengakibatkan Magic Damage sebesar 60% ATK kepada musuh di area sekitar, mengikuti upgrade/advance skill dari Normal Attack."
       }
     },
-    "mrs:64cc5320a2e1": {
-      "description": "While in Rhapsody of Flame, increases all Luck Chance acquired by any means by 50% and increases DMG Reduction by 25%. Healing of Stillness: If you deal no DMG to enemies for 5s, each hit of your Basic Attack will heal up to 10 allies (party members prioritized), with the full 4-hit combo restoring 15.75% of their max HP in total. After casting an Ultimate, Basic Attacks immediately start healing, and Fierce Strike can trigger the 4th hit healing effect, but this is disabled upon dealing DMG to enemies. Maintaining Heroic Melody and Rhapsody of Flame is crucial. Heroic Melody enhances healing while consecutive Fierce Strikes accelerate Harmonic Anthem casting frequency.",
-      "descriptions": {
-        "en": "While in Rhapsody of Flame, increases all Luck Chance acquired by any means by 50% and increases DMG Reduction by 25%. Healing of Stillness: If you deal no DMG to enemies for 5s, each hit of your Basic Attack will heal up to 10 allies (party members prioritized), with the full 4-hit combo restoring 15.75% of their max HP in total. After casting an Ultimate, Basic Attacks immediately start healing, and Fierce Strike can trigger the 4th hit healing effect, but this is disabled upon dealing DMG to enemies. Maintaining Heroic Melody and Rhapsody of Flame is crucial. Heroic Melody enhances healing while consecutive Fierce Strikes accelerate Harmonic Anthem casting frequency.",
-        "zh-CN": "处于烈焰狂想中时，以任何方式获取的幸运几率提升50%，同时受到伤害减免+25%。 休止的治愈：5秒时间内没有对敌方目标造成伤害，你的普通攻击每一段将会为最多10名友方（优先队友）回复生命值，四段攻击总计回复15.75%最大生命值。施放终极技能后，普攻可以立即开始回血，且猛烈挥击可以触发普攻第4段回血，对敌方目标造成伤害后失效。 维持鸣奏·英勇乐章和烈焰狂想是关键，鸣奏·英勇乐章带来治疗效果增强的同时可以连续的派生猛烈挥击加快聚合乐章的施放频率。",
-        "zh-TW": "處於烈焰狂想中時，以任何方式獲取的幸運機率提升50%，同時受到傷害減免+25%。 休止的治癒：5秒時間內沒有對敵方目標造成傷害，你的普通攻擊每一段將會為最多10名友方（優先隊友）回復生命值，四段攻擊總計回復15.75%最大生命值。施放終極技能後，普攻可以立即開始回血，且猛烈揮擊可以觸發普攻第4段回血，對敵方目標造成傷害後失效。 維持鳴奏·英勇樂章和烈焰狂想是關鍵，鳴奏·英勇樂章帶來治療效果增強的同時可以連續的派生猛烈揮擊加快聚合樂章的施放頻率。",
-        "ja": "フレイムラプソディー状態時、任意の方法で取得した幸運確率+50%。さらにダメージ軽減+25%。 小休止の癒し：5秒間、エネミーにダメージを与えなかった場合、自身の通常攻撃が1段ごとに味方の最大10名（パーティメンバー優先）のHPを回復する。攻撃4段の合計回復量は最大HPの15.05%。 ブレイブメロディーとフレイムラプソディーの維持がカギ。ブレイブメロディーがもたらす回復効果が強化され、連続派生するバイオレントスイングがハーモニックアンセムの発動頻度をアップさせる。",
-        "ko-KR": "불꽃의 랩소디 상태일 때, 모든 방식으로 획득한 행운 확률이 50% 증가합니다. 동시에 받는 대미지 감면 효과가 25% 증가합니다. 멈춰버린 치유: 5초 동안 적에게 대미지를 입히지 않았다면, 일반 공격이 1회마다 최대 아군 10명(파티원 우선)의 체력을 회복시켜, 4회 총합 최대 체력의 15.05%만큼 회복시킵니다. 울림・용맹의 악장과 불꽃의 랩소디를 유지하는 것이 관건입니다. 울림・용맹의 악장은 치료 효과를 강화하는 동시에 맹렬한 휘두르기를 연속으로 파생시켜 결집의 악장의 시전 빈도를 높일 수 있습니다.",
-        "fr": "Pendant Rhapsodie de flammes, toutes les chances obtenues, quelle qu'en soit la source, augmentent de 50 % et la réduction de dégâts augmente de 25 %. Guérison du calme : si aucun dégât n'est infligé aux ennemis pendant 5 s, chaque coup de l'attaque de base soignera jusqu'à 10 alliés (membres du groupe en priorité), le combo complet de 4 coups restaurant un total de 15,75 % de leurs PV max. Après le lancement d'un ultime, les attaques de base commencent immédiatement à soigner, et Frappe féroce peut déclencher l'effet de soin du 4e coup, mais cet effet est désactivé lorsque des dégâts sont infligés aux ennemis. Il est crucial de maintenir Mélodie héroïque et Rhapsodie de flammes. Mélodie héroïque renforce les soins, tandis que les Frappes féroces consécutives accélèrent la fréquence de lancement d'Hymne harmonique.",
-        "de": "Während Rhapsodie der Flamme aktiv ist, erhöht sich die gesamte durch beliebige Quellen erhaltene Glückschance um 50 % und die SCH-Reduktion um 25 %. Heilung der Stille: Wenn Gegnern 5 Sek. lang kein SCH zugefügt wird, heilt jeder Treffer des Standardangriffs bis zu 10 Verbündete (Gruppenmitglieder priorisiert), wobei die vollständige 4-Treffer-Kombo insgesamt 15,75 % ihrer Max. LP wiederherstellt. Nach dem Wirken einer Ultimafähigkeit beginnen Standardangriffe sofort zu heilen, und Heftiger Schlag kann den Heilungseffekt des 4. Treffers auslösen. Dies wird jedoch deaktiviert, sobald Gegnern SCH zugefügt wird. Das Aufrechterhalten von Heroische Melodie und Rhapsodie der Flamme ist entscheidend. Heroische Melodie verbessert die Heilung, während aufeinanderfolgende Heftige Schläge die Wirkfrequenz von Harmonische Hymne beschleunigen.",
-        "es": "Durante Rapsodia de la Flama, aumenta toda la probabilidad de suerte adquirida por cualquier medio en un 50 % y la reducción de DÑO en un 25 %. Curación de Quietud: Si no se inflige DÑO a los enemigos durante 5 s, cada golpe del ataque básico curará hasta a 10 aliados (se da prioridad a los miembros del grupo) y el combo completo de 4 golpes les restaurará un total del 15.75 % de sus PS máx. Tras lanzar una definitiva, los ataques básicos comienzan a curar de inmediato, y Golpe Feroz puede activar el efecto de curación del cuarto golpe, pero esto se desactiva al infligir DÑO a los enemigos. Es crucial mantener Melodía Heroica y Rapsodia de la Flama. Melodía Heroica mejora la curación, mientras que los Golpes Feroces consecutivos aceleran la frecuencia de lanzamiento de Himno Armonioso.",
-        "pt-BR": "Durante a Rapsódia de Chamas, aumenta em 50% toda a Chance de Sorte adquirida por qualquer meio e aumenta a Redução de Dano em 25%. Cura da Quietude: Se não houver Dano causado a inimigos por 5 s, cada acerto do Ataque Básico curará até 10 aliados (membros do grupo são priorizados), com a combinação completa de 4 acertos restaurando 15,75% do PV Máximo deles no total. Após conjurar a Habilidade Suprema, os Ataques Básicos começam a curar imediatamente, e o Golpe Feroz pode acionar o efeito de cura do 4º acerto, mas isso é desativado ao causar Dano a inimigos. Manter a Melodia Heroica e a Rapsódia de Chamas é crucial. A Melodia Heroica aprimora a cura enquanto Golpes Ferozes consecutivos aceleram a frequência de conjuração do Hino Harmônico.",
-        "th": "เมื่ออยู่ในเพลงเพลิงคลั่ง โอกาส Lucky ที่ได้รับมาด้วยวิธีใดก็ได้จะเพิ่ม 50% ในขณะเดียวกัน DMG ที่ได้รับลดลง +25% รักษายามพักผ่อน: ภายในเวลา 5s หากไม่ได้สร้าง DMG แก่เป้าหมายฝ่ายศัตรู โจมตีทั่วไปของคุณทุก 1 ขั้นจะฟื้นฟู HP แก่ฝ่ายพันธมิตรมากสุด 10 คน (เพื่อนร่วมทีมก่อน) การโจมตีขั้น 4 จะฟื้นฟู MaxHP รวม 15.05% คงโซนาต้า - บทเพลงกล้าหาญและเพลงเพลิงคลั่งคือกุญแจสำคัญ โซนาต้า - บทเพลงกล้าหาญมีเอฟเฟกต์ Heal ที่เพิ่มพลังในขณะเดียวกันสามารถเพิ่มความถี่การปล่อยบทเพลงผสานด้วย Fierce Strike อย่างต่อเนื่อง",
-        "id": "Saat berada dalam status Flame Fantasy, Lucky Chance dari semua sumber meningkat 50%, dan DR +25%. Paused Healing: Jika tidak mengakibatkan DMG terhadap target selama 5 detik, Normal Attack yang kamu lancarkan akan memulihkan HP hingga 10 rekan (rekan tim akan diprioritaskan). Total pemulihan dari empat tahap serangan adalah 15,05% dari Max HP. Menjaga Melody - Valor Movement dan Flame Fantasy tetap aktif adalah kunci. Melody - Valor Movement tidak hanya meningkatkan Healing Effect, tetapi juga memungkinkan Fierce Swing berantai yang mempercepat frekuensi cast Harmonic Movement."
-      }
-    },
     "mrs:a6e772333373": {
       "description": "Gains 1 Soundwave Energy whenever Expertise Skills or Amplified Beat trigger a Lucky Strike.",
       "descriptions": {
@@ -14294,22 +14406,6 @@
         "pt-BR": "Durante Rapsódia de Chamas, Batida Amplificada ganha 1 ataque adicional. Batida Amplificada causa 20% menos dano.",
         "th": "เมื่ออยู่ในสถานะเพลงเพลิงคลั่ง จำนวนครั้งการโจมตีของ จังหวะขยายพลัง +1 จังหวะขยายพลัง DMG -20%",
         "id": "Saat berada dalam Flame Fantasy, jumlah serangan Amplify Beat +1. DMG Amplify Beat -20%."
-      }
-    },
-    "mrs:84710d9006b7": {
-      "description": "When Harmonic Anthem or Fierce Strike triggers a Lucky Strike, limited to a single activation when striking multiple targets, immediately resets Rhapsody of Flame's CD and allows Rhapsody of Flame not to consume Performance Passion for 10s, this effect is nullified upon casting Rhapsody of Flame.",
-      "descriptions": {
-        "en": "When Harmonic Anthem or Fierce Strike triggers a Lucky Strike, limited to a single activation when striking multiple targets, immediately resets Rhapsody of Flame's CD and allows Rhapsody of Flame not to consume Performance Passion for 10s, this effect is nullified upon casting Rhapsody of Flame.",
-        "zh-CN": "聚合乐章、猛烈挥击触发幸运一击时（命中多个目标时只触发一次），使得烈焰狂想立即冷却结束，同时在接下来10秒内施放烈焰狂想不消耗演奏热情，施放烈焰狂想后该效果移除。",
-        "zh-TW": "聚合樂章、猛烈揮擊觸發幸運一擊時（命中多個目標時只觸發一次），使得烈焰狂想立即冷卻結束，同時在接下來10秒內施放烈焰狂想不消耗演奏熱情，施放烈焰狂想後該效果移除。",
-        "ja": "ハーモニックアンセム、バイオレントスイングが幸運の一撃になった場合（複数対象に命中しても発動するのは1回のみ）、フレイムラプソディーのリキャストを直ちに終了し、以後10秒間に発動するフレイムラプソディーが熱響を消費しない。この効果はフレイムラプソディー発動後に消失する。",
-        "ko-KR": "결집의 악장, 맹렬한 휘두르기가 행운의 일격을 발동하면(적중한 대상의 수와 관계없이 1회만 발동), 불꽃의 랩소디의 쿨타임이 즉시 회복됩니다. 또한 10초 동안 불꽃의 랩소디 시전 시 연주 열정을 소모하지 않습니다. 이 효과는 불꽃의 랩소디 시전 후 사라집니다.",
-        "fr": "Quand Hymne harmonique ou Frappe féroce déclenche Frappe chanceuse, limité à une seule activation en cas de frappe sur plusieurs cibles, réinitialise immédiatement le temps de rechargement de Rhapsodie de flammes et permet à Rhapsodie de flammes de ne pas consommer de Passion de performance pendant 10 s, cet effet est annulé au lancement de Rhapsodie de flammes.",
-        "de": "Wenn Harmonische Hymne oder Heftiger Schlag einen Glückstreffer auslösen, begrenzt auf eine einzige Aktivierung, wenn mehrere Ziele getroffen werden, wird die AZ von Rhapsodie der Flamme sofort zurückgesetzt und Rhapsodie der Flamme verbraucht keine Auftrittleidenschaft für 10 Sek. Dieser Effekt wird beim Wirken von Rhapsodie der Flamme ausgehoben.",
-        "es": "Cuando Himno Armonioso o Golpe Feroz activa un golpe de suerte (limitado a una sola activación al golpear múltiples objetivos), restablece de inmediato el TdR de Rapsodia de la Flama y permite que Rapsodia de la Flama no consuma pasión escénica durante 10 s. Este efecto se anula al lanzar Rapsodia de la Flama.",
-        "pt-BR": "Quando Hino Harmônico ou Golpe Feroz gera um Golpe de Sorte, limitado a uma ativação ao atingir múltiplos alvos, zera imediatamente o TR de Rapsódia de Chamas e permite que Rapsódia de Chamas não consuma Paixão de Performance por 10 s. Este efeito é anulado ao lançar Rapsódia de Chamas.",
-        "th": "เมื่อ บทเพลงผสาน และ Fierce Strike ทำงาน Lucky Strike (เมื่อโจมตีโดนเป้าหมายหลายตัวทำงานเพียง 1 ครั้ง) ทำให้ได้รับเพลงเพลิงคลั่งและสิ้นสุด CD ทันที ในขณะเดียวกันตามด้วยภายใน 10s จะปล่อยเพลงเพลิงคลั่งไม่ใช้Performance Passion หลังจากปล่อยเพลงเพลิงคลั่งจะลบเอฟเฟกต์นี้",
-        "id": "Saat Harmonic Movement atau Fierce Swing memicu Lucky Hit (hanya dapat terpicu satu kali saat mengenai banyak target),waktu CD Flame Fantasy akan langsung berakhir. Selain itu, selama 10 detik berikutnya, menggunakan Flame Fantasy tidak akan mengonsumsi Performance Passion. Setelah Flame Fantasy digunakan, efek ini akan dihapus."
       }
     },
     "mrs:08aba8c4dc95": {
@@ -14488,22 +14584,6 @@
         "id": "Saat menyerang target Elite atau lebih tinggi, Fire Boost +8%."
       }
     },
-    "mrs:c9994138263d": {
-      "description": "During Center Stage, triggering Encore Strings has a 30% fixed chance to grant Passion Surge. Passion Surge: Special Attack costs zero Performance Passion for 10s. Removed after Special Attack is cast.",
-      "descriptions": {
-        "en": "During Center Stage, triggering Encore Strings has a 30% fixed chance to grant Passion Surge. Passion Surge: Special Attack costs zero Performance Passion for 10s. Removed after Special Attack is cast. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
-        "zh-CN": "万众瞩目持续期间，自身触发安可琴弦有30%固定几率获得热情迸发。 热情迸发：特殊攻击不消耗演奏热情，持续10秒，施放特殊攻击后该效果移除。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
-        "zh-TW": "萬眾矚目持續期間，自身觸發安可琴弦有30%固定機率獲得熱情迸發。 熱情迸發：特殊攻擊不消耗演奏熱情，持續10秒，施放特殊攻擊後該效果移除。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
-        "ja": "スポットライトの有効中、自身が発動する追奏弦音が30%の固定確率でラッシュパッションを獲得する。 ラッシュパッション：特殊攻撃が熱響を消費しない。持続10秒、この効果は特殊攻撃発動後に消失する。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
-        "ko-KR": "어텐션 지속 시간 동안, 자신이 앵콜 스트링을 발동하면 30%의 고정 확률로 열정 폭발을 획득합니다. 열정 폭발: 특수 공격이 연주 열정을 소모하지 않습니다. 10초 지속, 특수 공격 시전 후 사라집니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
-        "fr": "Pendant Scène centrale, déclencher Cordes de rappel a 30 % de chances fixes d'octroyer Vague de passion. Vague de passion : l'attaque spéciale ne consomme pas de Passion de performance pendant 10 s. Se dissipe après le lancement d'une attaque spéciale. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
-        "de": "Während Hauptbühne besteht beim Auslösen von Zugabe-Saiten eine feste Chance von 30 %, Leidenschaftsschub zu gewähren. Leidenschaftsschub: Spezialangriff kostet für 10 Sek. keine Auftrittspassion. Wird nach dem Wirken des Spezialangriffs entfernt. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
-        "es": "Durante Escenario Central, activar Cuerdas del Bis tiene un 30 % de probabilidad fija de otorgar Oleada Pasional. Oleada Pasional: El ataque especial no consume pasión escénica durante 10 s. Se elimina tras lanzar el ataque especial. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
-        "pt-BR": "Durante Palco Central, acionar Cordas de Bis tem 30% de chance fixa de conceder Surto da Paixão. Surto da Paixão: Ataques Especiais custam zero Paixão de Performance por 10 s. Removido após lançar Ataque Especial. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
-        "th": "ในช่วงต่อเนื่องของศูนย์กลางความสนใจ ตัวเองทำงานสายพิณ Encore มีโอกาสคงที่ 30% จะได้รับ Passion Burst Passion Burst: การโจมตีพิเศษไม่ใช้ Performance Passion ต่อเนื่อง 10s หลังจากปล่อยการโจมตีพิเศษเอฟเฟกต์นี้จะถูกลบ สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
-        "id": "Selama durasi Crowd Focus, setiap kali Encore Chords terpicu, terdapat 30% peluang tetap untuk mendapat Passion Outburst. Passion Outburst: Selama 10 detik, Special Attack tidak akan mengonsumsi Performance Passion. Efek ini akan hilang setelah Special Attack dilancarkan. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
-      }
-    },
     "mrs:f3401344018b": {
       "description": "Defeating an enemy has a fixed 50% chance to grant you 1 Performance Passion.",
       "descriptions": {
@@ -14518,22 +14598,6 @@
         "pt-BR": "Derrotar um inimigo tem 50% de chance fixa de conceder 1 de Paixão de Performance.",
         "th": "เอาชนะเป้าหมายฝ่ายศัตรู มีโอกาสคงที่ 50% ได้รับ 1 อันที่เป็นPerformance Passion",
         "id": "Saat mengalahkan musuh, terdapat 50% peluang tetap untuk mendapat 1 Performance Passion."
-      }
-    },
-    "mrs:c5530a38a229": {
-      "description": "When Encore Strings triggers, it activates a second time on the same target.",
-      "descriptions": {
-        "en": "When Encore Strings triggers, it activates a second time on the same target. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
-        "zh-CN": "自身触发安可琴弦时对同一目标再次触发。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
-        "zh-TW": "自身觸發安可琴弦時對同一目標再次觸發。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
-        "ja": "自身が追奏弦音を発動すると、同一対象に自動的に再発動される。 幸運の一撃の倍率-20%。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
-        "ko-KR": "자신이 앵콜 스트링을 발동할 때, 같은 대상에게 한 번 더 발동됩니다. 행운의 일격 배율이 20% 감소합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
-        "fr": "Lorsque Cordes de rappel se déclenche, l'effet s'active une deuxième fois sur la même cible. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
-        "de": "Wenn Zugabe-Saiten ausgelöst wird, aktiviert es sich ein zweites Mal auf demselben Ziel. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
-        "es": "Cuando Cuerdas del Bis se activa, se aplica una segunda vez sobre el mismo objetivo. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
-        "pt-BR": "Quando as Cordas de Bis são ativadas, elas são ativadas uma segunda vez no mesmo alvo. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
-        "th": "เมื่อตัวเองทำให้เกิดสายพิณ Encore จะเกิดผลซ้ำกับเป้าหมายเดิมอีกครั้ง อัตราคูณ Lucky Strike -20% สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
-        "id": "Saat pengguna memicu Encore Chords, efek tersebut akan dipicu kembali pada target yang sama. Lucky Hit Multiplier -20%. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
       }
     },
     "mrs:d26cfdc29a41": {
@@ -14710,54 +14774,6 @@
         "pt-BR": "Em 10 s após lançar Bis, cada uso de Rapsódia de Chamas faz alvos afetados por Bis acionarem Cordas de Bis. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
         "th": "หลังจากปล่อย Encore ภายใน 10s ทุกครั้งที่ปล่อยเพลงเพลิงคลั่ง จะทำให้เป้าหมายได้รับประโยชน์จาก Encore และทำงานสายพิณ Encore ทันที สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
         "id": "Dalam 10 detik setelah menggunakan Encore, setiap kali melancarkan Flame Fantasy, target yang terpengaruh efek Encore akan langsung memicu Encore Chords. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
-      }
-    },
-    "mrs:7b1a6e8dcac0": {
-      "description": "Permanently benefits from Encore effect. For every 5 triggers of Encore Strings, the next Amplified Beat and Harmonic Anthem deal 50% more DMG.",
-      "descriptions": {
-        "en": "Permanently benefits from Encore effect. For every 5 triggers of Encore Strings, the next Amplified Beat and Harmonic Anthem deal 50% more DMG. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
-        "zh-CN": "自身永久携带安可效果。 自身每触发5次安可琴弦，下一次增幅节拍、聚合乐章伤害+50%。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
-        "zh-TW": "自身永久攜帶安可效果。 自身每觸發5次安可琴弦，下一次增幅節拍、聚合樂章傷害+50%。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
-        "ja": "自身に永続的にアンコール効果が付与される。 自身が追奏弦音を5回発動するたびに、次のハードディストーション、ハーモニックアンセムのダメージ+50%。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
-        "ko-KR": "자신이 영구적으로 앵콜 효과를 획득합니다. 자신이 앵콜 스트링을 5회 발동할 때마다 다음 증폭하는 비트, 결집의 악장 대미지 +50%. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
-        "fr": "Bénéficie en permanence de l'effet de Rappel. Toutes les 5 activations de Cordes de rappel, le prochain Rythme amplifié et la prochaine Hymne harmonique infligent 50 % de dégâts supplémentaires. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
-        "de": "Profitiert dauerhaft vom Zugabe-Effekt. Für jeweils 5 Auslösungen von Zugabe-Saiten verursachen die nächsten Verstärkter Takt und Harmonische Hymne weitere 50 % SCH. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
-        "es": "Se beneficia permanentemente del efecto de Bis. Cada 5 activaciones de Cuerdas del Bis, el próximo Ritmo Amplificado e Himno Armonioso infligen un 50 % más de DÑO. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
-        "pt-BR": "Beneficia permanentemente do efeito de Bis. A cada 5 acionamentos de Cordas de Bis, a próxima Batida Amplificada e Hino Harmônico causam 50% mais dano. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
-        "th": "ตัวเองจะมีเอฟเฟกต์ Encore ถาวร ตัวเองทำงานทุก 5 ครั้งที่เป็นสายพิณ Encore จังหวะขยายพลังครั้งถัดไปจะทำให้บทเพลงผสาน DMG +50% สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
-        "id": "Diri sendiri membawa efek Encore secara permanen. Setiap kali diri sendiri memicu 5 kali Encore Chords, DMG Amplify Beat dan Harmonic Movement berikutnya +50%. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
-      }
-    },
-    "mrs:f584e2c73be5": {
-      "description": "Every 1% Luck Chance grants 1% trigger chance for Encore Strings.",
-      "descriptions": {
-        "en": "Every 1% Luck Chance grants 1% trigger chance for Encore Strings. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
-        "zh-CN": "每1%幸运几率提供1%安可琴弦触发几率。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
-        "zh-TW": "每1%幸運機率提供1%安可琴弦觸發機率。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
-        "ja": "幸運1%ごとに追奏弦音の発動率+1%。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
-        "ko-KR": "행운 1%당 앵콜 스트링 발동 확률이 1% 증가합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
-        "fr": "Chaque 1 % de taux de chance confère 1 % de chance de déclencher Cordes de rappel. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
-        "de": "Nach je 1 % Glückschance wird 1 % Auslösechance für Zugabe-Saiten gewährt. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
-        "es": "Por cada 1 % de probabilidad de suerte, se otorga un 1 % de probabilidad de activación de Cuerdas del Bis. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
-        "pt-BR": "Cada 1% de Chance de Sorte concede 1% chance de acionar Cordas de Bis. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
-        "th": "โอกาส Lucky ทุก 1% เพิ่มโอกาสทำงาน 1% ของสายพิณ Encore สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
-        "id": "Setiap 1% Lucky Chance akan memberikan 1% peluang memicu Encore Chords. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
-      }
-    },
-    "mrs:8da54e163719": {
-      "description": "Triggering Encore Strings to deal DMG or healing grants 2 Performance Energy. If the Encore Strings triggers Lucky Strike, grants 3 additional Performance Energy.",
-      "descriptions": {
-        "en": "Triggering Encore Strings to deal DMG or healing grants 2 Performance Energy. If the Encore Strings triggers Lucky Strike, grants 3 additional Performance Energy. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
-        "zh-CN": "自身触发安可琴弦造成伤害或治疗时获得2点演奏能量，如果该安可琴弦触发幸运一击则再额外获得3点演奏能量。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
-        "zh-TW": "自身觸發安可琴弦造成傷害或治療時獲得2點演奏能量，如果該安可琴弦觸發幸運一擊則再額外獲得3點演奏能量。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
-        "ja": "自身が追奏弦音を発動してダメージまたは回復を与えたとき、奏源を2pt獲得する。その追奏弦音が幸運の一撃を発動させた場合、追加で奏源を3pt獲得する。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
-        "ko-KR": "자신이 앵콜 스트링을 발동해 대미지를 입히거나 치료할 때, 연주 에너지를 2pt 획득합니다. 만약 해당 앵콜 스트링이 행운의 일격을 발동하면 추가로 연주 에너지를 3pt 획득합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
-        "fr": "Lorsque vous déclenchez Cordes de rappel pour infliger des dégâts ou prodiguer des soins, vous obtenez 2 points d'Énergie de performance. Si les Cordes de rappel déclenchent une Frappe chanceuse, vous obtenez 3 points d'Énergie de performance supplémentaires. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
-        "de": "Das Auslösen von Zugabe-Saiten, um SCH zu verursachen oder Heilung zu bewirken, gewährt 2 Auftrittsenergie. Wenn die Zugabe-Saiten einen Glückstreffer auslösen, gewähren sie 3 zusätzliche Auftrittsenergie. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
-        "es": "Activar Cuerdas del Bis para infligir DÑO o curar otorga 2 de energía escénica. Si Cuerdas del Bis activa un golpe de suerte, otorga 3 de energía escénica adicional. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
-        "pt-BR": "Acionar Cordas de Bis para causar dano ou cura concede 2 Energia de Performance. Se Cordas de Bis acionar Golpe de Sorte, concede 3 Energia de Performance adicional. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
-        "th": "เมื่อตัวเองทำงานสายพิณ Encore สร้าง DMG หรือ Heal จะได้รับ 2 แต้มที่เป็นพลังงานบรรเลง หากสายพิณ Encore นี้ทำงาน Lucky Strike จะได้รับเพิ่มเติม 3 แต้มที่เป็นพลังงานบรรเลง สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
-        "id": "Saat diri sendiri memicu Encore Chords dan memberikan DMG atau Heal, akan memperoleh 2 poin Performance Energy. Jika Encore Chords ini memicu Lucky Hit, akan memperoleh 3 poin Performance Energy tambahan. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
       }
     },
     "mrs:ab45e73f44c6": {
@@ -14982,22 +14998,6 @@
         "pt-BR": "7% do dano causado e 15% da cura feita é armazenado como Ritmo. 10 s após lançar Palco Central, o uso de Habilidades de Perícia e Batida Curativa consome Ritmo para conceder até 40% de cura bônus. O limite de armazenamento de Ritmo é 30 vezes o ATQM.",
         "th": "สร้าง DMG 7% และสร้าง Heal 15% จะเก็บเพื่อปล่อยเป็นจังหวะตามศูนย์กลางความสนใจ ภายใน 10s และปล่อยสกิลเชี่ยวชาญ จังหวะรักษาจะใช้จังหวะที่สร้างมากถึง 40% ลิมิตการเก็บจังหวะ Heal เพิ่มเติมมากสุดจะไม่เกิน M.ATK 30 เท่า",
         "id": "7% dari DMG yang diberikan dan 15% dari Heal yang diberikan akan disimpan sebagai Rhythm. Dalam 10 detik setelah melancarkan Crowd Focus, melancarkan Expertise Skill atau Healing Beat akan mengonsumsi Rhythm dan memberikan Heal tambahan hingga maksimal 40%. Limit penyimpanan Rhythm maksimal tidak bisa melebihi 30 kali lipat MATK."
-      }
-    },
-    "mrs:a868bad98b52": {
-      "description": "Within 10s after you cast Encore, each use of Expertise Skill triggers Encore Strings for targets affected by Encore.",
-      "descriptions": {
-        "en": "Within 10s after you cast Encore, each use of Expertise Skill triggers Encore Strings for targets affected by Encore. Encore Strings: Each time a damage or healing Expertise Skill is cast, there is a fixed 50% chance to trigger Encore Strings once, either dealing DMG to the current target or healing the ally with the lowest HP (Party Members Prioritized).",
-        "zh-CN": "施放安可后的10秒内，每次施放专精技能，使得受到安可作用的目标立即触发安可琴弦。 安可琴弦: 每次施放伤害或者治疗专精技能时有50%固定几率触发一记安可琴弦，对当前目标造成伤害或对生命最低的友方目标（优先队友）回复生命。",
-        "zh-TW": "施放安可後的10秒內，每次施放專精技能，使得受到安可作用的目標立即觸發安可琴弦。 安可琴弦: 每次施放傷害或者治療專精技能時有50%固定機率觸發一記安可琴弦，對當前目標造成傷害或對生命最低的友方目標（優先隊友）回復生命。",
-        "ja": "アンコールを使用後10秒間、マスタリースキルを発動するたびに、アンコールの効果を受けているターゲットに直ちに追奏弦音を発動させる。 追奏弦音: ダメージか回復のマスタリースキルを使用するたび50%の固定確率で追奏弦音を発動し、現在の対象にダメージを与えるか、HP最小の味方対象（パーティメンバー優先）のHPを回復する。",
-        "ko-KR": "앵콜 시전 후 10초 동안 마스터리 스킬을 시전할 때마다, 앵콜 효과를 받는 대상이 즉시 앵콜 스트링을 발동합니다. 앵콜 스트링: 대미지 또는 치료 효과를 가진 마스터리 스킬을 시전할 때마다 50%의 고정 확률로 앵콜 스트링을 1회 발동해, 현재 공격 대상에게 대미지를 입히거나, 체력이 가장 낮은 아군 대상(파티원 우선)의 체력을 회복시킵니다.",
-        "fr": "Dans les 10 s suivant le lancement de Rappel, chaque utilisation d'une compétence d'expertise déclenche Cordes de rappel sur les cibles affectées par Rappel. Cordes de rappel: Chaque fois qu'une compétence d'expertise de dégâts ou de soin est lancée, elle a 50 % de chances fixes de déclencher Cordes de rappel une fois, infligeant des dégâts à la cible actuelle ou soignant l'allié au nombre de PV le plus faible (alliés prioritaires).",
-        "de": "Innerhalb von 10 Sek. nach deinem Wirken von Zugabe löst jeder Einsatz der Expertisefähigkeit Zugabe-Saiten für Ziele aus, die von Zugabe betroffen sind. Zugabe-Saiten: Wann immer eine Expertisefähigkeit mit Schaden oder Heilung gewirkt wird, besteht eine feste Chance von 50 %, einmal Zugabe-Saiten auszulösen, die entweder SCH beim aktuellen Ziel verursachen oder den Verbündeten mit den niedrigsten LP heilen (Gruppenmitglieder priorisiert).",
-        "es": "Durante los 10 s posteriores a lanzar Bis, cada uso de habilidad de pericia activa Cuerdas del Bis en objetivos afectados por Bis. Cuerdas del Bis: Cada vez que se lanza una habilidad de pericia de daño o curación, hay una probabilidad fija del 50 % de activar Cuerdas del Bis una vez. Esto inflige DÑO al objetivo o cura al aliado con menos PS (prioriza a los miembros del grupo).",
-        "pt-BR": "Em 10 s após lançar Bis, cada uso de Habilidade de Perícia aciona Cordas de Bis para alvos afetados por Bis. Cordas de Bis: Cada vez que uma Habilidade de Perícia de dano ou cura for lançada, há uma chance fixa de 50% de ativar Cordas de Bis uma vez, causando dano ao alvo atual ou curando o aliado com menor PV (Membros do Grupo Priorizados).",
-        "th": "หลังจากปล่อย Encore ภายใน 10s ทุกครั้งที่ปล่อยสกิลเชี่ยวชาญ จะทำให้เป้าหมายได้รับประโยชน์จาก Encore ทำงานสายพิณ Encore ทันที สายพิณ Encore: เมื่อปล่อย DMG หรือสกิลเชี่ยวชาญ Heal แต่ละครั้งมีโอกาสคงที่ 50% ทำงาน สายพิณ Encore 1 อัน สร้าง DMG แก่เป้าหมายปัจจุบันหรือฟื้นฟู HP แก่เป้าหมายฝ่ายพันธมิตรที่ HP ต่ำสุด (เพื่อนร่วมทีมก่อน)",
-        "id": "Dalam 10 detik setelah menggunakan Encore, setiap kali melancarkan Expertise Skill, target yang terkena efek Encore akan langsung memicu Encore Chords. Encore Chords: Setiap kali menggunakan Expertise Skill DMG atau Heal, memiliki 50% peluang tetap untuk memicu Encore Chords yang akan memberikan DMG kepada target saat ini atau memulihkan HP rekan dengan HP terendah (prioritas pada rekan tim)."
       }
     },
     "mrs:54cd9dbdce26": {
@@ -20872,7 +20872,7 @@
         "id": "Setiap 10 kali Shield Throw diaktifkan, Shield Throw akan Enhanced, tekan untuk membuat perisai berputar mengelilingi Diri Sendiri Hanya muncul pada tingkat Kesulitan [Nightmare]"
       }
     },
-    "mrs:5d69b8fbbcf6": {
+    "mrs:6a84c723a25a": {
       "description": "Increases the Illusion-Breaking DMG of Judgment and Divine Strike by 50%. Available only in [Hard] and [Nightmare].",
       "descriptions": {
         "en": "Increases the Illusion-Breaking DMG of Judgment and Divine Strike by 50%. Available only in [Hard] and [Nightmare].",
@@ -20968,7 +20968,7 @@
         "id": "Blazing Reckon dapat memicu Holy Strike, Holylight Guard Retribution mengurangi Waktu CD Holylight Guard dengan efek dua kali lipat Hanya muncul pada [Nightmare] Kesulitan"
       }
     },
-    "mrs:858e7bfa50fd": {
+    "mrs:74209e7dd691": {
       "description": "Special Attacks can now trigger Divine Strike. Divine Strike's Illusion-Breaking DMG is increased by 100%. Available only in [Hard] and [Nightmare].",
       "descriptions": {
         "en": "Special Attacks can now trigger Divine Strike. Divine Strike's Illusion-Breaking DMG is increased by 100%. Available only in [Hard] and [Nightmare].",
@@ -21080,7 +21080,7 @@
         "id": "Waktu CD Cruel Conquest -50%, selama Cruel Conquest, DMG mimpi yang diberikan +20% Hanya muncul pada kesulitan [Hard] dan [Nightmare]"
       }
     },
-    "mrs:9b44647e2ec5": {
+    "mrs:96e4dbe68233": {
       "description": "Judgment now consumes all Photon Energy. Vanguard Hunt's Crits now grant a Holy Sigil. Judgment's Illusion-Breaking DMG is increased by 50%. Available only in [Hard] and [Nightmare].",
       "descriptions": {
         "en": "Judgment now consumes all Photon Energy. Vanguard Hunt's Crits now grant a Holy Sigil. Judgment's Illusion-Breaking DMG is increased by 50%. Available only in [Hard] and [Nightmare].",
@@ -22040,7 +22040,7 @@
         "id": "Regen Pulse akan memberi efek Thorns pada target. Thorns dan Wild Seed dapat memicu Lucky Hit. Hanya muncul di kesulitan [Nightmare]."
       }
     },
-    "mrs:e4f8c527b434": {
+    "mrs:f465860f2f23": {
       "description": "Feral Seed's CD is reduced by 90%, and its Casting Speed is increased by 100%. Available only in [Hard] and [Nightmare].",
       "descriptions": {
         "en": "Feral Seed's CD is reduced by 90%, and its Casting Speed is increased by 100%. Available only in [Hard] and [Nightmare].",
@@ -22088,7 +22088,7 @@
         "id": "Mendapat Deer Charge secara otomatis saat diperoleh, dan Special Attack DMG mimpi +400% Hanya muncul pada tingkat Kesulitan [Hard] dan [Nightmare]"
       }
     },
-    "mrs:7c5719779419": {
+    "mrs:17eada55ea80": {
       "description": "Infusion fires additional bullets at 5 surrounding targets. Infusion's Illusion-Breaking DMG is increased by 100%. Available only in [Nightmare].",
       "descriptions": {
         "en": "Infusion fires additional bullets at 5 surrounding targets. Infusion's Illusion-Breaking DMG is increased by 100%. Available only in [Nightmare].",
@@ -22152,7 +22152,7 @@
         "id": "Infuse hit target, mendapat Lucky Hit dream DMG+1%, dapat ditumpuk hingga 50 lapis, bertahan selama 5 detik Hanya muncul pada kesulitan [Hard] dan [Nightmare]"
       }
     },
-    "mrs:977fc78117da": {
+    "mrs:1f6beb249c16": {
       "description": "The damage area of the Blossom Charge summoned by Nourishing Seed is doubled, and its Illusion-Breaking DMG is increased by 1,000%. Available only in [Hard] and [Nightmare].",
       "descriptions": {
         "en": "The damage area of the Blossom Charge summoned by Nourishing Seed is doubled, and its Illusion-Breaking DMG is increased by 1,000%. Available only in [Hard] and [Nightmare].",
@@ -22616,7 +22616,7 @@
         "id": "Saat Healing Movement memberi heal, akan mengakibatkan MDMG sebesar 100% ATK terhadap musuh dalam jarak 10 meter di sekitar diri sendiri. Sanity DMG dari Healing Movement +."
       }
     },
-    "mrs:dee862ca35b4": {
+    "mrs:d28e0d133815": {
       "description": "For 10s after casting Center Stage, Harmonic Anthem will be at maximum stacks, and its Illusion-Breaking DMG is increased by 300%. Available only in [Hard] and [Nightmare].",
       "descriptions": {
         "en": "For 10s after casting Center Stage, Harmonic Anthem will be at maximum stacks, and its Illusion-Breaking DMG is increased by 300%. Available only in [Hard] and [Nightmare].",
@@ -24064,6 +24064,9 @@
     "buff-source:1701": [
       "mrs:54a578b9bae8"
     ],
+    "talent:562": [
+      "mrs:8089ffd0230f"
+    ],
     "talent:533": [
       "mrs:f2bb4ef08c33"
     ],
@@ -24206,19 +24209,43 @@
       "mrs:3734dad53b5c"
     ],
     "talent:1160": [
-      "mrs:d38dd2c7f232"
+      "mrs:37886c2b02c4"
     ],
     "buff-source:55231": [
       "mrs:1cc3291c9095"
     ],
     "talent:1157": [
-      "mrs:dce829ce8cff"
+      "mrs:53aa18a9c82b"
     ],
     "buff-source:55240": [
       "mrs:81c2d3b512d4"
     ],
     "talent:1300": [
       "mrs:9f87846e92c4"
+    ],
+    "talent:1308": [
+      "mrs:cc4238d2d018"
+    ],
+    "talent:1316": [
+      "mrs:46fe452e6ebf"
+    ],
+    "talent:1327": [
+      "mrs:0921845145a5"
+    ],
+    "talent:1331": [
+      "mrs:82b78ace20af"
+    ],
+    "talent:1345": [
+      "mrs:191070b501f4"
+    ],
+    "talent:1346": [
+      "mrs:900db670ced5"
+    ],
+    "talent:1347": [
+      "mrs:742cc85dd8d5"
+    ],
+    "talent:1362": [
+      "mrs:7af12e8c7296"
     ],
     "talent:1213": [
       "mrs:94eb80352ea0"
@@ -24233,13 +24260,13 @@
       "mrs:17373ff625b3"
     ],
     "talent:1241": [
-      "mrs:c822d52623af"
+      "mrs:2ba1e6a60599"
     ],
     "talent:1248": [
       "mrs:fe61afb3ada4"
     ],
     "talent:1218": [
-      "mrs:4e9aa912b2d2"
+      "mrs:142369ecf079"
     ],
     "talent:1226": [
       "mrs:635a1d8bec52"
@@ -24249,6 +24276,18 @@
     ],
     "talent:1255": [
       "mrs:b93609a1a22f"
+    ],
+    "talent:1119": [
+      "mrs:64ae2e279e78"
+    ],
+    "talent:1159": [
+      "mrs:e70f3bf728d3"
+    ],
+    "talent:1161": [
+      "mrs:b712182f2cb2"
+    ],
+    "talent:1225": [
+      "mrs:61dee985a16a"
     ],
     "buff-source:705001": [
       "mrs:1050f4bf77c3"
@@ -25984,9 +26023,6 @@
     "talent:561": [
       "mrs:9b73f42c558e"
     ],
-    "talent:562": [
-      "mrs:08cb664e2adc"
-    ],
     "talent:563": [
       "mrs:96e7bcb1a538"
     ],
@@ -26055,9 +26091,6 @@
     ],
     "talent:1118": [
       "mrs:99ced2867418"
-    ],
-    "talent:1119": [
-      "mrs:92ee7c530118"
     ],
     "talent:1120": [
       "mrs:e4c54357ef08"
@@ -26164,14 +26197,8 @@
     "talent:1158": [
       "mrs:1e5dde31f763"
     ],
-    "talent:1159": [
-      "mrs:d71f22658ff5"
-    ],
     "talent:1166": [
       "mrs:55dbd41a2c86"
-    ],
-    "talent:1161": [
-      "mrs:b41a7831e358"
     ],
     "talent:1162": [
       "mrs:dcfce237309c"
@@ -26605,9 +26632,6 @@
     "talent:1224": [
       "mrs:93e237bbcff8"
     ],
-    "talent:1225": [
-      "mrs:54683826610a"
-    ],
     "talent:1227": [
       "mrs:878b91c8b5b6"
     ],
@@ -26722,9 +26746,6 @@
     "talent:1307": [
       "mrs:d6843886ca48"
     ],
-    "talent:1308": [
-      "mrs:64cc5320a2e1"
-    ],
     "talent:1309": [
       "mrs:a6e772333373"
     ],
@@ -26745,9 +26766,6 @@
     ],
     "talent:1315": [
       "mrs:65a93e41300f"
-    ],
-    "talent:1316": [
-      "mrs:84710d9006b7"
     ],
     "talent:1317": [
       "mrs:08aba8c4dc95"
@@ -26782,14 +26800,8 @@
     "talent:1326": [
       "mrs:6fe6c7b91e6d"
     ],
-    "talent:1327": [
-      "mrs:c9994138263d"
-    ],
     "talent:1328": [
       "mrs:f3401344018b"
-    ],
-    "talent:1331": [
-      "mrs:c5530a38a229"
     ],
     "talent:1332": [
       "mrs:d26cfdc29a41"
@@ -26823,15 +26835,6 @@
     ],
     "talent:1344": [
       "mrs:0a0edd95e778"
-    ],
-    "talent:1345": [
-      "mrs:7b1a6e8dcac0"
-    ],
-    "talent:1346": [
-      "mrs:f584e2c73be5"
-    ],
-    "talent:1347": [
-      "mrs:8da54e163719"
     ],
     "talent:1348": [
       "mrs:ab45e73f44c6"
@@ -26874,9 +26877,6 @@
     ],
     "talent:1361": [
       "mrs:8fc44d29a2df"
-    ],
-    "talent:1362": [
-      "mrs:a868bad98b52"
     ],
     "talent:1363": [
       "mrs:54cd9dbdce26"
@@ -27980,7 +27980,7 @@
       "mrs:8ac61ff964d0"
     ],
     "season-rogue-entry:296": [
-      "mrs:5d69b8fbbcf6"
+      "mrs:6a84c723a25a"
     ],
     "season-rogue-entry:297": [
       "mrs:b2b587531e4f"
@@ -27998,7 +27998,7 @@
       "mrs:0cfe5e7d5f5c"
     ],
     "season-rogue-entry:302": [
-      "mrs:858e7bfa50fd"
+      "mrs:74209e7dd691"
     ],
     "season-rogue-entry:303": [
       "mrs:33aaf216f25c"
@@ -28019,7 +28019,7 @@
       "mrs:44a614910ea0"
     ],
     "season-rogue-entry:309": [
-      "mrs:9b44647e2ec5"
+      "mrs:96e4dbe68233"
     ],
     "phantom-factor:3054400": [
       "mrs:821b4dcaf6f8"
@@ -28199,7 +28199,7 @@
       "mrs:3c6a885a2907"
     ],
     "season-rogue-entry:264": [
-      "mrs:e4f8c527b434"
+      "mrs:f465860f2f23"
     ],
     "season-rogue-entry:265": [
       "mrs:f2dbe7e12ea8"
@@ -28208,7 +28208,7 @@
       "mrs:99181380c7fb"
     ],
     "season-rogue-entry:267": [
-      "mrs:7c5719779419"
+      "mrs:17eada55ea80"
     ],
     "season-rogue-entry:268": [
       "mrs:1a13e1df9726"
@@ -28220,7 +28220,7 @@
       "mrs:9f16ad22aa25"
     ],
     "season-rogue-entry:271": [
-      "mrs:977fc78117da"
+      "mrs:1f6beb249c16"
     ],
     "season-rogue-entry:272": [
       "mrs:ceb491d413be"
@@ -28307,7 +28307,7 @@
       "mrs:8fb837677832"
     ],
     "season-rogue-entry:326": [
-      "mrs:dee862ca35b4"
+      "mrs:d28e0d133815"
     ],
     "season-rogue-entry:327": [
       "mrs:3d49f3d23b1e"
@@ -28578,7 +28578,7 @@
     ]
   },
   "stats": {
-    "scannedEntries": 2832,
+    "scannedEntries": 2914,
     "sourcesWithDescriptions": 1506,
     "sourceIdsWithDescriptions": 1506,
     "sourcesWithDirectDescriptions": 1484,

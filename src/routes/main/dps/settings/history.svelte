@@ -2,9 +2,10 @@
   import * as Tabs from "$lib/components/ui/tabs/index.js";
   import SettingsSwitch from "./settings-switch.svelte";
   import SettingsSelect from "./settings-select.svelte";
+  import SettingsSlider from "./settings-slider.svelte";
   import ColumnSettingsList from "./column-settings-list.svelte";
   import { historyDpsPlayerColumns, historyDpsSkillColumns, historyHealPlayerColumns, historyHealSkillColumns, historyTankedPlayerColumns, historyTankedSkillColumns } from "$lib/column-data";
-  import { SETTINGS } from "$lib/settings-store";
+  import { DEFAULT_HISTORY_SUMMARY_FIELDS, SETTINGS } from "$lib/settings-store";
   import { uiT } from "$lib/i18n";
   import ChevronDown from "virtual:icons/lucide/chevron-down";
 
@@ -13,6 +14,7 @@
   // Collapsible section state - all collapsed by default
   let expandedSections = $state({
     general: false,
+    summary: false,
     dpsPlayers: false,
     dpsSkills: false,
     healPlayers: false,
@@ -28,6 +30,68 @@
   const t = uiT("dps/settings-history", () => SETTINGS.live.general.state.language);
   const colT = uiT("dps/history", () => SETTINGS.live.general.state.language);
   const hiddenDpsColumns = ["effectiveTotal", "effectiveDps"];
+  type SummaryGroupKey = "time" | "damage" | "healing" | "tanked";
+  type SummaryColumnField = {
+    key: string;
+    label: string;
+    labelKey?: string;
+    description: string;
+    descriptionKey?: string;
+  };
+  type SummaryField = SummaryColumnField | {
+    key: string;
+    label: string;
+    labelKey: string;
+    description: string;
+    descriptionKey: string;
+  };
+
+  const summaryFieldGroups: {
+    key: SummaryGroupKey;
+    labelKey: string;
+    label: string;
+    fields: SummaryField[];
+  }[] = [
+    {
+      key: "time",
+      labelKey: "summaryGroup.time",
+      label: "Time",
+      fields: [
+        {
+          key: "encounterTime",
+          labelKey: "summaryField.encounterTime.label",
+          label: "Encounter Time",
+          descriptionKey: "summaryField.encounterTime.description",
+          description: "Show the full encounter duration in the summary.",
+        },
+        {
+          key: "trueDpsTime",
+          labelKey: "summaryField.trueDpsTime.label",
+          label: "True DPS Time",
+          descriptionKey: "summaryField.trueDpsTime.description",
+          description: "Show the active combat time used by true DPS calculations.",
+        },
+      ],
+    },
+    {
+      key: "damage",
+      labelKey: "summaryGroup.damage",
+      label: "Damage",
+      fields: historyDpsPlayerColumns.filter((col) => isSummaryField("damage", col.key) && !hiddenDpsColumns.includes(col.key)),
+    },
+    {
+      key: "healing",
+      labelKey: "summaryGroup.healing",
+      label: "Healing",
+      fields: historyHealPlayerColumns.filter((col) => isSummaryField("healing", col.key)),
+    },
+    {
+      key: "tanked",
+      labelKey: "summaryGroup.tanked",
+      label: "Tanked",
+      fields: historyTankedPlayerColumns.filter((col) => isSummaryField("tanked", col.key)),
+    },
+  ];
 
   function colLabel(col: { label: string; labelKey?: string }): string {
     return col.labelKey ? colT(col.labelKey, col.label) : col.label;
@@ -35,6 +99,36 @@
 
   function colDescription(col: { description: string; descriptionKey?: string }): string {
     return col.descriptionKey ? colT(col.descriptionKey, col.description) : col.description;
+  }
+
+  function summaryGroupLabel(group: { labelKey: string; label: string }): string {
+    return t(group.labelKey, group.label);
+  }
+
+  function summaryFieldLabel(field: SummaryField): string {
+    return field.labelKey ? (field.labelKey.startsWith("summaryField.") ? t(field.labelKey, field.label) : colT(field.labelKey, field.label)) : field.label;
+  }
+
+  function summaryFieldDescription(field: SummaryField): string {
+    return field.descriptionKey ? (field.descriptionKey.startsWith("summaryField.") ? t(field.descriptionKey, field.description) : colT(field.descriptionKey, field.description)) : field.description;
+  }
+
+  function summaryDefaultsFor(groupKey: SummaryGroupKey): Record<string, boolean> {
+    return DEFAULT_HISTORY_SUMMARY_FIELDS[groupKey] as Record<string, boolean>;
+  }
+
+  function isSummaryField(groupKey: SummaryGroupKey, key: string): boolean {
+    return Object.prototype.hasOwnProperty.call(summaryDefaultsFor(groupKey), key);
+  }
+
+  function summaryFieldEnabled(groupKey: SummaryGroupKey, key: string): boolean {
+    const state = SETTINGS.history.summary.state[groupKey] as Record<string, boolean>;
+    return state[key] ?? summaryDefaultsFor(groupKey)[key] ?? true;
+  }
+
+  function setSummaryFieldEnabled(groupKey: SummaryGroupKey, key: string, checked: boolean): void {
+    const state = SETTINGS.history.summary.state[groupKey] as Record<string, boolean>;
+    state[key] = checked;
   }
 </script>
 
@@ -79,6 +173,26 @@
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.showOthersAbilityScore} label={t("showOthersAbilityScore", "他人能力评分")} description={t("showOthersAbilityScoreDescription", "显示他人的能力评分")} />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.showYourSeasonStrength} label={t("showYourSeasonStrength", "你的赛季强度")} description={t("showYourSeasonStrengthDescription", "显示你的赛季强度")} />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.showOthersSeasonStrength} label={t("showOthersSeasonStrength", "他人赛季强度")} description={t("showOthersSeasonStrengthDescription", "显示他人的赛季强度")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.showPlayerImagineBadges} label={t("showPlayerImagineBadges", "Battle Imagine Badges")} description={t("showPlayerImagineBadgesDescription", "Show equipped battle imagine badges beside each player's class icon.")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.showOceanWeaponBadge} label={t("showOceanWeaponBadge", "Ocean Weapon Badge")} description={t("showOceanWeaponBadgeDescription", "Show the ocean weapon badge before player names when detected.")} />
+          <SettingsSlider
+            bind:value={SETTINGS.history.general.state.historyGraphBucketSeconds}
+            min={1}
+            max={10}
+            step={1}
+            unit="s"
+            label={t("historyGraphBucketSeconds", "Graph bucket size")}
+            description={t("historyGraphBucketSecondsDescription", "Controls how much timeline data is grouped into each graph point. Smaller values show sharper spikes; larger values smooth noise. Default: 5 secs.")}
+          />
+          <SettingsSlider
+            bind:value={SETTINGS.history.general.state.historyGraphWindowSeconds}
+            min={10}
+            max={30}
+            step={1}
+            unit="s"
+            label={t("historyGraphWindowSeconds", "Graph moving window")}
+            description={t("historyGraphWindowSecondsDescription", "Controls the rolling window used by the moving-average graph. Smaller values react faster; larger values smooth longer bursts. Default: 15 secs.")}
+          />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSPlayer} label={t("relativeToTopDPSPlayer", "以最高 DPS 为基准（玩家）")} description={t("relativeToTopDPSPlayerDescription", "颜色条按最高 DPS 玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSSkill} label={t("relativeToTopDPSSkill", "以最高 DPS 为基准（技能）")} description={t("relativeToTopDPSSkillDescription", "颜色条按最高 DPS 技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopHealPlayer} label={t("relativeToTopHealPlayer", "以最高治疗为基准（玩家）")} description={t("relativeToTopHealPlayerDescription", "颜色条按最高治疗玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
@@ -112,6 +226,39 @@
       <button
         type="button"
         class="w-full flex items-center justify-between px-4 py-3 hover:bg-popover/50 transition-colors"
+        onclick={() => toggleSection('summary')}
+      >
+        <h2 class="text-base font-semibold text-foreground">{t("summaryFields", "Summary Fields")}</h2>
+        <ChevronDown class="w-5 h-5 text-muted-foreground transition-transform duration-200 {expandedSections.summary ? 'rotate-180' : ''}" />
+      </button>
+      {#if expandedSections.summary}
+        <div class="px-4 pb-4 space-y-4">
+          <p class="text-sm text-muted-foreground">{t("summaryFieldsDescription", "Choose which stats appear in the history summary panel.")}</p>
+          <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
+            {#each summaryFieldGroups as group}
+              <section class="rounded-md border border-border/40 bg-background/30 p-3">
+                <h3 class="text-sm font-semibold text-foreground mb-2">{summaryGroupLabel(group)}</h3>
+                <div class="space-y-1">
+                  {#each group.fields as field}
+                    <SettingsSwitch
+                      checked={summaryFieldEnabled(group.key, field.key)}
+                      onchange={(checked) => setSummaryFieldEnabled(group.key, field.key, checked)}
+                      label={summaryFieldLabel(field)}
+                      description={summaryFieldDescription(field)}
+                    />
+                  {/each}
+                </div>
+              </section>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <div class="bg-popover/40 rounded-lg border border-border/50 overflow-hidden">
+      <button
+        type="button"
+        class="w-full flex items-center justify-between px-4 py-3 hover:bg-popover/50 transition-colors"
         onclick={() => toggleSection('dpsPlayers')}
       >
         <h2 class="text-base font-semibold text-foreground">{t("playerColumns", "DPS（玩家）列")}</h2>
@@ -123,6 +270,8 @@
             columns={historyDpsPlayerColumns}
             visibilityState={SETTINGS.history.dps.players.state}
             orderState={SETTINGS.history.columnOrder.dpsPlayers.state}
+            aliasState={SETTINGS.history.columnAliases.state}
+            aliasPlaceholder={t("columnAliasPlaceholder", "Alias")}
             hiddenKeys={hiddenDpsColumns}
             hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
             {colLabel}
@@ -147,6 +296,8 @@
             columns={historyDpsSkillColumns}
             visibilityState={SETTINGS.history.dps.skillBreakdown.state}
             orderState={SETTINGS.history.columnOrder.dpsSkills.state}
+            aliasState={SETTINGS.history.columnAliases.state}
+            aliasPlaceholder={t("columnAliasPlaceholder", "Alias")}
             hiddenKeys={hiddenDpsColumns}
             hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
             {colLabel}
@@ -171,6 +322,8 @@
             columns={historyHealPlayerColumns}
             visibilityState={SETTINGS.history.heal.players.state}
             orderState={SETTINGS.history.columnOrder.healPlayers.state}
+            aliasState={SETTINGS.history.columnAliases.state}
+            aliasPlaceholder={t("columnAliasPlaceholder", "Alias")}
             hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
             {colLabel}
             {colDescription}
@@ -194,6 +347,8 @@
             columns={historyHealSkillColumns}
             visibilityState={SETTINGS.history.heal.skillBreakdown.state}
             orderState={SETTINGS.history.columnOrder.healSkills.state}
+            aliasState={SETTINGS.history.columnAliases.state}
+            aliasPlaceholder={t("columnAliasPlaceholder", "Alias")}
             hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
             {colLabel}
             {colDescription}
@@ -217,6 +372,8 @@
             columns={historyTankedPlayerColumns}
             visibilityState={SETTINGS.history.tanked.players.state}
             orderState={SETTINGS.history.columnOrder.tankedPlayers.state}
+            aliasState={SETTINGS.history.columnAliases.state}
+            aliasPlaceholder={t("columnAliasPlaceholder", "Alias")}
             hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
             {colLabel}
             {colDescription}
@@ -240,6 +397,8 @@
             columns={historyTankedSkillColumns}
             visibilityState={SETTINGS.history.tanked.skillBreakdown.state}
             orderState={SETTINGS.history.columnOrder.tankedSkills.state}
+            aliasState={SETTINGS.history.columnAliases.state}
+            aliasPlaceholder={t("columnAliasPlaceholder", "Alias")}
             hint={t("reorderColumnsHint", "Use the arrows to reorder; use the switches to show or hide columns.")}
             {colLabel}
             {colDescription}

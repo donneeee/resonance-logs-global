@@ -1,0 +1,1784 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-06-08T21:22:37.601Z",
+  "runtimeBoundary": "This is a compact evidence/recount table. Runtime should load the local class/spec slice, then apply only rules that are explicitly bridged to selected talent/effect state.",
+  "class": {
+    "classId": 0,
+    "className": null,
+    "classNames": {},
+    "classTalentIds": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      40,
+      41,
+      42,
+      43,
+      44,
+      45,
+      46,
+      47,
+      48,
+      49,
+      50,
+      51,
+      52,
+      53,
+      54,
+      55,
+      56,
+      57
+    ],
+    "specs": {}
+  },
+  "talentsById": {
+    "1": {
+      "talentId": 1,
+      "name": "Strength",
+      "names": {
+        "en": "Strength",
+        "zh-CN": "力量",
+        "zh-TW": "力量",
+        "ja": "筋力",
+        "ko-KR": "힘",
+        "fr": "Force",
+        "de": "Stärke",
+        "es": "Fuerza",
+        "pt-BR": "Força",
+        "th": "Power",
+        "id": "STR"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:armor|defen[cs]e|resistance|penetration|elemental|strength|intellect|agility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "2": {
+      "talentId": 2,
+      "name": "Intellect",
+      "names": {
+        "en": "Intellect",
+        "zh-CN": "智力",
+        "zh-TW": "智力",
+        "ja": "知力",
+        "ko-KR": "지력",
+        "fr": "Intelligence",
+        "de": "Intelligenz",
+        "es": "Intelecto",
+        "pt-BR": "Intelecto",
+        "th": "Int",
+        "id": "INT"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Intellect"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:armor|defen[cs]e|resistance|penetration|elemental|strength|intellect|agility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "3": {
+      "talentId": 3,
+      "name": "Agility",
+      "names": {
+        "en": "Agility",
+        "zh-CN": "敏捷",
+        "zh-TW": "敏捷",
+        "ja": "敏捷",
+        "ko-KR": "민첩",
+        "fr": "Agilité",
+        "de": "Agilität",
+        "es": "Agilidad",
+        "pt-BR": "Agilidade",
+        "th": "Agi",
+        "id": "AGI"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Agility"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:armor|defen[cs]e|resistance|penetration|elemental|strength|intellect|agility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "4": {
+      "talentId": 4,
+      "name": "Endurance",
+      "names": {
+        "en": "Endurance",
+        "zh-CN": "耐力",
+        "zh-TW": "耐力",
+        "ja": "耐久力",
+        "ko-KR": "내구력",
+        "fr": "Endurance",
+        "de": "Ausdauer",
+        "es": "Aguante",
+        "pt-BR": "Tenacidade",
+        "th": "Endurance",
+        "id": "Endurance"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Endurance"
+      ],
+      "dpsRelevance": {
+        "affectsDps": false,
+        "status": "unknown-or-noncombat"
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "5": {
+      "talentId": 5,
+      "name": "Crit",
+      "names": {
+        "en": "Crit",
+        "zh-CN": "暴击",
+        "zh-TW": "暴擊",
+        "ja": "会心",
+        "ko-KR": "치명타",
+        "fr": "Critique",
+        "de": "Krit",
+        "es": "Crítico",
+        "pt-BR": "Crítico",
+        "th": "CRIT",
+        "id": "Crit"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Crit"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [
+        "crit"
+      ],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "6": {
+      "talentId": 6,
+      "name": "Haste",
+      "names": {
+        "en": "Haste",
+        "zh-CN": "急速",
+        "zh-TW": "急速",
+        "ja": "ファスト",
+        "ko-KR": "속공",
+        "fr": "Célérité",
+        "de": "Tempo",
+        "es": "Presteza",
+        "pt-BR": "Celeridade",
+        "th": "Haste",
+        "id": "Haste"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Haste"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [
+        "hasteScaled"
+      ],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "7": {
+      "talentId": 7,
+      "name": "Luck",
+      "names": {
+        "en": "Luck",
+        "zh-CN": "幸运",
+        "zh-TW": "幸運",
+        "ja": "幸運",
+        "ko-KR": "행운",
+        "fr": "Chance",
+        "de": "Glück",
+        "es": "Suerte",
+        "pt-BR": "Sorte",
+        "th": "Lucky",
+        "id": "Luck"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Luck"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i",
+          "/\\b(?:cooldown|cd|energy|resource|combo|stack|proc|trigger|chance|summon|companion|wolf|falcon)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [
+        "lucky"
+      ],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "8": {
+      "talentId": 8,
+      "name": "Mastery",
+      "names": {
+        "en": "Mastery",
+        "zh-CN": "精通",
+        "zh-TW": "精通",
+        "ja": "器用さ",
+        "ko-KR": "숙련",
+        "fr": "Maîtrise",
+        "de": "Meisterschaft",
+        "es": "Maestría",
+        "pt-BR": "Maestria",
+        "th": "Mastery",
+        "id": "Mastery"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Mastery"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "9": {
+      "talentId": 9,
+      "name": "Versatility",
+      "names": {
+        "en": "Versatility",
+        "zh-CN": "全能",
+        "zh-TW": "全能",
+        "ja": "万能",
+        "ko-KR": "만능",
+        "fr": "Polyvalence",
+        "de": "Vielseitigkeit",
+        "es": "Versatilidad",
+        "pt-BR": "Versatilidade",
+        "th": "Versatility",
+        "id": "Versatility"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Versatility"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "20": {
+      "talentId": 20,
+      "name": "Ice Attack",
+      "names": {
+        "en": "Ice Attack",
+        "zh-CN": "冰元素攻击",
+        "zh-TW": "冰元素攻擊",
+        "ja": "氷属性攻撃",
+        "ko-KR": "얼음 원소 공격",
+        "fr": "Attaque de glace",
+        "de": "Eisangriff",
+        "es": "Ataque helado",
+        "pt-BR": "Ataque de Gelo",
+        "th": "โจมตีธาตุน้ำแข็ง",
+        "id": "Ice ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Ice Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i",
+          "/\\b(?:skill|strike|slash|arrow|bolt|blast|barrage|shot|thrust|flame|frost|ice|storm|light)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "21": {
+      "talentId": 21,
+      "name": "Rock Attack",
+      "names": {
+        "en": "Rock Attack",
+        "zh-CN": "岩元素攻击",
+        "zh-TW": "岩元素攻擊",
+        "ja": "岩属性攻撃",
+        "ko-KR": "바위 원소 공격",
+        "fr": "Attaque de roche",
+        "de": "Steinangriff",
+        "es": "Ataque rocoso",
+        "pt-BR": "Ataque de Rocha",
+        "th": "โจมตีธาตุหิน",
+        "id": "Rock ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Rock Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "22": {
+      "talentId": 22,
+      "name": "Thunder Attack",
+      "names": {
+        "en": "Thunder Attack",
+        "zh-CN": "雷元素攻击",
+        "zh-TW": "雷元素攻擊",
+        "ja": "雷属性攻撃",
+        "ko-KR": "번개 원소 공격",
+        "fr": "Attaque de foudre",
+        "de": "Donnerangriff",
+        "es": "Ataque atronador",
+        "pt-BR": "Ataque de Trovão",
+        "th": "โจมตีธาตุสายฟ้า",
+        "id": "Thunder ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Thunder Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "23": {
+      "talentId": 23,
+      "name": "Forest Attack",
+      "names": {
+        "en": "Forest Attack",
+        "zh-CN": "森元素攻击",
+        "zh-TW": "森元素攻擊",
+        "ja": "森属性攻撃",
+        "ko-KR": "나무 원소 공격",
+        "fr": "Attaque de la forêt",
+        "de": "Waldangriff",
+        "es": "Ataque forestal",
+        "pt-BR": "Ataque de Floresta",
+        "th": "โจมตีธาตุป่า",
+        "id": "Forest ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Forest Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "24": {
+      "talentId": 24,
+      "name": "Light Attack",
+      "names": {
+        "en": "Light Attack",
+        "zh-CN": "光元素攻击",
+        "zh-TW": "光元素攻擊",
+        "ja": "光属性攻撃",
+        "ko-KR": "빛 원소 공격",
+        "fr": "Attaque de lumière",
+        "de": "Lichtangriff",
+        "es": "Ataque lumínico",
+        "pt-BR": "Ataque de Luz",
+        "th": "โจมตีธาตุแสง",
+        "id": "Light ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Light Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i",
+          "/\\b(?:skill|strike|slash|arrow|bolt|blast|barrage|shot|thrust|flame|frost|ice|storm|light)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "25": {
+      "talentId": 25,
+      "name": "Dark Attack",
+      "names": {
+        "en": "Dark Attack",
+        "zh-CN": "暗元素攻击",
+        "zh-TW": "暗元素攻擊",
+        "ja": "闇属性攻撃",
+        "ko-KR": "어둠 원소 공격",
+        "fr": "Attaque des ténèbres",
+        "de": "Dunkelangriff",
+        "es": "Ataque oscuro",
+        "pt-BR": "Ataque das Trevas",
+        "th": "โจมตีธาตุมืด",
+        "id": "Dark ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Dark Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "26": {
+      "talentId": 26,
+      "name": "Wind Attack",
+      "names": {
+        "en": "Wind Attack",
+        "zh-CN": "风元素攻击",
+        "zh-TW": "風元素攻擊",
+        "ja": "風属性攻撃",
+        "ko-KR": "바람 원소 공격",
+        "fr": "Attaque du vent",
+        "de": "Windangriff",
+        "es": "Ataque eólico",
+        "pt-BR": "Ataque de Vento",
+        "th": "โจมตีธาตุลม",
+        "id": "Wind ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Wind Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "27": {
+      "talentId": 27,
+      "name": "Fire Attack",
+      "names": {
+        "en": "Fire Attack",
+        "zh-CN": "火元素攻击",
+        "zh-TW": "火元素攻擊",
+        "ja": "火属性攻撃",
+        "ko-KR": "불 원소 공격",
+        "fr": "Attaque de feu",
+        "de": "Feuerangriff",
+        "es": "Ataque ígneo",
+        "pt-BR": "Ataque de Fogo",
+        "th": "โจมตีธาตุไฟ",
+        "id": "Fire ATK"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Fire Attack"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "40": {
+      "talentId": 40,
+      "name": "Crit Chance",
+      "names": {
+        "en": "Crit Chance",
+        "zh-CN": "暴击几率",
+        "zh-TW": "暴擊機率",
+        "ja": "会心率",
+        "ko-KR": "치명타 확률",
+        "fr": "Chances de coups critiques",
+        "de": "Krit-Chance",
+        "es": "Probabilidad de crítico",
+        "pt-BR": "Chance de Crítico",
+        "th": "โอกาส CRIT",
+        "id": "Critical Chance"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Crit Chance"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i",
+          "/\\b(?:cooldown|cd|energy|resource|combo|stack|proc|trigger|chance|summon|companion|wolf|falcon)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [
+        "crit"
+      ],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "41": {
+      "talentId": 41,
+      "name": "Attack Speed",
+      "names": {
+        "en": "Attack Speed",
+        "zh-CN": "攻击速度",
+        "zh-TW": "攻擊速度",
+        "ja": "攻撃速度",
+        "ko-KR": "공격 속도",
+        "fr": "Vitesse d'attaque",
+        "de": "Angriffsgeschwindigkeit",
+        "es": "VEL de ATQ",
+        "pt-BR": "Velocidade de Ataque",
+        "th": "ความเร็วโจมตี",
+        "id": "Attack Speed"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Attack Speed"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "42": {
+      "talentId": 42,
+      "name": "Casting SPD",
+      "names": {
+        "en": "Casting SPD",
+        "zh-CN": "施法速度",
+        "zh-TW": "施法速度",
+        "ja": "発動速度",
+        "ko-KR": "스킬 시전 속도",
+        "fr": "Vitesse d'incantation",
+        "de": "Zauber-GES",
+        "es": "VEL de lanzamiento",
+        "pt-BR": "VEL de Conjuração",
+        "th": "ความเร็วร่ายสกิล",
+        "id": "Cast Speed"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Casting SPD"
+      ],
+      "dpsRelevance": {
+        "affectsDps": false,
+        "status": "unknown-or-noncombat"
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "43": {
+      "talentId": 43,
+      "name": "Skill CD",
+      "names": {
+        "en": "Skill CD",
+        "zh-CN": "技能冷却",
+        "zh-TW": "技能冷卻",
+        "ja": "リキャスト",
+        "ko-KR": "스킬 쿨타임",
+        "fr": "TdR de compétence",
+        "de": "Fähigkeits-AZ",
+        "es": "TdR de habilidad",
+        "pt-BR": "Recarga de Habilidade",
+        "th": "CD สกิล",
+        "id": "Skill Cooldown"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:cooldown|cd|energy|resource|combo|stack|proc|trigger|chance|summon|companion|wolf|falcon)\\b/i",
+          "/\\b(?:skill|strike|slash|arrow|bolt|blast|barrage|shot|thrust|flame|frost|ice|storm|light)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "44": {
+      "talentId": 44,
+      "name": "Luck Chance",
+      "names": {
+        "en": "Luck Chance",
+        "zh-CN": "幸运几率",
+        "zh-TW": "幸運機率",
+        "ja": "幸運確率",
+        "ko-KR": "행운 확률",
+        "fr": "Taux de chance",
+        "de": "Glückschance",
+        "es": "Probabilidad de suerte",
+        "pt-BR": "Chance de Sorte",
+        "th": "โอกาส Lucky",
+        "id": "Lucky Chance"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Luck Chance"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i",
+          "/\\b(?:cooldown|cd|energy|resource|combo|stack|proc|trigger|chance|summon|companion|wolf|falcon)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [
+        "lucky"
+      ],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "45": {
+      "talentId": 45,
+      "name": "Crit DMG",
+      "names": {
+        "en": "Crit DMG",
+        "zh-CN": "暴击伤害",
+        "zh-TW": "暴擊傷害",
+        "ja": "会心ダメージ",
+        "ko-KR": "치명타 대미지",
+        "fr": "Dégâts critiques",
+        "de": "Krit-SCH",
+        "es": "DÑO crítico",
+        "pt-BR": "Dano Crítico",
+        "th": "CRIT DMG",
+        "id": "Crit DMG"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [
+        "crit"
+      ],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "46": {
+      "talentId": 46,
+      "name": "Luck Damage",
+      "names": {
+        "en": "Luck Damage",
+        "zh-CN": "幸运伤害",
+        "zh-TW": "幸運傷害",
+        "ja": "幸運ダメージ",
+        "ko-KR": "행운 대미지",
+        "fr": "Dégâts de chance",
+        "de": "Glücksschaden",
+        "es": "Daño de suerte",
+        "pt-BR": "Dano de Sorte",
+        "th": "DMG Lucky",
+        "id": "Lucky DMG"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Luck Damage"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i",
+          "/\\b(?:cooldown|cd|energy|resource|combo|stack|proc|trigger|chance|summon|companion|wolf|falcon)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [
+        "lucky"
+      ],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "47": {
+      "talentId": 47,
+      "name": "Healing",
+      "names": {
+        "en": "Healing",
+        "zh-CN": "治疗效果",
+        "zh-TW": "治療效果",
+        "ja": "回復効果",
+        "ko-KR": "치료 효과",
+        "fr": "Soins",
+        "de": "Heilung",
+        "es": "Curación",
+        "pt-BR": "Cura",
+        "th": "เอฟเฟกต์ Heal",
+        "id": "Healing Effect"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Healing"
+      ],
+      "dpsRelevance": {
+        "affectsDps": false,
+        "status": "defensive-or-healing-only",
+        "defensiveReasons": [
+          "/\\b(?:hp|shield|barrier|heal|healing|lifesteal|damage taken|dmg taken|reduction|resistance \\+)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "48": {
+      "talentId": 48,
+      "name": "Shield DMG Reduction",
+      "names": {
+        "en": "Shield DMG Reduction",
+        "zh-CN": "护盾减伤",
+        "zh-TW": "護盾減傷",
+        "ja": "バリアダメージ軽減",
+        "ko-KR": "실드 대미지 감소",
+        "fr": "Réduction de dégâts de bouclier",
+        "de": "Schild-SCH-Reduktion",
+        "es": "Reducción de DÑO de escudo",
+        "pt-BR": "Redução de Dano de Escudo",
+        "th": "ลด DMG โล่",
+        "id": "Shield DR"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Shield DMG Reduction"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-mixed-or-offensive",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ],
+        "defensiveReasons": [
+          "/\\b(?:hp|shield|barrier|heal|healing|lifesteal|damage taken|dmg taken|reduction|resistance \\+)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "49": {
+      "talentId": 49,
+      "name": "Block DMG Reduction",
+      "names": {
+        "en": "Block DMG Reduction",
+        "zh-CN": "格挡减伤",
+        "zh-TW": "格擋減傷",
+        "ja": "レジストダメージ軽減",
+        "ko-KR": "막기 대미지 감소",
+        "fr": "Réduction de dégâts de blocage",
+        "de": "Block-SCH-Reduktion",
+        "es": "Reducción de DÑO de bloqueo",
+        "pt-BR": "Redução de Dano por Bloqueio",
+        "th": "ลด DMG บล็อก",
+        "id": "Block DR"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Block DMG Reduction"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-mixed-or-offensive",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ],
+        "defensiveReasons": [
+          "/\\b(?:hp|shield|barrier|heal|healing|lifesteal|damage taken|dmg taken|reduction|resistance \\+)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "50": {
+      "talentId": 50,
+      "name": "Universal Damage Bonus",
+      "names": {
+        "en": "Universal Damage Bonus",
+        "zh-CN": "全能增伤",
+        "zh-TW": "全能增傷",
+        "ja": "全能ダメージボーナス",
+        "ko-KR": "만능 대미지 증가",
+        "fr": "Bonus de dégâts universel",
+        "de": "Allgemeiner Schadensbonus",
+        "es": "Bonus de daño universal",
+        "pt-BR": "Bônus de Dano Universal",
+        "th": "Universal Damage Bonus",
+        "id": "All-Power DMG UP"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Universal Damage Bonus"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "51": {
+      "talentId": 51,
+      "name": "Universal DMG Reduction",
+      "names": {
+        "en": "Universal DMG Reduction",
+        "zh-CN": "全能减伤",
+        "zh-TW": "全能減傷",
+        "ja": "全能ダメージ軽減",
+        "ko-KR": "만능 대미지 감소",
+        "fr": "Réduction de dégâts universelle",
+        "de": "Allgemeine SCH-Reduktion",
+        "es": "Reducción de DÑO universal",
+        "pt-BR": "Redução de Dano Universal",
+        "th": "Universal Defense",
+        "id": "All-Power DR"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Universal DMG Reduction"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-mixed-or-offensive",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i",
+          "/\\b(?:armor|defen[cs]e|resistance|penetration|elemental|strength|intellect|agility)\\b/i"
+        ],
+        "defensiveReasons": [
+          "/\\b(?:hp|shield|barrier|heal|healing|lifesteal|damage taken|dmg taken|reduction|resistance \\+)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "52": {
+      "talentId": 52,
+      "name": "Vulnerability factor",
+      "names": {
+        "en": "Vulnerability factor",
+        "zh-CN": "易伤强度",
+        "zh-TW": "易傷強度",
+        "ja": "脆弱度",
+        "ko-KR": "취약 강도",
+        "fr": "Facteur de vulnérabilité",
+        "de": "Verwundbarkeitsfaktor",
+        "es": "Factor de vulnerabilidad",
+        "pt-BR": "Fator de Vulnerabilidade",
+        "th": "ความแรง DMG",
+        "id": "Vulnerability Boost"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Vulnerability factor"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "53": {
+      "talentId": 53,
+      "name": "Vulnerability Damage Bonus",
+      "names": {
+        "en": "Vulnerability Damage Bonus",
+        "zh-CN": "易伤增伤",
+        "zh-TW": "易傷增傷",
+        "ja": "脆弱ダメージボーナス",
+        "ko-KR": "취약 대미지 증가",
+        "fr": "Bonus de dégâts de vulnérabilité",
+        "de": "Verwundbarkeits-Schadensbonus",
+        "es": "Bonus de daño por vulnerabilidad",
+        "pt-BR": "Bônus de Dano de Vulnerabilidade",
+        "th": "เพิ่ม DMG เจ็บง่าย",
+        "id": "Vulnerable DMG Up"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Vulnerability Damage Bonus"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "54": {
+      "talentId": 54,
+      "name": "Suppress Damage Bonus",
+      "names": {
+        "en": "Suppress Damage Bonus",
+        "zh-CN": "压制增伤",
+        "zh-TW": "壓制增傷",
+        "ja": "抑圧ダメージボーナス",
+        "ko-KR": "제압 대미지 증가",
+        "fr": "Bonus de dégâts de suppression",
+        "de": "Unterdrückungs-Schadensbonus",
+        "es": "Bonus de daño por supresión",
+        "pt-BR": "Bônus de Dano de Supressão",
+        "th": "เพิ่ม DMG Suppress",
+        "id": "Suppression DMG Up"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Suppress Damage Bonus"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "55": {
+      "talentId": 55,
+      "name": "Suppress DMG Reduction",
+      "names": {
+        "en": "Suppress DMG Reduction",
+        "zh-CN": "压制减伤",
+        "zh-TW": "壓制減傷",
+        "ja": "抑圧ダメージ軽減",
+        "ko-KR": "제압 대미지 감소",
+        "fr": "Réduction de dégâts de suppression",
+        "de": "Unterdrückung-SCH-Reduktion",
+        "es": "Reducción de DÑO contra supresión",
+        "pt-BR": "Redução de Dano de Supressão",
+        "th": "ลด DMG Suppress",
+        "id": "Suppress DR"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Suppress DMG Reduction"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-mixed-or-offensive",
+        "reasons": [
+          "/\\b(?:dmg|damage|atk|matk|attack|crit|critical|haste|lucky|luck|mastery|versatility)\\b/i"
+        ],
+        "defensiveReasons": [
+          "/\\b(?:hp|shield|barrier|heal|healing|lifesteal|damage taken|dmg taken|reduction|resistance \\+)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "56": {
+      "talentId": 56,
+      "name": "Inspiring Effect",
+      "names": {
+        "en": "Inspiring Effect",
+        "zh-CN": "鼓舞效果",
+        "zh-TW": "鼓舞效果",
+        "ja": "鼓舞効果",
+        "ko-KR": "고무 효과",
+        "fr": "Effet inspirant",
+        "de": "Inspirierender Effekt",
+        "es": "Efecto inspirador",
+        "pt-BR": "Efeito Inspirador",
+        "th": "เอฟเฟกต์ Inspire",
+        "id": "Inspiration Effect"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Inspiring Effect"
+      ],
+      "dpsRelevance": {
+        "affectsDps": false,
+        "status": "unknown-or-noncombat"
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    },
+    "57": {
+      "talentId": 57,
+      "name": "Ignore Defense",
+      "names": {
+        "en": "Ignore Defense",
+        "zh-CN": "忽视防御",
+        "zh-TW": "忽視防禦",
+        "ja": "防御無視",
+        "ko-KR": "방어 무시",
+        "fr": "Pénétration de défense",
+        "de": "Verteidigung ignorieren",
+        "es": "Ignorar defensa",
+        "pt-BR": "Ignorar Defesa",
+        "th": "ไม่สนป้องกัน",
+        "id": "Ignore Defense"
+      },
+      "classId": 0,
+      "className": null,
+      "classNames": {},
+      "specIds": [],
+      "specs": [],
+      "ownershipKind": "class-wide-candidate",
+      "ownershipStatus": "unresolved-class-bucket",
+      "confidence": 0,
+      "hardFilterEligible": false,
+      "sourceBuffIds": [],
+      "linkedTerms": [
+        "Ignore Defense"
+      ],
+      "dpsRelevance": {
+        "affectsDps": true,
+        "status": "combat-effect-offensive-or-timing",
+        "reasons": [
+          "/\\b(?:armor|defen[cs]e|resistance|penetration|elemental|strength|intellect|agility)\\b/i"
+        ]
+      },
+      "description": null,
+      "descriptions": null,
+      "descriptionParagraphs": [],
+      "descriptionParagraphsByLocale": {},
+      "valueTexts": [],
+      "semanticTags": [],
+      "cooldownRuleCandidates": [],
+      "evidence": {
+        "ownershipSource": "TalentSpecOwnership.json",
+        "descriptionBuffIds": [],
+        "descriptionRows": []
+      }
+    }
+  }
+}

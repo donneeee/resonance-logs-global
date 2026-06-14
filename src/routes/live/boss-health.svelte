@@ -21,6 +21,8 @@
     sceneName: null,
     trainingDummy: {
       phase: "idle",
+      durationMs: 180_000,
+      remainingMs: 0,
     },
   });
 

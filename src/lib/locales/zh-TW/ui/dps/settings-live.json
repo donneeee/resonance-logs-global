@@ -74,5 +74,13 @@
   "autoHideOverlaysWithLiveWindowDescription": "啟用「自動隱藏即時視窗」後，即時計量表隱藏時會一起隱藏目前可見的遊戲/怪物疊加層，並只恢復自動隱藏前原本可見的疊加層。",
   "autoHideLiveWindowDelaySeconds": "自動隱藏延遲",
   "autoHideLiveWindowDelaySecondsDescription": "沒有偵測到新傷害後，等待多少秒再隱藏即時計量表。設為 0 可立即隱藏。",
-  "secondsUnit": "秒"
+  "secondsUnit": "秒",
+  "trainingDummyTimerLimitEnabled": "打樁計時器",
+  "trainingDummyTimerLimitEnabledDescription": "使用固定的打樁分段計時。即時計時器會倒數，歸零時結束本段。",
+  "trainingDummySegmentDurationSeconds": "打樁時長",
+  "trainingDummySegmentDurationSecondsDescription": "設定打樁分段長度。預設：180 秒。",
+  "showPlayerImagineBadges": "戰鬥幻象徽章",
+  "showPlayerImagineBadgesDescription": "在職業圖示旁顯示已裝備的戰鬥幻象徽章。",
+  "showOceanWeaponBadge": "遠海武器徽章",
+  "showOceanWeaponBadgeDescription": "偵測到遠海武器時在玩家名稱前顯示徽章。"
 }

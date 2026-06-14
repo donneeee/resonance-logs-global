@@ -654,7 +654,7 @@
 		{/if}
 	</div>
 
-	<div class="history-sticky-frame rounded border border-border/60 bg-card/30 relative">
+	<div class="history-sticky-frame rounded border border-border/60 bg-card relative">
 		<div class="absolute top-2 right-3 z-10">
 			<button
 				onclick={() => loadEncounters(page)}
@@ -877,32 +877,83 @@
 
 <style>
 	:global(.history-sticky-frame) {
+		--history-sticky-header-height: 44px;
+		--history-sticky-frame-bg: var(--card);
+		--history-sticky-header-bg: var(--popover);
+		--history-sticky-border-color: var(--border);
 		max-height: min(72vh, calc(100dvh - 260px));
 		min-height: 0;
 		overflow: auto;
 		overscroll-behavior: contain;
 		position: relative;
 		isolation: isolate;
+		background: var(--history-sticky-frame-bg) !important;
 	}
 
 	:global(.history-sticky-table) {
 		border-collapse: separate;
 		border-spacing: 0;
+		position: relative;
 	}
 
 	:global(.history-sticky-table th) {
 		position: sticky;
 		top: 0;
-		z-index: 60;
+		z-index: 43;
+		isolation: isolate;
+		transform: translateZ(0);
 	}
 
 	:global(.history-sticky-table thead tr),
 	:global(.history-sticky-table th) {
-		background: hsl(var(--popover));
+		background: var(--history-sticky-header-bg) !important;
+		background-color: var(--history-sticky-header-bg) !important;
 	}
 
 	:global(.history-sticky-table th) {
-		box-shadow: 0 1px 0 hsl(var(--border) / 0.6);
+		background-clip: border-box;
+		background-image: linear-gradient(var(--history-sticky-header-bg), var(--history-sticky-header-bg)) !important;
+		box-shadow: 0 1px 0 var(--history-sticky-border-color);
+	}
+
+	:global(.history-sticky-table thead::before) {
+		content: "";
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		background-color: var(--history-sticky-header-bg) !important;
+		pointer-events: none;
+	}
+
+	:global(.history-sticky-table thead) {
+		position: sticky;
+		top: 0;
+		z-index: 38;
+		isolation: isolate;
+		transform: translateZ(0);
+		background: var(--history-sticky-header-bg) !important;
+		background-color: var(--history-sticky-header-bg) !important;
+		box-shadow: 0 1px 0 var(--history-sticky-border-color);
+	}
+
+	:global(.history-sticky-table thead tr) {
+		position: relative;
+		z-index: 41;
+	}
+
+	:global(.history-sticky-table tbody),
+	:global(.history-sticky-table tbody tr) {
+		position: relative;
+		z-index: 0 !important;
+	}
+
+	:global(.history-sticky-table tbody td) {
+		position: relative;
+		z-index: 0 !important;
+	}
+
+	:global(.history-sticky-table tbody td.absolute) {
+		z-index: 0 !important;
 	}
 </style>
 

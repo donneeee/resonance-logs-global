@@ -1,4 +1,6 @@
 <script lang="ts">
+  import { convertFileSrc } from "@tauri-apps/api/core";
+
   type BackgroundImageMode = "cover" | "contain" | "fit-width";
 
   let {
@@ -15,7 +17,20 @@
     opacity?: number;
   } = $props();
 
-  const visible = $derived(enabled && image.length > 0);
+  const renderedImage = $derived.by(() => {
+    const source = image.trim();
+    if (!source) return "";
+    if (/^(data:|blob:|https?:|asset:|tauri:)/i.test(source)) {
+      return source;
+    }
+    try {
+      return convertFileSrc(source);
+    } catch (error) {
+      console.warn("Failed to convert background image path", error);
+      return source;
+    }
+  });
+  const visible = $derived(enabled && renderedImage.length > 0);
   const normalizedOpacity = $derived(Math.max(0, Math.min(100, opacity)) / 100);
   const layerStyle = $derived.by(() => {
     if (!visible) return "";
@@ -24,7 +39,7 @@
 
     return [
       `opacity: ${normalizedOpacity}`,
-      `background-image: url("${image}")`,
+      `background-image: url("${renderedImage.replace(/"/g, "%22")}")`,
       `background-size: ${size}`,
       `background-position: ${position}`,
       "background-repeat: no-repeat",

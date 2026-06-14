@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "generatedBy": "ModifierDisplayTable.gen",
-  "generatedAt": "2026-05-28T21:24:29.910Z",
+  "generatedAt": "2026-06-09T10:48:37.857Z",
   "sourcesByRuleId": {
     "mrs:10821ca3d6ef": {
       "sourceId": "buff-source:1401",
@@ -29,14 +29,10 @@
         "en": "Blazing Swing",
         "zh-CN": "炽热挥击",
         "zh-TW": "熾熱揮擊",
-        "ja": "狂熱の斬撃",
-        "ko-KR": "광열의 참격",
         "fr": "Frappe ardente",
         "de": "Lodernder Schwung",
         "es": "Golpe Abrasador",
         "pt-BR": "Golpe Flamejante",
-        "th": "ฟันอย่างบ้าคลั่ง",
-        "id": "Zealous Slash",
         "design": "水剑粒子显示"
       },
       "iconPath": "ui/textures/skill_weapon_sf/weapon_sf-01_atk"
@@ -92,14 +88,10 @@
         "en": "Resonant Strings",
         "zh-CN": "琴弦撩拨",
         "zh-TW": "琴弦撩撥",
-        "ja": "アレグロヴィヴァーチェ",
-        "ko-KR": "승격・객석 순회",
         "fr": "Cordes résonnantes",
         "de": "Schwingende Saiten",
         "es": "Cuerdas Resonantes",
         "pt-BR": "Cordas Ressonantes",
-        "th": "Concert Circuit",
-        "id": "Boost - Tour Song",
         "design": "水剑释放随身特效"
       },
       "iconPath": "ui/textures/skill_weapon_jt/weapon_jt-01_atk"
@@ -111,14 +103,10 @@
         "en": "Blade of Justice",
         "zh-CN": "公正之剑",
         "zh-TW": "公正之劍",
-        "ja": "グローイングガード",
-        "ko-KR": "선봉 타격",
         "fr": "Lame de justice",
         "de": "Klinge der Gerechtigkeit",
         "es": "Hoja Justiciera",
         "pt-BR": "Lâmina da Justiça",
-        "th": "Vanguard Strike",
-        "id": "Vanguard Strike",
         "design": "冰剑释放随身特效"
       },
       "iconPath": "ui/textures/skill_weapon_jd/weapon_jd-01_atk"
@@ -214,14 +202,10 @@
         "en": "Arcane! Flame Roar",
         "zh-CN": "奥义！琉火咆哮",
         "zh-TW": "奧義！琉火咆哮",
-        "ja": "奥義！サイレントサージ",
-        "ko-KR": "오의! 고요한 조수",
         "fr": "Arcane ! Rugissement de flammes",
         "de": "Arkana! Flammenbrüllen",
         "es": "¡Arcano! Rugido Flamígero",
         "pt-BR": "Arcano! Rugido das Chamas",
-        "th": "Arcane! Silent Tide",
-        "id": "Arcane! Silent Tide",
         "design": "恶火后裔切换标记Buff"
       },
       "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_017"
@@ -241,7 +225,7 @@
       },
       "iconPath": "ui/textures/skill_hideseek/skill_aoyi_icon_hide_005"
     },
-    "mrs:edcb4697c628": {
+    "mrs:3bfebbcf0a6e": {
       "sourceId": "buff-source:4501",
       "sourceName": "Burn",
       "sourceNames": {
@@ -317,16 +301,13 @@
         "en": "Stunt! Lightning Orb",
         "zh-CN": "绝技！雷光球",
         "zh-TW": "絕技！雷光球",
-        "ja": "絶技！マグネボム",
-        "ko-KR": "비기! 마그네틱 폭탄",
         "fr": "Acrobatie ! Orbe de foudre",
         "de": "Stunt! Blitzkugel",
         "es": "¡Proeza! Orbe del Rayo",
         "pt-BR": "Proeza! Orbe de Raio",
-        "th": "Stunt! Electro Bomb",
-        "id": "Ultimate! Electro Bomb",
         "design": "光翼展开"
-      }
+      },
+      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_043"
     },
     "mrs:c9928916bddc": {
       "sourceId": "buff-source:12201",
@@ -349,14 +330,10 @@
         "en": "Life Bloom",
         "zh-CN": "生命绽放",
         "zh-TW": "生命綻放",
-        "ja": "フェラルシード",
-        "ko-KR": "자유의 씨앗",
         "fr": "Floraison vitale",
         "de": "Lebensblüte",
         "es": "Brote Vital",
         "pt-BR": "Florescer da Vida",
-        "th": "Feral Seed",
-        "id": "Rebellious Seed",
         "design": "治愈效果"
       }
     },
@@ -374,14 +351,10 @@
         "en": "Life Bloom",
         "zh-CN": "生命绽放",
         "zh-TW": "生命綻放",
-        "ja": "フェラルシード",
-        "ko-KR": "자유의 씨앗",
         "fr": "Floraison vitale",
         "de": "Lebensblüte",
         "es": "Brote Vital",
         "pt-BR": "Florescer da Vida",
-        "th": "Feral Seed",
-        "id": "Rebellious Seed",
         "design": "种子命中回复生命值"
       }
     },
@@ -397,7 +370,8 @@
       "sourceName": "艾露娜大招种子生效",
       "sourceNames": {
         "design": "艾露娜大招种子生效"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_abnormal_green_icon"
     },
     "mrs:612be3d2b801": {
       "sourceId": "buff-source:21402",
@@ -406,16 +380,13 @@
         "en": "Wild Bloom",
         "zh-CN": "狂野绽放",
         "zh-TW": "狂野綻放",
-        "ja": "ライフサージ",
-        "ko-KR": "넘치는 생기",
         "fr": "Floraison sauvage",
         "de": "Wilde Blüte",
         "es": "Brote Salvaje",
         "pt-BR": "Florescer Selvagem",
-        "th": "Vital Surge",
-        "id": "Vital Surge",
         "design": "特殊攻击治疗"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_abnormal_green_icon"
     },
     "mrs:5030a81d2b54": {
       "sourceId": "buff-source:21404",
@@ -441,66 +412,99 @@
       "sourceName": "移动丢种子",
       "sourceNames": {
         "design": "移动丢种子"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_abnormal_green_icon"
     },
     "mrs:a78ccf314a88": {
       "sourceId": "buff-source:21406",
       "sourceName": "恢复",
       "sourceNames": {
         "design": "恢复"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_abnormal_green_icon"
     },
     "mrs:aae84120389e": {
       "sourceId": "buff-source:21407",
       "sourceName": "盛开",
       "sourceNames": {
         "design": "盛开"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_abnormal_green_icon"
     },
-    "mrs:415f5e6e3469": {
+    "mrs:3fd4c545d564": {
       "sourceId": "buff-source:21411",
       "sourceName": "护盾",
       "sourceNames": {
         "design": "护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_370101"
     },
-    "mrs:c3791c83cdcf": {
+    "mrs:27f7c1a7bc9e": {
+      "sourceId": "buff-source:21412",
+      "sourceName": "Fast Growth",
+      "sourceNames": {
+        "en": "Fast Growth",
+        "zh-CN": "加速生长",
+        "zh-TW": "加速生長",
+        "ja": "ファストグロウス",
+        "ko-KR": "가속 성장",
+        "fr": "Croissance rapide",
+        "de": "Schnelles Wachstum",
+        "es": "Crecimiento Rápido",
+        "pt-BR": "Crescimento Rápido",
+        "th": "Fast Growth",
+        "id": "Accelerated Growth",
+        "design": "减CD"
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_370101"
+    },
+    "mrs:8089ffd0230f": {
+      "sourceId": "talent:562",
+      "sourceName": "Energy Arcane",
+      "sourceNames": {
+        "en": "Energy Arcane",
+        "zh-CN": "能量勃发",
+        "zh-TW": "能量勃發",
+        "ja": "エネルギー発生",
+        "ko-KR": "왕성한 에너지",
+        "fr": "Énergie arcanique",
+        "de": "Arkane Energie",
+        "es": "Energía Arcana",
+        "pt-BR": "Energia Arcana",
+        "th": "การระเบิดของพลังงาน",
+        "id": "Energy Burst"
+      },
+      "iconPath": "ui/atlas/talent_passive_5/fahuan562"
+    },
+    "mrs:4690bfced548": {
       "sourceId": "buff-source:21414",
       "sourceName": "Divine Circle Bloom",
       "sourceNames": {
         "en": "Divine Circle Bloom",
         "zh-CN": "繁盛·希望结界",
         "zh-TW": "繁盛·希望結界",
-        "ja": "リジェネレーション",
-        "ko-KR": "양분 주기",
         "fr": "Floraison du cercle divin",
         "de": "Göttliche Kreisblüte",
         "es": "Brote del Círculo Divino",
         "pt-BR": "Florescer do Círculo Divino",
-        "th": "Nourish",
-        "id": "Nourishment",
         "design": "庇护领域带草"
       },
-      "iconPath": "ui/textures/skill_weapon_fh/weapon_fh-01_ult"
+      "iconPath": "ui/atlas/buff/buff_talent_skill_370101"
     },
-    "mrs:24c41dda072c": {
+    "mrs:53fe38350951": {
       "sourceId": "buff-source:21418",
       "sourceName": "Stag Charge",
       "sourceNames": {
         "en": "Stag Charge",
         "zh-CN": "鹿之奔袭",
         "zh-TW": "鹿之奔襲",
-        "ja": "自然防壁",
-        "ko-KR": "자연 실드",
         "fr": "Charge du cerf",
         "de": "Hirschangriff",
         "es": "Carga de Ciervo",
         "pt-BR": "Investida do Cervo",
-        "th": "Nature Shield",
-        "id": "Nature Shield",
         "design": "治愈效果"
       },
-      "iconPath": "ui/textures/skill_weapon_fh/weapon_fh_skill_atk"
+      "iconPath": "ui/atlas/buff/buff_talent_skill_370101"
     },
     "mrs:f2bb4ef08c33": {
       "sourceId": "talent:533",
@@ -538,7 +542,7 @@
       },
       "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
-    "mrs:7ca7b1f4069a": {
+    "mrs:73ba2f1918bf": {
       "sourceId": "buff-source:21423",
       "sourceName": "Symbiotic Mark",
       "sourceNames": {
@@ -563,16 +567,13 @@
         "en": "Thorn",
         "zh-CN": "荆棘",
         "zh-TW": "荊棘",
-        "ja": "ストロークビート",
-        "ko-KR": "스트링 슬랩",
         "fr": "Épine",
         "de": "Dorn",
         "es": "Espina",
         "pt-BR": "Espinho",
-        "th": "String Strike",
-        "id": "String Strike",
         "design": "荆棘"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_cd"
     },
     "mrs:4f839f8a7d34": {
       "sourceId": "buff-source:21425",
@@ -581,17 +582,13 @@
         "en": "Regen Pulse",
         "zh-CN": "再生脉冲",
         "zh-TW": "再生脈衝",
-        "ja": "ネイチャーワード",
-        "ko-KR": "자연의 가호",
         "fr": "Impulsion régénérante",
         "de": "Regenerationsimpuls",
         "es": "Pulso Regenerativo",
         "pt-BR": "Pulso de Regeneração",
-        "th": "Nature Ward",
-        "id": "Nature's Shelter",
         "design": "奶环自愈"
       },
-      "iconPath": "ui/textures/skill_weapon_fh/weapon_fh_skill_atk"
+      "iconPath": "ui/atlas/hud/buff/buff_blue_cd"
     },
     "mrs:bfdc9928a5f5": {
       "sourceId": "buff-source:21427",
@@ -600,16 +597,13 @@
         "en": "Healing of Stillness",
         "zh-CN": "休止的治愈",
         "zh-TW": "休止的治癒",
-        "ja": "熾烈なる昇天",
-        "ko-KR": "작열 승천",
         "fr": "Guérison du calme",
         "de": "Heilung der Stille",
         "es": "Curación de Quietud",
         "pt-BR": "Cura da Quietude",
-        "th": "โหมไฟลุกโชน",
-        "id": "Inferno Soar",
         "design": "普攻1段回血"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_cd"
     },
     "mrs:a78f57df53c6": {
       "sourceId": "buff-source:21428",
@@ -618,16 +612,13 @@
         "en": "Healing of Stillness",
         "zh-CN": "休止的治愈",
         "zh-TW": "休止的治癒",
-        "ja": "熾烈なる昇天",
-        "ko-KR": "작열 승천",
         "fr": "Guérison du calme",
         "de": "Heilung der Stille",
         "es": "Curación de Quietud",
         "pt-BR": "Cura da Quietude",
-        "th": "โหมไฟลุกโชน",
-        "id": "Inferno Soar",
         "design": "普攻2段回血"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_cd"
     },
     "mrs:f3040d7ae801": {
       "sourceId": "buff-source:21429",
@@ -636,16 +627,13 @@
         "en": "Healing of Stillness",
         "zh-CN": "休止的治愈",
         "zh-TW": "休止的治癒",
-        "ja": "熾烈なる昇天",
-        "ko-KR": "작열 승천",
         "fr": "Guérison du calme",
         "de": "Heilung der Stille",
         "es": "Curación de Quietud",
         "pt-BR": "Cura da Quietude",
-        "th": "โหมไฟลุกโชน",
-        "id": "Inferno Soar",
         "design": "普攻3段回血"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_cd"
     },
     "mrs:fd6347678bf8": {
       "sourceId": "buff-source:21430",
@@ -654,16 +642,13 @@
         "en": "Healing of Stillness",
         "zh-CN": "休止的治愈",
         "zh-TW": "休止的治癒",
-        "ja": "熾烈なる昇天",
-        "ko-KR": "작열 승천",
         "fr": "Guérison du calme",
         "de": "Heilung der Stille",
         "es": "Curación de Quietud",
         "pt-BR": "Cura da Quietude",
-        "th": "โหมไฟลุกโชน",
-        "id": "Inferno Soar",
         "design": "普攻4段回血"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_cd"
     },
     "mrs:08144fdf274c": {
       "sourceId": "buff-source:27007",
@@ -881,7 +866,7 @@
         "id": "Ice Shelter",
         "design": "冰箱BUFF"
       },
-      "iconPath": "ui/textures/skill_weapon_mz/weapon_mz-01_kx02"
+      "iconPath": "ui/atlas/hud/buff/buff_blue_cd"
     },
     "mrs:aaeae434dd2f": {
       "sourceId": "buff-source:30101",
@@ -1023,7 +1008,8 @@
         "th": "ขวานสายลม",
         "id": "Axewind",
         "design": "狂热斩击吸血效果"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon141"
     },
     "mrs:dcc9cd77bc28": {
       "sourceId": "buff-source:35105",
@@ -1041,9 +1027,10 @@
         "th": "ดาวตกเพลิงดิน",
         "id": "Earthfire Meteor",
         "design": "如川流华斩伤转"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon141"
     },
-    "mrs:1f6ab46c0d78": {
+    "mrs:63b22ce84cbe": {
       "sourceId": "buff-source:35106",
       "sourceName": "Life Steal",
       "sourceNames": {
@@ -1069,16 +1056,13 @@
         "en": "Formless Flame Slash.",
         "zh-CN": "无相火斩",
         "zh-TW": "無相火斬",
-        "ja": "絶技！ハントスラッシュ",
-        "ko-KR": "비기! 추격의 참격",
         "fr": "Taillade de flamme informe.",
         "de": "Formloser Flammenhieb.",
         "es": "Corte de Llama Amorfa",
         "pt-BR": "Corte de Chama Informe.",
-        "th": "Stunt! Predator Slash",
-        "id": "Ultimate! Hunter Slash",
         "design": "塔塔一刀流"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon141"
     },
     "mrs:f93998501934": {
       "sourceId": "buff-source:35108",
@@ -1087,16 +1071,13 @@
         "en": "Formless Flame Slash.",
         "zh-CN": "无相火斩",
         "zh-TW": "無相火斬",
-        "ja": "絶技！ハントスラッシュ",
-        "ko-KR": "비기! 추격의 참격",
         "fr": "Taillade de flamme informe.",
         "de": "Formloser Flammenhieb.",
         "es": "Corte de Llama Amorfa",
         "pt-BR": "Corte de Chama Informe.",
-        "th": "Stunt! Predator Slash",
-        "id": "Ultimate! Hunter Slash",
         "design": "塔塔二刀流"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon141"
     },
     "mrs:c2f58094c1ff": {
       "sourceId": "buff-source:35109",
@@ -1105,16 +1086,13 @@
         "en": "Formless Flame Slash.",
         "zh-CN": "无相火斩",
         "zh-TW": "無相火斬",
-        "ja": "絶技！ハントスラッシュ",
-        "ko-KR": "비기! 추격의 참격",
         "fr": "Taillade de flamme informe.",
         "de": "Formloser Flammenhieb.",
         "es": "Corte de Llama Amorfa",
         "pt-BR": "Corte de Chama Informe.",
-        "th": "Stunt! Predator Slash",
-        "id": "Ultimate! Hunter Slash",
         "design": "塔塔三刀流"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon141"
     },
     "mrs:bf4c30d9d08e": {
       "sourceId": "buff-source:40013",
@@ -1290,7 +1268,8 @@
       "sourceName": "陶洛斯导弹BUFF",
       "sourceNames": {
         "design": "陶洛斯导弹BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_electricity"
     },
     "mrs:6f4836a9df42": {
       "sourceId": "buff-source:45300",
@@ -1299,17 +1278,13 @@
         "en": "Arcane! Illusion Resonance",
         "zh-CN": "奥义！幻象共鸣",
         "zh-TW": "奧義！幻象共鳴",
-        "ja": "奥義！甘藍ヘビーハンマー",
-        "ko-KR": "오의! 양배추 무거운 망치",
         "fr": "Arcane ! Résonance illusoire",
         "de": "Arkana! Illusionsresonanz",
         "es": "¡Arcano! Resonancia Ilusoria",
         "pt-BR": "Arcano! Ressonância da Ilusão",
-        "th": "Arcane! ค้อนยักษ์กะหล่ำปลี",
-        "id": "Arcane! Cabbage Hammer",
         "design": "连锁闪电测试BUFF"
       },
-      "iconPath": "ui/textures/skill_weapon_cannongun/weapon_cannongun_skill_01"
+      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_053"
     },
     "mrs:796c7a10d5b3": {
       "sourceId": "buff-source:45301",
@@ -1337,7 +1312,8 @@
       "sourceName": "根据护盾结算一次范围伤害",
       "sourceNames": {
         "design": "根据护盾结算一次范围伤害"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:648143e625d5": {
       "sourceId": "buff-source:50024",
@@ -1413,19 +1389,21 @@
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_sup_guide"
     },
-    "mrs:3b73c2ccd4a7": {
+    "mrs:c7d5236b0131": {
       "sourceId": "buff-source:50041",
       "sourceName": "特攻B护盾",
       "sourceNames": {
         "design": "特攻B护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_310401"
     },
-    "mrs:153ae62748ae": {
+    "mrs:d66db856fc18": {
       "sourceId": "buff-source:50043",
       "sourceName": "不动如山护盾",
       "sourceNames": {
         "design": "不动如山护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_310401"
     },
     "mrs:b92de18892fc": {
       "sourceId": "buff-source:50049",
@@ -1765,8 +1743,7 @@
         "es": "Persecución de Furia de Granito",
         "pt-BR": "Perseguição da Fúria de Granito",
         "th": "Rock Heal",
-        "id": "Rock Fist Recovery",
-        "design": "岩拳回复"
+        "id": "Rock Fist Recovery"
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_pierce"
     },
@@ -1824,12 +1801,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_sup_guide"
     },
-    "mrs:079f2c48a290": {
+    "mrs:d1649b6988b6": {
       "sourceId": "buff-source:55220",
       "sourceName": "罗特罗亚尼-弓-新天生BUFF",
       "sourceNames": {
         "design": "罗特罗亚尼-弓-新天生BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_general_dps_lightenergycost"
     },
     "mrs:706ab92f4f59": {
       "sourceId": "buff-source:55223",
@@ -1849,6 +1827,43 @@
         "design": "罗特罗亚尼-弓-集中"
       },
       "iconPath": "ui/atlas/buff/buff_talent_skill_310401"
+    },
+    "mrs:133074e86783": {
+      "sourceId": "buff-source:55413",
+      "sourceName": "Radiance",
+      "sourceNames": {
+        "en": "Radiance",
+        "zh-CN": "光明决心",
+        "zh-TW": "光明決心",
+        "ja": "セイクリッドオース",
+        "ko-KR": "결의의 빛",
+        "fr": "Radiance",
+        "de": "Strahlen",
+        "es": "Resplandor",
+        "pt-BR": "Radiância",
+        "th": "Radiance",
+        "id": "Light Resolve"
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
+    },
+    "mrs:9d2c238a397d": {
+      "sourceId": "buff-source:55414",
+      "sourceName": "Radiance",
+      "sourceNames": {
+        "en": "Radiance",
+        "zh-CN": "光明决心",
+        "zh-TW": "光明決心",
+        "ja": "セイクリッドオース",
+        "ko-KR": "결의의 빛",
+        "fr": "Radiance",
+        "de": "Strahlen",
+        "es": "Resplandor",
+        "pt-BR": "Radiância",
+        "th": "Radiance",
+        "id": "Light Resolve",
+        "design": "光明决心层数buff"
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:30d45c434359": {
       "sourceId": "talent:1115",
@@ -1904,7 +1919,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/gongjian1154"
     },
-    "mrs:d38dd2c7f232": {
+    "mrs:37886c2b02c4": {
       "sourceId": "talent:1160",
       "sourceName": "Celestial Eagle",
       "sourceNames": {
@@ -1955,14 +1970,15 @@
         "id": "Explosive Shot",
         "design": "爆炸箭BUFF"
       },
-      "iconPath": "ui/textures/skill_weapon_gj/weapon_gj-01_kx08"
+      "iconPath": "ui/atlas/debuff/debuff_icon_23"
     },
     "mrs:cf5a01d2b829": {
       "sourceId": "buff-source:55234",
       "sourceName": "狼添加流血通用BUFF",
       "sourceNames": {
         "design": "狼添加流血通用BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_23"
     },
     "mrs:47444c9b4348": {
       "sourceId": "buff-source:55235",
@@ -1981,9 +1997,9 @@
         "id": "Lightwill - Quadraflare",
         "design": "强化特攻小箭AOE"
       },
-      "iconPath": "ui/textures/skill_weapon_gj/weapon_gj-01_atk"
+      "iconPath": "ui/atlas/debuff/debuff_icon_23"
     },
-    "mrs:dce829ce8cff": {
+    "mrs:53aa18a9c82b": {
       "sourceId": "talent:1157",
       "sourceName": "Light Energy Stasis",
       "sourceNames": {
@@ -2027,14 +2043,10 @@
         "en": "Rhapsody of Flame",
         "zh-CN": "烈焰狂想",
         "zh-TW": "烈焰狂想",
-        "ja": "バイオレントスイング",
-        "ko-KR": "맹렬한 휘두르기",
         "fr": "Rhapsodie de flammes",
         "de": "Rhapsodie der Flamme",
         "es": "Rapsodia de la Flama",
         "pt-BR": "Rapsódia de Chamas",
-        "th": "Fierce Strike",
-        "id": "Fierce Swing",
         "design": "烈焰幻想回血"
       },
       "iconPath": "ui/textures/skill_weapon_jt/weapon_jt-01_kx01"
@@ -2046,14 +2058,10 @@
         "en": "Healing Beat",
         "zh-CN": "愈合节拍",
         "zh-TW": "癒合節拍",
-        "ja": "フレイムラプソディー",
-        "ko-KR": "불꽃의 랩소디",
         "fr": "Rythme de soin",
         "de": "Heilender Takt",
         "es": "Ritmo Curador",
         "pt-BR": "Batida Curativa",
-        "th": "Rhapsody of Flame",
-        "id": "Flame Fantasy",
         "design": "特攻B回血"
       }
     },
@@ -2064,14 +2072,10 @@
         "en": "Fivefold Crescendo",
         "zh-CN": "激涌五重奏",
         "zh-TW": "激湧五重奏",
-        "ja": "スポットライト",
-        "ko-KR": "어텐션",
         "fr": "Crescendo quintuple",
         "de": "Fünffaches Crescendo",
         "es": "Crescendo Quíntuple",
         "pt-BR": "Crescendo Quíntuplo",
-        "th": "Center Stage",
-        "id": "Crowd Focus",
         "design": "激涌五重奏治疗"
       },
       "iconPath": "ui/textures/skill_weapon_jt/weapon_jt-01_kx05"
@@ -2097,16 +2101,13 @@
         "en": "Peaceful Tune",
         "zh-CN": "安和曲",
         "zh-TW": "安和曲",
-        "ja": "烈火衝撃",
-        "ko-KR": "화염 임팩트",
         "fr": "Mélodie paisible",
         "de": "Friedliche Melodie",
         "es": "Melodía Pacífica",
         "pt-BR": "Melodia Pacífica",
-        "th": "Scorching Impact",
-        "id": "Blazing Impact",
         "design": "灵魂乐手天生资源恢复buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon13"
     },
     "mrs:d7ff33c891e4": {
       "sourceId": "buff-source:55314",
@@ -2115,30 +2116,29 @@
         "en": "Encore",
         "zh-CN": "安可",
         "zh-TW": "安可",
-        "ja": "炎癒",
-        "ko-KR": "작염 치유",
         "fr": "Rappel",
         "de": "Zugabe",
         "es": "Bis",
         "pt-BR": "Bis",
-        "th": "Blazing Heal",
-        "id": "Blazing Heal",
         "design": "激流恢复buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon13"
     },
     "mrs:7b184a0b4180": {
       "sourceId": "buff-source:55315",
       "sourceName": "吉他大招衰减护盾",
       "sourceNames": {
         "design": "吉他大招衰减护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon13"
     },
     "mrs:b91bcdf5cd48": {
       "sourceId": "buff-source:55322",
       "sourceName": "音爆删除时扣除受到伤害的10%",
       "sourceNames": {
         "design": "音爆删除时扣除受到伤害的10%"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon21"
     },
     "mrs:9f87846e92c4": {
       "sourceId": "talent:1300",
@@ -2158,19 +2158,202 @@
       },
       "iconPath": "ui/atlas/talent_passive_13/gita1300"
     },
+    "mrs:c2a9521dfa84": {
+      "sourceId": "buff-source:55330",
+      "sourceName": "Fierce Strike",
+      "sourceNames": {
+        "en": "Fierce Strike",
+        "zh-CN": "猛烈挥击",
+        "zh-TW": "猛烈揮擊",
+        "ja": "バイオレントスイング",
+        "ko-KR": "맹렬한 휘두르기",
+        "fr": "Frappe féroce",
+        "de": "Heftiger Schlag",
+        "es": "Golpe Feroz",
+        "pt-BR": "Golpe Feroz",
+        "th": "Fierce Strike",
+        "id": "Fierce Swing",
+        "design": "普攻替换爆裂连奏"
+      },
+      "iconPath": "ui/atlas/buff/buff_icon150"
+    },
+    "mrs:cc4238d2d018": {
+      "sourceId": "talent:1308",
+      "sourceName": "Dissonance Spec",
+      "sourceNames": {
+        "en": "Dissonance Spec",
+        "zh-CN": "狂音流",
+        "zh-TW": "狂音流",
+        "ja": "狂音型",
+        "ko-KR": "음파 계열",
+        "fr": "Spécialisation Dissonance",
+        "de": "Dissonanz-Spezialisierung",
+        "es": "Especialización de Disonancia",
+        "pt-BR": "Especialização: Dissonância",
+        "th": "คลื่นเสียงคลั่ง",
+        "id": "Mad Tune"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1308"
+    },
+    "mrs:46fe452e6ebf": {
+      "sourceId": "talent:1316",
+      "sourceName": "Restart",
+      "sourceNames": {
+        "en": "Restart",
+        "zh-CN": "重启",
+        "zh-TW": "重啟",
+        "ja": "再始動",
+        "ko-KR": "재시작",
+        "fr": "Recommencer",
+        "de": "Neu starten",
+        "es": "Reiniciar",
+        "pt-BR": "Reiniciar",
+        "th": "รีสตาร์ท",
+        "id": "Restart"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1316"
+    },
     "mrs:d1927f7e89e0": {
       "sourceId": "buff-source:55331",
       "sourceName": "狂野奏曲",
       "sourceNames": {
         "design": "狂野奏曲"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon150"
     },
     "mrs:589ed239f1e3": {
       "sourceId": "buff-source:55332",
       "sourceName": "宁静奏曲",
       "sourceNames": {
         "design": "宁静奏曲"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon150"
+    },
+    "mrs:cc73424946fa": {
+      "sourceId": "buff-source:55333",
+      "sourceName": "Encore",
+      "sourceNames": {
+        "en": "Encore",
+        "zh-CN": "安可",
+        "zh-TW": "安可",
+        "ja": "アンコール",
+        "ko-KR": "앵콜",
+        "fr": "Rappel",
+        "de": "Zugabe",
+        "es": "Bis",
+        "pt-BR": "Bis",
+        "th": "Encore",
+        "id": "Encore"
+      },
+      "iconPath": "ui/atlas/buff/buff_icon22"
+    },
+    "mrs:0921845145a5": {
+      "sourceId": "talent:1327",
+      "sourceName": "Critical Acclaim",
+      "sourceNames": {
+        "en": "Critical Acclaim",
+        "zh-CN": "临界喝彩",
+        "zh-TW": "臨界喝彩",
+        "ja": "喝彩",
+        "ko-KR": "임계 환호",
+        "fr": "Acclamation critique",
+        "de": "Kritischer Beifall",
+        "es": "Aclamación Crítica",
+        "pt-BR": "Aclamação Crítica",
+        "th": "Critical Cheer",
+        "id": "Critical Applause"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1327"
+    },
+    "mrs:82b78ace20af": {
+      "sourceId": "talent:1331",
+      "sourceName": "Encore Chain",
+      "sourceNames": {
+        "en": "Encore Chain",
+        "zh-CN": "安可无限连奏",
+        "zh-TW": "安可無限連奏",
+        "ja": "追奏連奏",
+        "ko-KR": "앵콜 무한 연주",
+        "fr": "Chaîne de rappel",
+        "de": "Zugabenkette",
+        "es": "Cadena de Bis",
+        "pt-BR": "Corrente de Bis",
+        "th": "จังหวะ Encore ไร้จำกัด",
+        "id": "Encore Infinite Sequence"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1331"
+    },
+    "mrs:191070b501f4": {
+      "sourceId": "talent:1345",
+      "sourceName": "Encore Persistence",
+      "sourceNames": {
+        "en": "Encore Persistence",
+        "zh-CN": "安可永续",
+        "zh-TW": "安可永續",
+        "ja": "追奏永続",
+        "ko-KR": "끝나지 않는 앵콜",
+        "fr": "Rappel persistant",
+        "de": "Andauernde Zugabe",
+        "es": "Persistencia del Bis",
+        "pt-BR": "Persistência de Bis",
+        "th": "Encore ยั่งยืน",
+        "id": "Encore Perpetuity"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1345"
+    },
+    "mrs:900db670ced5": {
+      "sourceId": "talent:1346",
+      "sourceName": "Encore Luck Boost",
+      "sourceNames": {
+        "en": "Encore Luck Boost",
+        "zh-CN": "安可幸运增幅",
+        "zh-TW": "安可幸運增幅",
+        "ja": "追奏幸運増幅",
+        "ko-KR": "앵콜 행운 증폭",
+        "fr": "Boost de chance du Rappel",
+        "de": "Zugabe-Glücksschub",
+        "es": "Mejora de Suerte del Bis",
+        "pt-BR": "Reforço de Sorte do Bis",
+        "th": "บูสต์นำโชค Encore",
+        "id": "Encore Lucky Boost"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1346"
+    },
+    "mrs:742cc85dd8d5": {
+      "sourceId": "talent:1347",
+      "sourceName": "Encore Sharp Strike",
+      "sourceNames": {
+        "en": "Encore Sharp Strike",
+        "zh-CN": "安可锐击",
+        "zh-TW": "安可銳擊",
+        "ja": "追奏鋭撃",
+        "ko-KR": "앵콜 예격",
+        "fr": "Frappe affûtée du Rappel",
+        "de": "Zugabe: Scharfer Schlag",
+        "es": "Golpe Afilado del Bis",
+        "pt-BR": "Golpe Afiado de Bis",
+        "th": "Encore Sharp Strike",
+        "id": "Encore Strike"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1347"
+    },
+    "mrs:7af12e8c7296": {
+      "sourceId": "talent:1362",
+      "sourceName": "Encore Chain",
+      "sourceNames": {
+        "en": "Encore Chain",
+        "zh-CN": "安可连发",
+        "zh-TW": "安可連發",
+        "ja": "アンコール連発",
+        "ko-KR": "앵콜 연발",
+        "fr": "Chaîne de rappel",
+        "de": "Zugabenkette",
+        "es": "Cadena de Bis",
+        "pt-BR": "Cadeia de Bis",
+        "th": "Encore คอมโบ้",
+        "id": "Encore Barrage"
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1362"
     },
     "mrs:c95508cb8aff": {
       "sourceId": "buff-source:55339",
@@ -2179,17 +2362,13 @@
         "en": "Concert Circuit",
         "zh-CN": "升格·巡演曲",
         "zh-TW": "升格·巡演曲",
-        "ja": "烈炎音符",
-        "ko-KR": "화염 음표",
         "fr": "Circuit du concert",
         "de": "Konzert-Tournee",
         "es": "Circuitos de Concierto",
         "pt-BR": "Circuito do Concerto",
-        "th": "Flame Note",
-        "id": "Flame Note",
         "design": "大招B治疗"
       },
-      "iconPath": "ui/textures/skill_weapon_jt/weapon_jt-01_ult"
+      "iconPath": "ui/atlas/buff/buff_icon150"
     },
     "mrs:8ff9462b2fbf": {
       "sourceId": "buff-source:55341",
@@ -2198,14 +2377,10 @@
         "en": "Heroic Melody",
         "zh-CN": "鸣奏·英勇乐章",
         "zh-TW": "鳴奏·英勇樂章",
-        "ja": "パッショネート",
-        "ko-KR": "열정 발산",
         "fr": "Mélodie héroïque",
         "de": "Heroische Melodie",
         "es": "Melodía Heroica",
         "pt-BR": "Melodia Heroica",
-        "th": "Passion Burst",
-        "id": "Passion Flow",
         "design": "狂野奏曲治疗"
       }
     },
@@ -2216,14 +2391,10 @@
         "en": "Healing Melody",
         "zh-CN": "鸣奏·愈合乐章",
         "zh-TW": "鳴奏·癒合樂章",
-        "ja": "アンコール",
-        "ko-KR": "앵콜",
         "fr": "Mélodie de soin",
         "de": "Heilende Melodie",
         "es": "Melodía Curativa",
         "pt-BR": "Melodia Curativa",
-        "th": "Encore",
-        "id": "Encore",
         "design": "宁静奏曲治疗"
       }
     },
@@ -2234,14 +2405,10 @@
         "en": "Rock the Stage/Infinite Rhapsody",
         "zh-CN": "升格·劲爆全场/升格·无限狂想",
         "zh-TW": "升格·勁爆全場/升格·無限狂想",
-        "ja": "炎律の狂踏",
-        "ko-KR": "염율의 짓밟기",
         "fr": "Scène en folie/Rhapsodie infinie",
         "de": "Bühnenrocken/Unendliche Rhapsodie",
         "es": "Golpe Escénico/Rapsodia Infinita",
         "pt-BR": "Agitar o Palco/Rapsódia Infinita",
-        "th": "Flame's Rampage",
-        "id": "Flame Rhythm Rampage",
         "design": "大招基础治疗"
       },
       "iconPath": "ui/textures/skill_weapon_jt/weapon_jt-01_ult"
@@ -2253,14 +2420,10 @@
         "en": "Rock the Stage/Infinite Rhapsody",
         "zh-CN": "升格·劲爆全场/升格·无限狂想",
         "zh-TW": "升格·勁爆全場/升格·無限狂想",
-        "ja": "炎律の狂踏",
-        "ko-KR": "염율의 짓밟기",
         "fr": "Scène en folie/Rhapsodie infinie",
         "de": "Bühnenrocken/Unendliche Rhapsodie",
         "es": "Golpe Escénico/Rapsodia Infinita",
         "pt-BR": "Agitar o Palco/Rapsódia Infinita",
-        "th": "Flame's Rampage",
-        "id": "Flame Rhythm Rampage",
         "design": "大招最大治疗"
       },
       "iconPath": "ui/textures/skill_weapon_jt/weapon_jt-01_ult"
@@ -2272,14 +2435,10 @@
         "en": "Healing of Stillness",
         "zh-CN": "休止的治愈",
         "zh-TW": "休止的治癒",
-        "ja": "スラップビート",
-        "ko-KR": "스트로크",
         "fr": "Guérison du calme",
         "de": "Heilung der Stille",
         "es": "Curación de Quietud",
         "pt-BR": "Cura da Quietude",
-        "th": "Resonant Strings",
-        "id": "String Pluck",
         "design": "普攻第一第二段回血"
       }
     },
@@ -2290,14 +2449,10 @@
         "en": "Healing of Stillness",
         "zh-CN": "休止的治愈",
         "zh-TW": "休止的治癒",
-        "ja": "スラップビート",
-        "ko-KR": "스트로크",
         "fr": "Guérison du calme",
         "de": "Heilung der Stille",
         "es": "Curación de Quietud",
         "pt-BR": "Cura da Quietude",
-        "th": "Resonant Strings",
-        "id": "String Pluck",
         "design": "普攻第三段回血"
       }
     },
@@ -2308,14 +2463,10 @@
         "en": "Healing of Stillness",
         "zh-CN": "休止的治愈",
         "zh-TW": "休止的治癒",
-        "ja": "スラップビート",
-        "ko-KR": "스트로크",
         "fr": "Guérison du calme",
         "de": "Heilung der Stille",
         "es": "Curación de Quietud",
         "pt-BR": "Cura da Quietude",
-        "th": "Resonant Strings",
-        "id": "String Pluck",
         "design": "普攻第四段回血"
       }
     },
@@ -2326,18 +2477,33 @@
         "en": "Divine Circle",
         "zh-CN": "圣环",
         "zh-TW": "聖環",
-        "ja": "強化パニッシュメント",
-        "ko-KR": "강화 단죄",
         "fr": "Cercle divin",
         "de": "Göttlicher Kreis",
         "es": "Círculo Divino",
         "pt-BR": "Círculo Divino",
-        "th": "Enhanced Condemn",
-        "id": "Enhanced Judgement",
         "design": "圣环"
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
+    },
+    "mrs:b5d5c3f92d9f": {
+      "sourceId": "buff-source:2206121",
+      "sourceName": "Inferno Reckon",
+      "sourceNames": {
+        "en": "Inferno Reckon",
+        "zh-CN": "炽热清算",
+        "zh-TW": "熾熱清算",
+        "ja": "ブレイズレコニング",
+        "ko-KR": "열화의 숙청",
+        "fr": "Châtiment infernal",
+        "de": "Inferno-Abrechnung",
+        "es": "Ajuste Infernal",
+        "pt-BR": "Inferno do Juízo",
+        "th": "Inferno Reckon",
+        "id": "Blazing Reckon",
+        "design": "替换炽热清算"
       }
     },
-    "mrs:ff88e0b24c41": {
+    "mrs:69215e1cb671": {
       "sourceId": "buff-source:55405",
       "sourceName": "Aegis Ward",
       "sourceNames": {
@@ -2427,7 +2593,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1240"
     },
-    "mrs:c822d52623af": {
+    "mrs:2ba1e6a60599": {
       "sourceId": "talent:1241",
       "sourceName": "Reckon Blaze",
       "sourceNames": {
@@ -2463,7 +2629,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1248"
     },
-    "mrs:a0193842b38f": {
+    "mrs:90e16dd1539b": {
       "sourceId": "buff-source:55412",
       "sourceName": "Zeal Crusade",
       "sourceNames": {
@@ -2481,7 +2647,7 @@
       },
       "iconPath": "ui/atlas/buff/buff_icon70"
     },
-    "mrs:4e9aa912b2d2": {
+    "mrs:142369ecf079": {
       "sourceId": "talent:1218",
       "sourceName": "Shield Spec",
       "sourceNames": {
@@ -2553,7 +2719,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1255"
     },
-    "mrs:66cccfbbc469": {
+    "mrs:3c73ffb62f87": {
       "sourceId": "buff-source:55417",
       "sourceName": "Zeal Crusade",
       "sourceNames": {
@@ -2572,6 +2738,78 @@
       },
       "iconPath": "ui/atlas/buff/buff_icon70"
     },
+    "mrs:64ae2e279e78": {
+      "sourceId": "talent:1119",
+      "sourceName": "Meteor",
+      "sourceNames": {
+        "en": "Meteor",
+        "zh-CN": "天空之落星",
+        "zh-TW": "天空之落星",
+        "ja": "空裂く閃光",
+        "ko-KR": "하늘에서 떨어지는 별",
+        "fr": "Météore",
+        "de": "Meteor",
+        "es": "Meteoro",
+        "pt-BR": "Meteoro",
+        "th": "Skyfall Star",
+        "id": "Falling Star of Sky"
+      },
+      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_skyhitcri"
+    },
+    "mrs:e70f3bf728d3": {
+      "sourceId": "talent:1159",
+      "sourceName": "Eagle Eye",
+      "sourceNames": {
+        "en": "Eagle Eye",
+        "zh-CN": "鹰眼",
+        "zh-TW": "鷹眼",
+        "ja": "臣鷹の目",
+        "ko-KR": "매의 눈",
+        "fr": "Œil d'aigle",
+        "de": "Adlerauge",
+        "es": "Ojo de Águila",
+        "pt-BR": "Olho de Águia",
+        "th": "Hawkeye",
+        "id": "Eagleview"
+      },
+      "iconPath": "ui/atlas/talent_passive_11/gongjian1159"
+    },
+    "mrs:b712182f2cb2": {
+      "sourceId": "talent:1161",
+      "sourceName": "Radiant Charge",
+      "sourceNames": {
+        "en": "Radiant Charge",
+        "zh-CN": "辉爆蓄势",
+        "zh-TW": "輝爆蓄勢",
+        "ja": "閃爆充填",
+        "ko-KR": "폭발 예열",
+        "fr": "Charge radieuse",
+        "de": "Strahlende Aufladung",
+        "es": "Carga Radiante",
+        "pt-BR": "Carga Radiante",
+        "th": "สะสมพลังระเบิดแสง",
+        "id": "Brilliant Burst Charge"
+      },
+      "iconPath": "ui/atlas/talent_passive_11/gongjian1161"
+    },
+    "mrs:61dee985a16a": {
+      "sourceId": "talent:1225",
+      "sourceName": "Lightforged Drive",
+      "sourceNames": {
+        "en": "Lightforged Drive",
+        "zh-CN": "光铸驱动",
+        "zh-TW": "光鑄驅動",
+        "ja": "光駆動",
+        "ko-KR": "라이트포지드 드라이브",
+        "fr": "Impulsion forgelumière",
+        "de": "Lichtgeschmiedeter Antrieb",
+        "es": "Impulso Lumínico",
+        "pt-BR": "Ímpeto Forjado em Luz",
+        "th": "Lightforged Drive",
+        "id": "Lightforged Drive"
+      },
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1225"
+    },
     "mrs:e167786a37a6": {
       "sourceId": "buff-source:55421",
       "sourceName": "Judgment",
@@ -2579,17 +2817,13 @@
         "en": "Judgment",
         "zh-CN": "裁决",
         "zh-TW": "裁決",
-        "ja": "オートジャッジメント",
-        "ko-KR": "자동 심판",
         "fr": "Jugement",
         "de": "Urteil",
         "es": "Juicio",
         "pt-BR": "Julgamento",
-        "th": "Auto Judgment",
-        "id": "Auto Judgement",
         "design": "裁决治疗"
       },
-      "iconPath": "ui/textures/skill_weapon_jd/weapon_jd-01_kx03"
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:a56762959989": {
       "sourceId": "buff-source:55431",
@@ -2598,14 +2832,10 @@
         "en": "Zeal Crusade",
         "zh-CN": "冷酷征伐",
         "zh-TW": "冷酷征伐",
-        "ja": "パニッシュメント",
-        "ko-KR": "단죄",
         "fr": "Croisade fanatique",
         "de": "Kreuzzug des Eifers",
         "es": "Cruzada Ardiente",
         "pt-BR": "Cruzada do Zelo",
-        "th": "Condemn",
-        "id": "Condemn",
         "design": "冷酷征伐伤害buff"
       },
       "iconPath": "ui/atlas/buff/buff_icon70"
@@ -2617,14 +2847,10 @@
         "en": "Zeal Crusade",
         "zh-CN": "冷酷征伐",
         "zh-TW": "冷酷征伐",
-        "ja": "パニッシュメント",
-        "ko-KR": "단죄",
         "fr": "Croisade fanatique",
         "de": "Kreuzzug des Eifers",
         "es": "Cruzada Ardiente",
         "pt-BR": "Cruzada do Zelo",
-        "th": "Condemn",
-        "id": "Condemn",
         "design": "冷冷酷征伐伤害buff"
       },
       "iconPath": "ui/atlas/buff/buff_icon70"
@@ -2641,7 +2867,8 @@
       "sourceName": "地刺陷阱-添加伤害",
       "sourceNames": {
         "design": "地刺陷阱-添加伤害"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:db9e213e5155": {
       "sourceId": "buff-source:510102",
@@ -2666,6 +2893,25 @@
         "th": "เลือดไหล",
         "id": "Bleed",
         "design": "E类-流血（未实装）"
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
+    },
+    "mrs:a2afd0c46685": {
+      "sourceId": "buff-source:510574",
+      "sourceName": "Burn",
+      "sourceNames": {
+        "en": "Burn",
+        "zh-CN": "灼烧",
+        "zh-TW": "灼燒",
+        "ja": "燃焼",
+        "ko-KR": "화상",
+        "fr": "Brûlure",
+        "de": "Verbrennung",
+        "es": "Quemadura",
+        "pt-BR": "Queimadura",
+        "th": "เผาไหม้",
+        "id": "Burn",
+        "design": "E类-灼烧（未实装）"
       },
       "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
@@ -2716,7 +2962,8 @@
       "sourceName": "杰拉德砂石斗篷",
       "sourceNames": {
         "design": "杰拉德砂石斗篷"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_abnormal_green_icon"
     },
     "mrs:85a76dc52bea": {
       "sourceId": "buff-source:683624",
@@ -2798,21 +3045,24 @@
       "sourceName": "虚蚀之种再起2过程标记",
       "sourceNames": {
         "design": "虚蚀之种再起2过程标记"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:2412b2727d56": {
       "sourceId": "buff-source:700011",
       "sourceName": "虚蚀之种再起2结束标记",
       "sourceNames": {
         "design": "虚蚀之种再起2结束标记"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:ed3837351d5e": {
       "sourceId": "buff-source:700012",
       "sourceName": "虚蚀之种回血2",
       "sourceNames": {
         "design": "虚蚀之种回血2"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:b712a3a76e52": {
       "sourceId": "buff-source:700013",
@@ -2838,70 +3088,80 @@
       "sourceName": "虚蚀之种怪物全身特效",
       "sourceNames": {
         "design": "虚蚀之种怪物全身特效"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:cdeea15f54f2": {
       "sourceId": "buff-source:700015",
       "sourceName": "虚蚀之雾标记buff（玩家用）",
       "sourceNames": {
         "design": "虚蚀之雾标记buff（玩家用）"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:9dca363add3c": {
       "sourceId": "buff-source:700016",
       "sourceName": "交互装置虚蚀特效",
       "sourceNames": {
         "design": "交互装置虚蚀特效"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:1c6091390c1c": {
       "sourceId": "buff-source:700017",
       "sourceName": "虚蚀事件装置交互净化",
       "sourceNames": {
         "design": "虚蚀事件装置交互净化"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
-    "mrs:5672aba27c77": {
+    "mrs:d501ed8bb9d3": {
       "sourceId": "buff-source:700044",
       "sourceName": "幻象入侵低难度出生buff",
       "sourceNames": {
         "design": "幻象入侵低难度出生buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_dps_crit04"
     },
-    "mrs:4db3ccb216cd": {
+    "mrs:0f1d8265bbaa": {
       "sourceId": "buff-source:700045",
       "sourceName": "幻象入侵高难度出生buff",
       "sourceNames": {
         "design": "幻象入侵高难度出生buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_dps_crit04"
     },
-    "mrs:e35812470774": {
+    "mrs:63c03ed1e1d5": {
       "sourceId": "buff-source:700052",
       "sourceName": "幻象入侵雷电打击buff",
       "sourceNames": {
         "design": "幻象入侵雷电打击buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_dps_crit04"
     },
-    "mrs:d4c7e3fc4b92": {
+    "mrs:67d1c00506c0": {
       "sourceId": "buff-source:700071",
       "sourceName": "OBT虚蚀词缀实体出生表现",
       "sourceNames": {
         "design": "OBT虚蚀词缀实体出生表现"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_dps_crit04"
     },
-    "mrs:15f69177dd4f": {
+    "mrs:358696fd3399": {
       "sourceId": "buff-source:700078",
       "sourceName": "散逸能量本体回血",
       "sourceNames": {
         "design": "散逸能量本体回血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_dps_crit04"
     },
     "mrs:7c6b8b0a8b38": {
       "sourceId": "buff-source:700080",
       "sourceName": "虚蚀傀儡入侵触发器",
       "sourceNames": {
         "design": "虚蚀傀儡入侵触发器"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_food_up"
     },
     "mrs:bb4d18eca0f2": {
       "sourceId": "buff-source:700086",
@@ -2927,42 +3187,48 @@
       "sourceName": "虚蚀傀儡施法护盾",
       "sourceNames": {
         "design": "虚蚀傀儡施法护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_food_up"
     },
     "mrs:440085d84e1d": {
       "sourceId": "buff-source:700088",
       "sourceName": "虚蚀傀儡延迟打击buff1",
       "sourceNames": {
         "design": "虚蚀傀儡延迟打击buff1"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_food_up"
     },
     "mrs:d4efc1ca144c": {
       "sourceId": "buff-source:700089",
       "sourceName": "虚蚀傀儡跳斩落地延迟打击buff",
       "sourceNames": {
         "design": "虚蚀傀儡跳斩落地延迟打击buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_food_up"
     },
-    "mrs:46b707c3d87c": {
+    "mrs:99f2db918510": {
       "sourceId": "buff-source:700101",
       "sourceName": "虚蚀之种强化——强化暗蚀",
       "sourceNames": {
         "design": "虚蚀之种强化——强化暗蚀"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_310401"
     },
-    "mrs:b06fd73eeae0": {
+    "mrs:5dd4b629ef57": {
       "sourceId": "buff-source:700106",
       "sourceName": "虚蚀之种强化——污染子弹雨喷发",
       "sourceNames": {
         "design": "虚蚀之种强化——污染子弹雨喷发"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_310401"
     },
-    "mrs:645ebd77d3c2": {
+    "mrs:7e3da65e2fad": {
       "sourceId": "buff-source:700108",
       "sourceName": "虚蚀外壳护盾",
       "sourceNames": {
         "design": "虚蚀外壳护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_310401"
     },
     "mrs:561f520e8830": {
       "sourceId": "buff-source:700110",
@@ -3018,28 +3284,32 @@
       "sourceName": "虚蚀傀儡入侵玩家触发器",
       "sourceNames": {
         "design": "虚蚀傀儡入侵玩家触发器"
-      }
+      },
+      "iconPath": "ui/atlas/affix/com_affix_baonu"
     },
     "mrs:3dadff343f56": {
       "sourceId": "buff-source:700131",
       "sourceName": "S2宝藏娜宝触发器",
       "sourceNames": {
         "design": "S2宝藏娜宝触发器"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon72"
     },
     "mrs:b5ba0cee90f4": {
       "sourceId": "buff-source:700135",
       "sourceName": "S2宝藏娜宝扔炸弹",
       "sourceNames": {
         "design": "S2宝藏娜宝扔炸弹"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon72"
     },
     "mrs:bb7626be4a69": {
       "sourceId": "buff-source:700251",
       "sourceName": "迷梦娜宝持续aoebuff",
       "sourceNames": {
         "design": "迷梦娜宝持续aoebuff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon_02"
     },
     "mrs:733a2fb9d07a": {
       "sourceId": "buff-source:700260",
@@ -3062,14 +3332,10 @@
         "en": "Void Corruption Arcane",
         "zh-CN": "虚蚀爆裂",
         "zh-TW": "虛蝕爆裂",
-        "ja": "幻夢の断罪",
-        "ko-KR": "환상꿈 처형",
         "fr": "Arcanes de la Corruption du néant",
         "de": "Arkane Leerenverderbnis",
         "es": "Arcano de corrupción del vacío",
         "pt-BR": "Arcano da Corrupção do Vazio",
-        "th": "Dream Execution",
-        "id": "Phantasm Execution",
         "design": "装置出生自带buff"
       }
     },
@@ -3080,38 +3346,37 @@
         "en": "Void Corruption Fluctuation",
         "zh-CN": "虚蚀波动",
         "zh-TW": "虛蝕波動",
-        "ja": "寂滅の夢-HP限界突破",
-        "ko-KR": "적멸의 꿈 - 혈계 돌파 영역",
         "fr": "Fluctuation de la Corruption du néant",
         "de": "Leerenverderbnis-Fluktuation",
         "es": "Fluctuación de corrupción del vacío",
         "pt-BR": "Flutuação da Corrupção do Vazio",
-        "th": "Dream of Extinction - ขีดจำกัดโลหิต",
-        "id": "Oblivion Dream - Bloodbound Domain",
         "design": "装置虚蚀爆炸表演01"
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_grind"
     },
-    "mrs:09eb2e7d2223": {
+    "mrs:f3ab19b15183": {
       "sourceId": "buff-source:701014",
       "sourceName": "散逸能量小球子弹雨",
       "sourceNames": {
         "design": "散逸能量小球子弹雨"
-      }
+      },
+      "iconPath": "ui/atlas/buff/talent_passive_icon_general_sup_grassarea"
     },
     "mrs:adc087ac4da1": {
       "sourceId": "buff-source:702012",
       "sourceName": "S3宝藏娜宝触发器",
       "sourceNames": {
         "design": "S3宝藏娜宝触发器"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon72"
     },
     "mrs:e631bbc78d7d": {
       "sourceId": "buff-source:702017",
       "sourceName": "S3宝藏小猪aoe",
       "sourceNames": {
         "design": "S3宝藏小猪aoe"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon72"
     },
     "mrs:1050f4bf77c3": {
       "sourceId": "buff-source:705001",
@@ -3155,7 +3420,8 @@
       "sourceName": "赤玉地狐-叠两层标记的伤害",
       "sourceNames": {
         "design": "赤玉地狐-叠两层标记的伤害"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_20"
     },
     "mrs:7d8692012239": {
       "sourceId": "buff-source:800001",
@@ -3229,28 +3495,32 @@
       "sourceName": "双子的怒火",
       "sourceNames": {
         "design": "双子的怒火"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_fire"
     },
     "mrs:63edb0ecd566": {
       "sourceId": "buff-source:800012",
       "sourceName": "双子的怒火（狂暴版）",
       "sourceNames": {
         "design": "双子的怒火（狂暴版）"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_fire"
     },
     "mrs:04aefa79bdd5": {
       "sourceId": "buff-source:800013",
       "sourceName": "阿卡多的雷球闪电链",
       "sourceNames": {
         "design": "阿卡多的雷球闪电链"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_fire"
     },
     "mrs:7a74e723b517": {
       "sourceId": "buff-source:800014",
       "sourceName": "双子机械的护盾",
       "sourceNames": {
         "design": "双子机械的护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_fire"
     },
     "mrs:5a67254aa9f7": {
       "sourceId": "buff-source:800050",
@@ -3285,14 +3555,16 @@
       "sourceName": "护盾buff",
       "sourceNames": {
         "design": "护盾buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:0d6edb980856": {
       "sourceId": "buff-source:803064",
       "sourceName": "风球陷阱射击buff",
       "sourceNames": {
         "design": "风球陷阱射击buff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon"
     },
     "mrs:d9b288d1fb3b": {
       "sourceId": "buff-source:803153",
@@ -3348,7 +3620,8 @@
       "sourceName": "领域受击",
       "sourceNames": {
         "design": "领域受击"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:7629fcde9a62": {
       "sourceId": "buff-source:821034",
@@ -3373,28 +3646,32 @@
       "sourceName": "电磁风暴监控",
       "sourceNames": {
         "design": "电磁风暴监控"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon_02"
     },
     "mrs:aaa57b99618c": {
       "sourceId": "buff-source:821038",
       "sourceName": "电磁风暴跳转",
       "sourceNames": {
         "design": "电磁风暴跳转"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon_02"
     },
     "mrs:f8d1aac8d920": {
       "sourceId": "buff-source:821063",
       "sourceName": "幻幻花阻挡者",
       "sourceNames": {
         "design": "幻幻花阻挡者"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:07a80c4b538d": {
       "sourceId": "buff-source:821076",
       "sourceName": "粘着弹",
       "sourceNames": {
         "design": "粘着弹"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_movespeed"
     },
     "mrs:7d845bc6d4c7": {
       "sourceId": "buff-source:821078",
@@ -3421,19 +3698,21 @@
         "design": "大师幻幻花狂了"
       }
     },
-    "mrs:d17fc801bb84": {
+    "mrs:14a705d30c18": {
       "sourceId": "buff-source:823007",
       "sourceName": "小机器人爆炸",
       "sourceNames": {
         "design": "小机器人爆炸"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_360102"
     },
-    "mrs:c5c05ad9a72b": {
+    "mrs:bcc57e05dfde": {
       "sourceId": "buff-source:823009",
       "sourceName": "精英大机器人群体强化自身护盾",
       "sourceNames": {
         "design": "精英大机器人群体强化自身护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_360102"
     },
     "mrs:eaaa98e68322": {
       "sourceId": "buff-source:823010",
@@ -3466,14 +3745,16 @@
       "sourceName": "交叉激光五连buff",
       "sourceNames": {
         "design": "交叉激光五连buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:692f4ec9b0a2": {
       "sourceId": "buff-source:823068",
       "sourceName": "巨塔事件机器人回血buff",
       "sourceNames": {
         "design": "巨塔事件机器人回血buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:1081c138e0c1": {
       "sourceId": "buff-source:823202",
@@ -3513,7 +3794,8 @@
       "sourceName": "筛选玩家被净化",
       "sourceNames": {
         "design": "筛选玩家被净化"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_dungeons_xushi"
     },
     "mrs:c11ad8713065": {
       "sourceId": "buff-source:823234",
@@ -3553,28 +3835,32 @@
       "sourceName": "我是炎光",
       "sourceNames": {
         "design": "我是炎光"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:3e9c642e3550": {
       "sourceId": "buff-source:827134",
       "sourceName": "场地虚拟体buff",
       "sourceNames": {
         "design": "场地虚拟体buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:a8fc5d8e5737": {
       "sourceId": "buff-source:827136",
       "sourceName": "分摊-炎光",
       "sourceNames": {
         "design": "分摊-炎光"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:d181c3684964": {
       "sourceId": "buff-source:827137",
       "sourceName": "分摊-幻华",
       "sourceNames": {
         "design": "分摊-幻华"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:e0f74cc2a365": {
       "sourceId": "buff-source:827150",
@@ -3602,7 +3888,8 @@
       "sourceName": "局外人",
       "sourceNames": {
         "design": "局外人"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:48658481d0b3": {
       "sourceId": "buff-source:827209",
@@ -3668,7 +3955,8 @@
       "sourceName": "沙尘暴-循环buff",
       "sourceNames": {
         "design": "沙尘暴-循环buff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_3"
     },
     "mrs:b04fac1d7a5b": {
       "sourceId": "buff-source:827259",
@@ -3694,7 +3982,8 @@
       "sourceName": "装置-被锁定分摊承伤",
       "sourceNames": {
         "design": "装置-被锁定分摊承伤"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon14"
     },
     "mrs:fd6e31eb9221": {
       "sourceId": "buff-source:828108",
@@ -3739,7 +4028,8 @@
       "sourceName": "蚀花残影-陨星点名",
       "sourceNames": {
         "design": "蚀花残影-陨星点名"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_def"
     },
     "mrs:f6e5f926bc81": {
       "sourceId": "buff-source:829115",
@@ -3841,7 +4131,8 @@
       "sourceName": "神之规诫·累刑宣告",
       "sourceNames": {
         "design": "神之规诫·累刑宣告"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ray"
     },
     "mrs:5e078af57eca": {
       "sourceId": "buff-source:832093",
@@ -3850,19 +4141,21 @@
         "design": "杰拉德白盾"
       }
     },
-    "mrs:4d0fb846ebb3": {
+    "mrs:d72c3fff9c3e": {
       "sourceId": "buff-source:833018",
       "sourceName": "娜宝炸弹自爆",
       "sourceNames": {
         "design": "娜宝炸弹自爆"
-      }
+      },
+      "iconPath": "ui/atlas/buff/talent_passive_icon_general_dps_arrtuprandom"
     },
     "mrs:150ac35a8dec": {
       "sourceId": "buff-source:833056",
       "sourceName": "黑石军团护盾",
       "sourceNames": {
         "design": "黑石军团护盾"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_fire"
     },
     "mrs:1796692fcd7c": {
       "sourceId": "buff-source:835014",
@@ -3926,49 +4219,56 @@
       "sourceName": "躲猫猫-逐影猎手-命运硬币回血",
       "sourceNames": {
         "design": "躲猫猫-逐影猎手-命运硬币回血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon62"
     },
     "mrs:dc3cba096884": {
       "sourceId": "buff-source:835072",
       "sourceName": "躲猫猫-逐影猎手-命运硬币掉血",
       "sourceNames": {
         "design": "躲猫猫-逐影猎手-命运硬币掉血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon62"
     },
     "mrs:f735834a4635": {
       "sourceId": "buff-source:835073",
       "sourceName": "躲猫猫-逐影猎手-命运硬币大回血",
       "sourceNames": {
         "design": "躲猫猫-逐影猎手-命运硬币大回血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon62"
     },
     "mrs:b1acdc4fb559": {
       "sourceId": "buff-source:835074",
       "sourceName": "躲猫猫-逐影猎手-追影命中回血",
       "sourceNames": {
         "design": "躲猫猫-逐影猎手-追影命中回血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon62"
     },
     "mrs:ca553ac814e8": {
       "sourceId": "buff-source:835076",
       "sourceName": "躲猫猫-逐影猎手-蓝锥矿",
       "sourceNames": {
         "design": "躲猫猫-逐影猎手-蓝锥矿"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon62"
     },
     "mrs:d5a7bcd2f91b": {
       "sourceId": "buff-source:835078",
       "sourceName": "躲猫猫-逐影猎手-法法菈的庇护",
       "sourceNames": {
         "design": "躲猫猫-逐影猎手-法法菈的庇护"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon62"
     },
     "mrs:1a2d89ce0c3f": {
       "sourceId": "buff-source:835085",
       "sourceName": "躲猫猫-潜行者-投影魔术回血",
       "sourceNames": {
         "design": "躲猫猫-潜行者-投影魔术回血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon121"
     },
     "mrs:0fe9afb7217c": {
       "sourceId": "buff-source:835407",
@@ -4165,7 +4465,8 @@
       "sourceName": "无限掉血debuff",
       "sourceNames": {
         "design": "无限掉血debuff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_dungeons_xushi"
     },
     "mrs:734cfd155f15": {
       "sourceId": "buff-source:851304",
@@ -4198,14 +4499,16 @@
       "sourceName": "神官霍拉斯禁忌领域DOT",
       "sourceNames": {
         "design": "神官霍拉斯禁忌领域DOT"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_17"
     },
     "mrs:0a2ed6a8895f": {
       "sourceId": "buff-source:855110",
       "sourceName": "战旗减速光环",
       "sourceNames": {
         "design": "战旗减速光环"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:b32a12bd3430": {
       "sourceId": "buff-source:855120",
@@ -4231,16 +4534,18 @@
       "sourceName": "山贼狂暴",
       "sourceNames": {
         "design": "山贼狂暴"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:e47e021ab9bf": {
       "sourceId": "buff-source:855136",
       "sourceName": "游魂施法护盾",
       "sourceNames": {
         "design": "游魂施法护盾"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
-    "mrs:3c4ab5531b1c": {
+    "mrs:68fb1f191fe7": {
       "sourceId": "buff-source:855137",
       "sourceName": "Burn",
       "sourceNames": {
@@ -4306,14 +4611,16 @@
       "sourceName": "玩家-治疗强度增益",
       "sourceNames": {
         "design": "玩家-治疗强度增益"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:5724165aff92": {
       "sourceId": "buff-source:855177",
       "sourceName": "连线回复生命",
       "sourceNames": {
         "design": "连线回复生命"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:e7c8ff08951d": {
       "sourceId": "buff-source:855179",
@@ -4544,7 +4851,7 @@
       },
       "iconPath": "ui/atlas/affix/com_affix_anmie"
     },
-    "mrs:d6602753234c": {
+    "mrs:4ac1261bcb15": {
       "sourceId": "buff-source:873003",
       "sourceName": "Burn",
       "sourceNames": {
@@ -4587,14 +4894,16 @@
       "sourceName": "意外惊喜-头上爆炸",
       "sourceNames": {
         "design": "意外惊喜-头上爆炸"
-      }
+      },
+      "iconPath": "ui/atlas/affix/com_affix_dingshizhadan"
     },
     "mrs:e36eefa3301f": {
       "sourceId": "buff-source:873205",
       "sourceName": "意外惊喜-地上爆炸",
       "sourceNames": {
         "design": "意外惊喜-地上爆炸"
-      }
+      },
+      "iconPath": "ui/atlas/affix/com_affix_dingshizhadan"
     },
     "mrs:809735d667eb": {
       "sourceId": "buff-source:873308",
@@ -4719,14 +5028,16 @@
       "sourceName": "虚蚀偷袭者连线火种",
       "sourceNames": {
         "design": "虚蚀偷袭者连线火种"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
-    "mrs:0232d9abc13a": {
+    "mrs:06b0c9a9f04c": {
       "sourceId": "buff-source:880665",
       "sourceName": "boss捶地护盾",
       "sourceNames": {
         "design": "boss捶地护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_300001"
     },
     "mrs:80bb5ca661c7": {
       "sourceId": "buff-source:880670",
@@ -4740,14 +5051,16 @@
       "sourceName": "虚蚀浸透扣血死亡",
       "sourceNames": {
         "design": "虚蚀浸透扣血死亡"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_dungeons_xushi"
     },
-    "mrs:89e70665d988": {
+    "mrs:fca95129ac61": {
       "sourceId": "buff-source:880805",
       "sourceName": "内外场子弹雨buff",
       "sourceNames": {
         "design": "内外场子弹雨buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_330301"
     },
     "mrs:95da80c31ba5": {
       "sourceId": "buff-source:880809",
@@ -4792,14 +5105,16 @@
       "sourceName": "盾兵爆炸白盾buff",
       "sourceNames": {
         "design": "盾兵爆炸白盾buff"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_electricity"
     },
     "mrs:149aa7beffde": {
       "sourceId": "buff-source:880818",
       "sourceName": "爬行怪aoe",
       "sourceNames": {
         "design": "爬行怪aoe"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_electricity"
     },
     "mrs:9852b069f667": {
       "sourceId": "buff-source:881009",
@@ -4820,7 +5135,8 @@
       "sourceName": "灵魂收割",
       "sourceNames": {
         "design": "灵魂收割"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon_01"
     },
     "mrs:ed82519930b1": {
       "sourceId": "buff-source:881076",
@@ -4873,7 +5189,8 @@
       "sourceName": "常驻魂池",
       "sourceNames": {
         "design": "常驻魂池"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_fire"
     },
     "mrs:76552dedf29d": {
       "sourceId": "buff-source:881114",
@@ -4887,14 +5204,16 @@
       "sourceName": "助战奶妈npc-群体护盾",
       "sourceNames": {
         "design": "助战奶妈npc-群体护盾"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:aa0a14f82f63": {
       "sourceId": "buff-source:881136",
       "sourceName": "奎宁蓄力护盾",
       "sourceNames": {
         "design": "奎宁蓄力护盾"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:67b7028d4619": {
       "sourceId": "buff-source:881303",
@@ -4971,35 +5290,40 @@
       "sourceName": "甬道小旋风出生buff",
       "sourceNames": {
         "design": "甬道小旋风出生buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:486e98649520": {
       "sourceId": "buff-source:881362",
       "sourceName": "滚石出生buff",
       "sourceNames": {
         "design": "滚石出生buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:5fddf17846ba": {
       "sourceId": "buff-source:881369",
       "sourceName": "滚石出生表现buff",
       "sourceNames": {
         "design": "滚石出生表现buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:97e42a62e212": {
       "sourceId": "buff-source:881375",
       "sourceName": "起跳炸弹爆炸",
       "sourceNames": {
         "design": "起跳炸弹爆炸"
-      }
+      },
+      "iconPath": "ui/atlas/affix/com_affix_dingshizhadan"
     },
     "mrs:0b27936a5d12": {
       "sourceId": "buff-source:881389",
       "sourceName": "硬壳蜘蛛伤害buff",
       "sourceNames": {
         "design": "硬壳蜘蛛伤害buff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:5dc2b3740c64": {
       "sourceId": "buff-source:881390",
@@ -5025,14 +5349,16 @@
       "sourceName": "玩家森系祝福护盾",
       "sourceNames": {
         "design": "玩家森系祝福护盾"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:1593df6a5c22": {
       "sourceId": "buff-source:881402",
       "sourceName": "毒液蟹蛛中转buff",
       "sourceNames": {
         "design": "毒液蟹蛛中转buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:a0776c0a9d32": {
       "sourceId": "buff-source:881403",
@@ -5058,14 +5384,16 @@
       "sourceName": "小蜘蛛发狂加移速",
       "sourceNames": {
         "design": "小蜘蛛发狂加移速"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:f07fc7a80883": {
       "sourceId": "buff-source:881409",
       "sourceName": "哥布林单体护盾",
       "sourceNames": {
         "design": "哥布林单体护盾"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:25e340971e78": {
       "sourceId": "buff-source:881412",
@@ -5100,7 +5428,8 @@
       "sourceName": "哥布林酋长雷球持续掉血",
       "sourceNames": {
         "design": "哥布林酋长雷球持续掉血"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:4287915b98a6": {
       "sourceId": "buff-source:881601",
@@ -5135,7 +5464,8 @@
       "sourceName": "衰减aoe",
       "sourceNames": {
         "design": "衰减aoe"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_23"
     },
     "mrs:54e29f459954": {
       "sourceId": "buff-source:881637",
@@ -5149,7 +5479,8 @@
       "sourceName": "领域掉血伤害",
       "sourceNames": {
         "design": "领域掉血伤害"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:528a030d8508": {
       "sourceId": "buff-source:881660",
@@ -5205,14 +5536,16 @@
       "sourceName": "钻地蛇buff",
       "sourceNames": {
         "design": "钻地蛇buff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_88"
     },
     "mrs:4f25c1fcf420": {
       "sourceId": "buff-source:881832",
       "sourceName": "地板延迟打击点蟹蛛毒球-以自己为中心的随机圆形范围",
       "sourceNames": {
         "design": "地板延迟打击点蟹蛛毒球-以自己为中心的随机圆形范围"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:1053b3465e84": {
       "sourceId": "buff-source:881836",
@@ -5238,14 +5571,16 @@
       "sourceName": "矿车炸弹炸岩蛇计次数",
       "sourceNames": {
         "design": "矿车炸弹炸岩蛇计次数"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_17"
     },
     "mrs:f95f3611d2b0": {
       "sourceId": "buff-source:881910",
       "sourceName": "变身-总管BUFF",
       "sourceNames": {
         "design": "变身-总管BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon65"
     },
     "mrs:b9865000b879": {
       "sourceId": "buff-source:881920",
@@ -5284,21 +5619,24 @@
       "sourceName": "处于冰面之上",
       "sourceNames": {
         "design": "处于冰面之上"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_23"
     },
     "mrs:cfcf4976359e": {
       "sourceId": "buff-source:882115",
       "sourceName": "玩家处于火焰效果中",
       "sourceNames": {
         "design": "玩家处于火焰效果中"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_23"
     },
     "mrs:430867aa9ecb": {
       "sourceId": "buff-source:882119",
       "sourceName": "冰矛命中buff",
       "sourceNames": {
         "design": "冰矛命中buff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_23"
     },
     "mrs:b038c5e8f0c6": {
       "sourceId": "buff-source:882126",
@@ -5312,7 +5650,8 @@
       "sourceName": "冰龙小旋风虚拟体",
       "sourceNames": {
         "design": "冰龙小旋风虚拟体"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:081bd628215a": {
       "sourceId": "buff-source:882155",
@@ -5340,77 +5679,88 @@
       "sourceName": "虚蚀龙-传染虚雾",
       "sourceNames": {
         "design": "虚蚀龙-传染虚雾"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon_02"
     },
     "mrs:9438c67596cd": {
       "sourceId": "buff-source:882230",
       "sourceName": "虚蚀龙-分摊",
       "sourceNames": {
         "design": "虚蚀龙-分摊"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon_01"
     },
     "mrs:a0003404f141": {
       "sourceId": "buff-source:882301",
       "sourceName": "时空坍缩（致死T）",
       "sourceNames": {
         "design": "时空坍缩（致死T）"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_def"
     },
     "mrs:003dd8ea152f": {
       "sourceId": "buff-source:882304",
       "sourceName": "光蚀刻印",
       "sourceNames": {
         "design": "光蚀刻印"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_def"
     },
     "mrs:597f70ebc8b3": {
       "sourceId": "buff-source:882305",
       "sourceName": "虚空双契-点名A",
       "sourceNames": {
         "design": "虚空双契-点名A"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_def"
     },
     "mrs:95baaab0b3be": {
       "sourceId": "buff-source:882323",
       "sourceName": "芒辉之种-天生buff",
       "sourceNames": {
         "design": "芒辉之种-天生buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_def"
     },
     "mrs:28838f95db5b": {
       "sourceId": "buff-source:882324",
       "sourceName": "芒辉之种-玩家交互身上buff",
       "sourceNames": {
         "design": "芒辉之种-玩家交互身上buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_def"
     },
     "mrs:30234b522ec8": {
       "sourceId": "buff-source:882337",
       "sourceName": "光耀水晶-炸团",
       "sourceNames": {
         "design": "光耀水晶-炸团"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:b36653b213aa": {
       "sourceId": "buff-source:882338",
       "sourceName": "暗耀水晶-炸团",
       "sourceNames": {
         "design": "暗耀水晶-炸团"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:910096692699": {
       "sourceId": "buff-source:882340",
       "sourceName": "光陨-点名",
       "sourceNames": {
         "design": "光陨-点名"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_def"
     },
     "mrs:18f0a9d1645b": {
       "sourceId": "buff-source:882350",
       "sourceName": "时空的终焉-秒杀光柱",
       "sourceNames": {
         "design": "时空的终焉-秒杀光柱"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:f32ea75060bd": {
       "sourceId": "buff-source:882352",
@@ -5436,7 +5786,8 @@
       "sourceName": "虚空双契-点名B",
       "sourceNames": {
         "design": "虚空双契-点名B"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:f627316bbb5d": {
       "sourceId": "buff-source:882555",
@@ -5457,14 +5808,16 @@
       "sourceName": "游魂-自身-连线",
       "sourceNames": {
         "design": "游魂-自身-连线"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_2"
     },
     "mrs:6cfb13ef5856": {
       "sourceId": "buff-source:882718",
       "sourceName": "游魂-玩家-禁锢掉血",
       "sourceNames": {
         "design": "游魂-玩家-禁锢掉血"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_2"
     },
     "mrs:1a65005a3818": {
       "sourceId": "buff-source:882719",
@@ -5490,14 +5843,16 @@
       "sourceName": "斧王-烈火之斧-初始buff",
       "sourceNames": {
         "design": "斧王-烈火之斧-初始buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_movespeed"
     },
     "mrs:65e61ce3389b": {
       "sourceId": "buff-source:882737",
       "sourceName": "斧王-烈火种子-爆炸伤害",
       "sourceNames": {
         "design": "斧王-烈火种子-爆炸伤害"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon60"
     },
     "mrs:e75465114628": {
       "sourceId": "buff-source:882811",
@@ -5530,7 +5885,8 @@
       "sourceName": "亡灵还魂-BOSS-结算全体伤害",
       "sourceNames": {
         "design": "亡灵还魂-BOSS-结算全体伤害"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_83"
     },
     "mrs:c3829729f516": {
       "sourceId": "buff-source:883101",
@@ -5556,35 +5912,40 @@
       "sourceName": "蜥蜴-披甲",
       "sourceNames": {
         "design": "蜥蜴-披甲"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_hp"
     },
     "mrs:1110d38aa7d4": {
       "sourceId": "buff-source:883112",
       "sourceName": "角羊-眩晕光束",
       "sourceNames": {
         "design": "角羊-眩晕光束"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_70"
     },
     "mrs:ae4b4189537a": {
       "sourceId": "buff-source:883114",
       "sourceName": "肉山-幻蚀领域",
       "sourceNames": {
         "design": "肉山-幻蚀领域"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_70"
     },
     "mrs:c87fa3c3bfb2": {
       "sourceId": "buff-source:883205",
       "sourceName": "机制-梦魇缠绕连线",
       "sourceNames": {
         "design": "机制-梦魇缠绕连线"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_17"
     },
     "mrs:6fab904dceb6": {
       "sourceId": "buff-source:883206",
       "sourceName": "机制-梦魇缠绕爆炸伤害",
       "sourceNames": {
         "design": "机制-梦魇缠绕爆炸伤害"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_17"
     },
     "mrs:5249fd5c91c2": {
       "sourceId": "buff-source:883207",
@@ -5610,7 +5971,8 @@
       "sourceName": "迷宫-梦灵天生buff",
       "sourceNames": {
         "design": "迷宫-梦灵天生buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_movespeed"
     },
     "mrs:d1c1a7841a0d": {
       "sourceId": "buff-source:883369",
@@ -5692,21 +6054,24 @@
       "sourceName": "机关-符文A",
       "sourceNames": {
         "design": "机关-符文A"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ray"
     },
     "mrs:8b280ebd1f56": {
       "sourceId": "buff-source:883708",
       "sourceName": "机关-符文B",
       "sourceNames": {
         "design": "机关-符文B"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ray"
     },
     "mrs:be196e729804": {
       "sourceId": "buff-source:883709",
       "sourceName": "机关-符文C",
       "sourceNames": {
         "design": "机关-符文C"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ray"
     },
     "mrs:152a105048c9": {
       "sourceId": "buff-source:883710",
@@ -5771,7 +6136,8 @@
       "sourceName": "场域湮灭（玩家）",
       "sourceNames": {
         "design": "场域湮灭（玩家）"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:5d278294993b": {
       "sourceId": "buff-source:884122",
@@ -5806,12 +6172,13 @@
         "design": "生存机制之龙卷风"
       }
     },
-    "mrs:1d3769e44324": {
+    "mrs:b835bc977645": {
       "sourceId": "buff-source:900125",
       "sourceName": "雷电兽人白盾",
       "sourceNames": {
         "design": "雷电兽人白盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_general_tank_grind"
     },
     "mrs:6095fbe50e01": {
       "sourceId": "buff-source:904002",
@@ -5939,7 +6306,8 @@
       "sourceName": "答题正确奖励获取特效",
       "sourceNames": {
         "design": "答题正确奖励获取特效"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_atk"
     },
     "mrs:9427f3a55496": {
       "sourceId": "talent:1335",
@@ -5971,28 +6339,32 @@
       "sourceName": "爆炸扣20%血",
       "sourceNames": {
         "design": "爆炸扣20%血"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ice"
     },
     "mrs:aa50b7eb427d": {
       "sourceId": "buff-source:960611",
       "sourceName": "爆炸扣40%血",
       "sourceNames": {
         "design": "爆炸扣40%血"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ice"
     },
     "mrs:13e6510afaf5": {
       "sourceId": "buff-source:960903",
       "sourceName": "搬运本-红灯还动给你着火",
       "sourceNames": {
         "design": "搬运本-红灯还动给你着火"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_atk"
     },
     "mrs:409b1c537f7f": {
       "sourceId": "buff-source:960907",
       "sourceName": "着火(废弃)",
       "sourceNames": {
         "design": "着火(废弃)"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_atk"
     },
     "mrs:9f6c01f143c5": {
       "sourceId": "buff-source:965340",
@@ -6244,14 +6616,16 @@
       "sourceName": "妖尾联动-毒龙技能-玩家传毒-7.5米半径",
       "sourceNames": {
         "design": "妖尾联动-毒龙技能-玩家传毒-7.5米半径"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon92"
     },
-    "mrs:b282ecf8240f": {
+    "mrs:bfd13a4b5530": {
       "sourceId": "buff-source:974340",
       "sourceName": "妖尾联动-毒龙技能-玩家传毒-15米半径",
       "sourceNames": {
         "design": "妖尾联动-毒龙技能-玩家传毒-15米半径"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_330301"
     },
     "mrs:a98899a88798": {
       "sourceId": "buff-source:990001",
@@ -6279,14 +6653,16 @@
       "sourceName": "野猪王蓄力盾",
       "sourceNames": {
         "design": "野猪王蓄力盾"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_17"
     },
     "mrs:3735b64ba987": {
       "sourceId": "buff-source:990103",
       "sourceName": "野猪王散落子弹",
       "sourceNames": {
         "design": "野猪王散落子弹"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_17"
     },
     "mrs:fe4d0100ee6c": {
       "sourceId": "buff-source:990110",
@@ -6314,7 +6690,8 @@
       "sourceName": "蟹蛛王-结茧",
       "sourceNames": {
         "design": "蟹蛛王-结茧"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_icon"
     },
     "mrs:2e65a40c6836": {
       "sourceId": "buff-source:990516",
@@ -6328,7 +6705,8 @@
       "sourceName": "剧毒蜂巢-引导黄蜂自爆",
       "sourceNames": {
         "design": "剧毒蜂巢-引导黄蜂自爆"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_abnormal_red_icon_03"
     },
     "mrs:777fcbf2a66c": {
       "sourceId": "buff-source:990603",
@@ -6354,21 +6732,24 @@
       "sourceName": "聚怪",
       "sourceNames": {
         "design": "聚怪"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon01"
     },
     "mrs:2c3c751554f5": {
       "sourceId": "buff-source:990703",
       "sourceName": "奶妈奶人",
       "sourceNames": {
         "design": "奶妈奶人"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon01"
     },
     "mrs:ab138412eae9": {
       "sourceId": "buff-source:990705",
       "sourceName": "水旋涡引力",
       "sourceNames": {
         "design": "水旋涡引力"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon01"
     },
     "mrs:60f9fae6bc0d": {
       "sourceId": "buff-source:990801",
@@ -6407,12 +6788,13 @@
       },
       "iconPath": "ui/atlas/debuff/debuff_icon_7"
     },
-    "mrs:0914b04d18a9": {
+    "mrs:87309a93cf4f": {
       "sourceId": "buff-source:990810",
       "sourceName": "哥布林巫医天生BUFF",
       "sourceNames": {
         "design": "哥布林巫医天生BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_passive_icon_general_dps_sharpup"
     },
     "mrs:03e1e3d44b2f": {
       "sourceId": "buff-source:990821",
@@ -6476,7 +6858,8 @@
       "sourceName": "风球陷阱扣血",
       "sourceNames": {
         "design": "风球陷阱扣血"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/debuff_icon_38"
     },
     "mrs:654beb751e01": {
       "sourceId": "buff-source:995129",
@@ -6490,14 +6873,16 @@
       "sourceName": "雷电漩涡点名",
       "sourceNames": {
         "design": "雷电漩涡点名"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ray"
     },
     "mrs:f207723082a5": {
       "sourceId": "buff-source:995136",
       "sourceName": "能量吸收增加护盾",
       "sourceNames": {
         "design": "能量吸收增加护盾"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ray"
     },
     "mrs:ba69689d862e": {
       "sourceId": "buff-source:995159",
@@ -6511,7 +6896,8 @@
       "sourceName": "玩家连接T",
       "sourceNames": {
         "design": "玩家连接T"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_add_wind"
     },
     "mrs:0f81adc3b98b": {
       "sourceId": "buff-source:995167",
@@ -6570,7 +6956,8 @@
       "sourceName": "龙爪哥布林奶人buff",
       "sourceNames": {
         "design": "龙爪哥布林奶人buff"
-      }
+      },
+      "iconPath": "ui/atlas/debuff/buff_icon_ray"
     },
     "mrs:3c5dd7c24bdb": {
       "sourceId": "buff-source:996011",
@@ -6659,7 +7046,8 @@
       "sourceName": "开门词条-蔓域毒瘴2",
       "sourceNames": {
         "design": "开门词条-蔓域毒瘴2"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
     "mrs:115ec4caf120": {
       "sourceId": "buff-source:997036",
@@ -6811,7 +7199,8 @@
       "sourceName": "「暴虐」暴击风暴—aoe伤害",
       "sourceNames": {
         "design": "「暴虐」暴击风暴—aoe伤害"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry052"
     },
     "mrs:740641284a32": {
       "sourceId": "season-rogue-entry:141",
@@ -7198,7 +7587,8 @@
       "sourceName": "[幸运]：命运洪流—aoe伤害",
       "sourceNames": {
         "design": "[幸运]：命运洪流—aoe伤害"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry073"
     },
     "mrs:43ab229c58c6": {
       "sourceId": "season-rogue-entry:160",
@@ -7873,7 +8263,8 @@
       "sourceName": "[团队]：协同打击—攻击加成",
       "sourceNames": {
         "design": "[团队]：协同打击—攻击加成"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry109"
     },
     "mrs:686df0ea2c41": {
       "sourceId": "season-rogue-entry:196",
@@ -8024,7 +8415,8 @@
       "sourceName": "[团队]：护盾协同—护盾",
       "sourceNames": {
         "design": "[团队]：护盾协同—护盾"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry115"
     },
     "mrs:f26e9234c364": {
       "sourceId": "season-rogue-entry:204",
@@ -8103,7 +8495,8 @@
       "sourceName": "[团队]：协同治愈波—治愈光环",
       "sourceNames": {
         "design": "[团队]：协同治愈波—治愈光环"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry120"
     },
     "mrs:d7029e3e6a64": {
       "sourceId": "season-rogue-entry:208",
@@ -8164,7 +8557,8 @@
       "sourceName": "[团队]：蓄力协同—伤害",
       "sourceNames": {
         "design": "[团队]：蓄力协同—伤害"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry125"
     },
     "mrs:8259d92f809e": {
       "sourceId": "buff-source:997541",
@@ -9784,7 +10178,8 @@
       "sourceName": "肉鸽初始职责效果",
       "sourceNames": {
         "design": "肉鸽初始职责效果"
-      }
+      },
+      "iconPath": "ui/atlas/affix/com_affix_zhadanren"
     },
     "mrs:305d4fb4017d": {
       "sourceId": "buff-source:997823",
@@ -9810,14 +10205,16 @@
       "sourceName": "沉梦之面·回响——伤害缓存（怪物用-伤害）",
       "sourceNames": {
         "design": "沉梦之面·回响——伤害缓存（怪物用-伤害）"
-      }
+      },
+      "iconPath": "ui/atlas/affix/com_affix_zhadanren"
     },
     "mrs:b00a120e88a7": {
       "sourceId": "buff-source:997825",
       "sourceName": "沉梦之面·回响——受到伤害（玩家）",
       "sourceNames": {
         "design": "沉梦之面·回响——受到伤害（玩家）"
-      }
+      },
+      "iconPath": "ui/atlas/affix/com_affix_zhadanren"
     },
     "mrs:2ffabec9a9a6": {
       "sourceId": "season-rogue-entry:106",
@@ -9842,7 +10239,8 @@
       "sourceName": "肉鸽词条-引擎过载2",
       "sourceNames": {
         "design": "肉鸽词条-引擎过载2"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry017"
     },
     "mrs:c561d47933b9": {
       "sourceId": "season-rogue-entry:107",
@@ -10011,7 +10409,8 @@
       "sourceName": "肉鸽词条-连锁闪电3",
       "sourceNames": {
         "design": "肉鸽词条-连锁闪电3"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry051"
     },
     "mrs:bc1a7450fbcb": {
       "sourceId": "season-rogue-entry:112",
@@ -10072,7 +10471,8 @@
       "sourceName": "肉鸽词条-血气爆发2",
       "sourceNames": {
         "design": "肉鸽词条-血气爆发2"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry026"
     },
     "mrs:979b083e375b": {
       "sourceId": "season-rogue-entry:115",
@@ -10115,7 +10515,8 @@
       "sourceName": "肉鸽词条-圣焰冲击2",
       "sourceNames": {
         "design": "肉鸽词条-圣焰冲击2"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry041"
     },
     "mrs:af710af061e5": {
       "sourceId": "season-rogue-entry:129",
@@ -10249,7 +10650,8 @@
       "sourceName": "肉鸽词条-巨人铠甲2",
       "sourceNames": {
         "design": "肉鸽词条-巨人铠甲2"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry033"
     },
     "mrs:bb1d58b1177f": {
       "sourceId": "buff-source:998410",
@@ -10743,26 +11145,29 @@
         "design": "肉鸽本-翡翠角羊召唤怪1"
       }
     },
-    "mrs:d3bf9d646b87": {
+    "mrs:140e4b1c20fc": {
       "sourceId": "buff-source:999990",
       "sourceName": "肉鸽本-翡翠角羊召唤怪2",
       "sourceNames": {
         "design": "肉鸽本-翡翠角羊召唤怪2"
-      }
+      },
+      "iconPath": "ui/atlas/buff/talent_passive_icon_general_sup_grassarea"
     },
-    "mrs:aadfd904034e": {
+    "mrs:72411a827a69": {
       "sourceId": "buff-source:999991",
       "sourceName": "肉鸽本-翡翠角羊召唤怪3",
       "sourceNames": {
         "design": "肉鸽本-翡翠角羊召唤怪3"
-      }
+      },
+      "iconPath": "ui/atlas/buff/talent_passive_icon_general_sup_grassarea"
     },
     "mrs:4d8dc3107586": {
       "sourceId": "buff-source:2010004",
       "sourceName": "【木桩比赛】扣血",
       "sourceNames": {
         "design": "【木桩比赛】扣血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon17"
     },
     "mrs:90335c96b121": {
       "sourceId": "buff-source:2020003",
@@ -10836,14 +11241,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "狂熱の斬撃",
-        "ko-KR": "광열의 참격",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "ฟันอย่างบ้าคลั่ง",
-        "id": "Zealous Slash",
+        "th": "Lucky Strike",
+        "id": "Lucky Hit",
         "design": "战斧-幸运"
       }
     },
@@ -10872,14 +11277,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "深葉・ブルームサークル",
-        "ko-KR": "만개・희망의 결계",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "Divine Circle Bloom",
-        "id": "Flourish - Hope Barrier",
+        "th": "Lucky Strike",
+        "id": "Lucky Hit",
         "design": "法环-幸运"
       }
     },
@@ -10940,14 +11345,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "ブレイヴバッシュ",
-        "ko-KR": "용맹의 방패",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "Valor Bash",
-        "id": "Valor Shield Bash",
+        "th": "Lucky Strike",
+        "id": "Lucky Hit",
         "design": "剑盾-幸运"
       }
     },
@@ -10958,14 +11363,14 @@
         "en": "Lucky Strike",
         "zh-CN": "幸运一击",
         "zh-TW": "幸運一擊",
-        "ja": "コーラスヒーリング",
-        "ko-KR": "치유의 비트",
+        "ja": "幸運の一撃",
+        "ko-KR": "행운의 일격",
         "fr": "Frappe chanceuse",
         "de": "Glückstreffer",
         "es": "Golpe de suerte",
         "pt-BR": "Golpe de Sorte",
-        "th": "Healing Beat",
-        "id": "Healing Beat",
+        "th": "Lucky Strike",
+        "id": "Lucky Hit",
         "design": "吉他-幸运"
       }
     },
@@ -16358,19 +16763,21 @@
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
-    "mrs:bb267afe4fce": {
+    "mrs:7b7ffadcc2df": {
       "sourceId": "buff-source:2100006",
       "sourceName": "格挡护盾-生存",
       "sourceNames": {
         "design": "格挡护盾-生存"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_360101"
     },
-    "mrs:078333fa12f8": {
+    "mrs:b005c2325a12": {
       "sourceId": "buff-source:2100104",
       "sourceName": "治疗大招-群体治愈",
       "sourceNames": {
         "design": "治疗大招-群体治愈"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_330301"
     },
     "mrs:39c99aede261": {
       "sourceId": "buff-source:2100111",
@@ -16426,40 +16833,45 @@
       },
       "iconPath": "ui/atlas/buff/buff_talent_skill_360102"
     },
-    "mrs:2b8a6bc152c5": {
+    "mrs:8ace5000794c": {
       "sourceId": "buff-source:2100155",
       "sourceName": "辅助小招-回复",
       "sourceNames": {
         "design": "辅助小招-回复"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_360102"
     },
-    "mrs:094c2ec29de3": {
+    "mrs:a4a5f8c0a638": {
       "sourceId": "buff-source:2100156",
       "sourceName": "辅助小招-治疗喷泉",
       "sourceNames": {
         "design": "辅助小招-治疗喷泉"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_360102"
     },
-    "mrs:3a56b7d00c73": {
+    "mrs:b1ec766aaaac": {
       "sourceId": "buff-source:2100158",
       "sourceName": "辅助小招-愈合祷言效果",
       "sourceNames": {
         "design": "辅助小招-愈合祷言效果"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_360102"
     },
-    "mrs:ba9c7c820973": {
+    "mrs:0bb2c480a96c": {
       "sourceId": "buff-source:2100212",
       "sourceName": "治疗大招-鏖战光环-常驻被动",
       "sourceNames": {
         "design": "治疗大招-鏖战光环-常驻被动"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_300001"
     },
-    "mrs:ed17f41a842f": {
+    "mrs:bab840cebe24": {
       "sourceId": "buff-source:2100409",
       "sourceName": "生命屏障",
       "sourceNames": {
         "design": "生命屏障"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_passive_icon_general_dps_sharpenergyre03"
     },
     "mrs:801a790c0ebb": {
       "sourceId": "buff-source:2100410",
@@ -16482,17 +16894,13 @@
         "en": "Arcane! Pulse Benediction",
         "zh-CN": "奥义！脉冲祝祷",
         "zh-TW": "奧義！脈衝祝禱",
-        "ja": "絶技！ヘビースラッシュ",
-        "ko-KR": "비기! 초중참",
         "fr": "Arcane ! Bénédiction des pulsations",
         "de": "Arkana! Impuls-Segen",
         "es": "¡Arcano! Bendición de Pulso",
         "pt-BR": "Arcano! Pulso de Bênção",
-        "th": "Stunt! Heavy Slash",
-        "id": "Ultimate! Overstrike",
         "design": "hot"
       },
-      "iconPath": "ui/atlas/buff/buff_icon133"
+      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_012"
     },
     "mrs:3e8bf358f7d0": {
       "sourceId": "buff-source:2110024",
@@ -16587,12 +16995,13 @@
       },
       "iconPath": "ui/atlas/buff/buff_talent_skill_370101"
     },
-    "mrs:7dc59dc9b83d": {
+    "mrs:c46d572e7105": {
       "sourceId": "buff-source:2110035",
       "sourceName": "哥布林巫师回血",
       "sourceNames": {
         "design": "哥布林巫师回血"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_talent_skill_370101"
     },
     "mrs:b91932edcd86": {
       "sourceId": "buff-source:2110042",
@@ -16819,7 +17228,8 @@
         "th": "Brigand Guard Captain - Earth Shield",
         "id": "Bandit Guard Captain - Earth Shield",
         "design": "山贼护卫队长 - 大地之盾"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_movespeed"
     },
     "mrs:42d7b60b7170": {
       "sourceId": "buff-source:2110068",
@@ -16885,14 +17295,16 @@
       "sourceName": "野猪王闪电链主Buff",
       "sourceNames": {
         "design": "野猪王闪电链主Buff"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:f2991962e350": {
       "sourceId": "buff-source:2110072",
       "sourceName": "野猪王闪电链衍生A",
       "sourceNames": {
         "design": "野猪王闪电链衍生A"
-      }
+      },
+      "iconPath": "ui/atlas/hud/debuff/buff_red_atk"
     },
     "mrs:dae5af3ac078": {
       "sourceId": "buff-source:2110075",
@@ -17018,17 +17430,13 @@
         "en": "Arcane! Flame Roar",
         "zh-CN": "奥义！琉火咆哮",
         "zh-TW": "奧義！琉火咆哮",
-        "ja": "奥義！サイレントサージ",
-        "ko-KR": "오의! 고요한 조수",
         "fr": "Arcane ! Rugissement de flammes",
         "de": "Arkana! Flammenbrüllen",
         "es": "¡Arcano! Rugido Flamígero",
         "pt-BR": "Arcano! Rugido das Chamas",
-        "th": "Arcane! Silent Tide",
-        "id": "Arcane! Silent Tide",
         "design": "琉火的咆哮治疗"
       },
-      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_017"
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
     "mrs:8767b2f3224a": {
       "sourceId": "buff-source:2110084",
@@ -17056,55 +17464,43 @@
         "en": "Arcane! Flash Execution",
         "zh-CN": "奥义！瞬即斩",
         "zh-TW": "奧義！瞬即斬",
-        "ja": "奥義！ゴブリングランドマーチ",
-        "ko-KR": "오의! 고블린 대행군",
         "fr": "Arcane ! Exécution éclair",
         "de": "Arkana! Blitzhinrichtung",
         "es": "¡Arcano! Ejecución Relámpago",
         "pt-BR": "Arcano! Execução Relâmpago",
-        "th": "Arcane! Goblin March",
-        "id": "Arcane! Goblin March",
         "design": "雷电之种"
       },
-      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_025"
+      "iconPath": "ui/atlas/hud/buff/buff_blue_def"
     },
-    "mrs:ea0fa740a3a0": {
+    "mrs:37a69123a8fe": {
       "sourceId": "buff-source:2110090",
       "sourceName": "Stunt! Chaotic Barrage",
       "sourceNames": {
         "en": "Stunt! Chaotic Barrage",
         "zh-CN": "绝技！缭乱飞弹",
         "zh-TW": "絕技！繚亂飛彈",
-        "ja": "奥義！サンダーロア",
-        "ko-KR": "오의! 번개의 포효",
         "fr": "Acrobatie ! Barrage chaotique",
         "de": "Stunt! Chaotisches Sperrfeuer",
         "es": "¡Proeza! Aluvión Caótico",
         "pt-BR": "Proeza! Rajada Caótica",
-        "th": "Arcane! Thunder Roar",
-        "id": "Arcane! Thunder Roar",
         "design": "虚蚀侵害"
       },
-      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_009"
+      "iconPath": "ui/atlas/hud/buff/buff_blue_atk"
     },
-    "mrs:93ccfefe3786": {
+    "mrs:8694f37c92f6": {
       "sourceId": "buff-source:2110091",
       "sourceName": "Stunt! Chaotic Barrage",
       "sourceNames": {
         "en": "Stunt! Chaotic Barrage",
         "zh-CN": "绝技！缭乱飞弹",
         "zh-TW": "絕技！繚亂飛彈",
-        "ja": "奥義！サンダーロア",
-        "ko-KR": "오의! 번개의 포효",
         "fr": "Acrobatie ! Barrage chaotique",
         "de": "Stunt! Chaotisches Sperrfeuer",
         "es": "¡Proeza! Aluvión Caótico",
         "pt-BR": "Proeza! Rajada Caótica",
-        "th": "Arcane! Thunder Roar",
-        "id": "Arcane! Thunder Roar",
         "design": "接受伤害转为治疗"
       },
-      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_009"
+      "iconPath": "ui/atlas/hud/buff/buff_blue_atk"
     },
     "mrs:78457e81dd5e": {
       "sourceId": "buff-source:2110096",
@@ -17132,16 +17528,13 @@
         "en": "Arcane! Poison Explosion",
         "zh-CN": "奥义！毒爆",
         "zh-TW": "奧義！毒爆",
-        "ja": "奥義！マッドハンマー",
-        "ko-KR": "오의! 광란의 해머",
         "fr": "Arcane ! Explosion de poison",
         "de": "Arkana! Giftexplosion",
         "es": "¡Arcano! Explosión de Veneno",
         "pt-BR": "Arcano! Explosão Venenosa",
-        "th": "Arcane! Furious Hammer",
-        "id": "Arcane! Hammer Frenzy",
         "design": "剧毒蜂巢 - dot易伤"
-      }
+      },
+      "iconPath": "ui/atlas/hud/buff/buff_blue_atk"
     },
     "mrs:fa54a6766f58": {
       "sourceId": "buff-source:2110100",
@@ -17560,6 +17953,7 @@
         "id": "Armor Conversion",
         "design": "黑石军团法师-主动"
       },
+      "iconPath": "ui/atlas/buff/buff_icon155",
       "displayOwnerKind": "battle-imagine"
     },
     "mrs:5c10719244fd": {
@@ -17618,7 +18012,7 @@
         "id": "Ultimate! Sword Storm",
         "design": "炎角 - 主动触发"
       },
-      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_070"
+      "iconPath": "ui/atlas/buff/buff_icon155"
     },
     "mrs:45e8982669a7": {
       "sourceId": "buff-source:2110135",
@@ -17943,7 +18337,8 @@
       "sourceName": "露西添加护盾",
       "sourceNames": {
         "design": "露西添加护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon65"
     },
     "mrs:d99384fae910": {
       "sourceId": "buff-source:2110171",
@@ -19562,12 +19957,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_stonearea"
     },
-    "mrs:9ca34d004297": {
+    "mrs:30e474fb5b0e": {
       "sourceId": "buff-source:2201343",
       "sourceName": "接受伤害",
       "sourceNames": {
         "design": "接受伤害"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_stonearea"
     },
     "mrs:101f9075d3da": {
       "sourceId": "buff-source:2201350",
@@ -19587,14 +19983,15 @@
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_luckblockcd"
     },
-    "mrs:c77cdee14b36": {
+    "mrs:938873cde96f": {
       "sourceId": "buff-source:2201351",
       "sourceName": "护盾",
       "sourceNames": {
         "design": "护盾"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_luckblockcd"
     },
-    "mrs:ae6840edacff": {
+    "mrs:20e3731580ba": {
       "sourceId": "buff-source:2201362",
       "sourceName": "Sand Crystal Shock",
       "sourceNames": {
@@ -19610,7 +20007,8 @@
         "th": "Sand Crystal Shock",
         "id": "Sand Crystal Shock",
         "design": "砂晶石震荡"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_general_tank_grind"
     },
     "mrs:efe1fdfd6c0f": {
       "sourceId": "talent:935",
@@ -20009,12 +20407,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_9/weiren954"
     },
-    "mrs:08b6aa72e298": {
+    "mrs:85fc72b5343e": {
       "sourceId": "buff-source:2201561",
       "sourceName": "愈战愈勇_护盾",
       "sourceNames": {
         "design": "愈战愈勇_护盾"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_9/weiren954"
     },
     "mrs:8928b6689acf": {
       "sourceId": "buff-source:2201570",
@@ -20123,6 +20522,24 @@
         "id": "Stone Projectile"
       },
       "iconPath": "ui/atlas/talent_passive_9/weiren960"
+    },
+    "mrs:01d94acd5e02": {
+      "sourceId": "buff-source:2201640",
+      "sourceName": "Granite Fury Pursuit",
+      "sourceNames": {
+        "en": "Granite Fury Pursuit",
+        "zh-CN": "岩怒追击",
+        "zh-TW": "岩怒追擊",
+        "ja": "岩拳回復",
+        "ko-KR": "바위 주먹 회복",
+        "fr": "Poursuite de la Furie de granit",
+        "de": "Granitfuror-Verfolgung",
+        "es": "Persecución de Furia de Granito",
+        "pt-BR": "Perseguição da Fúria de Granito",
+        "th": "Rock Heal",
+        "id": "Rock Fist Recovery"
+      },
+      "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_pierce"
     },
     "mrs:a3e792ccca08": {
       "sourceId": "buff-source:2201641",
@@ -20354,14 +20771,10 @@
         "en": "Healing Chain",
         "zh-CN": "治疗链接",
         "zh-TW": "治療連結",
-        "ja": "治癒球",
-        "ko-KR": "치료 구체",
         "fr": "Chaîne de soins",
         "de": "Heilungskette",
         "es": "Cadena Curativa",
         "pt-BR": "Cadeia de Cura",
-        "th": "Healing Orb",
-        "id": "Heal Orb",
         "design": "治疗链子BUFF"
       }
     },
@@ -20401,7 +20814,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_aoyitrigger"
     },
-    "mrs:07a263a8d0ef": {
+    "mrs:0995fdec0b2b": {
       "sourceId": "buff-source:2202112",
       "sourceName": "Overhealing",
       "sourceNames": {
@@ -20412,7 +20825,8 @@
         "de": "Überheilung",
         "pt-BR": "cura excedente",
         "id": "Healing yang berlebih"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_aoyitrigger"
     },
     "mrs:0fa0684ce020": {
       "sourceId": "buff-source:2202120",
@@ -20450,12 +20864,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_healshield"
     },
-    "mrs:270d78b78585": {
+    "mrs:eae211d8cff4": {
       "sourceId": "buff-source:2202121",
       "sourceName": "自然护盾_子BUFF_目标身上cd",
       "sourceNames": {
         "design": "自然护盾_子BUFF_目标身上cd"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_healshield"
     },
     "mrs:e4e4d8397756": {
       "sourceId": "buff-source:2202130",
@@ -20826,23 +21241,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_killhealring"
     },
-    "mrs:abd6404b2c5f": {
+    "mrs:484ab24b3456": {
       "sourceId": "buff-source:2202291",
       "sourceName": "Healing Orb",
       "sourceNames": {
         "en": "Healing Orb",
         "zh-CN": "治疗球",
         "zh-TW": "治療球",
-        "ja": "幸運の一撃",
-        "ko-KR": "행운의 일격",
         "fr": "Orbe de soin",
         "de": "Heilungskugel",
         "es": "Orbe curativo",
         "pt-BR": "Orbe de Cura",
-        "th": "Lucky Strike",
-        "id": "Lucky Hit",
         "design": "生命馈赠-治疗子buff"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_aid"
     },
     "mrs:d31896007798": {
       "sourceId": "talent:528",
@@ -20880,23 +21292,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_seedtrriger"
     },
-    "mrs:ee63368d2a15": {
+    "mrs:5c1bb7eeb1f5": {
       "sourceId": "buff-source:2202311",
       "sourceName": "Nourishing Seed",
       "sourceNames": {
         "en": "Nourishing Seed",
         "zh-CN": "滋养之种",
         "zh-TW": "滋養之種",
-        "ja": "自然開花",
-        "ko-KR": "자연 개화",
         "fr": "Graine nourricière",
         "de": "Nährsaat",
         "es": "Semilla Nutritiva",
         "pt-BR": "Semente Nutritiva",
-        "th": "Natural Bloom",
-        "id": "Natural Bloom",
         "design": "自然之灵的愤怒-治疗子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_seedtrriger"
     },
     "mrs:2f37f7fe3fd3": {
       "sourceId": "talent:509",
@@ -21391,14 +21800,10 @@
         "en": "Blossom Charge",
         "zh-CN": "盛放注能",
         "zh-TW": "盛放注能",
-        "ja": "共生の印",
-        "ko-KR": "공생의 인장",
         "fr": "Charge florale",
         "de": "Blütenansturm",
         "es": "Carga Floral",
         "pt-BR": "Carga Florescente",
-        "th": "Symbiotic Mark",
-        "id": "Symbiosis Mark",
         "design": "坍缩！boom~"
       },
       "iconPath": "ui/textures/skill_weapon_fh/weapon_fh-01_kx07"
@@ -21410,14 +21815,10 @@
         "en": "Blossom Charge",
         "zh-CN": "盛放注能",
         "zh-TW": "盛放注能",
-        "ja": "共生の印",
-        "ko-KR": "공생의 인장",
         "fr": "Charge florale",
         "de": "Blütenansturm",
         "es": "Carga Floral",
         "pt-BR": "Carga Florescente",
-        "th": "Symbiotic Mark",
-        "id": "Symbiosis Mark",
         "design": "坍缩！boom~"
       },
       "iconPath": "ui/textures/skill_weapon_fh/weapon_fh-01_kx07"
@@ -21548,24 +21949,6 @@
       },
       "iconPath": "ui/atlas/talent_passive_5/fahuan561"
     },
-    "mrs:08cb664e2adc": {
-      "sourceId": "talent:562",
-      "sourceName": "Energy Arcane",
-      "sourceNames": {
-        "en": "Energy Arcane",
-        "zh-CN": "能量勃发",
-        "zh-TW": "能量勃發",
-        "ja": "エネルギー発生",
-        "ko-KR": "왕성한 에너지",
-        "fr": "Énergie arcanique",
-        "de": "Arkane Energie",
-        "es": "Energía Arcana",
-        "pt-BR": "Energia Arcana",
-        "th": "การระเบิดของพลังงาน",
-        "id": "Energy Burst"
-      },
-      "iconPath": "ui/atlas/talent_passive_5/fahuan562"
-    },
     "mrs:96e7bcb1a538": {
       "sourceId": "talent:563",
       "sourceName": "Transcendence",
@@ -21643,7 +22026,8 @@
       "sourceName": "蓝花花护盾",
       "sourceNames": {
         "design": "蓝花花护盾"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_icon25"
     },
     "mrs:2f7506d92a2a": {
       "sourceId": "talent:567",
@@ -21861,7 +22245,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_wolfswoop"
     },
-    "mrs:007ee6314d8f": {
+    "mrs:347b98b1d8e6": {
       "sourceId": "buff-source:2203091",
       "sourceName": "Bleed",
       "sourceNames": {
@@ -21877,7 +22261,8 @@
         "th": "Bleed",
         "id": "Life Loss",
         "design": "幻影狼袭-子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_extralightarrow"
     },
     "mrs:faedd9953ec3": {
       "sourceId": "talent:1109",
@@ -21897,7 +22282,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_wolfbleed"
     },
-    "mrs:25203b3cf888": {
+    "mrs:0847cf1563dc": {
       "sourceId": "buff-source:2203101",
       "sourceName": "Bleed",
       "sourceNames": {
@@ -21913,9 +22298,10 @@
         "th": "Bleed",
         "id": "Life Loss",
         "design": "魔狼撕咬_生命流失"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_extralightarrow"
     },
-    "mrs:8afd51cf7d1b": {
+    "mrs:805ca49810d5": {
       "sourceId": "buff-source:2203102",
       "sourceName": "Bleed",
       "sourceNames": {
@@ -21931,7 +22317,8 @@
         "th": "Bleed",
         "id": "Life Loss",
         "design": "魔狼撕咬-子BUFF2"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_extralightarrow"
     },
     "mrs:e06f99eb22f2": {
       "sourceId": "talent:1110",
@@ -22005,7 +22392,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_extralightarrow"
     },
-    "mrs:4bbc2bcf09cc": {
+    "mrs:816b5ee507ad": {
       "sourceId": "buff-source:2203141",
       "sourceName": "Bleed",
       "sourceNames": {
@@ -22021,7 +22408,8 @@
         "th": "Bleed",
         "id": "Life Loss",
         "design": "灵箭追踪-子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_extralightarrow"
     },
     "mrs:93eb2c000b62": {
       "sourceId": "talent:1117",
@@ -22059,30 +22447,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_thunderbird02"
     },
-    "mrs:7925fdb75133": {
+    "mrs:6481d43847e4": {
       "sourceId": "buff-source:2203181",
       "sourceName": "鹰眼闪电破-子BUFF",
       "sourceNames": {
         "design": "鹰眼闪电破-子BUFF"
-      }
-    },
-    "mrs:92ee7c530118": {
-      "sourceId": "talent:1119",
-      "sourceName": "Meteor",
-      "sourceNames": {
-        "en": "Meteor",
-        "zh-CN": "天空之落星",
-        "zh-TW": "天空之落星",
-        "ja": "空裂く閃光",
-        "ko-KR": "하늘에서 떨어지는 별",
-        "fr": "Météore",
-        "de": "Meteor",
-        "es": "Meteoro",
-        "pt-BR": "Meteoro",
-        "th": "Skyfall Star",
-        "id": "Falling Star of Sky"
       },
-      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_skyhitcri"
+      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_thunderbird02"
     },
     "mrs:e4c54357ef08": {
       "sourceId": "talent:1120",
@@ -22247,12 +22618,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_skyhitget"
     },
-    "mrs:911cf59a2cc7": {
+    "mrs:2e30d4351ad5": {
       "sourceId": "buff-source:2203291",
       "sourceName": "苍穹之落-子BUFF",
       "sourceNames": {
         "design": "苍穹之落-子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_general_dps_lightenergycost"
     },
     "mrs:fba5edf77db1": {
       "sourceId": "talent:1130",
@@ -22272,7 +22644,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_bleedbow"
     },
-    "mrs:76239a707058": {
+    "mrs:0d8d54a9aa9b": {
       "sourceId": "buff-source:2203302",
       "sourceName": "Bleed",
       "sourceNames": {
@@ -22288,7 +22660,8 @@
         "th": "Bleed",
         "id": "Life Loss",
         "design": "生命流失-子BUFF2"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_11/talent_passive_icon_general_dps_extralightarrow"
     },
     "mrs:a959ee3d84c4": {
       "sourceId": "talent:1131",
@@ -22784,24 +23157,6 @@
       },
       "iconPath": "ui/atlas/talent_passive_11/gongjian1158"
     },
-    "mrs:d71f22658ff5": {
-      "sourceId": "talent:1159",
-      "sourceName": "Eagle Eye",
-      "sourceNames": {
-        "en": "Eagle Eye",
-        "zh-CN": "鹰眼",
-        "zh-TW": "鷹眼",
-        "ja": "臣鷹の目",
-        "ko-KR": "매의 눈",
-        "fr": "Œil d'aigle",
-        "de": "Adlerauge",
-        "es": "Ojo de Águila",
-        "pt-BR": "Olho de Águia",
-        "th": "Hawkeye",
-        "id": "Eagleview"
-      },
-      "iconPath": "ui/atlas/talent_passive_11/gongjian1159"
-    },
     "mrs:55dbd41a2c86": {
       "sourceId": "talent:1166",
       "sourceName": "Steel Beak Gathering",
@@ -22819,24 +23174,6 @@
         "id": "Steel Beak Convergence"
       },
       "iconPath": "ui/atlas/talent_passive_11/gongjian1166"
-    },
-    "mrs:b41a7831e358": {
-      "sourceId": "talent:1161",
-      "sourceName": "Radiant Charge",
-      "sourceNames": {
-        "en": "Radiant Charge",
-        "zh-CN": "辉爆蓄势",
-        "zh-TW": "輝爆蓄勢",
-        "ja": "閃爆充填",
-        "ko-KR": "폭발 예열",
-        "fr": "Charge radieuse",
-        "de": "Strahlende Aufladung",
-        "es": "Carga Radiante",
-        "pt-BR": "Carga Radiante",
-        "th": "สะสมพลังระเบิดแสง",
-        "id": "Brilliant Burst Charge"
-      },
-      "iconPath": "ui/atlas/talent_passive_11/gongjian1161"
     },
     "mrs:dcfce237309c": {
       "sourceId": "talent:1162",
@@ -24278,12 +24615,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_4/talent_passive_icon_general_dps_tyrannical"
     },
-    "mrs:ab3192170cf4": {
+    "mrs:1624d78a75fa": {
       "sourceId": "buff-source:2205162",
       "sourceName": "创伤buff引爆",
       "sourceNames": {
         "design": "创伤buff引爆"
-      }
+      },
+      "iconPath": "ui/atlas/buff/buff_passive_icon_general_dps_tyrannical"
     },
     "mrs:497a985a5418": {
       "sourceId": "talent:418",
@@ -25457,19 +25795,21 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1214"
     },
-    "mrs:168f24447825": {
+    "mrs:cbe5e3fdf29b": {
       "sourceId": "buff-source:2206151",
       "sourceName": "神圣打击",
       "sourceNames": {
         "design": "神圣打击"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1214"
     },
-    "mrs:8711ec5e87f0": {
+    "mrs:d492c3371015": {
       "sourceId": "buff-source:2206152",
       "sourceName": "护盾-无畏之盾",
       "sourceNames": {
         "design": "护盾-无畏之盾"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1214"
     },
     "mrs:5fb7eb0b7d02": {
       "sourceId": "talent:1216",
@@ -25579,7 +25919,7 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1222"
     },
-    "mrs:7d7fd881cf24": {
+    "mrs:1ab2484705f8": {
       "sourceId": "buff-source:2206240",
       "sourceName": "Holy Radiance",
       "sourceNames": {
@@ -25615,41 +25955,35 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1223"
     },
-    "mrs:77bc05a5a7f4": {
+    "mrs:7d60d1c50055": {
       "sourceId": "buff-source:2206241",
       "sourceName": "Holy Mark",
       "sourceNames": {
         "en": "Holy Mark",
         "zh-CN": "神圣印记",
         "zh-TW": "神聖印記",
-        "ja": "シールドアタック防御",
-        "ko-KR": "방패 수호",
         "fr": "Marque sacrée",
         "de": "Heiliges Mal",
         "es": "Marca sagrada",
         "pt-BR": "Marca Sagrada",
-        "th": "Shield Guard",
-        "id": "Shield Strike Guard",
         "design": "神圣印记"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1223"
     },
-    "mrs:43c5ffac9c60": {
+    "mrs:be95790f74c1": {
       "sourceId": "buff-source:2206243",
       "sourceName": "Holy Mark",
       "sourceNames": {
         "en": "Holy Mark",
         "zh-CN": "神圣印记",
         "zh-TW": "神聖印記",
-        "ja": "シールドアタック防御",
-        "ko-KR": "방패 수호",
         "fr": "Marque sacrée",
         "de": "Heiliges Mal",
         "es": "Marca sagrada",
         "pt-BR": "Marca Sagrada",
-        "th": "Shield Guard",
-        "id": "Shield Strike Guard",
         "design": "神圣印记伤害"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1223"
     },
     "mrs:93e237bbcff8": {
       "sourceId": "talent:1224",
@@ -25669,24 +26003,6 @@
         "design": "决心斩击"
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1224"
-    },
-    "mrs:54683826610a": {
-      "sourceId": "talent:1225",
-      "sourceName": "Lightforged Drive",
-      "sourceNames": {
-        "en": "Lightforged Drive",
-        "zh-CN": "光铸驱动",
-        "zh-TW": "光鑄驅動",
-        "ja": "光駆動",
-        "ko-KR": "라이트포지드 드라이브",
-        "fr": "Impulsion forgelumière",
-        "de": "Lichtgeschmiedeter Antrieb",
-        "es": "Impulso Lumínico",
-        "pt-BR": "Ímpeto Forjado em Luz",
-        "th": "Lightforged Drive",
-        "id": "Lightforged Drive"
-      },
-      "iconPath": "ui/atlas/talent_passive_12/jiandun1225"
     },
     "mrs:c9f8a3f324a5": {
       "sourceId": "buff-source:2206262",
@@ -25893,41 +26209,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1239"
     },
-    "mrs:85445c2edcb9": {
+    "mrs:65ffd99f5339": {
       "sourceId": "buff-source:2206401",
       "sourceName": "Divine Strike",
       "sourceNames": {
         "en": "Divine Strike",
         "zh-CN": "神圣之击",
         "zh-TW": "神聖之擊",
-        "ja": "光のコア",
-        "ko-KR": "라이트 코어",
         "fr": "Frappe divine",
         "de": "Göttlicher Schlag",
         "es": "Golpe Divino",
         "pt-BR": "Golpe Divino",
-        "th": "Radiant Core",
-        "id": "Core of Light",
         "design": "神圣之击"
-      }
-    },
-    "mrs:7c3f40557180": {
-      "sourceId": "buff-source:2206421",
-      "sourceName": "Scorching Heat",
-      "sourceNames": {
-        "en": "Scorching Heat",
-        "zh-CN": "炽热",
-        "zh-TW": "熾熱",
-        "ja": "灼熱",
-        "ko-KR": "열화의 숙청",
-        "fr": "Chaleur torride",
-        "de": "Sengende Hitze",
-        "es": "Calor Abrasador",
-        "pt-BR": "Calor Escaldante",
-        "th": "ร้อนแรง",
-        "id": "Blazing Heat"
       },
-      "iconPath": "ui/atlas/buff/buff_icon76"
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1239"
     },
     "mrs:5c98a6d45cdb": {
       "sourceId": "talent:1242",
@@ -26127,24 +26422,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1253"
     },
-    "mrs:5888a9948006": {
+    "mrs:16431695de9e": {
       "sourceId": "buff-source:2206541",
       "sourceName": "Vanguard Hunt",
       "sourceNames": {
         "en": "Vanguard Hunt",
         "zh-CN": "先锋追击",
         "zh-TW": "先鋒追擊",
-        "ja": "ジャッジメント",
-        "ko-KR": "심판",
         "fr": "Chasse d'avant-garde",
         "de": "Vorhutjagd",
         "es": "Caza de Vanguardia",
         "pt-BR": "Caçada do Vanguardeiro",
-        "th": "Judgment",
-        "id": "Judgement",
         "design": "悍勇无畏强化技能"
       },
-      "iconPath": "ui/textures/skill_weapon_jd/weapon_jd-01_tg01"
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1253"
     },
     "mrs:65f3d715266b": {
       "sourceId": "talent:1254",
@@ -26182,24 +26473,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_12/jiandun1254"
     },
-    "mrs:89149b7b1a8d": {
+    "mrs:fe47b91e713f": {
       "sourceId": "buff-source:2206561",
       "sourceName": "Vanguard Hunt",
       "sourceNames": {
         "en": "Vanguard Hunt",
         "zh-CN": "先锋追击",
         "zh-TW": "先鋒追擊",
-        "ja": "ジャッジメント",
-        "ko-KR": "심판",
         "fr": "Chasse d'avant-garde",
         "de": "Vorhutjagd",
         "es": "Caza de Vanguardia",
         "pt-BR": "Caçada do Vanguardeiro",
-        "th": "Judgment",
-        "id": "Judgement",
         "design": "征伐追击强化技能"
       },
-      "iconPath": "ui/textures/skill_weapon_jd/weapon_jd-01_tg01"
+      "iconPath": "ui/atlas/talent_passive_12/jiandun1255"
     },
     "mrs:e1d6b1877718": {
       "sourceId": "talent:1256",
@@ -26517,24 +26804,6 @@
       },
       "iconPath": "ui/atlas/talent_passive_13/gita1307"
     },
-    "mrs:64cc5320a2e1": {
-      "sourceId": "talent:1308",
-      "sourceName": "Dissonance Spec",
-      "sourceNames": {
-        "en": "Dissonance Spec",
-        "zh-CN": "狂音流",
-        "zh-TW": "狂音流",
-        "ja": "狂音型",
-        "ko-KR": "음파 계열",
-        "fr": "Spécialisation Dissonance",
-        "de": "Dissonanz-Spezialisierung",
-        "es": "Especialización de Disonancia",
-        "pt-BR": "Especialização: Dissonância",
-        "th": "คลื่นเสียงคลั่ง",
-        "id": "Mad Tune"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1308"
-    },
     "mrs:a6e772333373": {
       "sourceId": "talent:1309",
       "sourceName": "Lucky Soundwave",
@@ -26632,14 +26901,10 @@
         "en": "Note",
         "zh-CN": "音符",
         "zh-TW": "音符",
-        "ja": "赤光カウンター攻撃",
-        "ko-KR": "붉은빛 반격",
         "fr": "Note",
         "de": "Note",
         "es": "Nota",
         "pt-BR": "Nota",
-        "th": "Red light counter",
-        "id": "Red Light Counter Attack",
         "design": "双重旋律治疗"
       }
     },
@@ -26703,24 +26968,6 @@
       "sourceNames": {
         "design": "强化节拍效果"
       }
-    },
-    "mrs:84710d9006b7": {
-      "sourceId": "talent:1316",
-      "sourceName": "Restart",
-      "sourceNames": {
-        "en": "Restart",
-        "zh-CN": "重启",
-        "zh-TW": "重啟",
-        "ja": "再始動",
-        "ko-KR": "재시작",
-        "fr": "Recommencer",
-        "de": "Neu starten",
-        "es": "Reiniciar",
-        "pt-BR": "Reiniciar",
-        "th": "รีสตาร์ท",
-        "id": "Restart"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1316"
     },
     "mrs:08aba8c4dc95": {
       "sourceId": "talent:1317",
@@ -26920,24 +27167,6 @@
       },
       "iconPath": "ui/atlas/talent_passive_13/gita1326"
     },
-    "mrs:c9994138263d": {
-      "sourceId": "talent:1327",
-      "sourceName": "Critical Acclaim",
-      "sourceNames": {
-        "en": "Critical Acclaim",
-        "zh-CN": "临界喝彩",
-        "zh-TW": "臨界喝彩",
-        "ja": "喝彩",
-        "ko-KR": "임계 환호",
-        "fr": "Acclamation critique",
-        "de": "Kritischer Beifall",
-        "es": "Aclamación Crítica",
-        "pt-BR": "Aclamação Crítica",
-        "th": "Critical Cheer",
-        "id": "Critical Applause"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1327"
-    },
     "mrs:f3401344018b": {
       "sourceId": "talent:1328",
       "sourceName": "Rhythm Spirit",
@@ -26955,24 +27184,6 @@
         "id": "Rhythmic Essence"
       },
       "iconPath": "ui/atlas/talent_passive_13/gita1328"
-    },
-    "mrs:c5530a38a229": {
-      "sourceId": "talent:1331",
-      "sourceName": "Encore Chain",
-      "sourceNames": {
-        "en": "Encore Chain",
-        "zh-CN": "安可无限连奏",
-        "zh-TW": "安可無限連奏",
-        "ja": "追奏連奏",
-        "ko-KR": "앵콜 무한 연주",
-        "fr": "Chaîne de rappel",
-        "de": "Zugabenkette",
-        "es": "Cadena de Bis",
-        "pt-BR": "Corrente de Bis",
-        "th": "จังหวะ Encore ไร้จำกัด",
-        "id": "Encore Infinite Sequence"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1331"
     },
     "mrs:d26cfdc29a41": {
       "sourceId": "talent:1332",
@@ -27107,14 +27318,10 @@
         "en": "Note",
         "zh-CN": "音符",
         "zh-TW": "音符",
-        "ja": "赤光カウンター攻撃",
-        "ko-KR": "붉은빛 반격",
         "fr": "Note",
         "de": "Note",
         "es": "Nota",
         "pt-BR": "Nota",
-        "th": "Red light counter",
-        "id": "Red Light Counter Attack",
         "design": "音浪展开治疗"
       }
     },
@@ -27208,60 +27415,6 @@
         "design": "安可狂想"
       },
       "iconPath": "ui/atlas/talent_passive_13/gita1344"
-    },
-    "mrs:7b1a6e8dcac0": {
-      "sourceId": "talent:1345",
-      "sourceName": "Encore Persistence",
-      "sourceNames": {
-        "en": "Encore Persistence",
-        "zh-CN": "安可永续",
-        "zh-TW": "安可永續",
-        "ja": "追奏永続",
-        "ko-KR": "끝나지 않는 앵콜",
-        "fr": "Rappel persistant",
-        "de": "Andauernde Zugabe",
-        "es": "Persistencia del Bis",
-        "pt-BR": "Persistência de Bis",
-        "th": "Encore ยั่งยืน",
-        "id": "Encore Perpetuity"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1345"
-    },
-    "mrs:f584e2c73be5": {
-      "sourceId": "talent:1346",
-      "sourceName": "Encore Luck Boost",
-      "sourceNames": {
-        "en": "Encore Luck Boost",
-        "zh-CN": "安可幸运增幅",
-        "zh-TW": "安可幸運增幅",
-        "ja": "追奏幸運増幅",
-        "ko-KR": "앵콜 행운 증폭",
-        "fr": "Boost de chance du Rappel",
-        "de": "Zugabe-Glücksschub",
-        "es": "Mejora de Suerte del Bis",
-        "pt-BR": "Reforço de Sorte do Bis",
-        "th": "บูสต์นำโชค Encore",
-        "id": "Encore Lucky Boost"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1346"
-    },
-    "mrs:8da54e163719": {
-      "sourceId": "talent:1347",
-      "sourceName": "Encore Sharp Strike",
-      "sourceNames": {
-        "en": "Encore Sharp Strike",
-        "zh-CN": "安可锐击",
-        "zh-TW": "安可銳擊",
-        "ja": "追奏鋭撃",
-        "ko-KR": "앵콜 예격",
-        "fr": "Frappe affûtée du Rappel",
-        "de": "Zugabe: Scharfer Schlag",
-        "es": "Golpe Afilado del Bis",
-        "pt-BR": "Golpe Afiado de Bis",
-        "th": "Encore Sharp Strike",
-        "id": "Encore Strike"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1347"
     },
     "mrs:ab45e73f44c6": {
       "sourceId": "talent:1348",
@@ -27533,24 +27686,6 @@
       },
       "iconPath": "ui/atlas/talent_passive_13/gita1361"
     },
-    "mrs:a868bad98b52": {
-      "sourceId": "talent:1362",
-      "sourceName": "Encore Chain",
-      "sourceNames": {
-        "en": "Encore Chain",
-        "zh-CN": "安可连发",
-        "zh-TW": "安可連發",
-        "ja": "アンコール連発",
-        "ko-KR": "앵콜 연발",
-        "fr": "Chaîne de rappel",
-        "de": "Zugabenkette",
-        "es": "Cadena de Bis",
-        "pt-BR": "Cadeia de Bis",
-        "th": "Encore คอมโบ้",
-        "id": "Encore Barrage"
-      },
-      "iconPath": "ui/atlas/talent_passive_13/gita1362"
-    },
     "mrs:54cd9dbdce26": {
       "sourceId": "talent:1363",
       "sourceName": "Tower Resonance",
@@ -27605,23 +27740,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_13/gita1365"
     },
-    "mrs:4920256af371": {
+    "mrs:b56696aa5c8f": {
       "sourceId": "buff-source:2207681",
       "sourceName": "Sonic Surge",
       "sourceNames": {
         "en": "Sonic Surge",
         "zh-CN": "音符热浪",
         "zh-TW": "音符熱浪",
-        "ja": "ブレイズスラッシュ",
-        "ko-KR": "불꽃 휘두르기",
         "fr": "Déferlante sonique",
         "de": "Schallwoge",
         "es": "Oleada Sónica",
         "pt-BR": "Surto Sônico",
-        "th": "การฟาดฟันร้อนแรง",
-        "id": "Blazing Swing",
         "design": "螺旋炎奏效果"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_13/gita1367"
     },
     "mrs:203bb28bf84b": {
       "sourceId": "talent:302",
@@ -27893,23 +28025,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_3/shuangfu316"
     },
-    "mrs:0b00db7c5103": {
+    "mrs:5b7f5e728880": {
       "sourceId": "buff-source:2208172",
       "sourceName": "Burn",
       "sourceNames": {
         "en": "Burn",
         "zh-CN": "燃烧",
         "zh-TW": "燃燒",
-        "ja": "絶技！ロアコマンド",
-        "ko-KR": "비기! 포효 명령",
         "fr": "Brûlure",
         "de": "Verbrennung",
         "es": "Quemadura",
         "pt-BR": "Queimadura",
-        "th": "Stunt! Commanding Roar",
-        "id": "Ultimate! Roar Command",
         "design": "引燃buff效果"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_3/shuangfu316"
     },
     "mrs:288a1122e3f5": {
       "sourceId": "talent:317",
@@ -27929,23 +28058,20 @@
       },
       "iconPath": "ui/atlas/talent_passive_3/shuangfu317"
     },
-    "mrs:a90832609db6": {
+    "mrs:598bb19a7c0c": {
       "sourceId": "buff-source:2208181",
       "sourceName": "Explosion.",
       "sourceNames": {
         "en": "Explosion.",
         "zh-CN": "炎爆",
         "zh-TW": "炎爆",
-        "ja": "絶技！スターフォール",
-        "ko-KR": "비기! 별의 몰락",
         "fr": "Explosion.",
         "de": "Explosion.",
         "es": "Explosión",
         "pt-BR": "Explosão.",
-        "th": "Stunt! Falling Star",
-        "id": "Ultimate! Falling Star",
         "design": "炼狱火车效果"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_3/shuangfu317"
     },
     "mrs:c060340fb5f7": {
       "sourceId": "talent:318",
@@ -28874,7 +29000,7 @@
       },
       "iconPath": "ui/atlas/mod_effect/mod_effect_icon_012"
     },
-    "mrs:02bdabcfbe1a": {
+    "mrs:0898671452a2": {
       "sourceId": "buff-source:2300080",
       "sourceName": "Life Steal",
       "sourceNames": {
@@ -28900,6 +29026,25 @@
         "design": "废弃"
       }
     },
+    "mrs:34a6621ccad3": {
+      "sourceId": "buff-source:2302320",
+      "sourceName": "First Aid",
+      "sourceNames": {
+        "en": "First Aid",
+        "zh-CN": "极·急救措施",
+        "zh-TW": "極·急救措施",
+        "ja": "極・応急処置",
+        "ko-KR": "극・응급 처치",
+        "fr": "Premiers secours",
+        "de": "Erste Hilfe",
+        "es": "Primeros auxilios",
+        "pt-BR": "Primeiros Socorros",
+        "th": "First Aid",
+        "id": "Ultimate - First Aid",
+        "design": "【急救】"
+      },
+      "iconPath": "ui/atlas/mod_effect/mod_effect_icon_024"
+    },
     "mrs:75cd9c70ab5e": {
       "sourceId": "buff-source:2302321",
       "sourceName": "First Aid",
@@ -28907,16 +29052,13 @@
         "en": "First Aid",
         "zh-CN": "极·急救措施",
         "zh-TW": "極·急救措施",
-        "ja": "虚蝕の波動",
-        "ko-KR": "침식의 파동",
         "fr": "Premiers secours",
         "de": "Erste Hilfe",
         "es": "Primeros auxilios",
         "pt-BR": "Primeiros Socorros",
-        "th": "Void Corruption Fluctuation",
-        "id": "Void Wave",
         "design": "————持续回血"
-      }
+      },
+      "iconPath": "ui/atlas/mod_effect/mod_effect_icon_024"
     },
     "mrs:451b89c914f1": {
       "sourceId": "buff-source:2302421",
@@ -28989,7 +29131,25 @@
       },
       "iconPath": "ui/atlas/buff/buff_talent_skill_360105"
     },
-    "mrs:24f7cc7dc131": {
+    "mrs:c3c9f6ebccff": {
+      "sourceId": "buff-source:3001030",
+      "sourceName": "Void Aura",
+      "sourceNames": {
+        "en": "Void Aura",
+        "zh-CN": "虚蚀光环",
+        "zh-TW": "虛蝕光環",
+        "ja": "虚蝕オーラ",
+        "ko-KR": "허무의 침식 오라",
+        "fr": "Aura du Néant",
+        "de": "Leeren-Aura",
+        "es": "Aura del vacío",
+        "pt-BR": "Aura do Vazio",
+        "th": "Void Aura",
+        "id": "Void Aura"
+      },
+      "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_grind"
+    },
+    "mrs:f92282ef92f1": {
       "sourceId": "buff-source:3001031",
       "sourceName": "Void Aura",
       "sourceNames": {
@@ -29008,7 +29168,7 @@
       },
       "iconPath": "ui/atlas/hud/buff/buff_blue_heal"
     },
-    "mrs:c58102785af8": {
+    "mrs:05aed61357a1": {
       "sourceId": "buff-source:3001170",
       "sourceName": "Void Corruption Fluctuation",
       "sourceNames": {
@@ -29026,26 +29186,29 @@
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_grind"
     },
-    "mrs:239f2cd664b3": {
+    "mrs:89ec17684654": {
       "sourceId": "buff-source:3001192",
       "sourceName": "暗蚀回溯——放技能",
       "sourceNames": {
         "design": "暗蚀回溯——放技能"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_sup_burstforth"
     },
-    "mrs:1f8cd39f4186": {
+    "mrs:276c7d595faf": {
       "sourceId": "buff-source:3001201",
       "sourceName": "暗影庇护——子BUFF",
       "sourceNames": {
         "design": "暗影庇护——子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_5/talent_passive_icon_general_dps_inttran"
     },
-    "mrs:ea81e4c3b134": {
+    "mrs:40889cc58f97": {
       "sourceId": "buff-source:3001211",
       "sourceName": "暗影守护—生效",
       "sourceNames": {
         "design": "暗影守护—生效"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_barrier"
     },
     "mrs:f0604ed16377": {
       "sourceId": "buff-source:3001220",
@@ -29065,12 +29228,13 @@
       },
       "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_barrier"
     },
-    "mrs:a86d0315fde1": {
+    "mrs:43aa3fbcf961": {
       "sourceId": "buff-source:3001231",
       "sourceName": "虚蚀盾——子BUFF",
       "sourceNames": {
         "design": "虚蚀盾——子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/talent_passive_9/talent_passive_icon_general_tank_grind"
     },
     "mrs:4b57911dd730": {
       "sourceId": "buff-source:3001260",
@@ -29468,6 +29632,24 @@
       },
       "iconPath": "ui/atlas/season_talent_icon/s2talent01_04"
     },
+    "mrs:354291768ba1": {
+      "sourceId": "buff-source:3002210",
+      "sourceName": "Phantom Execution",
+      "sourceNames": {
+        "en": "Phantom Execution",
+        "zh-CN": "幻梦处决",
+        "zh-TW": "幻夢處決",
+        "ja": "幻夢の断罪",
+        "ko-KR": "환상꿈 처형",
+        "fr": "Exécution fantôme",
+        "de": "Phantomhinrichtung",
+        "es": "Ejecución Fantasma",
+        "pt-BR": "Execução Fantasma",
+        "th": "Dream Execution",
+        "id": "Phantasm Execution"
+      },
+      "iconPath": "ui/atlas/season_talent/s2talent02_01"
+    },
     "mrs:cfa4a01ac8b3": {
       "sourceId": "season-talent-node:1101",
       "sourceName": "Phantom Execution",
@@ -29486,7 +29668,7 @@
       },
       "iconPath": "ui/atlas/season_talent/s2talent02_01"
     },
-    "mrs:872be889ba37": {
+    "mrs:7fdf8ffd0a0b": {
       "sourceId": "buff-source:3002215",
       "sourceName": "Phantom Execution",
       "sourceNames": {
@@ -29502,7 +29684,8 @@
         "th": "Vain Adjudication - ตัดสิน - รักษา",
         "id": "False Judgment - Judgment - Heal",
         "design": "幻梦处决实际伤害"
-      }
+      },
+      "iconPath": "ui/atlas/season_talent/s2talent02_01"
     },
     "mrs:2c491aa68465": {
       "sourceId": "season-talent-node:1102",
@@ -29954,7 +30137,7 @@
       },
       "iconPath": "ui/atlas/season_talent_icon/s2talent01_04"
     },
-    "mrs:d9e28a5ee4d0": {
+    "mrs:9db23eab0d4d": {
       "sourceId": "buff-source:3002671",
       "sourceName": "Mirage Dream - Immortal Stance",
       "sourceNames": {
@@ -29970,7 +30153,8 @@
         "th": "Arrow of Dream",
         "id": "Dream Arrow",
         "design": "迷幻梦境-不灭战姿子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/season_talent_icon/s2talent01_04"
     },
     "mrs:48a9e37fb58c": {
       "sourceId": "season-talent-node:1310",
@@ -30152,7 +30336,7 @@
       },
       "iconPath": "ui/atlas/season_talent_icon/s2talent01_04"
     },
-    "mrs:e5f47703089b": {
+    "mrs:39b85a9618a0": {
       "sourceId": "buff-source:3003023",
       "sourceName": "Oblivion Dream - Bloodbound Surge",
       "sourceNames": {
@@ -30168,9 +30352,10 @@
         "th": "Steady G8",
         "id": "Steady G8",
         "design": "血限冲域伤害"
-      }
+      },
+      "iconPath": "ui/atlas/season_talent_icon/s2talent01_04"
     },
-    "mrs:230c18f398bb": {
+    "mrs:afe5af949a84": {
       "sourceId": "buff-source:3003025",
       "sourceName": "Oblivion Dream - Bloodbound Surge",
       "sourceNames": {
@@ -30186,7 +30371,8 @@
         "th": "Steady G8",
         "id": "Steady G8",
         "design": "止境延界血限冲域伤害"
-      }
+      },
+      "iconPath": "ui/atlas/season_talent_icon/s2talent01_04"
     },
     "mrs:db7b3b30d5df": {
       "sourceId": "season-talent-node:1503",
@@ -30296,6 +30482,24 @@
       },
       "iconPath": "ui/atlas/season_talent_icon/s2talent01_04"
     },
+    "mrs:61af1749a103": {
+      "sourceId": "buff-source:3003210",
+      "sourceName": "Shattered Illusion",
+      "sourceNames": {
+        "en": "Shattered Illusion",
+        "zh-CN": "虚妄裁定",
+        "zh-TW": "虛妄裁定",
+        "ja": "虚妄断罪",
+        "ko-KR": "허망의 판결",
+        "fr": "Illusion brisée",
+        "de": "Zerschmetterte Illusion",
+        "es": "Ilusión Fragmentada",
+        "pt-BR": "Ilusão Despedaçada",
+        "th": "Vain Adjudication",
+        "id": "False Judgment"
+      },
+      "iconPath": "ui/atlas/season_talent/s2talent07_01"
+    },
     "mrs:a26968736dea": {
       "sourceId": "season-talent-node:1601",
       "sourceName": "Shattered Illusion",
@@ -30314,12 +30518,13 @@
       },
       "iconPath": "ui/atlas/season_talent/s2talent07_01"
     },
-    "mrs:1566c1d0d4ae": {
+    "mrs:53ab93e164fc": {
       "sourceId": "buff-source:3003213",
       "sourceName": "虚妄裁定-子BUFF技能",
       "sourceNames": {
         "design": "虚妄裁定-子BUFF技能"
-      }
+      },
+      "iconPath": "ui/atlas/season_talent/s2talent07_01"
     },
     "mrs:fdbbfe29abf4": {
       "sourceId": "season-talent-node:1602",
@@ -33240,7 +33445,8 @@
       "sourceName": "水球带冰风暴-伤害",
       "sourceNames": {
         "design": "水球带冰风暴-伤害"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry041"
     },
     "mrs:022b577a59ea": {
       "sourceId": "season-rogue-entry:244",
@@ -34583,7 +34789,7 @@
       },
       "iconPath": "ui/textures/rouge_icon/rogue_icon_entry095"
     },
-    "mrs:5d69b8fbbcf6": {
+    "mrs:6a84c723a25a": {
       "sourceId": "season-rogue-entry:296",
       "sourceName": "Shield Knight - Burning Judgment",
       "sourceNames": {
@@ -34691,7 +34897,7 @@
       },
       "iconPath": "ui/textures/rouge_icon/rogue_icon_entry101"
     },
-    "mrs:858e7bfa50fd": {
+    "mrs:74209e7dd691": {
       "sourceId": "season-rogue-entry:302",
       "sourceName": "Shield Knight - Holy Strike",
       "sourceNames": {
@@ -34874,7 +35080,7 @@
       },
       "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry110"
     },
-    "mrs:9b44647e2ec5": {
+    "mrs:96e4dbe68233": {
       "sourceId": "season-rogue-entry:309",
       "sourceName": "Shield Knight - Holy Sigil Judgment",
       "sourceNames": {
@@ -36014,7 +36220,7 @@
       },
       "iconPath": "ui/textures/rouge_icon/rogue_icon_entry063"
     },
-    "mrs:e4f8c527b434": {
+    "mrs:f465860f2f23": {
       "sourceId": "season-rogue-entry:264",
       "sourceName": "Verdant Oracle - Wild Growth",
       "sourceNames": {
@@ -36068,7 +36274,7 @@
       },
       "iconPath": "ui/textures/rouge_icon/rogue_icon_entry066"
     },
-    "mrs:7c5719779419": {
+    "mrs:17eada55ea80": {
       "sourceId": "season-rogue-entry:267",
       "sourceName": "Verdant Oracle - Scattering Infusion",
       "sourceNames": {
@@ -36140,7 +36346,7 @@
       },
       "iconPath": "ui/textures/rouge_icon/rogue_icon_entry070"
     },
-    "mrs:977fc78117da": {
+    "mrs:1f6beb249c16": {
       "sourceId": "season-rogue-entry:271",
       "sourceName": "Verdant Oracle - Nourish Burst",
       "sourceNames": {
@@ -36217,7 +36423,8 @@
       "sourceName": "自然之灵的愤怒-治疗子BUFF",
       "sourceNames": {
         "design": "自然之灵的愤怒-治疗子BUFF"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry074"
     },
     "mrs:ca37f5ce1cb5": {
       "sourceId": "season-rogue-entry:275",
@@ -36296,7 +36503,8 @@
       "sourceName": "生命汲取",
       "sourceNames": {
         "design": "生命汲取"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry078"
     },
     "mrs:9ee9dffec4be": {
       "sourceId": "phantom-factor:3056380",
@@ -36697,7 +36905,7 @@
         "design": "愈合乐章造成伤害"
       }
     },
-    "mrs:dee862ca35b4": {
+    "mrs:d28e0d133815": {
       "sourceId": "season-rogue-entry:326",
       "sourceName": "Beat Performer - Spotlight Finale",
       "sourceNames": {
@@ -36954,7 +37162,8 @@
       "sourceName": "持续爆炸效果",
       "sourceNames": {
         "design": "持续爆炸效果"
-      }
+      },
+      "iconPath": "ui/atlas/rouge_entry_icon/rogue_icon_entry024"
     },
     "mrs:af16c276cb48": {
       "sourceId": "season-rogue-entry:340",
@@ -38382,16 +38591,13 @@
         "en": "Arcane! Meteor Shower",
         "zh-CN": "奥义！流星陨落",
         "zh-TW": "奧義！流星隕落",
-        "ja": "絶技！ライトニングボール",
-        "ko-KR": "비기! 번개 구슬",
         "fr": "Arcane ! Pluie de météores",
         "de": "Arkana! Meteoritenschauer",
         "es": "¡Arcano! Lluvia Meteórica",
         "pt-BR": "Arcano! Chuva de Meteoros",
-        "th": "Stunt! Thunder Orb",
-        "id": "Ultimate! Lightning Sphere",
         "design": "风哥布林王 - 主动 - 触发"
-      }
+      },
+      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_029"
     },
     "mrs:5b1dbf8468a2": {
       "sourceId": "buff-source:3210022",
@@ -38400,16 +38606,13 @@
         "en": "Arcane! Meteor Shower",
         "zh-CN": "奥义！流星陨落",
         "zh-TW": "奧義！流星隕落",
-        "ja": "絶技！ライトニングボール",
-        "ko-KR": "비기! 번개 구슬",
         "fr": "Arcane ! Pluie de météores",
         "de": "Arkana! Meteoritenschauer",
         "es": "¡Arcano! Lluvia Meteórica",
         "pt-BR": "Arcano! Chuva de Meteoros",
-        "th": "Stunt! Thunder Orb",
-        "id": "Ultimate! Lightning Sphere",
         "design": "风哥布林王 - 被动 - 触发"
-      }
+      },
+      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_029"
     },
     "mrs:a0a3489d3222": {
       "sourceId": "buff-source:3210031",
@@ -38418,14 +38621,10 @@
         "en": "Arcane! Thunderfall Grasp",
         "zh-CN": "奥义！雷霆天引",
         "zh-TW": "奧義！雷霆天引",
-        "ja": "絶技！エアインパクト",
-        "ko-KR": "비기! 형태 없는 공격",
         "fr": "Arcane ! Étreinte foudroyante",
         "de": "Arkana! Donnerfallgriff",
         "es": "¡Arcano! Vórtice del Trueno",
         "pt-BR": "Arcano! Garra do Trovão",
-        "th": "Stunt! Invisible Impact",
-        "id": "Ultimate! Invisible Impact",
         "design": "雷电食人魔 - 被动 - 触发"
       },
       "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_014"
@@ -38437,52 +38636,41 @@
         "en": "Arcane! Blazing Axe",
         "zh-CN": "奥义！炽炎战斧",
         "zh-TW": "奧義！熾炎戰斧",
-        "ja": "絶技！サンダープレッシャー",
-        "ko-KR": "비기! 강압의 번개",
         "fr": "Arcane ! Hache ardente",
         "de": "Arkana! Lodernde Axt",
         "es": "¡Arcano! Hacha Ardiente",
         "pt-BR": "Arcano! Machado Flamejante",
-        "th": "Stunt! Thunder Suppress",
-        "id": "Ultimate! Overbearing Thunder",
         "design": "山贼首领 - 被动 - 子buff dot"
-      }
+      },
+      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_018"
     },
-    "mrs:7ecb6ac314fa": {
+    "mrs:7eba124e09eb": {
       "sourceId": "buff-source:3210061",
       "sourceName": "Stunt! Super Critical",
       "sourceNames": {
         "en": "Stunt! Super Critical",
         "zh-CN": "绝技！超会心",
         "zh-TW": "絕技！超會心",
-        "ja": "奥義！メテオフォール",
-        "ko-KR": "오의! 유성의 몰락",
         "fr": "Acrobatie ! Super critique",
         "de": "Stunt! Superkritisch",
         "es": "¡Proeza! Supercrítico",
         "pt-BR": "Proeza! Supercrítico",
-        "th": "Arcane! Meteor Shower",
-        "id": "Arcane! Meteor Fall",
-        "design": "姆克兵长 - 被动 - 触发"
+        "design": "姆克兵长-被动-触发"
       },
       "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_026"
     },
-    "mrs:b55fe55fff15": {
+    "mrs:a81c0fd9b651": {
       "sourceId": "buff-source:3210081",
       "sourceName": "Stunt! Thunder Suppress",
       "sourceNames": {
         "en": "Stunt! Thunder Suppress",
         "zh-CN": "绝技！强压之雷",
         "zh-TW": "絕技！強壓之雷",
-        "ja": "奥義！コクーンスペル",
-        "ko-KR": "오의! 고치술",
         "fr": "Acrobatie ! Suppression de foudre",
         "de": "Stunt! Donnerunterdrückung",
         "es": "¡Proeza! Supresión de Trueno",
         "pt-BR": "Proeza! Supressão Trovejante",
-        "th": "Arcane! Cocoon Tech",
-        "id": "Arcane! Cocoon Technique",
-        "design": "鱼人战士 - 被动 - 触发"
+        "design": "鱼人战士-被动-触发"
       },
       "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_040"
     },
@@ -38493,17 +38681,13 @@
         "en": "Arcane! Silent Tide",
         "zh-CN": "奥义！静默潮汐",
         "zh-TW": "奧義！靜默潮汐",
-        "ja": "奥義！ライフブレス",
-        "ko-KR": "오의! 생명의 기도",
         "fr": "Arcane ! Marée silencieuse",
         "de": "Arkana! Stille Flut",
         "es": "¡Arcano! Marea Silenciosa",
         "pt-BR": "Arcano! Maré Silenciosa",
-        "th": "Arcane! Blessing of Life",
-        "id": "Arcane! Life Wish",
         "design": "蜥蜴人王 - 潮汐之力触发"
       },
-      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_049"
+      "iconPath": "ui/atlas/buff/buff_passive_icon_general_dps_icedamgeup"
     },
     "mrs:9264d07fe5c3": {
       "sourceId": "buff-source:3210101",
@@ -38543,21 +38727,17 @@
       },
       "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_061"
     },
-    "mrs:1ef8667c430f": {
+    "mrs:59a68620823e": {
       "sourceId": "buff-source:3210171",
       "sourceName": "Stunt! Cabbage Blitz",
       "sourceNames": {
         "en": "Stunt! Cabbage Blitz",
         "zh-CN": "绝技！卷心菜霹雳闪",
         "zh-TW": "絕技！捲心菜霹靂閃",
-        "ja": "奥義！指令の象限",
-        "ko-KR": "오의! 지령 사분면",
         "fr": "Acrobatie ! Foudre du chou",
         "de": "Stunt! Kohlblitz",
         "es": "¡Proeza! Bombardeo de Col",
         "pt-BR": "Proeza! Bombardeio Repolho",
-        "th": "Arcane! Command Quadrant",
-        "id": "Arcane! Command Quadrant",
         "design": "卷心菜精英2-被动触发"
       }
     },
@@ -38568,17 +38748,13 @@
         "en": "Arcane! Precision Burst",
         "zh-CN": "奥义！精准点射",
         "zh-TW": "奧義！精準點射",
-        "ja": "絶技！絶対零度",
-        "ko-KR": "비기! 절대 영도",
         "fr": "Arcane ! Rafale de précision",
         "de": "Arkana! Präzisionssalve",
         "es": "¡Arcano! Ráfaga de Precisión",
         "pt-BR": "Arcano! Explosão de Precisão",
-        "th": "Stunt! Absolute Zero",
-        "id": "Ultimate! Absolute Zero",
         "design": "眼球王 - 被动"
       },
-      "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_077"
+      "iconPath": "ui/atlas/buff/buff_icon03"
     },
     "mrs:a53478571f95": {
       "sourceId": "buff-source:3210211",
@@ -38624,14 +38800,10 @@
         "en": "Arcane! Swift Devour",
         "zh-CN": "奥义！疾风连喰",
         "zh-TW": "奧義！疾風連喰",
-        "ja": "絶技！ラッシュスラム",
-        "ko-KR": "비기! 대지 강타",
         "fr": "Arcane ! Dévoration vivace",
         "de": "Arkana! Schnelles Verschlingen",
         "es": "¡Arcano! Devoración Veloz",
         "pt-BR": "Arcano! Devoração Veloz",
-        "th": "Stunt! Ground Smash",
-        "id": "Ultimate! Ground Bash",
         "design": "毛球王-AOE"
       },
       "iconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_079"
@@ -38908,7 +39080,7 @@
       "mrs:aaec782e5773"
     ],
     "buff-source:4501": [
-      "mrs:edcb4697c628"
+      "mrs:3bfebbcf0a6e"
     ],
     "buff-source:4601": [
       "mrs:50304665e238"
@@ -38971,13 +39143,19 @@
       "mrs:aae84120389e"
     ],
     "buff-source:21411": [
-      "mrs:415f5e6e3469"
+      "mrs:3fd4c545d564"
+    ],
+    "buff-source:21412": [
+      "mrs:27f7c1a7bc9e"
+    ],
+    "talent:562": [
+      "mrs:8089ffd0230f"
     ],
     "buff-source:21414": [
-      "mrs:c3791c83cdcf"
+      "mrs:4690bfced548"
     ],
     "buff-source:21418": [
-      "mrs:24c41dda072c"
+      "mrs:53fe38350951"
     ],
     "talent:533": [
       "mrs:f2bb4ef08c33"
@@ -38986,7 +39164,7 @@
       "mrs:796f36aab09d"
     ],
     "buff-source:21423": [
-      "mrs:7ca7b1f4069a"
+      "mrs:73ba2f1918bf"
     ],
     "buff-source:21424": [
       "mrs:d4d656f69636"
@@ -39073,7 +39251,7 @@
       "mrs:dcc9cd77bc28"
     ],
     "buff-source:35106": [
-      "mrs:1f6ab46c0d78"
+      "mrs:63b22ce84cbe"
     ],
     "buff-source:35107": [
       "mrs:db33a0ca4095"
@@ -39154,10 +39332,10 @@
       "mrs:4f12bd82a59a"
     ],
     "buff-source:50041": [
-      "mrs:3b73c2ccd4a7"
+      "mrs:c7d5236b0131"
     ],
     "buff-source:50043": [
-      "mrs:153ae62748ae"
+      "mrs:d66db856fc18"
     ],
     "buff-source:50049": [
       "mrs:b92de18892fc"
@@ -39226,10 +39404,16 @@
       "mrs:4b4480877145"
     ],
     "buff-source:55220": [
-      "mrs:079f2c48a290"
+      "mrs:d1649b6988b6"
     ],
     "buff-source:55223": [
       "mrs:706ab92f4f59"
+    ],
+    "buff-source:55413": [
+      "mrs:133074e86783"
+    ],
+    "buff-source:55414": [
+      "mrs:9d2c238a397d"
     ],
     "talent:1115": [
       "mrs:30d45c434359"
@@ -39241,7 +39425,7 @@
       "mrs:3734dad53b5c"
     ],
     "talent:1160": [
-      "mrs:d38dd2c7f232"
+      "mrs:37886c2b02c4"
     ],
     "buff-source:55229": [
       "mrs:0c83ddf87b30"
@@ -39259,7 +39443,7 @@
       "mrs:47444c9b4348"
     ],
     "talent:1157": [
-      "mrs:dce829ce8cff"
+      "mrs:53aa18a9c82b"
     ],
     "buff-source:55240": [
       "mrs:81c2d3b512d4"
@@ -39294,11 +39478,41 @@
     "talent:1300": [
       "mrs:9f87846e92c4"
     ],
+    "buff-source:55330": [
+      "mrs:c2a9521dfa84"
+    ],
+    "talent:1308": [
+      "mrs:cc4238d2d018"
+    ],
+    "talent:1316": [
+      "mrs:46fe452e6ebf"
+    ],
     "buff-source:55331": [
       "mrs:d1927f7e89e0"
     ],
     "buff-source:55332": [
       "mrs:589ed239f1e3"
+    ],
+    "buff-source:55333": [
+      "mrs:cc73424946fa"
+    ],
+    "talent:1327": [
+      "mrs:0921845145a5"
+    ],
+    "talent:1331": [
+      "mrs:82b78ace20af"
+    ],
+    "talent:1345": [
+      "mrs:191070b501f4"
+    ],
+    "talent:1346": [
+      "mrs:900db670ced5"
+    ],
+    "talent:1347": [
+      "mrs:742cc85dd8d5"
+    ],
+    "talent:1362": [
+      "mrs:7af12e8c7296"
     ],
     "buff-source:55339": [
       "mrs:c95508cb8aff"
@@ -39327,8 +39541,11 @@
     "buff-source:55404": [
       "mrs:bffb114c0798"
     ],
+    "buff-source:2206121": [
+      "mrs:b5d5c3f92d9f"
+    ],
     "buff-source:55405": [
-      "mrs:ff88e0b24c41"
+      "mrs:69215e1cb671"
     ],
     "talent:1213": [
       "mrs:94eb80352ea0"
@@ -39343,16 +39560,16 @@
       "mrs:17373ff625b3"
     ],
     "talent:1241": [
-      "mrs:c822d52623af"
+      "mrs:2ba1e6a60599"
     ],
     "talent:1248": [
       "mrs:fe61afb3ada4"
     ],
     "buff-source:55412": [
-      "mrs:a0193842b38f"
+      "mrs:90e16dd1539b"
     ],
     "talent:1218": [
-      "mrs:4e9aa912b2d2"
+      "mrs:142369ecf079"
     ],
     "talent:1226": [
       "mrs:635a1d8bec52"
@@ -39364,7 +39581,19 @@
       "mrs:b93609a1a22f"
     ],
     "buff-source:55417": [
-      "mrs:66cccfbbc469"
+      "mrs:3c73ffb62f87"
+    ],
+    "talent:1119": [
+      "mrs:64ae2e279e78"
+    ],
+    "talent:1159": [
+      "mrs:e70f3bf728d3"
+    ],
+    "talent:1161": [
+      "mrs:b712182f2cb2"
+    ],
+    "talent:1225": [
+      "mrs:61dee985a16a"
     ],
     "buff-source:55421": [
       "mrs:e167786a37a6"
@@ -39386,6 +39615,9 @@
     ],
     "buff-source:510573": [
       "mrs:45651ab72d57"
+    ],
+    "buff-source:510574": [
+      "mrs:a2afd0c46685"
     ],
     "buff-source:681812": [
       "mrs:bcada3e469a7"
@@ -39460,19 +39692,19 @@
       "mrs:1c6091390c1c"
     ],
     "buff-source:700044": [
-      "mrs:5672aba27c77"
+      "mrs:d501ed8bb9d3"
     ],
     "buff-source:700045": [
-      "mrs:4db3ccb216cd"
+      "mrs:0f1d8265bbaa"
     ],
     "buff-source:700052": [
-      "mrs:e35812470774"
+      "mrs:63c03ed1e1d5"
     ],
     "buff-source:700071": [
-      "mrs:d4c7e3fc4b92"
+      "mrs:67d1c00506c0"
     ],
     "buff-source:700078": [
-      "mrs:15f69177dd4f"
+      "mrs:358696fd3399"
     ],
     "buff-source:700080": [
       "mrs:7c6b8b0a8b38"
@@ -39490,13 +39722,13 @@
       "mrs:d4efc1ca144c"
     ],
     "buff-source:700101": [
-      "mrs:46b707c3d87c"
+      "mrs:99f2db918510"
     ],
     "buff-source:700106": [
-      "mrs:b06fd73eeae0"
+      "mrs:5dd4b629ef57"
     ],
     "buff-source:700108": [
-      "mrs:645ebd77d3c2"
+      "mrs:7e3da65e2fad"
     ],
     "buff-source:700110": [
       "mrs:561f520e8830"
@@ -39544,7 +39776,7 @@
       "mrs:226488bd88c0"
     ],
     "buff-source:701014": [
-      "mrs:09eb2e7d2223"
+      "mrs:f3ab19b15183"
     ],
     "buff-source:702012": [
       "mrs:adc087ac4da1"
@@ -39661,10 +39893,10 @@
       "mrs:1ac4dc53e73c"
     ],
     "buff-source:823007": [
-      "mrs:d17fc801bb84"
+      "mrs:14a705d30c18"
     ],
     "buff-source:823009": [
-      "mrs:c5c05ad9a72b"
+      "mrs:bcc57e05dfde"
     ],
     "buff-source:823010": [
       "mrs:eaaa98e68322"
@@ -39796,7 +40028,7 @@
       "mrs:5e078af57eca"
     ],
     "buff-source:833018": [
-      "mrs:4d0fb846ebb3"
+      "mrs:d72c3fff9c3e"
     ],
     "buff-source:833056": [
       "mrs:150ac35a8dec"
@@ -39886,7 +40118,7 @@
       "mrs:e47e021ab9bf"
     ],
     "buff-source:855137": [
-      "mrs:3c4ab5531b1c"
+      "mrs:68fb1f191fe7"
     ],
     "buff-source:855142": [
       "mrs:cb58c9fb5be9"
@@ -39958,7 +40190,7 @@
       "mrs:6798819b4ede"
     ],
     "buff-source:873003": [
-      "mrs:d6602753234c"
+      "mrs:4ac1261bcb15"
     ],
     "buff-source:873101": [
       "mrs:ebefba02c759"
@@ -40009,7 +40241,7 @@
       "mrs:62c7ee190222"
     ],
     "buff-source:880665": [
-      "mrs:0232d9abc13a"
+      "mrs:06b0c9a9f04c"
     ],
     "buff-source:880670": [
       "mrs:80bb5ca661c7"
@@ -40018,7 +40250,7 @@
       "mrs:e59284456375"
     ],
     "buff-source:880805": [
-      "mrs:89e70665d988"
+      "mrs:fca95129ac61"
     ],
     "buff-source:880809": [
       "mrs:95da80c31ba5"
@@ -40393,7 +40625,7 @@
       "mrs:e8f28191b9ab"
     ],
     "buff-source:900125": [
-      "mrs:1d3769e44324"
+      "mrs:b835bc977645"
     ],
     "buff-source:904002": [
       "mrs:6095fbe50e01"
@@ -40513,7 +40745,7 @@
       "mrs:609892f0876b"
     ],
     "buff-source:974340": [
-      "mrs:b282ecf8240f"
+      "mrs:bfd13a4b5530"
     ],
     "buff-source:990001": [
       "mrs:a98899a88798"
@@ -40567,7 +40799,7 @@
       "mrs:c11eadb4d104"
     ],
     "buff-source:990810": [
-      "mrs:0914b04d18a9"
+      "mrs:87309a93cf4f"
     ],
     "buff-source:990821": [
       "mrs:03e1e3d44b2f"
@@ -41377,10 +41609,10 @@
       "mrs:a62125dc122c"
     ],
     "buff-source:999990": [
-      "mrs:d3bf9d646b87"
+      "mrs:140e4b1c20fc"
     ],
     "buff-source:999991": [
-      "mrs:aadfd904034e"
+      "mrs:72411a827a69"
     ],
     "buff-source:2010004": [
       "mrs:4d8dc3107586"
@@ -42307,10 +42539,10 @@
       "mrs:dd59da61642e"
     ],
     "buff-source:2100006": [
-      "mrs:bb267afe4fce"
+      "mrs:7b7ffadcc2df"
     ],
     "buff-source:2100104": [
-      "mrs:078333fa12f8"
+      "mrs:b005c2325a12"
     ],
     "buff-source:2100111": [
       "mrs:39c99aede261"
@@ -42331,19 +42563,19 @@
       "mrs:42a9e20b16ef"
     ],
     "buff-source:2100155": [
-      "mrs:2b8a6bc152c5"
+      "mrs:8ace5000794c"
     ],
     "buff-source:2100156": [
-      "mrs:094c2ec29de3"
+      "mrs:a4a5f8c0a638"
     ],
     "buff-source:2100158": [
-      "mrs:3a56b7d00c73"
+      "mrs:b1ec766aaaac"
     ],
     "buff-source:2100212": [
-      "mrs:ba9c7c820973"
+      "mrs:0bb2c480a96c"
     ],
     "buff-source:2100409": [
-      "mrs:ed17f41a842f"
+      "mrs:bab840cebe24"
     ],
     "buff-source:2100410": [
       "mrs:801a790c0ebb"
@@ -42370,7 +42602,7 @@
       "mrs:f741c835eb05"
     ],
     "buff-source:2110035": [
-      "mrs:7dc59dc9b83d"
+      "mrs:c46d572e7105"
     ],
     "buff-source:2110042": [
       "mrs:b91932edcd86"
@@ -42451,10 +42683,10 @@
       "mrs:a6a6cf22a938"
     ],
     "buff-source:2110090": [
-      "mrs:ea0fa740a3a0"
+      "mrs:37a69123a8fe"
     ],
     "buff-source:2110091": [
-      "mrs:93ccfefe3786"
+      "mrs:8694f37c92f6"
     ],
     "buff-source:2110096": [
       "mrs:78457e81dd5e"
@@ -42877,16 +43109,16 @@
       "mrs:24ea1db8113b"
     ],
     "buff-source:2201343": [
-      "mrs:9ca34d004297"
+      "mrs:30e474fb5b0e"
     ],
     "buff-source:2201350": [
       "mrs:101f9075d3da"
     ],
     "buff-source:2201351": [
-      "mrs:c77cdee14b36"
+      "mrs:938873cde96f"
     ],
     "buff-source:2201362": [
-      "mrs:ae6840edacff"
+      "mrs:20e3731580ba"
     ],
     "talent:935": [
       "mrs:efe1fdfd6c0f"
@@ -42955,7 +43187,7 @@
       "mrs:38cf132b0f3f"
     ],
     "buff-source:2201561": [
-      "mrs:08b6aa72e298"
+      "mrs:85fc72b5343e"
     ],
     "buff-source:2201570": [
       "mrs:8928b6689acf"
@@ -42974,6 +43206,9 @@
     ],
     "talent:960": [
       "mrs:c7a2382fef31"
+    ],
+    "buff-source:2201640": [
+      "mrs:01d94acd5e02"
     ],
     "buff-source:2201641": [
       "mrs:a3e792ccca08"
@@ -43024,7 +43259,7 @@
       "mrs:709ed42c257d"
     ],
     "buff-source:2202112": [
-      "mrs:07a263a8d0ef"
+      "mrs:0995fdec0b2b"
     ],
     "buff-source:2202120": [
       "mrs:0fa0684ce020"
@@ -43033,7 +43268,7 @@
       "mrs:91bf1e5d3681"
     ],
     "buff-source:2202121": [
-      "mrs:270d78b78585"
+      "mrs:eae211d8cff4"
     ],
     "buff-source:2202130": [
       "mrs:e4e4d8397756"
@@ -43099,7 +43334,7 @@
       "mrs:6863680be5e2"
     ],
     "buff-source:2202291": [
-      "mrs:abd6404b2c5f"
+      "mrs:484ab24b3456"
     ],
     "talent:528": [
       "mrs:d31896007798"
@@ -43108,7 +43343,7 @@
       "mrs:6e5c65c59dff"
     ],
     "buff-source:2202311": [
-      "mrs:ee63368d2a15"
+      "mrs:5c1bb7eeb1f5"
     ],
     "talent:509": [
       "mrs:2f37f7fe3fd3"
@@ -43218,9 +43453,6 @@
     "talent:561": [
       "mrs:9b73f42c558e"
     ],
-    "talent:562": [
-      "mrs:08cb664e2adc"
-    ],
     "talent:563": [
       "mrs:96e7bcb1a538"
     ],
@@ -43273,16 +43505,16 @@
       "mrs:257ddc2d79b3"
     ],
     "buff-source:2203091": [
-      "mrs:007ee6314d8f"
+      "mrs:347b98b1d8e6"
     ],
     "talent:1109": [
       "mrs:faedd9953ec3"
     ],
     "buff-source:2203101": [
-      "mrs:25203b3cf888"
+      "mrs:0847cf1563dc"
     ],
     "buff-source:2203102": [
-      "mrs:8afd51cf7d1b"
+      "mrs:805ca49810d5"
     ],
     "talent:1110": [
       "mrs:e06f99eb22f2"
@@ -43297,7 +43529,7 @@
       "mrs:47ddcb429203"
     ],
     "buff-source:2203141": [
-      "mrs:4bbc2bcf09cc"
+      "mrs:816b5ee507ad"
     ],
     "talent:1117": [
       "mrs:93eb2c000b62"
@@ -43306,10 +43538,7 @@
       "mrs:99ced2867418"
     ],
     "buff-source:2203181": [
-      "mrs:7925fdb75133"
-    ],
-    "talent:1119": [
-      "mrs:92ee7c530118"
+      "mrs:6481d43847e4"
     ],
     "talent:1120": [
       "mrs:e4c54357ef08"
@@ -43339,13 +43568,13 @@
       "mrs:103bea10ba4d"
     ],
     "buff-source:2203291": [
-      "mrs:911cf59a2cc7"
+      "mrs:2e30d4351ad5"
     ],
     "talent:1130": [
       "mrs:fba5edf77db1"
     ],
     "buff-source:2203302": [
-      "mrs:76239a707058"
+      "mrs:0d8d54a9aa9b"
     ],
     "talent:1131": [
       "mrs:a959ee3d84c4"
@@ -43431,14 +43660,8 @@
     "talent:1158": [
       "mrs:1e5dde31f763"
     ],
-    "talent:1159": [
-      "mrs:d71f22658ff5"
-    ],
     "talent:1166": [
       "mrs:55dbd41a2c86"
-    ],
-    "talent:1161": [
-      "mrs:b41a7831e358"
     ],
     "talent:1162": [
       "mrs:dcfce237309c"
@@ -43681,7 +43904,7 @@
       "mrs:ab97cad786ce"
     ],
     "buff-source:2205162": [
-      "mrs:ab3192170cf4"
+      "mrs:1624d78a75fa"
     ],
     "talent:418": [
       "mrs:497a985a5418"
@@ -43879,10 +44102,10 @@
       "mrs:d160ed0908ee"
     ],
     "buff-source:2206151": [
-      "mrs:168f24447825"
+      "mrs:cbe5e3fdf29b"
     ],
     "buff-source:2206152": [
-      "mrs:8711ec5e87f0"
+      "mrs:d492c3371015"
     ],
     "talent:1216": [
       "mrs:5fb7eb0b7d02"
@@ -43903,22 +44126,19 @@
       "mrs:91f079143e3b"
     ],
     "buff-source:2206240": [
-      "mrs:7d7fd881cf24"
+      "mrs:1ab2484705f8"
     ],
     "talent:1223": [
       "mrs:62dd9ed0b837"
     ],
     "buff-source:2206241": [
-      "mrs:77bc05a5a7f4"
+      "mrs:7d60d1c50055"
     ],
     "buff-source:2206243": [
-      "mrs:43c5ffac9c60"
+      "mrs:be95790f74c1"
     ],
     "talent:1224": [
       "mrs:93e237bbcff8"
-    ],
-    "talent:1225": [
-      "mrs:54683826610a"
     ],
     "buff-source:2206262": [
       "mrs:c9f8a3f324a5"
@@ -43957,10 +44177,7 @@
       "mrs:7a04de0257c0"
     ],
     "buff-source:2206401": [
-      "mrs:85445c2edcb9"
-    ],
-    "buff-source:2206421": [
-      "mrs:7c3f40557180"
+      "mrs:65ffd99f5339"
     ],
     "talent:1242": [
       "mrs:5c98a6d45cdb"
@@ -43996,7 +44213,7 @@
       "mrs:d4f7fb44e433"
     ],
     "buff-source:2206541": [
-      "mrs:5888a9948006"
+      "mrs:16431695de9e"
     ],
     "talent:1254": [
       "mrs:65f3d715266b"
@@ -44005,7 +44222,7 @@
       "mrs:d372a59c117d"
     ],
     "buff-source:2206561": [
-      "mrs:89149b7b1a8d"
+      "mrs:fe47b91e713f"
     ],
     "talent:1256": [
       "mrs:e1d6b1877718"
@@ -44061,9 +44278,6 @@
     "talent:1307": [
       "mrs:d6843886ca48"
     ],
-    "talent:1308": [
-      "mrs:64cc5320a2e1"
-    ],
     "talent:1309": [
       "mrs:a6e772333373"
     ],
@@ -44093,9 +44307,6 @@
     ],
     "buff-source:2207161": [
       "mrs:b0841f9b4148"
-    ],
-    "talent:1316": [
-      "mrs:84710d9006b7"
     ],
     "talent:1317": [
       "mrs:08aba8c4dc95"
@@ -44130,14 +44341,8 @@
     "talent:1326": [
       "mrs:6fe6c7b91e6d"
     ],
-    "talent:1327": [
-      "mrs:c9994138263d"
-    ],
     "talent:1328": [
       "mrs:f3401344018b"
-    ],
-    "talent:1331": [
-      "mrs:c5530a38a229"
     ],
     "talent:1332": [
       "mrs:d26cfdc29a41"
@@ -44177,15 +44382,6 @@
     ],
     "talent:1344": [
       "mrs:0a0edd95e778"
-    ],
-    "talent:1345": [
-      "mrs:7b1a6e8dcac0"
-    ],
-    "talent:1346": [
-      "mrs:f584e2c73be5"
-    ],
-    "talent:1347": [
-      "mrs:8da54e163719"
     ],
     "talent:1348": [
       "mrs:ab45e73f44c6"
@@ -44232,9 +44428,6 @@
     "talent:1361": [
       "mrs:8fc44d29a2df"
     ],
-    "talent:1362": [
-      "mrs:a868bad98b52"
-    ],
     "talent:1363": [
       "mrs:54cd9dbdce26"
     ],
@@ -44245,7 +44438,7 @@
       "mrs:7e763d175615"
     ],
     "buff-source:2207681": [
-      "mrs:4920256af371"
+      "mrs:b56696aa5c8f"
     ],
     "talent:302": [
       "mrs:203bb28bf84b"
@@ -44293,13 +44486,13 @@
       "mrs:e9cf2172e634"
     ],
     "buff-source:2208172": [
-      "mrs:0b00db7c5103"
+      "mrs:5b7f5e728880"
     ],
     "talent:317": [
       "mrs:288a1122e3f5"
     ],
     "buff-source:2208181": [
-      "mrs:a90832609db6"
+      "mrs:598bb19a7c0c"
     ],
     "talent:318": [
       "mrs:c060340fb5f7"
@@ -44458,10 +44651,13 @@
       "mrs:c66539e2f2e7"
     ],
     "buff-source:2300080": [
-      "mrs:02bdabcfbe1a"
+      "mrs:0898671452a2"
     ],
     "buff-source:2302220": [
       "mrs:a567726d12a5"
+    ],
+    "buff-source:2302320": [
+      "mrs:34a6621ccad3"
     ],
     "buff-source:2302321": [
       "mrs:75cd9c70ab5e"
@@ -44481,26 +44677,29 @@
     "buff-source:2409071": [
       "mrs:f1f0a3d02438"
     ],
+    "buff-source:3001030": [
+      "mrs:c3c9f6ebccff"
+    ],
     "buff-source:3001031": [
-      "mrs:24f7cc7dc131"
+      "mrs:f92282ef92f1"
     ],
     "buff-source:3001170": [
-      "mrs:c58102785af8"
+      "mrs:05aed61357a1"
     ],
     "buff-source:3001192": [
-      "mrs:239f2cd664b3"
+      "mrs:89ec17684654"
     ],
     "buff-source:3001201": [
-      "mrs:1f8cd39f4186"
+      "mrs:276c7d595faf"
     ],
     "buff-source:3001211": [
-      "mrs:ea81e4c3b134"
+      "mrs:40889cc58f97"
     ],
     "buff-source:3001220": [
       "mrs:f0604ed16377"
     ],
     "buff-source:3001231": [
-      "mrs:a86d0315fde1"
+      "mrs:43aa3fbcf961"
     ],
     "buff-source:3001260": [
       "mrs:4b57911dd730"
@@ -44568,11 +44767,14 @@
     "season-talent-node:1010": [
       "mrs:5fec28478404"
     ],
+    "buff-source:3002210": [
+      "mrs:354291768ba1"
+    ],
     "season-talent-node:1101": [
       "mrs:cfa4a01ac8b3"
     ],
     "buff-source:3002215": [
-      "mrs:872be889ba37"
+      "mrs:7fdf8ffd0a0b"
     ],
     "season-talent-node:1102": [
       "mrs:2c491aa68465"
@@ -44650,7 +44852,7 @@
       "mrs:3617a45d441f"
     ],
     "buff-source:3002671": [
-      "mrs:d9e28a5ee4d0"
+      "mrs:9db23eab0d4d"
     ],
     "season-talent-node:1310": [
       "mrs:48a9e37fb58c"
@@ -44683,10 +44885,10 @@
       "mrs:7bc6b16d7009"
     ],
     "buff-source:3003023": [
-      "mrs:e5f47703089b"
+      "mrs:39b85a9618a0"
     ],
     "buff-source:3003025": [
-      "mrs:230c18f398bb"
+      "mrs:afe5af949a84"
     ],
     "season-talent-node:1503": [
       "mrs:db7b3b30d5df"
@@ -44706,11 +44908,14 @@
     "season-talent-node:1510": [
       "mrs:ff1712b88c20"
     ],
+    "buff-source:3003210": [
+      "mrs:61af1749a103"
+    ],
     "season-talent-node:1601": [
       "mrs:a26968736dea"
     ],
     "buff-source:3003213": [
-      "mrs:1566c1d0d4ae"
+      "mrs:53ab93e164fc"
     ],
     "season-talent-node:1602": [
       "mrs:fdbbfe29abf4"
@@ -45436,7 +45641,7 @@
       "mrs:8ac61ff964d0"
     ],
     "season-rogue-entry:296": [
-      "mrs:5d69b8fbbcf6"
+      "mrs:6a84c723a25a"
     ],
     "season-rogue-entry:297": [
       "mrs:b2b587531e4f"
@@ -45454,7 +45659,7 @@
       "mrs:0cfe5e7d5f5c"
     ],
     "season-rogue-entry:302": [
-      "mrs:858e7bfa50fd"
+      "mrs:74209e7dd691"
     ],
     "season-rogue-entry:303": [
       "mrs:33aaf216f25c"
@@ -45484,7 +45689,7 @@
       "mrs:ccccf7010174"
     ],
     "season-rogue-entry:309": [
-      "mrs:9b44647e2ec5"
+      "mrs:96e4dbe68233"
     ],
     "phantom-factor:3054400": [
       "mrs:821b4dcaf6f8"
@@ -45679,7 +45884,7 @@
       "mrs:3c6a885a2907"
     ],
     "season-rogue-entry:264": [
-      "mrs:e4f8c527b434"
+      "mrs:f465860f2f23"
     ],
     "season-rogue-entry:265": [
       "mrs:f2dbe7e12ea8"
@@ -45688,7 +45893,7 @@
       "mrs:99181380c7fb"
     ],
     "season-rogue-entry:267": [
-      "mrs:7c5719779419"
+      "mrs:17eada55ea80"
     ],
     "season-rogue-entry:268": [
       "mrs:1a13e1df9726"
@@ -45700,7 +45905,7 @@
       "mrs:9f16ad22aa25"
     ],
     "season-rogue-entry:271": [
-      "mrs:977fc78117da"
+      "mrs:1f6beb249c16"
     ],
     "season-rogue-entry:272": [
       "mrs:ceb491d413be"
@@ -45799,7 +46004,7 @@
       "mrs:86e858b8394f"
     ],
     "season-rogue-entry:326": [
-      "mrs:dee862ca35b4"
+      "mrs:d28e0d133815"
     ],
     "season-rogue-entry:327": [
       "mrs:3d49f3d23b1e"
@@ -46096,10 +46301,10 @@
       "mrs:f31180c5ee5e"
     ],
     "buff-source:3210061": [
-      "mrs:7ecb6ac314fa"
+      "mrs:7eba124e09eb"
     ],
     "buff-source:3210081": [
-      "mrs:b55fe55fff15"
+      "mrs:a81c0fd9b651"
     ],
     "buff-source:3210092": [
       "mrs:cbfdc205333e"
@@ -46111,7 +46316,7 @@
       "mrs:5bd43c69f086"
     ],
     "buff-source:3210171": [
-      "mrs:1ef8667c430f"
+      "mrs:59a68620823e"
     ],
     "buff-source:3210210": [
       "mrs:52f0c16a3423"
@@ -46187,10 +46392,10 @@
     ]
   },
   "stats": {
-    "scannedEntries": 2850,
-    "sourceRulesWithDisplay": 2445,
-    "entriesWithDisplay": 2445,
+    "scannedEntries": 2932,
+    "sourceRulesWithDisplay": 2456,
+    "entriesWithDisplay": 2456,
     "observedBridgePromotedSources": 18,
-    "sourceIds": 2445
+    "sourceIds": 2456
   }
 }

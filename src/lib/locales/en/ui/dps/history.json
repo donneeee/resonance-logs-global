@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "Block %",
   "columns.historyTankedSkills.luckyBlockRate.description": "Show the chance that this incoming skill triggered lucky block",
   "columns.historyTankedSkills.luckyBlockRate.header": "Lucky Block %",
-  "columns.historyTankedSkills.luckyBlockRate.label": "Lucky Block %"
+  "columns.historyTankedSkills.luckyBlockRate.label": "Lucky Block %",
+  "detail.graphIndividualView": "Graph - Individual",
+  "detail.graphTeamView": "Graph - T.DPS",
+  "detail.graphDeath": "death",
+  "detail.summary.aria": "Player stat summary",
+  "detail.summary.time": "Time",
+  "detail.summary.encounterTime": "Encounter Time",
+  "detail.summary.trueDpsTime": "True DPS Time",
+  "detail.summary.damage": "Damage",
+  "detail.summary.boss": "Boss",
+  "detail.summary.rates": "Rates",
+  "detail.summary.healing": "Healing",
+  "detail.summary.tanked": "Tanked"
 }

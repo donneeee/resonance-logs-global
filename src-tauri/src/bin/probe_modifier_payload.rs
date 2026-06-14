@@ -474,6 +474,16 @@ fn build_report_entity(
             .iter()
             .map(lc::to_active_factor_item_state)
             .collect(),
+        equipped_items: entity
+            .equipped_items
+            .iter()
+            .map(lc::to_equipped_item_state)
+            .collect(),
+        active_gear_sets: entity
+            .active_gear_sets
+            .iter()
+            .map(lc::to_gear_set_state)
+            .collect(),
         active_passive_skills: entity
             .active_passive_skills
             .iter()
@@ -489,6 +499,7 @@ fn build_report_entity(
             .iter()
             .map(lc::to_active_profession_talent_state)
             .collect(),
+        combat_timeline: Vec::new(),
         modifier_source_actors: build_modifier_source_actor_refs(uid, entity, entities),
         dmg_per_target: Vec::new(),
         heal_per_target: Vec::new(),

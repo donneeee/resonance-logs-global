@@ -22,7 +22,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_001",
     "IconPathOffset": 16338,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877433945
+    "SourceOffset": 877433897
   },
   {
     "id": 3901,
@@ -50,7 +50,7 @@
     "Sprite": "as_mon_shouren_idle",
     "SpriteOffset": 1108,
     "SkillEffectId": 390101,
-    "SkillEffectSourceOffset": 876609238,
+    "SkillEffectSourceOffset": 876609190,
     "MonsterNameId": 1203463582,
     "MonsterNames": {
       "en": "Inferno Ogre",
@@ -80,8 +80,8 @@
       "id": "Berkobarlah wahai api! Hanguskan segalanya!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907024,
-    "SkillTableSourceOffset": 877459279
+    "SourceOffset": 1105909996,
+    "SkillTableSourceOffset": 877459231
   },
   {
     "id": 3902,
@@ -109,7 +109,7 @@
     "Sprite": "as_mon_shouren-ds_fidle",
     "SpriteOffset": 1019,
     "SkillEffectId": 390201,
-    "SkillEffectSourceOffset": 876609305,
+    "SkillEffectSourceOffset": 876609257,
     "MonsterNameId": 1203463583,
     "MonsterNames": {
       "en": "Tempest Ogre",
@@ -139,8 +139,8 @@
       "id": "Kegelapan, hendaknya sirna oleh petir!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906886,
-    "SkillTableSourceOffset": 877459518
+    "SourceOffset": 1105909858,
+    "SkillTableSourceOffset": 877459470
   },
   {
     "id": 3903,
@@ -168,7 +168,7 @@
     "Sprite": "as_mon_solider-sssword_idle",
     "SpriteOffset": 1161,
     "SkillEffectId": 390301,
-    "SkillEffectSourceOffset": 876609372,
+    "SkillEffectSourceOffset": 876609324,
     "MonsterNameId": 1203463584,
     "MonsterNames": {
       "en": "Brigand Leader",
@@ -219,7 +219,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820972,
+        "sourceOffset": 827820876,
         "rowId": 56
       },
       {
@@ -243,7 +243,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821028,
+        "sourceOffset": 827820932,
         "rowId": 57
       },
       {
@@ -267,7 +267,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821084,
+        "sourceOffset": 827820988,
         "rowId": 58
       },
       {
@@ -291,7 +291,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821140,
+        "sourceOffset": 827821044,
         "rowId": 59
       },
       {
@@ -315,13 +315,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821196,
+        "sourceOffset": 827821100,
         "rowId": 60
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907093,
-    "SkillTableSourceOffset": 877459757
+    "SourceOffset": 1105910065,
+    "SkillTableSourceOffset": 877459709
   },
   {
     "id": 3904,
@@ -349,7 +349,7 @@
     "Sprite": "as_mon_gebulin-ss_idle",
     "SpriteOffset": 931,
     "SkillEffectId": 390401,
-    "SkillEffectSourceOffset": 876609439,
+    "SkillEffectSourceOffset": 876609391,
     "MonsterNameId": 1203463585,
     "MonsterNames": {
       "en": "Muku Warrior",
@@ -413,7 +413,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818172,
+        "sourceOffset": 827818076,
         "rowId": 6
       },
       {
@@ -450,7 +450,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818228,
+        "sourceOffset": 827818132,
         "rowId": 7
       },
       {
@@ -487,7 +487,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818284,
+        "sourceOffset": 827818188,
         "rowId": 8
       },
       {
@@ -524,7 +524,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818340,
+        "sourceOffset": 827818244,
         "rowId": 9
       },
       {
@@ -561,13 +561,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818396,
+        "sourceOffset": 827818300,
         "rowId": 10
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908266,
-    "SkillTableSourceOffset": 877459996
+    "SourceOffset": 1105911238,
+    "SkillTableSourceOffset": 877459948
   },
   {
     "id": 3905,
@@ -595,7 +595,7 @@
     "Sprite": "as_mon_yezhu_idle",
     "SpriteOffset": 775,
     "SkillEffectId": 390501,
-    "SkillEffectSourceOffset": 876609506,
+    "SkillEffectSourceOffset": 876609458,
     "MonsterNameId": 1203463586,
     "MonsterNames": {
       "en": "Boarrier Tyrant",
@@ -638,7 +638,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819012,
+        "sourceOffset": 827818916,
         "rowId": 21
       },
       {
@@ -654,7 +654,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819068,
+        "sourceOffset": 827818972,
         "rowId": 22
       },
       {
@@ -670,7 +670,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819124,
+        "sourceOffset": 827819028,
         "rowId": 23
       },
       {
@@ -686,7 +686,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819180,
+        "sourceOffset": 827819084,
         "rowId": 24
       },
       {
@@ -702,13 +702,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819236,
+        "sourceOffset": 827819140,
         "rowId": 25
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908473,
-    "SkillTableSourceOffset": 877460235
+    "SourceOffset": 1105911445,
+    "SkillTableSourceOffset": 877460187
   },
   {
     "id": 3906,
@@ -736,7 +736,7 @@
     "Sprite": "as_mon_shouren-ds_fidle",
     "SpriteOffset": 1019,
     "SkillEffectId": 390601,
-    "SkillEffectSourceOffset": 876609573,
+    "SkillEffectSourceOffset": 876609525,
     "MonsterNameId": 1203463587,
     "MonsterNames": {
       "en": "Frost Ogre",
@@ -779,7 +779,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820132,
+        "sourceOffset": 827820036,
         "rowId": 41
       },
       {
@@ -795,7 +795,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820188,
+        "sourceOffset": 827820092,
         "rowId": 42
       },
       {
@@ -811,7 +811,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820244,
+        "sourceOffset": 827820148,
         "rowId": 43
       },
       {
@@ -827,7 +827,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820300,
+        "sourceOffset": 827820204,
         "rowId": 44
       },
       {
@@ -843,13 +843,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820356,
+        "sourceOffset": 827820260,
         "rowId": 45
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906955,
-    "SkillTableSourceOffset": 877460474
+    "SourceOffset": 1105909927,
+    "SkillTableSourceOffset": 877460426
   },
   {
     "id": 3907,
@@ -877,7 +877,7 @@
     "Sprite": "as_mon_gebulin-ds_idle",
     "SpriteOffset": 1222,
     "SkillEffectId": 390701,
-    "SkillEffectSourceOffset": 876609640,
+    "SkillEffectSourceOffset": 876609592,
     "MonsterNameId": 1203463588,
     "MonsterNames": {
       "en": "Inferno Goblin Mage",
@@ -920,7 +920,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818452,
+        "sourceOffset": 827818356,
         "rowId": 11
       },
       {
@@ -936,7 +936,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818508,
+        "sourceOffset": 827818412,
         "rowId": 12
       },
       {
@@ -952,7 +952,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818564,
+        "sourceOffset": 827818468,
         "rowId": 13
       },
       {
@@ -968,7 +968,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818620,
+        "sourceOffset": 827818524,
         "rowId": 14
       },
       {
@@ -984,13 +984,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818676,
+        "sourceOffset": 827818580,
         "rowId": 15
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908335,
-    "SkillTableSourceOffset": 877460713
+    "SourceOffset": 1105911307,
+    "SkillTableSourceOffset": 877460665
   },
   {
     "id": 3908,
@@ -1018,7 +1018,7 @@
     "Sprite": "as_mon_gebulin-ss_idle",
     "SpriteOffset": 931,
     "SkillEffectId": 390801,
-    "SkillEffectSourceOffset": 876609707,
+    "SkillEffectSourceOffset": 876609659,
     "MonsterNameId": 1203463589,
     "MonsterNames": {
       "en": "Muku King",
@@ -1061,7 +1061,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819292,
+        "sourceOffset": 827819196,
         "rowId": 26
       },
       {
@@ -1077,7 +1077,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819348,
+        "sourceOffset": 827819252,
         "rowId": 27
       },
       {
@@ -1093,7 +1093,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819404,
+        "sourceOffset": 827819308,
         "rowId": 28
       },
       {
@@ -1109,7 +1109,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819460,
+        "sourceOffset": 827819364,
         "rowId": 29
       },
       {
@@ -1125,13 +1125,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819516,
+        "sourceOffset": 827819420,
         "rowId": 30
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906817,
-    "SkillTableSourceOffset": 877460952
+    "SourceOffset": 1105909789,
+    "SkillTableSourceOffset": 877460904
   },
   {
     "id": 3909,
@@ -1157,7 +1157,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_011",
     "IconPathOffset": 21761,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877461191
+    "SourceOffset": 877461143
   },
   {
     "id": 3910,
@@ -1185,7 +1185,7 @@
     "Sprite": "as_mon_shouren_idle",
     "SpriteOffset": 1108,
     "SkillEffectId": 391001,
-    "SkillEffectSourceOffset": 876609841,
+    "SkillEffectSourceOffset": 876609793,
     "MonsterNameId": 1203463614,
     "MonsterNames": {
       "en": "Void Ogre",
@@ -1215,8 +1215,8 @@
       "id": "Inilah pertarungan!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908197,
-    "SkillTableSourceOffset": 877461430
+    "SourceOffset": 1105911169,
+    "SkillTableSourceOffset": 877461382
   },
   {
     "id": 3911,
@@ -1244,7 +1244,7 @@
     "Sprite": "as_wpnpc_m_base_tata_idle",
     "SpriteOffset": 93,
     "SkillEffectId": 391101,
-    "SkillEffectSourceOffset": 876609908,
+    "SkillEffectSourceOffset": 876609860,
     "MonsterNameId": 1203463615,
     "MonsterNames": {
       "en": "Tatta",
@@ -1293,7 +1293,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825732,
+        "sourceOffset": 827825636,
         "rowId": 141
       },
       {
@@ -1315,7 +1315,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825788,
+        "sourceOffset": 827825692,
         "rowId": 142
       },
       {
@@ -1337,7 +1337,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825844,
+        "sourceOffset": 827825748,
         "rowId": 143
       },
       {
@@ -1359,7 +1359,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825900,
+        "sourceOffset": 827825804,
         "rowId": 144
       },
       {
@@ -1381,13 +1381,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825956,
+        "sourceOffset": 827825860,
         "rowId": 145
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105905713,
-    "SkillTableSourceOffset": 877461669
+    "SourceOffset": 1105908685,
+    "SkillTableSourceOffset": 877461621
   },
   {
     "id": 3913,
@@ -1415,7 +1415,7 @@
     "Sprite": "as_mon_solider-rifle_idle",
     "SpriteOffset": 1992,
     "SkillEffectId": 391301,
-    "SkillEffectSourceOffset": 876609975,
+    "SkillEffectSourceOffset": 876609927,
     "MonsterNameId": 1203463617,
     "MonsterNames": {
       "en": "Shadow Captain",
@@ -1458,7 +1458,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818732,
+        "sourceOffset": 827818636,
         "rowId": 16
       },
       {
@@ -1474,7 +1474,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818788,
+        "sourceOffset": 827818692,
         "rowId": 17
       },
       {
@@ -1490,7 +1490,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818844,
+        "sourceOffset": 827818748,
         "rowId": 18
       },
       {
@@ -1506,7 +1506,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818900,
+        "sourceOffset": 827818804,
         "rowId": 19
       },
       {
@@ -1522,13 +1522,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827818956,
+        "sourceOffset": 827818860,
         "rowId": 20
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908404,
-    "SkillTableSourceOffset": 877461908
+    "SourceOffset": 1105911376,
+    "SkillTableSourceOffset": 877461860
   },
   {
     "id": 3914,
@@ -1556,7 +1556,7 @@
     "Sprite": "as_mon_gebulin-ssfc_idle",
     "SpriteOffset": 1503,
     "SkillEffectId": 391401,
-    "SkillEffectSourceOffset": 876610042,
+    "SkillEffectSourceOffset": 876609994,
     "MonsterNameId": 1203463618,
     "MonsterNames": {
       "en": "Goblin Guard",
@@ -1606,7 +1606,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821252,
+        "sourceOffset": 827821156,
         "rowId": 61
       },
       {
@@ -1629,7 +1629,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821308,
+        "sourceOffset": 827821212,
         "rowId": 62
       },
       {
@@ -1652,7 +1652,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821364,
+        "sourceOffset": 827821268,
         "rowId": 63
       },
       {
@@ -1675,7 +1675,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821420,
+        "sourceOffset": 827821324,
         "rowId": 64
       },
       {
@@ -1698,13 +1698,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821476,
+        "sourceOffset": 827821380,
         "rowId": 65
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908542,
-    "SkillTableSourceOffset": 877462147
+    "SourceOffset": 1105911514,
+    "SkillTableSourceOffset": 877462099
   },
   {
     "id": 3915,
@@ -1732,7 +1732,7 @@
     "Sprite": "as_mon_gebulin-ss_idle",
     "SpriteOffset": 931,
     "SkillEffectId": 391501,
-    "SkillEffectSourceOffset": 876610109,
+    "SkillEffectSourceOffset": 876610061,
     "MonsterNameId": 1203463619,
     "MonsterNames": {
       "en": "Goblin Warrior",
@@ -1796,7 +1796,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821532,
+        "sourceOffset": 827821436,
         "rowId": 66
       },
       {
@@ -1833,7 +1833,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821588,
+        "sourceOffset": 827821492,
         "rowId": 67
       },
       {
@@ -1870,7 +1870,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821644,
+        "sourceOffset": 827821548,
         "rowId": 68
       },
       {
@@ -1907,7 +1907,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821700,
+        "sourceOffset": 827821604,
         "rowId": 69
       },
       {
@@ -1944,13 +1944,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827821756,
+        "sourceOffset": 827821660,
         "rowId": 70
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908611,
-    "SkillTableSourceOffset": 877462386
+    "SourceOffset": 1105911583,
+    "SkillTableSourceOffset": 877462338
   },
   {
     "id": 3916,
@@ -1976,7 +1976,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_021",
     "IconPathOffset": 22190,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877462625
+    "SourceOffset": 877462577
   },
   {
     "id": 3917,
@@ -2004,7 +2004,7 @@
     "Sprite": "as_mon_solider-sssword_idle",
     "SpriteOffset": 1161,
     "SkillEffectId": 391701,
-    "SkillEffectSourceOffset": 876610243,
+    "SkillEffectSourceOffset": 876610195,
     "MonsterNameId": 1203463621,
     "MonsterNames": {
       "en": "Shadow Commander",
@@ -2034,8 +2034,8 @@
       "id": "Tebasan ini, memutus lebih dari sekadar jalan mundur ...."
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908680,
-    "SkillTableSourceOffset": 877462864
+    "SourceOffset": 1105911652,
+    "SkillTableSourceOffset": 877462816
   },
   {
     "id": 3918,
@@ -2061,7 +2061,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_023",
     "IconPathOffset": 22333,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877463103
+    "SourceOffset": 877463055
   },
   {
     "id": 3919,
@@ -2087,7 +2087,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_024",
     "IconPathOffset": 22406,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877463342
+    "SourceOffset": 877463294
   },
   {
     "id": 3920,
@@ -2115,7 +2115,7 @@
     "Sprite": "as_wpnpc_f_base_iruna_idle",
     "SpriteOffset": 152,
     "SkillEffectId": 392001,
-    "SkillEffectSourceOffset": 876610444,
+    "SkillEffectSourceOffset": 876610396,
     "MonsterNameId": 1203463647,
     "MonsterNames": {
       "en": "Airona",
@@ -2165,7 +2165,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819572,
+        "sourceOffset": 827819476,
         "rowId": 31
       },
       {
@@ -2188,7 +2188,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819628,
+        "sourceOffset": 827819532,
         "rowId": 32
       },
       {
@@ -2211,7 +2211,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819684,
+        "sourceOffset": 827819588,
         "rowId": 33
       },
       {
@@ -2234,7 +2234,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819740,
+        "sourceOffset": 827819644,
         "rowId": 34
       },
       {
@@ -2257,13 +2257,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827819796,
+        "sourceOffset": 827819700,
         "rowId": 35
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105905782,
-    "SkillTableSourceOffset": 877463581
+    "SourceOffset": 1105908754,
+    "SkillTableSourceOffset": 877463533
   },
   {
     "id": 3921,
@@ -2291,7 +2291,7 @@
     "Sprite": "as_wpnpc_f_base_tina_idle",
     "SpriteOffset": 212,
     "SkillEffectId": 392101,
-    "SkillEffectSourceOffset": 876610511,
+    "SkillEffectSourceOffset": 876610463,
     "MonsterNameId": 1203463648,
     "MonsterNames": {
       "en": "Tina",
@@ -2334,7 +2334,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820412,
+        "sourceOffset": 827820316,
         "rowId": 46
       },
       {
@@ -2350,7 +2350,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820468,
+        "sourceOffset": 827820372,
         "rowId": 47
       },
       {
@@ -2366,7 +2366,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820524,
+        "sourceOffset": 827820428,
         "rowId": 48
       },
       {
@@ -2382,7 +2382,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820580,
+        "sourceOffset": 827820484,
         "rowId": 49
       },
       {
@@ -2398,13 +2398,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827820636,
+        "sourceOffset": 827820540,
         "rowId": 50
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105905851,
-    "SkillTableSourceOffset": 877463820
+    "SourceOffset": 1105908823,
+    "SkillTableSourceOffset": 877463772
   },
   {
     "id": 3922,
@@ -2432,7 +2432,7 @@
     "Sprite": "as_wpnpc_f_base_olvera_idle",
     "SpriteOffset": 32,
     "SkillEffectId": 392201,
-    "SkillEffectSourceOffset": 876610578,
+    "SkillEffectSourceOffset": 876610530,
     "MonsterNameId": 1203463649,
     "MonsterNames": {
       "en": "Olvera",
@@ -2474,7 +2474,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822092,
+        "sourceOffset": 827821996,
         "rowId": 76
       },
       {
@@ -2489,7 +2489,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822148,
+        "sourceOffset": 827822052,
         "rowId": 77
       },
       {
@@ -2504,7 +2504,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822204,
+        "sourceOffset": 827822108,
         "rowId": 78
       },
       {
@@ -2519,7 +2519,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822260,
+        "sourceOffset": 827822164,
         "rowId": 79
       },
       {
@@ -2534,13 +2534,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822316,
+        "sourceOffset": 827822220,
         "rowId": 80
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105905644,
-    "SkillTableSourceOffset": 877464059
+    "SourceOffset": 1105908616,
+    "SkillTableSourceOffset": 877464011
   },
   {
     "id": 3923,
@@ -2568,7 +2568,7 @@
     "Sprite": "as_mon_gebulin-ds_idle",
     "SpriteOffset": 1222,
     "SkillEffectId": 392301,
-    "SkillEffectSourceOffset": 876610645,
+    "SkillEffectSourceOffset": 876610597,
     "MonsterNameId": 1203463650,
     "MonsterNames": {
       "en": "Muku Chief",
@@ -2632,7 +2632,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822372,
+        "sourceOffset": 827822276,
         "rowId": 81
       },
       {
@@ -2669,7 +2669,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822428,
+        "sourceOffset": 827822332,
         "rowId": 82
       },
       {
@@ -2706,7 +2706,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822484,
+        "sourceOffset": 827822388,
         "rowId": 83
       },
       {
@@ -2743,7 +2743,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822540,
+        "sourceOffset": 827822444,
         "rowId": 84
       },
       {
@@ -2780,13 +2780,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822596,
+        "sourceOffset": 827822500,
         "rowId": 85
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907162,
-    "SkillTableSourceOffset": 877464298
+    "SourceOffset": 1105910134,
+    "SkillTableSourceOffset": 877464250
   },
   {
     "id": 3924,
@@ -2812,7 +2812,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_027",
     "IconPathOffset": 22768,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877464537
+    "SourceOffset": 877464489
   },
   {
     "id": 3925,
@@ -2840,7 +2840,7 @@
     "Sprite": "as_mon_shouren_idle",
     "SpriteOffset": 1108,
     "SkillEffectId": 392501,
-    "SkillEffectSourceOffset": 876610779,
+    "SkillEffectSourceOffset": 876610731,
     "MonsterNameId": 1203463652,
     "MonsterNames": {
       "en": "Mighty Colossus",
@@ -2883,7 +2883,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822652,
+        "sourceOffset": 827822556,
         "rowId": 86
       },
       {
@@ -2899,7 +2899,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822708,
+        "sourceOffset": 827822612,
         "rowId": 87
       },
       {
@@ -2915,7 +2915,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822764,
+        "sourceOffset": 827822668,
         "rowId": 88
       },
       {
@@ -2931,7 +2931,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822820,
+        "sourceOffset": 827822724,
         "rowId": 89
       },
       {
@@ -2947,13 +2947,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822876,
+        "sourceOffset": 827822780,
         "rowId": 90
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908749,
-    "SkillTableSourceOffset": 877464776
+    "SourceOffset": 1105911721,
+    "SkillTableSourceOffset": 877464728
   },
   {
     "id": 3926,
@@ -2981,7 +2981,7 @@
     "Sprite": "as_mon_gebulin-ss_idle",
     "SpriteOffset": 931,
     "SkillEffectId": 392601,
-    "SkillEffectSourceOffset": 876610846,
+    "SkillEffectSourceOffset": 876610798,
     "MonsterNameId": 1203463653,
     "MonsterNames": {
       "en": "Storm Goblin King",
@@ -3045,7 +3045,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822932,
+        "sourceOffset": 827822836,
         "rowId": 91
       },
       {
@@ -3082,7 +3082,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827822988,
+        "sourceOffset": 827822892,
         "rowId": 92
       },
       {
@@ -3119,7 +3119,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823044,
+        "sourceOffset": 827822948,
         "rowId": 93
       },
       {
@@ -3156,7 +3156,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823100,
+        "sourceOffset": 827823004,
         "rowId": 94
       },
       {
@@ -3193,13 +3193,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823156,
+        "sourceOffset": 827823060,
         "rowId": 95
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907231,
-    "SkillTableSourceOffset": 877465015
+    "SourceOffset": 1105910203,
+    "SkillTableSourceOffset": 877464967
   },
   {
     "id": 3927,
@@ -3227,7 +3227,7 @@
     "Sprite": "as_mon_gebulin-ss_idle",
     "SpriteOffset": 931,
     "SkillEffectId": 392701,
-    "SkillEffectSourceOffset": 876610913,
+    "SkillEffectSourceOffset": 876610865,
     "MonsterNameId": 1203463654,
     "MonsterNames": {
       "en": "Jungle Goblin Warrior",
@@ -3270,7 +3270,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823212,
+        "sourceOffset": 827823116,
         "rowId": 96
       },
       {
@@ -3286,7 +3286,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823268,
+        "sourceOffset": 827823172,
         "rowId": 97
       },
       {
@@ -3302,7 +3302,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823324,
+        "sourceOffset": 827823228,
         "rowId": 98
       },
       {
@@ -3318,7 +3318,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823380,
+        "sourceOffset": 827823284,
         "rowId": 99
       },
       {
@@ -3334,13 +3334,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823436,
+        "sourceOffset": 827823340,
         "rowId": 100
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908818,
-    "SkillTableSourceOffset": 877465254
+    "SourceOffset": 1105911790,
+    "SkillTableSourceOffset": 877465206
   },
   {
     "id": 3928,
@@ -3368,7 +3368,7 @@
     "Sprite": "as_mon_gebulin-ds_idle",
     "SpriteOffset": 1222,
     "SkillEffectId": 392801,
-    "SkillEffectSourceOffset": 876610980,
+    "SkillEffectSourceOffset": 876610932,
     "MonsterNameId": 1203463655,
     "MonsterNames": {
       "en": "Muku Scout",
@@ -3410,7 +3410,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823492,
+        "sourceOffset": 827823396,
         "rowId": 101
       },
       {
@@ -3425,7 +3425,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823548,
+        "sourceOffset": 827823452,
         "rowId": 102
       },
       {
@@ -3440,7 +3440,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823604,
+        "sourceOffset": 827823508,
         "rowId": 103
       },
       {
@@ -3455,7 +3455,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823660,
+        "sourceOffset": 827823564,
         "rowId": 104
       },
       {
@@ -3470,13 +3470,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827823716,
+        "sourceOffset": 827823620,
         "rowId": 105
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908887,
-    "SkillTableSourceOffset": 877465493
+    "SourceOffset": 1105911859,
+    "SkillTableSourceOffset": 877465445
   },
   {
     "id": 3929,
@@ -3504,7 +3504,7 @@
     "Sprite": "as_mon_xiezhu_idle",
     "SpriteOffset": 1342,
     "SkillEffectId": 392901,
-    "SkillEffectSourceOffset": 876611047,
+    "SkillEffectSourceOffset": 876610999,
     "MonsterNameId": 1203463656,
     "MonsterNames": {
       "en": "Void Arachnocrab",
@@ -3534,8 +3534,8 @@
       "id": "Tak tergoyahkan!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908956,
-    "SkillTableSourceOffset": 877465732
+    "SourceOffset": 1105911928,
+    "SkillTableSourceOffset": 877465684
   },
   {
     "id": 3930,
@@ -3563,7 +3563,7 @@
     "Sprite": "as_mon_solider-shield_idle",
     "SpriteOffset": 2307,
     "SkillEffectId": 393001,
-    "SkillEffectSourceOffset": 876611114,
+    "SkillEffectSourceOffset": 876611066,
     "MonsterNameId": 1203463680,
     "MonsterNames": {
       "en": "Brigand Guard Captain",
@@ -3613,7 +3613,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824052,
+        "sourceOffset": 827823956,
         "rowId": 111
       },
       {
@@ -3636,7 +3636,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824108,
+        "sourceOffset": 827824012,
         "rowId": 112
       },
       {
@@ -3659,7 +3659,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824164,
+        "sourceOffset": 827824068,
         "rowId": 113
       },
       {
@@ -3682,7 +3682,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824220,
+        "sourceOffset": 827824124,
         "rowId": 114
       },
       {
@@ -3705,13 +3705,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824276,
+        "sourceOffset": 827824180,
         "rowId": 115
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909025,
-    "SkillTableSourceOffset": 877465971
+    "SourceOffset": 1105911997,
+    "SkillTableSourceOffset": 877465923
   },
   {
     "id": 3931,
@@ -3737,7 +3737,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_034",
     "IconPathOffset": 23279,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877466210
+    "SourceOffset": 877466162
   },
   {
     "id": 3932,
@@ -3763,7 +3763,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_035",
     "IconPathOffset": 23352,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877466449
+    "SourceOffset": 877466401
   },
   {
     "id": 3933,
@@ -3789,7 +3789,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_036",
     "IconPathOffset": 23425,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877466688
+    "SourceOffset": 877466640
   },
   {
     "id": 3934,
@@ -3817,7 +3817,7 @@
     "Sprite": "as_mon_solider-dagger_idle",
     "SpriteOffset": 2367,
     "SkillEffectId": 393401,
-    "SkillEffectSourceOffset": 876611382,
+    "SkillEffectSourceOffset": 876611334,
     "MonsterNameId": 1203463684,
     "MonsterNames": {
       "en": "Brigand Scout Leader",
@@ -3860,7 +3860,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824332,
+        "sourceOffset": 827824236,
         "rowId": 116
       },
       {
@@ -3876,7 +3876,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824388,
+        "sourceOffset": 827824292,
         "rowId": 117
       },
       {
@@ -3892,7 +3892,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824444,
+        "sourceOffset": 827824348,
         "rowId": 118
       },
       {
@@ -3908,7 +3908,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824500,
+        "sourceOffset": 827824404,
         "rowId": 119
       },
       {
@@ -3924,13 +3924,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824556,
+        "sourceOffset": 827824460,
         "rowId": 120
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909094,
-    "SkillTableSourceOffset": 877466927
+    "SourceOffset": 1105912066,
+    "SkillTableSourceOffset": 877466879
   },
   {
     "id": 3935,
@@ -3958,7 +3958,7 @@
     "Sprite": "as_mon_yezhu_idle",
     "SpriteOffset": 775,
     "SkillEffectId": 393501,
-    "SkillEffectSourceOffset": 876611449,
+    "SkillEffectSourceOffset": 876611401,
     "MonsterNameId": 1203463685,
     "MonsterNames": {
       "en": "Golden Juggernaut",
@@ -4000,7 +4000,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824612,
+        "sourceOffset": 827824516,
         "rowId": 121
       },
       {
@@ -4015,7 +4015,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824668,
+        "sourceOffset": 827824572,
         "rowId": 122
       },
       {
@@ -4030,7 +4030,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824724,
+        "sourceOffset": 827824628,
         "rowId": 123
       },
       {
@@ -4045,7 +4045,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824780,
+        "sourceOffset": 827824684,
         "rowId": 124
       },
       {
@@ -4060,13 +4060,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824836,
+        "sourceOffset": 827824740,
         "rowId": 125
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907300,
-    "SkillTableSourceOffset": 877467166
+    "SourceOffset": 1105910272,
+    "SkillTableSourceOffset": 877467118
   },
   {
     "id": 3936,
@@ -4094,7 +4094,7 @@
     "Sprite": "as_mon_yuren-ds_idle",
     "SpriteOffset": 877,
     "SkillEffectId": 393601,
-    "SkillEffectSourceOffset": 876611516,
+    "SkillEffectSourceOffset": 876611468,
     "MonsterNameId": 1203463686,
     "MonsterNames": {
       "en": "Lizardman Mage",
@@ -4137,7 +4137,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824892,
+        "sourceOffset": 827824796,
         "rowId": 126
       },
       {
@@ -4153,7 +4153,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827824948,
+        "sourceOffset": 827824852,
         "rowId": 127
       },
       {
@@ -4169,7 +4169,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825004,
+        "sourceOffset": 827824908,
         "rowId": 128
       },
       {
@@ -4185,7 +4185,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825060,
+        "sourceOffset": 827824964,
         "rowId": 129
       },
       {
@@ -4201,13 +4201,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825116,
+        "sourceOffset": 827825020,
         "rowId": 130
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909163,
-    "SkillTableSourceOffset": 877467405
+    "SourceOffset": 1105912135,
+    "SkillTableSourceOffset": 877467357
   },
   {
     "id": 3937,
@@ -4235,7 +4235,7 @@
     "Sprite": "as_mon_yuren-ds_idle",
     "SpriteOffset": 877,
     "SkillEffectId": 393701,
-    "SkillEffectSourceOffset": 876611583,
+    "SkillEffectSourceOffset": 876611535,
     "MonsterNameId": 1203463687,
     "MonsterNames": {
       "en": "Lizardman Hunter",
@@ -4299,7 +4299,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825172,
+        "sourceOffset": 827825076,
         "rowId": 131
       },
       {
@@ -4336,7 +4336,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825228,
+        "sourceOffset": 827825132,
         "rowId": 132
       },
       {
@@ -4373,7 +4373,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825284,
+        "sourceOffset": 827825188,
         "rowId": 133
       },
       {
@@ -4410,7 +4410,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825340,
+        "sourceOffset": 827825244,
         "rowId": 134
       },
       {
@@ -4447,13 +4447,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825396,
+        "sourceOffset": 827825300,
         "rowId": 135
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909232,
-    "SkillTableSourceOffset": 877467644
+    "SourceOffset": 1105912204,
+    "SkillTableSourceOffset": 877467596
   },
   {
     "id": 3938,
@@ -4481,7 +4481,7 @@
     "Sprite": "as_mon_xiezhu_idle",
     "SpriteOffset": 1342,
     "SkillEffectId": 393801,
-    "SkillEffectSourceOffset": 876611650,
+    "SkillEffectSourceOffset": 876611602,
     "MonsterNameId": 1203463688,
     "MonsterNames": {
       "en": "Phantom Arachnocrab",
@@ -4524,7 +4524,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825452,
+        "sourceOffset": 827825356,
         "rowId": 136
       },
       {
@@ -4540,7 +4540,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825508,
+        "sourceOffset": 827825412,
         "rowId": 137
       },
       {
@@ -4556,7 +4556,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825564,
+        "sourceOffset": 827825468,
         "rowId": 138
       },
       {
@@ -4572,7 +4572,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825620,
+        "sourceOffset": 827825524,
         "rowId": 139
       },
       {
@@ -4588,13 +4588,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827825676,
+        "sourceOffset": 827825580,
         "rowId": 140
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907369,
-    "SkillTableSourceOffset": 877467883
+    "SourceOffset": 1105910341,
+    "SkillTableSourceOffset": 877467835
   },
   {
     "id": 3939,
@@ -4622,7 +4622,7 @@
     "Sprite": "as_mon_yezhu_idle",
     "SpriteOffset": 775,
     "SkillEffectId": 393901,
-    "SkillEffectSourceOffset": 876611717,
+    "SkillEffectSourceOffset": 876611669,
     "MonsterNameId": 1203463689,
     "MonsterNames": {
       "en": "Great Warhog",
@@ -4665,7 +4665,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826012,
+        "sourceOffset": 827825916,
         "rowId": 146
       },
       {
@@ -4681,7 +4681,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826068,
+        "sourceOffset": 827825972,
         "rowId": 147
       },
       {
@@ -4697,7 +4697,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826124,
+        "sourceOffset": 827826028,
         "rowId": 148
       },
       {
@@ -4713,7 +4713,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826180,
+        "sourceOffset": 827826084,
         "rowId": 149
       },
       {
@@ -4729,13 +4729,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826236,
+        "sourceOffset": 827826140,
         "rowId": 150
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909301,
-    "SkillTableSourceOffset": 877468122
+    "SourceOffset": 1105912273,
+    "SkillTableSourceOffset": 877468074
   },
   {
     "id": 3940,
@@ -4763,7 +4763,7 @@
     "Sprite": "as_mon_gebulin-ss_idle",
     "SpriteOffset": 931,
     "SkillEffectId": 394001,
-    "SkillEffectSourceOffset": 876611784,
+    "SkillEffectSourceOffset": 876611736,
     "MonsterNameId": 1203463713,
     "MonsterNames": {
       "en": "Storm Goblin Warrior",
@@ -4806,7 +4806,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826292,
+        "sourceOffset": 827826196,
         "rowId": 151
       },
       {
@@ -4822,7 +4822,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826348,
+        "sourceOffset": 827826252,
         "rowId": 152
       },
       {
@@ -4838,7 +4838,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826404,
+        "sourceOffset": 827826308,
         "rowId": 153
       },
       {
@@ -4854,7 +4854,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826460,
+        "sourceOffset": 827826364,
         "rowId": 154
       },
       {
@@ -4870,13 +4870,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826516,
+        "sourceOffset": 827826420,
         "rowId": 155
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909370,
-    "SkillTableSourceOffset": 877468361
+    "SourceOffset": 1105912342,
+    "SkillTableSourceOffset": 877468313
   },
   {
     "id": 3941,
@@ -4904,7 +4904,7 @@
     "Sprite": "as_mon_huangfeng_idle",
     "SpriteOffset": 2555,
     "SkillEffectId": 394101,
-    "SkillEffectSourceOffset": 876611851,
+    "SkillEffectSourceOffset": 876611803,
     "MonsterNameId": 1203463714,
     "MonsterNames": {
       "en": "Void Bzzar",
@@ -4946,7 +4946,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826572,
+        "sourceOffset": 827826476,
         "rowId": 156
       },
       {
@@ -4961,7 +4961,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826628,
+        "sourceOffset": 827826532,
         "rowId": 157
       },
       {
@@ -4976,7 +4976,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826684,
+        "sourceOffset": 827826588,
         "rowId": 158
       },
       {
@@ -4991,7 +4991,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826740,
+        "sourceOffset": 827826644,
         "rowId": 159
       },
       {
@@ -5006,13 +5006,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826796,
+        "sourceOffset": 827826700,
         "rowId": 160
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909439,
-    "SkillTableSourceOffset": 877468600
+    "SourceOffset": 1105912411,
+    "SkillTableSourceOffset": 877468552
   },
   {
     "id": 3942,
@@ -5040,7 +5040,7 @@
     "Sprite": "as_mon_fengchao_idle",
     "SpriteOffset": 721,
     "SkillEffectId": 394201,
-    "SkillEffectSourceOffset": 876611918,
+    "SkillEffectSourceOffset": 876611870,
     "MonsterNameId": 1203463715,
     "MonsterNames": {
       "en": "Venobzzar Incubator",
@@ -5091,7 +5091,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826852,
+        "sourceOffset": 827826756,
         "rowId": 161
       },
       {
@@ -5115,7 +5115,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826908,
+        "sourceOffset": 827826812,
         "rowId": 162
       },
       {
@@ -5139,7 +5139,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827826964,
+        "sourceOffset": 827826868,
         "rowId": 163
       },
       {
@@ -5163,7 +5163,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827020,
+        "sourceOffset": 827826924,
         "rowId": 164
       },
       {
@@ -5187,13 +5187,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827076,
+        "sourceOffset": 827826980,
         "rowId": 165
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906472,
-    "SkillTableSourceOffset": 877468839
+    "SourceOffset": 1105909444,
+    "SkillTableSourceOffset": 877468791
   },
   {
     "id": 3943,
@@ -5221,7 +5221,7 @@
     "Sprite": "as_mon_yezhu_idle",
     "SpriteOffset": 775,
     "SkillEffectId": 394301,
-    "SkillEffectSourceOffset": 876611985,
+    "SkillEffectSourceOffset": 876611937,
     "MonsterNameId": 1203463716,
     "MonsterNames": {
       "en": "Iron Fang",
@@ -5251,8 +5251,8 @@
       "id": "Melompat, menusuk, menghancurkan segalanya!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906541,
-    "SkillTableSourceOffset": 877469078
+    "SourceOffset": 1105909513,
+    "SkillTableSourceOffset": 877469030
   },
   {
     "id": 3944,
@@ -5280,7 +5280,7 @@
     "Sprite": "as_mon_feiyu_idle",
     "SpriteOffset": 826,
     "SkillEffectId": 394401,
-    "SkillEffectSourceOffset": 876612052,
+    "SkillEffectSourceOffset": 876612004,
     "MonsterNameId": 1203463717,
     "MonsterNames": {
       "en": "Celestial Flier",
@@ -5323,7 +5323,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827412,
+        "sourceOffset": 827827316,
         "rowId": 171
       },
       {
@@ -5339,7 +5339,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827468,
+        "sourceOffset": 827827372,
         "rowId": 172
       },
       {
@@ -5355,7 +5355,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827524,
+        "sourceOffset": 827827428,
         "rowId": 173
       },
       {
@@ -5371,7 +5371,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827580,
+        "sourceOffset": 827827484,
         "rowId": 174
       },
       {
@@ -5387,13 +5387,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827636,
+        "sourceOffset": 827827540,
         "rowId": 175
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906610,
-    "SkillTableSourceOffset": 877469317
+    "SourceOffset": 1105909582,
+    "SkillTableSourceOffset": 877469269
   },
   {
     "id": 3945,
@@ -5421,7 +5421,7 @@
     "Sprite": "as_mon_yuren-ds_idle",
     "SpriteOffset": 877,
     "SkillEffectId": 394501,
-    "SkillEffectSourceOffset": 876612119,
+    "SkillEffectSourceOffset": 876612071,
     "MonsterNameId": 1203463718,
     "MonsterNames": {
       "en": "Lizardman King",
@@ -5451,8 +5451,8 @@
       "id": "Gelombang pasang, menenangkan segalanya!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906679,
-    "SkillTableSourceOffset": 877469556
+    "SourceOffset": 1105909651,
+    "SkillTableSourceOffset": 877469508
   },
   {
     "id": 3946,
@@ -5480,7 +5480,7 @@
     "Sprite": "as_mon_gebulin-ss_idle",
     "SpriteOffset": 931,
     "SkillEffectId": 394601,
-    "SkillEffectSourceOffset": 876612186,
+    "SkillEffectSourceOffset": 876612138,
     "MonsterNameId": 1203463719,
     "MonsterNames": {
       "en": "Goblin King",
@@ -5613,7 +5613,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827827972,
+        "sourceOffset": 827827876,
         "rowId": 181
       },
       {
@@ -5719,7 +5719,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828028,
+        "sourceOffset": 827827932,
         "rowId": 182
       },
       {
@@ -5825,7 +5825,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828084,
+        "sourceOffset": 827827988,
         "rowId": 183
       },
       {
@@ -5931,7 +5931,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828140,
+        "sourceOffset": 827828044,
         "rowId": 184
       },
       {
@@ -6037,13 +6037,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828196,
+        "sourceOffset": 827828100,
         "rowId": 185
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906748,
-    "SkillTableSourceOffset": 877469795
+    "SourceOffset": 1105909720,
+    "SkillTableSourceOffset": 877469747
   },
   {
     "id": 3947,
@@ -6071,7 +6071,7 @@
     "Sprite": "as_mon_gebulin-ssfc_idle",
     "SpriteOffset": 1503,
     "SkillEffectId": 394701,
-    "SkillEffectSourceOffset": 876612253,
+    "SkillEffectSourceOffset": 876612205,
     "MonsterNameId": 1203463720,
     "MonsterNames": {
       "en": "Muku Vanguard",
@@ -6114,7 +6114,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828252,
+        "sourceOffset": 827828156,
         "rowId": 186
       },
       {
@@ -6130,7 +6130,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828308,
+        "sourceOffset": 827828212,
         "rowId": 187
       },
       {
@@ -6146,7 +6146,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828364,
+        "sourceOffset": 827828268,
         "rowId": 188
       },
       {
@@ -6162,7 +6162,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828420,
+        "sourceOffset": 827828324,
         "rowId": 189
       },
       {
@@ -6178,13 +6178,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828476,
+        "sourceOffset": 827828380,
         "rowId": 190
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909508,
-    "SkillTableSourceOffset": 877470034
+    "SourceOffset": 1105912480,
+    "SkillTableSourceOffset": 877469986
   },
   {
     "id": 3948,
@@ -6212,7 +6212,7 @@
     "Sprite": "as_f_rorola-01_fidle",
     "SpriteOffset": 433,
     "SkillEffectId": 394801,
-    "SkillEffectSourceOffset": 876612320,
+    "SkillEffectSourceOffset": 876612272,
     "MonsterNameId": 1203463721,
     "MonsterNames": {
       "en": "Rorola",
@@ -6269,7 +6269,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828532,
+        "sourceOffset": 827828436,
         "rowId": 191
       },
       {
@@ -6299,7 +6299,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828588,
+        "sourceOffset": 827828492,
         "rowId": 192
       },
       {
@@ -6329,7 +6329,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828644,
+        "sourceOffset": 827828548,
         "rowId": 193
       },
       {
@@ -6359,7 +6359,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828700,
+        "sourceOffset": 827828604,
         "rowId": 194
       },
       {
@@ -6389,13 +6389,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827828756,
+        "sourceOffset": 827828660,
         "rowId": 195
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906127,
-    "SkillTableSourceOffset": 877470273
+    "SourceOffset": 1105909099,
+    "SkillTableSourceOffset": 877470225
   },
   {
     "id": 3949,
@@ -6423,7 +6423,7 @@
     "Sprite": "as_f_taurus-01_fidle",
     "SpriteOffset": 271,
     "SkillEffectId": 394901,
-    "SkillEffectSourceOffset": 876612387,
+    "SkillEffectSourceOffset": 876612339,
     "MonsterNameId": 1203463722,
     "MonsterNames": {
       "en": "Dorothy",
@@ -6453,8 +6453,8 @@
       "id": "Keterampilan berasal dari latihan, tapi ketekunan pengrajin berasal dari tanggung jawab."
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105905920,
-    "SkillTableSourceOffset": 877470512
+    "SourceOffset": 1105908892,
+    "SkillTableSourceOffset": 877470464
   },
   {
     "id": 3950,
@@ -6482,7 +6482,7 @@
     "Sprite": "as_f_boyce-01_fidle",
     "SpriteOffset": 380,
     "SkillEffectId": 395001,
-    "SkillEffectSourceOffset": 876612454,
+    "SkillEffectSourceOffset": 876612406,
     "MonsterNameId": 1203463746,
     "MonsterNames": {
       "en": "Boyce",
@@ -6546,7 +6546,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829092,
+        "sourceOffset": 827828996,
         "rowId": 201
       },
       {
@@ -6583,7 +6583,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829148,
+        "sourceOffset": 827829052,
         "rowId": 202
       },
       {
@@ -6620,7 +6620,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829204,
+        "sourceOffset": 827829108,
         "rowId": 203
       },
       {
@@ -6657,7 +6657,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829260,
+        "sourceOffset": 827829164,
         "rowId": 204
       },
       {
@@ -6694,13 +6694,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829316,
+        "sourceOffset": 827829220,
         "rowId": 205
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906058,
-    "SkillTableSourceOffset": 877470751
+    "SourceOffset": 1105909030,
+    "SkillTableSourceOffset": 877470703
   },
   {
     "id": 3951,
@@ -6728,7 +6728,7 @@
     "Sprite": "as_f_farfara-01_fidle",
     "SpriteOffset": 325,
     "SkillEffectId": 395101,
-    "SkillEffectSourceOffset": 876612521,
+    "SkillEffectSourceOffset": 876612473,
     "MonsterNameId": 1203463747,
     "MonsterNames": {
       "en": "Fafala",
@@ -6792,7 +6792,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829372,
+        "sourceOffset": 827829276,
         "rowId": 206
       },
       {
@@ -6829,7 +6829,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829428,
+        "sourceOffset": 827829332,
         "rowId": 207
       },
       {
@@ -6866,7 +6866,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829484,
+        "sourceOffset": 827829388,
         "rowId": 208
       },
       {
@@ -6903,7 +6903,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829540,
+        "sourceOffset": 827829444,
         "rowId": 209
       },
       {
@@ -6940,13 +6940,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829596,
+        "sourceOffset": 827829500,
         "rowId": 210
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105905989,
-    "SkillTableSourceOffset": 877470990
+    "SourceOffset": 1105908961,
+    "SkillTableSourceOffset": 877470942
   },
   {
     "id": 3952,
@@ -6974,7 +6974,7 @@
     "Sprite": "as_mon_solider-sword_idle",
     "SpriteOffset": 1444,
     "SkillEffectId": 395201,
-    "SkillEffectSourceOffset": 876612588,
+    "SkillEffectSourceOffset": 876612540,
     "MonsterNameId": 1203463748,
     "MonsterNames": {
       "en": "Blackstone Captain",
@@ -7023,7 +7023,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829652,
+        "sourceOffset": 827829556,
         "rowId": 211
       },
       {
@@ -7045,7 +7045,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829708,
+        "sourceOffset": 827829612,
         "rowId": 212
       },
       {
@@ -7067,7 +7067,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829764,
+        "sourceOffset": 827829668,
         "rowId": 213
       },
       {
@@ -7089,7 +7089,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829820,
+        "sourceOffset": 827829724,
         "rowId": 214
       },
       {
@@ -7111,13 +7111,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829876,
+        "sourceOffset": 827829780,
         "rowId": 215
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907507,
-    "SkillTableSourceOffset": 877471229
+    "SourceOffset": 1105910479,
+    "SkillTableSourceOffset": 877471181
   },
   {
     "id": 3953,
@@ -7145,7 +7145,7 @@
     "Sprite": "as_mon_gebulin-ssfc_idle",
     "SpriteOffset": 1503,
     "SkillEffectId": 395301,
-    "SkillEffectSourceOffset": 876612655,
+    "SkillEffectSourceOffset": 876612607,
     "MonsterNameId": 1203463749,
     "MonsterNames": {
       "en": "Goblin Chief",
@@ -7195,7 +7195,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829932,
+        "sourceOffset": 827829836,
         "rowId": 216
       },
       {
@@ -7218,7 +7218,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827829988,
+        "sourceOffset": 827829892,
         "rowId": 217
       },
       {
@@ -7241,7 +7241,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830044,
+        "sourceOffset": 827829948,
         "rowId": 218
       },
       {
@@ -7264,7 +7264,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830100,
+        "sourceOffset": 827830004,
         "rowId": 219
       },
       {
@@ -7287,13 +7287,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830156,
+        "sourceOffset": 827830060,
         "rowId": 220
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907576,
-    "SkillTableSourceOffset": 877471468
+    "SourceOffset": 1105910548,
+    "SkillTableSourceOffset": 877471420
   },
   {
     "id": 3954,
@@ -7321,7 +7321,7 @@
     "Sprite": "as_mon_dihu_idle",
     "SpriteOffset": 1593,
     "SkillEffectId": 395401,
-    "SkillEffectSourceOffset": 876612722,
+    "SkillEffectSourceOffset": 876612674,
     "MonsterNameId": 1203463750,
     "MonsterNames": {
       "en": "Crimson Foxen",
@@ -7364,7 +7364,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830212,
+        "sourceOffset": 827830116,
         "rowId": 221
       },
       {
@@ -7380,7 +7380,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830268,
+        "sourceOffset": 827830172,
         "rowId": 222
       },
       {
@@ -7396,7 +7396,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830324,
+        "sourceOffset": 827830228,
         "rowId": 223
       },
       {
@@ -7412,7 +7412,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830380,
+        "sourceOffset": 827830284,
         "rowId": 224
       },
       {
@@ -7428,13 +7428,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827830436,
+        "sourceOffset": 827830340,
         "rowId": 225
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907714,
-    "SkillTableSourceOffset": 877471707
+    "SourceOffset": 1105910686,
+    "SkillTableSourceOffset": 877471659
   },
   {
     "id": 3955,
@@ -7462,7 +7462,7 @@
     "Sprite": "as_mon_solider-sword_idle",
     "SpriteOffset": 1444,
     "SkillEffectId": 395501,
-    "SkillEffectSourceOffset": 876612789,
+    "SkillEffectSourceOffset": 876612741,
     "MonsterNameId": 1203463751,
     "MonsterNames": {
       "en": "Cabbage Kingpin",
@@ -7492,8 +7492,8 @@
       "id": "Penguncian akurasi! Tembak! .... (Meleset) Uhuk-uhuk, ini cuma buat menakut-nakuti saja!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907645,
-    "SkillTableSourceOffset": 877471946
+    "SourceOffset": 1105910617,
+    "SkillTableSourceOffset": 877471898
   },
   {
     "id": 3956,
@@ -7521,7 +7521,7 @@
     "Sprite": "as_mon_niuyang_idle",
     "SpriteOffset": 1643,
     "SkillEffectId": 395601,
-    "SkillEffectSourceOffset": 876612856,
+    "SkillEffectSourceOffset": 876612808,
     "MonsterNameId": 1203463752,
     "MonsterNames": {
       "en": "Flamehorn",
@@ -7551,8 +7551,8 @@
       "id": "Aku amarah bumi dan bara api di dalam hutan!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907783,
-    "SkillTableSourceOffset": 877472185
+    "SourceOffset": 1105910755,
+    "SkillTableSourceOffset": 877472137
   },
   {
     "id": 3957,
@@ -7580,7 +7580,7 @@
     "Sprite": "as_mon_xiyi_idle",
     "SpriteOffset": 1394,
     "SkillEffectId": 395701,
-    "SkillEffectSourceOffset": 876612923,
+    "SkillEffectSourceOffset": 876612875,
     "MonsterNameId": 1203463753,
     "MonsterNames": {
       "en": "Basilisk",
@@ -7623,7 +7623,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831052,
+        "sourceOffset": 827830956,
         "rowId": 236
       },
       {
@@ -7639,7 +7639,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831108,
+        "sourceOffset": 827831012,
         "rowId": 237
       },
       {
@@ -7655,7 +7655,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831164,
+        "sourceOffset": 827831068,
         "rowId": 238
       },
       {
@@ -7671,7 +7671,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831220,
+        "sourceOffset": 827831124,
         "rowId": 239
       },
       {
@@ -7687,13 +7687,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831276,
+        "sourceOffset": 827831180,
         "rowId": 240
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907438,
-    "SkillTableSourceOffset": 877472424
+    "SourceOffset": 1105910410,
+    "SkillTableSourceOffset": 877472376
   },
   {
     "id": 3958,
@@ -7721,7 +7721,7 @@
     "Sprite": "as_mon_xiyi_idle",
     "SpriteOffset": 1394,
     "SkillEffectId": 395801,
-    "SkillEffectSourceOffset": 876612990,
+    "SkillEffectSourceOffset": 876612942,
     "MonsterNameId": 1203463754,
     "MonsterNames": {
       "en": "Bluespine Lizard",
@@ -7764,7 +7764,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831332,
+        "sourceOffset": 827831236,
         "rowId": 241
       },
       {
@@ -7780,7 +7780,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831388,
+        "sourceOffset": 827831292,
         "rowId": 242
       },
       {
@@ -7796,7 +7796,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831444,
+        "sourceOffset": 827831348,
         "rowId": 243
       },
       {
@@ -7812,7 +7812,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831500,
+        "sourceOffset": 827831404,
         "rowId": 244
       },
       {
@@ -7828,13 +7828,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831556,
+        "sourceOffset": 827831460,
         "rowId": 245
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909577,
-    "SkillTableSourceOffset": 877472663
+    "SourceOffset": 1105912549,
+    "SkillTableSourceOffset": 877472615
   },
   {
     "id": 3959,
@@ -7862,7 +7862,7 @@
     "Sprite": "as_mon_solider-spear_idle",
     "SpriteOffset": 2674,
     "SkillEffectId": 395901,
-    "SkillEffectSourceOffset": 876613057,
+    "SkillEffectSourceOffset": 876613009,
     "MonsterNameId": 1203463755,
     "MonsterNames": {
       "en": "Blackstone Commander",
@@ -7911,7 +7911,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831612,
+        "sourceOffset": 827831516,
         "rowId": 246
       },
       {
@@ -7933,7 +7933,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831668,
+        "sourceOffset": 827831572,
         "rowId": 247
       },
       {
@@ -7955,7 +7955,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831724,
+        "sourceOffset": 827831628,
         "rowId": 248
       },
       {
@@ -7977,7 +7977,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831780,
+        "sourceOffset": 827831684,
         "rowId": 249
       },
       {
@@ -7999,13 +7999,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827831836,
+        "sourceOffset": 827831740,
         "rowId": 250
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909646,
-    "SkillTableSourceOffset": 877472902
+    "SourceOffset": 1105912618,
+    "SkillTableSourceOffset": 877472854
   },
   {
     "id": 3960,
@@ -8033,7 +8033,7 @@
     "Sprite": "as_mon_solider-dagger_fidle",
     "SpriteOffset": 2733,
     "SkillEffectId": 396001,
-    "SkillEffectSourceOffset": 876613124,
+    "SkillEffectSourceOffset": 876613076,
     "MonsterNameId": 1203463779,
     "MonsterNames": {
       "en": "Blackstone Vanguard",
@@ -8063,8 +8063,8 @@
       "id": "Akhirnya ada target hidup! Ayo rasakan ketajaman pedangku!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909715,
-    "SkillTableSourceOffset": 877473141
+    "SourceOffset": 1105912687,
+    "SkillTableSourceOffset": 877473093
   },
   {
     "id": 3961,
@@ -8092,7 +8092,7 @@
     "Sprite": "as_mon_gebulin-ds_idle",
     "SpriteOffset": 1222,
     "SkillEffectId": 396101,
-    "SkillEffectSourceOffset": 876613191,
+    "SkillEffectSourceOffset": 876613143,
     "MonsterNameId": 1203463780,
     "MonsterNames": {
       "en": "Goblin Trickster",
@@ -8122,8 +8122,8 @@
       "id": "Kamu kena jebakan buatan 'teman baikku'!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909853,
-    "SkillTableSourceOffset": 877473380
+    "SourceOffset": 1105912825,
+    "SkillTableSourceOffset": 877473332
   },
   {
     "id": 3962,
@@ -8151,7 +8151,7 @@
     "Sprite": "as_mon_gebulin-ds_idle",
     "SpriteOffset": 1222,
     "SkillEffectId": 396201,
-    "SkillEffectSourceOffset": 876613258,
+    "SkillEffectSourceOffset": 876613210,
     "MonsterNameId": 1203463781,
     "MonsterNames": {
       "en": "Goblin Shaman",
@@ -8193,7 +8193,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832452,
+        "sourceOffset": 827832356,
         "rowId": 261
       },
       {
@@ -8208,7 +8208,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832508,
+        "sourceOffset": 827832412,
         "rowId": 262
       },
       {
@@ -8223,7 +8223,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832564,
+        "sourceOffset": 827832468,
         "rowId": 263
       },
       {
@@ -8238,7 +8238,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832620,
+        "sourceOffset": 827832524,
         "rowId": 264
       },
       {
@@ -8253,13 +8253,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832676,
+        "sourceOffset": 827832580,
         "rowId": 265
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909784,
-    "SkillTableSourceOffset": 877473619
+    "SourceOffset": 1105912756,
+    "SkillTableSourceOffset": 877473571
   },
   {
     "id": 3963,
@@ -8287,7 +8287,7 @@
     "Sprite": "as_mon_dihu_idle",
     "SpriteOffset": 1593,
     "SkillEffectId": 396301,
-    "SkillEffectSourceOffset": 876613325,
+    "SkillEffectSourceOffset": 876613277,
     "MonsterNameId": 1203463782,
     "MonsterNames": {
       "en": "Blackfire Foxen",
@@ -8330,7 +8330,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832732,
+        "sourceOffset": 827832636,
         "rowId": 266
       },
       {
@@ -8346,7 +8346,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832788,
+        "sourceOffset": 827832692,
         "rowId": 267
       },
       {
@@ -8362,7 +8362,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832844,
+        "sourceOffset": 827832748,
         "rowId": 268
       },
       {
@@ -8378,7 +8378,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832900,
+        "sourceOffset": 827832804,
         "rowId": 269
       },
       {
@@ -8394,13 +8394,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827832956,
+        "sourceOffset": 827832860,
         "rowId": 270
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910060,
-    "SkillTableSourceOffset": 877473858
+    "SourceOffset": 1105913032,
+    "SkillTableSourceOffset": 877473810
   },
   {
     "id": 3964,
@@ -8428,7 +8428,7 @@
     "Sprite": "as_mon_solider-sword_idle",
     "SpriteOffset": 1444,
     "SkillEffectId": 396401,
-    "SkillEffectSourceOffset": 876613392,
+    "SkillEffectSourceOffset": 876613344,
     "MonsterNameId": 1203463783,
     "MonsterNames": {
       "en": "Gloomy Cabbage",
@@ -8547,7 +8547,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833012,
+        "sourceOffset": 827832916,
         "rowId": 271
       },
       {
@@ -8639,7 +8639,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833068,
+        "sourceOffset": 827832972,
         "rowId": 272
       },
       {
@@ -8731,7 +8731,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833124,
+        "sourceOffset": 827833028,
         "rowId": 273
       },
       {
@@ -8823,7 +8823,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833180,
+        "sourceOffset": 827833084,
         "rowId": 274
       },
       {
@@ -8915,13 +8915,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833236,
+        "sourceOffset": 827833140,
         "rowId": 275
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909922,
-    "SkillTableSourceOffset": 877474097
+    "SourceOffset": 1105912894,
+    "SkillTableSourceOffset": 877474049
   },
   {
     "id": 3965,
@@ -8949,7 +8949,7 @@
     "Sprite": "as_mon_solider-sword_idle",
     "SpriteOffset": 1444,
     "SkillEffectId": 396501,
-    "SkillEffectSourceOffset": 876613459,
+    "SkillEffectSourceOffset": 876613411,
     "MonsterNameId": 1203463784,
     "MonsterNames": {
       "en": "Ruthless Cabbage",
@@ -8979,8 +8979,8 @@
       "id": "Dengarkan irama sihir ini! —Hachiuuu!"
     },
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105909991,
-    "SkillTableSourceOffset": 877474336
+    "SourceOffset": 1105912963,
+    "SkillTableSourceOffset": 877474288
   },
   {
     "id": 3966,
@@ -9008,7 +9008,7 @@
     "Sprite": "as_mon_niuyang_idle",
     "SpriteOffset": 1643,
     "SkillEffectId": 396601,
-    "SkillEffectSourceOffset": 876613526,
+    "SkillEffectSourceOffset": 876613478,
     "MonsterNameId": 1203463785,
     "MonsterNames": {
       "en": "Emerald Caprahorn",
@@ -9051,7 +9051,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833572,
+        "sourceOffset": 827833476,
         "rowId": 281
       },
       {
@@ -9067,7 +9067,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833628,
+        "sourceOffset": 827833532,
         "rowId": 282
       },
       {
@@ -9083,7 +9083,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833684,
+        "sourceOffset": 827833588,
         "rowId": 283
       },
       {
@@ -9099,7 +9099,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833740,
+        "sourceOffset": 827833644,
         "rowId": 284
       },
       {
@@ -9115,13 +9115,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833796,
+        "sourceOffset": 827833700,
         "rowId": 285
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910129,
-    "SkillTableSourceOffset": 877474575
+    "SourceOffset": 1105913101,
+    "SkillTableSourceOffset": 877474527
   },
   {
     "id": 3968,
@@ -9149,7 +9149,7 @@
     "Sprite": "as_wpnpc_m_base_bossdenvel_fidle",
     "SpriteOffset": 487,
     "SkillEffectId": 396801,
-    "SkillEffectSourceOffset": 876613660,
+    "SkillEffectSourceOffset": 876613612,
     "MonsterNameId": 1203463787,
     "MonsterNames": {
       "en": "Denvel",
@@ -9199,7 +9199,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833852,
+        "sourceOffset": 827833756,
         "rowId": 286
       },
       {
@@ -9235,7 +9235,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833908,
+        "sourceOffset": 827833812,
         "rowId": 287
       },
       {
@@ -9271,7 +9271,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827833964,
+        "sourceOffset": 827833868,
         "rowId": 288
       },
       {
@@ -9307,7 +9307,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834020,
+        "sourceOffset": 827833924,
         "rowId": 289
       },
       {
@@ -9343,13 +9343,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834076,
+        "sourceOffset": 827833980,
         "rowId": 290
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906196,
-    "SkillTableSourceOffset": 877475053
+    "SourceOffset": 1105909168,
+    "SkillTableSourceOffset": 877475005
   },
   {
     "id": 3969,
@@ -9378,7 +9378,7 @@
     "Sprite": "as_mon_dragon_idle",
     "SpriteOffset": 553,
     "SkillEffectId": 396901,
-    "SkillEffectSourceOffset": 876613727,
+    "SkillEffectSourceOffset": 876613679,
     "MonsterNameId": 1203463788,
     "MonsterNames": {
       "en": "Igoreus",
@@ -9429,7 +9429,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834132,
+        "sourceOffset": 827834036,
         "rowId": 291
       },
       {
@@ -9466,7 +9466,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834188,
+        "sourceOffset": 827834092,
         "rowId": 292
       },
       {
@@ -9503,7 +9503,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834244,
+        "sourceOffset": 827834148,
         "rowId": 293
       },
       {
@@ -9540,7 +9540,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834300,
+        "sourceOffset": 827834204,
         "rowId": 294
       },
       {
@@ -9577,13 +9577,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834356,
+        "sourceOffset": 827834260,
         "rowId": 295
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906265,
-    "SkillTableSourceOffset": 877475292
+    "SourceOffset": 1105909237,
+    "SkillTableSourceOffset": 877475244
   },
   {
     "id": 3970,
@@ -9611,7 +9611,7 @@
     "Sprite": "as_mon_battlenappo_fidle",
     "SpriteOffset": 605,
     "SkillEffectId": 397001,
-    "SkillEffectSourceOffset": 876613794,
+    "SkillEffectSourceOffset": 876613746,
     "MonsterNameId": 1203463812,
     "MonsterNames": {
       "en": "Plague Nappo",
@@ -9647,7 +9647,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834412,
+        "sourceOffset": 827834316,
         "rowId": 296
       },
       {
@@ -9669,7 +9669,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834468,
+        "sourceOffset": 827834372,
         "rowId": 297
       },
       {
@@ -9691,7 +9691,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834524,
+        "sourceOffset": 827834428,
         "rowId": 298
       },
       {
@@ -9713,7 +9713,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834580,
+        "sourceOffset": 827834484,
         "rowId": 299
       },
       {
@@ -9735,13 +9735,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834636,
+        "sourceOffset": 827834540,
         "rowId": 300
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906334,
-    "SkillTableSourceOffset": 877475531
+    "SourceOffset": 1105909306,
+    "SkillTableSourceOffset": 877475483
   },
   {
     "id": 3971,
@@ -9769,7 +9769,7 @@
     "Sprite": "as_mon_typeochaozai_idle",
     "SpriteOffset": 663,
     "SkillEffectId": 397101,
-    "SkillEffectSourceOffset": 876613861,
+    "SkillEffectSourceOffset": 876613813,
     "MonsterNameId": 1203463813,
     "MonsterNames": {
       "en": "Kartgriff",
@@ -9805,7 +9805,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834692,
+        "sourceOffset": 827834596,
         "rowId": 301
       },
       {
@@ -9827,7 +9827,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834748,
+        "sourceOffset": 827834652,
         "rowId": 302
       },
       {
@@ -9849,7 +9849,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834804,
+        "sourceOffset": 827834708,
         "rowId": 303
       },
       {
@@ -9871,7 +9871,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834860,
+        "sourceOffset": 827834764,
         "rowId": 304
       },
       {
@@ -9893,13 +9893,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834916,
+        "sourceOffset": 827834820,
         "rowId": 305
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105906403,
-    "SkillTableSourceOffset": 877475770
+    "SourceOffset": 1105909375,
+    "SkillTableSourceOffset": 877475722
   },
   {
     "id": 3972,
@@ -9927,7 +9927,7 @@
     "Sprite": "as_mon_xiezhu_idle",
     "SpriteOffset": 1342,
     "SkillEffectId": 397201,
-    "SkillEffectSourceOffset": 876613928,
+    "SkillEffectSourceOffset": 876613880,
     "MonsterNameId": 1203463814,
     "MonsterNames": {
       "en": "Predator Spider",
@@ -9963,7 +9963,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827834972,
+        "sourceOffset": 827834876,
         "rowId": 306
       },
       {
@@ -9985,7 +9985,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835028,
+        "sourceOffset": 827834932,
         "rowId": 307
       },
       {
@@ -10007,7 +10007,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835084,
+        "sourceOffset": 827834988,
         "rowId": 308
       },
       {
@@ -10029,7 +10029,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835140,
+        "sourceOffset": 827835044,
         "rowId": 309
       },
       {
@@ -10051,13 +10051,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835196,
+        "sourceOffset": 827835100,
         "rowId": 310
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907852,
-    "SkillTableSourceOffset": 877476009
+    "SourceOffset": 1105910824,
+    "SkillTableSourceOffset": 877475961
   },
   {
     "id": 3973,
@@ -10085,7 +10085,7 @@
     "Sprite": "as_mon_shouren_idle",
     "SpriteOffset": 1108,
     "SkillEffectId": 397301,
-    "SkillEffectSourceOffset": 876613995,
+    "SkillEffectSourceOffset": 876613947,
     "MonsterNameId": 1203463815,
     "MonsterNames": {
       "en": "Rebel King",
@@ -10102,8 +10102,8 @@
     },
     "QuoteId": 0,
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907921,
-    "SkillTableSourceOffset": 877476248
+    "SourceOffset": 1105910893,
+    "SkillTableSourceOffset": 877476200
   },
   {
     "id": 3974,
@@ -10131,7 +10131,7 @@
     "Sprite": "as_mon_yanqiu_idle",
     "SpriteOffset": 1760,
     "SkillEffectId": 397401,
-    "SkillEffectSourceOffset": 876614062,
+    "SkillEffectSourceOffset": 876614014,
     "MonsterNameId": 1203463816,
     "MonsterNames": {
       "en": "Void Watcher",
@@ -10174,7 +10174,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835532,
+        "sourceOffset": 827835436,
         "rowId": 316
       },
       {
@@ -10203,7 +10203,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835588,
+        "sourceOffset": 827835492,
         "rowId": 317
       },
       {
@@ -10232,7 +10232,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835644,
+        "sourceOffset": 827835548,
         "rowId": 318
       },
       {
@@ -10261,7 +10261,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835700,
+        "sourceOffset": 827835604,
         "rowId": 319
       },
       {
@@ -10290,13 +10290,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835756,
+        "sourceOffset": 827835660,
         "rowId": 320
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105907990,
-    "SkillTableSourceOffset": 877476487
+    "SourceOffset": 1105910962,
+    "SkillTableSourceOffset": 877476439
   },
   {
     "id": 3975,
@@ -10324,7 +10324,7 @@
     "Sprite": "as_mon_yezhu_idle",
     "SpriteOffset": 775,
     "SkillEffectId": 397501,
-    "SkillEffectSourceOffset": 876614129,
+    "SkillEffectSourceOffset": 876614081,
     "MonsterNameId": 1203463817,
     "MonsterNames": {
       "en": "Ridge Fang",
@@ -10360,7 +10360,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835812,
+        "sourceOffset": 827835716,
         "rowId": 321
       },
       {
@@ -10382,7 +10382,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835868,
+        "sourceOffset": 827835772,
         "rowId": 322
       },
       {
@@ -10404,7 +10404,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835924,
+        "sourceOffset": 827835828,
         "rowId": 323
       },
       {
@@ -10426,7 +10426,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827835980,
+        "sourceOffset": 827835884,
         "rowId": 324
       },
       {
@@ -10448,13 +10448,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836036,
+        "sourceOffset": 827835940,
         "rowId": 325
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908059,
-    "SkillTableSourceOffset": 877476726
+    "SourceOffset": 1105911031,
+    "SkillTableSourceOffset": 877476678
   },
   {
     "id": 3976,
@@ -10482,7 +10482,7 @@
     "Sprite": "as_mon_maoqiu_idle",
     "SpriteOffset": 1844,
     "SkillEffectId": 397601,
-    "SkillEffectSourceOffset": 876614196,
+    "SkillEffectSourceOffset": 876614148,
     "MonsterNameId": 1203463818,
     "MonsterNames": {
       "en": "Bloodthirsty Furball",
@@ -10511,7 +10511,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836092,
+        "sourceOffset": 827835996,
         "rowId": 326
       },
       {
@@ -10526,7 +10526,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836148,
+        "sourceOffset": 827836052,
         "rowId": 327
       },
       {
@@ -10541,7 +10541,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836204,
+        "sourceOffset": 827836108,
         "rowId": 328
       },
       {
@@ -10556,7 +10556,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836260,
+        "sourceOffset": 827836164,
         "rowId": 329
       },
       {
@@ -10571,13 +10571,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836316,
+        "sourceOffset": 827836220,
         "rowId": 330
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105908128,
-    "SkillTableSourceOffset": 877476965
+    "SourceOffset": 1105911100,
+    "SkillTableSourceOffset": 877476917
   },
   {
     "id": 3977,
@@ -10605,7 +10605,7 @@
     "Sprite": "as_mon_xiezhu_idle",
     "SpriteOffset": 1342,
     "SkillEffectId": 397701,
-    "SkillEffectSourceOffset": 876614263,
+    "SkillEffectSourceOffset": 876614215,
     "MonsterNameId": 1203463819,
     "MonsterNames": {
       "en": "Killer Arachnocrab",
@@ -10622,8 +10622,8 @@
     },
     "QuoteId": 0,
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910336,
-    "SkillTableSourceOffset": 877477204
+    "SourceOffset": 1105913308,
+    "SkillTableSourceOffset": 877477156
   },
   {
     "id": 3978,
@@ -10651,7 +10651,7 @@
     "Sprite": "as_mon_yezhu_idle",
     "SpriteOffset": 775,
     "SkillEffectId": 397801,
-    "SkillEffectSourceOffset": 876614330,
+    "SkillEffectSourceOffset": 876614282,
     "MonsterNameId": 1203463820,
     "MonsterNames": {
       "en": "Verdant Fang",
@@ -10680,7 +10680,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836652,
+        "sourceOffset": 827836556,
         "rowId": 336
       },
       {
@@ -10695,7 +10695,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836708,
+        "sourceOffset": 827836612,
         "rowId": 337
       },
       {
@@ -10710,7 +10710,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836764,
+        "sourceOffset": 827836668,
         "rowId": 338
       },
       {
@@ -10725,7 +10725,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836820,
+        "sourceOffset": 827836724,
         "rowId": 339
       },
       {
@@ -10740,13 +10740,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836876,
+        "sourceOffset": 827836780,
         "rowId": 340
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910405,
-    "SkillTableSourceOffset": 877477443
+    "SourceOffset": 1105913377,
+    "SkillTableSourceOffset": 877477395
   },
   {
     "id": 3979,
@@ -10774,7 +10774,7 @@
     "Sprite": "as_mon_maoqiu_idle",
     "SpriteOffset": 1844,
     "SkillEffectId": 397901,
-    "SkillEffectSourceOffset": 876614397,
+    "SkillEffectSourceOffset": 876614349,
     "MonsterNameId": 1203463821,
     "MonsterNames": {
       "en": "Man-Eating Furball",
@@ -10803,7 +10803,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836932,
+        "sourceOffset": 827836836,
         "rowId": 341
       },
       {
@@ -10818,7 +10818,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827836988,
+        "sourceOffset": 827836892,
         "rowId": 342
       },
       {
@@ -10833,7 +10833,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837044,
+        "sourceOffset": 827836948,
         "rowId": 343
       },
       {
@@ -10848,7 +10848,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837100,
+        "sourceOffset": 827837004,
         "rowId": 344
       },
       {
@@ -10863,13 +10863,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837156,
+        "sourceOffset": 827837060,
         "rowId": 345
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910474,
-    "SkillTableSourceOffset": 877477682
+    "SourceOffset": 1105913446,
+    "SkillTableSourceOffset": 877477634
   },
   {
     "id": 3980,
@@ -10897,7 +10897,7 @@
     "Sprite": "as_mon_shouren_idle",
     "SpriteOffset": 1108,
     "SkillEffectId": 398001,
-    "SkillEffectSourceOffset": 876614464,
+    "SkillEffectSourceOffset": 876614416,
     "MonsterNameId": 1203463845,
     "MonsterNames": {
       "en": "Dogorman",
@@ -10933,7 +10933,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837212,
+        "sourceOffset": 827837116,
         "rowId": 346
       },
       {
@@ -10955,7 +10955,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837268,
+        "sourceOffset": 827837172,
         "rowId": 347
       },
       {
@@ -10977,7 +10977,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837324,
+        "sourceOffset": 827837228,
         "rowId": 348
       },
       {
@@ -10999,7 +10999,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837380,
+        "sourceOffset": 827837284,
         "rowId": 349
       },
       {
@@ -11021,13 +11021,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837436,
+        "sourceOffset": 827837340,
         "rowId": 350
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910543,
-    "SkillTableSourceOffset": 877477921
+    "SourceOffset": 1105913515,
+    "SkillTableSourceOffset": 877477873
   },
   {
     "id": 3981,
@@ -11055,7 +11055,7 @@
     "Sprite": "as_mon_yanqiu_idle",
     "SpriteOffset": 1760,
     "SkillEffectId": 398101,
-    "SkillEffectSourceOffset": 876614531,
+    "SkillEffectSourceOffset": 876614483,
     "MonsterNameId": 1203463846,
     "MonsterNames": {
       "en": "Sanctuary Eye",
@@ -11084,7 +11084,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837492,
+        "sourceOffset": 827837396,
         "rowId": 351
       },
       {
@@ -11099,7 +11099,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837548,
+        "sourceOffset": 827837452,
         "rowId": 352
       },
       {
@@ -11114,7 +11114,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837604,
+        "sourceOffset": 827837508,
         "rowId": 353
       },
       {
@@ -11129,7 +11129,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837660,
+        "sourceOffset": 827837564,
         "rowId": 354
       },
       {
@@ -11144,13 +11144,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837716,
+        "sourceOffset": 827837620,
         "rowId": 355
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910612,
-    "SkillTableSourceOffset": 877478160
+    "SourceOffset": 1105913584,
+    "SkillTableSourceOffset": 877478112
   },
   {
     "id": 3982,
@@ -11174,7 +11174,7 @@
     "Sprite": "as_wpnpc_f_base_ip004x02_fidle",
     "SpriteOffset": 2986,
     "SkillEffectId": 398201,
-    "SkillEffectSourceOffset": 876614598,
+    "SkillEffectSourceOffset": 876614550,
     "MonsterNameId": 1203463847,
     "MonsterNames": {
       "en": "Lucy",
@@ -11229,7 +11229,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837772,
+        "sourceOffset": 827837676,
         "rowId": 356
       },
       {
@@ -11265,7 +11265,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837828,
+        "sourceOffset": 827837732,
         "rowId": 357
       },
       {
@@ -11301,7 +11301,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837884,
+        "sourceOffset": 827837788,
         "rowId": 358
       },
       {
@@ -11337,7 +11337,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837940,
+        "sourceOffset": 827837844,
         "rowId": 359
       },
       {
@@ -11373,13 +11373,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827837996,
+        "sourceOffset": 827837900,
         "rowId": 360
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910198,
-    "SkillTableSourceOffset": 877478399
+    "SourceOffset": 1105913170,
+    "SkillTableSourceOffset": 877478351
   },
   {
     "id": 3983,
@@ -11403,7 +11403,7 @@
     "Sprite": "as_wpnpc_m_base_ip004x01_fidle",
     "SpriteOffset": 3050,
     "SkillEffectId": 398301,
-    "SkillEffectSourceOffset": 876614665,
+    "SkillEffectSourceOffset": 876614617,
     "MonsterNameId": 1203463848,
     "MonsterNames": {
       "en": "Natsu",
@@ -11451,7 +11451,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827838052,
+        "sourceOffset": 827837956,
         "rowId": 361
       },
       {
@@ -11480,7 +11480,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827838108,
+        "sourceOffset": 827838012,
         "rowId": 362
       },
       {
@@ -11509,7 +11509,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827838164,
+        "sourceOffset": 827838068,
         "rowId": 363
       },
       {
@@ -11538,7 +11538,7 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827838220,
+        "sourceOffset": 827838124,
         "rowId": 364
       },
       {
@@ -11567,55 +11567,13 @@
           }
         ],
         "sourceTable": "SkillAoyiStarTable.ctb",
-        "sourceOffset": 827838276,
+        "sourceOffset": 827838180,
         "rowId": 365
       }
     ],
     "Source": "SkillAoyiTable",
-    "SourceOffset": 1105910267,
-    "SkillTableSourceOffset": 877478638
-  },
-  {
-    "id": 3984,
-    "Name": "Exit Lucy Transformation",
-    "NameDesign": "退出露西变身",
-    "Names": {
-      "design": "退出露西变身",
-      "en": "Exit Lucy Transformation",
-      "zh-CN": "退出露西变身",
-      "ja": "ルーシー変身解除",
-      "de": "Exit Lucy Transformation",
-      "es": "Exit Lucy Transformation",
-      "fr": "Exit Lucy Transformation",
-      "id": "Exit Lucy Transformation",
-      "ko-KR": "Exit Lucy Transformation",
-      "pt-BR": "Exit Lucy Transformation",
-      "th": "Exit Lucy Transformation",
-      "zh-TW": "Exit Lucy Transformation"
-    },
-    "Icon": "skill_aoyi_skill_icon_086.png",
-    "Source": "CN 0.1.5 skill_aoyi_icons.json"
-  },
-  {
-    "id": 3985,
-    "Name": "Exit Natsu Transformation",
-    "NameDesign": "退出纳兹变身",
-    "Names": {
-      "design": "退出纳兹变身",
-      "en": "Exit Natsu Transformation",
-      "zh-CN": "退出纳兹变身",
-      "ja": "ナツ変身解除",
-      "de": "Exit Natsu Transformation",
-      "es": "Exit Natsu Transformation",
-      "fr": "Exit Natsu Transformation",
-      "id": "Exit Natsu Transformation",
-      "ko-KR": "Exit Natsu Transformation",
-      "pt-BR": "Exit Natsu Transformation",
-      "th": "Exit Natsu Transformation",
-      "zh-TW": "Exit Natsu Transformation"
-    },
-    "Icon": "skill_aoyi_skill_icon_085.png",
-    "Source": "CN 0.1.5 skill_aoyi_icons.json"
+    "SourceOffset": 1105913239,
+    "SkillTableSourceOffset": 877478590
   },
   {
     "id": 3986,
@@ -11636,7 +11594,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_086",
     "IconPathOffset": 26961,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877479355
+    "SourceOffset": 877479307
   },
   {
     "id": 3987,
@@ -11657,7 +11615,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_085",
     "IconPathOffset": 27037,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877479594
+    "SourceOffset": 877479546
   },
   {
     "id": 102664,
@@ -11672,7 +11630,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_081",
     "IconPathOffset": 26666,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877655020
+    "SourceOffset": 877654972
   },
   {
     "id": 111069,
@@ -11697,7 +11655,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_074",
     "IconPathOffset": 26155,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877707361
+    "SourceOffset": 877707313
   },
   {
     "id": 170112,
@@ -11723,7 +11681,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_071",
     "IconPathOffset": 25936,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877764243
+    "SourceOffset": 877764195
   },
   {
     "id": 420140,
@@ -11749,7 +11707,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_009",
     "IconPathOffset": 21834,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877870359
+    "SourceOffset": 877870311
   },
   {
     "id": 1002440,
@@ -11775,7 +11733,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_026",
     "IconPathOffset": 21446,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877942298
+    "SourceOffset": 877942250
   },
   {
     "id": 1002830,
@@ -11801,7 +11759,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_015",
     "IconPathOffset": 21542,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877945883
+    "SourceOffset": 877945835
   },
   {
     "id": 1005240,
@@ -11827,7 +11785,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_031",
     "IconPathOffset": 23060,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877953531
+    "SourceOffset": 877953483
   },
   {
     "id": 1006940,
@@ -11853,7 +11811,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_041",
     "IconPathOffset": 23787,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877971456
+    "SourceOffset": 877971408
   },
   {
     "id": 1008440,
@@ -11878,7 +11836,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_048",
     "IconPathOffset": 24216,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877987230
+    "SourceOffset": 877987182
   },
   {
     "id": 1008540,
@@ -11903,7 +11861,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_049",
     "IconPathOffset": 24289,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877989859
+    "SourceOffset": 877989811
   },
   {
     "id": 1008640,
@@ -11929,7 +11887,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_008",
     "IconPathOffset": 21615,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877991771
+    "SourceOffset": 877991723
   },
   {
     "id": 1008641,
@@ -11955,7 +11913,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_044",
     "IconPathOffset": 23930,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877992010
+    "SourceOffset": 877991962
   },
   {
     "id": 1009702,
@@ -11970,7 +11928,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_077",
     "IconPathOffset": 26374,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 877993922
+    "SourceOffset": 877993874
   },
   {
     "id": 1010440,
@@ -11996,7 +11954,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_040",
     "IconPathOffset": 23717,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878002048
+    "SourceOffset": 878002000
   },
   {
     "id": 1010540,
@@ -12022,7 +11980,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_039",
     "IconPathOffset": 23644,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878005633
+    "SourceOffset": 878005585
   },
   {
     "id": 1011010,
@@ -12048,7 +12006,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_060",
     "IconPathOffset": 25320,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878017344
+    "SourceOffset": 878017296
   },
   {
     "id": 1011104,
@@ -12074,7 +12032,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_059",
     "IconPathOffset": 25393,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878019017
+    "SourceOffset": 878018969
   },
   {
     "id": 1011214,
@@ -12099,7 +12057,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_065",
     "IconPathOffset": 25770,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878023080
+    "SourceOffset": 878023032
   },
   {
     "id": 1011312,
@@ -12124,7 +12082,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_064",
     "IconPathOffset": 25691,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878027860
+    "SourceOffset": 878027812
   },
   {
     "id": 1011806,
@@ -12149,7 +12107,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_066",
     "IconPathOffset": 25028,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878031923
+    "SourceOffset": 878031875
   },
   {
     "id": 1011906,
@@ -12174,7 +12132,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_058",
     "IconPathOffset": 24806,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878033835
+    "SourceOffset": 878033787
   },
   {
     "id": 1100504,
@@ -12199,7 +12157,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_056",
     "IconPathOffset": 25247,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878046263
+    "SourceOffset": 878046215
   },
   {
     "id": 1100740,
@@ -12224,7 +12182,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_057",
     "IconPathOffset": 25174,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878049131
+    "SourceOffset": 878049083
   },
   {
     "id": 1101204,
@@ -12249,7 +12207,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_061",
     "IconPathOffset": 25466,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878050326
+    "SourceOffset": 878050278
   },
   {
     "id": 1101304,
@@ -12274,7 +12232,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_062",
     "IconPathOffset": 25539,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878052716
+    "SourceOffset": 878052668
   },
   {
     "id": 1101440,
@@ -12299,7 +12257,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_063",
     "IconPathOffset": 24879,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878054150
+    "SourceOffset": 878054102
   },
   {
     "id": 1102205,
@@ -12324,7 +12282,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_069",
     "IconPathOffset": 25840,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878057974
+    "SourceOffset": 878057926
   },
   {
     "id": 1102306,
@@ -12349,7 +12307,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_070",
     "IconPathOffset": 25101,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878059408
+    "SourceOffset": 878059360
   },
   {
     "id": 1120220,
@@ -12364,7 +12322,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_080",
     "IconPathOffset": 26593,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878064905
+    "SourceOffset": 878064857
   },
   {
     "id": 1120310,
@@ -12379,7 +12337,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_075",
     "IconPathOffset": 26228,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878067773
+    "SourceOffset": 878067725
   },
   {
     "id": 1121105,
@@ -12394,7 +12352,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_078",
     "IconPathOffset": 26447,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878071358
+    "SourceOffset": 878071310
   },
   {
     "id": 1121406,
@@ -12409,7 +12367,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_082",
     "IconPathOffset": 26739,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878073987
+    "SourceOffset": 878073939
   },
   {
     "id": 1121508,
@@ -12424,7 +12382,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_079",
     "IconPathOffset": 26520,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878075899
+    "SourceOffset": 878075851
   },
   {
     "id": 1121810,
@@ -12439,7 +12397,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_084",
     "IconPathOffset": 26885,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878077572
+    "SourceOffset": 878077524
   },
   {
     "id": 1700440,
@@ -12465,7 +12423,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_005",
     "IconPathOffset": 22695,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878106491
+    "SourceOffset": 878106443
   },
   {
     "id": 1700718,
@@ -12491,7 +12449,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_067",
     "IconPathOffset": 25612,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878110554
+    "SourceOffset": 878110506
   },
   {
     "id": 1700829,
@@ -12516,7 +12474,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_068",
     "IconPathOffset": 24952,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878113900
+    "SourceOffset": 878113852
   },
   {
     "id": 1701040,
@@ -12531,7 +12489,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_076",
     "IconPathOffset": 26301,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878122743
+    "SourceOffset": 878122695
   },
   {
     "id": 2001740,
@@ -12557,7 +12515,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_037",
     "IconPathOffset": 23498,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878145687
+    "SourceOffset": 878145639
   },
   {
     "id": 2002440,
@@ -12583,7 +12541,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_014",
     "IconPathOffset": 21303,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878167675
+    "SourceOffset": 878167627
   },
   {
     "id": 2900240,
@@ -12609,7 +12567,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_013",
     "IconPathOffset": 22479,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878194921
+    "SourceOffset": 878194873
   },
   {
     "id": 2900340,
@@ -12635,7 +12593,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_016",
     "IconPathOffset": 22552,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878197072
+    "SourceOffset": 878197024
   },
   {
     "id": 2900540,
@@ -12661,7 +12619,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_025",
     "IconPathOffset": 22622,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878199940
+    "SourceOffset": 878199892
   },
   {
     "id": 2900640,
@@ -12687,7 +12645,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_042",
     "IconPathOffset": 21907,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878201135
+    "SourceOffset": 878201087
   },
   {
     "id": 2900715,
@@ -12712,7 +12670,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_055",
     "IconPathOffset": 24660,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878203525
+    "SourceOffset": 878203477
   },
   {
     "id": 2900740,
@@ -12737,7 +12695,7 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_055",
     "IconPathOffset": 24660,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878204242
+    "SourceOffset": 878204194
   },
   {
     "id": 2900940,
@@ -12762,6 +12720,6 @@
     "IconPath": "ui/textures/skill_aoyi/skill_aoyi_skill_icon_054",
     "IconPathOffset": 24733,
     "Source": "SkillTableAdjacentAoyiIcon",
-    "SourceOffset": 878206154
+    "SourceOffset": 878206106
   }
 ]

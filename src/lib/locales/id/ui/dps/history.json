@@ -373,5 +373,17 @@
   "columns.historyTankedSkills.blockRate.label": "Blok %",
   "columns.historyTankedSkills.luckyBlockRate.description": "Menampilkan peluang skill masuk ini memicu blok beruntung",
   "columns.historyTankedSkills.luckyBlockRate.header": "Blok Beruntung %",
-  "columns.historyTankedSkills.luckyBlockRate.label": "Blok Beruntung %"
+  "columns.historyTankedSkills.luckyBlockRate.label": "Blok Beruntung %",
+  "detail.graphIndividualView": "Grafik - Individual",
+  "detail.graphTeamView": "Grafik - T.DPS",
+  "detail.graphDeath": "mati",
+  "detail.summary.aria": "Ringkasan statistik pemain",
+  "detail.summary.time": "Waktu",
+  "detail.summary.encounterTime": "Waktu encounter",
+  "detail.summary.trueDpsTime": "Waktu DPS sebenarnya",
+  "detail.summary.damage": "Damage",
+  "detail.summary.boss": "Boss",
+  "detail.summary.rates": "Rate",
+  "detail.summary.healing": "Healing",
+  "detail.summary.tanked": "Tanked"
 }

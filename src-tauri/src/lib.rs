@@ -11,6 +11,7 @@ use specta_typescript::{BigIntExportBehavior, Typescript};
 use std::collections::HashSet;
 use std::io::Write;
 use std::process::Command;
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use std::path::{Path, PathBuf};
 use std::sync::{
@@ -68,11 +69,7 @@ mod game_foreground {
 
     #[link(name = "kernel32")]
     unsafe extern "system" {
-        fn OpenProcess(
-            desired_access: Dword,
-            inherit_handle: Bool,
-            process_id: Dword,
-        ) -> Handle;
+        fn OpenProcess(desired_access: Dword, inherit_handle: Bool, process_id: Dword) -> Handle;
         fn QueryFullProcessImageNameW(
             process: Handle,
             flags: Dword,
@@ -97,11 +94,16 @@ mod game_foreground {
         String::from_utf16_lossy(&buffer[..copied as usize])
     }
 
-    fn foreground_process_path(hwnd: Hwnd) -> String {
+    fn foreground_process_id(hwnd: Hwnd) -> Dword {
         let mut process_id: Dword = 0;
         unsafe {
             GetWindowThreadProcessId(hwnd, &mut process_id);
         }
+        process_id
+    }
+
+    fn foreground_process_path(hwnd: Hwnd) -> String {
+        let process_id = foreground_process_id(hwnd);
         if process_id == 0 {
             return String::new();
         }
@@ -154,6 +156,11 @@ mod game_foreground {
         let hwnd = unsafe { GetForegroundWindow() };
         if hwnd.is_null() || hwnd == null_mut() {
             return false;
+        }
+
+        let process_id = foreground_process_id(hwnd);
+        if process_id == std::process::id() {
+            return true;
         }
 
         let title = foreground_window_text(hwnd);
@@ -243,6 +250,31 @@ fn toggle_game_overlay_window(app: tauri::AppHandle) -> Result<(), String> {
         json!({ "visible": next_visible }),
     )
     .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+fn toggle_live_window(app: tauri::AppHandle) -> Result<(), String> {
+    let Some(live_window) = app.get_webview_window(WINDOW_LIVE_LABEL) else {
+        return Err("Live window not found".into());
+    };
+
+    let next_visible = !live_window.is_visible().map_err(|e| e.to_string())?;
+    if next_visible {
+        let _ = live_window.set_focusable(false);
+        let _ = live_window.set_ignore_cursor_events(false);
+        live_window.show().map_err(|e| e.to_string())?;
+        live_window.unminimize().map_err(|e| e.to_string())?;
+        let _ = live_window.set_focusable(true);
+        app.emit("live-window-manual-show", ())
+            .map_err(|e| e.to_string())?;
+    } else {
+        let _ = live_window.set_ignore_cursor_events(true);
+        let _ = live_window.set_focusable(false);
+        live_window.hide().map_err(|e| e.to_string())?;
+    }
 
     Ok(())
 }
@@ -447,6 +479,8 @@ pub fn run() {
             database::commands::get_recent_players_command,
             database::commands::get_player_name_command,
             packet_settings_commands::save_packet_capture_settings,
+            background_image_commands::clear_imported_background_image,
+            background_image_commands::import_background_image,
             custom_data_commands::read_custom_definitions,
             custom_data_commands::write_custom_definitions,
             custom_data_commands::read_custom_triggers,
@@ -487,6 +521,7 @@ pub fn run() {
             translation_runtime::generate_ui_translation_scaffold,
             translation_runtime::generate_all_ui_translation_scaffolds,
             toggle_game_overlay_window,
+            toggle_live_window,
             set_hide_main_window_to_tray,
             toggle_game_overlay_edit_mode,
             sync_monster_overlay_window_to_game_overlay,
@@ -767,6 +802,105 @@ mod custom_data_commands {
     }
 }
 
+mod background_image_commands {
+    use super::*;
+
+    const MAX_BACKGROUND_IMAGE_BYTES: u64 = 30 * 1024 * 1024;
+    const BACKGROUND_IMAGE_PREFIX: &str = "custom-background-";
+
+    fn background_image_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, String> {
+        let base_dir = app_handle
+            .path()
+            .app_local_data_dir()
+            .or_else(|_| app_handle.path().app_data_dir())
+            .map_err(|e| format!("Failed to resolve app data directory: {}", e))?;
+        let dir = base_dir.join("backgrounds");
+        std::fs::create_dir_all(&dir)
+            .map_err(|e| format!("Failed to create {}: {}", dir.display(), e))?;
+        Ok(dir)
+    }
+
+    fn supported_background_extension(path: &Path) -> Result<String, String> {
+        let Some(extension) = path.extension().and_then(|value| value.to_str()) else {
+            return Err("Background image must have an extension".to_string());
+        };
+        let normalized = extension.to_ascii_lowercase();
+        match normalized.as_str() {
+            "png" | "jpg" | "jpeg" | "webp" | "gif" | "bmp" => Ok(normalized),
+            _ => Err(format!(
+                "Unsupported background image type: .{}",
+                extension
+            )),
+        }
+    }
+
+    fn remove_imported_background_images(dir: &Path) {
+        let Ok(entries) = std::fs::read_dir(dir) else {
+            return;
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if !path.is_file() {
+                continue;
+            }
+            let Some(file_name) = path.file_name().and_then(|value| value.to_str()) else {
+                continue;
+            };
+            if file_name.starts_with(BACKGROUND_IMAGE_PREFIX) {
+                let _ = std::fs::remove_file(path);
+            }
+        }
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn import_background_image(
+        app_handle: tauri::AppHandle,
+        source_path: String,
+    ) -> Result<String, String> {
+        let source = PathBuf::from(source_path.trim());
+        if !source.is_file() {
+            return Err(format!(
+                "Background image source is not a file: {}",
+                source.display()
+            ));
+        }
+
+        let metadata = std::fs::metadata(&source)
+            .map_err(|e| format!("Failed to read {}: {}", source.display(), e))?;
+        if metadata.len() > MAX_BACKGROUND_IMAGE_BYTES {
+            return Err("Background image is too large; please choose a file under 30 MB".to_string());
+        }
+
+        let extension = supported_background_extension(&source)?;
+        let dir = background_image_dir(&app_handle)?;
+        remove_imported_background_images(&dir);
+
+        let stamp = SystemTime::now()
+            .duration_since(UNIX_EPOCH)
+            .map(|duration| duration.as_millis())
+            .unwrap_or_default();
+        let target = dir.join(format!("{BACKGROUND_IMAGE_PREFIX}{stamp}.{extension}"));
+        std::fs::copy(&source, &target).map_err(|e| {
+            format!(
+                "Failed to copy background image from {} to {}: {}",
+                source.display(),
+                target.display(),
+                e
+            )
+        })?;
+        Ok(target.display().to_string())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn clear_imported_background_image(app_handle: tauri::AppHandle) -> Result<(), String> {
+        let dir = background_image_dir(&app_handle)?;
+        remove_imported_background_images(&dir);
+        Ok(())
+    }
+}
+
 mod profile_library_commands {
     use super::*;
     use serde::Serialize;
@@ -921,6 +1055,11 @@ mod packet_settings_commands {
             app_handle.path().app_local_data_dir(),
         ];
         let mut last_err = None;
+        let mut wrote_any = false;
+        let payload = json!({
+            "npcapDevice": npcap_device,
+        });
+        let bytes = serde_json::to_vec_pretty(&payload).map_err(|e| e.to_string())?;
 
         for dir in app_data_dirs.into_iter().flatten() {
             let target_dir = dir.join("stores");
@@ -929,22 +1068,20 @@ mod packet_settings_commands {
                 continue;
             }
             let path = target_dir.join("packetCapture.json");
-            let payload = json!({
-                "npcapDevice": npcap_device,
-            });
-            match std::fs::write(
-                &path,
-                serde_json::to_vec_pretty(&payload).map_err(|e| e.to_string())?,
-            ) {
+            match std::fs::write(&path, &bytes) {
                 Ok(_) => {
                     info!("Saved packet capture config to {}", path.display());
-                    return Ok(());
+                    wrote_any = true;
                 }
                 Err(e) => last_err = Some(format!("write {}: {}", path.display(), e)),
             }
         }
 
-        Err(last_err.unwrap_or_else(|| "Failed to save packet capture config".to_string()))
+        if wrote_any {
+            Ok(())
+        } else {
+            Err(last_err.unwrap_or_else(|| "Failed to save packet capture config".to_string()))
+        }
     }
 }
 
@@ -1462,7 +1599,11 @@ fn collect_settings_file_entry(root: &Path, path: &Path) -> serde_json::Value {
             }
             Err(error) => {
                 entry["parseError"] = json!(error.to_string());
-                entry["textPreview"] = json!(text.chars().take(MAX_TEXT_PREVIEW_CHARS).collect::<String>());
+                entry["textPreview"] = json!(
+                    text.chars()
+                        .take(MAX_TEXT_PREVIEW_CHARS)
+                        .collect::<String>()
+                );
             }
         },
         Err(error) => {
@@ -1659,8 +1800,8 @@ fn create_diagnostics_bundle(
     )?;
 
     if let Some(settings_snapshot) = settings_snapshot {
-        let mut frontend_snapshot =
-            serde_json::from_str::<serde_json::Value>(&settings_snapshot).unwrap_or_else(|error| {
+        let mut frontend_snapshot = serde_json::from_str::<serde_json::Value>(&settings_snapshot)
+            .unwrap_or_else(|error| {
                 json!({
                     "schemaVersion": 1,
                     "parseError": error.to_string(),

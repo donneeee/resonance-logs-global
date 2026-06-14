@@ -171,6 +171,13 @@
     }));
   }
 
+  function setHighlightDpsHealerSpecIcons(enabled: boolean) {
+    updateActiveProfile((profile) => ({
+      ...profile,
+      highlightDpsHealerSpecIcons: enabled,
+    }));
+  }
+
   async function resetEventLoggerSessionDirectory() {
     try {
       loggerSessionDirectory = await invoke<EventLoggerSessionDirectoryPayload>(
@@ -215,7 +222,17 @@
         label={tShell("settings.profile.autoHideWindowsOnGameBlur", "Auto-hide live and overlays when game is inactive")}
         description={tShell(
           "settings.profile.autoHideWindowsOnGameBlurDescription",
-          "When this profile is active, the live meter and visible overlay windows hide while another app has focus, then return when the Blue Protocol: Star Resonance window is active again. This checks the OS foreground window only and does not read game memory.",
+          "When this profile is active, the live meter and visible overlay windows hide while another app has focus, then return when Blue Protocol: Star Resonance or Resonance Logs - Global is active again. This checks the OS foreground window only and does not read game memory.",
+        )}
+      />
+
+      <SettingsSwitch
+        checked={activeProfile.highlightDpsHealerSpecIcons === true}
+        onchange={setHighlightDpsHealerSpecIcons}
+        label={tShell("settings.profile.highlightDpsHealerSpecIcons", "Highlight DPS healer specs")}
+        description={tShell(
+          "settings.profile.highlightDpsHealerSpecIconsDescription",
+          "Smite and Dissonance stay healer-green, with an optional red glow to mark their DPS-healer role in live and history rows.",
         )}
       />
 

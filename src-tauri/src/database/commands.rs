@@ -1071,6 +1071,16 @@ fn to_history_entity_data(
         } else {
             Vec::new()
         },
+        equipped_items: entity
+            .equipped_items
+            .iter()
+            .map(lc::to_equipped_item_state)
+            .collect(),
+        active_gear_sets: entity
+            .active_gear_sets
+            .iter()
+            .map(lc::to_gear_set_state)
+            .collect(),
         active_passive_skills: if include_modifier_details {
             entity
                 .active_passive_skills
@@ -1080,15 +1090,11 @@ fn to_history_entity_data(
         } else {
             Vec::new()
         },
-        active_profession_skills: if include_modifier_details {
-            entity
-                .active_profession_skills
-                .iter()
-                .map(lc::to_active_profession_skill_state)
-                .collect()
-        } else {
-            Vec::new()
-        },
+        active_profession_skills: entity
+            .active_profession_skills
+            .iter()
+            .map(lc::to_active_profession_skill_state)
+            .collect(),
         active_profession_talents: if include_modifier_details {
             entity
                 .active_profession_talents
@@ -1098,6 +1104,11 @@ fn to_history_entity_data(
         } else {
             Vec::new()
         },
+        combat_timeline: entity
+            .combat_timeline
+            .iter()
+            .map(lc::to_combat_timeline_bucket_state)
+            .collect(),
         modifier_source_actors: Vec::new(),
         dmg_per_target,
         heal_per_target,
@@ -1548,6 +1559,16 @@ fn to_history_modifier_primary_entity_data(
             .iter()
             .map(lc::to_active_factor_item_state)
             .collect(),
+        equipped_items: entity
+            .equipped_items
+            .iter()
+            .map(lc::to_equipped_item_state)
+            .collect(),
+        active_gear_sets: entity
+            .active_gear_sets
+            .iter()
+            .map(lc::to_gear_set_state)
+            .collect(),
         active_passive_skills: entity
             .active_passive_skills
             .iter()
@@ -1563,6 +1584,7 @@ fn to_history_modifier_primary_entity_data(
             .iter()
             .map(lc::to_active_profession_talent_state)
             .collect(),
+        combat_timeline: Vec::new(),
         modifier_source_actors: build_modifier_source_actor_refs(uid, entity, entities),
         dmg_per_target: build_modifier_target_refs(entity),
         heal_per_target: Vec::new(),
@@ -1971,6 +1993,16 @@ fn to_history_modifier_support_entity_data(
             .iter()
             .map(lc::to_active_factor_item_state)
             .collect(),
+        equipped_items: entity
+            .equipped_items
+            .iter()
+            .map(lc::to_equipped_item_state)
+            .collect(),
+        active_gear_sets: entity
+            .active_gear_sets
+            .iter()
+            .map(lc::to_gear_set_state)
+            .collect(),
         active_passive_skills: entity
             .active_passive_skills
             .iter()
@@ -1986,6 +2018,7 @@ fn to_history_modifier_support_entity_data(
             .iter()
             .map(lc::to_active_profession_talent_state)
             .collect(),
+        combat_timeline: Vec::new(),
         modifier_source_actors: Vec::new(),
         dmg_per_target: Vec::new(),
         heal_per_target: Vec::new(),

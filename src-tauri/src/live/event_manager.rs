@@ -4,8 +4,8 @@ use crate::live::commands_models::{
     TrainingDummyState, build_taken_per_source, to_active_buff_state, to_active_effect_buff_state,
     to_active_effect_source_state, to_active_factor_buff_state, to_active_factor_item_state,
     to_active_passive_skill_state, to_active_profession_skill_state,
-    to_active_profession_talent_state, to_modifier_window_state, to_raw_combat_stats,
-    to_raw_skill_stats,
+    to_active_profession_talent_state, to_equipped_item_state, to_gear_set_state,
+    to_modifier_window_state, to_raw_combat_stats, to_raw_skill_stats,
 };
 use crate::live::entity_attr_store::EntityAttrStore;
 use crate::live::opcodes_models::{AttrType, Encounter, class};
@@ -21,7 +21,7 @@ use std::time::{Duration, Instant};
 use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::RwLock;
 
-const WEBVIEW_EMIT_BACKOFF: Duration = Duration::from_secs(2);
+const WEBVIEW_EMIT_BACKOFF: Duration = Duration::from_secs(5);
 
 fn webview_emit_backoff_until() -> &'static Mutex<HashMap<String, Instant>> {
     static WEBVIEW_EMIT_BACKOFF_UNTIL: OnceLock<Mutex<HashMap<String, Instant>>> = OnceLock::new();
@@ -29,9 +29,15 @@ fn webview_emit_backoff_until() -> &'static Mutex<HashMap<String, Instant>> {
 }
 
 fn is_webview_state_error(error_msg: &str) -> bool {
-    error_msg.contains("0x8007139F")
-        || error_msg.contains("not in the correct state")
-        || error_msg.contains("Class not registered")
+    let normalized = error_msg.to_ascii_lowercase();
+    normalized.contains("0x8007139f")
+        || normalized.contains("0x80070718")
+        || normalized.contains("not in the correct state")
+        || normalized.contains("class not registered")
+        || normalized.contains("failed to send message to the webview")
+        || normalized.contains("postmessage failed")
+        || normalized.contains("message queue")
+        || normalized.contains("not enough quota")
 }
 
 fn should_skip_webview_emit(target_label: &str) -> bool {
@@ -130,8 +136,8 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
             }
             Err(e) => {
                 let error_msg = e.to_string();
+                mark_webview_emit_backoff(target_label);
                 if is_webview_state_error(&error_msg) {
-                    mark_webview_emit_backoff(target_label);
                     trace!(
                         "WebView2 not ready for visibility check on '{}' (window may be closing)",
                         target_label
@@ -151,8 +157,8 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
         Ok(_) => true,
         Err(e) => {
             let error_msg = e.to_string();
+            mark_webview_emit_backoff(target_label);
             if is_webview_state_error(&error_msg) {
-                mark_webview_emit_backoff(target_label);
                 trace!(
                     "WebView2 not ready for '{}' on '{}' (window may be minimized/hidden)",
                     event, target_label
@@ -199,8 +205,8 @@ pub(crate) fn safe_emit_json_to(
             }
             Err(e) => {
                 let error_msg = e.to_string();
+                mark_webview_emit_backoff(target_label);
                 if is_webview_state_error(&error_msg) {
-                    mark_webview_emit_backoff(target_label);
                     trace!(
                         "WebView2 not ready for visibility check on '{}' (window may be closing)",
                         target_label
@@ -220,8 +226,8 @@ pub(crate) fn safe_emit_json_to(
         Ok(_) => true,
         Err(e) => {
             let error_msg = e.to_string();
+            mark_webview_emit_backoff(target_label);
             if is_webview_state_error(&error_msg) {
-                mark_webview_emit_backoff(target_label);
                 trace!(
                     "WebView2 not ready for '{}' on '{}' (window may be minimized/hidden)",
                     event, target_label
@@ -567,6 +573,7 @@ fn select_display_bosses(mut bosses: Vec<BossHealth>) -> Vec<BossHealth> {
 pub fn generate_live_data_payload(
     encounter: &Encounter,
     attr_store: &EntityAttrStore,
+    training_dummy: TrainingDummyState,
 ) -> LiveDataPayload {
     let elapsed_ms = encounter
         .time_last_combat_packet_ms
@@ -703,6 +710,20 @@ pub fn generate_live_data_payload(
             } else {
                 Vec::new()
             },
+            equipped_items: entity
+                .equipped_items
+                .iter()
+                .map(to_equipped_item_state)
+                .collect(),
+            active_gear_sets: if is_local_player {
+                entity
+                    .active_gear_sets
+                    .iter()
+                    .map(to_gear_set_state)
+                    .collect()
+            } else {
+                Vec::new()
+            },
             active_passive_skills: if is_local_player {
                 entity
                     .active_passive_skills
@@ -712,15 +733,11 @@ pub fn generate_live_data_payload(
             } else {
                 Vec::new()
             },
-            active_profession_skills: if is_local_player {
-                entity
-                    .active_profession_skills
-                    .iter()
-                    .map(to_active_profession_skill_state)
-                    .collect()
-            } else {
-                Vec::new()
-            },
+            active_profession_skills: entity
+                .active_profession_skills
+                .iter()
+                .map(to_active_profession_skill_state)
+                .collect(),
             active_profession_talents: if is_local_player {
                 entity
                     .active_profession_talents
@@ -784,6 +801,7 @@ pub fn generate_live_data_payload(
         active_combat_time_ms,
         fight_start_timestamp_ms: encounter.time_fight_start_ms,
         dps_display_paused: encounter.dps_display_paused,
+        training_dummy,
         total_dmg: encounter.total_dmg,
         total_dmg_boss_only: encounter.total_dmg_boss_only,
         total_heal: encounter.total_heal,
@@ -845,7 +863,11 @@ mod tests {
         entity.damage.total = 100;
         encounter.entity_uid_to_entity.insert(uid, entity);
 
-        let payload = generate_live_data_payload(&encounter, &EntityAttrStore::default());
+        let payload = generate_live_data_payload(
+            &encounter,
+            &EntityAttrStore::default(),
+            TrainingDummyState::default(),
+        );
 
         assert_eq!(payload.entities.len(), 1);
         assert_eq!(payload.entities[0].season_strength, 1234);
@@ -869,7 +891,8 @@ mod tests {
         let mut attr_store = EntityAttrStore::default();
         attr_store.set_attr(uid, AttrType::SeasonStrength, AttrValue::Int(5678));
 
-        let payload = generate_live_data_payload(&encounter, &attr_store);
+        let payload =
+            generate_live_data_payload(&encounter, &attr_store, TrainingDummyState::default());
 
         assert_eq!(payload.entities.len(), 1);
         assert_eq!(payload.entities[0].season_strength, 5678);
@@ -893,7 +916,8 @@ mod tests {
         let mut attr_store = EntityAttrStore::default();
         attr_store.set_attr(uid, AttrType::SeasonStrength, AttrValue::Int(0));
 
-        let payload = generate_live_data_payload(&encounter, &attr_store);
+        let payload =
+            generate_live_data_payload(&encounter, &attr_store, TrainingDummyState::default());
 
         assert_eq!(payload.entities.len(), 1);
         assert_eq!(payload.entities[0].season_strength, 1234);
@@ -929,7 +953,8 @@ mod tests {
             56_600_000,
         );
 
-        let payload = generate_live_data_payload(&encounter, &attr_store);
+        let payload =
+            generate_live_data_payload(&encounter, &attr_store, TrainingDummyState::default());
 
         assert_eq!(payload.bosses.len(), 1);
         assert_eq!(payload.bosses[0].uid, 200);
@@ -966,7 +991,8 @@ mod tests {
             1_000_000,
         );
 
-        let payload = generate_live_data_payload(&encounter, &attr_store);
+        let payload =
+            generate_live_data_payload(&encounter, &attr_store, TrainingDummyState::default());
         let displayed_uids: Vec<i64> = payload.bosses.iter().map(|boss| boss.uid).collect();
 
         assert_eq!(displayed_uids, vec![201, 202]);
@@ -994,7 +1020,8 @@ mod tests {
             56_600_000,
         );
 
-        let payload = generate_live_data_payload(&encounter, &attr_store);
+        let payload =
+            generate_live_data_payload(&encounter, &attr_store, TrainingDummyState::default());
 
         assert_eq!(payload.bosses.len(), 1);
         assert_eq!(payload.bosses[0].uid, 200);
