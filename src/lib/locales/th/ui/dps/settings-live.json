@@ -81,8 +81,12 @@
   "trainingDummySegmentDurationSecondsDescription": "ตั้งความยาวช่วง Target Dummy ค่าเริ่มต้น: 180 วินาที",
   "showPlayerImagineBadges": "ตรา Battle Imagine",
   "showPlayerImagineBadgesDescription": "แสดงตรา Battle Imagine ที่สวมใส่ไว้ข้างไอคอนคลาส",
+  "playerImagineBadgeScale": "ขนาดตรา Battle Imagine",
+  "playerImagineBadgeScaleDescription": "ปรับขนาดตรา Battle Imagine โดยไม่เปลี่ยนขนาดไอคอนคลาส",
   "showOceanWeaponBadge": "ตราอาวุธ Ocean",
   "showOceanWeaponBadgeDescription": "แสดงตราอาวุธ Ocean หน้าชื่อผู้เล่นเมื่อตรวจพบ",
+  "oceanWeaponBadgeScale": "ขนาดตราอาวุธ Ocean",
+  "oceanWeaponBadgeScaleDescription": "ปรับขนาดตราอาวุธ Ocean โดยไม่เปลี่ยนขนาดไอคอนคลาส",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
   "columnAliasPlaceholder": "นามแฝง"

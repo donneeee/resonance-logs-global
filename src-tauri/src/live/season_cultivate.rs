@@ -14,6 +14,8 @@ pub struct FactorCounterTemplate {
     #[serde(default)]
     pub item_ids: Vec<i32>,
     #[serde(default)]
+    pub uses_global_energy: bool,
+    #[serde(default)]
     pub sources: Vec<CounterSource>,
     #[serde(default)]
     pub effect_slots: Vec<EffectSlotConfig>,
@@ -139,7 +141,8 @@ fn extract_active_selection(
         .filter(|item_id| slot_ids.contains(item_id))
         .collect();
     normalize_ids(&mut slot_item_ids);
-    let mut source_item_ids: Vec<i32> = slot_item_ids
+    let mut source_item_ids: Vec<i32> = snapshot
+        .active_item_ids
         .iter()
         .copied()
         .filter(|item_id| source_ids.contains(item_id))
@@ -179,7 +182,10 @@ fn build_counter_rules(
             let matching_source_templates: Vec<&FactorCounterTemplate> = source_templates
                 .iter()
                 .copied()
-                .filter(|source_template| templates_share_item_id(source_template, template))
+                .filter(|source_template| {
+                    template.uses_global_energy
+                        || templates_share_item_id(source_template, template)
+                })
                 .collect();
             let sources: Vec<CounterSource> = matching_source_templates
                 .iter()
@@ -773,6 +779,7 @@ mod tests {
         state.set_templates(vec![
             FactorCounterTemplate {
                 item_ids: vec![0, 1001, 2001, 2001],
+                uses_global_energy: false,
                 sources: vec![CounterSource::AnyDamage {
                     increment: 1,
                     hits_required: None,
@@ -782,6 +789,7 @@ mod tests {
             },
             FactorCounterTemplate {
                 item_ids: vec![2001],
+                uses_global_energy: false,
                 sources: Vec::new(),
                 effect_slots: vec![slot_config(7001), slot_config(7002)],
             },
@@ -791,7 +799,7 @@ mod tests {
         assert_eq!(
             state.active_selection(),
             &SeasonCultivateFactorSelection {
-                source_item_ids: vec![2001],
+                source_item_ids: vec![1001, 2001],
                 slot_item_ids: vec![2001],
             }
         );
@@ -823,6 +831,7 @@ mod tests {
         state.set_templates(vec![
             FactorCounterTemplate {
                 item_ids: vec![1001],
+                uses_global_energy: false,
                 sources: vec![CounterSource::AnyDamage {
                     increment: 1,
                     hits_required: None,
@@ -832,6 +841,7 @@ mod tests {
             },
             FactorCounterTemplate {
                 item_ids: vec![2001],
+                uses_global_energy: false,
                 sources: Vec::new(),
                 effect_slots: vec![slot_config(7001)],
             },
@@ -841,11 +851,69 @@ mod tests {
         assert_eq!(
             state.active_selection(),
             &SeasonCultivateFactorSelection {
-                source_item_ids: Vec::new(),
+                source_item_ids: vec![1001],
                 slot_item_ids: vec![2001],
             }
         );
         assert!(state.build_factor_counter_rules().is_empty());
+    }
+
+    #[test]
+    fn factor_rule_generation_applies_active_sources_to_global_energy_slots() {
+        let mut data = blueprotobuf::SeasonCultivateLineData::default();
+        let mut line = blueprotobuf::CultivateLineData::default();
+        let mut sub_type = blueprotobuf::CultivateLineSubTypeData::default();
+
+        sub_type
+            .cultivate_line_data_map
+            .insert(1, area_with_middle_items(vec![1001, 2001, 3001]));
+        line.cultivate_line_map.insert(10, sub_type);
+        data.season_cultivate_line_map.insert(20, line);
+
+        let mut state = SeasonCultivateRuntimeState::default();
+        state.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 5,
+                    hits_required: None,
+                    hit_filter: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::SkillCast {
+                    skill_base_ids: vec![2232],
+                    increment: 150,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![3001],
+                uses_global_energy: true,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config(8001)],
+            },
+        ]);
+
+        assert!(state.replace_data(data));
+        assert_eq!(
+            state.active_selection(),
+            &SeasonCultivateFactorSelection {
+                source_item_ids: vec![1001, 2001],
+                slot_item_ids: vec![3001],
+            }
+        );
+
+        let rules = state.build_factor_counter_rules();
+        assert_eq!(rules.len(), 1);
+        assert_eq!(rules[0].rule_id, factor_rule_id(3001));
+        assert_eq!(rules[0].sources.len(), 2);
+        assert_eq!(rules[0].effect_slots.len(), 1);
+        assert_eq!(rules[0].effect_slots[0].reset_buff_id, 8001);
     }
 
     #[test]
@@ -864,6 +932,7 @@ mod tests {
         state.set_templates(vec![
             FactorCounterTemplate {
                 item_ids: vec![2001],
+                uses_global_energy: false,
                 sources: vec![CounterSource::AnyDamage {
                     increment: 92,
                     hits_required: None,
@@ -873,16 +942,19 @@ mod tests {
             },
             FactorCounterTemplate {
                 item_ids: vec![2001],
+                uses_global_energy: false,
                 sources: Vec::new(),
                 effect_slots: vec![slot_config(7001)],
             },
             FactorCounterTemplate {
                 item_ids: vec![3001],
+                uses_global_energy: false,
                 sources: Vec::new(),
                 effect_slots: vec![slot_config(8001)],
             },
             FactorCounterTemplate {
                 item_ids: vec![4001],
+                uses_global_energy: false,
                 sources: Vec::new(),
                 effect_slots: vec![slot_config(9001)],
             },
@@ -925,6 +997,7 @@ mod tests {
         state.set_templates(vec![
             FactorCounterTemplate {
                 item_ids: vec![2001],
+                uses_global_energy: false,
                 sources: vec![CounterSource::SkillCast {
                     skill_base_ids: vec![2238],
                     increment: 92,
@@ -933,6 +1006,7 @@ mod tests {
             },
             FactorCounterTemplate {
                 item_ids: vec![2001],
+                uses_global_energy: false,
                 sources: Vec::new(),
                 effect_slots: vec![thresholdless_slot],
             },

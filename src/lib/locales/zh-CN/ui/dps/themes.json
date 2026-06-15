@@ -44,6 +44,7 @@
   "liveHeader.showActiveCombatTime.description": "在主计时器旁显示全局活跃战斗时间，用于真 DPS",
   "liveHeader.showBossHealth": "显示首领血量",
   "liveHeader.showBossHealth.description": "显示当前首领血条",
+  "liveHeader.controlButtons": "控制按钮",
   "liveHeader.showDeathTab": "显示死亡页签",
   "liveHeader.showDeathTab.description": "在实时窗口导航中显示死亡复盘页签。",
   "liveHeader.showMinimizeButton": "显示最小化按钮",
@@ -79,7 +80,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "已启用点击穿透 - 鼠标点击将穿透窗口",
   "liveWindowDisplay.clickthroughMode": "穿透模式",
   "liveWindowDisplay.clickthroughMode.description": "启用点击穿透模式",
-  "liveWindowDisplay.title": "实时窗口显示设置",
+  "liveWindowDisplay.title": "??????",
   "playerTableSettings.compactDpsKey": "紧凑 DPS 指标",
   "playerTableSettings.compactDpsKey.description": "选择紧凑模式中 DPS 位置显示 DPS 还是真实 DPS。",
   "playerTableSettings.compactMode": "紧凑模式",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "标签别名",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "标签别名",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "????",
+  "liveWindowBehavior.autoHide": "????",
+  "liveWindowBehavior.pauseAndReset": "?????",
+  "liveWindowBehavior.performance": "??",
+  "liveWindowBehavior.dynamicHeight": "????"
 }

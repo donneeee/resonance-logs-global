@@ -8,6 +8,7 @@
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import { uiT } from "$lib/i18n";
+  import { deathRecordIdentityKey } from "$lib/death-record-identity";
 
   let {
     playerName,
@@ -118,6 +119,10 @@
   function replaceCount(template: string, count: number): string {
     return template.replace("{count}", String(count));
   }
+
+  function deathRecordKey(record: DeathRecord): string {
+    return `${deathRecordIdentityKey(record)}:${record.deathTimestampMs}`;
+  }
 </script>
 
 {#if variant === "history"}
@@ -197,7 +202,7 @@
             </td>
           </tr>
         {:else}
-          {#each rows as row, idx (`${row.record.victimUid}-${row.record.deathTimestampMs}`)}
+          {#each rows as row, idx (deathRecordKey(row.record))}
             {@const rel = formatRelative(Number(row.record.deathTimestampMs))}
             <tr
               class="relative border-t border-border/40 hover:bg-muted/60 transition-colors cursor-pointer"
@@ -260,7 +265,7 @@
             </td>
           </tr>
         {:else}
-          {#each rows as row, idx (`${row.record.victimUid}-${row.record.deathTimestampMs}`)}
+          {#each rows as row, idx (deathRecordKey(row.record))}
             {@const rel = formatRelative(Number(row.record.deathTimestampMs))}
             <tr
               class="relative hover:bg-muted/60 transition-colors bg-background/40 cursor-pointer"

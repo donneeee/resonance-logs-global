@@ -1,6 +1,6 @@
 use crate::database::now_ms;
 use crate::live::commands_models::BuffUpdateState;
-use crate::live::entity_id::uid_from_uuid;
+use crate::live::entity_id::{entity_key_from_uuid_or_uid, uid_from_uuid};
 use blueprotobuf_lib::blueprotobuf::{
     BuffChange, BuffEffectSync, BuffInfo, EBuffEffectLogicPbType, EBuffEventType,
 };
@@ -314,6 +314,8 @@ impl BuffMonitor {
                     layer: buff.layer,
                     duration_ms: buff.duration,
                     create_time_ms: buff.create_time.saturating_add(server_clock_offset),
+                    host_key: entity_key_from_uuid_or_uid(buff.host_uuid, buff.host_uid),
+                    source_key: entity_key_from_uuid_or_uid(buff.source_uuid, buff.source_uid),
                     host_uid: buff.host_uid,
                     source_uid: buff.source_uid,
                     source_config_id: buff.source_config_id,

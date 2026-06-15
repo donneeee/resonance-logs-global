@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "真のDPS用に、メインタイマーの横に全体のアクティブ戦闘時間を表示します",
   "liveHeader.showBossHealth": "ボスの体力を表示",
   "liveHeader.showBossHealth.description": "現在のボス体力バーを表示",
+  "liveHeader.controlButtons": "操作ボタン",
   "liveHeader.showMinimizeButton": "最小化ボタンを表示",
   "liveHeader.showMinimizeButton.description": "ライブウィンドウを最小化するボタン",
   "liveHeader.showNavigationTabs": "ナビゲーションタブを表示",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "クリックスルー有効 - マウスクリックがウィンドウを通過します",
   "liveWindowDisplay.clickthroughMode": "クリックスルーモード",
   "liveWindowDisplay.clickthroughMode.description": "クリックスルーモードを有効化",
-  "liveWindowDisplay.title": "ライブウィンドウ表示設定",
+  "liveWindowDisplay.title": "???????????",
   "playerTableSettings.description": "行の外観とハイライトモードを制御します。これらの設定はすべてのライブテーブルに適用されます。",
   "playerTableSettings.fontSize.description": "プレイヤー名とステータスのフォントサイズ",
   "playerTableSettings.headerFontSize.description": "列タイトルのフォントサイズ",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "ラベル別名",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "ラベル別名",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "???????",
+  "liveWindowBehavior.autoHide": "?????",
+  "liveWindowBehavior.pauseAndReset": "?????????",
+  "liveWindowBehavior.performance": "???????",
+  "liveWindowBehavior.dynamicHeight": "?????"
 }

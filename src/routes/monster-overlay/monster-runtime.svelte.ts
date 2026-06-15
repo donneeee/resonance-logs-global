@@ -1,8 +1,9 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { BuffUpdateState, HateEntry } from "$lib/api";
+import type { BuffUpdateState, HateEntry, TeammateFantasyState } from "$lib/api";
 import type {
   MonsterBossBuffSection,
   MonsterDragState,
+  MonsterFantasyRow,
   MonsterHateSection,
   MonsterTeammateBuffColumn,
   MonsterTeammateBuffRow,
@@ -20,13 +21,15 @@ export const monsterRuntime = $state({
   playerNameByEntityKey: new Map<string, string>(),
   monsterIdCache: new Map<number, number>(),
   monsterIdByEntityKey: new Map<string, number>(),
-  bossBuffMap: new Map<number, Map<number, BuffUpdateState>>(),
+  bossBuffMap: new Map<string, Map<number, BuffUpdateState>>(),
   teammateBuffMap: new Map<string, Map<number, BuffUpdateState>>(),
-  bossHateMap: new Map<number, HateEntry[]>(),
+  bossHateMap: new Map<string, HateEntry[]>(),
+  fantasyEntries: [] as TeammateFantasyState[],
   bossSections: [] as MonsterBossBuffSection[],
   teammateColumns: [] as MonsterTeammateBuffColumn[],
   teammateRows: [] as MonsterTeammateBuffRow[],
   hateSections: [] as MonsterHateSection[],
+  fantasyRows: [] as MonsterFantasyRow[],
   isEditing: false,
   dragState: null as MonsterDragState | null,
   resizeState: null as MonsterResizeState | null,
@@ -46,6 +49,10 @@ export function monsterTeammateColumns() {
 
 export function monsterTeammateRows() {
   return monsterRuntime.teammateRows;
+}
+
+export function monsterFantasyRows() {
+  return monsterRuntime.fantasyRows;
 }
 
 export function isMonsterEditing() {

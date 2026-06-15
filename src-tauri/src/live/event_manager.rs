@@ -1,13 +1,14 @@
 use crate::live::commands_models::{
     BossHealth, BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceState, HateEntry,
     HeaderInfo, LiveDataPayload, PanelAttrState, RawEntityData, ShieldDetailEntry, SkillCdState,
-    TrainingDummyState, build_taken_per_source, to_active_buff_state, to_active_effect_buff_state,
-    to_active_effect_source_state, to_active_factor_buff_state, to_active_factor_item_state,
-    to_active_passive_skill_state, to_active_profession_skill_state,
+    TeammateFantasyState, TrainingDummyState, build_taken_per_source, to_active_buff_state,
+    to_active_effect_buff_state, to_active_effect_source_state, to_active_factor_buff_state,
+    to_active_factor_item_state, to_active_passive_skill_state, to_active_profession_skill_state,
     to_active_profession_talent_state, to_equipped_item_state, to_gear_set_state,
     to_modifier_window_state, to_raw_combat_stats, to_raw_skill_stats,
 };
 use crate::live::entity_attr_store::EntityAttrStore;
+use crate::live::entity_id::entity_key_from_uuid_or_uid;
 use crate::live::opcodes_models::{AttrType, Encounter, class};
 use crate::live::season_cultivate::{
     SeasonCultivateActiveSnapshot, SeasonCultivateFactorSelection,
@@ -260,6 +261,7 @@ pub enum OutboundEvent {
     BuffUpdate(Vec<BuffUpdateState>),
     BossBuffUpdate(HashMap<String, Vec<BuffUpdateState>>),
     TeammateBuffUpdate(HashMap<String, Vec<BuffUpdateState>>),
+    TeammateFantasyUpdate(Vec<TeammateFantasyState>),
     HateListUpdate(HashMap<String, Vec<HateEntry>>),
     EntityNameMap {
         names: HashMap<i64, String>,
@@ -366,6 +368,14 @@ impl EventManager {
     ) {
         self.outbound_events
             .push(OutboundEvent::TeammateBuffUpdate(teammate_buffs));
+    }
+
+    pub fn emit_teammate_fantasy_update(&mut self, fantasies: Vec<TeammateFantasyState>) {
+        if fantasies.is_empty() {
+            return;
+        }
+        self.outbound_events
+            .push(OutboundEvent::TeammateFantasyUpdate(fantasies));
     }
 
     pub fn emit_hate_list_update(&mut self, hate_lists: HashMap<String, Vec<HateEntry>>) {
@@ -579,10 +589,17 @@ pub fn generate_live_data_payload(
         .time_last_combat_packet_ms
         .saturating_sub(encounter.time_fight_start_ms);
     let active_combat_time_ms = encounter.active_combat_time_ms.min(elapsed_ms);
+    let local_player_key = entity_key_from_uuid_or_uid(
+        (encounter.local_player_uuid > 0).then_some(encounter.local_player_uuid),
+        encounter.local_player_uid,
+    );
 
-    let entity_entries = encounter.entity_uid_entries();
+    let entity_entries = encounter.entity_identity_keys();
     let mut entities = Vec::with_capacity(entity_entries.len());
-    for (uid, entity) in entity_entries {
+    for (uid, entity_uuid) in entity_entries {
+        let Some(entity) = encounter.entity_by_identity(uid, entity_uuid) else {
+            continue;
+        };
         if entity.entity_type != EEntityType::EntChar {
             continue;
         }
@@ -594,37 +611,47 @@ pub fn generate_live_data_payload(
 
         let is_local_player = uid == encounter.local_player_uid
             || (encounter.local_player_uuid != 0
-                && entity.uuid == Some(encounter.local_player_uuid));
+                && entity_uuid.or(entity.uuid) == Some(encounter.local_player_uuid));
+        let attr_key = entity_uuid
+            .or(entity.uuid)
+            .filter(|uuid| *uuid > 0)
+            .unwrap_or(uid);
 
         entities.push(RawEntityData {
             uid,
-            uuid: entity.uuid,
+            uuid: entity_uuid.or(entity.uuid),
+            entity_key: entity_key_from_uuid_or_uid(entity_uuid.or(entity.uuid), uid),
             name: attr_store
-                .attr(uid, AttrType::Name)
+                .attr(attr_key, AttrType::Name)
+                .or_else(|| attr_store.attr(uid, AttrType::Name))
                 .and_then(|value| value.as_string())
                 .unwrap_or(&entity.name)
                 .to_string(),
             class_id: attr_store
-                .attr(uid, AttrType::ProfessionId)
+                .attr(attr_key, AttrType::ProfessionId)
+                .or_else(|| attr_store.attr(uid, AttrType::ProfessionId))
                 .and_then(|value| value.as_int())
                 .filter(|value| *value > 0)
                 .map_or(entity.class_id, |value| value as i32),
             class_spec: entity.class_spec as i32,
             class_name: class::get_class_name(
                 attr_store
-                    .attr(uid, AttrType::ProfessionId)
+                    .attr(attr_key, AttrType::ProfessionId)
+                    .or_else(|| attr_store.attr(uid, AttrType::ProfessionId))
                     .and_then(|value| value.as_int())
                     .filter(|value| *value > 0)
                     .map_or(entity.class_id, |value| value as i32),
             ),
             class_spec_name: class::get_class_spec(entity.class_spec),
             ability_score: attr_store
-                .attr(uid, AttrType::FightPoint)
+                .attr(attr_key, AttrType::FightPoint)
+                .or_else(|| attr_store.attr(uid, AttrType::FightPoint))
                 .and_then(|value| value.as_int())
                 .filter(|value| *value > 0)
                 .map_or(entity.ability_score, |value| value as i32),
             season_strength: attr_store
-                .attr(uid, AttrType::SeasonStrength)
+                .attr(attr_key, AttrType::SeasonStrength)
+                .or_else(|| attr_store.attr(uid, AttrType::SeasonStrength))
                 .and_then(|value| value.as_int())
                 .filter(|value| *value > 0)
                 .map_or(entity.season_strength, |value| value as i32),
@@ -751,29 +778,37 @@ pub fn generate_live_data_payload(
     }
 
     let bosses: Vec<BossHealth> = encounter
-        .entity_uid_entries()
+        .entity_identity_keys()
         .into_iter()
-        .filter_map(|(uid, entity)| {
+        .filter_map(|(uid, entity_uuid)| {
+            let entity = encounter.entity_by_identity(uid, entity_uuid)?;
             if !entity.is_boss_metric_target() {
                 return None;
             }
+            let attr_key = entity_uuid
+                .or(entity.uuid)
+                .filter(|uuid| *uuid > 0)
+                .unwrap_or(uid);
 
-            if attr_store.is_dead(uid) {
+            if attr_store.is_dead(attr_key) || attr_store.is_dead(uid) {
                 return None;
             }
 
             let current_hp = attr_store
-                .attr(uid, AttrType::CurrentHp)
+                .attr(attr_key, AttrType::CurrentHp)
+                .or_else(|| attr_store.attr(uid, AttrType::CurrentHp))
                 .and_then(|value| value.as_int());
             let max_hp = attr_store
-                .attr(uid, AttrType::MaxHp)
+                .attr(attr_key, AttrType::MaxHp)
+                .or_else(|| attr_store.attr(uid, AttrType::MaxHp))
                 .and_then(|value| value.as_int());
             if current_hp.is_none() && max_hp.is_none() {
                 return None;
             }
 
             let name = if let Some(attr_name) = attr_store
-                .attr(uid, AttrType::Name)
+                .attr(attr_key, AttrType::Name)
+                .or_else(|| attr_store.attr(uid, AttrType::Name))
                 .and_then(|value| value.as_string())
             {
                 attr_name.to_string()
@@ -787,10 +822,11 @@ pub fn generate_live_data_payload(
 
             Some(BossHealth {
                 uid,
+                entity_key: entity_key_from_uuid_or_uid(entity_uuid.or(entity.uuid), uid),
                 name,
                 current_hp,
                 max_hp,
-                is_dead: attr_store.is_dead(uid),
+                is_dead: attr_store.is_dead(attr_key) || attr_store.is_dead(uid),
             })
         })
         .collect();
@@ -807,6 +843,7 @@ pub fn generate_live_data_payload(
         total_heal: encounter.total_heal,
         total_effective_heal: encounter.total_effective_heal,
         local_player_uid: encounter.local_player_uid,
+        local_player_key,
         scene_id: encounter.current_scene_id,
         scene_name: encounter.current_scene_name.clone(),
         is_paused: encounter.is_encounter_paused,
@@ -818,7 +855,9 @@ pub fn generate_live_data_payload(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::live::entity_id::{entity_id_to_uuid, entity_uuid_string};
     use crate::live::opcodes_models::{AttrValue, Entity};
+    use std::collections::HashSet;
 
     const TEST_BOSS_MONSTER_ID: i32 = 103;
 
@@ -846,6 +885,51 @@ mod tests {
             .insert(uid, boss_entity(name));
         attr_store.set_attr(uid, AttrType::CurrentHp, AttrValue::Int(current_hp));
         attr_store.set_attr(uid, AttrType::MaxHp, AttrValue::Int(max_hp));
+    }
+
+    #[test]
+    fn live_payload_keeps_same_uid_players_distinct_by_entity_key() {
+        let uid = 77_777;
+        let first_uuid = entity_id_to_uuid(uid, EEntityType::EntChar, false, false);
+        let second_uuid = entity_id_to_uuid(uid, EEntityType::EntChar, true, false);
+        let mut encounter = Encounter::default();
+
+        {
+            let entity = encounter.entity_by_uuid_or_insert_with(first_uuid, || Entity {
+                uuid: Some(first_uuid),
+                name: "first same uid player".to_string(),
+                entity_type: EEntityType::EntChar,
+                ..Default::default()
+            });
+            entity.damage.hits = 1;
+            entity.damage.total = 100;
+        }
+        {
+            let entity = encounter.entity_by_uuid_or_insert_with(second_uuid, || Entity {
+                uuid: Some(second_uuid),
+                name: "second same uid player".to_string(),
+                entity_type: EEntityType::EntChar,
+                ..Default::default()
+            });
+            entity.damage.hits = 1;
+            entity.damage.total = 200;
+        }
+
+        let payload = generate_live_data_payload(
+            &encounter,
+            &EntityAttrStore::default(),
+            TrainingDummyState::default(),
+        );
+
+        assert_eq!(payload.entities.len(), 2);
+        let entity_keys: HashSet<_> = payload
+            .entities
+            .iter()
+            .filter_map(|entity| entity.entity_key.as_deref())
+            .collect();
+        assert!(entity_keys.contains(entity_uuid_string(first_uuid).as_str()));
+        assert!(entity_keys.contains(entity_uuid_string(second_uuid).as_str()));
+        assert!(payload.entities.iter().all(|entity| entity.uid == uid));
     }
 
     #[test]

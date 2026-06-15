@@ -7,6 +7,7 @@
     getLiveDisplayNowMs,
   } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
+  import { livePlayerRoute } from "$lib/live-entity-route";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
   import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
@@ -20,6 +21,7 @@
   } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
+  import { scaledBadgeSize } from "$lib/badge-sizing";
   import getDisplayName, {
     getDisplayIconSpecName,
     normalizeNameDisplaySetting,
@@ -32,6 +34,19 @@
   let rawDpsData = $derived(
     liveData ? computePlayerRows(liveData, "dps", liveDisplayNowMs) : [],
   );
+
+  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+
+  function playerRenderKey(player: LivePlayerIdentity): string | number {
+    return player.entityKey?.trim() || player.uid;
+  }
+
+  function isLocalPlayerRow(player: LivePlayerIdentity): boolean {
+    const localPlayerKey = liveData?.localPlayerKey?.trim();
+    const playerEntityKey = player.entityKey?.trim();
+    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
+    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+  }
 
   // Sorting settings
   let sortKey = $derived(SETTINGS.live.sorting.dpsPlayers.state.sortKey);
@@ -233,9 +248,8 @@ function thLabel(col: ColumnDefinition): string {
     {/if}
     <tbody>
       {#if compactMode}
-        {#each compactDpsData as player (player.uid)}
-          {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-            player.uid === liveData.localPlayerUid}
+        {#each compactDpsData as player (playerRenderKey(player))}
+          {@const isLocalPlayer = isLocalPlayerRow(player)}
           {@const displayName = getDisplayName({
             player: {
               uid: player.uid,
@@ -264,7 +278,7 @@ function thLabel(col: ColumnDefinition): string {
           <tr
             class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
             style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-            onclick={() => goto(`/live/dps/skills?playerUid=${player.uid}`)}
+            onclick={() => goto(livePlayerRoute("/live/dps/skills", player))}
           >
             <td
               colspan={visiblePlayerColumns.length + 1}
@@ -283,7 +297,10 @@ function thLabel(col: ColumnDefinition): string {
                   {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                     <PlayerImagineBadges
                       imagines={player.playerImagines}
-                      size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                      size={scaledBadgeSize(
+                        Math.max(28, Math.round(tableSettings.playerIconSize * 1.4)),
+                        SETTINGS.live.general.state.playerImagineBadgeScale,
+                      )}
                     />
                   {/if}
                   {#if player.abilityScore > 0 || player.seasonStrength > 0}
@@ -294,7 +311,10 @@ function thLabel(col: ColumnDefinition): string {
                   {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
                     <OceanWeaponBadge
                       weapon={player.oceanWeapon}
-                      size={Math.max(25, Math.round(tableSettings.playerIconSize * 1.3))}
+                      size={scaledBadgeSize(
+                        Math.max(25, Math.round(tableSettings.playerIconSize * 1.3)),
+                        SETTINGS.live.general.state.oceanWeaponBadgeScale,
+                      )}
                     />
                   {/if}
                   <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
@@ -350,9 +370,8 @@ function thLabel(col: ColumnDefinition): string {
           </tr>
         {/each}
       {:else}
-      {#each dpsData as player (player.uid)}
-        {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-          player.uid === liveData.localPlayerUid}
+      {#each dpsData as player (playerRenderKey(player))}
+        {@const isLocalPlayer = isLocalPlayerRow(player)}
         {@const displayName = getDisplayName({
           player: {
             uid: player.uid,
@@ -381,7 +400,7 @@ function thLabel(col: ColumnDefinition): string {
         <tr
           class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
           style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-          onclick={() => goto(`/live/dps/skills?playerUid=${player.uid}`)}
+          onclick={() => goto(livePlayerRoute("/live/dps/skills", player))}
         >
           <td class="px-3 py-1 relative z-10">
             <div class="flex items-center h-full gap-2">
@@ -397,7 +416,10 @@ function thLabel(col: ColumnDefinition): string {
               {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                 <PlayerImagineBadges
                   imagines={player.playerImagines}
-                  size={Math.max(26, Math.round(tableSettings.playerIconSize * 1.22))}
+                  size={scaledBadgeSize(
+                    Math.max(26, Math.round(tableSettings.playerIconSize * 1.22)),
+                    SETTINGS.live.general.state.playerImagineBadgeScale,
+                  )}
                 />
               {/if}
               {#if (player.abilityScore > 0 && (isLocalPlayer ? SETTINGS.live.general.state.showYourAbilityScore : SETTINGS.live.general.state.showOthersAbilityScore)) || (player.seasonStrength > 0 && (isLocalPlayer ? SETTINGS.live.general.state.showYourSeasonStrength : SETTINGS.live.general.state.showOthersSeasonStrength))}
@@ -428,7 +450,10 @@ function thLabel(col: ColumnDefinition): string {
               {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
                 <OceanWeaponBadge
                   weapon={player.oceanWeapon}
-                  size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                  size={scaledBadgeSize(
+                    Math.max(20, Math.round(tableSettings.playerIconSize * 1.05)),
+                    SETTINGS.live.general.state.oceanWeaponBadgeScale,
+                  )}
                 />
               {/if}
               <span

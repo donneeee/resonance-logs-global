@@ -74,6 +74,14 @@
         const currentWindow = getCurrentWebviewWindow();
         isCurrentMainWindow = currentWindow.label === "main";
 
+        if (isCurrentMainWindow) {
+          const { invoke } = await import("@tauri-apps/api/core");
+          const corruptStores = await invoke<string[]>("detect_corrupt_settings_json_stores");
+          if (corruptStores.length > 0) {
+            console.warn("[settings] detected corrupt settings stores:", corruptStores);
+          }
+        }
+
         await repairPersistedSettingsStores();
         if (isCurrentMainWindow) {
           const { emit } = await import("@tauri-apps/api/event");
@@ -81,22 +89,24 @@
         }
       } catch (error) {
         console.warn("Failed to repair persisted settings stores:", error);
-      } finally {
-        settingsReady = true;
       }
 
-      if (!isCurrentMainWindow) return;
-      isMainWindow = true;
+      try {
+        if (!isCurrentMainWindow) return;
+        isMainWindow = true;
 
-      const { hideEventLoggerWindow, showEventLoggerWindow } = await import("$lib/event-logger-window");
-      const { loadProfileLibraryFromSettings } = await import("$lib/profile-library.svelte");
+        const { hideEventLoggerWindow, showEventLoggerWindow } = await import("$lib/event-logger-window");
+        const { loadProfileLibraryFromSettings } = await import("$lib/profile-library.svelte");
 
-      void loadProfileLibraryFromSettings();
+        await loadProfileLibraryFromSettings();
 
-      if (SETTINGS.customTriggers.state.loggerStartWithMeter) {
-        await showEventLoggerWindow();
-      } else {
-        await hideEventLoggerWindow();
+        if (SETTINGS.customTriggers.state.loggerStartWithMeter) {
+          await showEventLoggerWindow();
+        } else {
+          await hideEventLoggerWindow();
+        }
+      } finally {
+        settingsReady = true;
       }
     })();
   });

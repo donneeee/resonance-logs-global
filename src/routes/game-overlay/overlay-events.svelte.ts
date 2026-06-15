@@ -21,6 +21,7 @@ import {
   onBossBuffUpdate,
   onBuffCounterUpdate,
   onBuffUpdate,
+  onEntityIdentities,
   onEntityNames,
   onFightResUpdate,
   onLiveData,
@@ -72,6 +73,8 @@ type TrackedUptimeRow = {
   key: string;
   baseId: number;
   trackingMode: BuffUptimeTrackingMode;
+  hostKey?: string | null;
+  sourceKey?: string | null;
   hostUid: number;
   sourceUid: number;
   sourceConfigId: number | null;
@@ -175,6 +178,11 @@ function buildLatestBuffMap(buffs: BuffUpdateState[]) {
   return next;
 }
 
+function entityKeyPart(value: string | null | undefined, fallback: string): string {
+  const trimmed = value?.trim();
+  return trimmed ? `entity:${trimmed}` : fallback;
+}
+
 function buildTrackedUptimeRows(localPlayerUid: number, now: number) {
   const trackedIds = monitoredUptimeBuffIds();
   const trackingModes = buffUptimeTrackingModes();
@@ -200,6 +208,8 @@ function buildTrackedUptimeRows(localPlayerUid: number, now: number) {
         key: `uptime:${baseId}:self`,
         baseId,
         trackingMode,
+        hostKey: ownMatches[0]?.hostKey ?? null,
+        sourceKey: ownMatches[0]?.sourceKey ?? null,
         hostUid: ownMatches[0]?.hostUid ?? 0,
         sourceUid: ownMatches[0]?.sourceUid ?? localPlayerUid,
         sourceConfigId: ownMatches[0]?.sourceConfigId ?? null,
@@ -213,12 +223,14 @@ function buildTrackedUptimeRows(localPlayerUid: number, now: number) {
       const sourceUid = buff.sourceUid ?? 0;
       const hostUid = buff.hostUid ?? 0;
       const sourceConfigId = buff.sourceConfigId ?? null;
-      const sourceKey = sourceUid > 0
-        ? `uid:${sourceUid}`
-        : sourceConfigId !== null
+      const sourceKey = entityKeyPart(
+        buff.sourceKey,
+        sourceConfigId !== null
           ? `cfg:${sourceConfigId}`
-          : `unknown:${hostUid}`;
-      const rowKey = `uptime:${baseId}:global:${sourceKey}:host:${hostUid}`;
+          : `uid:${sourceUid || "unknown"}`,
+      );
+      const hostKey = entityKeyPart(buff.hostKey, `uid:${hostUid || "unknown"}`);
+      const rowKey = `uptime:${baseId}:global:${sourceKey}:host:${hostKey}`;
       const current = grouped.get(rowKey) ?? [];
       current.push(buff);
       grouped.set(rowKey, current);
@@ -231,6 +243,8 @@ function buildTrackedUptimeRows(localPlayerUid: number, now: number) {
         key,
         baseId,
         trackingMode,
+        hostKey: first.hostKey ?? null,
+        sourceKey: first.sourceKey ?? null,
         hostUid: first.hostUid ?? 0,
         sourceUid: first.sourceUid ?? 0,
         sourceConfigId: first.sourceConfigId ?? null,
@@ -276,9 +290,9 @@ export function initOverlay() {
     updateObservedSeasonCultivateFactorProcCounts(event.payload.buffs);
   });
   const unlistenBossBuff = onBossBuffUpdate((event) => {
-    const next = new Map<number, BuffUpdateState[]>();
-    for (const [uid, buffs] of Object.entries(event.payload.bossBuffs)) {
-      next.set(Number(uid), buffs);
+    const next = new Map<string, BuffUpdateState[]>();
+    for (const [entityKey, buffs] of Object.entries(event.payload.bossBuffs)) {
+      next.set(entityKey, buffs);
     }
     overlayRuntime.bossBuffLists = next;
   });
@@ -288,6 +302,19 @@ export function initOverlay() {
       next.set(Number(uid), name);
     }
     overlayRuntime.nameCache = next;
+  });
+  const unlistenIdentities = onEntityIdentities((event) => {
+    const nextPlayerNamesByEntityKey = new Map(overlayRuntime.playerNameByEntityKey);
+    for (const [entityKey, name] of Object.entries(event.payload.playerNames)) {
+      nextPlayerNamesByEntityKey.set(entityKey, name);
+    }
+    overlayRuntime.playerNameByEntityKey = nextPlayerNamesByEntityKey;
+
+    const nextMonsterIdsByEntityKey = new Map(overlayRuntime.monsterIdByEntityKey);
+    for (const [entityKey, monsterId] of Object.entries(event.payload.monsterIds)) {
+      nextMonsterIdsByEntityKey.set(entityKey, monsterId);
+    }
+    overlayRuntime.monsterIdByEntityKey = nextMonsterIdsByEntityKey;
   });
   const unlistenCounter = onBuffCounterUpdate((event) => {
     const next = new Map<number, CounterUpdateState>();
@@ -414,6 +441,8 @@ export function initOverlay() {
       const current = nextTotals.get(key) ?? {
         baseId: row.baseId,
         trackingMode: row.trackingMode,
+        hostKey: row.hostKey ?? null,
+        sourceKey: row.sourceKey ?? null,
         hostUid: row.hostUid,
         sourceUid: row.sourceUid,
         sourceConfigId: row.sourceConfigId,
@@ -423,6 +452,8 @@ export function initOverlay() {
 
       current.baseId = row.baseId;
       current.trackingMode = row.trackingMode;
+      current.hostKey = row.hostKey ?? null;
+      current.sourceKey = row.sourceKey ?? null;
       current.hostUid = row.hostUid;
       current.sourceUid = row.sourceUid;
       current.sourceConfigId = row.sourceConfigId;
@@ -447,6 +478,8 @@ export function initOverlay() {
     overlayRuntime.shieldDetailEntries = [];
     overlayRuntime.uptimeTotals = new Map();
     overlayRuntime.activeUptimeRowKeys = new Set();
+    overlayRuntime.playerNameByEntityKey = new Map();
+    overlayRuntime.monsterIdByEntityKey = new Map();
     overlayRuntime.factorCounterMap = new Map();
     overlayRuntime.seasonCultivateFactorSourceItemIds = [];
     overlayRuntime.seasonCultivateFactorSlotItemIds = [];
@@ -473,6 +506,8 @@ export function initOverlay() {
     overlayRuntime.resizeState = null;
     overlayRuntime.activeUptimeRowKeys = new Set();
     overlayRuntime.nameCache = new Map();
+    overlayRuntime.playerNameByEntityKey = new Map();
+    overlayRuntime.monsterIdByEntityKey = new Map();
     overlayRuntime.localBuffs = [];
     overlayRuntime.bossBuffLists = new Map();
     overlayRuntime.factorCounterMap = new Map();
@@ -489,6 +524,7 @@ export function initOverlay() {
     unlistenBuff.then((fn) => fn());
     unlistenBossBuff.then((fn) => fn());
     unlistenNames.then((fn) => fn());
+    unlistenIdentities.then((fn) => fn());
     unlistenCounter.then((fn) => fn());
     unlistenFactorCounter.then((fn) => fn());
     unlistenCd.then((fn) => fn());

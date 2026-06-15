@@ -12,6 +12,12 @@
     liveDisplayElapsedMs,
   } from "$lib/live-derived";
   import {
+    liveEntityMatchesRoute,
+    livePlayerRoute,
+    liveRouteIdentityFromSearch,
+    type LiveEntityRouteSubject,
+  } from "$lib/live-entity-route";
+  import {
     columnLabelWithAlias,
     liveTankedPlayerColumns,
     orderColumnsByKey,
@@ -28,7 +34,8 @@
   import { normalizeNameDisplaySetting } from "$lib/name-display";
   import { resolveNavigationTranslation, resolveUiTranslation } from "$lib/i18n";
 
-  const playerUid = Number(page.url.searchParams.get("playerUid") ?? "-1");
+  const routeIdentity = liveRouteIdentityFromSearch(page.url.searchParams);
+  const playerUid = routeIdentity.playerUid ?? -1;
 
   let liveData = $derived(getLiveData());
   let liveDisplayNow = $derived(getLiveDisplayNowMs());
@@ -36,11 +43,25 @@
     liveData ? computePlayerRows(liveData, "tanked", liveDisplayNow) : [],
   );
   let currentPlayer = $derived(
-    tankedPlayers.find((player) => player.uid === playerUid) ?? null,
+    tankedPlayers.find((player) => liveEntityMatchesRoute(player, routeIdentity)) ?? null,
   );
   let currentEntity = $derived(
-    liveData?.entities.find((entity) => entity.uid === playerUid) ?? null,
+    liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
   );
+
+  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+
+  function currentRouteSubject(): LiveEntityRouteSubject {
+    return currentPlayer ?? { uid: playerUid, entityKey: routeIdentity.entityKey };
+  }
+
+  function isLocalPlayerRow(player: LivePlayerIdentity | null | undefined): boolean {
+    if (!player) return false;
+    const localPlayerKey = liveData?.localPlayerKey?.trim();
+    const playerEntityKey = player.entityKey?.trim();
+    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
+    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+  }
 
   let monsterRows = $derived.by(() => {
     if (!liveData || !currentEntity) return [];
@@ -116,7 +137,7 @@
   }
 
   function openSkills(monsterKey: string) {
-    goto(`/live/tanked/skills?playerUid=${playerUid}&monsterId=${monsterKey}`);
+    goto(livePlayerRoute("/live/tanked/skills", currentRouteSubject(), { monsterId: monsterKey }));
   }
 
   let tableSettings = $derived(SETTINGS.live.tableCustomization.state);
@@ -138,8 +159,7 @@
 
   let glowClassName = $derived.by(() => {
     if (!currentPlayer) return "";
-    const isLocalPlayer =
-      liveData?.localPlayerUid != null && currentPlayer.uid === liveData.localPlayerUid;
+    const isLocalPlayer = isLocalPlayerRow(currentPlayer);
     return isLocalPlayer
       ? normalizeNameDisplaySetting(SETTINGS_YOUR_NAME) !== "Hide Your Name"
         ? currentPlayer.className

@@ -6,6 +6,12 @@
     liveDisplayElapsedMs,
   } from "$lib/live-derived";
   import {
+    liveEntityMatchesRoute,
+    livePlayerRoute,
+    liveRouteIdentityFromSearch,
+    type LiveEntityRouteSubject,
+  } from "$lib/live-entity-route";
+  import {
     lookupDamageIdName,
     lookupSkillBreakdownIconPath,
     resolveSkillRuntimeSourceFallbackName,
@@ -35,7 +41,8 @@
     findSourceByKey,
   } from "$lib/tanked-source-derived";
 
-  const playerUid = Number(page.url.searchParams.get("playerUid") ?? "-1");
+  const routeIdentity = liveRouteIdentityFromSearch(page.url.searchParams);
+  const playerUid = routeIdentity.playerUid ?? -1;
   const monsterId = page.url.searchParams.get("monsterId");
 
   let liveData = $derived(getLiveData());
@@ -44,11 +51,26 @@
     liveData ? computePlayerRows(liveData, "tanked", liveDisplayNow) : [],
   );
   let currentPlayer = $derived(
-    tankedPlayers.find((player) => player.uid === playerUid) ?? null,
+    tankedPlayers.find((player) => liveEntityMatchesRoute(player, routeIdentity)) ?? null,
   );
   let currentEntity = $derived(
-    liveData?.entities.find((entity) => entity.uid === playerUid) ?? null,
+    liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
   );
+
+  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+
+  function currentRouteSubject(): LiveEntityRouteSubject {
+    return currentPlayer ?? { uid: playerUid, entityKey: routeIdentity.entityKey };
+  }
+
+  function isLocalPlayerRow(player: LivePlayerIdentity | null | undefined): boolean {
+    if (!player) return false;
+    const localPlayerKey = liveData?.localPlayerKey?.trim();
+    const playerEntityKey = player.entityKey?.trim();
+    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
+    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+  }
+
   let selectedSource = $derived(
     monsterId && monsterId !== "total"
       ? findSourceByKey(currentEntity?.takenPerSource, monsterId)
@@ -212,8 +234,7 @@
 </script>
 
 {#if currentPlayer}
-  {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-    currentPlayer.uid === liveData.localPlayerUid}
+  {@const isLocalPlayer = isLocalPlayerRow(currentPlayer)}
   {@const className = isLocalPlayer
     ? normalizeNameDisplaySetting(SETTINGS_YOUR_NAME) !== "Hide Your Name"
       ? currentPlayer.className
@@ -242,7 +263,7 @@
     <button
       class="underline"
       onclick={() =>
-        goto(monsterId ? `/live/tanked/monsters?playerUid=${playerUid}` : "/live/tanked")}
+        goto(monsterId ? livePlayerRoute("/live/tanked/monsters", currentRouteSubject()) : "/live/tanked")}
       >{uiLabel("detail.back", "Back")}</button
     >
     <span class="font-bold">{displayName || `#${currentPlayer.uid}`}</span>
@@ -300,9 +321,7 @@
     <tbody>
       {#each sortedSkillRows as skill (skill.skillId)}
         {@const iconPath = lookupSkillBreakdownIconPath(skill.skillId)}
-        {@const rowIsLocalPlayer = liveData?.localPlayerUid != null &&
-          currentPlayer != null &&
-          currentPlayer.uid === liveData.localPlayerUid}
+        {@const rowIsLocalPlayer = isLocalPlayerRow(currentPlayer)}
         {@const className = rowIsLocalPlayer
           ? normalizeNameDisplaySetting(SETTINGS_YOUR_NAME) !== "Hide Your Name"
             ? (currentPlayer?.className ?? "")

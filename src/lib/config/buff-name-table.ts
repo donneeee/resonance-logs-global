@@ -317,6 +317,36 @@ const DAMAGE_STACK_NAMES: MultiLangValue = {
   design: "DMG Stack",
 };
 
+const PHANTOM_WOLFSTRIKE_NAMES: MultiLangValue = {
+  en: "Phantom Wolfstrike",
+  "zh-CN": "\u5e7b\u5f71\u72fc\u88ad",
+  "zh-TW": "\u5e7b\u5f71\u72fc\u8972",
+  ja: "\u5e7b\u5f71\u9b54\u72fc",
+  "ko-KR": "\ud658\uc601 \ub291\ub300 \uc2b5\uaca9",
+  fr: "Frappe du loup fant\u00f4me",
+  de: "Phantomwolfsschlag",
+  es: "Golpe de Lobo Fantasma",
+  "pt-BR": "Ataque do Lobo Fantasma",
+  th: "Phantom Wolf Assault",
+  id: "Phantom Wolfstrike",
+  design: "\u5e7b\u5f71\u72fc\u88ad",
+};
+
+const PHANTOM_WOLFSTRIKE_BLEED_NAMES: MultiLangValue = {
+  en: "Bleed",
+  "zh-CN": "\u751f\u547d\u6d41\u5931",
+  "zh-TW": "\u751f\u547d\u6d41\u5931",
+  ja: "HP\u6d41\u5931",
+  "ko-KR": "\ucd9c\ud608",
+  fr: "Saignement",
+  de: "Bluten",
+  es: "Sangrado",
+  "pt-BR": "Sangramento",
+  th: "Bleed",
+  id: "Life Loss",
+  design: "\u5e7b\u5f71\u72fc\u88ad-\u5b50BUFF",
+};
+
 const S2_SET_4B_DESIGN_NAME = "\u3010S2\u5957\u88c54B\u3011";
 const S2_SET_4B_SUB_BUFF_DESIGN_NAME = `${S2_SET_4B_DESIGN_NAME}-\u5b50BUFF`;
 
@@ -370,6 +400,8 @@ const BUFF_ID_NAME_FALLBACKS: Record<number, MultiLangValue> = {
   // 2208181 is a Burn damage/buff source row. The generated parent-recount
   // bridge can incorrectly inherit Explosion, which is a separate TWAX proc.
   2208181: BURN_EFFECT_NAMES,
+  2203090: PHANTOM_WOLFSTRIKE_NAMES,
+  2203091: PHANTOM_WOLFSTRIKE_BLEED_NAMES,
   2202705: MOONLIGHT_SOLACE_SHIELD_NAMES,
   2404271: S2_SET_4B_SHIELD_NAMES,
   510072: {

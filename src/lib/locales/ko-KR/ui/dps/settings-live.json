@@ -81,8 +81,12 @@
   "trainingDummySegmentDurationSecondsDescription": "타겟 더미 구간 길이를 설정합니다. 기본값: 180초.",
   "showPlayerImagineBadges": "배틀 이매진 배지",
   "showPlayerImagineBadgesDescription": "직업 아이콘 옆에 장착한 배틀 이매진 배지를 표시합니다.",
+  "playerImagineBadgeScale": "배틀 이매진 배지 크기",
+  "playerImagineBadgeScaleDescription": "직업 아이콘 크기는 바꾸지 않고 배틀 이매진 배지를 확대/축소합니다.",
   "showOceanWeaponBadge": "먼바다 무기 배지",
   "showOceanWeaponBadgeDescription": "감지된 먼바다 무기 배지를 플레이어 이름 앞에 표시합니다.",
+  "oceanWeaponBadgeScale": "먼바다 무기 배지 크기",
+  "oceanWeaponBadgeScaleDescription": "직업 아이콘 크기는 바꾸지 않고 먼바다 무기 배지를 확대/축소합니다.",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
   "columnAliasPlaceholder": "별칭"

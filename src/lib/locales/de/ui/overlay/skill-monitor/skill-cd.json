@@ -199,5 +199,7 @@
   "classSkill.beat_performer.2316": "Hauptbühne",
   "classSkill.beat_performer.2317": "Heftiger Schlag",
   "classSkill.beat_performer.2332": "Leidenschaftliche Wut",
-  "classSkill.beat_performer.2335": "Unendliche Rhapsodie"
+  "classSkill.beat_performer.2335": "Unendliche Rhapsodie",
+  "showAcceleration": "Skill-CD-Beschleunigung anzeigen",
+  "showAccelerationDescription": "Fuegt Skill-CD-Symbolen ein kleines Beschleunigungsabzeichen und einen Diagnose-Tooltip fuer Abklingzeiten hinzu. Nuetzlich zum Pruefen von Abklingzeitverringerung und Beschleunigungsquellen."
 }

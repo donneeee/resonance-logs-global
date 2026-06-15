@@ -503,6 +503,14 @@ async setEventLoggerFileStorageSettings(enabled: boolean, storeLogFiles: boolean
     else return { status: "error", error: e  as any };
 }
 },
+async setEventLoggerCaptureOptions(captureEvents: boolean, captureSnapshots: boolean) : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("set_event_logger_capture_options", { captureEvents, captureSnapshots }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async exportEventLoggerSession() : Promise<Result<string | null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("export_event_logger_session") };
@@ -780,7 +788,7 @@ export type DamageHitFilter = { crit?: boolean | null; lucky?: boolean | null }
  * A single damage event recorded in the 2s sliding window used for death replay.
  */
 export type DamageSnapshot = { timestampMs: number; attackerUid: number; attackerMonsterTypeId: number | null; skillKey: number; value: number }
-export type DeathRecord = { victimUid: number; deathTimestampMs: number; recentDamages: DamageSnapshot[] }
+export type DeathRecord = { victimUid: number; victimUuid?: number | null; victimKey?: string | null; deathTimestampMs: number; recentDamages: DamageSnapshot[] }
 /**
  * The result of a destructive encounter-delete operation.
  */
@@ -896,7 +904,7 @@ export type EventLoggerBatchPayload = { entries: EventLoggerEntry[] }
 export type EventLoggerEntry = { tsMs: number; category: string; action: string; uid: number | null; targetUid: number | null; sourceUid: number | null; sourceLabel: string | null; targetLabel: string | null; nameHint: string | null; summary: string | null; stacks: number | null; durationMs: number | null; remainingMs: number | null; value: string | null; raw: string }
 export type EventLoggerFileStoragePayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean; enabled: boolean; storeLogFiles: boolean; includeRepeatedSnapshotRows: boolean; deleteOlderThanDays: number | null; captureCensusEnabled: boolean; attributionCensusEnabled: boolean }
 export type EventLoggerSessionDirectoryPayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean }
-export type FactorCounterTemplate = { itemIds?: number[]; sources?: CounterSource[]; effectSlots?: EffectSlotConfig[] }
+export type FactorCounterTemplate = { itemIds?: number[]; usesGlobalEnergy?: boolean; sources?: CounterSource[]; effectSlots?: EffectSlotConfig[] }
 export type GearSetAttrState = { attrId: number; value: number }
 export type GearSetState = { suitId: number; attrType: number | null; suitAttrs: GearSetAttrState[]; runtimeSource: string }
 export type GpuSupport = { cuda_available: boolean; opencl_available: boolean }

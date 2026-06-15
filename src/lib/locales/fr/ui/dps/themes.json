@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "Afficher global active combat time next to the main timer for true DPS",
   "liveHeader.showBossHealth": "Afficher Boss Health",
   "liveHeader.showBossHealth.description": "Afficher current boss health bar",
+  "liveHeader.controlButtons": "Boutons de contrôle",
   "liveHeader.showMinimizeButton": "Afficher Minimize Bouton",
   "liveHeader.showMinimizeButton.description": "Bouton used to minimize the live window",
   "liveHeader.showNavigationTabs": "Afficher Navigation Tabs",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "Clic traversant activé : les clics de souris passent à travers la fenêtre",
   "liveWindowDisplay.clickthroughMode": "Mode clic traversant",
   "liveWindowDisplay.clickthroughMode.description": "Activer le mode clic traversant",
-  "liveWindowDisplay.title": "Live Fenêtre Display Paramètres",
+  "liveWindowDisplay.title": "Comportement de la fenetre live",
   "playerTableSettings.description": "Contrôlez l'apparence des lignes et le mode de surbrillance. Ces paramètres s'appliquent à tous les tableaux en direct.",
   "playerTableSettings.fontSize.description": "Taille de police des noms de joueurs et statistiques",
   "playerTableSettings.headerFontSize.description": "Taille de police du titre de colonne",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "Alias du libellé",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "Alias du libellé",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "Interaction de la fenetre",
+  "liveWindowBehavior.autoHide": "Masquage automatique",
+  "liveWindowBehavior.pauseAndReset": "Pause et reinitialisation",
+  "liveWindowBehavior.performance": "Performances",
+  "liveWindowBehavior.dynamicHeight": "Hauteur dynamique"
 }

@@ -3,6 +3,7 @@
   import { Button } from "$lib/components/ui/button";
   import { save } from "@tauri-apps/plugin-dialog";
   import { toast } from "svelte-sonner";
+  import { commands } from "$lib/bindings";
   import { uiT } from "$lib/i18n";
   import { collectSettingsDiagnosticsSnapshot } from "$lib/settings-diagnostics";
   import { SETTINGS } from "$lib/settings-store";
@@ -35,10 +36,9 @@
       }
 
       const settingsSnapshot = await collectSettingsDiagnosticsSnapshot();
-      const path = await invoke<string>("create_diagnostics_bundle", {
-        destination_path: destinationPath,
-        settings_snapshot: settingsSnapshot,
-      });
+      const result = await commands.createDiagnosticsBundle(destinationPath, settingsSnapshot);
+      if (result.status === "error") throw new Error(result.error);
+      const path = result.data;
       try {
         await navigator.clipboard.writeText(path);
         toast.success(`${t("bundleCreatedCopied", "Diagnostics bundle created and path copied:")} ${path}`);

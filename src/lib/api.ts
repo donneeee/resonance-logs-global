@@ -21,6 +21,7 @@ import type { PlayerImagineInfo } from "$lib/player-imagines";
 // Type definitions for event payloads
 export type BossHealth = {
   uid: number;
+  entityKey?: string | null;
   name: string;
   currentHp: number | null;
   maxHp: number | null;
@@ -33,6 +34,7 @@ export type HeaderInfo = {
   activeCombatTimeMs: number;
   fightStartTimestampMs: number; // Unix timestamp when fight started
   dpsDisplayPaused: boolean;
+  localPlayerKey?: string | null;
   bosses: BossHealth[];
   sceneId: number | null;
   sceneName: string | null;
@@ -50,6 +52,7 @@ export type TrainingDummyState = {
 export type PlayerRow = {
   uid: number;
   uuid?: number | null;
+  entityKey?: string | null;
   name: string;
   className: string;
   classSpecName: string;
@@ -156,6 +159,8 @@ export type BuffUpdateState = {
   layer: number;
   durationMs: number;
   createTimeMs: number;
+  hostKey?: string | null;
+  sourceKey?: string | null;
   hostUid: number;
   sourceUid: number;
   sourceConfigId?: number | null;
@@ -173,8 +178,21 @@ export type TeammateBuffUpdatePayload = {
   teammateBuffs: Record<string, BuffUpdateState[]>;
 };
 
+export type TeammateFantasyState = {
+  summonUuid: string;
+  summonerUuid: string;
+  summonerName?: string | null;
+  monsterId: number;
+  remodelLevel: number;
+  detectedAtMs: number;
+};
+
+export type TeammateFantasyUpdatePayload = {
+  fantasies: TeammateFantasyState[];
+};
+
 export type HateEntry = {
-  entityUuid?: number | null;
+  entityKey?: string | null;
   uid: number;
   hateVal: number;
 };
@@ -254,7 +272,9 @@ export type EncounterUpdatePayload = {
 
 export type RawCombatStats = BindingRawCombatStats;
 export type RawSkillStats = BindingRawSkillStats;
-export type RawEntityData = BindingRawEntityData;
+export type RawEntityData = BindingRawEntityData & {
+  entityKey?: string | null;
+};
 export type PerSourceStats = BindingPerSourceStats;
 
 export type LiveDataPayload = {
@@ -267,6 +287,7 @@ export type LiveDataPayload = {
   totalHeal: number;
   totalEffectiveHeal: number;
   localPlayerUid: number;
+  localPlayerKey?: string | null;
   sceneId: number | null;
   sceneName: string | null;
   trainingDummy: TrainingDummyState;
@@ -328,6 +349,11 @@ export const onTeammateBuffUpdate = (
   handler: (event: Event<TeammateBuffUpdatePayload>) => void
 ): Promise<UnlistenFn> =>
   listen<TeammateBuffUpdatePayload>("teammate-buff-update", handler);
+
+export const onTeammateFantasyUpdate = (
+  handler: (event: Event<TeammateFantasyUpdatePayload>) => void
+): Promise<UnlistenFn> =>
+  listen<TeammateFantasyUpdatePayload>("teammate-fantasy-update", handler);
 
 export const onHateListUpdate = (
   handler: (event: Event<HateListUpdatePayload>) => void

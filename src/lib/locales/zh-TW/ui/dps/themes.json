@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "在主計時器旁顯示全局活躍戰鬥時間，用於真 DPS",
   "liveHeader.showBossHealth": "顯示首領血量",
   "liveHeader.showBossHealth.description": "顯示目前首領血條",
+  "liveHeader.controlButtons": "控制按鈕",
   "liveHeader.showMinimizeButton": "顯示最小化按鈕",
   "liveHeader.showMinimizeButton.description": "用於最小化實時視窗的按鈕",
   "liveHeader.showNavigationTabs": "顯示導航標簽",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "已啟用點擊穿透 - 鼠標點擊將穿透視窗",
   "liveWindowDisplay.clickthroughMode": "穿透模式",
   "liveWindowDisplay.clickthroughMode.description": "啟用點擊穿透模式",
-  "liveWindowDisplay.title": "實時視窗顯示設定",
+  "liveWindowDisplay.title": "??????",
   "playerTableSettings.description": "控制行外觀與醒目提示模式。這些設定適用於所有實時表格。",
   "playerTableSettings.fontSize.description": "玩家名稱和統計資料的字型大小",
   "playerTableSettings.headerFontSize.description": "列標題字型大小",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "標籤別名",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "標籤別名",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "????",
+  "liveWindowBehavior.autoHide": "????",
+  "liveWindowBehavior.pauseAndReset": "?????",
+  "liveWindowBehavior.performance": "??",
+  "liveWindowBehavior.dynamicHeight": "????"
 }

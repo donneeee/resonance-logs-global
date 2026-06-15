@@ -8,7 +8,7 @@ use crate::live::{
         EntityIdentityMapPayload, EntityNameMapPayload, FightResourceUpdatePayload,
         HateListUpdatePayload, LiveDataPayload, PanelAttrUpdatePayload,
         SeasonCultivateFactorCounterUpdatePayload, ShieldDetailUpdatePayload, SkillCdUpdatePayload,
-        TeammateBuffUpdatePayload,
+        TeammateBuffUpdatePayload, TeammateFantasyUpdatePayload,
     },
     custom_trigger_events::emit_custom_trigger_entries,
     event_logger::{
@@ -3911,9 +3911,7 @@ fn equipment_probe_json_bool(row: &serde_json::Value, key: &str) -> bool {
 }
 
 fn equipment_probe_json_present(row: &serde_json::Value, key: &str) -> bool {
-    row.get(key)
-        .map(|value| !value.is_null())
-        .unwrap_or(false)
+    row.get(key).map(|value| !value.is_null()).unwrap_or(false)
 }
 
 fn build_team_equipment_probe_raw_member_rows(
@@ -6354,9 +6352,15 @@ fn build_event_logger_session_context(state: &AppState) -> EventLoggerSessionCon
     let character_uid =
         (state.encounter.local_player_uid > 0).then_some(state.encounter.local_player_uid);
     let character_name = character_uid.and_then(|uid| {
+        let attr_key = if state.encounter.local_player_uuid > 0 {
+            state.encounter.local_player_uuid
+        } else {
+            uid
+        };
         state
             .attr_store
-            .attr(uid, AttrType::Name)
+            .attr(attr_key, AttrType::Name)
+            .or_else(|| state.attr_store.attr(uid, AttrType::Name))
             .and_then(|value| value.as_string())
             .map(|value| value.to_string())
             .or_else(|| {
@@ -6551,6 +6555,7 @@ fn build_live_snapshot_logger_entries(
     }
 
     for (uid, entity) in state.encounter.entity_uid_entries() {
+        let attr_key = entity.uuid.filter(|uuid| *uuid > 0).unwrap_or(uid);
         let base_name = resolve_entity_display_name(uid, entity, &state.attr_store);
         let fallback_name = if uid == local_player_uid {
             session_context
@@ -6567,27 +6572,32 @@ fn build_live_snapshot_logger_entries(
         );
         let current_hp = state
             .attr_store
-            .attr(uid, AttrType::CurrentHp)
+            .attr(attr_key, AttrType::CurrentHp)
+            .or_else(|| state.attr_store.attr(uid, AttrType::CurrentHp))
             .and_then(|value| value.as_int());
         let max_hp = state
             .attr_store
-            .attr(uid, AttrType::MaxHp)
+            .attr(attr_key, AttrType::MaxHp)
+            .or_else(|| state.attr_store.attr(uid, AttrType::MaxHp))
             .and_then(|value| value.as_int());
         let effective_class_id = state
             .attr_store
-            .attr(uid, AttrType::ProfessionId)
+            .attr(attr_key, AttrType::ProfessionId)
+            .or_else(|| state.attr_store.attr(uid, AttrType::ProfessionId))
             .and_then(|value| value.as_int())
             .filter(|value| *value > 0)
             .map_or(entity.class_id, |value| value as i32);
         let effective_ability_score = state
             .attr_store
-            .attr(uid, AttrType::FightPoint)
+            .attr(attr_key, AttrType::FightPoint)
+            .or_else(|| state.attr_store.attr(uid, AttrType::FightPoint))
             .and_then(|value| value.as_int())
             .filter(|value| *value > 0)
             .map_or(entity.ability_score, |value| value as i32);
         let effective_season_strength = state
             .attr_store
-            .attr(uid, AttrType::SeasonStrength)
+            .attr(attr_key, AttrType::SeasonStrength)
+            .or_else(|| state.attr_store.attr(uid, AttrType::SeasonStrength))
             .and_then(|value| value.as_int())
             .filter(|value| *value > 0)
             .map_or(entity.season_strength, |value| value as i32);
@@ -7568,6 +7578,14 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "teammate-buff-update",
                     TeammateBuffUpdatePayload { teammate_buffs },
+                );
+            }
+            OutboundEvent::TeammateFantasyUpdate(fantasies) => {
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_MONSTER_OVERLAY_LABEL,
+                    "teammate-fantasy-update",
+                    TeammateFantasyUpdatePayload { fantasies },
                 );
             }
             OutboundEvent::HateListUpdate(hate_lists) => {

@@ -6,8 +6,10 @@ import {
   onEntityNames,
   onHateListUpdate,
   onTeammateBuffUpdate,
+  onTeammateFantasyUpdate,
   type BuffUpdateState,
   type HateEntry,
+  type TeammateFantasyState,
 } from "$lib/api";
 import {
   onGlobalPointerMove,
@@ -40,6 +42,19 @@ function mapTeammateBuffs(buffs: BuffUpdateState[]) {
   return next;
 }
 
+function mergeFantasyEntries(entries: TeammateFantasyState[]) {
+  const next = new Map(
+    monsterRuntime.fantasyEntries.map((entry) => [entry.summonUuid, entry]),
+  );
+  for (const entry of entries) {
+    const existing = next.get(entry.summonUuid);
+    if (!existing || entry.detectedAtMs >= existing.detectedAtMs) {
+      next.set(entry.summonUuid, entry);
+    }
+  }
+  monsterRuntime.fantasyEntries = [...next.values()];
+}
+
 export function initMonsterOverlay() {
   if (monsterRuntime.cleanup) return monsterRuntime.cleanup;
   if (typeof window === "undefined") {
@@ -66,9 +81,9 @@ export function initMonsterOverlay() {
   const unlistenEditToggle = listen("monster-overlay-edit-toggle", handleEditToggle);
   const unlistenSharedEditToggle = listen("overlay-edit-toggle", handleEditToggle);
   const unlistenBossBuff = onBossBuffUpdate((event) => {
-    const next = new Map<number, Map<number, BuffUpdateState>>();
-    for (const [uid, buffs] of Object.entries(event.payload.bossBuffs)) {
-      next.set(Number(uid), mapBossBuffs(buffs));
+    const next = new Map<string, Map<number, BuffUpdateState>>();
+    for (const [entityKey, buffs] of Object.entries(event.payload.bossBuffs)) {
+      next.set(entityKey, mapBossBuffs(buffs));
     }
     monsterRuntime.bossBuffMap = next;
   });
@@ -79,10 +94,13 @@ export function initMonsterOverlay() {
     }
     monsterRuntime.teammateBuffMap = next;
   });
+  const unlistenTeammateFantasy = onTeammateFantasyUpdate((event) => {
+    mergeFantasyEntries(event.payload.fantasies);
+  });
   const unlistenHateList = onHateListUpdate((event) => {
-    const next = new Map<number, HateEntry[]>();
-    for (const [uid, entries] of Object.entries(event.payload.hateLists)) {
-      next.set(Number(uid), entries);
+    const next = new Map<string, HateEntry[]>();
+    for (const [entityKey, entries] of Object.entries(event.payload.hateLists)) {
+      next.set(entityKey, entries);
     }
     monsterRuntime.bossHateMap = next;
   });
@@ -137,14 +155,17 @@ export function initMonsterOverlay() {
     monsterRuntime.bossBuffMap = new Map();
     monsterRuntime.teammateBuffMap = new Map();
     monsterRuntime.bossHateMap = new Map();
+    monsterRuntime.fantasyEntries = [];
     monsterRuntime.bossSections = [];
     monsterRuntime.teammateColumns = [];
     monsterRuntime.teammateRows = [];
     monsterRuntime.hateSections = [];
+    monsterRuntime.fantasyRows = [];
     unlistenEditToggle.then((fn) => fn());
     unlistenSharedEditToggle.then((fn) => fn());
     unlistenBossBuff.then((fn) => fn());
     unlistenTeammateBuff.then((fn) => fn());
+    unlistenTeammateFantasy.then((fn) => fn());
     unlistenHateList.then((fn) => fn());
     unlistenNames.then((fn) => fn());
     unlistenIdentities.then((fn) => fn());

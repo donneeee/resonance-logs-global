@@ -81,8 +81,12 @@
   "trainingDummySegmentDurationSecondsDescription": "Sets the target dummy segment length. Default: 180 secs.",
   "showPlayerImagineBadges": "Battle Imagine Badges",
   "showPlayerImagineBadgesDescription": "Show equipped battle imagine badges beside class icons.",
+  "playerImagineBadgeScale": "Battle Imagine Badge Size",
+  "playerImagineBadgeScaleDescription": "Scale battle imagine badges without changing class icon size.",
   "showOceanWeaponBadge": "Ocean Weapon Badge",
   "showOceanWeaponBadgeDescription": "Show the ocean weapon badge before player names when detected.",
+  "oceanWeaponBadgeScale": "Ocean Weapon Badge Size",
+  "oceanWeaponBadgeScaleDescription": "Scale ocean weapon badges without changing class icon size.",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
   "columnAliasPlaceholder": "Alias"

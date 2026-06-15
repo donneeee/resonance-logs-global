@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "Tampilkan waktu combat aktif global di samping timer utama untuk true DPS",
   "liveHeader.showBossHealth": "Tampilkan HP Boss",
   "liveHeader.showBossHealth.description": "Tampilkan bar HP boss saat ini",
+  "liveHeader.controlButtons": "Tombol Kontrol",
   "liveHeader.showMinimizeButton": "Tampilkan Tombol Minimalkan",
   "liveHeader.showMinimizeButton.description": "Tombol untuk meminimalkan jendela live",
   "liveHeader.showNavigationTabs": "Tampilkan Tab Navigasi",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "Clickthrough Diaktifkan - Klik mouse melewati jendela",
   "liveWindowDisplay.clickthroughMode": "Mode Clickthrough",
   "liveWindowDisplay.clickthroughMode.description": "Aktifkan Mode Clickthrough",
-  "liveWindowDisplay.title": "Pengaturan Tampilan Jendela Live",
+  "liveWindowDisplay.title": "Perilaku Jendela Live",
   "playerTableSettings.description": "Kontrol tampilan baris dan mode highlight. Pengaturan ini berlaku untuk semua tabel live.",
   "playerTableSettings.fontSize.description": "Ukuran font untuk nama pemain dan statistik",
   "playerTableSettings.headerFontSize.description": "Ukuran font judul kolom",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "Alias label",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "Alias label",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "Interaksi Jendela",
+  "liveWindowBehavior.autoHide": "Sembunyikan otomatis",
+  "liveWindowBehavior.pauseAndReset": "Jeda & Reset",
+  "liveWindowBehavior.performance": "Performa",
+  "liveWindowBehavior.dynamicHeight": "Tinggi Dinamis"
 }

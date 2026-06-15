@@ -91,6 +91,17 @@
         monsterOverlaySizes.teammateBuffPanelScale,
       );
     }
+    if (monsterMonitor.overlayVisibility?.showFantasyPanel ?? false) {
+      pushArea(
+        "monsterFantasyPanel",
+        tMonster("overlay.fantasyPanel", "Teammate Fantasy Area"),
+        monsterOverlayPositions.fantasyPanel.x,
+        monsterOverlayPositions.fantasyPanel.y,
+        360,
+        130,
+        monsterOverlaySizes.fantasyPanelScale,
+      );
+    }
 
     if (profile.buffDisplayMode === "grouped") {
       for (const group of profile.buffGroups) {

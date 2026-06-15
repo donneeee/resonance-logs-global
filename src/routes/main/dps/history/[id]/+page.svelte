@@ -13,6 +13,7 @@
   import PlayerImagineBadges from "$lib/components/player-imagine-badges.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
+  import { scaledBadgeSize } from "$lib/badge-sizing";
   import {
     columnLabelWithAlias,
     historyDpsPlayerColumns,
@@ -1326,6 +1327,8 @@
       .filter((entity) => (entity.deaths?.length ?? 0) > 0)
       .map((entity) => ({
         uid: entity.uid,
+        uuid: entity.uuid ?? null,
+        entityKey: entity.uuid ? String(entity.uuid) : null,
         name: entity.name || `#${entity.uid}`,
         className: entity.className || "",
         classSpecName: entity.classSpecName || "",
@@ -1961,6 +1964,16 @@
       10,
       30,
     ) * 1000;
+  }
+
+  function graphGuideLineDasharray(style: unknown): string | undefined {
+    if (style === "dotted") return "1 7";
+    if (style === "dashed") return "8 7";
+    return undefined;
+  }
+
+  function graphGuideLineCap(style: unknown): "butt" | "round" {
+    return style === "dotted" || style === "dashed" ? "round" : "butt";
   }
 
   function graphSeriesGradientId(seriesKey: string, panel: "overall" | "moving"): string {
@@ -4150,14 +4163,24 @@
     showDeleteModal = false;
   }
 
+  function singleLineHoverPreview(value: string, maxLength = 260): string {
+    const normalized = value.replace(/\s+/g, " ").trim();
+    if (normalized.length <= maxLength) return normalized;
+    return `${normalized.slice(0, maxLength - 3).trimEnd()}...`;
+  }
+
   function buildHistoryGroupHoverText(recountId: string | number, language: LocaleCode) {
-    const note = hoverDescriptionsEnabled() ? resolveSkillNote(recountId, language).trim() : "";
-    return buildRecountGroupHoverText(recountId, language, note);
+    const note = hoverDescriptionsEnabled()
+      ? singleLineHoverPreview(resolveSkillNote(recountId, language))
+      : "";
+    return buildRecountGroupHoverText(recountId, language, note, { compact: true });
   }
 
   function buildHistorySkillHoverText(skillId: string | number, language: LocaleCode) {
-    const note = hoverDescriptionsEnabled() ? resolveSkillNote(skillId, language).trim() : "";
-    return buildSkillBreakdownHoverText(skillId, language, note);
+    const note = hoverDescriptionsEnabled()
+      ? singleLineHoverPreview(resolveSkillNote(skillId, language))
+      : "";
+    return buildSkillBreakdownHoverText(skillId, language, note, { compact: true });
   }
 
   async function confirmDeleteEncounter() {
@@ -4603,7 +4626,8 @@
       <DeathPlayerList
         entries={deathEntries}
         localPlayerUid={localPlayerUid}
-        onSelect={(uid) => viewPlayerSkills(uid, "death")}
+        localPlayerKey={localPlayerUuid ? String(localPlayerUuid) : null}
+        onSelect={(uid, entry) => viewPlayerSkills(uid, "death", null, entry?.uuid ?? null)}
         emptyMessage={t("detail.noDeathRows", "No player deaths were recorded for this encounter.")}
         variant="history"
       />
@@ -5158,6 +5182,8 @@
                   y2={y}
                   stroke="hsl(var(--muted-foreground) / 0.42)"
                   stroke-width="1"
+                  stroke-dasharray={graphGuideLineDasharray(settings.state.history.general.historyGraphGuideLineStyle)}
+                  stroke-linecap={graphGuideLineCap(settings.state.history.general.historyGraphGuideLineStyle)}
                 />
                 <text
                   x={HISTORY_GRAPH_LEFT - 10}
@@ -5178,6 +5204,8 @@
                   y2={y}
                   stroke="hsl(var(--muted-foreground) / 0.42)"
                   stroke-width="1"
+                  stroke-dasharray={graphGuideLineDasharray(settings.state.history.general.historyGraphGuideLineStyle)}
+                  stroke-linecap={graphGuideLineCap(settings.state.history.general.historyGraphGuideLineStyle)}
                 />
                 <text
                   x={HISTORY_GRAPH_LEFT - 10}
@@ -5486,7 +5514,10 @@
                       tooltipText={p.classDisplay || t("detail.unknownClass", "Unknown Class")}
                     />
                     {#if SETTINGS.history.general.state.showPlayerImagineBadges !== false}
-                      <PlayerImagineBadges imagines={p.playerImagines} size={30} />
+                      <PlayerImagineBadges
+                        imagines={p.playerImagines}
+                        size={scaledBadgeSize(30, SETTINGS.history.general.state.playerImagineBadgeScale)}
+                      />
                     {/if}
                     <span class="inline-flex min-w-0 items-center gap-1 truncate">
                       {#if (p.abilityScore > 0 && (p.isLocalPlayer
@@ -5513,7 +5544,10 @@
                         </span>
                       {/if}
                       {#if SETTINGS.history.general.state.showOceanWeaponBadge !== false}
-                        <OceanWeaponBadge weapon={p.oceanWeapon} size={23} />
+                        <OceanWeaponBadge
+                          weapon={p.oceanWeapon}
+                          size={scaledBadgeSize(23, SETTINGS.history.general.state.oceanWeaponBadgeScale)}
+                        />
                       {/if}
                       <span
                         class="truncate"
@@ -6244,11 +6278,15 @@
     --history-sticky-frame-bg: var(--card);
     --history-sticky-header-bg: var(--popover);
     --history-sticky-border-color: var(--border);
-    max-height: min(72vh, calc(100dvh - 260px));
+    box-sizing: border-box;
+    max-height: clamp(280px, calc(100dvh - 380px), 64vh);
     min-height: 0;
+    margin-bottom: clamp(1rem, 3dvh, 2rem);
     overflow: auto;
     overscroll-behavior: contain;
+    padding-bottom: 0.75rem;
     position: relative;
+    scroll-padding-bottom: 0.75rem;
     isolation: isolate;
     background: var(--history-sticky-frame-bg) !important;
   }

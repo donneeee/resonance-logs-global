@@ -3,6 +3,7 @@
   import SettingsSwitch from "./settings-switch.svelte";
   import SettingsSelect from "./settings-select.svelte";
   import SettingsSlider from "./settings-slider.svelte";
+  import LiveAppearanceSettings from "./live-appearance-settings.svelte";
   import { notifySettingsChanged, SETTINGS } from "$lib/settings-store";
   import ChevronDown from "virtual:icons/lucide/chevron-down";
   import {
@@ -78,26 +79,6 @@
       </button>
       {#if expandedSections.general}
         <div class="px-4 pb-3 space-y-1">
-          <SettingsSwitch
-            bind:checked={SETTINGS.live.general.state.autoHideLiveWindow}
-            label={t("autoHideLiveWindow", "Auto-hide Live Window")}
-            description={t("autoHideLiveWindowDescription", "Hide the live meter after the delay when no new damage is detected, then show it automatically as soon as damage appears.")}
-          />
-          <SettingsSwitch
-            bind:checked={SETTINGS.live.general.state.autoHideOverlaysWithLiveWindow}
-            disabled={!SETTINGS.live.general.state.autoHideLiveWindow}
-            label={t("autoHideOverlaysWithLiveWindow", "Auto-hide Overlays with Live Window")}
-            description={t("autoHideOverlaysWithLiveWindowDescription", "When Auto-hide Live Window is enabled, hide any visible game or monster overlay with the live meter and restore only the overlays that were visible before auto-hide.")}
-          />
-          <SettingsSlider
-            bind:value={SETTINGS.live.general.state.autoHideLiveWindowDelaySeconds}
-            label={t("autoHideLiveWindowDelaySeconds", "Auto-hide Delay")}
-            description={t("autoHideLiveWindowDelaySecondsDescription", "Seconds to wait after no new damage is detected before hiding the live meter. Set to 0 to hide immediately.")}
-            min={0}
-            max={60}
-            step={1}
-            unit={t("secondsUnit", "s")}
-          />
           <SettingsSelect
             bind:selected={SETTINGS.live.general.state.showYourName}
             values={[
@@ -177,10 +158,28 @@
             label={t("showPlayerImagineBadges", "Battle Imagine Badges")}
             description={t("showPlayerImagineBadgesDescription", "Show equipped battle imagine badges beside each player's class icon.")}
           />
+          <SettingsSlider
+            bind:value={SETTINGS.live.general.state.playerImagineBadgeScale}
+            label={t("playerImagineBadgeScale", "Battle Imagine Badge Size")}
+            description={t("playerImagineBadgeScaleDescription", "Scale battle imagine badges in live player rows without changing class icon size.")}
+            min={25}
+            max={250}
+            step={5}
+            unit="%"
+          />
           <SettingsSwitch
             bind:checked={SETTINGS.live.general.state.showOceanWeaponBadge}
             label={t("showOceanWeaponBadge", "Ocean Weapon Badge")}
             description={t("showOceanWeaponBadgeDescription", "Show the ocean weapon badge before player names when detected.")}
+          />
+          <SettingsSlider
+            bind:value={SETTINGS.live.general.state.oceanWeaponBadgeScale}
+            label={t("oceanWeaponBadgeScale", "Ocean Weapon Badge Size")}
+            description={t("oceanWeaponBadgeScaleDescription", "Scale ocean weapon badges in live player rows without changing class icon size.")}
+            min={25}
+            max={250}
+            step={5}
+            unit="%"
           />
           <SettingsSwitch
             bind:checked={SETTINGS.live.general.state.relativeToTopDPSPlayer}
@@ -250,35 +249,6 @@
               },
             ]}
           />
-          <SettingsSlider
-            bind:value={SETTINGS.live.general.state.eventUpdateRateMs}
-            label={t("refreshRate", "刷新频率")}
-            description={t("refreshRateDescription", "实时统计刷新间隔（50-2000ms）。越低越流畅，但更耗 CPU。")}
-            min={50}
-            max={2000}
-            step={50}
-            unit="ms"
-          />
-          <SettingsSwitch
-            bind:checked={SETTINGS.live.general.state.idleDisplayPauseEnabled}
-            label={t("idleDisplayPauseEnabled", "Pause DPS after No Live Changes")}
-            description={t("idleDisplayPauseEnabledDescription", "Freeze the live DPS clock when combat totals and boss data stop changing. It resumes automatically when new combat or objective data arrives.")}
-          />
-          <SettingsSlider
-            bind:value={SETTINGS.live.general.state.idleDisplayPauseDelaySeconds}
-            disabled={!SETTINGS.live.general.state.idleDisplayPauseEnabled}
-            label={t("idleDisplayPauseDelaySeconds", "No-change Pause Delay")}
-            description={t("idleDisplayPauseDelaySecondsDescription", "Seconds to wait without live combat changes before freezing DPS.")}
-            min={1}
-            max={30}
-            step={1}
-            unit={t("secondsUnit", "s")}
-          />
-          <SettingsSwitch
-            bind:checked={SETTINGS.live.general.state.autoClearOnSceneChange}
-            label={t("autoClearOnSceneChange", "Clear Meter on Scene Change")}
-            description={t("autoClearOnSceneChangeDescription", "Automatically save and clear the current meter when the game changes scene or server. Turn this off to keep the current meter running across scene changes.")}
-          />
           <SettingsSwitch
             bind:checked={SETTINGS.live.general.state.modifierReportsEnabled}
             label={t("modifierReportsEnabled", "Enable Modifier (WIP) Analysis")}
@@ -287,6 +257,8 @@
         </div>
       {/if}
     </div>
+
+    <LiveAppearanceSettings />
 
     <div
       class="rounded-lg border bg-card/40 border-border/60 overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]"

@@ -81,8 +81,12 @@
   "trainingDummySegmentDurationSecondsDescription": "Define a duracao do segmento do boneco de treino. Padrao: 180 s.",
   "showPlayerImagineBadges": "Distintivos de Imagine de Batalha",
   "showPlayerImagineBadgesDescription": "Mostra distintivos de Imagine de Batalha equipados ao lado dos icones de classe.",
+  "playerImagineBadgeScale": "Tamanho dos distintivos de Imagine de Batalha",
+  "playerImagineBadgeScaleDescription": "Escala os distintivos de Imagine de Batalha sem mudar o tamanho dos icones de classe.",
   "showOceanWeaponBadge": "Distintivo de arma oceanica",
   "showOceanWeaponBadgeDescription": "Mostra o distintivo de arma oceanica antes dos nomes dos jogadores quando detectado.",
+  "oceanWeaponBadgeScale": "Tamanho do distintivo de arma oceanica",
+  "oceanWeaponBadgeScaleDescription": "Escala os distintivos de arma oceanica sem mudar o tamanho dos icones de classe.",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
   "columnAliasPlaceholder": "Apelido"

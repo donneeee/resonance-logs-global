@@ -25,6 +25,7 @@
     selectedResonanceSkills: ResonanceSkillDefinition[];
     skillCdShowSlotOutline: boolean;
     skillCdShowEnhancedGlow: boolean;
+    skillCdShowAcceleration: boolean;
     setSelectedClass: (classKey: string) => void;
     toggleSkill: (skillId: number) => void;
     isSelected: (skillId: number) => boolean;
@@ -35,6 +36,7 @@
     setResonanceSearch: (value: string) => void;
     setSkillCdShowSlotOutline: (value: boolean) => void;
     setSkillCdShowEnhancedGlow: (value: boolean) => void;
+    setSkillCdShowAcceleration: (value: boolean) => void;
   }
 
   const t = uiT("overlay/skill-monitor/skill-cd", () => SETTINGS.live.general.state.language);
@@ -83,6 +85,7 @@
     selectedResonanceSkills,
     skillCdShowSlotOutline,
     skillCdShowEnhancedGlow,
+    skillCdShowAcceleration,
     setSelectedClass,
     toggleSkill,
     isSelected,
@@ -93,6 +96,7 @@
     setResonanceSearch,
     setSkillCdShowSlotOutline,
     setSkillCdShowEnhancedGlow,
+    setSkillCdShowAcceleration,
   }: Props = $props();
 
   onMount(() => {
@@ -314,6 +318,18 @@
               setSkillCdShowEnhancedGlow((event.currentTarget as HTMLInputElement).checked)}
           />
           {t("showEnhancedGlow", "Show enhanced skill glow")}
+        </label>
+        <label
+          class="flex items-center gap-2 rounded border border-border/60 bg-muted/20 px-3 py-2 text-xs text-foreground"
+          title={t("showAccelerationDescription", "Adds a small acceleration badge and cooldown diagnostic tooltip to Skill CD icons. Useful for checking cooldown reduction and acceleration sources.")}
+        >
+          <input
+            type="checkbox"
+            checked={skillCdShowAcceleration}
+            onchange={(event) =>
+              setSkillCdShowAcceleration((event.currentTarget as HTMLInputElement).checked)}
+          />
+          {t("showAcceleration", "Show Skill CD acceleration")}
         </label>
       </div>
     </div>

@@ -6,25 +6,51 @@
     getLiveData,
   } from "$lib/stores/live-meter-store.svelte";
   import DeathList from "$lib/components/death-replay/death-list.svelte";
+  import {
+    deathRecordMatchesRoute,
+    deathRecordRouteSubject,
+  } from "$lib/death-record-identity";
+  import {
+    liveEntityMatchesRoute,
+    livePlayerRoute,
+    liveRouteIdentityFromSearch,
+    type LiveEntityRouteSubject,
+  } from "$lib/live-entity-route";
 
-  const playerUid = $derived(Number(page.url.searchParams.get("playerUid") ?? "-1"));
+  const routeIdentity = $derived(liveRouteIdentityFromSearch(page.url.searchParams));
+  const playerUid = $derived(routeIdentity.playerUid ?? -1);
 
   const liveData = $derived(getLiveData());
   const deathRecords = $derived(getDeathRecords());
 
   const deaths = $derived(
-    deathRecords.filter((r) => Number(r.victimUid) === playerUid),
+    deathRecords.filter((record) => deathRecordMatchesRoute(record, routeIdentity)),
   );
   const entity = $derived(
-    liveData?.entities.find((e) => e.uid === playerUid) ?? null,
+    liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
   );
   const isLocalPlayer = $derived(
-    liveData?.localPlayerUid != null && playerUid === liveData.localPlayerUid,
+    liveData?.localPlayerKey && entity?.entityKey
+      ? liveData.localPlayerKey === entity.entityKey
+      : liveData?.localPlayerUid != null && playerUid === liveData.localPlayerUid,
   );
+
+  const routeSubject = $derived.by<LiveEntityRouteSubject>(() => {
+    const firstRecord = deaths[0];
+    return (
+      entity ??
+      (firstRecord
+        ? deathRecordRouteSubject(firstRecord)
+        : {
+            uid: playerUid,
+            entityKey: routeIdentity.entityKey,
+          })
+    );
+  });
 
   function handleSelect(deathTimestampMs: number) {
     goto(
-      `/live/death/replay?playerUid=${playerUid}&deathTs=${deathTimestampMs}`,
+      livePlayerRoute("/live/death/replay", routeSubject, { deathTs: deathTimestampMs }),
     );
   }
 </script>

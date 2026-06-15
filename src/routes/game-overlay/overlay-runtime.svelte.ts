@@ -16,6 +16,8 @@ import type {
 export type BuffUptimeTotals = {
   baseId: number;
   trackingMode: "self" | "global";
+  hostKey?: string | null;
+  sourceKey?: string | null;
   hostUid: number;
   sourceUid: number;
   sourceConfigId: number | null;
@@ -33,9 +35,11 @@ export const overlayRuntime = $state({
   fightResMap: new Map<number, number>(),
   buffMap: new Map<number, BuffUpdateState>(),
   localBuffs: [] as BuffUpdateState[],
-  bossBuffLists: new Map<number, BuffUpdateState[]>(),
+  bossBuffLists: new Map<string, BuffUpdateState[]>(),
   activeUptimeRowKeys: new Set<string>(),
   nameCache: new Map<number, string>(),
+  playerNameByEntityKey: new Map<string, string>(),
+  monsterIdByEntityKey: new Map<string, number>(),
   counterMap: new Map<number, CounterUpdateState>(),
   panelAttrMap: new Map<number, number>(),
   shieldDetailEntries: [] as ShieldDetailEntry[],

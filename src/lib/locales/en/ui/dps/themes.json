@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "Show global active combat time next to the main timer for true DPS",
   "liveHeader.showBossHealth": "Show Boss Health",
   "liveHeader.showBossHealth.description": "Show current boss health bar",
+  "liveHeader.controlButtons": "Control Buttons",
   "liveHeader.showMinimizeButton": "Show Minimize Button",
   "liveHeader.showMinimizeButton.description": "Button used to minimize the live window",
   "liveHeader.showNavigationTabs": "Show Navigation Tabs",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "Clickthrough Enabled - Mouse clicks pass through window",
   "liveWindowDisplay.clickthroughMode": "Clickthrough Mode",
   "liveWindowDisplay.clickthroughMode.description": "Enable Clickthrough Mode",
-  "liveWindowDisplay.title": "Live Window Display Settings",
+  "liveWindowDisplay.title": "Live Window Behavior",
   "dynamicLiveWindow.disabledDescription": "Keep the live window at its manually resized height.",
   "dynamicLiveWindow.enabled": "Enable dynamic height",
   "dynamicLiveWindow.enabledDescription": "The live window grows to fit player rows. After the max visible player count, the player table becomes scrollable.",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "Label Alias",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "Label Alias",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "Window Interaction",
+  "liveWindowBehavior.autoHide": "Auto-hide",
+  "liveWindowBehavior.pauseAndReset": "Pause & Reset",
+  "liveWindowBehavior.performance": "Performance",
+  "liveWindowBehavior.dynamicHeight": "Dynamic Height"
 }

@@ -127,6 +127,7 @@
     "audit:runtime:localization-gaps": "node scripts/audit-runtime-localization-gaps.mjs",
     "audit:visible:localization": "node scripts/audit-visible-localization-surfaces.mjs",
     "audit:gear:set-effects": "node scripts/audit-raid-gear-set-effects.mjs",
+    "audit:entity-id": "node scripts/audit-entity-identity-legacy.mjs",
     "sync:modifier:dev-generated": "node scripts/sync-modifier-dev-generated.mjs"
   },
   "license": "AGPL-3.0-only",

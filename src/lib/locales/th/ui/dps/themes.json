@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "แสดงเวลา combat active ทั่วโลกข้างตัวจับเวลาหลักสำหรับ true DPS",
   "liveHeader.showBossHealth": "แสดง HP บอส",
   "liveHeader.showBossHealth.description": "แสดงแถบ HP บอสปัจจุบัน",
+  "liveHeader.controlButtons": "ปุ่มควบคุม",
   "liveHeader.showMinimizeButton": "แสดงปุ่มย่อ",
   "liveHeader.showMinimizeButton.description": "ปุ่มสำหรับย่อหน้าต่างสด",
   "liveHeader.showNavigationTabs": "แสดงแท็บนำทาง",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "เปิดใช้คลิกทะลุ - การคลิกเมาส์จะทะลุผ่านหน้าต่าง",
   "liveWindowDisplay.clickthroughMode": "โหมดคลิกทะลุ",
   "liveWindowDisplay.clickthroughMode.description": "เปิดใช้โหมดคลิกทะลุ",
-  "liveWindowDisplay.title": "การตั้งค่าการแสดงหน้าต่างสด",
+  "liveWindowDisplay.title": "????????????????????",
   "playerTableSettings.description": "ควบคุมรูปลักษณ์แถวและโหมดไฮไลต์ การตั้งค่านี้ใช้กับตารางสดทั้งหมด",
   "playerTableSettings.fontSize.description": "ขนาดฟอนต์ชื่อผู้เล่นและสถิติ",
   "playerTableSettings.headerFontSize.description": "ขนาดฟอนต์หัวคอลัมน์",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "นามแฝงป้ายกำกับ",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "นามแฝงป้ายกำกับ",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "?????????????????",
+  "liveWindowBehavior.autoHide": "?????????????",
+  "liveWindowBehavior.pauseAndReset": "?????????????????????",
+  "liveWindowBehavior.performance": "???????????",
+  "liveWindowBehavior.dynamicHeight": "?????????????????"
 }

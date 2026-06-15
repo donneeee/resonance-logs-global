@@ -6,7 +6,7 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 #[derive(Debug, Clone)]
 pub struct DeathEvent {
-    pub uid: i64,
+    pub entity_uuid: i64,
     pub timestamp_ms: u128,
 }
 
@@ -155,7 +155,10 @@ impl EntityAttrStore {
                     .duration_since(UNIX_EPOCH)
                     .unwrap_or_default()
                     .as_millis();
-                self.death_events.push(DeathEvent { uid, timestamp_ms });
+                self.death_events.push(DeathEvent {
+                    entity_uuid: uid,
+                    timestamp_ms,
+                });
             }
         }
         true

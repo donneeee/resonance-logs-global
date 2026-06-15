@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "Mostrar global active combat time next to the main timer for true DPS",
   "liveHeader.showBossHealth": "Mostrar Boss Health",
   "liveHeader.showBossHealth.description": "Mostrar current boss health bar",
+  "liveHeader.controlButtons": "Botões de controle",
   "liveHeader.showMinimizeButton": "Mostrar Minimize Botão",
   "liveHeader.showMinimizeButton.description": "Botão used to minimize the live window",
   "liveHeader.showNavigationTabs": "Mostrar Navigation Tabs",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "Clickthrough ativado - os cliques do mouse passam pela janela",
   "liveWindowDisplay.clickthroughMode": "Clickthrough Modo",
   "liveWindowDisplay.clickthroughMode.description": "Enable Clickthrough Modo",
-  "liveWindowDisplay.title": "Live Janela Display Configurações",
+  "liveWindowDisplay.title": "Comportamento da Janela Ao Vivo",
   "playerTableSettings.description": "Controle a aparência das linhas e o modo de destaque. Essas configurações se aplicam a todas as tabelas ao vivo.",
   "playerTableSettings.fontSize.description": "Tamanho da fonte dos nomes e estatísticas dos jogadores",
   "playerTableSettings.headerFontSize.description": "Tamanho da fonte do título da coluna",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "Apelido do rótulo",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "Apelido do rótulo",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "Interacao da janela",
+  "liveWindowBehavior.autoHide": "Ocultar automaticamente",
+  "liveWindowBehavior.pauseAndReset": "Pausar e redefinir",
+  "liveWindowBehavior.performance": "Desempenho",
+  "liveWindowBehavior.dynamicHeight": "Altura dinamica"
 }

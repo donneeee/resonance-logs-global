@@ -142,6 +142,7 @@ export type SeasonCultivateFactorGradeInfo = {
   sourceOffset: number | null;
   threshold: number | null;
   energyGain: number | null;
+  lockoutMs: number | null;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -641,6 +642,32 @@ function extractIllusionEnergyGain(description: string): number | null {
   return Number.isFinite(value) ? value : null;
 }
 
+function parseFactorDurationMs(valueText: string): number | null {
+  const match = valueText.trim().match(/^(\d+(?:\.\d+)?)\s*(ms|msec|milliseconds?|s|sec|secs|seconds?)?$/i);
+  if (!match) return null;
+  const value = Number(match[1]);
+  if (!Number.isFinite(value) || value <= 0) return null;
+  const unit = (match[2] ?? "s").toLowerCase();
+  const multiplier = unit.startsWith("m") ? 1 : 1_000;
+  return Math.max(1, Math.round(value * multiplier));
+}
+
+function extractFactorLockoutMs(description: string): number | null {
+  const patterns = [
+    /\bCan trigger at most once within\s+(\d+(?:\.\d+)?)\s*(ms|msec|milliseconds?|s|sec|secs|seconds?)\b/i,
+    /\bcan trigger at most once every\s+(\d+(?:\.\d+)?)\s*(ms|msec|milliseconds?|s|sec|secs|seconds?)\b/i,
+    /\bat most once within\s+(\d+(?:\.\d+)?)\s*(ms|msec|milliseconds?|s|sec|secs|seconds?)\b/i,
+    /\bonce every\s+(\d+(?:\.\d+)?)\s*(ms|msec|milliseconds?|s|sec|secs|seconds?)\b/i,
+  ];
+  for (const pattern of patterns) {
+    const match = description.match(pattern);
+    if (!match) continue;
+    const duration = parseFactorDurationMs(`${match[1]}${match[2] ?? "s"}`);
+    if (duration !== null) return duration;
+  }
+  return null;
+}
+
 function buildSeasonCultivateFactorGradeInfoMap(): Map<
   number,
   SeasonCultivateFactorGradeInfo
@@ -677,6 +704,12 @@ function buildSeasonCultivateFactorGradeInfoMap(): Map<
           resolvedDescriptions[PRIMARY_FALLBACK_LOCALE] ?? "",
         )
         ?? extractIllusionEnergyGain(resolvedDescriptions[DEFAULT_LOCALE] ?? "");
+      const lockoutMs =
+        extractFactorLockoutMs(cleanResolvedDescription)
+        ?? extractFactorLockoutMs(
+          resolvedDescriptions[PRIMARY_FALLBACK_LOCALE] ?? "",
+        )
+        ?? extractFactorLockoutMs(resolvedDescriptions[DEFAULT_LOCALE] ?? "");
 
       map.set(itemId, {
         itemId,
@@ -705,6 +738,7 @@ function buildSeasonCultivateFactorGradeInfoMap(): Map<
           : null,
         threshold,
         energyGain,
+        lockoutMs,
       });
     }
   }
@@ -752,14 +786,65 @@ export function getSeasonCultivateFactorThreshold(
   return null;
 }
 
-function applySeasonCultivateItemThreshold(
+export function getSeasonCultivateFactorLockoutMs(
+  itemId: number | null | undefined,
+  fallback: number | null | undefined,
+): number | null {
+  const lockoutMs = getSeasonCultivateFactorGradeInfo(itemId)?.lockoutMs;
+  if (
+    typeof lockoutMs === "number"
+    && Number.isFinite(lockoutMs)
+    && lockoutMs > 0
+  ) {
+    return lockoutMs;
+  }
+  if (
+    typeof fallback === "number"
+    && Number.isFinite(fallback)
+    && fallback > 0
+  ) {
+    return fallback;
+  }
+  return null;
+}
+
+function counterActionStartsFreeze(action: CounterAction | undefined): boolean {
+  return action === "freeze"
+    || action === "resetAndFreeze"
+    || action === "resetAndFreezeKeepCounting";
+}
+
+function applySeasonCultivateItemStats(
   slots: CounterEffectSlotPreset[],
   itemId: number,
 ): CounterEffectSlotPreset[] {
-  return slots.map((slot) => ({
-    ...slot,
-    threshold: getSeasonCultivateFactorThreshold(itemId, slot.threshold),
-  }));
+  return slots.map((slot) => {
+    const threshold = getSeasonCultivateFactorThreshold(itemId, slot.threshold);
+    const lockoutMs = getSeasonCultivateFactorLockoutMs(
+      itemId,
+      slot.freezeDurationMs,
+    );
+    const shouldApplyLockout = threshold !== null && threshold > 0 && lockoutMs !== null;
+    return {
+      ...slot,
+      threshold,
+      ...(shouldApplyLockout
+        ? {
+            freezeDurationMs: lockoutMs,
+            onBuffAdd: counterActionStartsFreeze(slot.onBuffAdd)
+              ? slot.onBuffAdd
+              : "freeze",
+            onFreezeExpire: slot.onFreezeExpire ?? "resetAndStartCount",
+          }
+        : {}),
+    };
+  });
+}
+
+function hasGlobalEnergyThreshold(slots: CounterEffectSlotPreset[]): boolean {
+  return slots.some((slot) =>
+    typeof slot.threshold === "number" && Number.isFinite(slot.threshold) && slot.threshold > 0,
+  );
 }
 
 function normalizeTemplateItemIds(item: { itemIds?: number[] }): number[] {
@@ -789,19 +874,22 @@ export function getSeasonCultivateFactorTemplates(): FactorCounterTemplate[] {
   return [
     ...SOURCE_TEMPLATES.map((template) => ({
       itemIds: normalizeTemplateItemIds(template),
+      usesGlobalEnergy: false,
       sources: [template.source],
       effectSlots: [],
     })),
-    ...SLOT_TEMPLATES.flatMap((template) =>
-      normalizeTemplateItemIds(template).map((itemId) => ({
-        itemIds: [itemId],
-        sources: [],
-        effectSlots: applySeasonCultivateItemThreshold(
-          resolveCounterEffectSlots([template.slotTemplateId]),
-          itemId,
-        ),
-      })),
-    ),
+    ...SLOT_TEMPLATES.flatMap((template) => {
+      const baseSlots = resolveCounterEffectSlots([template.slotTemplateId]);
+      return normalizeTemplateItemIds(template).map((itemId) => {
+        const effectSlots = applySeasonCultivateItemStats(baseSlots, itemId);
+        return {
+          itemIds: [itemId],
+          usesGlobalEnergy: hasGlobalEnergyThreshold(effectSlots),
+          sources: [],
+          effectSlots,
+        };
+      });
+    }),
   ];
 }
 
@@ -810,7 +898,7 @@ export function getSeasonCultivateFactorRuleMap(): Map<number, CounterRulePreset
   for (const template of getSlotTemplates()) {
     const itemIds = normalizeTemplateItemIds(template);
     for (const itemId of itemIds) {
-      const effectSlots = applySeasonCultivateItemThreshold(
+      const effectSlots = applySeasonCultivateItemStats(
         resolveCounterEffectSlots([template.slotTemplateId]),
         itemId,
       );

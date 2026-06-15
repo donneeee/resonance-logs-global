@@ -7,10 +7,13 @@
   } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows, liveDisplayElapsedMs } from "$lib/live-derived";
   import {
+    liveEntityMatchesRoute,
+    liveRouteIdentityFromSearch,
+  } from "$lib/live-entity-route";
+  import {
     buildRecountGroupHoverText,
     buildSkillBreakdownHoverText,
     buildSkillContributionNote,
-    buildSkillSourceEvidenceNote,
     groupSkillsByRecount,
     lookupRecountGroupIconPath,
     lookupSkillBreakdownIconPath,
@@ -47,7 +50,7 @@
     | { kind: "group"; row: RecountGroup }
     | { kind: "skill"; row: SkillDisplayRow };
 
-  const playerUid = Number(page.url.searchParams.get("playerUid") ?? "-1");
+  const routeIdentity = liveRouteIdentityFromSearch(page.url.searchParams);
   const expandedGroups = $state(new Set<number>());
 
   let liveData = $derived(getLiveData());
@@ -55,10 +58,23 @@
   let dpsPlayers = $derived(
     liveData ? computePlayerRows(liveData, "dps", liveDisplayNow) : [],
   );
-  let currPlayer = $derived(dpsPlayers.find((player) => player.uid === playerUid));
-  let currEntity = $derived(
-    liveData?.entities.find((entity) => entity.uid === playerUid) ?? null,
+  let currPlayer = $derived(
+    dpsPlayers.find((player) => liveEntityMatchesRoute(player, routeIdentity)),
   );
+  let currEntity = $derived(
+    liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
+  );
+
+  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+
+  function isLocalPlayerRow(player: LivePlayerIdentity | null | undefined): boolean {
+    if (!player) return false;
+    const localPlayerKey = liveData?.localPlayerKey?.trim();
+    const playerEntityKey = player.entityKey?.trim();
+    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
+    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+  }
+
   let elapsedSecs = $derived(
     liveData ? liveDisplayElapsedMs(liveData, liveDisplayNow) / 1000 : 0,
   );
@@ -120,28 +136,42 @@
     expandedGroups;
   }
 
+  function singleLinePreview(value: string, maxLength = 220): string {
+    const normalized = value.replace(/\s+/g, " ").trim();
+    if (normalized.length <= maxLength) return normalized;
+    return `${normalized.slice(0, maxLength - 3).trimEnd()}...`;
+  }
+
   function buildSkillHoverText(skill: FlatSkillRow, language: LocaleCode) {
     const mergedIds = !skill.isGroup && skill.mergedSkillIds && skill.mergedSkillIds.length > 1
       ? `Merged damage IDs: ${skill.mergedSkillIds.map((id) => `#${id}`).join(", ")}`
       : "";
-    const effectNote = buildSkillSourceEvidenceNote(skill.activeEffects, skill.activeFactors, language);
+    const effectNames = resolveActiveEffectDetailName(skill.activeEffects, skill.activeFactors, language);
+    const effectNote = effectNames ? `Sources: ${singleLinePreview(effectNames, 160)}` : "";
     const contributionNote = skill.isGroup ? "" : buildSkillContributionNote(skill);
-    const descriptionNote = hoverDescriptionsEnabled()
-      ? resolveSkillNote(skill.skillId, language).trim()
+    const rawDescription = hoverDescriptionsEnabled()
+      ? resolveSkillNote(skill.skillId, language)
+      : "";
+    const descriptionNote = rawDescription.trim()
+      ? `Description: ${singleLinePreview(rawDescription, 260)}`
       : "";
     const note = [contributionNote, mergedIds, effectNote, descriptionNote]
       .filter(Boolean)
       .join("\n");
     if (skill.sourceRowKind === "factor") {
+      const sourceLabel = [
+        displaySkillName(skill, language),
+        displaySkillDetailName(skill, language),
+      ].filter(Boolean).join(" - ");
       return [
-        `Source row: ${displaySkillName(skill, language)} - ${displaySkillDetailName(skill, language)}`,
+        `Source row: ${sourceLabel}`,
         note,
       ].filter(Boolean).join("\n");
     }
     if (skill.isGroup) {
-      return buildRecountGroupHoverText(skill.skillId, language, note);
+      return buildRecountGroupHoverText(skill.skillId, language, note, { compact: true });
     }
-    return buildSkillBreakdownHoverText(skill.skillId, language, note);
+    return buildSkillBreakdownHoverText(skill.skillId, language, note, { compact: true });
   }
 
   function hoverDescriptionsEnabled(): boolean {
@@ -170,7 +200,7 @@
 
   function displaySkillDetailName(skill: FlatSkillRow, language: LocaleCode): string {
     if (skill.isGroup) {
-      return resolveActiveEffectDetailName(skill.activeEffects, skill.activeFactors, language);
+      return "";
     }
     return skill.details
       ? resolveSkillBreakdownDetailName(skill, language, {
@@ -359,8 +389,7 @@
       {#each flatRows as skill (skill.key)}
         {@const iconPath = skillIconPath(skill)}
         {#if currPlayer}
-          {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-            currPlayer.uid === liveData.localPlayerUid}
+          {@const isLocalPlayer = isLocalPlayerRow(currPlayer)}
           {@const className = isLocalPlayer
             ? normalizeNameDisplaySetting(SETTINGS_YOUR_NAME) !== "Hide Your Name"
               ? currPlayer.className

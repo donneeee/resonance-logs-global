@@ -15,6 +15,8 @@ import {
   type HeaderLayoutMode,
 } from "./live-header-layout";
 
+export type HistoryGraphGuideLineStyle = 'solid' | 'dotted' | 'dashed';
+
 export const DEFAULT_STATS = {
   totalDmg: true,
   dps: true,
@@ -222,6 +224,26 @@ export const SETTINGS_CHANGED_EVENT = "settings-store-changed";
 let settingsChangedTimer: ReturnType<typeof setTimeout> | null = null;
 let liveSettingsRefreshInFlight: Promise<void> | null = null;
 let settingsRepairInFlight: Promise<void> | null = null;
+const settingsStoreReadFailures = new Set<string>();
+const RUNTIME_CRITICAL_SETTINGS_STORES = new Set([
+  "skillMonitor",
+  "profileLibrary",
+  "monsterMonitor",
+]);
+
+export function getSettingsStoreReadFailures(): string[] {
+  return [...settingsStoreReadFailures].sort();
+}
+
+export function clearSettingsStoreReadFailure(storeId: string): void {
+  settingsStoreReadFailures.delete(storeId);
+}
+
+export function hasRuntimeCriticalSettingsStoreReadFailure(): boolean {
+  return getSettingsStoreReadFailures().some((storeId) =>
+    RUNTIME_CRITICAL_SETTINGS_STORES.has(storeId),
+  );
+}
 
 export function notifySettingsChanged(): void {
   if (typeof window === "undefined") return;
@@ -648,18 +670,21 @@ export type MonsterOverlayPositions = {
   monsterBuffPanel: Point;
   teammateBuffPanel: Point;
   hatePanel: Point;
+  fantasyPanel: Point;
 };
 
 export type MonsterOverlaySizes = {
   monsterBuffPanelScale: number;
   teammateBuffPanelScale: number;
   hatePanelScale: number;
+  fantasyPanelScale: number;
 };
 
 export type MonsterOverlayVisibility = {
   showMonsterBuffPanel: boolean;
   showTeammateBuffPanel: boolean;
   showHatePanel: boolean;
+  showFantasyPanel: boolean;
 };
 
 export type BuffAlertRule = {
@@ -680,6 +705,9 @@ export type MonsterMonitorConfig = {
   selfAppliedBuffIds: number[];
   teammateBuffIds: number[];
   teammateBuffCategories?: BuffCategoryKey[];
+  fantasyWhitelistMonsterIds: number[];
+  fantasyMonsterAliases: Record<string, string>;
+  fantasyShowAll: boolean;
   buffPriorityIds: number[];
   buffAliases: BuffAliasMap;
   buffAlerts: BuffAlertMap;
@@ -689,6 +717,7 @@ export type MonsterMonitorConfig = {
   panelStyle: CustomPanelStyle;
   teammatePanelStyle: CustomPanelStyle;
   hatePanelStyle: CustomPanelStyle;
+  fantasyPanelStyle: CustomPanelStyle;
 };
 
 export type TextBuffPanelDisplayMode = "modern" | "classic";
@@ -975,6 +1004,7 @@ function createDefaultMonsterOverlayPositions(): MonsterOverlayPositions {
     monsterBuffPanel: { x: 40, y: 40 },
     teammateBuffPanel: { x: 420, y: 40 },
     hatePanel: { x: 40, y: 300 },
+    fantasyPanel: { x: 420, y: 300 },
   };
 }
 
@@ -983,6 +1013,7 @@ function createDefaultMonsterOverlaySizes(): MonsterOverlaySizes {
     monsterBuffPanelScale: 1,
     teammateBuffPanelScale: 1,
     hatePanelScale: 1,
+    fantasyPanelScale: 1,
   };
 }
 
@@ -991,6 +1022,7 @@ function createDefaultMonsterOverlayVisibility(): MonsterOverlayVisibility {
     showMonsterBuffPanel: true,
     showTeammateBuffPanel: true,
     showHatePanel: true,
+    showFantasyPanel: false,
   };
 }
 
@@ -1272,6 +1304,9 @@ export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
     selfAppliedBuffIds: [],
     teammateBuffIds: [],
     teammateBuffCategories: [],
+    fantasyWhitelistMonsterIds: [],
+    fantasyMonsterAliases: {},
+    fantasyShowAll: false,
     buffPriorityIds: [],
     buffAliases: {},
     buffAlerts: {},
@@ -1281,6 +1316,7 @@ export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
     panelStyle: createDefaultCustomPanelStyle(),
     teammatePanelStyle: createDefaultCustomPanelStyle(),
     hatePanelStyle: createDefaultCustomPanelStyle(),
+    fantasyPanelStyle: createDefaultCustomPanelStyle(),
   };
 }
 
@@ -1293,6 +1329,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOthersSeasonStrength: boolean;
   showOceanWeaponBadge: boolean;
   showPlayerImagineBadges: boolean;
+  oceanWeaponBadgeScale: number;
+  playerImagineBadgeScale: number;
   relativeToTopDPSPlayer: boolean;
   relativeToTopDPSSkill: boolean;
   relativeToTopHealPlayer: boolean;
@@ -1309,6 +1347,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   idleDisplayPauseDelaySeconds: number;
   historyGraphBucketSeconds: number;
   historyGraphWindowSeconds: number;
+  historyGraphGuideLineStyle: HistoryGraphGuideLineStyle;
   autoClearOnSceneChange: boolean;
   autoHideLiveWindow: boolean;
   autoHideOverlaysWithLiveWindow: boolean;
@@ -1326,6 +1365,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOthersSeasonStrength: false,
   showOceanWeaponBadge: true,
   showPlayerImagineBadges: true,
+  oceanWeaponBadgeScale: 100,
+  playerImagineBadgeScale: 100,
   relativeToTopDPSPlayer: true,
   relativeToTopDPSSkill: true,
   relativeToTopHealPlayer: true,
@@ -1342,6 +1383,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   idleDisplayPauseDelaySeconds: 5,
   historyGraphBucketSeconds: 5,
   historyGraphWindowSeconds: 15,
+  historyGraphGuideLineStyle: 'solid',
   autoClearOnSceneChange: true,
   autoHideLiveWindow: false,
   autoHideOverlaysWithLiveWindow: false,
@@ -2385,16 +2427,21 @@ async function refreshSettingsStoreFromBackend<T extends MutableRecord>(
   normalize: SettingsStoreNormalizer<T> = (value) =>
     normalizeObjectWithDefaults(value, defaults),
   options: SettingsStoreRefreshOptions = {},
-): Promise<void> {
+): Promise<boolean> {
   let backendState: unknown;
   let currentBackendJson: string | null = null;
   try {
     backendState = await getStoreState<T>(store.id);
     currentBackendJson = JSON.stringify(backendState);
   } catch (error) {
-    console.warn(`Failed to read settings store ${store.id}; repairing from current/default state:`, error);
-    backendState = store.state;
+    settingsStoreReadFailures.add(store.id);
+    console.warn(
+      `Failed to read settings store ${store.id}; leaving persisted file untouched.`,
+      error,
+    );
+    return false;
   }
+  settingsStoreReadFailures.delete(store.id);
   const nextState = normalize(backendState);
   const nextStateJson = JSON.stringify(nextState);
   if (JSON.stringify(store.state) !== nextStateJson) {
@@ -2408,6 +2455,7 @@ async function refreshSettingsStoreFromBackend<T extends MutableRecord>(
     await store.stop();
     await store.start();
   }
+  return true;
 }
 
 function repairSettingsStoreFromBackend<T extends MutableRecord>(
@@ -2415,7 +2463,7 @@ function repairSettingsStoreFromBackend<T extends MutableRecord>(
   defaults: T,
   normalize: SettingsStoreNormalizer<T> = (value) =>
     normalizeObjectWithDefaults(value, defaults),
-): Promise<void> {
+): Promise<boolean> {
   return refreshSettingsStoreFromBackend(store, defaults, normalize, {
     persistRepair: true,
   });
@@ -2433,6 +2481,15 @@ async function persistSettingsStoreState<T extends MutableRecord>(
   }
   await patchStoreState(store.id, nextState);
   await saveStoreNow(store.id);
+}
+
+export async function persistProfileLibrarySettings(): Promise<void> {
+  await persistSettingsStoreState(
+    SETTINGS.profileLibrary,
+    DEFAULT_SETTINGS.profileLibrary,
+    normalizeProfileLibrarySettingsState,
+  );
+  clearSettingsStoreReadFailure("profileLibrary");
 }
 
 function persistCurrentLiveSettingsStores(): Promise<void> {
@@ -2784,8 +2841,8 @@ export async function repairPersistedSettingsStores(): Promise<void> {
   if (settingsRepairInFlight) return settingsRepairInFlight;
 
   settingsRepairInFlight = Promise.all(
-    persistedSettingsRepairRegistry.map((entry) =>
-      refreshSettingsStoreFromBackend(
+    persistedSettingsRepairRegistry.map(async (entry) => {
+      const loaded = await refreshSettingsStoreFromBackend(
         entry.store,
         entry.defaults,
         entry.normalize,
@@ -2793,13 +2850,14 @@ export async function repairPersistedSettingsStores(): Promise<void> {
           persistRepair: true,
           restartAfterRepair: true,
         },
-      ),
-    ),
+      );
+      return { entry, loaded };
+    }),
   )
-    .then(async () => {
+    .then(async (results) => {
       normalizePersistedSettings();
       await Promise.all(
-        persistedSettingsRepairRegistry.map((entry) =>
+        results.filter(({ loaded }) => loaded).map(({ entry }) =>
           persistSettingsStoreState(
             entry.store,
             entry.defaults,

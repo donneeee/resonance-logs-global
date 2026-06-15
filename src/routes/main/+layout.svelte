@@ -7,7 +7,11 @@
   import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import { goto } from "$app/navigation";
-  import { SETTINGS } from '$lib/settings-store';
+  import {
+    getSettingsStoreReadFailures,
+    hasRuntimeCriticalSettingsStoreReadFailure,
+    SETTINGS,
+  } from '$lib/settings-store';
   import { applyCustomFonts } from "$lib/font-loader";
   import { commands } from "$lib/bindings";
   import { onMount } from 'svelte';
@@ -28,6 +32,7 @@
   let runtimeSyncTimer: ReturnType<typeof setTimeout> | null = null;
   let overlayVisibilityOverride: boolean | null = null;
   let lastSharedOverlayEnabled: boolean | null = null;
+  let runtimeSyncBlockedBySettingsFailure = false;
 
   function queueRuntimeSnapshotSync(
     sync: RuntimeMonitorSyncModule,
@@ -53,6 +58,17 @@
   $effect(() => {
     const sync = runtimeMonitorSync;
     if (!sync) return;
+    if (hasRuntimeCriticalSettingsStoreReadFailure()) {
+      if (!runtimeSyncBlockedBySettingsFailure) {
+        runtimeSyncBlockedBySettingsFailure = true;
+        console.warn(
+          "[runtime-monitor] blocked runtime snapshot sync because critical settings stores failed to load",
+          getSettingsStoreReadFailures(),
+        );
+      }
+      return;
+    }
+    runtimeSyncBlockedBySettingsFailure = false;
 
     const runtimeSnapshot = sync.buildMonitorRuntimeSnapshot();
     const runtimeSnapshotKey = sync.createMonitorRuntimeSnapshotSignature(runtimeSnapshot);

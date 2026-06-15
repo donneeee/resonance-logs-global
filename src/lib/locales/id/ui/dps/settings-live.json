@@ -81,8 +81,12 @@
   "trainingDummySegmentDurationSecondsDescription": "Mengatur panjang segmen target dummy. Default: 180 dtk.",
   "showPlayerImagineBadges": "Badge Battle Imagine",
   "showPlayerImagineBadgesDescription": "Tampilkan badge Battle Imagine yang dipakai di samping ikon class.",
+  "playerImagineBadgeScale": "Ukuran Badge Battle Imagine",
+  "playerImagineBadgeScaleDescription": "Skalakan badge Battle Imagine tanpa mengubah ukuran ikon class.",
   "showOceanWeaponBadge": "Badge Ocean Weapon",
   "showOceanWeaponBadgeDescription": "Tampilkan badge Ocean Weapon sebelum nama pemain saat terdeteksi.",
+  "oceanWeaponBadgeScale": "Ukuran Badge Ocean Weapon",
+  "oceanWeaponBadgeScaleDescription": "Skalakan badge Ocean Weapon tanpa mengubah ukuran ikon class.",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
   "columnAliasPlaceholder": "Alias"

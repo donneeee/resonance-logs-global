@@ -130,6 +130,7 @@
     activeCombatTimeMs: 0,
     fightStartTimestampMs: 0,
     dpsDisplayPaused: false,
+    localPlayerKey: null,
     bosses: [],
     sceneId: null,
     sceneName: null,
@@ -508,7 +509,7 @@
           class:flex-row={h.bossHealthLayout === "horizontal"}
           class:flex-wrap={h.bossHealthLayout === "horizontal"}
         >
-          {#each displayBosses as boss (boss.uid)}
+          {#each displayBosses as boss (boss.entityKey ?? boss.uid)}
             {@const hpPercent =
               boss.maxHp && boss.currentHp !== null
                 ? Math.min(100, Math.max(0, (boss.currentHp / boss.maxHp) * 100))

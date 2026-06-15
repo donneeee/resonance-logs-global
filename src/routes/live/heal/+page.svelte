@@ -7,6 +7,7 @@
     getLiveDisplayNowMs,
   } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
+  import { livePlayerRoute } from "$lib/live-entity-route";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
   import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
@@ -20,6 +21,7 @@
   } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
+  import { scaledBadgeSize } from "$lib/badge-sizing";
   import getDisplayName, {
     getDisplayIconSpecName,
     normalizeNameDisplaySetting,
@@ -32,6 +34,19 @@
   let rawHealData = $derived(
     liveData ? computePlayerRows(liveData, "heal", liveDisplayNowMs) : [],
   );
+
+  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+
+  function playerRenderKey(player: LivePlayerIdentity): string | number {
+    return player.entityKey?.trim() || player.uid;
+  }
+
+  function isLocalPlayerRow(player: LivePlayerIdentity): boolean {
+    const localPlayerKey = liveData?.localPlayerKey?.trim();
+    const playerEntityKey = player.entityKey?.trim();
+    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
+    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+  }
 
   // Sorting settings
   let sortKey = $derived(SETTINGS.live.sorting.healPlayers.state.sortKey);
@@ -242,9 +257,8 @@
     {/if}
     <tbody>
       {#if compactMode}
-        {#each compactHealData as player (player.uid)}
-          {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-            player.uid === liveData.localPlayerUid}
+        {#each compactHealData as player (playerRenderKey(player))}
+          {@const isLocalPlayer = isLocalPlayerRow(player)}
           {@const displayName = getDisplayName({
             player: {
               uid: player.uid,
@@ -273,7 +287,7 @@
           <tr
             class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
             style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-            onclick={() => goto(`/live/heal/skills?playerUid=${player.uid}`)}
+            onclick={() => goto(livePlayerRoute("/live/heal/skills", player))}
           >
             <td
               colspan={visiblePlayerColumns.length + 1}
@@ -292,13 +306,19 @@
                   {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                     <PlayerImagineBadges
                       imagines={player.playerImagines}
-                      size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                      size={scaledBadgeSize(
+                        Math.max(28, Math.round(tableSettings.playerIconSize * 1.4)),
+                        SETTINGS.live.general.state.playerImagineBadgeScale,
+                      )}
                     />
                   {/if}
                   {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
                     <OceanWeaponBadge
                       weapon={player.oceanWeapon}
-                      size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                      size={scaledBadgeSize(
+                        Math.max(20, Math.round(tableSettings.playerIconSize * 1.05)),
+                        SETTINGS.live.general.state.oceanWeaponBadgeScale,
+                      )}
                     />
                   {/if}
                   <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
@@ -354,9 +374,8 @@
           </tr>
         {/each}
       {:else}
-      {#each healData as player (player.uid)}
-        {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-          player.uid === liveData.localPlayerUid}
+      {#each healData as player (playerRenderKey(player))}
+        {@const isLocalPlayer = isLocalPlayerRow(player)}
         {@const displayName = getDisplayName({
           player: {
             uid: player.uid,
@@ -385,7 +404,7 @@
         <tr
           class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
           style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-          onclick={() => goto(`/live/heal/skills?playerUid=${player.uid}`)}
+          onclick={() => goto(livePlayerRoute("/live/heal/skills", player))}
         >
           <td class="px-3 py-1 relative z-10">
             <div class="flex items-center h-full gap-2">
@@ -401,7 +420,10 @@
               {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                 <PlayerImagineBadges
                   imagines={player.playerImagines}
-                  size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                  size={scaledBadgeSize(
+                    Math.max(28, Math.round(tableSettings.playerIconSize * 1.4)),
+                    SETTINGS.live.general.state.playerImagineBadgeScale,
+                  )}
                 />
               {/if}
               {#if player.abilityScore > 0 && (isLocalPlayer ? SETTINGS.live.general.state.showYourAbilityScore : SETTINGS.live.general.state.showOthersAbilityScore)}
@@ -433,7 +455,10 @@
               {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
                 <OceanWeaponBadge
                   weapon={player.oceanWeapon}
-                  size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                  size={scaledBadgeSize(
+                    Math.max(20, Math.round(tableSettings.playerIconSize * 1.05)),
+                    SETTINGS.live.general.state.oceanWeaponBadgeScale,
+                  )}
                 />
               {/if}
               <span

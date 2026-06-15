@@ -81,8 +81,12 @@
   "trainingDummySegmentDurationSecondsDescription": "Define la duracion del segmento del muneco de entrenamiento. Predeterminado: 180 s.",
   "showPlayerImagineBadges": "Insignias de Battle Imagine",
   "showPlayerImagineBadgesDescription": "Muestra las insignias de Battle Imagine equipadas junto a los iconos de clase.",
+  "playerImagineBadgeScale": "Tamaño de insignias de Battle Imagine",
+  "playerImagineBadgeScaleDescription": "Escala las insignias de Battle Imagine sin cambiar el tamaño del icono de clase.",
   "showOceanWeaponBadge": "Insignia de arma oceanica",
   "showOceanWeaponBadgeDescription": "Muestra la insignia de arma oceanica antes de los nombres de jugador cuando se detecte.",
+  "oceanWeaponBadgeScale": "Tamaño de insignia de arma oceanica",
+  "oceanWeaponBadgeScaleDescription": "Escala las insignias de arma oceanica sin cambiar el tamaño del icono de clase.",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
   "columnAliasPlaceholder": "Alias"

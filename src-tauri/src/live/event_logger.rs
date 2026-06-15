@@ -71,6 +71,8 @@ struct EventLoggerSessionDirectoryConfig {
     store_log_files: Option<bool>,
     include_repeated_snapshot_rows: Option<bool>,
     delete_older_than_days: Option<u32>,
+    capture_events: Option<bool>,
+    capture_snapshots: Option<bool>,
     capture_census_enabled: Option<bool>,
     attribution_census_enabled: Option<bool>,
 }
@@ -118,23 +120,56 @@ fn default_event_logger_enabled() -> bool {
     false
 }
 
+fn default_event_logger_capture_events() -> bool {
+    true
+}
+
+fn default_event_logger_capture_snapshots() -> bool {
+    true
+}
+
 fn event_logger_enabled_flag() -> &'static AtomicBool {
     static EVENT_LOGGER_ENABLED: OnceLock<AtomicBool> = OnceLock::new();
     EVENT_LOGGER_ENABLED.get_or_init(|| AtomicBool::new(default_event_logger_enabled()))
+}
+
+fn event_logger_capture_events_flag() -> &'static AtomicBool {
+    static EVENT_LOGGER_CAPTURE_EVENTS: OnceLock<AtomicBool> = OnceLock::new();
+    EVENT_LOGGER_CAPTURE_EVENTS
+        .get_or_init(|| AtomicBool::new(default_event_logger_capture_events()))
+}
+
+fn event_logger_capture_snapshots_flag() -> &'static AtomicBool {
+    static EVENT_LOGGER_CAPTURE_SNAPSHOTS: OnceLock<AtomicBool> = OnceLock::new();
+    EVENT_LOGGER_CAPTURE_SNAPSHOTS
+        .get_or_init(|| AtomicBool::new(default_event_logger_capture_snapshots()))
 }
 
 fn set_event_logger_enabled_runtime(enabled: bool) {
     event_logger_enabled_flag().store(enabled, Ordering::Relaxed);
 }
 
+fn set_event_logger_capture_options_runtime(capture_events: bool, capture_snapshots: bool) {
+    event_logger_capture_events_flag().store(capture_events, Ordering::Relaxed);
+    event_logger_capture_snapshots_flag().store(capture_snapshots, Ordering::Relaxed);
+}
+
 fn event_logger_enabled(app_handle: &AppHandle) -> bool {
     static EVENT_LOGGER_ENABLED_LOADED: OnceLock<()> = OnceLock::new();
     EVENT_LOGGER_ENABLED_LOADED.get_or_init(|| {
-        let enabled = read_event_logger_settings_config(app_handle)
-            .ok()
-            .and_then(|config| config.enabled)
+        let config = read_event_logger_settings_config(app_handle).unwrap_or_default();
+        let enabled = config
+            .enabled
             .unwrap_or_else(default_event_logger_enabled);
         set_event_logger_enabled_runtime(enabled);
+        set_event_logger_capture_options_runtime(
+            config
+                .capture_events
+                .unwrap_or_else(default_event_logger_capture_events),
+            config
+                .capture_snapshots
+                .unwrap_or_else(default_event_logger_capture_snapshots),
+        );
     });
 
     event_logger_enabled_flag().load(Ordering::Relaxed)
@@ -444,6 +479,27 @@ fn filter_live_logger_entries(entries: Vec<EventLoggerEntry>) -> Vec<EventLogger
     filtered
 }
 
+fn capture_options_allow_entry(entry: &EventLoggerEntry) -> bool {
+    if entry.action == "snapshot" {
+        return event_logger_capture_snapshots_flag().load(Ordering::Relaxed);
+    }
+
+    event_logger_capture_events_flag().load(Ordering::Relaxed)
+}
+
+fn filter_capture_option_entries(entries: Vec<EventLoggerEntry>) -> Vec<EventLoggerEntry> {
+    let capture_events = event_logger_capture_events_flag().load(Ordering::Relaxed);
+    let capture_snapshots = event_logger_capture_snapshots_flag().load(Ordering::Relaxed);
+    if capture_events && capture_snapshots {
+        return entries;
+    }
+
+    entries
+        .into_iter()
+        .filter(capture_options_allow_entry)
+        .collect()
+}
+
 fn push_logger_entries(entries: &[EventLoggerEntry]) {
     if entries.is_empty() {
         return;
@@ -493,6 +549,11 @@ pub fn emit_logger_entries(app_handle: &AppHandle, entries: Vec<EventLoggerEntry
     }
 
     if !event_logger_enabled(app_handle) {
+        return;
+    }
+
+    let entries = filter_capture_option_entries(entries);
+    if entries.is_empty() {
         return;
     }
 
@@ -697,6 +758,27 @@ pub fn set_event_logger_file_storage_settings(
     );
 
     get_event_logger_file_storage_payload(app_handle)
+}
+
+pub fn set_event_logger_capture_options(
+    app_handle: &AppHandle,
+    capture_events: bool,
+    capture_snapshots: bool,
+) -> Result<(), String> {
+    let mut config = read_event_logger_settings_config(app_handle)?;
+    config.capture_events = Some(capture_events);
+    config.capture_snapshots = Some(capture_snapshots);
+
+    let settings_path = event_logger_settings_path(app_handle)?;
+    fs::write(
+        &settings_path,
+        serde_json::to_vec_pretty(&config)
+            .map_err(|e| format!("failed to serialize {}: {e}", settings_path.display()))?,
+    )
+    .map_err(|e| format!("failed to write {}: {e}", settings_path.display()))?;
+
+    set_event_logger_capture_options_runtime(capture_events, capture_snapshots);
+    Ok(())
 }
 
 fn cleanup_old_event_logger_files(

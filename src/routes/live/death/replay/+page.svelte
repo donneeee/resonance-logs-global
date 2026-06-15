@@ -8,8 +8,14 @@
   import DeathReplayDetail from "$lib/components/death-replay/death-replay-detail.svelte";
   import { SETTINGS } from "$lib/settings-store";
   import { uiT } from "$lib/i18n";
+  import { deathRecordMatchesRoute } from "$lib/death-record-identity";
+  import {
+    liveEntityMatchesRoute,
+    liveRouteIdentityFromSearch,
+  } from "$lib/live-entity-route";
 
-  const playerUid = $derived(Number(page.url.searchParams.get("playerUid") ?? "-1"));
+  const routeIdentity = $derived(liveRouteIdentityFromSearch(page.url.searchParams));
+  const playerUid = $derived(routeIdentity.playerUid ?? -1);
   const deathTs = $derived(Number(page.url.searchParams.get("deathTs") ?? "-1"));
 
   const liveData = $derived(getLiveData());
@@ -19,15 +25,17 @@
   const record = $derived(
     deathRecords.find(
       (r) =>
-        Number(r.victimUid) === playerUid &&
+        deathRecordMatchesRoute(r, routeIdentity) &&
         Number(r.deathTimestampMs) === deathTs,
     ) ?? null,
   );
   const entity = $derived(
-    liveData?.entities.find((e) => e.uid === playerUid) ?? null,
+    liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
   );
   const isLocalPlayer = $derived(
-    liveData?.localPlayerUid != null && playerUid === liveData.localPlayerUid,
+    liveData?.localPlayerKey && entity?.entityKey
+      ? liveData.localPlayerKey === entity.entityKey
+      : liveData?.localPlayerUid != null && playerUid === liveData.localPlayerUid,
   );
 
   function handleFallback() {

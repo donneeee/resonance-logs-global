@@ -196,7 +196,7 @@
   function liveActivitySignature(payload: LiveDataPayload): string {
     const bosses = payload.bosses
       .map((boss) => [
-        boss.uid,
+        boss.entityKey ?? boss.uid,
         boss.name,
         boss.currentHp ?? "",
         boss.maxHp ?? "",
@@ -205,7 +205,7 @@
 
     const entities = payload.entities
       .map((entity) => [
-        entity.uid,
+        entity.entityKey ?? entity.uid,
         entity.uuid ?? "",
         entity.name,
         entity.classId,

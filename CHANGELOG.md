@@ -8,6 +8,9 @@
 - Reduced live-window header/table flicker by limiting Training Dummy header countdown repaint churn and adding hysteresis to dynamic live-window height resizing.
 - Resolved Lucy and Natsu Imagine short runtime damage IDs to their generated full damage IDs, restoring saved-history Skill Details names/icons/grouping for those transformation rows without a game-file rescan.
 - Coalesced dynamic live-window resize calls so content-height jitter cannot flood WebView2/Tauri with `setSize` / constraint messages and trigger `PostMessage failed` quota errors.
+- Hardened corrupt settings-store handling so unreadable or binary critical stores are detected, preserved instead of overwritten with defaults, and skipped by runtime monitor snapshot sync until they can be repaired.
+- Fixed custom save-location handling for diagnostics bundles, profile-library files, and Event Logger session files by routing those operations through generated Tauri command bindings with the selected paths.
+- Registered and persisted the Event Logger Events/Snapshots capture toggles in Rust, preventing the profile settings page from calling a missing command and allowing snapshot rows to be filtered separately from event rows.
 
 ## v1.1.0_beta5 - Global Beta
 

@@ -28,6 +28,7 @@ import {
   type BuffCategoryKey,
 } from "$lib/config/buff-name-table";
 import { lookupLocalizedDamageIdName } from "$lib/config/recount-table";
+import { localizeMonsterName } from "$lib/monster-mappings";
 import { resolveKnownSkillStageDisplayName } from "$lib/skill-stage-labels";
 import type { BuffUpdateState, CounterSlotState } from "$lib/api";
 import type {
@@ -226,8 +227,10 @@ function resolveFactorBuffName(
 function getLocalPlayerFactorBuffMap(): Map<number, BuffUpdateState> {
   const result = new Map<number, BuffUpdateState>();
   const data = liveData();
-  const localEntity = data?.entities.find(
-    (entity) => entity.uid === data.localPlayerUid,
+  const localEntity = data?.entities.find((entity) =>
+    data.localPlayerKey
+      ? entity.entityKey === data.localPlayerKey
+      : entity.uid === data.localPlayerUid,
   );
   const maybeSet = (baseId: number | null | undefined, buff: BuffUpdateState) => {
     if (!baseId || baseId <= 0) return;
@@ -558,19 +561,42 @@ function buildSeasonCultivateThresholdRow(
 ): CustomPanelDisplayRow | null {
   const slot = rule.effectSlots[0];
   if (!slot) return null;
-  const threshold = getSeasonCultivateFactorThreshold(itemId, slot.threshold);
+  const counter = factorCounterMap().get(rule.ruleId);
+  const counterSlot = counter?.slots.find((item) => item.slotId === slot.slotId)
+    ?? counter?.slots[0];
+  const threshold =
+    counterSlot?.effectiveThreshold
+    ?? counterSlot?.threshold
+    ?? getSeasonCultivateFactorThreshold(itemId, slot.threshold);
   if (!threshold || threshold <= 0) return null;
-  const total = getInferredFactorEnergyTotal(now);
+  const total = Math.max(
+    0,
+    counterSlot?.currentCount ?? getInferredFactorEnergyTotal(now),
+  );
   const procCount = Math.floor(total / threshold);
   const remainder = total % threshold;
   const linkedBuff = factorBuffMap.get(slot.resetBuffId);
   const active = isBuffActive(linkedBuff, now);
   const timerProgressPercent = getBuffRemainPercent(linkedBuff, now);
+  const freezeUntilMs = counterSlot?.freezeUntilMs;
+  const isFrozen =
+    freezeUntilMs !== null
+    && freezeUntilMs !== undefined
+    && freezeUntilMs > now;
+  const freezeRemainingMs = isFrozen ? Math.max(0, freezeUntilMs - now) : 0;
+  const freezeDurationMs =
+    counterSlot?.effectiveFreezeDurationMs
+    ?? counterSlot?.freezeDurationMs
+    ?? 0;
+  const freezeProgressPercent =
+    freezeDurationMs > 0
+      ? Math.max(0, Math.min(100, (freezeRemainingMs / freezeDurationMs) * 100))
+      : 0;
   const bucketProgressPercent = Math.max(
     0,
     Math.min(100, (remainder / threshold) * 100),
   );
-  if (hideWhenZero && !active && procCount === 0 && remainder === 0) {
+  if (hideWhenZero && !isFrozen && !active && procCount === 0 && remainder === 0) {
     return null;
   }
   return {
@@ -578,16 +604,24 @@ function buildSeasonCultivateThresholdRow(
     label,
     prefixText: String(procCount),
     valueText: `${remainder}/${threshold}`,
-    timerText: getSeasonCultivateFactorTimerText(
-      linkedBuff,
-      now,
-      typeof slot.resetBuffId === "number" && slot.resetBuffId > 0,
-    ),
+    timerText: isFrozen
+      ? formatTimerText(freezeRemainingMs)
+      : getSeasonCultivateFactorTimerText(
+          linkedBuff,
+          now,
+          typeof slot.resetBuffId === "number" && slot.resetBuffId > 0,
+        ),
     progressPercent:
-      active && linkedBuff?.durationMs ? timerProgressPercent : bucketProgressPercent,
-    showProgress: active && linkedBuff?.durationMs
+      isFrozen && freezeDurationMs > 0
+        ? freezeProgressPercent
+        : active && linkedBuff?.durationMs
+          ? timerProgressPercent
+          : bucketProgressPercent,
+    showProgress: isFrozen && freezeDurationMs > 0
       ? true
-      : bucketProgressPercent > 0,
+      : active && linkedBuff?.durationMs
+        ? true
+        : bucketProgressPercent > 0,
   };
 }
 
@@ -920,13 +954,36 @@ const _buffUptimeRows = $derived.by<BuffUptimeDisplayRow[]>(() => {
   const totals = uptimeTotals();
   const activeKeys = activeUptimeRowKeys();
   const names = nameCache();
+  const playerNamesByEntityKey = overlayRuntime.playerNameByEntityKey;
+  const monsterIdsByEntityKey = overlayRuntime.monsterIdByEntityKey;
   const live = liveData();
   const encounterMs = Math.max(0, live?.elapsedMs ?? 0);
   const trueMs = Math.max(0, live?.activeCombatTimeMs ?? 0);
   const localPlayerUid = live?.localPlayerUid ?? 0;
+  const localPlayerKey = live?.localPlayerKey?.trim() ?? "";
   const rows: BuffUptimeDisplayRow[] = [];
 
-  function resolveSourceLabel(sourceUid: number, sourceConfigId: number | null): string | undefined {
+  function sourceIsLocal(total: { sourceKey?: string | null; sourceUid: number }): boolean {
+    const sourceKey = total.sourceKey?.trim();
+    if (sourceKey && localPlayerKey) return sourceKey === localPlayerKey;
+    return total.sourceUid === localPlayerUid;
+  }
+
+  function resolveSourceLabel(
+    sourceKey: string | null | undefined,
+    sourceUid: number,
+    sourceConfigId: number | null,
+  ): string | undefined {
+    const trimmedKey = sourceKey?.trim();
+    if (trimmedKey) {
+      const playerName = playerNamesByEntityKey.get(trimmedKey)?.trim();
+      if (playerName) return playerName;
+
+      const monsterId = monsterIdsByEntityKey.get(trimmedKey);
+      if (monsterId !== undefined) {
+        return localizeMonsterName(monsterId);
+      }
+    }
     if (sourceUid > 0) {
       return names.get(sourceUid) || "Unknown";
     }
@@ -947,11 +1004,19 @@ const _buffUptimeRows = $derived.by<BuffUptimeDisplayRow[]>(() => {
       .sort((left, right) => {
         const leftTotal = left[1];
         const rightTotal = right[1];
-        const leftSelf = leftTotal.sourceUid === localPlayerUid;
-        const rightSelf = rightTotal.sourceUid === localPlayerUid;
+        const leftSelf = sourceIsLocal(leftTotal);
+        const rightSelf = sourceIsLocal(rightTotal);
         if (leftSelf !== rightSelf) return leftSelf ? -1 : 1;
-        const leftSource = resolveSourceLabel(leftTotal.sourceUid, leftTotal.sourceConfigId) || "";
-        const rightSource = resolveSourceLabel(rightTotal.sourceUid, rightTotal.sourceConfigId) || "";
+        const leftSource = resolveSourceLabel(
+          leftTotal.sourceKey,
+          leftTotal.sourceUid,
+          leftTotal.sourceConfigId,
+        ) || "";
+        const rightSource = resolveSourceLabel(
+          rightTotal.sourceKey,
+          rightTotal.sourceUid,
+          rightTotal.sourceConfigId,
+        ) || "";
         return leftSource.localeCompare(rightSource);
       });
 
@@ -962,9 +1027,9 @@ const _buffUptimeRows = $derived.by<BuffUptimeDisplayRow[]>(() => {
       const truePercent = trueMs > 0
         ? Math.max(0, Math.min(100, (total.trueActiveMs / trueMs) * 100))
         : null;
-      const sourceName = total.trackingMode === "self" || total.sourceUid === localPlayerUid
+      const sourceName = total.trackingMode === "self" || sourceIsLocal(total)
         ? undefined
-        : resolveSourceLabel(total.sourceUid, total.sourceConfigId);
+        : resolveSourceLabel(total.sourceKey, total.sourceUid, total.sourceConfigId);
 
       rows.push({
         key,

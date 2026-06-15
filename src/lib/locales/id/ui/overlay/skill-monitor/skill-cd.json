@@ -199,5 +199,7 @@
   "classSkill.beat_performer.2316": "Crowd Focus",
   "classSkill.beat_performer.2317": "Fierce Swing",
   "classSkill.beat_performer.2332": "Exalt - Passion Flow",
-  "classSkill.beat_performer.2335": "Boost - Infinite Rhapsody"
+  "classSkill.beat_performer.2335": "Boost - Infinite Rhapsody",
+  "showAcceleration": "Tampilkan akselerasi CD skill",
+  "showAccelerationDescription": "Menambahkan badge akselerasi kecil dan tooltip diagnostik cooldown ke ikon CD skill. Berguna untuk memeriksa pengurangan cooldown dan sumber akselerasi."
 }

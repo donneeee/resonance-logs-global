@@ -10,6 +10,10 @@
     computeSkillRows,
     liveDisplayElapsedMs,
   } from "$lib/live-derived";
+  import {
+    liveEntityMatchesRoute,
+    liveRouteIdentityFromSearch,
+  } from "$lib/live-entity-route";
   import { lookupDamageIdName, lookupSkillBreakdownIconPath } from "$lib/config/recount-table";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import {
@@ -23,17 +27,29 @@
   import { normalizeNameDisplaySetting } from "$lib/name-display";
   import { resolveNavigationTranslation, resolveSkillNote, resolveSkillTranslation, type LocaleCode } from "$lib/i18n";
 
-  const playerUid = Number(page.url.searchParams.get("playerUid") ?? "-1");
+  const routeIdentity = liveRouteIdentityFromSearch(page.url.searchParams);
 
   let liveData = $derived(getLiveData());
   let liveDisplayNow = $derived(getLiveDisplayNowMs());
   let healPlayers = $derived(
     liveData ? computePlayerRows(liveData, "heal", liveDisplayNow) : [],
   );
-  let currPlayer = $derived(healPlayers.find((player) => player.uid === playerUid));
-  let currEntity = $derived(
-    liveData?.entities.find((entity) => entity.uid === playerUid) ?? null,
+  let currPlayer = $derived(
+    healPlayers.find((player) => liveEntityMatchesRoute(player, routeIdentity)),
   );
+  let currEntity = $derived(
+    liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
+  );
+
+  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+
+  function isLocalPlayerRow(player: LivePlayerIdentity | null | undefined): boolean {
+    if (!player) return false;
+    const localPlayerKey = liveData?.localPlayerKey?.trim();
+    const playerEntityKey = player.entityKey?.trim();
+    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
+    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+  }
 
   let healSkillRows = $derived(
     currEntity && liveData
@@ -184,8 +200,7 @@
       {#each sortedSkillRows as skill (skill.skillId)}
         {@const iconPath = lookupSkillBreakdownIconPath(skill.skillId)}
         {#if currPlayer}
-          {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-            currPlayer.uid === liveData.localPlayerUid}
+          {@const isLocalPlayer = isLocalPlayerRow(currPlayer)}
           {@const className = isLocalPlayer
             ? normalizeNameDisplaySetting(SETTINGS_YOUR_NAME) !== "Hide Your Name"
               ? currPlayer.className

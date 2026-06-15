@@ -881,11 +881,15 @@
 		--history-sticky-frame-bg: var(--card);
 		--history-sticky-header-bg: var(--popover);
 		--history-sticky-border-color: var(--border);
-		max-height: min(72vh, calc(100dvh - 260px));
+		box-sizing: border-box;
+		max-height: clamp(280px, calc(100dvh - 380px), 64vh);
 		min-height: 0;
+		margin-bottom: clamp(1rem, 3dvh, 2rem);
 		overflow: auto;
 		overscroll-behavior: contain;
+		padding-bottom: 0.75rem;
 		position: relative;
+		scroll-padding-bottom: 0.75rem;
 		isolation: isolate;
 		background: var(--history-sticky-frame-bg) !important;
 	}

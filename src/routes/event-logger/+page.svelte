@@ -7,6 +7,7 @@
   import { writeText } from "@tauri-apps/plugin-clipboard-manager";
 
   import { Button } from "$lib/components/ui/button/index.js";
+  import { commands, type EventLoggerFileStoragePayload } from "$lib/bindings";
   import {
     buildLoggerDisplayLabel,
     loggerCategoryToDefinitionType,
@@ -43,17 +44,6 @@
   type HeaderMenuState = { x: number; y: number; column: ColumnKey } | null;
   type DetailsTab = "details" | "filters" | "settings" | "debug";
 
-  type EventLoggerFileStoragePayload = {
-    configuredDirectory: string | null;
-    resolvedDirectory: string;
-    usingDefault: boolean;
-    enabled: boolean;
-    storeLogFiles: boolean;
-    includeRepeatedSnapshotRows: boolean;
-    deleteOlderThanDays: number | null;
-    captureCensusEnabled: boolean;
-    attributionCensusEnabled: boolean;
-  };
   type SortDirection = "asc" | "desc";
   type ColumnKey =
     | "time"
@@ -937,7 +927,9 @@
     loggerFileStorageLoading = true;
     loggerFileStorageError = "";
     try {
-      loggerFileStorage = await invoke<EventLoggerFileStoragePayload>("get_event_logger_file_storage_settings");
+      const result = await commands.getEventLoggerFileStorageSettings();
+      if (result.status === "error") throw new Error(result.error);
+      loggerFileStorage = result.data;
       syncLoggerFileStorageControls(loggerFileStorage);
     } catch (error) {
       console.error("[event-logger] failed to load logger file storage settings", error);
@@ -952,17 +944,16 @@
     loggerFileStorageLoading = true;
     loggerFileStorageError = "";
     try {
-      loggerFileStorage = await invoke<EventLoggerFileStoragePayload>(
-        "set_event_logger_file_storage_settings",
-        {
-          enabled: loggerFileStorage.enabled,
-          storeLogFiles: loggerFileStorage.storeLogFiles,
-          includeRepeatedSnapshotRows: loggerFileStorage.includeRepeatedSnapshotRows,
-          deleteOlderThanDays: parseDeleteOldFilesDays(),
-          captureCensusEnabled: loggerFileStorage.captureCensusEnabled,
-          attributionCensusEnabled: loggerFileStorage.attributionCensusEnabled,
-        },
+      const result = await commands.setEventLoggerFileStorageSettings(
+        loggerFileStorage.enabled,
+        loggerFileStorage.storeLogFiles,
+        loggerFileStorage.includeRepeatedSnapshotRows,
+        parseDeleteOldFilesDays(),
+        loggerFileStorage.captureCensusEnabled,
+        loggerFileStorage.attributionCensusEnabled,
       );
+      if (result.status === "error") throw new Error(result.error);
+      loggerFileStorage = result.data;
       syncLoggerFileStorageControls(loggerFileStorage);
     } catch (error) {
       console.error("[event-logger] failed to save logger file storage settings", error);
@@ -975,7 +966,8 @@
   async function openLoggerFileStorageFolder() {
     loggerFileStorageError = "";
     try {
-      await invoke("open_event_logger_session_dir");
+      const result = await commands.openEventLoggerSessionDir();
+      if (result.status === "error") throw new Error(result.error);
     } catch (error) {
       console.error("[event-logger] failed to open logger file storage folder", error);
       loggerFileStorageError = String(error);
@@ -988,7 +980,9 @@
     exportingLoggerSession = true;
     loggerFileStorageError = "";
     try {
-      const exportedPath = await invoke<string | null>("export_event_logger_session");
+      const result = await commands.exportEventLoggerSession();
+      if (result.status === "error") throw new Error(result.error);
+      const exportedPath = result.data;
       showToast(
         exportedPath
           ? t("debug.exported", "Exported event log")

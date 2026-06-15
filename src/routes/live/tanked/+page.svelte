@@ -7,6 +7,10 @@
     getLiveDisplayNowMs,
   } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
+  import {
+    liveEntityMatchesRoute,
+    livePlayerRoute,
+  } from "$lib/live-entity-route";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
   import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
@@ -20,6 +24,7 @@
   } from "$lib/column-data";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
+  import { scaledBadgeSize } from "$lib/badge-sizing";
   import getDisplayName, {
     getDisplayIconSpecName,
     normalizeNameDisplaySetting,
@@ -32,6 +37,19 @@
   let rawTankedData = $derived(
     liveData ? computePlayerRows(liveData, "tanked", liveDisplayNowMs) : [],
   );
+
+  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+
+  function playerRenderKey(player: LivePlayerIdentity): string | number {
+    return player.entityKey?.trim() || player.uid;
+  }
+
+  function isLocalPlayerRow(player: LivePlayerIdentity): boolean {
+    const localPlayerKey = liveData?.localPlayerKey?.trim();
+    const playerEntityKey = player.entityKey?.trim();
+    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
+    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+  }
 
   // Sorting settings
   let sortKey = $derived(SETTINGS.live.sorting.tankedPlayers.state.sortKey);
@@ -86,13 +104,19 @@
     return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, col.header);
   }
 
-  function openTankedDetails(playerUid: number): void {
-    const entity = liveData?.entities.find((row) => row.uid === playerUid);
+  function openTankedDetails(player: LivePlayerIdentity): void {
+    const routeIdentity = {
+      playerUid: player.uid,
+      entityKey: player.entityKey?.trim() || null,
+    };
+    const entity = liveData?.entities.find((row) =>
+      liveEntityMatchesRoute(row, routeIdentity),
+    );
     const hasSources = (entity?.takenPerSource?.length ?? 0) > 0;
     goto(
       hasSources
-        ? `/live/tanked/monsters?playerUid=${playerUid}`
-        : `/live/tanked/skills?playerUid=${playerUid}`,
+        ? livePlayerRoute("/live/tanked/monsters", player)
+        : livePlayerRoute("/live/tanked/skills", player),
     );
   }
 
@@ -260,9 +284,8 @@
     {/if}
     <tbody>
       {#if compactMode}
-        {#each compactTankedData as player (player.uid)}
-          {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-            player.uid === liveData.localPlayerUid}
+        {#each compactTankedData as player (playerRenderKey(player))}
+          {@const isLocalPlayer = isLocalPlayerRow(player)}
           {@const displayName = getDisplayName({
             player: {
               uid: player.uid,
@@ -291,7 +314,7 @@
           <tr
             class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
             style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-            onclick={() => openTankedDetails(player.uid)}
+            onclick={() => openTankedDetails(player)}
           >
             <td
               colspan={visiblePlayerColumns.length + 1}
@@ -310,13 +333,19 @@
                   {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                     <PlayerImagineBadges
                       imagines={player.playerImagines}
-                      size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                      size={scaledBadgeSize(
+                        Math.max(28, Math.round(tableSettings.playerIconSize * 1.4)),
+                        SETTINGS.live.general.state.playerImagineBadgeScale,
+                      )}
                     />
                   {/if}
                   {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
                     <OceanWeaponBadge
                       weapon={player.oceanWeapon}
-                      size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                      size={scaledBadgeSize(
+                        Math.max(20, Math.round(tableSettings.playerIconSize * 1.05)),
+                        SETTINGS.live.general.state.oceanWeaponBadgeScale,
+                      )}
                     />
                   {/if}
                   <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
@@ -372,9 +401,8 @@
           </tr>
         {/each}
       {:else}
-      {#each tankedData as player (player.uid)}
-        {@const isLocalPlayer = liveData?.localPlayerUid != null &&
-          player.uid === liveData.localPlayerUid}
+      {#each tankedData as player (playerRenderKey(player))}
+        {@const isLocalPlayer = isLocalPlayerRow(player)}
         {@const displayName = getDisplayName({
           player: {
             uid: player.uid,
@@ -403,7 +431,7 @@
         <tr
           class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
           style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-          onclick={() => openTankedDetails(player.uid)}
+          onclick={() => openTankedDetails(player)}
         >
           <td class="px-3 py-1 relative z-10">
             <div class="flex items-center h-full gap-2">
@@ -419,7 +447,10 @@
               {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                 <PlayerImagineBadges
                   imagines={player.playerImagines}
-                  size={Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))}
+                  size={scaledBadgeSize(
+                    Math.max(28, Math.round(tableSettings.playerIconSize * 1.4)),
+                    SETTINGS.live.general.state.playerImagineBadgeScale,
+                  )}
                 />
               {/if}
               {#if player.abilityScore > 0 && (isLocalPlayer ? SETTINGS.live.general.state.showYourAbilityScore : SETTINGS.live.general.state.showOthersAbilityScore)}
@@ -451,7 +482,10 @@
               {#if SETTINGS.live.general.state.showOceanWeaponBadge !== false}
                 <OceanWeaponBadge
                   weapon={player.oceanWeapon}
-                  size={Math.max(20, Math.round(tableSettings.playerIconSize * 1.05))}
+                  size={scaledBadgeSize(
+                    Math.max(20, Math.round(tableSettings.playerIconSize * 1.05)),
+                    SETTINGS.live.general.state.oceanWeaponBadgeScale,
+                  )}
                 />
               {/if}
               <span

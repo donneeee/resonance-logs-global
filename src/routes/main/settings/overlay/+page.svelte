@@ -37,9 +37,6 @@
   const showShieldDetailGroup = $derived(
     activeProfile.overlayVisibility?.showShieldDetailGroup ?? false,
   );
-  const showSkillCdAcceleration = $derived(
-    activeProfile.overlaySizes?.skillCdShowAcceleration ?? false,
-  );
 
   function setOverlaySectionVisibility(key: OverlayVisibilityKey, checked: boolean) {
     updateActiveProfile(
@@ -75,19 +72,6 @@
       ? showCustomPanelGroup
       : showShieldDetailGroup;
     setOverlaySectionVisibility(key, !current);
-  }
-
-  function setSkillCdAcceleration(checked: boolean) {
-    updateActiveProfile(
-      (profile) => ({
-        ...profile,
-        overlaySizes: {
-          ...profile.overlaySizes,
-          skillCdShowAcceleration: checked,
-        },
-      }),
-      { createDefaultIfEmpty: true },
-    );
   }
 
 </script>
@@ -126,26 +110,6 @@
         />
       </div>
 
-      <div class="rounded-lg border border-border/60 bg-background/30 p-3 md:col-span-2 space-y-1">
-        <SettingsSwitch
-          bind:checked={SETTINGS.live.general.state.autoHideOverlaysWithLiveWindow}
-          disabled={!SETTINGS.live.general.state.autoHideLiveWindow}
-          label={tShell("settings.overlay.autoHideWithLiveWindow", "Auto-hide with Live Window")}
-          description={tShell("settings.overlay.autoHideWithLiveWindowDescription", "When Auto-hide Live Window is enabled, visible overlay windows hide with the live meter and return only if they were visible before auto-hide.")}
-        />
-        <p class="text-xs text-muted-foreground px-3 pb-2">
-          {tShell("settings.overlay.autoHideWithLiveWindowHelp", "This follows the live meter's damage-based hide/show cycle. It does not turn overlays on by itself, and it stays inactive while Auto-hide Live Window is off.")}
-        </p>
-      </div>
-
-      <div class="rounded-lg border border-border/60 bg-background/30 p-3 md:col-span-2">
-        <SettingsSwitch
-          checked={showSkillCdAcceleration}
-          onchange={setSkillCdAcceleration}
-          label={tShell("settings.overlay.skillCdAcceleration", "Show Skill CD acceleration")}
-          description={tShell("settings.overlay.skillCdAccelerationDescription", "Adds a small acceleration badge and cooldown diagnostic tooltip to Skill CD icons. Useful for checking cooldown reduction and acceleration sources.")}
-        />
-      </div>
     </div>
   </section>
 

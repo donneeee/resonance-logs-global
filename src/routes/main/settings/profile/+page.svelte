@@ -1,9 +1,9 @@
 <script lang="ts">
-  import { invoke } from "@tauri-apps/api/core";
   import { open } from "@tauri-apps/plugin-dialog";
   import { onMount } from "svelte";
   import { toast } from "svelte-sonner";
   import { Button } from "$lib/components/ui/button/index.js";
+  import { commands, type EventLoggerSessionDirectoryPayload } from "$lib/bindings";
   import { setEventLoggerAlwaysOnTop, showEventLoggerWindow } from "$lib/event-logger-window";
   import { uiT } from "$lib/i18n";
   import {
@@ -12,19 +12,16 @@
     profileLibraryRuntime,
     saveActiveProfileToLibrary,
   } from "$lib/profile-library.svelte";
-  import { SETTINGS } from "$lib/settings-store";
+  import {
+    persistProfileLibrarySettings,
+    SETTINGS,
+  } from "$lib/settings-store";
   import {
     activeProfileOrDefault,
     updateActiveProfile,
   } from "$lib/skill-monitor-profile.svelte";
   import SettingsSwitch from "../../dps/settings/settings-switch.svelte";
   import ProfileSwitcher from "../../skill-monitor/profile-switcher.svelte";
-
-  type EventLoggerSessionDirectoryPayload = {
-    configuredDirectory: string | null;
-    resolvedDirectory: string;
-    usingDefault: boolean;
-  };
 
   const tShell = uiT("shell", () => SETTINGS.live.general.state.language);
   const tCustom = uiT("custom-triggers/general", () => SETTINGS.live.general.state.language);
@@ -48,10 +45,11 @@
 
   async function syncEventLoggerCaptureOptions() {
     try {
-      await invoke("set_event_logger_capture_options", {
-        captureEvents: SETTINGS.customTriggers.state.loggerCaptureEvents,
-        captureSnapshots: SETTINGS.customTriggers.state.loggerCaptureSnapshots,
-      });
+      const result = await commands.setEventLoggerCaptureOptions(
+        SETTINGS.customTriggers.state.loggerCaptureEvents,
+        SETTINGS.customTriggers.state.loggerCaptureSnapshots,
+      );
+      if (result.status === "error") throw new Error(result.error);
     } catch (error) {
       console.error("Failed to sync event logger capture options", error);
     }
@@ -60,7 +58,9 @@
   async function refreshEventLoggerSessionDirectory() {
     loadingLoggerSessionDir = true;
     try {
-      loggerSessionDirectory = await invoke<EventLoggerSessionDirectoryPayload>("get_event_logger_session_directory");
+      const result = await commands.getEventLoggerSessionDirectory();
+      if (result.status === "error") throw new Error(result.error);
+      loggerSessionDirectory = result.data;
     } catch (error) {
       console.error("Failed to load event logger session directory", error);
       toast.error(`Failed to load logger session folder: ${error}`);
@@ -84,10 +84,9 @@
         return;
       }
 
-      loggerSessionDirectory = await invoke<EventLoggerSessionDirectoryPayload>(
-        "set_event_logger_save_directory",
-        { directory: selected },
-      );
+      const result = await commands.setEventLoggerSaveDirectory(selected);
+      if (result.status === "error") throw new Error(result.error);
+      loggerSessionDirectory = result.data;
       toast.success(tCustom("sessionLogs.folderUpdated", "Logger session folder updated."));
     } catch (error) {
       console.error("Failed to choose event logger session directory", error);
@@ -108,6 +107,7 @@
       if (!selected || Array.isArray(selected)) return;
 
       SETTINGS.profileLibrary.state.folder = selected;
+      await persistProfileLibrarySettings();
       const loaded = await loadProfileLibraryFromSettings();
       if (loaded) {
         toast.success(tShell("settings.profileLibrary.loaded", "Profile library loaded."));
@@ -153,11 +153,12 @@
     }
   }
 
-  function resetProfileLibraryFolder() {
+  async function resetProfileLibraryFolder() {
     SETTINGS.profileLibrary.state.folder = "";
     SETTINGS.profileLibrary.state.lastSelectedProfileId = "";
     SETTINGS.profileLibrary.state.lastSelectedProfileFile = "";
     SETTINGS.profileLibrary.state.profileFiles = {};
+    await persistProfileLibrarySettings();
     profileLibraryRuntime.loadedCount = 0;
     profileLibraryRuntime.skippedFiles = [];
     profileLibraryRuntime.lastError = "";
@@ -180,10 +181,9 @@
 
   async function resetEventLoggerSessionDirectory() {
     try {
-      loggerSessionDirectory = await invoke<EventLoggerSessionDirectoryPayload>(
-        "set_event_logger_save_directory",
-        { directory: null },
-      );
+      const result = await commands.setEventLoggerSaveDirectory(null);
+      if (result.status === "error") throw new Error(result.error);
+      loggerSessionDirectory = result.data;
       toast.success(tCustom("sessionLogs.folderReset", "Logger session folder reset to default."));
     } catch (error) {
       console.error("Failed to reset event logger session directory", error);
@@ -193,7 +193,8 @@
 
   async function openEventLoggerSessionDirectory() {
     try {
-      await invoke("open_event_logger_session_dir");
+      const result = await commands.openEventLoggerSessionDir();
+      if (result.status === "error") throw new Error(result.error);
     } catch (error) {
       console.error("Failed to open event logger session directory", error);
       toast.error(`Failed to open logger session folder: ${error}`);

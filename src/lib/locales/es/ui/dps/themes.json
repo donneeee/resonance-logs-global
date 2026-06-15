@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "Mostrar global active combat time next to the main timer for true DPS",
   "liveHeader.showBossHealth": "Mostrar Boss Health",
   "liveHeader.showBossHealth.description": "Mostrar current boss health bar",
+  "liveHeader.controlButtons": "Botones de control",
   "liveHeader.showMinimizeButton": "Mostrar Minimize Botón",
   "liveHeader.showMinimizeButton.description": "Botón used to minimize the live window",
   "liveHeader.showNavigationTabs": "Mostrar Navigation Tabs",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "Clickthrough activado: los clics del ratón atraviesan la ventana",
   "liveWindowDisplay.clickthroughMode": "Clickthrough Modo",
   "liveWindowDisplay.clickthroughMode.description": "Enable Clickthrough Modo",
-  "liveWindowDisplay.title": "Live Ventana Display Configuración",
+  "liveWindowDisplay.title": "Comportamiento de la ventana en vivo",
   "playerTableSettings.description": "Controla la apariencia de las filas y el modo de resaltado. Estos ajustes se aplican a todas las tablas en vivo.",
   "playerTableSettings.fontSize.description": "Tamaño de fuente de los nombres y estadísticas de los jugadores",
   "playerTableSettings.headerFontSize.description": "Tamaño de fuente del título de columna",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "Alias de etiqueta",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "Alias de etiqueta",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "Interaccion de la ventana",
+  "liveWindowBehavior.autoHide": "Ocultar automaticamente",
+  "liveWindowBehavior.pauseAndReset": "Pausa y reinicio",
+  "liveWindowBehavior.performance": "Rendimiento",
+  "liveWindowBehavior.dynamicHeight": "Altura dinamica"
 }

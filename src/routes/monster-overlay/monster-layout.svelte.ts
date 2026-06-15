@@ -65,6 +65,14 @@ export function getHatePanelScale() {
   return getMonsterOverlaySizes().hatePanelScale;
 }
 
+export function getFantasyPanelPosition() {
+  return getMonsterOverlayPositions().fantasyPanel;
+}
+
+export function getFantasyPanelScale() {
+  return getMonsterOverlaySizes().fantasyPanelScale;
+}
+
 export function monsterPanelStyle() {
   return SETTINGS.monsterMonitor.state.panelStyle;
 }
@@ -76,6 +84,11 @@ export function teammatePanelStyle() {
 
 export function hatePanelStyle() {
   return SETTINGS.monsterMonitor.state.hatePanelStyle
+    ?? SETTINGS.monsterMonitor.state.panelStyle;
+}
+
+export function fantasyPanelStyle() {
+  return SETTINGS.monsterMonitor.state.fantasyPanelStyle
     ?? SETTINGS.monsterMonitor.state.panelStyle;
 }
 
@@ -133,6 +146,24 @@ export function setHatePanelScale(value: number) {
   }));
 }
 
+export function setFantasyPanelPosition(nextPos: { x: number; y: number }) {
+  patchMonsterMonitor(() => ({
+    overlayPositions: {
+      ...getMonsterOverlayPositions(),
+      fantasyPanel: nextPos,
+    },
+  }));
+}
+
+export function setFantasyPanelScale(value: number) {
+  patchMonsterMonitor(() => ({
+    overlaySizes: {
+      ...getMonsterOverlaySizes(),
+      fantasyPanelScale: clampPanelScale(value),
+    },
+  }));
+}
+
 export async function setMonsterEditMode(editing: boolean) {
   monsterRuntime.isEditing = editing;
   if (monsterRuntime.currentWindow) {
@@ -184,8 +215,10 @@ export function onGlobalPointerMove(event: PointerEvent) {
       setMonsterPanelPosition(nextPos);
     } else if (monsterRuntime.dragState.target.kind === "teammatePanel") {
       setTeammatePanelPosition(nextPos);
-    } else {
+    } else if (monsterRuntime.dragState.target.kind === "hatePanel") {
       setHatePanelPosition(nextPos);
+    } else {
+      setFantasyPanelPosition(nextPos);
     }
   }
 
@@ -197,8 +230,10 @@ export function onGlobalPointerMove(event: PointerEvent) {
       setMonsterPanelScale(monsterRuntime.resizeState.startValue + delta);
     } else if (monsterRuntime.resizeState.target.kind === "teammatePanel") {
       setTeammatePanelScale(monsterRuntime.resizeState.startValue + delta);
-    } else {
+    } else if (monsterRuntime.resizeState.target.kind === "hatePanel") {
       setHatePanelScale(monsterRuntime.resizeState.startValue + delta);
+    } else {
+      setFantasyPanelScale(monsterRuntime.resizeState.startValue + delta);
     }
   }
 }

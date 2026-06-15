@@ -81,8 +81,12 @@
   "trainingDummySegmentDurationSecondsDescription": "设置打桩分段长度。默认：180 秒。",
   "showPlayerImagineBadges": "战斗幻象徽章",
   "showPlayerImagineBadgesDescription": "在职业图标旁显示已装备的战斗幻象徽章。",
+  "playerImagineBadgeScale": "战斗幻象徽章大小",
+  "playerImagineBadgeScaleDescription": "在不改变职业图标大小的情况下缩放战斗幻象徽章。",
   "showOceanWeaponBadge": "远海武器徽章",
   "showOceanWeaponBadgeDescription": "检测到远海武器时在玩家名称前显示徽章。",
+  "oceanWeaponBadgeScale": "远海武器徽章大小",
+  "oceanWeaponBadgeScaleDescription": "在不改变职业图标大小的情况下缩放远海武器徽章。",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
   "columnAliasPlaceholder": "别名"

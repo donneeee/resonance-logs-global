@@ -47,6 +47,51 @@ const LEGACY_LOG_FILE_PREFIX: &str = "resonance-logs-cn_v";
 
 static HIDE_MAIN_WINDOW_TO_TRAY: AtomicBool = AtomicBool::new(false);
 
+fn is_invalid_settings_json(bytes: &[u8]) -> bool {
+    bytes.iter().take(1024).any(|byte| *byte == 0)
+        || serde_json::from_slice::<serde_json::Value>(bytes).is_err()
+}
+
+#[tauri::command]
+#[specta::specta]
+fn detect_corrupt_settings_json_stores(app_handle: tauri::AppHandle) -> Result<Vec<String>, String> {
+    let store_dir = app_handle
+        .path()
+        .app_config_dir()
+        .map_err(|error| format!("failed to resolve app_config_dir: {error}"))?
+        .join("tauri-plugin-svelte");
+    if !store_dir.exists() {
+        return Ok(Vec::new());
+    }
+
+    let mut corrupt = Vec::new();
+    let entries = std::fs::read_dir(&store_dir)
+        .map_err(|error| format!("failed to read {}: {error}", store_dir.display()))?;
+
+    for entry in entries {
+        let entry = entry.map_err(|error| format!("failed to read settings entry: {error}"))?;
+        let path = entry.path();
+        if path.extension().and_then(|value| value.to_str()) != Some("json") {
+            continue;
+        }
+        let bytes = match std::fs::read(&path) {
+            Ok(bytes) => bytes,
+            Err(error) => {
+                warn!("failed to inspect settings store {}: {error}", path.display());
+                continue;
+            }
+        };
+        if !is_invalid_settings_json(&bytes) {
+            continue;
+        }
+
+        warn!("detected corrupt settings store {}", path.display());
+        corrupt.push(path.display().to_string());
+    }
+
+    Ok(corrupt)
+}
+
 #[cfg(target_os = "windows")]
 mod game_foreground {
     use std::ffi::c_void;
@@ -462,6 +507,7 @@ pub fn run() {
             live::commands::start_training_dummy,
             live::commands::stop_training_dummy,
             live::commands::save_and_apply_monitor_runtime_snapshot,
+            detect_corrupt_settings_json_stores,
             database::commands::get_recent_encounters,
             database::commands::get_unique_scene_names,
             database::commands::get_unique_boss_names,
@@ -498,6 +544,7 @@ pub fn run() {
             debug_commands::set_event_logger_save_directory,
             debug_commands::get_event_logger_file_storage_settings,
             debug_commands::set_event_logger_file_storage_settings,
+            debug_commands::set_event_logger_capture_options,
             debug_commands::export_event_logger_session,
             debug_commands::open_event_logger_session_dir,
             packets::npcap::get_network_devices,
@@ -827,10 +874,7 @@ mod background_image_commands {
         let normalized = extension.to_ascii_lowercase();
         match normalized.as_str() {
             "png" | "jpg" | "jpeg" | "webp" | "gif" | "bmp" => Ok(normalized),
-            _ => Err(format!(
-                "Unsupported background image type: .{}",
-                extension
-            )),
+            _ => Err(format!("Unsupported background image type: .{}", extension)),
         }
     }
 
@@ -869,7 +913,9 @@ mod background_image_commands {
         let metadata = std::fs::metadata(&source)
             .map_err(|e| format!("Failed to read {}: {}", source.display(), e))?;
         if metadata.len() > MAX_BACKGROUND_IMAGE_BYTES {
-            return Err("Background image is too large; please choose a file under 30 MB".to_string());
+            return Err(
+                "Background image is too large; please choose a file under 30 MB".to_string(),
+            );
         }
 
         let extension = supported_background_extension(&source)?;
@@ -1223,6 +1269,20 @@ mod debug_commands {
             delete_older_than_days,
             capture_census_enabled,
             attribution_census_enabled,
+        )
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn set_event_logger_capture_options(
+        app_handle: tauri::AppHandle,
+        capture_events: bool,
+        capture_snapshots: bool,
+    ) -> Result<(), String> {
+        crate::live::event_logger::set_event_logger_capture_options(
+            &app_handle,
+            capture_events,
+            capture_snapshots,
         )
     }
 

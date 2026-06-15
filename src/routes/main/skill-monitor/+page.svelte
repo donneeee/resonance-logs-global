@@ -171,6 +171,7 @@
   const iconBuffStackCounterSize = $derived(ensureOverlaySizes(activeProfile).iconBuffStackCounterSize);
   const skillCdShowSlotOutline = $derived(ensureOverlaySizes(activeProfile).skillCdShowSlotOutline);
   const skillCdShowEnhancedGlow = $derived(ensureOverlaySizes(activeProfile).skillCdShowEnhancedGlow);
+  const skillCdShowAcceleration = $derived(ensureOverlaySizes(activeProfile).skillCdShowAcceleration);
   const textBuffPanelStyle = $derived.by(() => ensureTextBuffPanelStyle(activeProfile));
   const shieldDetailStyle = $derived.by(() => ensureShieldDetailStyle(activeProfile));
   const showSkillCdGroup = $derived(activeProfile.overlayVisibility?.showSkillCdGroup ?? true);
@@ -869,6 +870,16 @@
       overlaySizes: {
         ...ensureOverlaySizes(profile),
         skillCdShowEnhancedGlow: value,
+      },
+    }));
+  }
+
+  function setSkillCdShowAcceleration(value: boolean) {
+    updateActiveProfile((profile) => ({
+      ...profile,
+      overlaySizes: {
+        ...ensureOverlaySizes(profile),
+        skillCdShowAcceleration: value,
       },
     }));
   }
@@ -1886,6 +1897,7 @@
       {selectedResonanceSkills}
       {skillCdShowSlotOutline}
       {skillCdShowEnhancedGlow}
+      {skillCdShowAcceleration}
       {setSelectedClass}
       {toggleSkill}
       {isSelected}
@@ -1896,6 +1908,7 @@
       {setResonanceSearch}
       {setSkillCdShowSlotOutline}
       {setSkillCdShowEnhancedGlow}
+      {setSkillCdShowAcceleration}
     />
   {:else if activeTab === "buff"}
     <TabBuffMonitor

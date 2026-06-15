@@ -93,6 +93,7 @@ export function computePlayerRowsFromEntities(
       const row: PlayerRow = {
         uid: entity.uid,
         uuid: entity.uuid ?? null,
+        entityKey: entity.entityKey ?? null,
         name: entity.name || `#${entity.uid}`,
         className: entity.className,
         classSpecName: entity.classSpecName,
@@ -204,6 +205,7 @@ export function computeHeaderInfo(
     activeCombatTimeMs: data.activeCombatTimeMs,
     fightStartTimestampMs: data.fightStartTimestampMs,
     dpsDisplayPaused: data.dpsDisplayPaused,
+    localPlayerKey: data.localPlayerKey ?? null,
     bosses: data.bosses,
     sceneId: data.sceneId,
     sceneName: data.sceneName,

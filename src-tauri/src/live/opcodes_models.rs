@@ -1,5 +1,8 @@
 use crate::live::commands_models::{DamageSnapshot, DeathRecord};
-use crate::live::entity_id::{EntityUid, EntityUuid, uid_from_uuid};
+use crate::live::entity_id::{
+    EntityUid, EntityUuid, audit_ambiguous_uid_fallback, audit_uuid_to_uid_fallback,
+    strict_entity_identity_audit_enabled, uid_from_uuid,
+};
 use crate::live::monster_registry::{self, MonsterType};
 use crate::live::opcodes_models::class::ClassSpec;
 use blueprotobuf_lib::blueprotobuf::{EEntityType, SyncContainerData};
@@ -95,6 +98,7 @@ pub enum AttrType {
     MovementSpeed,
     EquipmentSlot1,
     EquipmentSlot2,
+    TopSummonerId,
     TalentSpec,
     EliteStatus,
     ProfessionId,
@@ -168,6 +172,7 @@ impl AttrType {
             attr_type::ATTR_MOVEMENT_SPEED => Some(AttrType::MovementSpeed),
             attr_type::ATTR_EQUIPMENT_SLOT_1 => Some(AttrType::EquipmentSlot1),
             attr_type::ATTR_EQUIPMENT_SLOT_2 => Some(AttrType::EquipmentSlot2),
+            attr_type::ATTR_TOP_SUMMONER_ID => Some(AttrType::TopSummonerId),
             attr_type::ATTR_TALENT_SPEC => Some(AttrType::TalentSpec),
             attr_type::ATTR_ELITE_STATUS => Some(AttrType::EliteStatus),
             attr_type::ATTR_PROFESSION_ID => Some(AttrType::ProfessionId),
@@ -240,6 +245,7 @@ impl AttrType {
             AttrType::MovementSpeed => attr_type::ATTR_MOVEMENT_SPEED,
             AttrType::EquipmentSlot1 => attr_type::ATTR_EQUIPMENT_SLOT_1,
             AttrType::EquipmentSlot2 => attr_type::ATTR_EQUIPMENT_SLOT_2,
+            AttrType::TopSummonerId => attr_type::ATTR_TOP_SUMMONER_ID,
             AttrType::TalentSpec => attr_type::ATTR_TALENT_SPEC,
             AttrType::EliteStatus => attr_type::ATTR_ELITE_STATUS,
             AttrType::ProfessionId => attr_type::ATTR_PROFESSION_ID,
@@ -864,10 +870,15 @@ impl Encounter {
         uid
     }
 
-    fn first_uuid_for_uid(&self, uid: EntityUid) -> Option<EntityUuid> {
-        self.entity_uid_to_uuids
-            .get(&uid)
-            .and_then(|uuids| uuids.first().copied())
+    fn first_uuid_for_uid(&self, uid: EntityUid, caller: &str) -> Option<EntityUuid> {
+        let uuids = self.entity_uid_to_uuids.get(&uid)?;
+        if uuids.len() > 1 {
+            audit_ambiguous_uid_fallback(caller, uid, uuids);
+            if strict_entity_identity_audit_enabled() {
+                return None;
+            }
+        }
+        uuids.first().copied()
     }
 
     pub fn canonical_uuid_for_uid(&self, uid: EntityUid) -> Option<EntityUuid> {
@@ -979,9 +990,17 @@ impl Encounter {
         if entity_uuid == 0 {
             return None;
         }
-        self.entity_uuid_to_entity
-            .get(&entity_uuid)
-            .or_else(|| self.entity_uid_to_entity.get(&uid_from_uuid(entity_uuid)))
+        self.entity_uuid_to_entity.get(&entity_uuid).or_else(|| {
+            let uid = uid_from_uuid(entity_uuid);
+            let legacy_entity = self.entity_uid_to_entity.get(&uid);
+            if legacy_entity.is_some() {
+                audit_uuid_to_uid_fallback("entity_by_uuid", entity_uuid, uid);
+                if strict_entity_identity_audit_enabled() {
+                    return None;
+                }
+            }
+            legacy_entity
+        })
     }
 
     pub fn entity_by_uid(&self, uid: EntityUid) -> Option<&Entity> {
@@ -990,13 +1009,20 @@ impl Encounter {
         }
         if let Some(uuid) = self
             .canonical_uuid_for_uid(uid)
-            .or_else(|| self.first_uuid_for_uid(uid))
+            .or_else(|| self.first_uuid_for_uid(uid, "entity_by_uid"))
         {
             if let Some(entity) = self.entity_uuid_to_entity.get(&uuid) {
                 return Some(entity);
             }
         }
         self.entity_uid_to_entity.get(&uid)
+    }
+
+    pub fn entity_by_identity(&self, uid: EntityUid, uuid: Option<EntityUuid>) -> Option<&Entity> {
+        if let Some(uuid) = uuid.filter(|uuid| *uuid != 0) {
+            return self.entity_by_uuid(uuid);
+        }
+        self.entity_by_uid(uid)
     }
 
     pub fn entity_mut_by_uuid(&mut self, entity_uuid: EntityUuid) -> Option<&mut Entity> {
@@ -1007,6 +1033,12 @@ impl Encounter {
             return self.entity_uuid_to_entity.get_mut(&entity_uuid);
         }
         let uid = uid_from_uuid(entity_uuid);
+        if self.entity_uid_to_entity.contains_key(&uid) {
+            audit_uuid_to_uid_fallback("entity_mut_by_uuid", entity_uuid, uid);
+            if strict_entity_identity_audit_enabled() {
+                return None;
+            }
+        }
         self.entity_uid_to_entity.get_mut(&uid)
     }
 
@@ -1016,7 +1048,7 @@ impl Encounter {
         }
         let uuid = self
             .canonical_uuid_for_uid(uid)
-            .or_else(|| self.first_uuid_for_uid(uid));
+            .or_else(|| self.first_uuid_for_uid(uid, "entity_mut_by_uid"));
         if let Some(uuid) = uuid {
             if self.entity_uuid_to_entity.contains_key(&uuid) {
                 return self.entity_uuid_to_entity.get_mut(&uuid);
@@ -1073,11 +1105,27 @@ impl Encounter {
     {
         if let Some(uuid) = self
             .canonical_uuid_for_uid(uid)
-            .or_else(|| self.first_uuid_for_uid(uid))
+            .or_else(|| self.first_uuid_for_uid(uid, "entity_by_uid_or_insert_with"))
         {
             return self.entity_by_uuid_or_insert_with(uuid, create);
         }
         self.entity_uid_to_entity.entry(uid).or_insert_with(create)
+    }
+
+    pub fn entity_by_identity_or_insert_with<F>(
+        &mut self,
+        uid: EntityUid,
+        uuid: Option<EntityUuid>,
+        create: F,
+    ) -> &mut Entity
+    where
+        F: FnOnce() -> Entity,
+    {
+        if let Some(uuid) = uuid.filter(|uuid| *uuid != 0) {
+            self.entity_by_uuid_or_insert_with(uuid, create)
+        } else {
+            self.entity_by_uid_or_insert_with(uid, create)
+        }
     }
 
     pub fn clear_entities(&mut self) {
@@ -1209,7 +1257,9 @@ pub mod attr_type {
     pub const ATTR_MOVEMENT_SPEED: i32 = 0x74; // Movement or action speed
     pub const ATTR_EQUIPMENT_SLOT_1: i32 = 0x76; // Equipment slot data
     pub const ATTR_EQUIPMENT_SLOT_2: i32 = 0x78; // Equipment slot data
+    pub const ATTR_TOP_SUMMONER_ID: i32 = 0x5b; // AttrTopSummonerId
     pub const ATTR_TALENT_SPEC: i32 = 0x79; // Talent tree/specialization selection
+    pub const ATTR_SKILL_REMODEL_LEVEL: i32 = ATTR_TALENT_SPEC; // Same packet slot used by summoned fantasy remodel level.
     pub const ATTR_ELITE_STATUS: i32 = 0xb6; // Elite/premium/special status flag
     pub const ATTR_PROFESSION_ID: i32 = 0xdc;
     pub const ATTR_BUFF_SLOT_3: i32 = 0xe2; // Active buff/consumable slot (type 3)
@@ -1587,6 +1637,57 @@ impl Entity {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::live::entity_id::entity_id_to_uuid;
+    use std::collections::HashSet;
+
+    #[test]
+    fn uuid_primary_history_map_keeps_same_uid_entities_distinct() {
+        let uid = 77_777;
+        let player_uuid = entity_id_to_uuid(uid, EEntityType::EntChar, false, false);
+        let monster_uuid = entity_id_to_uuid(uid, EEntityType::EntMonster, false, false);
+        let mut encounter = Encounter::default();
+
+        encounter.entity_by_uuid_or_insert_with(player_uuid, || Entity {
+            uuid: Some(player_uuid),
+            name: "same uid player".to_string(),
+            entity_type: EEntityType::EntChar,
+            ..Default::default()
+        });
+        encounter.entity_by_uuid_or_insert_with(monster_uuid, || Entity {
+            uuid: Some(monster_uuid),
+            name: "same uid monster".to_string(),
+            entity_type: EEntityType::EntMonster,
+            ..Default::default()
+        });
+
+        assert_eq!(encounter.canonical_uuid_for_uid(uid), None);
+        assert_eq!(
+            encounter
+                .entity_by_uuid(player_uuid)
+                .map(|entity| entity.name.as_str()),
+            Some("same uid player")
+        );
+        assert_eq!(
+            encounter
+                .entity_by_uuid(monster_uuid)
+                .map(|entity| entity.name.as_str()),
+            Some("same uid monster")
+        );
+
+        let history_entities = encounter.history_entity_map();
+        assert_eq!(history_entities.len(), 2);
+        assert!(history_entities.contains_key(&player_uuid));
+        assert!(history_entities.contains_key(&monster_uuid));
+
+        let entry_names: HashSet<_> = encounter
+            .entity_uid_entries()
+            .into_iter()
+            .map(|(_, entity)| entity.name.as_str())
+            .collect();
+        assert_eq!(entry_names.len(), 2);
+        assert!(entry_names.contains("same uid player"));
+        assert!(entry_names.contains("same uid monster"));
+    }
 
     #[test]
     fn class_spec_from_talent_node_id_maps_spec_roots() {

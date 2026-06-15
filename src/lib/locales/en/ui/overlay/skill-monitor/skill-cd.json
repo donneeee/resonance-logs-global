@@ -199,5 +199,7 @@
   "classSkill.beat_performer.2316": "Center Stage",
   "classSkill.beat_performer.2317": "Fierce Strike",
   "classSkill.beat_performer.2332": "Passion Fury",
-  "classSkill.beat_performer.2335": "Infinite Rhapsody"
+  "classSkill.beat_performer.2335": "Infinite Rhapsody",
+  "showAcceleration": "Show Skill CD acceleration",
+  "showAccelerationDescription": "Adds a small acceleration badge and cooldown diagnostic tooltip to Skill CD icons. Useful for checking cooldown reduction and acceleration sources."
 }

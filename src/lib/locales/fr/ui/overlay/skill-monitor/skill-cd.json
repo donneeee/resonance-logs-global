@@ -199,5 +199,7 @@
   "classSkill.beat_performer.2316": "Scène centrale",
   "classSkill.beat_performer.2317": "Frappe féroce",
   "classSkill.beat_performer.2332": "Fureur passionnée",
-  "classSkill.beat_performer.2335": "Rhapsodie infinie"
+  "classSkill.beat_performer.2335": "Rhapsodie infinie",
+  "showAcceleration": "Afficher l acceleration du CD des competences",
+  "showAccelerationDescription": "Ajoute un petit badge d acceleration et une infobulle de diagnostic de recharge aux icones de CD des competences. Utile pour verifier la reduction de recharge et les sources d acceleration."
 }

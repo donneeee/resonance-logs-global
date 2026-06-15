@@ -5,14 +5,14 @@ import type { BuffCategoryKey } from "$lib/config/buff-name-table";
 export type EntityId = string;
 
 export type MonsterBossBuffSection = {
-  bossUid: number;
+  bossUid: EntityId;
   title: string;
   rows: TextBuffDisplay[];
   isPlaceholder?: boolean;
 };
 
 export type MonsterHateSection = {
-  bossUid: number;
+  bossUid: EntityId;
   title: string;
   rows: TextBuffDisplay[];
   isPlaceholder?: boolean;
@@ -45,15 +45,26 @@ export type MonsterTeammateBuffRow = {
   isPlaceholder?: boolean;
 };
 
+export type MonsterFantasyRow = {
+  key: string;
+  summonUuid: EntityId;
+  summonerName: string;
+  fantasyName: string;
+  levelText: string;
+  isPlaceholder?: boolean;
+};
+
 export type MonsterDragTarget =
   | { kind: "buffPanel" }
   | { kind: "teammatePanel" }
-  | { kind: "hatePanel" };
+  | { kind: "hatePanel" }
+  | { kind: "fantasyPanel" };
 
 export type MonsterResizeTarget =
   | { kind: "buffPanel" }
   | { kind: "teammatePanel" }
-  | { kind: "hatePanel" };
+  | { kind: "hatePanel" }
+  | { kind: "fantasyPanel" };
 
 export type MonsterDragState = {
   target: MonsterDragTarget;

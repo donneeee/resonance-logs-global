@@ -5,7 +5,7 @@ use crate::live::commands_models::{DamageSnapshot, HateEntry, ShieldDetailEntry}
 use crate::live::damage_id;
 use crate::live::dungeon_log::{BattleStateMachine, EncounterResetReason};
 use crate::live::entity_attr_store::EntityAttrStore;
-use crate::live::entity_id::{canonical_player_uuid, uid_from_uuid};
+use crate::live::entity_id::{canonical_player_uuid, entity_uuid_string, uid_from_uuid};
 use crate::live::opcodes_models::class::{
     ClassSpec, get_class_id_from_spec, get_class_spec_from_runtime_id,
     get_class_spec_from_talent_node_id,
@@ -29,6 +29,28 @@ use std::default::Default;
 const ATTR_SHIELD_DISPLAY: i32 = 60050;
 const ATTR_EQUIP_DATA: i32 = 200;
 const ATTR_SKILL_LEVEL_ID_LIST: i32 = 116;
+const RESONANCE_FANTASY_MARKER_BUFF_ID: i32 = 2_199_999;
+
+#[derive(Debug, Clone)]
+pub struct TeammateFantasyDetection {
+    pub summon_uuid: i64,
+    pub summoner_uuid: i64,
+    pub monster_id: i32,
+    pub remodel_level: i64,
+}
+
+#[derive(Debug, Default)]
+pub struct SyncNearEntitiesProcessResult {
+    pub teammate_fantasies: Vec<TeammateFantasyDetection>,
+}
+
+fn has_resonance_fantasy_marker(buff_infos: Option<&blueprotobuf::BuffInfoSync>) -> bool {
+    buff_infos.is_some_and(|sync| {
+        sync.buff_infos
+            .iter()
+            .any(|buff| buff.base_id == Some(RESONANCE_FANTASY_MARKER_BUFF_ID))
+    })
+}
 
 /// Parses packed varints from ATTR_FIGHT_RESOURCES (50002) raw data.
 /// The raw data is expected to be a protobuf message with field 1 containing packed varints.
@@ -653,9 +675,12 @@ pub fn process_sync_near_entities(
     attr_store: &mut EntityAttrStore,
     sync_near_entities: blueprotobuf::SyncNearEntities,
     capture_modifier_evidence: bool,
-) -> Option<()> {
+) -> Option<SyncNearEntitiesProcessResult> {
+    let mut result = SyncNearEntitiesProcessResult::default();
+
     for pkt_entity in sync_near_entities.appear {
         let target_uuid = pkt_entity.uuid?;
+        let initial_buff_infos = pkt_entity.buff_infos;
         let target_uid = encounter.remember_entity_uuid(target_uuid);
         let target_entity_type = EEntityType::from(target_uuid);
         let is_target_local_player = is_local_identity(encounter, target_uid, target_uuid);
@@ -692,28 +717,78 @@ pub fn process_sync_near_entities(
 
         match target_entity_type {
             EEntityType::EntChar => {
+                let attr_collection = pkt_entity.attrs?;
                 process_player_attrs(
                     target_entity,
-                    target_uid,
-                    pkt_entity.attrs?.attrs,
+                    target_uuid,
+                    attr_collection.attrs,
                     attr_store,
                 );
             }
             EEntityType::EntMonster => {
+                let attr_collection = pkt_entity.attrs?;
                 process_monster_attrs(
                     target_entity,
-                    target_uid,
+                    target_uuid,
                     Some(target_uuid),
-                    pkt_entity.attrs?.attrs,
+                    attr_collection.attrs,
                     attr_store,
                 );
+                if has_resonance_fantasy_marker(initial_buff_infos.as_ref()) {
+                    if let Some(detection) = collect_teammate_fantasy_detection(
+                        attr_store,
+                        target_uuid,
+                        target_uuid,
+                        attr_store.local_player_uuid(),
+                    ) {
+                        result.teammate_fantasies.push(detection);
+                    }
+                }
             }
             _ => {}
         }
     }
 
     // Track party members for wipe detection (collect data first to avoid borrow issues)
-    Some(())
+    Some(result)
+}
+
+fn collect_teammate_fantasy_detection(
+    attr_store: &EntityAttrStore,
+    target_entity_uuid: i64,
+    target_uuid: i64,
+    local_player_uuid: i64,
+) -> Option<TeammateFantasyDetection> {
+    let summoner_uuid = attr_store
+        .attr(target_entity_uuid, AttrType::TopSummonerId)
+        .and_then(AttrValue::as_int)?;
+    if summoner_uuid == 0
+        || (local_player_uuid != 0
+            && (summoner_uuid == local_player_uuid
+                || uid_from_uuid(summoner_uuid) == uid_from_uuid(local_player_uuid)))
+    {
+        return None;
+    }
+
+    let monster_id = attr_store
+        .attr(target_entity_uuid, AttrType::MonsterId)
+        .and_then(AttrValue::as_int)
+        .and_then(|value| i32::try_from(value).ok())?;
+    if monster_id <= 0 {
+        return None;
+    }
+
+    let remodel_level = attr_store
+        .attr(target_entity_uuid, AttrType::TalentSpec)
+        .and_then(AttrValue::as_int)
+        .unwrap_or(0);
+
+    Some(TeammateFantasyDetection {
+        summon_uuid: target_uuid,
+        summoner_uuid,
+        monster_id,
+        remodel_level,
+    })
 }
 
 pub fn process_sync_container_data(
@@ -738,7 +813,7 @@ pub fn process_sync_container_data(
     let name = char_base.name.clone()?;
     target_entity.name = name;
     let _ = attr_store.set_attr(
-        player_uid,
+        player_uuid,
         AttrType::Name,
         AttrValue::String(target_entity.name.clone()),
     );
@@ -1375,10 +1450,15 @@ pub fn process_sync_container_dirty_data<'a>(
         return Some(result);
     }
 
-    let entity = encounter.entity_by_uid_or_insert_with(local_player_uid, || Entity {
-        entity_type: EEntityType::EntChar,
-        ..Default::default()
-    });
+    let local_player_uuid =
+        (encounter.local_player_uuid > 0).then_some(encounter.local_player_uuid);
+    let entity =
+        encounter.entity_by_identity_or_insert_with(local_player_uid, local_player_uuid, || {
+            Entity {
+                entity_type: EEntityType::EntChar,
+                ..Default::default()
+            }
+        });
 
     for item in selected_factor_items {
         entity
@@ -1837,9 +1917,10 @@ pub fn apply_panel_attrs(
             let _ = attr_store.set_panel_attr(attr_id, value);
         }
         if let Some(attr_type) = formula_attr_type {
-            let uid = attr_store.local_player_uid();
-            if uid != 0 {
-                let _ = attr_store.set_attr(uid, attr_type, AttrValue::Int(i64::from(value)));
+            let entity_uuid = attr_store.local_player_uuid();
+            if entity_uuid != 0 {
+                let _ =
+                    attr_store.set_attr(entity_uuid, attr_type, AttrValue::Int(i64::from(value)));
             }
         }
     }
@@ -1910,7 +1991,7 @@ pub fn process_aoi_sync_delta(
             EEntityType::EntChar => {
                 process_player_attrs(
                     &mut target_entity,
-                    target_uid,
+                    target_uuid,
                     attrs_collection.attrs,
                     attr_store,
                 );
@@ -1918,7 +1999,7 @@ pub fn process_aoi_sync_delta(
             EEntityType::EntMonster => {
                 process_monster_attrs(
                     &mut target_entity,
-                    target_uid,
+                    target_uuid,
                     Some(target_uuid),
                     attrs_collection.attrs,
                     attr_store,
@@ -2590,8 +2671,10 @@ fn parse_hate_list_into(raw: &[u8], entries: &mut Vec<HateEntry>) -> Option<()> 
         }
 
         let entry = <HateInfoWire as prost::Message>::decode_length_delimited(&mut buf).ok()?;
+        let entity_uuid = (entry.uuid != 0).then_some(entry.uuid);
         entries.push(HateEntry {
-            entity_uuid: (entry.uuid != 0).then_some(entry.uuid),
+            entity_uuid,
+            entity_key: entity_uuid.map(entity_uuid_string),
             uid: uid_from_uuid(entry.uuid),
             hate_val: entry.hate_val,
         });
@@ -2889,7 +2972,7 @@ fn retain_player_identity_attr(player_entity: &mut Entity, attr_type: AttrType, 
 
 fn process_player_attrs(
     player_entity: &mut Entity,
-    target_uid: i64,
+    target_entity_uuid: i64,
     attrs: Vec<Attr>,
     attr_store: &mut EntityAttrStore,
 ) {
@@ -2904,7 +2987,7 @@ fn process_player_attrs(
                     .filter_map(|value| i32::try_from(value).ok())
                     .collect::<Vec<_>>()
             }) {
-                let _ = attr_store.set_fight_resource_ids(target_uid, ids);
+                let _ = attr_store.set_fight_resource_ids(target_entity_uuid, ids);
             }
             continue;
         }
@@ -2912,8 +2995,8 @@ fn process_player_attrs(
         if attr_id == attr_type::ATTR_FIGHT_RESOURCES {
             if let Some(values) = raw_bytes_opt.and_then(parse_fight_resources) {
                 log::debug!(
-                    "Decoded ATTR_FIGHT_RESOURCES for UID {}: {:?}",
-                    target_uid,
+                    "Decoded ATTR_FIGHT_RESOURCES for entity UUID {}: {:?}",
+                    target_entity_uuid,
                     values
                 );
             }
@@ -2930,7 +3013,7 @@ fn process_player_attrs(
                 })
                 .unwrap_or(0);
             attr_store.set_attr(
-                target_uid,
+                target_entity_uuid,
                 AttrType::CurrentShield,
                 AttrValue::Int(total_shield),
             );
@@ -2960,7 +3043,7 @@ fn process_player_attrs(
         if attr_id == attr_type::ATTR_POS {
             if let Some(position) = decode_position_attr(raw_bytes_opt) {
                 let _ = attr_store.set_attr(
-                    target_uid,
+                    target_entity_uuid,
                     AttrType::Position,
                     AttrValue::Position(position),
                 );
@@ -2971,7 +3054,10 @@ fn process_player_attrs(
         let decoded = if attr_id == attr_type::ATTR_NAME {
             let name = decode_prefixed_string_or_default(raw_bytes_opt);
             if !name.is_empty() {
-                info!("Found player {} with UID {}", name, target_uid);
+                info!(
+                    "Found player {} with entity UUID {}",
+                    name, target_entity_uuid
+                );
             }
             Some((AttrType::Name, AttrValue::String(name)))
         } else if let Some(attr_type) = AttrType::from_id(attr_id) {
@@ -2983,14 +3069,14 @@ fn process_player_attrs(
 
         if let Some((attr_type, value)) = decoded {
             retain_player_identity_attr(player_entity, attr_type, &value);
-            let _ = attr_store.set_attr(target_uid, attr_type, value);
+            let _ = attr_store.set_attr(target_entity_uuid, attr_type, value);
         }
     }
 }
 
 fn process_monster_attrs(
     monster_entity: &mut Entity,
-    target_uid: i64,
+    target_entity_uuid: i64,
     target_uuid: Option<i64>,
     attrs: Vec<Attr>,
     attr_store: &mut EntityAttrStore,
@@ -3006,7 +3092,7 @@ fn process_monster_attrs(
                 if monster_id > 0 {
                     monster_entity.set_monster_type(monster_id);
                     let _ = attr_store.set_attr(
-                        target_uid,
+                        target_entity_uuid,
                         AttrType::MonsterId,
                         AttrValue::Int(i64::from(monster_id)),
                     );
@@ -3025,7 +3111,7 @@ fn process_monster_attrs(
         }
 
         if attr_id == attr_type::ATTR_HATE_LIST {
-            let hate_list = attr_store.hate_list_mut(target_uuid.unwrap_or(target_uid));
+            let hate_list = attr_store.hate_list_mut(target_uuid.unwrap_or(target_entity_uuid));
             if let Some(raw) = raw_bytes_opt {
                 let _ = parse_hate_list_into(raw, hate_list);
             } else {
@@ -3036,7 +3122,7 @@ fn process_monster_attrs(
 
         if let Some(attr_type) = AttrType::from_id(attr_id) {
             let value = decode_varint_i64_or_default(raw_bytes_opt);
-            let _ = attr_store.set_attr(target_uid, attr_type, AttrValue::Int(value));
+            let _ = attr_store.set_attr(target_entity_uuid, attr_type, AttrValue::Int(value));
         }
     }
 }

@@ -35,6 +35,7 @@
   "liveHeader.showActiveCombatTime.description": "실질 DPS 계산용으로 메인 타이머 옆에 전체 활성 전투 시간을 표시합니다",
   "liveHeader.showBossHealth": "보스 체력 표시",
   "liveHeader.showBossHealth.description": "현재 보스 체력바를 표시합니다",
+  "liveHeader.controlButtons": "제어 버튼",
   "liveHeader.showMinimizeButton": "최소화 버튼 표시",
   "liveHeader.showMinimizeButton.description": "실시간 창을 최소화하는 버튼",
   "liveHeader.showNavigationTabs": "탐색 탭 표시",
@@ -68,7 +69,7 @@
   "liveWindowDisplay.clickthroughEnabledDescription": "클릭 스루가 켜져 있어 마우스 클릭이 창을 통과합니다",
   "liveWindowDisplay.clickthroughMode": "클릭 통과 모드",
   "liveWindowDisplay.clickthroughMode.description": "클릭 통과 모드를 사용합니다",
-  "liveWindowDisplay.title": "실시간 창 표시 설정",
+  "liveWindowDisplay.title": "??? ? ??",
   "playerTableSettings.description": "행 모양과 강조 모드를 제어합니다. 이 설정은 모든 실시간 테이블에 적용됩니다.",
   "playerTableSettings.fontSize.description": "플레이어 이름과 수치의 글꼴 크기",
   "playerTableSettings.headerFontSize.description": "열 제목 글꼴 크기",
@@ -459,5 +460,10 @@
   "liveHeader.totalDamageLabelAlias": "라벨 별칭",
   "liveHeader.totalDamageLabelAlias.description": "Rename the total damage label. Leave blank to use T.DMG.",
   "liveHeader.totalDpsLabelAlias": "라벨 별칭",
-  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS."
+  "liveHeader.totalDpsLabelAlias.description": "Rename the total DPS label. Leave blank to use T.DPS.",
+  "liveWindowBehavior.interaction": "? ????",
+  "liveWindowBehavior.autoHide": "?? ??",
+  "liveWindowBehavior.pauseAndReset": "???? ? ???",
+  "liveWindowBehavior.performance": "??",
+  "liveWindowBehavior.dynamicHeight": "?? ??"
 }

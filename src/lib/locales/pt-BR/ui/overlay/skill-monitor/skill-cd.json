@@ -199,5 +199,7 @@
   "classSkill.beat_performer.2316": "Palco Central",
   "classSkill.beat_performer.2317": "Golpe Feroz",
   "classSkill.beat_performer.2332": "Fúria da Paixão",
-  "classSkill.beat_performer.2335": "Rapsódia Infinita"
+  "classSkill.beat_performer.2335": "Rapsódia Infinita",
+  "showAcceleration": "Mostrar aceleracao de CD de habilidades",
+  "showAccelerationDescription": "Adiciona um pequeno selo de aceleracao e uma dica de diagnostico de recarga aos icones de CD de habilidades. Util para conferir reducao de recarga e fontes de aceleracao."
 }

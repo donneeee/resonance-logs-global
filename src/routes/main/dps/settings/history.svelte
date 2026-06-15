@@ -174,7 +174,25 @@
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.showYourSeasonStrength} label={t("showYourSeasonStrength", "你的赛季强度")} description={t("showYourSeasonStrengthDescription", "显示你的赛季强度")} />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.showOthersSeasonStrength} label={t("showOthersSeasonStrength", "他人赛季强度")} description={t("showOthersSeasonStrengthDescription", "显示他人的赛季强度")} />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.showPlayerImagineBadges} label={t("showPlayerImagineBadges", "Battle Imagine Badges")} description={t("showPlayerImagineBadgesDescription", "Show equipped battle imagine badges beside each player's class icon.")} />
+          <SettingsSlider
+            bind:value={SETTINGS.history.general.state.playerImagineBadgeScale}
+            min={25}
+            max={250}
+            step={5}
+            unit="%"
+            label={t("playerImagineBadgeScale", "Battle Imagine Badge Size")}
+            description={t("playerImagineBadgeScaleDescription", "Scale battle imagine badges in history player rows without changing class icon size.")}
+          />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.showOceanWeaponBadge} label={t("showOceanWeaponBadge", "Ocean Weapon Badge")} description={t("showOceanWeaponBadgeDescription", "Show the ocean weapon badge before player names when detected.")} />
+          <SettingsSlider
+            bind:value={SETTINGS.history.general.state.oceanWeaponBadgeScale}
+            min={25}
+            max={250}
+            step={5}
+            unit="%"
+            label={t("oceanWeaponBadgeScale", "Ocean Weapon Badge Size")}
+            description={t("oceanWeaponBadgeScaleDescription", "Scale ocean weapon badges in history player rows without changing class icon size.")}
+          />
           <SettingsSlider
             bind:value={SETTINGS.history.general.state.historyGraphBucketSeconds}
             min={1}
@@ -192,6 +210,16 @@
             unit="s"
             label={t("historyGraphWindowSeconds", "Graph moving window")}
             description={t("historyGraphWindowSecondsDescription", "Controls the rolling window used by the moving-average graph. Smaller values react faster; larger values smooth longer bursts. Default: 15 secs.")}
+          />
+          <SettingsSelect
+            bind:selected={SETTINGS.history.general.state.historyGraphGuideLineStyle}
+            values={[
+              { label: t("historyGraphGuideLineStyle.option.solid", "Solid"), value: "solid" },
+              { label: t("historyGraphGuideLineStyle.option.dotted", "Dotted"), value: "dotted" },
+              { label: t("historyGraphGuideLineStyle.option.dashed", "Dashed"), value: "dashed" },
+            ]}
+            label={t("historyGraphGuideLineStyle", "Graph guide line style")}
+            description={t("historyGraphGuideLineStyleDescription", "Choose how horizontal guide lines are drawn behind history graph values.")}
           />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSPlayer} label={t("relativeToTopDPSPlayer", "以最高 DPS 为基准（玩家）")} description={t("relativeToTopDPSPlayerDescription", "颜色条按最高 DPS 玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
           <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSSkill} label={t("relativeToTopDPSSkill", "以最高 DPS 为基准（技能）")} description={t("relativeToTopDPSSkillDescription", "颜色条按最高 DPS 技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />

@@ -3,6 +3,7 @@ import buffNamesData from "$parserData/generated/BuffName.json";
 import effectSourcesData from "$parserData/generated/EffectSources.json";
 import recountTableData from "$parserData/generated/RecountTable.json";
 import seasonPhantomFactorsData from "$parserData/generated/SeasonPhantomFactors.json";
+import skillAoyiIconsData from "$parserData/generated/skill_aoyi_icons.json";
 import skillBreakdownDetailsData from "$parserData/generated/SkillBreakdownDetails.json";
 import { lookupFirstSkillIconPath } from "$lib/skill-mappings";
 import { resolveStaticIconUrl } from "$lib/config/static-icon-resolver";
@@ -333,6 +334,9 @@ type RecountEntry = {
   RecountName: string;
   Names?: LocalizedTextMap;
   DamageId: number[];
+  LinkedAoyiIconId?: number | string;
+  LinkedAoyiIconName?: string;
+  LinkedAoyiIconNames?: LocalizedTextMap;
   IconPath?: string;
   IconPaths?: string[];
   LinkedBaseSkillId?: number | string;
@@ -440,6 +444,14 @@ type EffectSourcesData = {
   recountIdToEffectSourceIds?: Record<string, string[]>;
 };
 
+type ResonanceSkillIconEntry = {
+  Id?: number | string;
+  id?: number | string;
+  Name?: string;
+  Names?: LocalizedTextMap;
+  MonsterNames?: LocalizedTextMap;
+};
+
 const recountTable = recountTableData as Record<string, RecountEntry>;
 const damageAttrIdNames = damageAttrIdNamesData as Record<string, DamageAttrNameEntry>;
 const buffNamesById = new Map<string, BuffNameEntry>(
@@ -452,6 +464,12 @@ const skillBreakdownDetails = skillBreakdownDetailsData as Record<
   SkillBreakdownDetail
 >;
 const seasonPhantomFactors = seasonPhantomFactorsData as SeasonPhantomFactorData;
+const resonanceSkillIcons = skillAoyiIconsData as ResonanceSkillIconEntry[];
+const resonanceSkillIconById = new Map<number, ResonanceSkillIconEntry>(
+  resonanceSkillIcons
+    .map((entry) => [Number(entry.Id ?? entry.id), entry] as const)
+    .filter(([id]) => Number.isFinite(id)),
+);
 const factorsByBuffId = seasonPhantomFactors.factorsByBuffId ?? {};
 const damageIdToFactorBuffIds = seasonPhantomFactors.damageIdToFactorBuffIds ?? {};
 const recountIdToFactorBuffIds = seasonPhantomFactors.recountIdToFactorBuffIds ?? {};
@@ -916,6 +934,71 @@ export function resolveLocalizedText(
 
 function normalizeDisplayText(value: string): string {
   return value.trim().toLowerCase().replace(/\s+/g, " ");
+}
+
+const RESONANCE_OWNER_SUFFIX_BY_LOCALE: Record<string, string> = {
+  en: " - Resonance",
+  "zh-CN": "-\u5171\u9e23",
+  "zh-TW": "-\u5171\u9cf4",
+  ja: "-\u5171\u9cf4",
+  "ko-KR": " - \uacf5\uba85",
+  fr: " - R\u00e9sonance",
+  de: " \u2013 Resonanz",
+  es: ": Resonancia",
+  "pt-BR": " \u2013 Resson\u00e2ncia",
+  th: " - Resonance",
+  id: " - Resonance",
+};
+
+function buildResonanceOwnerNames(monsterNames: LocalizedTextMap | undefined): LocalizedTextMap | undefined {
+  if (!monsterNames) return undefined;
+  const ownerNames: LocalizedTextMap = {};
+  const locales = new Set([
+    ...Object.keys(monsterNames),
+    ...Object.keys(RESONANCE_OWNER_SUFFIX_BY_LOCALE),
+  ]);
+
+  for (const locale of locales) {
+    const baseName = resolveLocalizedText(monsterNames, locale, "").trim();
+    if (!baseName) continue;
+    const suffix = RESONANCE_OWNER_SUFFIX_BY_LOCALE[locale] ?? RESONANCE_OWNER_SUFFIX_BY_LOCALE["en"];
+    ownerNames[locale] = `${baseName}${suffix}`;
+  }
+
+  return Object.keys(ownerNames).length ? ownerNames : undefined;
+}
+
+function resolveLinkedAoyiOwnerNames(detail: SkillBreakdownDetail | undefined): LocalizedTextMap | undefined {
+  const parentRecountId = detail?.ParentRecountId;
+  if (parentRecountId === undefined) return undefined;
+
+  const recount = recountTable[String(parentRecountId)];
+  const linkedAoyiIconId = toFiniteNumber(recount?.LinkedAoyiIconId);
+  if (linkedAoyiIconId === null) return undefined;
+
+  const icon = resonanceSkillIconById.get(linkedAoyiIconId);
+  const linkedOwnerNames = buildResonanceOwnerNames(icon?.MonsterNames);
+  if (!linkedOwnerNames) return undefined;
+
+  const existingOwnerName = resolveLocalizedText(
+    detail?.MonsterOwnerNames,
+    "en",
+    detail?.MonsterOwnerName ?? "",
+  );
+  const linkedOwnerName = resolveLocalizedText(linkedOwnerNames, "en", "");
+  if (
+    existingOwnerName &&
+    linkedOwnerName &&
+    normalizeDisplayText(existingOwnerName) === normalizeDisplayText(linkedOwnerName)
+  ) {
+    return detail?.MonsterOwnerNames;
+  }
+
+  return linkedOwnerNames;
+}
+
+function resolvePreferredMonsterOwnerNames(detail: SkillBreakdownDetail | undefined): LocalizedTextMap | undefined {
+  return resolveLinkedAoyiOwnerNames(detail) ?? detail?.MonsterOwnerNames;
 }
 
 function resolveOwnerQualifiedLocalizedText(
@@ -2374,9 +2457,28 @@ export function resolveSkillBreakdownName(
   ) {
     return damageName;
   }
+
+  const linkedAoyiOwnerNames = resolveLinkedAoyiOwnerNames(detail);
+  if (linkedAoyiOwnerNames) {
+    const detailName = resolveLocalizedText(
+      detail?.DisplayDetailNames,
+      locale,
+      detail?.DisplayDetailName ?? "",
+    ).trim();
+    if (detailName) {
+      return resolveLocalizedText(linkedAoyiOwnerNames, locale, row.name);
+    }
+    return resolveOwnerQualifiedLocalizedText(
+      detail?.DisplayNames,
+      linkedAoyiOwnerNames,
+      locale,
+      row.name,
+    );
+  }
+
   return resolveOwnerQualifiedLocalizedText(
     detail?.DisplayNames,
-    detail?.MonsterOwnerNames,
+    resolvePreferredMonsterOwnerNames(detail),
     locale,
     row.name,
   );
@@ -2443,13 +2545,24 @@ export function buildSkillContributionNote(
   ]).join("\n");
 }
 
+type SkillHoverTextOptions = {
+  compact?: boolean;
+};
+
 export function buildSkillBreakdownHoverText(
   skillId: number | string,
   locale: string,
   note = "",
+  options: SkillHoverTextOptions = {},
 ): string {
   const detail = lookupSkillBreakdownDetail(skillId);
   if (!detail) {
+    if (options.compact) {
+      return compactLines([
+        `ID: #${skillId}`,
+        note.trim(),
+      ]).join("\n");
+    }
     return compactLines([
       `ID: #${skillId}`,
       "Sources:",
@@ -2498,8 +2611,9 @@ export function buildSkillBreakdownHoverText(
     locale,
     detail.RecountOwnerSkillName ?? "",
   );
+  const preferredMonsterOwnerNames = resolvePreferredMonsterOwnerNames(detail);
   const monsterOwnerName = resolveLocalizedText(
-    detail.MonsterOwnerNames,
+    preferredMonsterOwnerNames,
     locale,
     detail.MonsterOwnerName ?? "",
   );
@@ -2529,6 +2643,25 @@ export function buildSkillBreakdownHoverText(
     (detail.SourceRole === "recount-owned-reused-skill-hit" ||
       Boolean(detail.IsRecountOwnerSkillMismatch) ||
       Boolean(detail.IsRecountOwnerNameMismatch));
+
+  if (options.compact) {
+    return compactLines([
+      `ID: #${skillId}`,
+      detail.CategoryLabel ? `Type: ${detail.CategoryLabel}` : "",
+      parentName
+        ? `Group: ${parentName}${detail.ParentRecountId ? ` (#${detail.ParentRecountId})` : ""}`
+        : "",
+      detailName ? `Detail: ${detailName}` : "",
+      variantName ? `Variant: ${variantName}` : "",
+      showOwnerLine
+        ? `Owner: ${ownerName}${detail.RecountOwnerSkillId ? ` (#${detail.RecountOwnerSkillId})` : ""}`
+        : "",
+      monsterOwnerName
+        ? `Monster owner: ${monsterOwnerName}${detail.MonsterOwnerIds?.length ? ` (#${detail.MonsterOwnerIds.join(", #")})` : ""}`
+        : "",
+      note.trim() ? `Note:\n${note.trim()}` : "",
+    ]).join("\n");
+  }
 
   return compactLines([
     `ID: #${skillId}`,
@@ -2576,9 +2709,18 @@ export function buildRecountGroupHoverText(
   recountId: number | string,
   locale: string,
   note = "",
+  options: SkillHoverTextOptions = {},
 ): string {
   const group = recountTable[String(recountId)];
   const groupName = resolveLocalizedText(group?.Names, locale, group?.RecountName ?? "");
+  if (options.compact) {
+    return compactLines([
+      `ID: #${recountId}`,
+      "Type: Recount rollup group",
+      groupName ? `Group: ${groupName}` : "",
+      note.trim() ? `Note:\n${note.trim()}` : "",
+    ]).join("\n");
+  }
   return compactLines([
     `ID: #${recountId}`,
     "Type: Recount rollup group",

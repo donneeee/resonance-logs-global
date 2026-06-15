@@ -5,12 +5,14 @@ use crate::live::buff_monitor::{
 };
 use crate::live::commands_models::{
     BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceEntry, FightResourceState,
-    PanelAttrState, ShieldDetailEntry, SkillCdState, TrainingDummyState,
+    PanelAttrState, ShieldDetailEntry, SkillCdState, TeammateFantasyState, TrainingDummyState,
 };
 use crate::live::counter_tracker::{BuffCounterTracker, CounterRule};
 use crate::live::dungeon_log::{BattleStateMachine, EncounterResetReason};
 use crate::live::entity_attr_store::EntityAttrStore;
-use crate::live::entity_id::{canonical_player_uuid, entity_uuid_string, uid_from_uuid};
+use crate::live::entity_id::{
+    canonical_player_uuid, entity_key_from_uuid_or_uid, entity_uuid_string, uid_from_uuid,
+};
 use crate::live::event_manager::EventManager;
 use crate::live::opcodes_models::{
     AttrType, AttrValue, Encounter, Entity, ObservedActiveBuff, ObservedCombatTimelineBucket,
@@ -330,15 +332,19 @@ fn emit_boss_buff_update_snapshot(state: &mut AppState) {
 }
 
 fn emit_shield_detail_update_if_needed(state: &mut AppState, mut entries: Vec<ShieldDetailEntry>) {
-    let uid = state.attr_store.local_player_uid();
+    let entity_uuid = if state.attr_store.local_player_uuid() > 0 {
+        state.attr_store.local_player_uuid()
+    } else {
+        state.attr_store.local_player_uid()
+    };
     let current_hp = state
         .attr_store
-        .attr(uid, AttrType::CurrentHp)
+        .attr(entity_uuid, AttrType::CurrentHp)
         .and_then(AttrValue::as_int)
         .unwrap_or(0);
     let max_hp = state
         .attr_store
-        .attr(uid, AttrType::MaxHp)
+        .attr(entity_uuid, AttrType::MaxHp)
         .and_then(AttrValue::as_int)
         .unwrap_or(0);
     let clock_offset = state.server_clock_offset;
@@ -477,10 +483,10 @@ fn reset_season_cultivate_factor_counters(state: &mut AppState) {
 }
 
 fn hydrate_entities_from_attr_store(state: &mut AppState) {
-    let keys = state.encounter.entity_identity_keys();
-    for (uid, uuid) in keys {
+    let identity_keys = state.encounter.entity_identity_keys();
+    for (uid, uuid) in identity_keys {
         if let Some(entity) = state.encounter.entity_mut_by_identity(uid, uuid) {
-            state.attr_store.hydrate_entity(uid, entity);
+            state.attr_store.hydrate_entity(uuid.unwrap_or(uid), entity);
         }
     }
 }
@@ -490,6 +496,14 @@ pub(crate) fn resolve_entity_display_name(
     entity: &Entity,
     attr_store: &EntityAttrStore,
 ) -> String {
+    if let Some(name) = entity
+        .uuid
+        .filter(|uuid| *uuid > 0)
+        .and_then(|uuid| attr_store.attr(uuid, AttrType::Name))
+        .and_then(|value| value.as_string())
+    {
+        return name.to_string();
+    }
     if let Some(name) = attr_store
         .attr(uid, AttrType::Name)
         .and_then(|value| value.as_string())
@@ -507,6 +521,13 @@ fn resolve_player_display_name(
     entity: Option<&Entity>,
     attr_store: &EntityAttrStore,
 ) -> String {
+    if let Some(name) = entity
+        .and_then(|entity| entity.uuid.filter(|uuid| *uuid > 0))
+        .and_then(|uuid| attr_store.attr(uuid, AttrType::Name))
+        .and_then(|value| value.as_string())
+    {
+        return name.to_string();
+    }
     if let Some(name) = attr_store
         .attr(uid, AttrType::Name)
         .and_then(|value| value.as_string())
@@ -522,13 +543,14 @@ fn resolve_player_display_name(
 }
 
 fn collect_player_names(encounter: &Encounter) -> Vec<PlayerNameEntry> {
-    let entity_entries = encounter.entity_uid_entries();
-    let mut player_names: Vec<PlayerNameEntry> = Vec::with_capacity(entity_entries.len());
-    player_names.extend(entity_entries.into_iter().filter_map(|(uid, entity)| {
+    let entity_keys = encounter.entity_identity_keys();
+    let mut player_names: Vec<PlayerNameEntry> = Vec::with_capacity(entity_keys.len());
+    player_names.extend(entity_keys.into_iter().filter_map(|(uid, uuid)| {
+        let entity = encounter.entity_by_identity(uid, uuid)?;
         entity_has_player_identity_surface(uid, entity, encounter.local_player_uid).then(|| {
             PlayerNameEntry {
                 uid,
-                uuid: entity.uuid.filter(|uuid| *uuid > 0),
+                uuid: uuid.or_else(|| entity.uuid.filter(|uuid| *uuid > 0)),
                 name: if entity.name.trim().is_empty() {
                     format!("#{uid}")
                 } else {
@@ -567,6 +589,23 @@ fn current_local_player_uuid(encounter: &Encounter) -> i64 {
     }
 }
 
+fn recorded_local_player_uuid(encounter: &Encounter) -> Option<i64> {
+    (encounter.local_player_uuid > 0).then_some(encounter.local_player_uuid)
+}
+
+fn local_player_entity(encounter: &Encounter) -> Option<&Entity> {
+    encounter.entity_by_identity(
+        encounter.local_player_uid,
+        recorded_local_player_uuid(encounter),
+    )
+}
+
+fn local_player_entity_mut(encounter: &mut Encounter) -> Option<&mut Entity> {
+    let uid = encounter.local_player_uid;
+    let uuid = recorded_local_player_uuid(encounter);
+    encounter.entity_mut_by_identity(uid, uuid)
+}
+
 fn current_attack_target_uuid(state: &AppState) -> Option<i64> {
     let local_player_uuid = current_local_player_uuid(&state.encounter);
     if local_player_uuid == 0 {
@@ -597,17 +636,10 @@ fn encounter_entity_for_identity_mut(
     uuid: Option<i64>,
     entity_type: EEntityType,
 ) -> &mut Entity {
-    if let Some(uuid) = uuid.filter(|uuid| *uuid != 0) {
-        encounter.entity_by_uuid_or_insert_with(uuid, || Entity {
-            entity_type,
-            ..Default::default()
-        })
-    } else {
-        encounter.entity_by_uid_or_insert_with(uid, || Entity {
-            entity_type,
-            ..Default::default()
-        })
-    }
+    encounter.entity_by_identity_or_insert_with(uid, uuid, || Entity {
+        entity_type,
+        ..Default::default()
+    })
 }
 
 fn infer_scene_id_from_scene_uuid(scene_uuid: i64) -> Option<i32> {
@@ -668,7 +700,7 @@ fn is_known_other_player_source(
         && source_uid != local_player_uid
         && state
             .encounter
-            .entity_by_uid(source_uid)
+            .entity_by_identity(source_uid, source_uuid.filter(|uuid| *uuid != 0))
             .map(|entity| entity.entity_type == EEntityType::EntChar)
             .unwrap_or(false)
 }
@@ -679,15 +711,18 @@ fn known_other_player_sources(state: &AppState) -> (HashSet<i64>, HashSet<i64>) 
     let mut uids = HashSet::new();
     let mut uuids = HashSet::new();
 
-    for (uid, entity) in state.encounter.entity_uid_entries() {
+    for (uid, entity_uuid) in state.encounter.entity_identity_keys() {
+        let Some(entity) = state.encounter.entity_by_identity(uid, entity_uuid) else {
+            continue;
+        };
         if entity.entity_type != EEntityType::EntChar {
             continue;
         }
         if uid > 0 && uid != local_player_uid {
             uids.insert(uid);
         }
-        if let Some(uuid) = entity
-            .uuid
+        if let Some(uuid) = entity_uuid
+            .or(entity.uuid)
             .filter(|uuid| *uuid > 0 && *uuid != local_player_uuid)
         {
             uuids.insert(uuid);
@@ -2156,24 +2191,61 @@ fn add_hit_to_modifier_bucket(bucket: &mut ObservedModifierHitBucket, hit: &Obse
     bucket.last_hit_time_ms = bucket.last_hit_time_ms.max(hit.timestamp_ms);
 }
 
+fn modifier_host_identity(uid: i64, uuid: Option<i64>) -> CombatTimelineIdentityKey {
+    CombatTimelineIdentityKey {
+        uid,
+        uuid: uuid.filter(|uuid| *uuid != 0),
+    }
+}
+
+fn modifier_hit_host_identities(
+    entity_uid: i64,
+    entity_uuid: Option<i64>,
+    hit: &ObservedDamageHit,
+) -> Vec<CombatTimelineIdentityKey> {
+    let mut identities = vec![modifier_host_identity(entity_uid, entity_uuid)];
+    let target_identity = modifier_host_identity(hit.target_uid, hit.target_uuid);
+    if (target_identity.uid > 0 || target_identity.uuid.is_some())
+        && !identities.contains(&target_identity)
+    {
+        identities.push(target_identity);
+    }
+    identities
+}
+
+fn modifier_windows_for_host<'a>(
+    windows_by_host_identity: &'a HashMap<CombatTimelineIdentityKey, Vec<ObservedModifierWindow>>,
+    windows_by_host_uid: &'a HashMap<i64, Vec<ObservedModifierWindow>>,
+    identity: CombatTimelineIdentityKey,
+) -> Vec<&'a ObservedModifierWindow> {
+    if let Some(windows) = windows_by_host_identity.get(&identity) {
+        return windows.iter().collect();
+    }
+    if identity.uid > 0 {
+        return windows_by_host_uid
+            .get(&identity.uid)
+            .map(|windows| windows.iter().collect())
+            .unwrap_or_default();
+    }
+    Vec::new()
+}
+
 fn build_modifier_hit_buckets(
     entity_uid: i64,
+    entity_uuid: Option<i64>,
     hits: &[ObservedDamageHit],
+    windows_by_host_identity: &HashMap<CombatTimelineIdentityKey, Vec<ObservedModifierWindow>>,
     windows_by_host_uid: &HashMap<i64, Vec<ObservedModifierWindow>>,
 ) -> Vec<ObservedModifierHitBucket> {
     let mut buckets = HashMap::<ModifierHitBucketKey, ObservedModifierHitBucket>::new();
     for hit in hits {
-        let mut host_uids = vec![entity_uid];
-        if hit.target_uid != entity_uid {
-            host_uids.push(hit.target_uid);
-        }
-
         let mut seen_keys_for_hit = HashSet::<ModifierHitSeenKey>::new();
-        for host_uid in host_uids {
-            let Some(windows) = windows_by_host_uid.get(&host_uid) else {
-                continue;
-            };
-            for window in windows {
+        for host_identity in modifier_hit_host_identities(entity_uid, entity_uuid, hit) {
+            for window in modifier_windows_for_host(
+                windows_by_host_identity,
+                windows_by_host_uid,
+                host_identity,
+            ) {
                 if !modifier_window_covers_hit(window, hit) {
                     continue;
                 }
@@ -2239,23 +2311,21 @@ fn modifier_replay_source(window: &ObservedModifierWindow) -> ObservedModifierRe
 
 fn build_modifier_replay_hits(
     entity_uid: i64,
+    entity_uuid: Option<i64>,
     hits: &[ObservedDamageHit],
+    windows_by_host_identity: &HashMap<CombatTimelineIdentityKey, Vec<ObservedModifierWindow>>,
     windows_by_host_uid: &HashMap<i64, Vec<ObservedModifierWindow>>,
 ) -> Vec<ObservedModifierReplayHit> {
     let mut rows = Vec::new();
     for hit in hits {
-        let mut host_uids = vec![entity_uid];
-        if hit.target_uid != entity_uid {
-            host_uids.push(hit.target_uid);
-        }
-
         let mut seen_sources = HashSet::<ModifierReplaySourceKey>::new();
         let mut active_modifiers = Vec::new();
-        for host_uid in host_uids {
-            let Some(windows) = windows_by_host_uid.get(&host_uid) else {
-                continue;
-            };
-            for window in windows {
+        for host_identity in modifier_hit_host_identities(entity_uid, entity_uuid, hit) {
+            for window in modifier_windows_for_host(
+                windows_by_host_identity,
+                windows_by_host_uid,
+                host_identity,
+            ) {
                 if !modifier_window_covers_hit(window, hit) {
                     continue;
                 }
@@ -2387,13 +2457,16 @@ fn finalize_combat_timeline_for_save(state: &mut AppState) {
         HashMap<CombatTimelineBucketKey, ObservedCombatTimelineBucket>,
     >::new();
 
-    for (entity_uid, entity) in state.encounter.entity_uid_entries() {
+    for (entity_uid, entity_uuid) in state.encounter.entity_identity_keys() {
+        let Some(entity) = state.encounter.entity_by_identity(entity_uid, entity_uuid) else {
+            continue;
+        };
         if entity.combat_timeline_hits.is_empty() {
             continue;
         }
         let source_identity = CombatTimelineIdentityKey {
             uid: entity_uid,
-            uuid: entity.uuid,
+            uuid: entity_uuid.or(entity.uuid),
         };
 
         for hit in &entity.combat_timeline_hits {
@@ -2470,17 +2543,34 @@ fn finalize_modifier_hit_buckets_for_save(state: &mut AppState) {
         }
         return;
     }
+    let mut windows_by_host_identity =
+        HashMap::<CombatTimelineIdentityKey, Vec<ObservedModifierWindow>>::new();
     let mut windows_by_host_uid = HashMap::<i64, Vec<ObservedModifierWindow>>::new();
-    for (entity_uid, entity) in state.encounter.entity_uid_entries() {
+    for (entity_uid, entity_uuid) in state.encounter.entity_identity_keys() {
+        let Some(entity) = state.encounter.entity_by_identity(entity_uid, entity_uuid) else {
+            continue;
+        };
         for window in &entity.modifier_windows {
             let mut window = window.clone();
             if window.host_uid <= 0 {
                 window.host_uid = entity_uid;
             }
-            windows_by_host_uid
-                .entry(window.host_uid)
-                .or_default()
-                .push(window);
+            if window.host_uuid.is_none() {
+                window.host_uuid = entity_uuid;
+            }
+            let host_identity = modifier_host_identity(window.host_uid, window.host_uuid);
+            if host_identity.uuid.is_some() {
+                windows_by_host_identity
+                    .entry(host_identity)
+                    .or_default()
+                    .push(window.clone());
+            }
+            if window.host_uid > 0 {
+                windows_by_host_uid
+                    .entry(window.host_uid)
+                    .or_default()
+                    .push(window);
+            }
         }
     }
 
@@ -2492,12 +2582,16 @@ fn finalize_modifier_hit_buckets_for_save(state: &mut AppState) {
         {
             entity.modifier_hit_buckets = build_modifier_hit_buckets(
                 entity_uid,
+                entity_uuid,
                 &entity.observed_damage_hits,
+                &windows_by_host_identity,
                 &windows_by_host_uid,
             );
             entity.modifier_replay_hits = build_modifier_replay_hits(
                 entity_uid,
+                entity_uuid,
                 &entity.observed_damage_hits,
+                &windows_by_host_identity,
                 &windows_by_host_uid,
             );
         }
@@ -2519,8 +2613,7 @@ fn record_local_skill_cast_event(state: &mut AppState, skill_id: i32) {
     if skill_id <= 0 {
         return;
     }
-    let local_uid = state.encounter.local_player_uid;
-    let Some(entity) = state.encounter.entity_mut_by_uid(local_uid) else {
+    let Some(entity) = local_player_entity_mut(&mut state.encounter) else {
         return;
     };
     entity.skill_cast_events.push(ObservedSkillCastEvent {
@@ -2579,8 +2672,7 @@ fn record_local_skill_cooldown_events(state: &mut AppState, skill_cds: &[ParsedS
         return;
     }
 
-    let local_uid = state.encounter.local_player_uid;
-    let Some(entity) = state.encounter.entity_mut_by_uid(local_uid) else {
+    let Some(entity) = local_player_entity_mut(&mut state.encounter) else {
         return;
     };
     entity.skill_cooldown_events.extend(events);
@@ -2588,10 +2680,7 @@ fn record_local_skill_cooldown_events(state: &mut AppState, skill_cds: &[ParsedS
 }
 
 fn local_active_profession_talent_node_ids(state: &AppState) -> Vec<u32> {
-    let local_uid = state.encounter.local_player_uid;
-    state
-        .encounter
-        .entity_by_uid(local_uid)
+    local_player_entity(&state.encounter)
         .map(|entity| {
             entity
                 .active_profession_talents
@@ -2605,10 +2694,7 @@ fn local_active_profession_talent_node_ids(state: &AppState) -> Vec<u32> {
 fn local_active_profession_skills(
     state: &AppState,
 ) -> Vec<crate::live::opcodes_models::ObservedProfessionSkill> {
-    let local_uid = state.encounter.local_player_uid;
-    state
-        .encounter
-        .entity_by_uid(local_uid)
+    local_player_entity(&state.encounter)
         .map(|entity| entity.active_profession_skills.clone())
         .unwrap_or_default()
 }
@@ -2616,19 +2702,13 @@ fn local_active_profession_skills(
 fn local_active_effect_sources(
     state: &AppState,
 ) -> Vec<crate::live::opcodes_models::ObservedEffectSource> {
-    let local_uid = state.encounter.local_player_uid;
-    state
-        .encounter
-        .entity_by_uid(local_uid)
+    local_player_entity(&state.encounter)
         .map(|entity| entity.active_effect_sources.clone())
         .unwrap_or_default()
 }
 
 fn local_active_gear_sets(state: &AppState) -> Vec<crate::live::opcodes_models::ObservedGearSet> {
-    let local_uid = state.encounter.local_player_uid;
-    state
-        .encounter
-        .entity_by_uid(local_uid)
+    local_player_entity(&state.encounter)
         .map(|entity| entity.active_gear_sets.clone())
         .unwrap_or_default()
 }
@@ -3299,16 +3379,45 @@ impl AppStateManager {
         sync_near_entities: blueprotobuf::SyncNearEntities,
     ) {
         use crate::live::opcodes_process::process_sync_near_entities;
-        if process_sync_near_entities(
+        let Some(result) = process_sync_near_entities(
             &mut state.encounter,
             &mut state.attr_store,
             sync_near_entities,
             state.modifier_capture_enabled,
-        )
-        .is_none()
-        {
+        ) else {
             warn!("Error processing SyncNearEntities.. ignoring.");
-        }
+            return;
+        };
+
+        let detected_at_ms = now_ms();
+        let teammate_fantasies = result
+            .teammate_fantasies
+            .into_iter()
+            .map(|fantasy| {
+                let summoner_uid = match state.encounter.entity_by_uuid(fantasy.summoner_uuid) {
+                    Some(entity) => state
+                        .encounter
+                        .display_uid_for_entity(fantasy.summoner_uuid, entity),
+                    None => state.encounter.remember_entity_uuid(fantasy.summoner_uuid),
+                };
+                let summoner_entity = state.encounter.entity_by_uuid(fantasy.summoner_uuid);
+                TeammateFantasyState {
+                    summon_uuid: entity_uuid_string(fantasy.summon_uuid),
+                    summoner_uuid: entity_uuid_string(fantasy.summoner_uuid),
+                    summoner_name: Some(resolve_player_display_name(
+                        summoner_uid,
+                        summoner_entity,
+                        &state.attr_store,
+                    )),
+                    monster_id: fantasy.monster_id,
+                    remodel_level: fantasy.remodel_level,
+                    detected_at_ms,
+                }
+            })
+            .collect();
+        state
+            .event_manager
+            .emit_teammate_fantasy_update(teammate_fantasies);
     }
 
     fn process_sync_container_data(
@@ -3764,7 +3873,7 @@ impl AppStateManager {
         let local_player_uuid = current_local_player_uuid(&state.encounter);
         for mut aoi_sync_delta in sync_near_delta_info.delta_infos {
             let target_uuid = aoi_sync_delta.uuid;
-            let target_uid = target_uuid.map(|uuid| state.encounter.remember_entity_uuid(uuid));
+            let target_display_uid = target_uuid.map(uid_from_uuid);
             let target_entity_type = target_uuid.map(EEntityType::from);
             let buff_bytes = aoi_sync_delta.buff_effect.take();
             let combat_gate = self.prepare_training_dummy_for_delta(
@@ -3787,11 +3896,12 @@ impl AppStateManager {
                 aggregated_damage_events.extend(events);
             }
 
-            if let (Some(target_uid), Some(raw_bytes)) = (target_uid, buff_bytes) {
-                let is_local_target = (local_player_uuid != 0
-                    && target_uuid == Some(local_player_uuid))
+            if let (Some(target_uuid), Some(raw_bytes)) = (target_uuid, buff_bytes) {
+                let target_display_uid =
+                    target_display_uid.unwrap_or_else(|| uid_from_uuid(target_uuid));
+                let is_local_target = (local_player_uuid != 0 && target_uuid == local_player_uuid)
                     || (state.encounter.local_player_uid > 0
-                        && target_uid == state.encounter.local_player_uid);
+                        && target_display_uid == state.encounter.local_player_uid);
                 if state.modifier_capture_enabled
                     && is_local_target
                     && matches!(target_entity_type, Some(EEntityType::EntChar))
@@ -3804,19 +3914,21 @@ impl AppStateManager {
                             local_player_uid,
                             current_local_player_uuid(&state.encounter),
                         );
-                    apply_modifier_buff_changes(state, &buff_process_result.changes, target_uid);
+                    apply_modifier_buff_changes(
+                        state,
+                        &buff_process_result.changes,
+                        target_display_uid,
+                    );
                 }
                 if matches!(target_entity_type, Some(EEntityType::EntChar))
-                    && Some(local_player_uuid) != target_uuid
+                    && local_player_uuid != target_uuid
                 {
-                    if let Some(target_uuid) = target_uuid {
-                        let monitor = state.teammate_buff_monitors.monitor_for(target_uuid);
-                        let _ = monitor.process_buff_effect_bytes_with_self_source_filter(
-                            &raw_bytes,
-                            &mut state.server_clock_offset,
-                            |_, _, _, _, _| true,
-                        );
-                    }
+                    let monitor = state.teammate_buff_monitors.monitor_for(target_uuid);
+                    let _ = monitor.process_buff_effect_bytes_with_self_source_filter(
+                        &raw_bytes,
+                        &mut state.server_clock_offset,
+                        |_, _, _, _, _| true,
+                    );
                 }
                 if matches!(target_entity_type, Some(EEntityType::EntMonster)) {
                     let local_player_uid = state.encounter.local_player_uid;
@@ -3826,9 +3938,7 @@ impl AppStateManager {
                     let local_owned_source_config_ids = state.local_owned_source_config_ids.clone();
                     let (known_other_source_uids, known_other_source_uuids) =
                         known_other_player_sources(state);
-                    let monitor = state
-                        .boss_buff_monitors
-                        .monitor_for(target_uuid.unwrap_or(target_uid));
+                    let monitor = state.boss_buff_monitors.monitor_for(target_uuid);
                     let buff_process_result = monitor
                         .process_buff_effect_bytes_with_self_source_filter(
                             &raw_bytes,
@@ -3851,8 +3961,8 @@ impl AppStateManager {
                     if !buff_process_result.changes.is_empty() {
                         debug!(
                             target: "app::live",
-                            "[boss-buff] processed target_uid={} target_uuid={:?} changes={} entity_type={:?}",
-                            target_uid,
+                            "[boss-buff] processed target_uid={} target_uuid={} changes={} entity_type={:?}",
+                            target_display_uid,
                             target_uuid,
                             buff_process_result.changes.len(),
                             target_entity_type
@@ -3983,13 +4093,16 @@ impl AppStateManager {
         }
 
         for death in changes.death_events {
-            if let Some(entity) = state.encounter.entity_mut_by_uid(death.uid) {
+            if let Some(entity) = state.encounter.entity_mut_by_uuid(death.entity_uuid) {
                 let recent_damages: Vec<_> = entity.recent_taken_events.drain(..).collect();
                 if recent_damages.is_empty() {
                     continue;
                 }
+                let victim_uid = uid_from_uuid(death.entity_uuid);
                 entity.deaths.push(DeathRecord {
-                    victim_uid: death.uid,
+                    victim_uid,
+                    victim_uuid: Some(death.entity_uuid),
+                    victim_key: entity_key_from_uuid_or_uid(Some(death.entity_uuid), victim_uid),
                     death_timestamp_ms: death.timestamp_ms,
                     recent_damages,
                 });
@@ -4046,6 +4159,11 @@ impl AppStateManager {
             active_combat_time_ms: 0,
             fight_start_timestamp_ms: 0,
             dps_display_paused: false,
+            local_player_key: entity_key_from_uuid_or_uid(
+                (state.encounter.local_player_uuid > 0)
+                    .then_some(state.encounter.local_player_uuid),
+                state.encounter.local_player_uid,
+            ),
             bosses: vec![],
             scene_id: state.encounter.current_scene_id,
             scene_name: state.encounter.current_scene_name.clone(),
@@ -4194,12 +4312,12 @@ impl AppStateManager {
         let mut monster_ids = HashMap::new();
 
         if let Some(target_uuid) = current_target_uuid {
-            let target_uid_for_hate = state
+            let target_display_uid = state
                 .encounter
                 .entity_by_uuid(target_uuid)
                 .map(|entity| state.encounter.display_uid_for_entity(target_uuid, entity))
-                .unwrap_or_else(|| state.encounter.remember_entity_uuid(target_uuid));
-            let target_key = entity_uuid_string(target_uid_for_hate);
+                .unwrap_or_else(|| uid_from_uuid(target_uuid));
+            let target_key = entity_uuid_string(target_uuid);
             if let Some(buffs) = raw_boss_buff_snapshot.get(&target_uuid) {
                 if !buffs.is_empty() {
                     boss_buff_snapshot.insert(target_key.clone(), buffs.clone());
@@ -4207,15 +4325,15 @@ impl AppStateManager {
             }
 
             if let Some(entity) = state.encounter.entity_by_uuid(target_uuid) {
-                let target_uid = state.encounter.display_uid_for_entity(target_uuid, entity);
-                if state.sent_overlay_uids.insert(target_uid) {
+                if state.sent_overlay_uids.insert(target_display_uid) {
                     new_names.insert(
-                        target_uid,
-                        resolve_entity_display_name(target_uid, entity, &state.attr_store),
+                        target_display_uid,
+                        resolve_entity_display_name(target_display_uid, entity, &state.attr_store),
                     );
                 }
                 if let Some(monster_id) = entity.monster_type_id {
                     monster_ids.insert(target_key.clone(), monster_id);
+                    monster_ids.insert(target_display_uid.to_string(), monster_id);
                 }
             }
 
@@ -4228,17 +4346,16 @@ impl AppStateManager {
                     state
                         .attr_store
                         .hate_lists()
-                        .get(&target_uid_for_hate)
+                        .get(&target_display_uid)
                         .cloned()
                 })
                 .unwrap_or_default();
 
             for entry in &entries {
                 if state.sent_overlay_uids.insert(entry.uid) {
-                    let entity = entry
-                        .entity_uuid
-                        .and_then(|uuid| state.encounter.entity_by_uuid(uuid))
-                        .or_else(|| state.encounter.entity_by_uid(entry.uid));
+                    let entity = state
+                        .encounter
+                        .entity_by_identity(entry.uid, entry.entity_uuid);
                     let name = state
                         .attr_store
                         .attr(entry.entity_uuid.unwrap_or(entry.uid), AttrType::Name)
@@ -4359,6 +4476,7 @@ impl AppStateManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::live::entity_id::entity_id_to_uuid;
 
     fn parsed_skill_cd(skill_level_id: i32, begin_time: i64) -> ParsedSkillCd {
         ParsedSkillCd {
@@ -4371,6 +4489,73 @@ mod tests {
             sub_cd_fixed: None,
             accelerate_cd_ratio: None,
         }
+    }
+
+    #[test]
+    fn modifier_windows_match_target_uuid_before_uid_fallback() {
+        let shared_target_uid = 77_777;
+        let target_a_uuid =
+            entity_id_to_uuid(shared_target_uid, EEntityType::EntMonster, false, false);
+        let target_b_uuid =
+            entity_id_to_uuid(shared_target_uid, EEntityType::EntMonster, true, false);
+        let attacker_uid = 88_888;
+        let attacker_uuid = entity_id_to_uuid(attacker_uid, EEntityType::EntChar, false, false);
+
+        let window_a = ObservedModifierWindow {
+            base_id: 101,
+            host_uid: shared_target_uid,
+            host_uuid: Some(target_a_uuid),
+            start_time_ms: 0,
+            end_time_ms: Some(1000),
+            ..Default::default()
+        };
+        let window_b = ObservedModifierWindow {
+            base_id: 202,
+            host_uid: shared_target_uid,
+            host_uuid: Some(target_b_uuid),
+            start_time_ms: 0,
+            end_time_ms: Some(1000),
+            ..Default::default()
+        };
+
+        let mut windows_by_host_identity =
+            HashMap::<CombatTimelineIdentityKey, Vec<ObservedModifierWindow>>::new();
+        let mut windows_by_host_uid = HashMap::<i64, Vec<ObservedModifierWindow>>::new();
+        for window in [window_a, window_b] {
+            windows_by_host_identity
+                .entry(modifier_host_identity(window.host_uid, window.host_uuid))
+                .or_default()
+                .push(window.clone());
+            windows_by_host_uid
+                .entry(window.host_uid)
+                .or_default()
+                .push(window);
+        }
+
+        let hit = ObservedDamageHit {
+            timestamp_ms: 100,
+            skill_key: 1,
+            damage_id: 1,
+            target_uid: shared_target_uid,
+            target_uuid: Some(target_b_uuid),
+            attacker_uid,
+            attacker_uuid: Some(attacker_uuid),
+            value: 100,
+            effective_value: 100,
+            ..Default::default()
+        };
+
+        let buckets = build_modifier_hit_buckets(
+            attacker_uid,
+            Some(attacker_uuid),
+            &[hit],
+            &windows_by_host_identity,
+            &windows_by_host_uid,
+        );
+
+        assert_eq!(buckets.len(), 1);
+        assert_eq!(buckets[0].modifier_base_id, 202);
+        assert_eq!(buckets[0].modifier_host_uuid, Some(target_b_uuid));
     }
 
     #[test]

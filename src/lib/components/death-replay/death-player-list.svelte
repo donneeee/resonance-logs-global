@@ -12,9 +12,12 @@
   import PercentFormat from "$lib/components/percent-format.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import { uiT } from "$lib/i18n";
+  import { normalizeLiveEntityKey } from "$lib/live-entity-route";
 
   export type DeathPlayerEntry = {
     uid: number;
+    uuid?: number | null;
+    entityKey?: string | null;
     name: string;
     className: string;
     classSpecName: string;
@@ -24,13 +27,15 @@
   let {
     entries,
     localPlayerUid = null,
+    localPlayerKey = null,
     onSelect,
     emptyMessage = "",
     variant = "live",
   }: {
     entries: DeathPlayerEntry[];
     localPlayerUid?: number | null;
-    onSelect: (uid: number) => void;
+    localPlayerKey?: string | null;
+    onSelect: (uid: number, entry?: DeathPlayerEntry) => void;
     emptyMessage?: string;
     variant?: "live" | "history";
   } = $props();
@@ -133,8 +138,19 @@
     return `${hh}:${mm}:${ss}`;
   }
 
+  function entryRenderKey(entry: DeathPlayerEntry): string | number {
+    return normalizeLiveEntityKey(entry.entityKey) ?? entry.uid;
+  }
+
+  function isLocalEntry(entry: DeathPlayerEntry): boolean {
+    const localKey = normalizeLiveEntityKey(localPlayerKey);
+    const entryKey = normalizeLiveEntityKey(entry.entityKey);
+    if (localKey && entryKey) return localKey === entryKey;
+    return localPlayerUid != null && entry.uid === localPlayerUid;
+  }
+
   function resolveDisplayName(entry: DeathPlayerEntry) {
-    const isLocal = localPlayerUid != null && entry.uid === localPlayerUid;
+    const isLocal = isLocalEntry(entry);
     return {
       isLocal,
       displayName:
@@ -220,11 +236,11 @@
             </td>
           </tr>
         {:else}
-          {#each sortedRows as row (row.entry.uid)}
+          {#each sortedRows as row (entryRenderKey(row.entry))}
             {@const info = resolveDisplayName(row.entry)}
             <tr
               class="relative border-t border-border/40 hover:bg-muted/60 transition-colors cursor-pointer"
-              onclick={() => onSelect(row.entry.uid)}
+              onclick={() => onSelect(row.entry.uid, row.entry)}
             >
               <td class="px-3 py-3 text-sm text-muted-foreground relative z-10">
                 <div class="flex items-center gap-2 h-full">
@@ -325,13 +341,13 @@
           </thead>
         {/if}
         <tbody>
-          {#each sortedRows as row (row.entry.uid)}
+          {#each sortedRows as row (entryRenderKey(row.entry))}
             {@const info = resolveDisplayName(row.entry)}
             {#if compactMode}
               <tr
                 class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
                 style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-                onclick={() => onSelect(row.entry.uid)}
+                onclick={() => onSelect(row.entry.uid, row.entry)}
               >
                 <td class="px-3 py-1 relative z-10">
                   <div class="flex items-center h-full gap-2">
@@ -402,7 +418,7 @@
               <tr
                 class="relative bg-background/40 hover:bg-muted/60 transition-colors cursor-pointer group"
                 style="height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
-                onclick={() => onSelect(row.entry.uid)}
+                onclick={() => onSelect(row.entry.uid, row.entry)}
               >
                 <td class="px-3 py-1 relative z-10">
                   <div class="flex items-center h-full gap-2">

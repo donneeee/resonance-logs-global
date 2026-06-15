@@ -14,9 +14,9 @@ use log::{debug, error, info, warn};
 use once_cell::sync::OnceCell;
 #[cfg(debug_assertions)]
 use serde::Serialize;
-use std::collections::{HashMap, HashSet};
 #[cfg(debug_assertions)]
 use std::collections::hash_map::DefaultHasher;
+use std::collections::{HashMap, HashSet};
 #[cfg(debug_assertions)]
 use std::hash::{Hash, Hasher};
 use std::sync::atomic::{AtomicUsize, Ordering};
@@ -1256,14 +1256,9 @@ fn read_packets(
                 }
 
                 let len_bytes = &tcp_payload[offset..offset + FRAG_LENGTH_SIZE];
-                let tcp_frag_payload_len = u32::from_be_bytes([
-                    len_bytes[0],
-                    len_bytes[1],
-                    len_bytes[2],
-                    len_bytes[3],
-                ])
-                .saturating_sub(FRAG_LENGTH_SIZE as u32)
-                    as usize;
+                let tcp_frag_payload_len =
+                    u32::from_be_bytes([len_bytes[0], len_bytes[1], len_bytes[2], len_bytes[3]])
+                        .saturating_sub(FRAG_LENGTH_SIZE as u32) as usize;
                 offset += FRAG_LENGTH_SIZE;
 
                 if tcp_payload.len().saturating_sub(offset) < tcp_frag_payload_len {
@@ -1412,7 +1407,10 @@ fn process_scene_stream_packet(
         }
     }
 
-    match stream.tcp_reassembler.insert_segment(sequence_number, payload) {
+    match stream
+        .tcp_reassembler
+        .insert_segment(sequence_number, payload)
+    {
         TcpInsertResult::Contiguous(buffer) => {
             stream.reassembler.feed_owned(buffer);
         }

@@ -15,6 +15,9 @@ use std::collections::HashMap;
 pub struct BossHealth {
     /// The unique ID of the boss.
     pub uid: i64,
+    /// Stable string entity key for frontend identity.
+    #[serde(default)]
+    pub entity_key: Option<String>,
     /// The name of the boss.
     pub name: String,
     /// The current HP of the boss.
@@ -41,6 +44,9 @@ pub struct HeaderInfo {
     pub fight_start_timestamp_ms: u128, // Unix timestamp when fight started
     /// Whether DPS/rate display time should stop advancing while parsing continues.
     pub dps_display_paused: bool,
+    /// Stable string entity key for the local player.
+    #[serde(default)]
+    pub local_player_key: Option<String>,
     /// A list of bosses in the encounter.
     pub bosses: Vec<BossHealth>,
     /// The ID of the scene where the encounter took place.
@@ -65,6 +71,8 @@ pub struct LiveDataPayload {
     pub total_heal: u128,
     pub total_effective_heal: u128,
     pub local_player_uid: i64,
+    #[serde(default)]
+    pub local_player_key: Option<String>,
     pub scene_id: Option<i32>,
     pub scene_name: Option<String>,
     pub is_paused: bool,
@@ -86,6 +94,8 @@ pub struct RawEntityData {
     pub uid: i64,
     #[serde(default)]
     pub uuid: Option<i64>,
+    #[serde(default)]
+    pub entity_key: Option<String>,
     pub name: String,
     pub class_id: i32,
     pub class_spec: i32,
@@ -965,20 +975,23 @@ pub fn build_per_target_stats(
     stats_by_skill_target: &HashMap<(i64, i64), SkillTargetStats>,
     totals_by_target: Option<&HashMap<i64, u128>>,
 ) -> Vec<PerTargetStats> {
-    let mut grouped = HashMap::<i64, PerTargetStats>::new();
+    let mut grouped = HashMap::<(Option<i64>, i64), PerTargetStats>::new();
 
     for (&(skill_id, target_uid), stats) in stats_by_skill_target {
-        let entry = grouped.entry(target_uid).or_insert_with(|| PerTargetStats {
-            target_uid,
-            target_uuid: stats.target_uuid,
-            target_name: stats
-                .monster_name
-                .clone()
-                .unwrap_or_else(|| format!("#{}", target_uid)),
-            total_value: 0,
-            damage: RawCombatStats::default(),
-            skills: HashMap::new(),
-        });
+        let identity_key = (stats.target_uuid.filter(|uuid| *uuid > 0), target_uid);
+        let entry = grouped
+            .entry(identity_key)
+            .or_insert_with(|| PerTargetStats {
+                target_uid,
+                target_uuid: stats.target_uuid,
+                target_name: stats
+                    .monster_name
+                    .clone()
+                    .unwrap_or_else(|| format!("#{}", target_uid)),
+                total_value: 0,
+                damage: RawCombatStats::default(),
+                skills: HashMap::new(),
+            });
 
         if entry.target_name.starts_with('#') && stats.monster_name.is_some() {
             entry.target_name = stats.monster_name.clone().unwrap_or_default();
@@ -1016,9 +1029,18 @@ pub fn build_per_target_stats(
     }
 
     if let Some(totals) = totals_by_target {
+        let mut uid_counts = HashMap::<i64, usize>::new();
+        for row in grouped.values() {
+            *uid_counts.entry(row.target_uid).or_default() += 1;
+        }
         for (target_uid, target_total) in totals {
-            if let Some(entry) = grouped.get_mut(target_uid) {
-                entry.total_value = *target_total;
+            if uid_counts.get(target_uid).copied().unwrap_or_default() == 1 {
+                if let Some(entry) = grouped
+                    .values_mut()
+                    .find(|entry| entry.target_uid == *target_uid)
+                {
+                    entry.total_value = *target_total;
+                }
             }
         }
     }
@@ -1032,20 +1054,23 @@ pub fn build_per_target_summary_stats(
     stats_by_skill_target: &HashMap<(i64, i64), SkillTargetStats>,
     totals_by_target: Option<&HashMap<i64, u128>>,
 ) -> Vec<PerTargetStats> {
-    let mut grouped = HashMap::<i64, PerTargetStats>::new();
+    let mut grouped = HashMap::<(Option<i64>, i64), PerTargetStats>::new();
 
     for (&(_, target_uid), stats) in stats_by_skill_target {
-        let entry = grouped.entry(target_uid).or_insert_with(|| PerTargetStats {
-            target_uid,
-            target_uuid: stats.target_uuid,
-            target_name: stats
-                .monster_name
-                .clone()
-                .unwrap_or_else(|| format!("#{}", target_uid)),
-            total_value: 0,
-            damage: RawCombatStats::default(),
-            skills: HashMap::new(),
-        });
+        let identity_key = (stats.target_uuid.filter(|uuid| *uuid > 0), target_uid);
+        let entry = grouped
+            .entry(identity_key)
+            .or_insert_with(|| PerTargetStats {
+                target_uid,
+                target_uuid: stats.target_uuid,
+                target_name: stats
+                    .monster_name
+                    .clone()
+                    .unwrap_or_else(|| format!("#{}", target_uid)),
+                total_value: 0,
+                damage: RawCombatStats::default(),
+                skills: HashMap::new(),
+            });
 
         if entry.target_name.starts_with('#') && stats.monster_name.is_some() {
             entry.target_name = stats.monster_name.clone().unwrap_or_default();
@@ -1066,25 +1091,109 @@ pub fn build_per_target_summary_stats(
     }
 
     if let Some(totals) = totals_by_target {
+        let mut uid_counts = HashMap::<i64, usize>::new();
+        for row in grouped.values() {
+            *uid_counts.entry(row.target_uid).or_default() += 1;
+        }
         for (target_uid, target_total) in totals {
-            let entry = grouped
-                .entry(*target_uid)
-                .or_insert_with(|| PerTargetStats {
-                    target_uid: *target_uid,
-                    target_uuid: None,
-                    target_name: format!("#{}", target_uid),
-                    total_value: 0,
-                    damage: RawCombatStats::default(),
-                    skills: HashMap::new(),
-                });
-            entry.total_value = *target_total;
-            entry.damage.total = *target_total;
+            match uid_counts.get(target_uid).copied().unwrap_or_default() {
+                0 => {
+                    grouped.insert(
+                        (None, *target_uid),
+                        PerTargetStats {
+                            target_uid: *target_uid,
+                            target_uuid: None,
+                            target_name: format!("#{}", target_uid),
+                            total_value: *target_total,
+                            damage: RawCombatStats {
+                                total: *target_total,
+                                ..Default::default()
+                            },
+                            skills: HashMap::new(),
+                        },
+                    );
+                }
+                1 => {
+                    if let Some(entry) = grouped
+                        .values_mut()
+                        .find(|entry| entry.target_uid == *target_uid)
+                    {
+                        entry.total_value = *target_total;
+                        entry.damage.total = *target_total;
+                    }
+                }
+                _ => {}
+            }
         }
     }
 
     let mut rows: Vec<PerTargetStats> = grouped.into_values().collect();
     rows.sort_by(|a, b| b.total_value.cmp(&a.total_value));
     rows
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn per_target_stats_keep_same_uid_target_uuids_distinct() {
+        let shared_uid = 42;
+        let first_uuid = 1_001;
+        let second_uuid = 1_002;
+        let mut skill_targets = HashMap::new();
+        skill_targets.insert(
+            (10, shared_uid),
+            SkillTargetStats {
+                target_uuid: Some(first_uuid),
+                hits: 1,
+                total_value: 100,
+                effective_total_value: 100,
+                monster_name: Some("First".into()),
+                ..Default::default()
+            },
+        );
+        skill_targets.insert(
+            (20, shared_uid),
+            SkillTargetStats {
+                target_uuid: Some(second_uuid),
+                hits: 1,
+                total_value: 250,
+                effective_total_value: 250,
+                monster_name: Some("Second".into()),
+                ..Default::default()
+            },
+        );
+
+        let mut uid_totals = HashMap::new();
+        uid_totals.insert(shared_uid, 999);
+
+        let rows = build_per_target_summary_stats(&skill_targets, Some(&uid_totals));
+        assert_eq!(rows.len(), 2);
+        assert!(rows.iter().any(|row| {
+            row.target_uid == shared_uid
+                && row.target_uuid == Some(first_uuid)
+                && row.total_value == 100
+        }));
+        assert!(rows.iter().any(|row| {
+            row.target_uid == shared_uid
+                && row.target_uuid == Some(second_uuid)
+                && row.total_value == 250
+        }));
+
+        let rows = build_per_target_stats(&skill_targets, Some(&uid_totals));
+        assert_eq!(rows.len(), 2);
+        assert!(rows.iter().any(|row| {
+            row.target_uuid == Some(first_uuid)
+                && row.skills.contains_key(&10)
+                && row.total_value == 100
+        }));
+        assert!(rows.iter().any(|row| {
+            row.target_uuid == Some(second_uuid)
+                && row.skills.contains_key(&20)
+                && row.total_value == 250
+        }));
+    }
 }
 
 pub fn build_taken_per_source(by_skill_source: &HashMap<(i64, i32), Skill>) -> Vec<PerSourceStats> {
@@ -1184,6 +1293,8 @@ pub struct BuffUpdateState {
     pub layer: i32,
     pub duration_ms: i32,
     pub create_time_ms: i64,
+    pub host_key: Option<String>,
+    pub source_key: Option<String>,
     pub host_uid: i64,
     pub source_uid: i64,
     pub source_config_id: Option<i32>,
@@ -1207,11 +1318,13 @@ pub struct TeammateBuffUpdatePayload {
     pub teammate_buffs: HashMap<String, Vec<BuffUpdateState>>,
 }
 
-#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct HateEntry {
-    #[serde(default)]
+    #[serde(default, skip_serializing)]
     pub entity_uuid: Option<i64>,
+    #[serde(default)]
+    pub entity_key: Option<String>,
     pub uid: i64,
     pub hate_val: u32,
 }
@@ -1220,6 +1333,23 @@ pub struct HateEntry {
 #[serde(rename_all = "camelCase")]
 pub struct HateListUpdatePayload {
     pub hate_lists: HashMap<String, Vec<HateEntry>>,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TeammateFantasyState {
+    pub summon_uuid: String,
+    pub summoner_uuid: String,
+    pub summoner_name: Option<String>,
+    pub monster_id: i32,
+    pub remodel_level: i64,
+    pub detected_at_ms: i64,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct TeammateFantasyUpdatePayload {
+    pub fantasies: Vec<TeammateFantasyState>,
 }
 
 #[derive(serde::Serialize, Debug, Clone)]
@@ -1350,6 +1480,8 @@ pub struct DamageSnapshot {
 #[serde(rename_all = "camelCase")]
 pub struct DeathRecord {
     pub victim_uid: i64,
+    pub victim_uuid: Option<i64>,
+    pub victim_key: Option<String>,
     pub death_timestamp_ms: u128,
     pub recent_damages: Vec<DamageSnapshot>,
 }

@@ -1,15 +1,9 @@
-import { invoke } from "@tauri-apps/api/core";
 import {
   SETTINGS,
   normalizeSkillMonitorProfileForPersistence,
   type SkillMonitorProfile,
 } from "$lib/settings-store";
-
-type ProfileLibraryJsonFile = {
-  fileName: string;
-  path: string;
-  content: string;
-};
+import { commands } from "$lib/bindings";
 
 type ProfileLibrarySkippedFile = {
   fileName: string;
@@ -77,11 +71,8 @@ async function writeNormalizedProfileFile(
   profile: SkillMonitorProfile,
 ): Promise<void> {
   const content = `${JSON.stringify(profile, null, 2)}\n`;
-  await invoke("write_profile_library_file", {
-    directory,
-    fileName,
-    content,
-  });
+  const result = await commands.writeProfileLibraryFile(directory, fileName, content);
+  if (result.status === "error") throw new Error(result.error);
 }
 
 function selectLoadedProfile(profiles: SkillMonitorProfile[], profileFiles: Record<string, string>) {
@@ -116,9 +107,9 @@ export async function loadProfileLibraryFromSettings(): Promise<boolean> {
 
   profileLibraryRuntime.loading = true;
   try {
-    const files = await invoke<ProfileLibraryJsonFile[]>("read_profile_library_files", {
-      directory: folder,
-    });
+    const result = await commands.readProfileLibraryFiles(folder);
+    if (result.status === "error") throw new Error(result.error);
+    const files = result.data;
     const profiles: SkillMonitorProfile[] = [];
     const profileFiles: Record<string, string> = {};
     const seenIds = new Set<string>();
@@ -199,11 +190,9 @@ export async function saveActiveProfileToLibrary(): Promise<string> {
     { fallbackId: profile.id },
   );
   const content = `${JSON.stringify(normalizedProfile, null, 2)}\n`;
-  const path = await invoke<string>("write_profile_library_file", {
-    directory: folder,
-    fileName,
-    content,
-  });
+  const result = await commands.writeProfileLibraryFile(folder, fileName, content);
+  if (result.status === "error") throw new Error(result.error);
+  const path = result.data;
 
   SETTINGS.profileLibrary.state.profileFiles = {
     ...SETTINGS.profileLibrary.state.profileFiles,
@@ -217,5 +206,6 @@ export async function saveActiveProfileToLibrary(): Promise<string> {
 export async function openProfileLibraryFolder(): Promise<void> {
   const folder = SETTINGS.profileLibrary.state.folder.trim();
   if (!folder) throw new Error("Profile library folder is not configured");
-  await invoke("open_profile_library_dir", { directory: folder });
+  const result = await commands.openProfileLibraryDir(folder);
+  if (result.status === "error") throw new Error(result.error);
 }

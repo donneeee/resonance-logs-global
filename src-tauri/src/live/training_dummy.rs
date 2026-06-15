@@ -184,12 +184,8 @@ pub fn inspect_aoi_delta(
     local_player_uuid: i64,
 ) -> Option<TrainingDummyMatch> {
     let target_uuid = delta.uuid?;
-    let target_uid = encounter
-        .entity_uuid_to_uid
-        .get(&target_uuid)
-        .copied()
-        .unwrap_or_else(|| uid_from_uuid(target_uuid));
-    let monster_id = resolve_target_monster_id(encounter, delta, target_uuid, target_uid)?;
+    let target_uid = uid_from_uuid(target_uuid);
+    let monster_id = resolve_target_monster_id(encounter, delta, target_uuid)?;
     let has_local_player_damage = delta.skill_effects.as_ref().is_some_and(|effects| {
         effects
             .damages
@@ -209,7 +205,6 @@ fn resolve_target_monster_id(
     encounter: &Encounter,
     delta: &AoiSyncDelta,
     target_uuid: i64,
-    target_uid: i64,
 ) -> Option<TrainingDummyMonsterId> {
     let attrs_monster_id = delta.attrs.as_ref().and_then(|attrs| {
         attrs.attrs.iter().find_map(|attr| {
@@ -225,14 +220,8 @@ fn resolve_target_monster_id(
 
     attrs_monster_id
         .or_else(|| {
-            let resolved_uid = encounter
-                .entity_uuid_to_uid
-                .get(&target_uuid)
-                .copied()
-                .unwrap_or(target_uid);
             encounter
                 .entity_by_uuid(target_uuid)
-                .or_else(|| encounter.entity_by_uid(resolved_uid))
                 .and_then(|entity| entity.monster_type_id)
         })
         .and_then(|monster_id| TrainingDummyMonsterId::try_from(monster_id).ok())
