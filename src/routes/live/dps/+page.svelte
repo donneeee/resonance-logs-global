@@ -7,7 +7,11 @@
     getLiveDisplayNowMs,
   } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
-  import { livePlayerRoute } from "$lib/live-entity-route";
+  import {
+    liveEntityMatchesLocalPlayer,
+    liveEntityRenderKey,
+    livePlayerRoute,
+  } from "$lib/live-entity-route";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
   import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
@@ -35,17 +39,18 @@
     liveData ? computePlayerRows(liveData, "dps", liveDisplayNowMs) : [],
   );
 
-  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+  type LivePlayerIdentity = {
+    uid: number;
+    entityUuid?: string | null;
+    entityKey?: string | null;
+  };
 
   function playerRenderKey(player: LivePlayerIdentity): string | number {
-    return player.entityKey?.trim() || player.uid;
+    return liveEntityRenderKey(player);
   }
 
   function isLocalPlayerRow(player: LivePlayerIdentity): boolean {
-    const localPlayerKey = liveData?.localPlayerKey?.trim();
-    const playerEntityKey = player.entityKey?.trim();
-    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
-    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+    return liveEntityMatchesLocalPlayer(player, liveData);
   }
 
   // Sorting settings

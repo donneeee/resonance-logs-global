@@ -1610,14 +1610,25 @@
     "sourceId": "frost_mage_x2",
     "name": "冰魔X2, 释放陨星风暴获得 44 点能量",
     "description": "释放陨星风暴获得 44 点能量",
-    "source": {
-      "skillCast": {
-        "skillBaseIds": [
-          1239
-        ],
-        "increment": 44
+    "source": [
+      {
+        "skillCast": {
+          "skillBaseIds": [
+            1239
+          ],
+          "increment": 44
+        }
+      },
+      {
+        "damageBySkillKeyOnce": {
+          "skillKeys": [
+            312090200
+          ],
+          "increment": 44,
+          "requiredTypeFlags": 5
+        }
       }
-    },
+    ],
     "itemIds": [
       20010231,
       20010232,
@@ -2777,39 +2788,24 @@
   },
   {
     "sourceId": "beat_performer_s3_x8_heroic",
-    "name": "Beat Performer X8, Heroic Melody grants 8 Illusion Energy per second",
-    "description": "While Heroic Melody is active, grants 8 Illusion Energy per second.",
-    "source": {
-      "buffDurationTick": {
-        "buffId": 55392,
-        "tickIntervalMs": 1000,
-        "increment": 8
+    "name": "Beat Performer X8, Heroic or Healing Melody grants 8 Illusion Energy per second",
+    "description": "While Heroic Melody or Healing Melody is active, grants 8 Illusion Energy per second.",
+    "source": [
+      {
+        "buffDurationTick": {
+          "buffId": 55392,
+          "tickIntervalMs": 1000,
+          "increment": 8
+        }
+      },
+      {
+        "buffDurationTick": {
+          "buffId": 55332,
+          "tickIntervalMs": 1000,
+          "increment": 8
+        }
       }
-    },
-    "itemIds": [
-      20020841,
-      20020842,
-      20020843,
-      20020844,
-      20020845,
-      20020846,
-      20020847,
-      20020848,
-      20020849,
-      20020850
-    ]
-  },
-  {
-    "sourceId": "beat_performer_s3_x8_healing",
-    "name": "Beat Performer X8, Healing Melody grants 8 Illusion Energy per second",
-    "description": "While Healing Melody is active, grants 8 Illusion Energy per second.",
-    "source": {
-      "buffDurationTick": {
-        "buffId": 55332,
-        "tickIntervalMs": 1000,
-        "increment": 8
-      }
-    },
+    ],
     "itemIds": [
       20020841,
       20020842,

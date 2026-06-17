@@ -317,6 +317,66 @@ const DAMAGE_STACK_NAMES: MultiLangValue = {
   design: "DMG Stack",
 };
 
+const STEEL_BEAK_NAMES: MultiLangValue = {
+  en: "Steel Beak",
+  "zh-CN": "\u94a2\u5236\u55d3",
+  "zh-TW": "\u92fc\u88fd\u55d3",
+  ja: "\u30b9\u30c1\u30fc\u30eb\u30d3\u30fc\u30af",
+  "ko-KR": "\uac15\ucca0 \ubd80\ub9ac",
+  fr: "Bec d'acier",
+  de: "Stahlschnabel",
+  es: "Pico de acero",
+  "pt-BR": "Bico de a\u00e7o",
+  th: "\u0e08\u0e30\u0e07\u0e2d\u0e22\u0e40\u0e2b\u0e25\u0e47\u0e01",
+  id: "Paruh Baja",
+  design: "\u94a2\u5236\u55d3",
+};
+
+const S3_ONE_HAND_FACTOR_TRIGGER_NAMES: MultiLangValue = {
+  en: "One-Hand S3 Factor Trigger",
+  "zh-CN": "\u5355\u624bs3\u56e0\u5b50\u901a\u7528\u89e6\u53d1\u7279\u6548buff",
+  "zh-TW": "\u55ae\u624bS3\u56e0\u5b50\u901a\u7528\u89f8\u767c\u7279\u6548Buff",
+  ja: "\u7247\u624bS3\u30d5\u30a1\u30af\u30bf\u30fc\u6c4e\u7528\u767a\u52d5\u52b9\u679c",
+  "ko-KR": "\ud55c\uc190 S3 \ud329\ud130 \uacf5\uc6a9 \ubc1c\ub3d9 \ud6a8\uacfc",
+  fr: "Declencheur de facteur S3 une main",
+  de: "Einhands-S3-Faktor-Ausloeser",
+  es: "Activador de factor S3 de una mano",
+  "pt-BR": "Gatilho de fator S3 de uma mao",
+  th: "\u0e15\u0e31\u0e27\u0e01\u0e23\u0e30\u0e15\u0e38\u0e49\u0e19\u0e41\u0e1f\u0e01\u0e40\u0e15\u0e2d\u0e23\u0e4c S3 \u0e21\u0e37\u0e2d\u0e40\u0e14\u0e35\u0e22\u0e27",
+  id: "Pemicu Faktor S3 Satu Tangan",
+  design: "\u5355\u624bs3\u56e0\u5b50\u901a\u7528\u89e6\u53d1\u7279\u6548buff",
+};
+
+const S3_TWO_HAND_FACTOR_TRIGGER_NAMES: MultiLangValue = {
+  en: "Two-Hand S3 Factor Trigger",
+  "zh-CN": "\u53cc\u624bs3\u56e0\u5b50\u901a\u7528\u89e6\u53d1\u7279\u6548buff",
+  "zh-TW": "\u96d9\u624bS3\u56e0\u5b50\u901a\u7528\u89f8\u767c\u7279\u6548Buff",
+  ja: "\u4e21\u624bS3\u30d5\u30a1\u30af\u30bf\u30fc\u6c4e\u7528\u767a\u52d5\u52b9\u679c",
+  "ko-KR": "\uc591\uc190 S3 \ud329\ud130 \uacf5\uc6a9 \ubc1c\ub3d9 \ud6a8\uacfc",
+  fr: "Declencheur de facteur S3 deux mains",
+  de: "Zweihands-S3-Faktor-Ausloeser",
+  es: "Activador de factor S3 de dos manos",
+  "pt-BR": "Gatilho de fator S3 de duas maos",
+  th: "\u0e15\u0e31\u0e27\u0e01\u0e23\u0e30\u0e15\u0e38\u0e49\u0e19\u0e41\u0e1f\u0e01\u0e40\u0e15\u0e2d\u0e23\u0e4c S3 \u0e2a\u0e2d\u0e07\u0e21\u0e37\u0e2d",
+  id: "Pemicu Faktor S3 Dua Tangan",
+  design: "\u53cc\u624bs3\u56e0\u5b50\u901a\u7528\u89e6\u53d1\u7279\u6548buff",
+};
+
+const S3_LEFT_HAND_FACTOR_TRIGGER_NAMES: MultiLangValue = {
+  en: "Left-Hand S3 Factor Trigger",
+  "zh-CN": "\u5de6\u624bs3\u56e0\u5b50\u901a\u7528\u89e6\u53d1\u7279\u6548buff",
+  "zh-TW": "\u5de6\u624bS3\u56e0\u5b50\u901a\u7528\u89f8\u767c\u7279\u6548Buff",
+  ja: "\u5de6\u624bS3\u30d5\u30a1\u30af\u30bf\u30fc\u6c4e\u7528\u767a\u52d5\u52b9\u679c",
+  "ko-KR": "\uc67c\uc190 S3 \ud329\ud130 \uacf5\uc6a9 \ubc1c\ub3d9 \ud6a8\uacfc",
+  fr: "Declencheur de facteur S3 main gauche",
+  de: "Linkshand-S3-Faktor-Ausloeser",
+  es: "Activador de factor S3 de mano izquierda",
+  "pt-BR": "Gatilho de fator S3 da mao esquerda",
+  th: "\u0e15\u0e31\u0e27\u0e01\u0e23\u0e30\u0e15\u0e38\u0e49\u0e19\u0e41\u0e1f\u0e01\u0e40\u0e15\u0e2d\u0e23\u0e4c S3 \u0e21\u0e37\u0e2d\u0e0b\u0e49\u0e32\u0e22",
+  id: "Pemicu Faktor S3 Tangan Kiri",
+  design: "\u5de6\u624bs3\u56e0\u5b50\u901a\u7528\u89e6\u53d1\u7279\u6548buff",
+};
+
 const PHANTOM_WOLFSTRIKE_NAMES: MultiLangValue = {
   en: "Phantom Wolfstrike",
   "zh-CN": "\u5e7b\u5f71\u72fc\u88ad",
@@ -397,11 +457,16 @@ const MOONLIGHT_SOLACE_SHIELD_NAMES: MultiLangValue = {
 };
 
 const BUFF_ID_NAME_FALLBACKS: Record<number, MultiLangValue> = {
+  9901: S3_ONE_HAND_FACTOR_TRIGGER_NAMES,
+  9902: S3_TWO_HAND_FACTOR_TRIGGER_NAMES,
+  9903: S3_LEFT_HAND_FACTOR_TRIGGER_NAMES,
   // 2208181 is a Burn damage/buff source row. The generated parent-recount
   // bridge can incorrectly inherit Explosion, which is a separate TWAX proc.
   2208181: BURN_EFFECT_NAMES,
   2203090: PHANTOM_WOLFSTRIKE_NAMES,
   2203091: PHANTOM_WOLFSTRIKE_BLEED_NAMES,
+  2203520: STEEL_BEAK_NAMES,
+  2203521: STEEL_BEAK_NAMES,
   2202705: MOONLIGHT_SOLACE_SHIELD_NAMES,
   2404271: S2_SET_4B_SHIELD_NAMES,
   510072: {
@@ -839,11 +904,11 @@ function composeOwnerQualifiedBuffNames(
 
 function enrichGeneratedBuffNames(entry: RawBuffEntry, names: MultiLangValue): MultiLangValue {
   const enriched: MultiLangValue = {};
-  addMergedMultiLangValue(enriched, findDesignFallbackNames(entry));
-  addMergedMultiLangValue(enriched, findBuffIdFallbackNames(entry));
   addMergedMultiLangValue(enriched, findModifierDisplayFallbackNames(entry, names));
   addMergedMultiLangValue(enriched, names, true);
-  addMergedMultiLangValue(enriched, composeOwnerQualifiedBuffNames(entry, names), true);
+  addMergedMultiLangValue(enriched, findDesignFallbackNames(entry), true);
+  addMergedMultiLangValue(enriched, findBuffIdFallbackNames(entry), true);
+  addMergedMultiLangValue(enriched, composeOwnerQualifiedBuffNames(entry, enriched), true);
   return enriched;
 }
 

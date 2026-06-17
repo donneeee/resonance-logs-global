@@ -11,6 +11,7 @@
     deathRecordRouteSubject,
   } from "$lib/death-record-identity";
   import {
+    liveEntityMatchesLocalPlayer,
     liveEntityMatchesRoute,
     livePlayerRoute,
     liveRouteIdentityFromSearch,
@@ -29,11 +30,7 @@
   const entity = $derived(
     liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
   );
-  const isLocalPlayer = $derived(
-    liveData?.localPlayerKey && entity?.entityKey
-      ? liveData.localPlayerKey === entity.entityKey
-      : liveData?.localPlayerUid != null && playerUid === liveData.localPlayerUid,
-  );
+  const isLocalPlayer = $derived(liveEntityMatchesLocalPlayer(entity, liveData));
 
   const routeSubject = $derived.by<LiveEntityRouteSubject>(() => {
     const firstRecord = deaths[0];
@@ -43,6 +40,7 @@
         ? deathRecordRouteSubject(firstRecord)
         : {
             uid: playerUid,
+            entityUuid: routeIdentity.entityUuid,
             entityKey: routeIdentity.entityKey,
           })
     );

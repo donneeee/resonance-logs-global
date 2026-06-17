@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { convertFileSrc } from "@tauri-apps/api/core";
+  import { convertFileSrc, invoke } from "@tauri-apps/api/core";
 
   type BackgroundImageMode = "cover" | "contain" | "fit-width";
 
@@ -17,18 +17,70 @@
     opacity?: number;
   } = $props();
 
-  const renderedImage = $derived.by(() => {
-    const source = image.trim();
-    if (!source) return "";
-    if (/^(data:|blob:|https?:|asset:|tauri:)/i.test(source)) {
-      return source;
+  function fileUrlToPath(source: string): string {
+    const url = new URL(source);
+    let pathname = decodeURIComponent(url.pathname);
+    if (url.hostname) {
+      return `\\\\${url.hostname}${pathname.replace(/\//g, "\\")}`;
     }
+    if (/^\/[a-zA-Z]:\//.test(pathname)) {
+      pathname = pathname.slice(1);
+    }
+    return pathname.replace(/\//g, "\\");
+  }
+
+  let renderedImage = $state("");
+  let loadToken = 0;
+
+  function isDirectImageSource(source: string): boolean {
+    return /^(data:|blob:|https?:|asset:|tauri:)/i.test(source);
+  }
+
+  function convertLocalFileSource(source: string): string {
+    return convertFileSrc(/^file:/i.test(source) ? fileUrlToPath(source) : source);
+  }
+
+  function cssUrlValue(source: string): string {
+    return source.replace(/\\/g, "\\\\").replace(/"/g, "%22").replace(/[\r\n]/g, "");
+  }
+
+  $effect(() => {
+    const source = image.trim();
+    const token = ++loadToken;
+    if (!source) {
+      renderedImage = "";
+      return;
+    }
+    if (isDirectImageSource(source)) {
+      renderedImage = source;
+      return;
+    }
+
+    const localPath = /^file:/i.test(source) ? fileUrlToPath(source) : source;
+    let cancelled = false;
+
     try {
-      return convertFileSrc(source);
+      renderedImage = convertLocalFileSource(source);
     } catch (error) {
       console.warn("Failed to convert background image path", error);
-      return source;
+      renderedImage = "";
     }
+
+    invoke<string>("load_background_image_data_url", { imagePath: localPath })
+      .then((dataUrl) => {
+        if (!cancelled && token === loadToken) {
+          renderedImage = dataUrl;
+        }
+      })
+      .catch((error) => {
+        if (!cancelled && token === loadToken) {
+          console.warn("Failed to load background image data", error);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
   });
   const visible = $derived(enabled && renderedImage.length > 0);
   const normalizedOpacity = $derived(Math.max(0, Math.min(100, opacity)) / 100);
@@ -39,7 +91,7 @@
 
     return [
       `opacity: ${normalizedOpacity}`,
-      `background-image: url("${renderedImage.replace(/"/g, "%22")}")`,
+      `background-image: url("${cssUrlValue(renderedImage)}")`,
       `background-size: ${size}`,
       `background-position: ${position}`,
       "background-repeat: no-repeat",

@@ -18,10 +18,13 @@
   import {
     SETTINGS,
     createDefaultBuffAlertRule,
+    ensureTeammatePanelStyle,
     ensureBuffAliases,
     ensureBuffAlerts,
     type BuffAlertRule,
     type CustomPanelStyle,
+    type TeammateBuffColumnKey,
+    type TeammatePanelStyle,
   } from "$lib/settings-store";
   import { localizeMonsterName } from "$lib/monster-mappings";
   import SettingsSwitch from "../dps/settings/settings-switch.svelte";
@@ -35,6 +38,20 @@
     label: string;
     rawName: string;
   };
+  type TeammateColumnItem =
+    | {
+        key: TeammateBuffColumnKey;
+        kind: "buff";
+        label: string;
+        buffId: number;
+        spriteFile?: string;
+      }
+    | {
+        key: TeammateBuffColumnKey;
+        kind: "category";
+        label: string;
+        categoryKey: BuffCategoryKey;
+      };
 
   const availableBuffs = getAvailableBuffDefinitions();
   const availableBuffMap = new Map<number, BuffDefinition>(
@@ -78,6 +95,32 @@
   const selectedTeammateBuffCategories = $derived.by(() =>
     buffCategoryDefinitions.filter((category) =>
       teammateBuffCategories.includes(category.key),
+    ),
+  );
+  const teammateColumnItems = $derived.by(() =>
+    orderTeammateColumnItems(
+      [
+        ...teammateBuffIds.map((buffId): TeammateColumnItem => {
+          const iconBuff = availableBuffMap.get(buffId);
+          const item: TeammateColumnItem = {
+            key: teammateBuffColumnKey(buffId),
+            kind: "buff",
+            label: buffName(buffId),
+            buffId,
+          };
+          if (iconBuff) item.spriteFile = iconBuff.spriteFile;
+          return item;
+        }),
+        ...selectedTeammateBuffCategories.map(
+          (category): TeammateColumnItem => ({
+            key: teammateCategoryColumnKey(category.key),
+            kind: "category",
+            label: buffCategoryLabel(category.key),
+            categoryKey: category.key,
+          }),
+        ),
+      ],
+      monsterMonitor.teammateBuffColumnOrder ?? [],
     ),
   );
   const fantasyMonsterOptions = $derived.by(() => {
@@ -299,17 +342,93 @@
     }));
   }
 
-  function updateTeammatePanelStyle<K extends keyof typeof teammatePanelStyle>(
+  function updateTeammatePanelStyle<K extends keyof TeammatePanelStyle>(
     key: K,
-    value: (typeof teammatePanelStyle)[K],
+    value: TeammatePanelStyle[K],
   ) {
     updateMonsterMonitor((state) => ({
       ...state,
-      teammatePanelStyle: {
+      teammatePanelStyle: ensureTeammatePanelStyle({
         ...(state.teammatePanelStyle ?? state.panelStyle),
         [key]: value,
-      },
+      }),
     }));
+  }
+
+  function teammateBuffColumnKey(buffId: number): TeammateBuffColumnKey {
+    return `buff:${buffId}`;
+  }
+
+  function teammateCategoryColumnKey(categoryKey: BuffCategoryKey): TeammateBuffColumnKey {
+    return `category:${categoryKey}`;
+  }
+
+  function getTeammateColumnKeys(
+    state: Pick<
+      typeof SETTINGS.monsterMonitor.state,
+      "teammateBuffIds" | "teammateBuffCategories"
+    >,
+  ): TeammateBuffColumnKey[] {
+    return [
+      ...(state.teammateBuffIds ?? []).map(teammateBuffColumnKey),
+      ...(state.teammateBuffCategories ?? []).map(teammateCategoryColumnKey),
+    ];
+  }
+
+  function syncTeammateColumnOrder(
+    state: Pick<
+      typeof SETTINGS.monsterMonitor.state,
+      "teammateBuffIds" | "teammateBuffCategories" | "teammateBuffColumnOrder"
+    >,
+  ): TeammateBuffColumnKey[] {
+    const keys = getTeammateColumnKeys(state);
+    const keySet = new Set(keys);
+    const next: TeammateBuffColumnKey[] = [];
+    for (const key of state.teammateBuffColumnOrder ?? []) {
+      if (!keySet.has(key) || next.includes(key)) continue;
+      next.push(key);
+    }
+    for (const key of keys) {
+      if (!next.includes(key)) next.push(key);
+    }
+    return next;
+  }
+
+  function orderTeammateColumnItems(
+    items: TeammateColumnItem[],
+    order: TeammateBuffColumnKey[],
+  ): TeammateColumnItem[] {
+    if (order.length === 0) return items;
+    const byKey = new Map(items.map((item) => [item.key, item]));
+    const seen = new Set<TeammateBuffColumnKey>();
+    const ordered: TeammateColumnItem[] = [];
+    for (const key of order) {
+      const item = byKey.get(key);
+      if (!item || seen.has(item.key)) continue;
+      seen.add(item.key);
+      ordered.push(item);
+    }
+    for (const item of items) {
+      if (!seen.has(item.key)) ordered.push(item);
+    }
+    return ordered;
+  }
+
+  function moveTeammateColumn(
+    key: TeammateBuffColumnKey,
+    direction: "up" | "down",
+  ) {
+    updateMonsterMonitor((state) => {
+      const order = syncTeammateColumnOrder(state);
+      const index = order.indexOf(key);
+      if (index === -1) return state;
+      const target = direction === "up" ? index - 1 : index + 1;
+      if (target < 0 || target >= order.length) return state;
+      const next = [...order];
+      next[index] = order[target]!;
+      next[target] = key;
+      return { ...state, teammateBuffColumnOrder: next };
+    });
   }
 
   function addFantasyMonster(monsterId: number) {
@@ -386,11 +505,16 @@
     updateMonsterMonitor((state) => {
       const current = state.teammateBuffIds ?? [];
       const exists = current.includes(buffId);
+      const teammateBuffIds = exists
+        ? current.filter((id) => id !== buffId)
+        : [...current, buffId];
       return {
         ...state,
-        teammateBuffIds: exists
-          ? current.filter((id) => id !== buffId)
-          : [...current, buffId],
+        teammateBuffIds,
+        teammateBuffColumnOrder: syncTeammateColumnOrder({
+          ...state,
+          teammateBuffIds,
+        }),
       };
     });
   }
@@ -399,29 +523,48 @@
     updateMonsterMonitor((state) => {
       const current = state.teammateBuffCategories ?? [];
       const exists = current.includes(categoryKey);
+      const teammateBuffCategories = exists
+        ? current.filter((key) => key !== categoryKey)
+        : [...current, categoryKey];
       return {
         ...state,
-        teammateBuffCategories: exists
-          ? current.filter((key) => key !== categoryKey)
-          : [...current, categoryKey],
+        teammateBuffCategories,
+        teammateBuffColumnOrder: syncTeammateColumnOrder({
+          ...state,
+          teammateBuffCategories,
+        }),
       };
     });
   }
 
   function removeTeammateBuff(buffId: number) {
-    updateMonsterMonitor((state) => ({
-      ...state,
-      teammateBuffIds: (state.teammateBuffIds ?? []).filter((id) => id !== buffId),
-    }));
+    updateMonsterMonitor((state) => {
+      const teammateBuffIds = (state.teammateBuffIds ?? []).filter((id) => id !== buffId);
+      return {
+        ...state,
+        teammateBuffIds,
+        teammateBuffColumnOrder: syncTeammateColumnOrder({
+          ...state,
+          teammateBuffIds,
+        }),
+      };
+    });
   }
 
   function removeTeammateBuffCategory(categoryKey: BuffCategoryKey) {
-    updateMonsterMonitor((state) => ({
-      ...state,
-      teammateBuffCategories: (state.teammateBuffCategories ?? []).filter(
+    updateMonsterMonitor((state) => {
+      const teammateBuffCategories = (state.teammateBuffCategories ?? []).filter(
         (key) => key !== categoryKey,
-      ),
-    }));
+      );
+      return {
+        ...state,
+        teammateBuffCategories,
+        teammateBuffColumnOrder: syncTeammateColumnOrder({
+          ...state,
+          teammateBuffCategories,
+        }),
+      };
+    });
   }
 
   function isSelectedTeammateBuff(buffId: number) {
@@ -632,8 +775,18 @@
             <div class="text-sm font-semibold text-foreground">{t("selfApplied", "Self Only")}</div>
             <div class="text-xs text-muted-foreground">{t("selfAppliedDescription", "Track only buffs applied to the boss by your character")}</div>
           </div>
+          <SettingsSwitch
+            label={t("selfAppliedMonitorAll", "Monitor all self-applied boss buffs")}
+            description={t("selfAppliedMonitorAllDescription", "Show every boss buff your character applies, even when it is not listed below.")}
+            bind:checked={SETTINGS.monsterMonitor.state.selfAppliedMonitorAll}
+          />
+          {#if monsterMonitor.selfAppliedMonitorAll}
+            <div class="text-xs text-muted-foreground">
+              {t("selfAppliedMonitorAllActive", "Individual self-only selections remain saved, but all self-applied boss buffs are shown while this is enabled.")}
+            </div>
+          {/if}
           {#if selfAppliedBuffIds.length > 0}
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2" class:opacity-50={monsterMonitor.selfAppliedMonitorAll}>
               {#each selfAppliedBuffIds as buffId (buffId)}
                 {@const iconBuff = availableBuffMap.get(buffId)}
                 <button
@@ -1031,35 +1184,46 @@
           <div class="text-sm font-semibold text-foreground">{t("teammate.groupTitle", "Monitored Teammate Buffs")}</div>
           <div class="text-xs text-muted-foreground">{t("teammate.groupDescription", "Individual buffs and categories become columns in the teammate matrix.")}</div>
         </div>
-        {#if teammateBuffIds.length > 0 || selectedTeammateBuffCategories.length > 0}
-          <div class="flex flex-wrap gap-2">
-            {#each teammateBuffIds as buffId (buffId)}
-              {@const iconBuff = availableBuffMap.get(buffId)}
-              <button
-                type="button"
-                class="selected-buff"
-                onclick={() => removeTeammateBuff(buffId)}
-                title={t("removeHint", "Click to remove")}
-              >
-                {#if iconBuff}
+        {#if teammateColumnItems.length > 0}
+          <div class="space-y-2">
+            {#each teammateColumnItems as item, idx (item.key)}
+              <div class="teammate-order-row">
+                <span class="text-xs text-muted-foreground w-6 text-center">{idx + 1}</span>
+                {#if item.kind === "buff" && item.spriteFile}
                   <img
-                    src={`/images/buff/${iconBuff.spriteFile}`}
-                    alt={buffName(buffId)}
+                    src={`/images/buff/${item.spriteFile}`}
+                    alt={item.label}
                     class="w-8 h-8 rounded object-contain bg-muted/20"
                   />
                 {/if}
-                <span>{buffName(buffId)}</span>
-              </button>
-            {/each}
-            {#each selectedTeammateBuffCategories as category (category.key)}
-              <button
-                type="button"
-                class="selected-buff"
-                onclick={() => removeTeammateBuffCategory(category.key)}
-                title={t("removeHint", "Click to remove")}
-              >
-                <span>{buffCategoryLabel(category.key)}</span>
-              </button>
+                <span class="min-w-0 flex-1 truncate text-sm text-foreground">{item.label}</span>
+                <button
+                  type="button"
+                  class="mini-button"
+                  onclick={() => moveTeammateColumn(item.key, "up")}
+                  disabled={idx === 0}
+                >
+                  {t("priority.moveUp", "Up")}
+                </button>
+                <button
+                  type="button"
+                  class="mini-button"
+                  onclick={() => moveTeammateColumn(item.key, "down")}
+                  disabled={idx === teammateColumnItems.length - 1}
+                >
+                  {t("priority.moveDown", "Down")}
+                </button>
+                <button
+                  type="button"
+                  class="mini-button danger"
+                  onclick={() =>
+                    item.kind === "buff"
+                      ? removeTeammateBuff(item.buffId)
+                      : removeTeammateBuffCategory(item.categoryKey)}
+                >
+                  {t("remove", "Remove")}
+                </button>
+              </div>
             {/each}
           </div>
         {:else}
@@ -1119,6 +1283,54 @@
                 )}
             />
             <strong>{teammatePanelStyle.fontSize}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("style.rowHeight", "Row Height")}</span>
+            <input
+              type="range"
+              min="16"
+              max="48"
+              value={teammatePanelStyle.rowHeight}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "rowHeight",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{teammatePanelStyle.rowHeight}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("style.nameColumnWidth", "Teammate Column Width")}</span>
+            <input
+              type="range"
+              min="48"
+              max="260"
+              value={teammatePanelStyle.nameColumnWidth}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "nameColumnWidth",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{teammatePanelStyle.nameColumnWidth}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("style.buffColumnWidth", "Buff Column Width")}</span>
+            <input
+              type="range"
+              min="36"
+              max="180"
+              value={teammatePanelStyle.buffColumnWidth}
+              oninput={(event) =>
+                updateTeammatePanelStyle(
+                  "buffColumnWidth",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{teammatePanelStyle.buffColumnWidth}px</strong>
           </label>
         </div>
 
@@ -1563,6 +1775,16 @@
   }
 
   .fantasy-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 10px;
+    border: 1px solid rgba(148, 163, 184, 0.22);
+    background: rgba(15, 23, 42, 0.28);
+  }
+
+  .teammate-order-row {
     display: flex;
     align-items: center;
     gap: 8px;

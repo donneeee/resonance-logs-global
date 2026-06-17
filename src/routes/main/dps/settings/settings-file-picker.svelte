@@ -83,8 +83,9 @@
       if (typeof selectedPath !== "string" || !selectedPath) {
         return;
       }
-      fileName = fileNameFromPath(selectedPath);
-      await onchange(selectedPath, fileName);
+      const selectedName = fileNameFromPath(selectedPath);
+      await onchange(selectedPath, selectedName);
+      fileName = selectedName;
     } catch (error) {
       console.error("Failed to choose file", error);
     } finally {
@@ -98,13 +99,18 @@
     if (!file) return;
 
     isLoading = true;
-    fileName = file.name;
-    
+
     const reader = new FileReader();
     reader.onload = async (e) => {
-      const dataUrl = e.target?.result as string;
-      await onchange(dataUrl, file.name);
-      isLoading = false;
+      try {
+        const dataUrl = e.target?.result as string;
+        await onchange(dataUrl, file.name);
+        fileName = file.name;
+      } catch (error) {
+        console.error("Failed to import file", error);
+      } finally {
+        isLoading = false;
+      }
     };
     reader.onerror = () => {
       console.error('Failed to read file');
@@ -118,7 +124,11 @@
     if (fileInput) {
       fileInput.value = '';
     }
-    await onclear();
+    try {
+      await onclear();
+    } catch (error) {
+      console.error("Failed to clear file", error);
+    }
   }
 </script>
 

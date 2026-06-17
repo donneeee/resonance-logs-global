@@ -465,5 +465,10 @@
   "liveWindowBehavior.autoHide": "Sembunyikan otomatis",
   "liveWindowBehavior.pauseAndReset": "Jeda & Reset",
   "liveWindowBehavior.performance": "Performa",
-  "liveWindowBehavior.dynamicHeight": "Tinggi Dinamis"
+  "liveWindowBehavior.dynamicHeight": "Tinggi Dinamis",
+  "liveHeader.abbreviatedNumbers": "Abbreviated Numbers",
+  "liveHeader.abbreviatedSuffixFontSize": "Suffix Font Size",
+  "liveHeader.abbreviatedSuffixFontSize.description": "Controls the K/M suffix size for live header numbers.",
+  "liveHeader.noBossTextColor": "No Boss Text Color",
+  "liveHeader.noBossTextColor.description": "Text color used when no boss is detected."
 }

@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onDestroy } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
-  import { unregister } from "@tauri-apps/plugin-global-shortcut";
 
   import AlertCircleIcon from "virtual:icons/lucide/alert-circle";
   import * as Tabs from "$lib/components/ui/tabs/index.js";
@@ -11,11 +10,22 @@
 
   import { SETTINGS } from "$lib/settings-store";
   import { uiT } from "$lib/i18n";
-  import { GENERAL_SHORTCUTS, clearRegisteredShortcut, findShortcutConflict, registerShortcut, type ShortcutOwner } from "./shortcuts.js";
+  import {
+    GENERAL_SHORTCUTS,
+    clearRegisteredShortcut,
+    findShortcutConflict,
+    isSystemShortcutKey,
+    registerShortcut,
+    safeUnregisterShortcut,
+    validateGlobalShortcut,
+    type ShortcutOwner,
+    type ShortcutValidationReason,
+  } from "./shortcuts.js";
   import type { BaseInput } from "./settings.js";
 
   let editingId: string | null = $state(null);
   let editingConflict = $state<ShortcutOwner | null>(null);
+  let editingInvalidReason: ShortcutValidationReason | null = $state(null);
 
   const modifierOrder = ["ctrl", "shift", "alt", "meta"];
   const MODIFIERS = new SvelteSet(modifierOrder);
@@ -63,26 +73,38 @@
     activeMods.clear();
     mainKey = null;
     editingConflict = null;
+    editingInvalidReason = null;
     editingId = null;
   }
 
   function handleKeyDown(e: KeyboardEvent) {
-    e.preventDefault();
     const modKey = normalizeModifier(e.key);
 
     if (MODIFIERS.has(modKey)) {
+      e.preventDefault();
       activeMods.add(modKey);
+      editingInvalidReason = null;
       return;
     }
 
-    mainKey = getKeyName(e);
+    const keyName = getKeyName(e);
+    if (isSystemShortcutKey(keyName)) {
+      editingConflict = null;
+      editingInvalidReason = "systemKey";
+      mainKey = null;
+      return;
+    }
+
+    e.preventDefault();
+    editingInvalidReason = null;
+    mainKey = keyName;
   }
 
-  function handleKeyUp(e: KeyboardEvent) {
-    e.preventDefault();
+  async function handleKeyUp(e: KeyboardEvent) {
     const modKey = normalizeModifier(e.key);
 
     if (MODIFIERS.has(modKey)) {
+      e.preventDefault();
       activeMods.delete(modKey);
       stopEdit();
       return;
@@ -90,21 +112,30 @@
 
     if (mainKey) {
       const shortcutKey = currentShortcutString();
-      const hasMain = !!mainKey;
-      if (!hasMain) return;
+      const validation = validateGlobalShortcut(shortcutKey);
+      if (!validation.valid) {
+        e.preventDefault();
+        editingConflict = null;
+        editingInvalidReason = validation.reason;
+        mainKey = null;
+        return;
+      }
 
       const cmd = inputs.find((c) => c.id === editingId);
       if (cmd) {
-        const conflict = findShortcutConflict(shortcutKey, { section: "general", id: cmd.id });
+        const conflict = findShortcutConflict(validation.shortcut, { section: "general", id: cmd.id });
         if (conflict) {
+          e.preventDefault();
           editingConflict = conflict;
           return;
         }
         editingConflict = null;
-        unregister(SETTINGS.shortcuts.state[cmd.id]);
-        SETTINGS.shortcuts.state[cmd.id] = shortcutKey;
-        registerShortcut("general", cmd.id, shortcutKey);
+        editingInvalidReason = null;
+        await safeUnregisterShortcut(SETTINGS.shortcuts.state[cmd.id]);
+        SETTINGS.shortcuts.state[cmd.id] = validation.shortcut;
+        await registerShortcut("general", cmd.id, validation.shortcut);
       }
+      e.preventDefault();
       stopEdit();
     }
   }
@@ -121,6 +152,12 @@
     return owner.section === "customTriggers"
       ? customHotkeyT(owner.labelKey, owner.fallbackLabel)
       : t(owner.labelKey, owner.fallbackLabel);
+  }
+
+  function validationMessage(reason: ShortcutValidationReason): string {
+    return reason === "systemKey"
+      ? t("invalid.systemKey", "Media, browser, launcher, and system keys cannot be used as global hotkeys.")
+      : t("invalid.missingModifier", "Global hotkeys must include at least one modifier, such as Ctrl, Alt, Shift, or Win.");
   }
 
   onDestroy(stopEdit);
@@ -143,6 +180,12 @@
       <Alert.Root class="shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] border-destructive/40 text-destructive">
         <AlertCircleIcon />
         <Alert.Title>{t("conflictAssigned", "That hotkey is already assigned to")}: {conflictLabel(editingConflict)}</Alert.Title>
+      </Alert.Root>
+    {/if}
+    {#if editingInvalidReason}
+      <Alert.Root class="shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] border-destructive/40 text-destructive">
+        <AlertCircleIcon />
+        <Alert.Title>{validationMessage(editingInvalidReason)}</Alert.Title>
       </Alert.Root>
     {/if}
     <div class="rounded-lg border bg-card/40 border-border/60 p-4 space-y-2 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">

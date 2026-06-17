@@ -40,6 +40,7 @@
   import AppBackgroundLayer from "$lib/components/app-background-layer.svelte";
   import { writable } from "svelte/store";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
+  import { liveEntityRenderKey } from "$lib/live-entity-route";
 
 
   function t(key: string, fallback: string): string {
@@ -124,6 +125,7 @@
   let lastLiveActivitySignature = "";
   let lastLiveActivityAtMs = Date.now();
   let frozenLiveDisplayNowMs: number | null = null;
+  let suppressEmptyClearAfterSceneChange = false;
   const CROWDED_SESSION_MIN_REFRESH_MS = 1000;
   const GAME_FOREGROUND_POLL_MS = 750;
   const LIVE_SETTINGS_REFRESH_FALLBACK_MS = 3000;
@@ -196,7 +198,7 @@
   function liveActivitySignature(payload: LiveDataPayload): string {
     const bosses = payload.bosses
       .map((boss) => [
-        boss.entityKey ?? boss.uid,
+        liveEntityRenderKey(boss),
         boss.name,
         boss.currentHp ?? "",
         boss.maxHp ?? "",
@@ -205,7 +207,7 @@
 
     const entities = payload.entities
       .map((entity) => [
-        entity.entityKey ?? entity.uid,
+        liveEntityRenderKey(entity),
         entity.uuid ?? "",
         entity.name,
         entity.classId,
@@ -291,7 +293,22 @@
     payload: LiveDataPayload,
     nowMs = Date.now(),
   ): void {
+    suppressEmptyClearAfterSceneChange = false;
     updateLiveActivityFromPayload(payload, nowMs);
+  }
+
+  function shouldSuppressEmptyLiveClear(): boolean {
+    return suppressEmptyClearAfterSceneChange
+      && SETTINGS.live.general.state.autoClearOnSceneChange === false;
+  }
+
+  function clearEmptyLivePayload(nowMs = Date.now()): void {
+    if (shouldSuppressEmptyLiveClear()) {
+      setLiveDisplayNowMs(nowMs);
+      return;
+    }
+    resetLiveActivityTracking(nowMs);
+    clearMeterData();
   }
 
   function refreshLiveDisplay(nowMs = Date.now()): void {
@@ -637,8 +654,7 @@
         if (event.payload.fightStartTimestampMs > 0) {
           ingestLiveDataPayload(event.payload, lastEventTime);
         } else if (event.payload.totalDmg === 0 && event.payload.totalHeal === 0) {
-          resetLiveActivityTracking(lastEventTime);
-          clearMeterData();
+          clearEmptyLivePayload(lastEventTime);
         }
       });
 
@@ -653,6 +669,7 @@
         if (isDestroyed) return;
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        suppressEmptyClearAfterSceneChange = false;
         autoHideLastObservedDamageTotal = 0;
         resetLiveActivityTracking(lastEventTime);
         void syncAutoHideLiveWindow(false);
@@ -686,7 +703,7 @@ t("live.resetToast", "Encounter reset"),
           event.payload.headerInfo.fightStartTimestampMs <= 0 &&
           event.payload.headerInfo.totalDmg === 0
         ) {
-          clearMeterData();
+          clearEmptyLivePayload(lastEventTime);
         }
         // only show a toast if the pause state actually changed AND we've started receiving combat data
         // Note: do NOT show a toast on the initial listener attach (lastPauseState === null)
@@ -725,10 +742,14 @@ t("live.resumeToast", "战斗已继续"),
         // Treat scene change as a keep-alive
         lastEventTime = Date.now();
         hadAnyEvent = true;
-        resetLiveActivityTracking(lastEventTime);
         if (SETTINGS.live.general.state.autoClearOnSceneChange !== false) {
+          suppressEmptyClearAfterSceneChange = false;
+          resetLiveActivityTracking(lastEventTime);
           autoHideLastObservedDamageTotal = 0;
           void syncAutoHideLiveWindow(false);
+        } else {
+          suppressEmptyClearAfterSceneChange = true;
+          setLiveDisplayNowMs(lastEventTime);
         }
         // notificationToast?.showToast('notice', `Scene changed to ${event.payload.sceneName}`);
       });
@@ -1103,7 +1124,11 @@ t("live.resumeToast", "战斗已继续"),
     containColor={SETTINGS.accessibility.state.backgroundImageContainColor || "rgba(0, 0, 0, 0)"}
     opacity={SETTINGS.accessibility.state.backgroundImageOpacity ?? 100}
   />
-  <div class="pointer-events-none absolute inset-0 z-10 bg-background-live"></div>
+  <div
+    class="pointer-events-none absolute inset-0 z-10 {SETTINGS.accessibility.state.backgroundImageEnabled
+      ? 'app-background-wash-live'
+      : 'bg-background-live'}"
+  ></div>
 
   <div class="relative z-20 flex {dynamicWindowEnabled ? 'h-auto' : 'h-full'} flex-col">
     <div class="relative z-40 shrink-0">
@@ -1121,6 +1146,10 @@ t("live.resumeToast", "战斗已继续"),
 </div>
 
 <style>
+  .app-background-wash-live {
+    background: color-mix(in srgb, var(--background-live) 72%, transparent);
+  }
+
   :global {
     html,
     body {

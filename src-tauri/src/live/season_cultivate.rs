@@ -158,7 +158,7 @@ fn build_counter_rules(
     templates: &[FactorCounterTemplate],
     selection: &SeasonCultivateFactorSelection,
 ) -> Vec<CounterRule> {
-    if selection.source_item_ids.is_empty() || selection.slot_item_ids.is_empty() {
+    if selection.slot_item_ids.is_empty() {
         return Vec::new();
     }
     let source_templates: Vec<&FactorCounterTemplate> = templates
@@ -168,9 +168,6 @@ fn build_counter_rules(
                 && template_matches_any_item_id(template, &selection.source_item_ids)
         })
         .collect();
-    if source_templates.is_empty() {
-        return Vec::new();
-    }
     selection
         .slot_item_ids
         .iter()
@@ -191,7 +188,7 @@ fn build_counter_rules(
                 .iter()
                 .flat_map(|template| template.sources.iter().cloned())
                 .collect();
-            if sources.is_empty() {
+            if sources.is_empty() && !template.uses_global_energy {
                 return None;
             }
             Some(CounterRule {
@@ -978,6 +975,43 @@ mod tests {
     }
 
     #[test]
+    fn factor_rule_generation_keeps_global_energy_slots_without_sources() {
+        let mut data = blueprotobuf::SeasonCultivateLineData::default();
+        let mut line = blueprotobuf::CultivateLineData::default();
+        let mut sub_type = blueprotobuf::CultivateLineSubTypeData::default();
+
+        sub_type
+            .cultivate_line_data_map
+            .insert(1, area_with_middle_items(vec![3001]));
+        line.cultivate_line_map.insert(10, sub_type);
+        data.season_cultivate_line_map.insert(20, line);
+
+        let mut state = SeasonCultivateRuntimeState::default();
+        state.set_templates(vec![FactorCounterTemplate {
+            item_ids: vec![3001],
+            uses_global_energy: true,
+            sources: Vec::new(),
+            effect_slots: vec![slot_config(8001)],
+        }]);
+
+        assert!(state.replace_data(data));
+        assert_eq!(
+            state.active_selection(),
+            &SeasonCultivateFactorSelection {
+                source_item_ids: Vec::new(),
+                slot_item_ids: vec![3001],
+            }
+        );
+
+        let rules = state.build_factor_counter_rules();
+        assert_eq!(rules.len(), 1);
+        assert_eq!(rules[0].rule_id, factor_rule_id(3001));
+        assert!(rules[0].sources.is_empty());
+        assert_eq!(rules[0].effect_slots.len(), 1);
+        assert_eq!(rules[0].effect_slots[0].reset_buff_id, 8001);
+    }
+
+    #[test]
     fn factor_rule_generation_does_not_use_source_increment_as_slot_threshold() {
         let mut data = blueprotobuf::SeasonCultivateLineData::default();
         let mut line = blueprotobuf::CultivateLineData::default();
@@ -1082,6 +1116,7 @@ mod tests {
             alt_freeze: None,
             threshold_modifier: None,
             freeze_duration_modifier: None,
+            freeze_on_threshold: false,
             reset_skill_keys: None,
             on_reset_skill: CounterAction::NoOp,
         }

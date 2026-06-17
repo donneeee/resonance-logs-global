@@ -1,4 +1,4 @@
-import { SETTINGS } from "$lib/settings-store";
+import { SETTINGS, ensureTeammatePanelStyle } from "$lib/settings-store";
 import {
   DEFAULT_MONSTER_OVERLAY_POSITIONS,
   DEFAULT_MONSTER_OVERLAY_SIZES,
@@ -78,8 +78,10 @@ export function monsterPanelStyle() {
 }
 
 export function teammatePanelStyle() {
-  return SETTINGS.monsterMonitor.state.teammatePanelStyle
-    ?? SETTINGS.monsterMonitor.state.panelStyle;
+  return ensureTeammatePanelStyle(
+    SETTINGS.monsterMonitor.state.teammatePanelStyle
+      ?? SETTINGS.monsterMonitor.state.panelStyle,
+  );
 }
 
 export function hatePanelStyle() {

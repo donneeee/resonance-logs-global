@@ -16,7 +16,6 @@ pub struct EntityAttrStore {
     hate_lists: HashMap<i64, Vec<HateEntry>>,
     fight_resource_ids: HashMap<i64, Vec<i32>>,
     temp_attrs: HashMap<i32, i32>,
-    local_player_uid: i64,
     local_player_uuid: i64,
     panel_attr_values: HashMap<i32, i32>,
     cd_dirty: bool,
@@ -42,7 +41,6 @@ impl EntityAttrStore {
             hate_lists: HashMap::new(),
             fight_resource_ids: HashMap::new(),
             temp_attrs: HashMap::new(),
-            local_player_uid: 0,
             local_player_uuid: 0,
             panel_attr_values: HashMap::new(),
             cd_dirty: false,
@@ -53,71 +51,12 @@ impl EntityAttrStore {
         }
     }
 
-    pub fn set_local_uid(&mut self, uid: i64) {
-        self.local_player_uid = uid;
-        self.sync_local_aliases();
-    }
-
-    pub fn local_player_uid(&self) -> i64 {
-        self.local_player_uid
-    }
-
     pub fn set_local_uuid(&mut self, uuid: i64) {
         self.local_player_uuid = uuid;
-        self.sync_local_aliases();
     }
 
     pub fn local_player_uuid(&self) -> i64 {
         self.local_player_uuid
-    }
-
-    fn local_alias_for(&self, id: i64) -> Option<i64> {
-        if self.local_player_uid <= 0 || self.local_player_uuid <= 0 {
-            return None;
-        }
-        if id == self.local_player_uid && id != self.local_player_uuid {
-            Some(self.local_player_uuid)
-        } else if id == self.local_player_uuid && id != self.local_player_uid {
-            Some(self.local_player_uid)
-        } else {
-            None
-        }
-    }
-
-    fn sync_local_aliases(&mut self) {
-        let uid = self.local_player_uid;
-        let uuid = self.local_player_uuid;
-        if uid <= 0 || uuid <= 0 || uid == uuid {
-            return;
-        }
-
-        if let Some(uid_attrs) = self.attrs.get(&uid).cloned() {
-            let uuid_attrs = self.attrs.entry(uuid).or_default();
-            for (attr_type, value) in uid_attrs {
-                uuid_attrs.entry(attr_type).or_insert(value);
-            }
-        }
-        if let Some(uuid_attrs) = self.attrs.get(&uuid).cloned() {
-            let uid_attrs = self.attrs.entry(uid).or_default();
-            for (attr_type, value) in uuid_attrs {
-                uid_attrs.entry(attr_type).or_insert(value);
-            }
-        }
-
-        if let Some(ids) = self.fight_resource_ids.get(&uid).cloned() {
-            self.fight_resource_ids.entry(uuid).or_insert(ids);
-        }
-        if let Some(ids) = self.fight_resource_ids.get(&uuid).cloned() {
-            self.fight_resource_ids.entry(uid).or_insert(ids);
-        }
-    }
-
-    fn local_attr_key(&self) -> i64 {
-        if self.local_player_uuid > 0 && self.attrs.contains_key(&self.local_player_uuid) {
-            self.local_player_uuid
-        } else {
-            self.local_player_uid
-        }
     }
 
     pub fn set_attr(&mut self, uid: i64, attr_type: AttrType, value: AttrValue) -> bool {
@@ -131,17 +70,8 @@ impl EntityAttrStore {
         if !changed {
             return false;
         }
-        self.attrs
-            .entry(uid)
-            .or_default()
-            .insert(attr_type, value.clone());
-        if let Some(alias) = self.local_alias_for(uid) {
-            self.attrs
-                .entry(alias)
-                .or_default()
-                .insert(attr_type, value);
-        }
-        let is_local_player = uid == self.local_player_uid || uid == self.local_player_uuid;
+        self.attrs.entry(uid).or_default().insert(attr_type, value);
+        let is_local_player = uid == self.local_player_uuid;
         if is_local_player && attr_affects_skill_cd(attr_type) {
             self.cd_dirty = true;
         }
@@ -190,19 +120,12 @@ impl EntityAttrStore {
             return false;
         }
         self.fight_resource_ids.insert(uid, ids.clone());
-        if let Some(alias) = self.local_alias_for(uid) {
-            self.fight_resource_ids.insert(alias, ids);
-        }
         true
     }
 
     pub fn fight_resource_ids(&self, uid: i64) -> &[i32] {
         self.fight_resource_ids
             .get(&uid)
-            .or_else(|| {
-                self.local_alias_for(uid)
-                    .and_then(|alias| self.fight_resource_ids.get(&alias))
-            })
             .map_or(&[], std::vec::Vec::as_slice)
     }
 
@@ -223,13 +146,6 @@ impl EntityAttrStore {
         self.attrs
             .get(&uid)
             .and_then(|entity_attrs| entity_attrs.get(&attr_type))
-            .or_else(|| {
-                self.local_alias_for(uid).and_then(|alias| {
-                    self.attrs
-                        .get(&alias)
-                        .and_then(|entity_attrs| entity_attrs.get(&attr_type))
-                })
-            })
     }
 
     pub fn attr_int_by_id(&self, uid: i64, attr_id: i32) -> Option<i64> {
@@ -302,7 +218,7 @@ impl EntityAttrStore {
     }
 
     pub fn cd_inputs(&self) -> (f32, f32, f32) {
-        let uid = self.local_attr_key();
+        let uid = self.local_player_uuid;
         let attr_skill_cd = self
             .attr(uid, AttrType::SkillCd)
             .and_then(AttrValue::as_int)
@@ -319,7 +235,7 @@ impl EntityAttrStore {
     }
 
     pub fn local_attr_int(&self, attr_type: AttrType) -> Option<i64> {
-        self.attr(self.local_attr_key(), attr_type)
+        self.attr(self.local_player_uuid, attr_type)
             .and_then(AttrValue::as_int)
     }
 

@@ -101,6 +101,7 @@ impl MonitorRuntimeSnapshot {
         if !self.monster.enabled {
             self.monster.global_ids.clear();
             self.monster.self_applied_ids.clear();
+            self.monster.monitor_all_self_applied = false;
         }
         dedup_and_sort_i32(&mut self.teammate.any_source_ids);
         dedup_and_sort_i32(&mut self.teammate.local_player_source_ids);
@@ -159,6 +160,7 @@ pub struct MonsterRuntimeSnapshot {
     pub enabled: bool,
     pub global_ids: Vec<i32>,
     pub self_applied_ids: Vec<i32>,
+    pub monitor_all_self_applied: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type, Default)]

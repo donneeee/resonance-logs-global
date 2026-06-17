@@ -29,6 +29,9 @@ use crate::live::seasonal_factor_selector::{
 use crate::live::skill_cd_monitor::{
     SkillCdMonitor, SkillCdRuntimeSnapshot, buff_changes_affect_skill_cd, calculate_skill_cd,
 };
+use crate::live::skill_lifecycle::{
+    ClientSkillCast, ServerSkillEnd, SkillLifecycleOutput, SkillLifecycleRuntime,
+};
 use crate::live::team::{TeamEquipmentItem, TeamEvent, TeamMemberEquipment, TeamRuntimeState};
 use crate::live::training_dummy::{CombatGate, TrainingDummyRuntime, inspect_aoi_delta};
 use blueprotobuf_lib::blueprotobuf;
@@ -78,6 +81,10 @@ pub enum StateEvent {
         /// Whether this was a manual reset by the user (true) vs automatic (false).
         is_manual: bool,
     },
+    /// A local client skill cast request.
+    ClientSkillCast(ClientSkillCast),
+    /// A server skill end notification.
+    ServerSkillEnd(ServerSkillEnd),
 }
 
 /// Represents the state of the application.
@@ -147,9 +154,7 @@ pub struct EntityMonitor {
     pub uid: i64,
     pub buff_monitor: BuffMonitor,
     pub skill_cd_monitor: SkillCdMonitor,
-    /// Last counted factor SkillCast cooldown begin time, keyed by skill base ID.
-    pub factor_skill_cd_begin_times: HashMap<i32, i64>,
-    pub factor_counter_reset_at_ms: i64,
+    pub skill_lifecycle: SkillLifecycleRuntime,
     pub monitored_panel_attr_ids: Vec<i32>,
     pub fight_res_state: Option<FightResourceState>,
     pub counter_tracker: BuffCounterTracker,
@@ -163,8 +168,7 @@ impl EntityMonitor {
             uid,
             buff_monitor: BuffMonitor::new(),
             skill_cd_monitor: SkillCdMonitor::new(),
-            factor_skill_cd_begin_times: HashMap::new(),
-            factor_counter_reset_at_ms: now_ms(),
+            skill_lifecycle: SkillLifecycleRuntime::default(),
             monitored_panel_attr_ids: Vec::new(),
             fight_res_state: None,
             counter_tracker: BuffCounterTracker::default(),
@@ -176,8 +180,7 @@ impl EntityMonitor {
     fn clear_runtime_state(&mut self) {
         self.buff_monitor.active_buffs.clear();
         self.skill_cd_monitor.skill_cd_map.clear();
-        self.factor_skill_cd_begin_times.clear();
-        self.factor_counter_reset_at_ms = now_ms();
+        self.skill_lifecycle.reset();
         self.fight_res_state = None;
         self.counter_tracker.reset_counts();
         self.factor_counter_tracker.reset_counts();
@@ -201,6 +204,7 @@ pub enum LiveControlCommand {
     SetBossMonitoredBuffs {
         global_ids: Vec<i32>,
         self_applied_ids: Vec<i32>,
+        monitor_all_self_applied: bool,
     },
     SetTeammateMonitoredBuffs {
         any_source_ids: Vec<i32>,
@@ -322,21 +326,35 @@ fn emit_local_buff_update_snapshot(state: &mut AppState) {
 
 fn emit_boss_buff_update_snapshot(state: &mut AppState) {
     let mut payload = build_monster_buff_snapshots(state);
-    payload.retain(|&uid, _| !state.attr_store.is_dead(uid));
+    payload.retain(|&entity_uuid, _| !state.attr_store.is_dead(entity_uuid));
+    let mut monster_ids = HashMap::new();
+    for &entity_uuid in payload.keys() {
+        let entity = state.encounter.entity_by_uuid(entity_uuid);
+        let display_uid = entity
+            .map(|entity| state.encounter.display_uid_for_entity(entity_uuid, entity))
+            .unwrap_or_else(|| uid_from_uuid(entity_uuid));
+        if let Some(monster_id) = monster_id_for_uuid(state, entity_uuid, entity) {
+            monster_ids.insert(entity_uuid_string(entity_uuid), monster_id);
+            if display_uid > 0 {
+                monster_ids.insert(display_uid.to_string(), monster_id);
+            }
+        }
+    }
+    if !monster_ids.is_empty() {
+        state
+            .event_manager
+            .emit_entity_identity_map(HashMap::new(), monster_ids);
+    }
     state.event_manager.emit_boss_buff_update(
         payload
             .into_iter()
-            .map(|(uid, buffs)| (entity_uuid_string(uid), buffs))
+            .map(|(entity_uuid, buffs)| (entity_uuid_string(entity_uuid), buffs))
             .collect(),
     );
 }
 
 fn emit_shield_detail_update_if_needed(state: &mut AppState, mut entries: Vec<ShieldDetailEntry>) {
-    let entity_uuid = if state.attr_store.local_player_uuid() > 0 {
-        state.attr_store.local_player_uuid()
-    } else {
-        state.attr_store.local_player_uid()
-    };
+    let entity_uuid = state.attr_store.local_player_uuid();
     let current_hp = state
         .attr_store
         .attr(entity_uuid, AttrType::CurrentHp)
@@ -393,6 +411,25 @@ fn emit_season_cultivate_factor_counter_update(state: &mut AppState) {
     state
         .event_manager
         .emit_season_cultivate_factor_counter_update(selection, snapshot, counters);
+}
+
+fn apply_skill_lifecycle_outputs(
+    state: &mut AppState,
+    outputs: Vec<SkillLifecycleOutput>,
+) -> (bool, bool) {
+    let mut counter_dirty = false;
+    let mut factor_counter_dirty = false;
+    for output in outputs {
+        counter_dirty |= state
+            .local_monitor
+            .counter_tracker
+            .on_skill_lifecycle_output(output);
+        factor_counter_dirty |= state
+            .local_monitor
+            .factor_counter_tracker
+            .on_skill_lifecycle_output(output);
+    }
+    (counter_dirty, factor_counter_dirty)
 }
 
 fn collect_dungeon_player_equipment(
@@ -470,23 +507,18 @@ fn refresh_season_cultivate_factor_rules(state: &mut AppState) {
         .local_monitor
         .season_cultivate
         .build_factor_counter_rules();
-    state.local_monitor.factor_skill_cd_begin_times.clear();
-    state.local_monitor.factor_counter_reset_at_ms = now_ms();
     state.local_monitor.factor_counter_tracker.set_rules(rules);
 }
 
 fn reset_season_cultivate_factor_counters(state: &mut AppState) {
-    state.local_monitor.factor_skill_cd_begin_times.clear();
-    state.local_monitor.factor_counter_reset_at_ms = now_ms();
     state.local_monitor.factor_counter_tracker.reset_counts();
     emit_season_cultivate_factor_counter_update(state);
 }
 
 fn hydrate_entities_from_attr_store(state: &mut AppState) {
-    let identity_keys = state.encounter.entity_identity_keys();
-    for (uid, uuid) in identity_keys {
-        if let Some(entity) = state.encounter.entity_mut_by_identity(uid, uuid) {
-            state.attr_store.hydrate_entity(uuid.unwrap_or(uid), entity);
+    for (&uuid, entity) in state.encounter.entity_uuid_to_entity.iter_mut() {
+        if uuid > 0 {
+            state.attr_store.hydrate_entity(uuid, entity);
         }
     }
 }
@@ -543,32 +575,44 @@ fn resolve_player_display_name(
 }
 
 fn collect_player_names(encounter: &Encounter) -> Vec<PlayerNameEntry> {
-    let entity_keys = encounter.entity_identity_keys();
-    let mut player_names: Vec<PlayerNameEntry> = Vec::with_capacity(entity_keys.len());
-    player_names.extend(entity_keys.into_iter().filter_map(|(uid, uuid)| {
-        let entity = encounter.entity_by_identity(uid, uuid)?;
-        entity_has_player_identity_surface(uid, entity, encounter.local_player_uid).then(|| {
-            PlayerNameEntry {
-                uid,
-                uuid: uuid.or_else(|| entity.uuid.filter(|uuid| *uuid > 0)),
-                name: if entity.name.trim().is_empty() {
-                    format!("#{uid}")
-                } else {
-                    entity.name.clone()
-                },
-                class_id: entity.class_id,
-                class_spec: entity.class_spec,
-            }
-        })
-    }));
+    let mut player_names: Vec<PlayerNameEntry> =
+        Vec::with_capacity(encounter.entity_uuid_to_entity.len());
+    player_names.extend(
+        encounter
+            .entity_uuid_to_entity
+            .iter()
+            .filter_map(|(&uuid, entity)| {
+                if uuid <= 0 {
+                    return None;
+                }
+                let uid = uid_from_uuid(uuid);
+                entity_has_player_identity_surface(uuid, entity, encounter.local_player_uuid).then(
+                    || PlayerNameEntry {
+                        uid,
+                        uuid: Some(uuid),
+                        name: if entity.name.trim().is_empty() {
+                            format!("#{uid}")
+                        } else {
+                            entity.name.clone()
+                        },
+                        class_id: entity.class_id,
+                        class_spec: entity.class_spec,
+                    },
+                )
+            }),
+    );
     player_names.sort_by(|a, b| a.name.cmp(&b.name));
     player_names.dedup_by(|a, b| a.name == b.name);
     player_names
 }
 
-fn entity_has_player_identity_surface(uid: i64, entity: &Entity, local_player_uid: i64) -> bool {
+fn entity_has_player_identity_surface(
+    entity_uuid: i64,
+    entity: &Entity,
+    local_player_uuid: i64,
+) -> bool {
     entity.entity_type == EEntityType::EntChar
-        && (uid == local_player_uid
+        && (entity_uuid == local_player_uuid
             || !entity.name.trim().is_empty()
             || entity.class_id > 0
             || entity.ability_score > 0
@@ -580,30 +624,15 @@ fn entity_has_player_identity_surface(uid: i64, entity: &Entity, local_player_ui
 }
 
 fn current_local_player_uuid(encounter: &Encounter) -> i64 {
-    if encounter.local_player_uuid != 0 {
-        encounter.local_player_uuid
-    } else if encounter.local_player_uid > 0 {
-        canonical_player_uuid(encounter.local_player_uid)
-    } else {
-        0
-    }
-}
-
-fn recorded_local_player_uuid(encounter: &Encounter) -> Option<i64> {
-    (encounter.local_player_uuid > 0).then_some(encounter.local_player_uuid)
+    encounter.local_player_uuid
 }
 
 fn local_player_entity(encounter: &Encounter) -> Option<&Entity> {
-    encounter.entity_by_identity(
-        encounter.local_player_uid,
-        recorded_local_player_uuid(encounter),
-    )
+    encounter.entity_by_uuid(encounter.local_player_uuid)
 }
 
 fn local_player_entity_mut(encounter: &mut Encounter) -> Option<&mut Entity> {
-    let uid = encounter.local_player_uid;
-    let uuid = recorded_local_player_uuid(encounter);
-    encounter.entity_mut_by_identity(uid, uuid)
+    encounter.entity_mut_by_uuid(encounter.local_player_uuid)
 }
 
 fn current_attack_target_uuid(state: &AppState) -> Option<i64> {
@@ -630,6 +659,20 @@ fn current_attack_target_uuid(state: &AppState) -> Option<i64> {
     Some(target_uuid)
 }
 
+fn monster_id_for_uuid(state: &AppState, entity_uuid: i64, entity: Option<&Entity>) -> Option<i32> {
+    entity
+        .and_then(|entity| entity.monster_type_id)
+        .or_else(|| {
+            state
+                .attr_store
+                .attr(entity_uuid, AttrType::MonsterId)
+                .and_then(AttrValue::as_int)
+                .and_then(|value| i32::try_from(value).ok())
+                .filter(|monster_id| *monster_id > 0)
+        })
+}
+
+#[allow(dead_code)]
 fn encounter_entity_for_identity_mut(
     encounter: &mut Encounter,
     uid: i64,
@@ -640,6 +683,18 @@ fn encounter_entity_for_identity_mut(
         entity_type,
         ..Default::default()
     })
+}
+
+fn encounter_entity_for_uuid_mut(
+    encounter: &mut Encounter,
+    uuid: Option<i64>,
+    entity_type: EEntityType,
+) -> Option<&mut Entity> {
+    let uuid = uuid.filter(|uuid| *uuid != 0)?;
+    Some(encounter.entity_by_uuid_or_insert_with(uuid, || Entity {
+        entity_type,
+        ..Default::default()
+    }))
 }
 
 fn infer_scene_id_from_scene_uuid(scene_uuid: i64) -> Option<i32> {
@@ -686,51 +741,41 @@ fn build_training_dummy_state(runtime: &TrainingDummyRuntime) -> TrainingDummySt
     }
 }
 
-fn is_known_other_player_source(
-    state: &AppState,
-    source_uid: i64,
-    source_uuid: Option<i64>,
-) -> bool {
-    let local_player_uid = state.encounter.local_player_uid;
+fn is_known_other_player_source(state: &AppState, source_uuid: Option<i64>) -> bool {
     let local_player_uuid = current_local_player_uuid(&state.encounter);
     if source_uuid.is_some_and(|uuid| uuid != 0 && uuid == local_player_uuid) {
         return false;
     }
-    source_uid > 0
-        && source_uid != local_player_uid
-        && state
+
+    if let Some(source_uuid) = source_uuid.filter(|uuid| *uuid > 0) {
+        return state
             .encounter
-            .entity_by_identity(source_uid, source_uuid.filter(|uuid| *uuid != 0))
+            .entity_uuid_to_entity
+            .get(&source_uuid)
             .map(|entity| entity.entity_type == EEntityType::EntChar)
-            .unwrap_or(false)
+            .unwrap_or(false);
+    }
+
+    false
 }
 
 fn known_other_player_sources(state: &AppState) -> (HashSet<i64>, HashSet<i64>) {
-    let local_player_uid = state.encounter.local_player_uid;
     let local_player_uuid = current_local_player_uuid(&state.encounter);
     let mut uids = HashSet::new();
     let mut uuids = HashSet::new();
 
-    for (uid, entity_uuid) in state.encounter.entity_identity_keys() {
-        let Some(entity) = state.encounter.entity_by_identity(uid, entity_uuid) else {
+    for (&uuid, entity) in &state.encounter.entity_uuid_to_entity {
+        if uuid <= 0 || uuid == local_player_uuid {
             continue;
-        };
+        }
         if entity.entity_type != EEntityType::EntChar {
             continue;
         }
-        if uid > 0 && uid != local_player_uid {
+        let uid = uid_from_uuid(uuid);
+        if uid > 0 {
             uids.insert(uid);
         }
-        if let Some(uuid) = entity_uuid
-            .or(entity.uuid)
-            .filter(|uuid| *uuid > 0 && *uuid != local_player_uuid)
-        {
-            uuids.insert(uuid);
-            let derived_uid = uid_from_uuid(uuid);
-            if derived_uid > 0 && derived_uid != local_player_uid {
-                uids.insert(derived_uid);
-            }
-        }
+        uuids.insert(uuid);
     }
 
     for &uuid in &state.team.members {
@@ -739,7 +784,7 @@ fn known_other_player_sources(state: &AppState) -> (HashSet<i64>, HashSet<i64>) 
         }
         uuids.insert(uuid);
         let uid = uid_from_uuid(uuid);
-        if uid > 0 && uid != local_player_uid {
+        if uid > 0 {
             uids.insert(uid);
         }
     }
@@ -747,30 +792,26 @@ fn known_other_player_sources(state: &AppState) -> (HashSet<i64>, HashSet<i64>) 
     (uids, uuids)
 }
 
-fn remember_local_owned_source(
-    state: &mut AppState,
-    source_uid: i64,
-    source_uuid: Option<i64>,
-) -> bool {
-    let local_player_uid = state.encounter.local_player_uid;
+fn remember_local_owned_source(state: &mut AppState, source_uuid: Option<i64>) -> bool {
     let local_player_uuid = current_local_player_uuid(&state.encounter);
     let source_is_local_uuid =
         source_uuid.is_some_and(|uuid| uuid != 0 && uuid == local_player_uuid);
-    if source_uid <= 0 && source_uuid.is_none_or(|uuid| uuid <= 0) {
+    if source_uuid.is_none_or(|uuid| uuid <= 0) {
         return false;
     }
-    if source_uid == local_player_uid || source_is_local_uuid {
+    if source_is_local_uuid {
         return false;
     }
-    if is_known_other_player_source(state, source_uid, source_uuid) {
+    if is_known_other_player_source(state, source_uuid) {
         return false;
     }
     let mut inserted = false;
-    if source_uid > 0 {
-        inserted |= state.local_owned_source_uids.insert(source_uid);
-    }
     if let Some(source_uuid) = source_uuid.filter(|uuid| *uuid > 0) {
         inserted |= state.local_owned_source_uuids.insert(source_uuid);
+        let derived_uid = uid_from_uuid(source_uuid);
+        if derived_uid > 0 {
+            inserted |= state.local_owned_source_uids.insert(derived_uid);
+        }
     }
     inserted
 }
@@ -779,9 +820,8 @@ fn remember_local_owned_sources_from_buff_changes(
     state: &mut AppState,
     changes: &[BuffChangeEvent],
 ) {
-    let local_player_uid = state.encounter.local_player_uid;
     let local_player_uuid = current_local_player_uuid(&state.encounter);
-    if local_player_uid <= 0 && local_player_uuid <= 0 {
+    if local_player_uuid == 0 {
         return;
     }
 
@@ -792,16 +832,13 @@ fn remember_local_owned_sources_from_buff_changes(
         ) {
             continue;
         }
-        let has_host_identity =
-            change.host_uuid.is_some_and(|uuid| uuid != 0) || change.host_uid != 0;
-        let host_is_local = (local_player_uuid != 0 && change.host_uuid == Some(local_player_uuid))
-            || (local_player_uid > 0 && change.host_uid == local_player_uid);
+        let has_host_identity = change.host_uuid.is_some_and(|uuid| uuid != 0);
+        let host_is_local = change.host_uuid == Some(local_player_uuid);
         if has_host_identity && !host_is_local {
             continue;
         }
 
-        let source_uid = change.source_uid;
-        let source_is_proxy = remember_local_owned_source(state, source_uid, change.source_uuid);
+        let source_is_proxy = remember_local_owned_source(state, change.source_uuid);
         if source_is_proxy {
             if let Some(source_config_id) = change.source_config_id.filter(|id| *id > 0) {
                 state.local_owned_source_config_ids.insert(source_config_id);
@@ -817,57 +854,48 @@ fn remember_local_owned_sources_from_damage_events(
     state: &mut AppState,
     events: &[crate::live::opcodes_process::LocalDamageEvent],
 ) {
-    let local_player_uid = state.encounter.local_player_uid;
     let local_player_uuid = current_local_player_uuid(&state.encounter);
-    if local_player_uid <= 0 && local_player_uuid <= 0 {
+    if local_player_uuid == 0 {
         return;
     }
 
     for event in events {
-        let is_local_source = (local_player_uuid != 0
+        let is_local_source = local_player_uuid != 0
             && (event.attacker_uuid == Some(local_player_uuid)
-                || event.top_summoner_uuid == Some(local_player_uuid)))
-            || (local_player_uid > 0
-                && (event.attacker_uid == local_player_uid
-                    || event.top_summoner_uid == Some(local_player_uid)));
+                || event.top_summoner_uuid == Some(local_player_uuid));
         if !is_local_source {
             continue;
         }
-        remember_local_owned_source(
-            state,
-            event.original_attacker_uid,
-            event.original_attacker_uuid,
-        );
+        remember_local_owned_source(state, event.original_attacker_uuid);
     }
 }
 
 fn monster_buff_source_matches_local(
-    source_uid: i64,
     source_uuid: Option<i64>,
     source_config_id: Option<i32>,
-    local_player_uid: i64,
     local_player_uuid: i64,
     local_owned_source_uids: &HashSet<i64>,
     local_owned_source_uuids: &HashSet<i64>,
     local_owned_source_config_ids: &HashSet<i32>,
 ) -> bool {
+    let source_display_uid = source_uuid
+        .filter(|uuid| *uuid > 0)
+        .map(uid_from_uuid)
+        .unwrap_or(0);
     (local_player_uuid != 0 && source_uuid == Some(local_player_uuid))
-        || source_uid == local_player_uid
         || source_uuid
             .filter(|uuid| *uuid > 0)
             .is_some_and(|uuid| local_owned_source_uuids.contains(&uuid))
-        || (source_uid > 0 && local_owned_source_uids.contains(&source_uid))
-        || (source_uid <= 0
+        || (source_display_uid > 0 && local_owned_source_uids.contains(&source_display_uid))
+        || (source_display_uid <= 0
             && source_config_id
                 .filter(|id| *id > 0)
                 .is_some_and(|id| local_owned_source_config_ids.contains(&id)))
 }
 
 fn monster_buff_source_allowed_for_self_monitor(
-    source_uid: i64,
     source_uuid: Option<i64>,
     source_config_id: Option<i32>,
-    local_player_uid: i64,
     local_player_uuid: i64,
     local_owned_source_uids: &HashSet<i64>,
     local_owned_source_uuids: &HashSet<i64>,
@@ -876,10 +904,8 @@ fn monster_buff_source_allowed_for_self_monitor(
     known_other_source_uuids: &HashSet<i64>,
 ) -> bool {
     if monster_buff_source_matches_local(
-        source_uid,
         source_uuid,
         source_config_id,
-        local_player_uid,
         local_player_uuid,
         local_owned_source_uids,
         local_owned_source_uuids,
@@ -888,7 +914,11 @@ fn monster_buff_source_allowed_for_self_monitor(
         return true;
     }
 
-    if source_uid > 0 && known_other_source_uids.contains(&source_uid) {
+    let source_display_uid = source_uuid
+        .filter(|uuid| *uuid > 0)
+        .map(uid_from_uuid)
+        .unwrap_or(0);
+    if source_display_uid > 0 && known_other_source_uids.contains(&source_display_uid) {
         return false;
     }
     if source_uuid
@@ -902,7 +932,6 @@ fn monster_buff_source_allowed_for_self_monitor(
 }
 
 fn build_monster_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdateState>> {
-    let local_player_uid = state.encounter.local_player_uid;
     let local_player_uuid = current_local_player_uuid(&state.encounter);
     let local_owned_source_uids = state.local_owned_source_uids.clone();
     let local_owned_source_uuids = state.local_owned_source_uuids.clone();
@@ -913,10 +942,8 @@ fn build_monster_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdate
         .boss_buff_monitors
         .build_all_buff_snapshots_with_self_source_filter(state.server_clock_offset, |_, buff| {
             monster_buff_source_allowed_for_self_monitor(
-                buff.source_uid,
                 buff.source_uuid,
                 buff.source_config_id,
-                local_player_uid,
                 local_player_uuid,
                 &local_owned_source_uids,
                 &local_owned_source_uuids,
@@ -987,11 +1014,19 @@ fn build_encounter_metadata(
 
 fn collect_observed_active_buffs(
     active_buffs: &HashMap<i32, ActiveBuff>,
-    local_player_uid: i64,
+    local_player_uuid: i64,
 ) -> Vec<ObservedActiveBuff> {
     let mut observed = Vec::new();
 
     for (&buff_uuid, buff) in active_buffs {
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+        let host_uid = if buff.host_uid != 0 {
+            buff.host_uid
+        } else {
+            host_uuid.map(uid_from_uuid).unwrap_or(0)
+        };
         observed.push(ObservedActiveBuff {
             buff_uuid,
             base_id: buff.base_id,
@@ -1004,17 +1039,9 @@ fn collect_observed_active_buffs(
             duration: buff.duration,
             create_time: buff.create_time,
             received_time_ms: buff.received_time_ms,
-            host_uuid: buff.host_uuid.or_else(|| {
-                Some(local_player_uid)
-                    .filter(|uid| *uid > 0)
-                    .map(canonical_player_uuid)
-            }),
+            host_uuid,
             source_uuid: buff.source_uuid,
-            host_uid: if buff.host_uid != 0 {
-                buff.host_uid
-            } else {
-                local_player_uid
-            },
+            host_uid,
             source_uid: buff.source_uid,
         });
     }
@@ -1025,7 +1052,7 @@ fn collect_observed_active_buffs(
 
 fn collect_observed_factor_buffs(
     active_buffs: &HashMap<i32, ActiveBuff>,
-    local_player_uid: i64,
+    local_player_uuid: i64,
 ) -> Vec<ObservedFactorBuff> {
     let mut by_key = HashMap::<(i32, i32), ObservedFactorBuff>::new();
 
@@ -1042,6 +1069,14 @@ fn collect_observed_factor_buffs(
         let Some(factor_buff_id) = factor_buff_id else {
             continue;
         };
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+        let host_uid = if buff.host_uid != 0 {
+            buff.host_uid
+        } else {
+            host_uuid.map(uid_from_uuid).unwrap_or(0)
+        };
 
         by_key.insert(
             (factor_buff_id, buff.base_id),
@@ -1057,17 +1092,9 @@ fn collect_observed_factor_buffs(
                 duration: buff.duration,
                 create_time: buff.create_time,
                 received_time_ms: buff.received_time_ms,
-                host_uuid: buff.host_uuid.or_else(|| {
-                    Some(local_player_uid)
-                        .filter(|uid| *uid > 0)
-                        .map(canonical_player_uuid)
-                }),
+                host_uuid,
                 source_uuid: buff.source_uuid,
-                host_uid: if buff.host_uid != 0 {
-                    buff.host_uid
-                } else {
-                    local_player_uid
-                },
+                host_uid,
                 source_uid: buff.source_uid,
             },
         );
@@ -1080,7 +1107,7 @@ fn collect_observed_factor_buffs(
 
 fn collect_observed_effect_buffs(
     active_buffs: &HashMap<i32, ActiveBuff>,
-    local_player_uid: i64,
+    local_player_uuid: i64,
 ) -> Vec<ObservedEffectBuff> {
     let mut by_key = HashMap::<(i32, i32), ObservedEffectBuff>::new();
 
@@ -1097,6 +1124,14 @@ fn collect_observed_effect_buffs(
         let Some(effect_source_buff_id) = effect_source_buff_id else {
             continue;
         };
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+        let host_uid = if buff.host_uid != 0 {
+            buff.host_uid
+        } else {
+            host_uuid.map(uid_from_uuid).unwrap_or(0)
+        };
 
         by_key.insert(
             (effect_source_buff_id, buff.base_id),
@@ -1112,17 +1147,9 @@ fn collect_observed_effect_buffs(
                 duration: buff.duration,
                 create_time: buff.create_time,
                 received_time_ms: buff.received_time_ms,
-                host_uuid: buff.host_uuid.or_else(|| {
-                    Some(local_player_uid)
-                        .filter(|uid| *uid > 0)
-                        .map(canonical_player_uuid)
-                }),
+                host_uuid,
                 source_uuid: buff.source_uuid,
-                host_uid: if buff.host_uid != 0 {
-                    buff.host_uid
-                } else {
-                    local_player_uid
-                },
+                host_uid,
                 source_uid: buff.source_uid,
             },
         );
@@ -1240,26 +1267,24 @@ fn push_observed_effect_sources_for_buff_id(
 
 fn collect_observed_effect_sources_from_buffs(
     active_effect_buffs: &[ObservedEffectBuff],
-    local_player_uid: i64,
+    local_player_uuid: i64,
 ) -> Vec<(i64, Option<i64>, ObservedEffectSource)> {
     let mut rows = Vec::new();
     let mut seen = HashSet::<(i64, Option<i64>, String)>::new();
     let active_tree_bands = active_season_talent_tree_bands_from_buffs(active_effect_buffs);
 
     for buff in active_effect_buffs {
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
         let host_uid = if buff.host_uid > 0 {
             buff.host_uid
         } else {
-            local_player_uid
+            host_uuid.map(uid_from_uuid).unwrap_or(0)
         };
         if host_uid <= 0 {
             continue;
         }
-        let host_uuid = buff.host_uuid.or_else(|| {
-            Some(host_uid)
-                .filter(|uid| *uid > 0)
-                .map(canonical_player_uuid)
-        });
 
         push_observed_effect_sources_for_buff_id(
             &mut rows,
@@ -1542,17 +1567,14 @@ fn selected_factor_items_from_dirty_transitions(
 }
 
 fn sync_selected_factor_items_to_local_entity(state: &mut AppState) {
-    let local_player_uid = state.encounter.local_player_uid;
-    if local_player_uid <= 0 {
-        return;
-    }
     let local_player_uuid = current_local_player_uuid(&state.encounter);
-    let entity = encounter_entity_for_identity_mut(
+    let Some(entity) = encounter_entity_for_uuid_mut(
         &mut state.encounter,
-        local_player_uid,
         Some(local_player_uuid).filter(|uuid| *uuid != 0),
         EEntityType::EntChar,
-    );
+    ) else {
+        return;
+    };
     if state.local_selected_factor_items.is_empty() {
         entity
             .active_factor_items
@@ -1566,25 +1588,25 @@ fn sync_selected_factor_items_to_local_entity(state: &mut AppState) {
 }
 
 fn sync_active_buffs_to_encounter(state: &mut AppState) {
-    let local_player_uid = state.encounter.local_player_uid;
-    if local_player_uid <= 0 {
+    let local_player_uuid = current_local_player_uuid(&state.encounter);
+    if local_player_uuid == 0 {
         return;
     }
     let active_buff_map = combined_modifier_active_buffs(state);
 
-    let active_buffs = collect_observed_active_buffs(&active_buff_map, local_player_uid);
+    let active_buffs = collect_observed_active_buffs(&active_buff_map, local_player_uuid);
     let active_factor_buffs = if state.modifier_capture_enabled {
-        collect_observed_factor_buffs(&active_buff_map, local_player_uid)
+        collect_observed_factor_buffs(&active_buff_map, local_player_uuid)
     } else {
         Vec::new()
     };
     let active_effect_buffs = if state.modifier_capture_enabled {
-        collect_observed_effect_buffs(&active_buff_map, local_player_uid)
+        collect_observed_effect_buffs(&active_buff_map, local_player_uuid)
     } else {
         Vec::new()
     };
     let active_effect_sources_from_buffs = if state.modifier_capture_enabled {
-        collect_observed_effect_sources_from_buffs(&active_effect_buffs, local_player_uid)
+        collect_observed_effect_sources_from_buffs(&active_effect_buffs, local_player_uuid)
     } else {
         Vec::new()
     };
@@ -1601,66 +1623,47 @@ fn sync_active_buffs_to_encounter(state: &mut AppState) {
     }
 
     for buff in active_buffs {
-        let host_uid = if buff.host_uid > 0 {
-            buff.host_uid
-        } else {
-            local_player_uid
-        };
-        if host_uid <= 0 {
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+        let Some(entity) =
+            encounter_entity_for_uuid_mut(&mut state.encounter, host_uuid, EEntityType::EntChar)
+        else {
             continue;
-        }
-        let entity = encounter_entity_for_identity_mut(
-            &mut state.encounter,
-            host_uid,
-            buff.host_uuid,
-            EEntityType::EntChar,
-        );
+        };
         entity.active_buffs.push(buff);
     }
 
     for buff in active_factor_buffs {
-        let host_uid = if buff.host_uid > 0 {
-            buff.host_uid
-        } else {
-            local_player_uid
-        };
-        if host_uid <= 0 {
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+        let Some(entity) =
+            encounter_entity_for_uuid_mut(&mut state.encounter, host_uuid, EEntityType::EntChar)
+        else {
             continue;
-        }
-        let entity = encounter_entity_for_identity_mut(
-            &mut state.encounter,
-            host_uid,
-            buff.host_uuid,
-            EEntityType::EntChar,
-        );
+        };
         entity.active_factor_buffs.push(buff);
     }
 
     for buff in active_effect_buffs {
-        let host_uid = if buff.host_uid > 0 {
-            buff.host_uid
-        } else {
-            local_player_uid
-        };
-        if host_uid <= 0 {
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+        let Some(entity) =
+            encounter_entity_for_uuid_mut(&mut state.encounter, host_uuid, EEntityType::EntChar)
+        else {
             continue;
-        }
-        let entity = encounter_entity_for_identity_mut(
-            &mut state.encounter,
-            host_uid,
-            buff.host_uuid,
-            EEntityType::EntChar,
-        );
+        };
         entity.active_effect_buffs.push(buff);
     }
 
-    for (host_uid, host_uuid, source) in active_effect_sources_from_buffs {
-        let entity = encounter_entity_for_identity_mut(
-            &mut state.encounter,
-            host_uid,
-            host_uuid,
-            EEntityType::EntChar,
-        );
+    for (_, host_uuid, source) in active_effect_sources_from_buffs {
+        let Some(entity) =
+            encounter_entity_for_uuid_mut(&mut state.encounter, host_uuid, EEntityType::EntChar)
+        else {
+            continue;
+        };
         if !entity
             .active_effect_sources
             .iter()
@@ -1676,12 +1679,20 @@ fn sync_active_buffs_to_encounter(state: &mut AppState) {
     sync_selected_factor_items_to_local_entity(state);
 }
 
-fn modifier_window_host_uid(change: &BuffChangeEvent, fallback_host_uid: i64) -> i64 {
-    if change.host_uid > 0 {
+fn modifier_window_host(
+    change: &BuffChangeEvent,
+    fallback_host_uuid: Option<i64>,
+) -> Option<(i64, i64)> {
+    let host_uuid = change
+        .host_uuid
+        .or(fallback_host_uuid)
+        .filter(|uuid| *uuid != 0)?;
+    let host_uid = if change.host_uid > 0 {
         change.host_uid
     } else {
-        fallback_host_uid
-    }
+        uid_from_uuid(host_uuid)
+    };
+    Some((host_uid, host_uuid))
 }
 
 fn modifier_window_from_change(
@@ -1710,11 +1721,15 @@ fn modifier_window_from_change(
 fn close_open_modifier_window(
     entity: &mut Entity,
     buff_uuid: i32,
+    host_uuid: i64,
     host_uid: i64,
     end_time_ms: i64,
 ) -> bool {
     if let Some(window) = entity.modifier_windows.iter_mut().rev().find(|window| {
-        window.buff_uuid == buff_uuid && window.host_uid == host_uid && window.end_time_ms.is_none()
+        window.buff_uuid == buff_uuid
+            && window.end_time_ms.is_none()
+            && (window.host_uuid == Some(host_uuid)
+                || (window.host_uuid.is_none() && window.host_uid == host_uid))
     }) {
         window.end_time_ms = Some(end_time_ms.max(window.start_time_ms));
         return true;
@@ -1725,29 +1740,22 @@ fn close_open_modifier_window(
 fn apply_modifier_buff_changes(
     state: &mut AppState,
     changes: &[BuffChangeEvent],
-    fallback_host_uid: i64,
+    fallback_host_uuid: Option<i64>,
 ) {
     if !state.modifier_capture_enabled {
         return;
     }
-    let local_player_uid = state.encounter.local_player_uid;
-    let fallback_host_uid = if fallback_host_uid > 0 {
-        fallback_host_uid
-    } else {
-        local_player_uid
-    };
-    if fallback_host_uid <= 0 || changes.is_empty() {
+    let local_player_uuid = current_local_player_uuid(&state.encounter);
+    let fallback_host_uuid =
+        fallback_host_uuid.or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+    if fallback_host_uuid.is_none() || changes.is_empty() {
         return;
     }
 
     for change in changes {
-        let host_uid = modifier_window_host_uid(change, fallback_host_uid);
-        if host_uid <= 0 {
+        let Some((host_uid, host_uuid)) = modifier_window_host(change, fallback_host_uuid) else {
             continue;
-        }
-        let host_uuid = change
-            .host_uuid
-            .or_else(|| state.encounter.canonical_uuid_for_uid(host_uid));
+        };
         if let Some(active_buff) = state
             .modifier_buff_monitor
             .active_buffs
@@ -1757,20 +1765,22 @@ fn apply_modifier_buff_changes(
                 active_buff.host_uid = host_uid;
             }
             if active_buff.host_uuid.is_none() {
-                active_buff.host_uuid = host_uuid;
+                active_buff.host_uuid = Some(host_uuid);
             }
         }
-        let entity = encounter_entity_for_identity_mut(
+        let Some(entity) = encounter_entity_for_uuid_mut(
             &mut state.encounter,
-            host_uid,
-            host_uuid,
+            Some(host_uuid),
             EEntityType::EntChar,
-        );
+        ) else {
+            continue;
+        };
         match change.change_type {
             BuffChangeType::Added => {
                 close_open_modifier_window(
                     entity,
                     change.buff_uuid,
+                    host_uuid,
                     host_uid,
                     change.event_time_ms,
                 );
@@ -1779,14 +1789,15 @@ fn apply_modifier_buff_changes(
                     change.create_time_ms.unwrap_or(change.event_time_ms),
                 );
                 window.host_uid = host_uid;
-                window.host_uuid = host_uuid;
+                window.host_uuid = Some(host_uuid);
                 entity.modifier_windows.push(window);
             }
             BuffChangeType::Changed => {
                 if let Some(window) = entity.modifier_windows.iter_mut().rev().find(|window| {
                     window.buff_uuid == change.buff_uuid
-                        && window.host_uid == host_uid
                         && window.end_time_ms.is_none()
+                        && (window.host_uuid == Some(host_uuid)
+                            || (window.host_uuid.is_none() && window.host_uid == host_uid))
                 }) {
                     window.layer = change.layer;
                     window.duration = change.duration_ms.unwrap_or(window.duration);
@@ -1795,7 +1806,7 @@ fn apply_modifier_buff_changes(
                     window.count = change.count;
                     window.fight_source_type = change.fight_source_type;
                     window.source_config_id = change.source_config_id;
-                    window.host_uuid = host_uuid;
+                    window.host_uuid = Some(host_uuid);
                     window.source_uuid = change.source_uuid;
                     window.source_uid = change.source_uid;
                 }
@@ -1804,6 +1815,7 @@ fn apply_modifier_buff_changes(
                 if !close_open_modifier_window(
                     entity,
                     change.buff_uuid,
+                    host_uuid,
                     host_uid,
                     change.event_time_ms,
                 ) {
@@ -1813,7 +1825,7 @@ fn apply_modifier_buff_changes(
                         change.event_time_ms.saturating_sub(duration_ms),
                     );
                     window.host_uid = host_uid;
-                    window.host_uuid = host_uuid;
+                    window.host_uuid = Some(host_uuid);
                     window.end_time_ms = Some(change.event_time_ms);
                     entity.modifier_windows.push(window);
                 }
@@ -1833,18 +1845,17 @@ fn apply_temp_attr_modifier_changes(
     if !state.modifier_capture_enabled {
         return;
     }
-    let host_uid = state.encounter.local_player_uid;
-    let host_uuid = state.encounter.canonical_uuid_for_uid(host_uid);
-    if host_uid <= 0 || changes.is_empty() {
+    let host_uuid = current_local_player_uuid(&state.encounter);
+    if host_uuid == 0 || changes.is_empty() {
         return;
     }
+    let host_uid = uid_from_uuid(host_uuid);
 
-    let entity = encounter_entity_for_identity_mut(
-        &mut state.encounter,
-        host_uid,
-        host_uuid,
-        EEntityType::EntChar,
-    );
+    let Some(entity) =
+        encounter_entity_for_uuid_mut(&mut state.encounter, Some(host_uuid), EEntityType::EntChar)
+    else {
+        return;
+    };
     if !matches!(entity.entity_type, EEntityType::EntChar) {
         return;
     }
@@ -1852,7 +1863,13 @@ fn apply_temp_attr_modifier_changes(
     for change in changes {
         let buff_uuid = temp_attr_modifier_buff_uuid(change.temp_attr_id);
         if change.value > 0 && change.previous_value <= 0 {
-            close_open_modifier_window(entity, buff_uuid, host_uid, change.event_time_ms);
+            close_open_modifier_window(
+                entity,
+                buff_uuid,
+                host_uuid,
+                host_uid,
+                change.event_time_ms,
+            );
             entity.modifier_windows.push(ObservedModifierWindow {
                 buff_uuid,
                 base_id: change.buff_id,
@@ -1865,22 +1882,29 @@ fn apply_temp_attr_modifier_changes(
                 duration: 0,
                 start_time_ms: change.event_time_ms,
                 end_time_ms: None,
-                host_uuid,
-                source_uuid: host_uuid,
+                host_uuid: Some(host_uuid),
+                source_uuid: Some(host_uuid),
                 host_uid,
                 source_uid: host_uid,
             });
         } else if change.value > 0 {
             if let Some(window) = entity.modifier_windows.iter_mut().rev().find(|window| {
                 window.buff_uuid == buff_uuid
-                    && window.host_uid == host_uid
                     && window.end_time_ms.is_none()
+                    && (window.host_uuid == Some(host_uuid)
+                        || (window.host_uuid.is_none() && window.host_uid == host_uid))
             }) {
                 window.count = Some(change.value);
                 window.part_id = Some(change.temp_attr_id);
             }
         } else if change.previous_value > 0 {
-            close_open_modifier_window(entity, buff_uuid, host_uid, change.event_time_ms);
+            close_open_modifier_window(
+                entity,
+                buff_uuid,
+                host_uuid,
+                host_uid,
+                change.event_time_ms,
+            );
         }
     }
 }
@@ -1913,33 +1937,35 @@ fn seed_open_modifier_windows_from_active_buffs(
     if !state.modifier_capture_enabled {
         return;
     }
-    let local_player_uid = state.encounter.local_player_uid;
-    if local_player_uid <= 0 {
+    let local_player_uuid = current_local_player_uuid(&state.encounter);
+    if local_player_uuid == 0 {
         return;
     }
     let active_buffs = combined_modifier_active_buffs(state);
     for (&buff_uuid, buff) in &active_buffs {
+        let host_uuid = buff
+            .host_uuid
+            .or_else(|| (local_player_uuid != 0).then_some(local_player_uuid));
+        let Some(host_uuid) = host_uuid else {
+            continue;
+        };
         let host_uid = if buff.host_uid > 0 {
             buff.host_uid
         } else {
-            local_player_uid
+            uid_from_uuid(host_uuid)
         };
-        if host_uid <= 0 {
-            continue;
-        }
-        let host_uuid = buff
-            .host_uuid
-            .or_else(|| state.encounter.canonical_uuid_for_uid(host_uid));
-        let entity = encounter_entity_for_identity_mut(
+        let Some(entity) = encounter_entity_for_uuid_mut(
             &mut state.encounter,
-            host_uid,
-            host_uuid,
+            Some(host_uuid),
             EEntityType::EntChar,
-        );
+        ) else {
+            continue;
+        };
         let has_open_window = entity.modifier_windows.iter().any(|window| {
             window.buff_uuid == buff_uuid
-                && window.host_uid == host_uid
                 && window.end_time_ms.is_none()
+                && (window.host_uuid == Some(host_uuid)
+                    || (window.host_uuid.is_none() && window.host_uid == host_uid))
         });
         if has_open_window {
             continue;
@@ -1962,7 +1988,7 @@ fn seed_open_modifier_windows_from_active_buffs(
                 state.server_clock_offset,
             ),
             end_time_ms: None,
-            host_uuid,
+            host_uuid: Some(host_uuid),
             source_uuid: buff.source_uuid,
             host_uid,
             source_uid: buff.source_uid,
@@ -2457,16 +2483,17 @@ fn finalize_combat_timeline_for_save(state: &mut AppState) {
         HashMap<CombatTimelineBucketKey, ObservedCombatTimelineBucket>,
     >::new();
 
-    for (entity_uid, entity_uuid) in state.encounter.entity_identity_keys() {
-        let Some(entity) = state.encounter.entity_by_identity(entity_uid, entity_uuid) else {
+    for (&entity_uuid, entity) in &state.encounter.entity_uuid_to_entity {
+        if entity_uuid <= 0 {
             continue;
-        };
+        }
         if entity.combat_timeline_hits.is_empty() {
             continue;
         }
+        let entity_uid = uid_from_uuid(entity_uuid);
         let source_identity = CombatTimelineIdentityKey {
             uid: entity_uid,
-            uuid: entity_uuid.or(entity.uuid),
+            uuid: Some(entity_uuid),
         };
 
         for hit in &entity.combat_timeline_hits {
@@ -2498,19 +2525,18 @@ fn finalize_combat_timeline_for_save(state: &mut AppState) {
         }
     }
 
-    for (entity_uid, entity_uuid) in state.encounter.entity_identity_keys() {
-        if let Some(entity) = state
-            .encounter
-            .entity_mut_by_identity(entity_uid, entity_uuid)
-        {
-            entity.combat_timeline.clear();
-        }
+    for entity in state.encounter.entity_uuid_to_entity.values_mut() {
+        entity.combat_timeline.clear();
     }
 
     for (identity, buckets) in timeline_by_entity {
+        let Some(identity_uuid) = identity.uuid else {
+            continue;
+        };
         let Some(entity) = state
             .encounter
-            .entity_mut_by_identity(identity.uid, identity.uuid)
+            .entity_uuid_to_entity
+            .get_mut(&identity_uuid)
         else {
             continue;
         };
@@ -2546,17 +2572,18 @@ fn finalize_modifier_hit_buckets_for_save(state: &mut AppState) {
     let mut windows_by_host_identity =
         HashMap::<CombatTimelineIdentityKey, Vec<ObservedModifierWindow>>::new();
     let mut windows_by_host_uid = HashMap::<i64, Vec<ObservedModifierWindow>>::new();
-    for (entity_uid, entity_uuid) in state.encounter.entity_identity_keys() {
-        let Some(entity) = state.encounter.entity_by_identity(entity_uid, entity_uuid) else {
+    for (&entity_uuid, entity) in &state.encounter.entity_uuid_to_entity {
+        if entity_uuid <= 0 {
             continue;
-        };
+        }
+        let entity_uid = uid_from_uuid(entity_uuid);
         for window in &entity.modifier_windows {
             let mut window = window.clone();
             if window.host_uid <= 0 {
                 window.host_uid = entity_uid;
             }
             if window.host_uuid.is_none() {
-                window.host_uuid = entity_uuid;
+                window.host_uuid = Some(entity_uuid);
             }
             let host_identity = modifier_host_identity(window.host_uid, window.host_uuid);
             if host_identity.uuid.is_some() {
@@ -2574,27 +2601,25 @@ fn finalize_modifier_hit_buckets_for_save(state: &mut AppState) {
         }
     }
 
-    let entity_keys = state.encounter.entity_identity_keys();
-    for (entity_uid, entity_uuid) in entity_keys {
-        if let Some(entity) = state
-            .encounter
-            .entity_mut_by_identity(entity_uid, entity_uuid)
-        {
-            entity.modifier_hit_buckets = build_modifier_hit_buckets(
-                entity_uid,
-                entity_uuid,
-                &entity.observed_damage_hits,
-                &windows_by_host_identity,
-                &windows_by_host_uid,
-            );
-            entity.modifier_replay_hits = build_modifier_replay_hits(
-                entity_uid,
-                entity_uuid,
-                &entity.observed_damage_hits,
-                &windows_by_host_identity,
-                &windows_by_host_uid,
-            );
+    for (&entity_uuid, entity) in state.encounter.entity_uuid_to_entity.iter_mut() {
+        if entity_uuid <= 0 {
+            continue;
         }
+        let entity_uid = uid_from_uuid(entity_uuid);
+        entity.modifier_hit_buckets = build_modifier_hit_buckets(
+            entity_uid,
+            Some(entity_uuid),
+            &entity.observed_damage_hits,
+            &windows_by_host_identity,
+            &windows_by_host_uid,
+        );
+        entity.modifier_replay_hits = build_modifier_replay_hits(
+            entity_uid,
+            Some(entity_uuid),
+            &entity.observed_damage_hits,
+            &windows_by_host_identity,
+            &windows_by_host_uid,
+        );
     }
 }
 
@@ -2711,58 +2736,6 @@ fn local_active_gear_sets(state: &AppState) -> Vec<crate::live::opcodes_models::
     local_player_entity(&state.encounter)
         .map(|entity| entity.active_gear_sets.clone())
         .unwrap_or_default()
-}
-
-fn collect_factor_skill_casts_from_cooldown_starts(
-    factor_skill_cd_begin_times: &mut HashMap<i32, i64>,
-    skill_cds: &[ParsedSkillCd],
-    counted_skill_base_ids: &mut HashSet<i32>,
-    reset_at_ms: i64,
-) -> Vec<i32> {
-    let mut skill_base_ids = Vec::new();
-    for cd in skill_cds {
-        let Some(skill_level_id) = cd.skill_level_id else {
-            continue;
-        };
-        if skill_level_id <= 0 {
-            continue;
-        }
-
-        let skill_base_id = skill_level_id / 100;
-        if skill_base_id <= 0 || counted_skill_base_ids.contains(&skill_base_id) {
-            continue;
-        }
-
-        let begin_time = cd.begin_time.unwrap_or(0);
-        let duration = cd.duration.unwrap_or(0);
-        let valid_cd_time = cd.valid_cd_time.unwrap_or(0);
-        if begin_time <= 0 || (duration <= 0 && valid_cd_time <= 0) {
-            continue;
-        }
-
-        if factor_skill_cd_begin_times
-            .get(&skill_base_id)
-            .is_some_and(|previous_begin_time| *previous_begin_time == begin_time)
-        {
-            continue;
-        }
-
-        factor_skill_cd_begin_times.insert(skill_base_id, begin_time);
-        if begin_time <= reset_at_ms {
-            debug!(
-                target: "app::live",
-                "[factor-counter] seeded stale skill cooldown start skill_level_id={} skill_base_id={} begin_time={} reset_at_ms={}",
-                skill_level_id,
-                skill_base_id,
-                begin_time,
-                reset_at_ms
-            );
-            continue;
-        }
-        counted_skill_base_ids.insert(skill_base_id);
-        skill_base_ids.push(skill_base_id);
-    }
-    skill_base_ids
 }
 
 fn persist_and_save_encounter(state: &mut AppState, is_manual: bool, source: &str) {
@@ -2965,7 +2938,35 @@ impl AppStateManager {
                 state.pending_auto_reset = None;
                 self.reset_encounter(state, is_manual);
             }
+            StateEvent::ClientSkillCast(event) => {
+                let outputs = state
+                    .local_monitor
+                    .skill_lifecycle
+                    .on_client_skill_cast(event);
+                let (next_counter_dirty, next_factor_counter_dirty) =
+                    apply_skill_lifecycle_outputs(state, outputs);
+                counter_dirty |= next_counter_dirty;
+                factor_counter_dirty |= next_factor_counter_dirty;
+            }
+            StateEvent::ServerSkillEnd(event) => {
+                let outputs = state
+                    .local_monitor
+                    .skill_lifecycle
+                    .on_server_skill_end(event);
+                let (next_counter_dirty, next_factor_counter_dirty) =
+                    apply_skill_lifecycle_outputs(state, outputs);
+                counter_dirty |= next_counter_dirty;
+                factor_counter_dirty |= next_factor_counter_dirty;
+            }
         }
+        let outputs = state
+            .local_monitor
+            .skill_lifecycle
+            .on_actor_state_sample(&state.attr_store, current_local_player_uuid(&state.encounter));
+        let (next_counter_dirty, next_factor_counter_dirty) =
+            apply_skill_lifecycle_outputs(state, outputs);
+        counter_dirty |= next_counter_dirty;
+        factor_counter_dirty |= next_factor_counter_dirty;
         if counter_dirty {
             let payload = state.local_monitor.counter_tracker.build_payload(
                 &state.attr_store,
@@ -3107,10 +3108,13 @@ impl AppStateManager {
             LiveControlCommand::SetBossMonitoredBuffs {
                 global_ids,
                 self_applied_ids,
+                monitor_all_self_applied,
             } => {
-                state
-                    .boss_buff_monitors
-                    .set_config(global_ids, self_applied_ids);
+                state.boss_buff_monitors.set_config_with_monitor_all(
+                    global_ids,
+                    self_applied_ids,
+                    monitor_all_self_applied,
+                );
                 emit_boss_buff_update_snapshot(state);
             }
             LiveControlCommand::SetTeammateMonitoredBuffs {
@@ -3230,9 +3234,10 @@ impl AppStateManager {
         );
         info!(
             target: "app::live",
-            "[boss-buff] set monitored buffs: global={:?} self_applied={:?}",
+            "[boss-buff] set monitored buffs: global={:?} self_applied={:?} monitor_all_self={:?}",
             monster.global_ids,
-            monster.self_applied_ids
+            monster.self_applied_ids,
+            monster.monitor_all_self_applied
         );
         info!(
             target: "app::live",
@@ -3286,6 +3291,7 @@ impl AppStateManager {
             LiveControlCommand::SetBossMonitoredBuffs {
                 global_ids: monster.global_ids,
                 self_applied_ids: monster.self_applied_ids,
+                monitor_all_self_applied: monster.monitor_all_self_applied,
             },
         );
         self.apply_control_command(
@@ -3675,10 +3681,6 @@ impl AppStateManager {
             state.modifier_capture_enabled,
         );
 
-        if state.local_monitor.uid != state.encounter.local_player_uid {
-            state.local_monitor.uid = state.encounter.local_player_uid;
-        }
-
         if state.modifier_capture_enabled {
             apply_temp_attr_modifier_changes(state, &result.temp_attr_modifier_changes);
         }
@@ -3689,8 +3691,6 @@ impl AppStateManager {
 
         let mut counter_dirty = false;
         let mut factor_counter_dirty = false;
-        let mut counted_skill_base_ids = HashSet::new();
-
         if let Some(ids) = result.fight_resource_ids {
             let _ = state
                 .attr_store
@@ -3728,13 +3728,11 @@ impl AppStateManager {
             remember_local_owned_sources_from_damage_events(state, &result.local_damage_events);
             counter_dirty |= state.local_monitor.counter_tracker.on_damage_events(
                 &result.local_damage_events,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
                 &state.attr_store,
             );
             factor_counter_dirty |= state.local_monitor.factor_counter_tracker.on_damage_events(
                 &result.local_damage_events,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
                 &state.attr_store,
             );
@@ -3743,7 +3741,6 @@ impl AppStateManager {
         if !result.local_damage_taken_events.is_empty() {
             counter_dirty |= state.local_monitor.counter_tracker.on_damage_taken_events(
                 &result.local_damage_taken_events,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
             );
             factor_counter_dirty |= state
@@ -3751,7 +3748,6 @@ impl AppStateManager {
                 .factor_counter_tracker
                 .on_damage_taken_events(
                     &result.local_damage_taken_events,
-                    state.encounter.local_player_uid,
                     current_local_player_uuid(&state.encounter),
                 );
         }
@@ -3760,10 +3756,6 @@ impl AppStateManager {
             if state.modifier_capture_enabled {
                 record_local_skill_cast_event(state, skill_base_id);
             }
-            counter_dirty |= state
-                .local_monitor
-                .counter_tracker
-                .on_skill_cast(skill_base_id);
         }
 
         if !result.skill_cds.is_empty() {
@@ -3774,20 +3766,6 @@ impl AppStateManager {
             let active_profession_skills = local_active_profession_skills(state);
             let active_effect_sources = local_active_effect_sources(state);
             let active_gear_sets = local_active_gear_sets(state);
-            // Factor SkillCast energy uses cooldown-start edges. AttrSkillId can echo while a
-            // skill is active, which overcounts cast-based factors such as Blast Shot/Powerdraw.
-            let skill_casts_from_cds = collect_factor_skill_casts_from_cooldown_starts(
-                &mut state.local_monitor.factor_skill_cd_begin_times,
-                &result.skill_cds,
-                &mut counted_skill_base_ids,
-                state.local_monitor.factor_counter_reset_at_ms,
-            );
-            for skill_base_id in skill_casts_from_cds {
-                factor_counter_dirty |= state
-                    .local_monitor
-                    .factor_counter_tracker
-                    .on_skill_cast(skill_base_id);
-            }
             state.attr_store.mark_cd_dirty();
             state.local_monitor.skill_cd_monitor.apply_skill_cd_updates(
                 &result.skill_cds,
@@ -3807,7 +3785,6 @@ impl AppStateManager {
             let buff_process_result = state.local_monitor.buff_monitor.process_buff_effect_bytes(
                 &raw_bytes,
                 &mut state.server_clock_offset,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
             );
             remember_local_owned_sources_from_buff_changes(state, &buff_process_result.changes);
@@ -3821,19 +3798,17 @@ impl AppStateManager {
                 apply_modifier_buff_changes(
                     state,
                     &buff_process_result.changes,
-                    state.encounter.local_player_uid,
+                    Some(current_local_player_uuid(&state.encounter)),
                 );
             }
             counter_dirty |= state.local_monitor.counter_tracker.on_buff_changes(
                 &buff_process_result.changes,
                 &state.attr_store,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
             );
             factor_counter_dirty |= state.local_monitor.factor_counter_tracker.on_buff_changes(
                 &buff_process_result.changes,
                 &state.attr_store,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
             );
         }
@@ -3899,25 +3874,21 @@ impl AppStateManager {
             if let (Some(target_uuid), Some(raw_bytes)) = (target_uuid, buff_bytes) {
                 let target_display_uid =
                     target_display_uid.unwrap_or_else(|| uid_from_uuid(target_uuid));
-                let is_local_target = (local_player_uuid != 0 && target_uuid == local_player_uuid)
-                    || (state.encounter.local_player_uid > 0
-                        && target_display_uid == state.encounter.local_player_uid);
+                let is_local_target = local_player_uuid != 0 && target_uuid == local_player_uuid;
                 if state.modifier_capture_enabled
                     && is_local_target
                     && matches!(target_entity_type, Some(EEntityType::EntChar))
                 {
-                    let local_player_uid = state.encounter.local_player_uid;
                     let buff_process_result =
                         state.modifier_buff_monitor.process_buff_effect_bytes(
                             &raw_bytes,
                             &mut state.server_clock_offset,
-                            local_player_uid,
                             current_local_player_uuid(&state.encounter),
                         );
                     apply_modifier_buff_changes(
                         state,
                         &buff_process_result.changes,
-                        target_display_uid,
+                        Some(target_uuid),
                     );
                 }
                 if matches!(target_entity_type, Some(EEntityType::EntChar))
@@ -3927,11 +3898,10 @@ impl AppStateManager {
                     let _ = monitor.process_buff_effect_bytes_with_self_source_filter(
                         &raw_bytes,
                         &mut state.server_clock_offset,
-                        |_, _, _, _, _| true,
+                        |_, _, _, _| true,
                     );
                 }
                 if matches!(target_entity_type, Some(EEntityType::EntMonster)) {
-                    let local_player_uid = state.encounter.local_player_uid;
                     let local_player_uuid = current_local_player_uuid(&state.encounter);
                     let local_owned_source_uids = state.local_owned_source_uids.clone();
                     let local_owned_source_uuids = state.local_owned_source_uuids.clone();
@@ -3943,12 +3913,10 @@ impl AppStateManager {
                         .process_buff_effect_bytes_with_self_source_filter(
                             &raw_bytes,
                             &mut state.server_clock_offset,
-                            |_, source_uid, source_uuid, source_config_id, _| {
+                            |_, source_uuid, source_config_id, _| {
                                 monster_buff_source_allowed_for_self_monitor(
-                                    source_uid,
                                     source_uuid,
                                     source_config_id,
-                                    local_player_uid,
                                     local_player_uuid,
                                     &local_owned_source_uids,
                                     &local_owned_source_uuids,
@@ -3975,13 +3943,11 @@ impl AppStateManager {
         if !aggregated_damage_events.is_empty() {
             counter_dirty |= state.local_monitor.counter_tracker.on_damage_events(
                 &aggregated_damage_events,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
                 &state.attr_store,
             );
             factor_counter_dirty |= state.local_monitor.factor_counter_tracker.on_damage_events(
                 &aggregated_damage_events,
-                state.encounter.local_player_uid,
                 current_local_player_uuid(&state.encounter),
                 &state.attr_store,
             );
@@ -4100,6 +4066,7 @@ impl AppStateManager {
                 }
                 let victim_uid = uid_from_uuid(death.entity_uuid);
                 entity.deaths.push(DeathRecord {
+                    victim_entity_uuid: Some(entity_uuid_string(death.entity_uuid)),
                     victim_uid,
                     victim_uuid: Some(death.entity_uuid),
                     victim_key: entity_key_from_uuid_or_uid(Some(death.entity_uuid), victim_uid),
@@ -4159,11 +4126,10 @@ impl AppStateManager {
             active_combat_time_ms: 0,
             fight_start_timestamp_ms: 0,
             dps_display_paused: false,
-            local_player_key: entity_key_from_uuid_or_uid(
-                (state.encounter.local_player_uuid > 0)
-                    .then_some(state.encounter.local_player_uuid),
-                state.encounter.local_player_uid,
-            ),
+            local_player_uuid: (state.encounter.local_player_uuid > 0)
+                .then(|| entity_uuid_string(state.encounter.local_player_uuid)),
+            local_player_key: (state.encounter.local_player_uuid > 0)
+                .then(|| entity_uuid_string(state.encounter.local_player_uuid)),
             bosses: vec![],
             scene_id: state.encounter.current_scene_id,
             scene_name: state.encounter.current_scene_name.clone(),
@@ -4324,15 +4290,18 @@ impl AppStateManager {
                 }
             }
 
-            if let Some(entity) = state.encounter.entity_by_uuid(target_uuid) {
+            let target_entity = state.encounter.entity_by_uuid(target_uuid);
+            if let Some(entity) = target_entity {
                 if state.sent_overlay_uids.insert(target_display_uid) {
                     new_names.insert(
                         target_display_uid,
                         resolve_entity_display_name(target_display_uid, entity, &state.attr_store),
                     );
                 }
-                if let Some(monster_id) = entity.monster_type_id {
-                    monster_ids.insert(target_key.clone(), monster_id);
+            }
+            if let Some(monster_id) = monster_id_for_uuid(state, target_uuid, target_entity) {
+                monster_ids.insert(target_key.clone(), monster_id);
+                if target_display_uid > 0 {
                     monster_ids.insert(target_display_uid.to_string(), monster_id);
                 }
             }
@@ -4353,9 +4322,9 @@ impl AppStateManager {
 
             for entry in &entries {
                 if state.sent_overlay_uids.insert(entry.uid) {
-                    let entity = state
-                        .encounter
-                        .entity_by_identity(entry.uid, entry.entity_uuid);
+                    let entity = entry
+                        .entity_uuid
+                        .and_then(|uuid| state.encounter.entity_by_uuid(uuid));
                     let name = state
                         .attr_store
                         .attr(entry.entity_uuid.unwrap_or(entry.uid), AttrType::Name)
@@ -4478,19 +4447,6 @@ mod tests {
     use super::*;
     use crate::live::entity_id::entity_id_to_uuid;
 
-    fn parsed_skill_cd(skill_level_id: i32, begin_time: i64) -> ParsedSkillCd {
-        ParsedSkillCd {
-            skill_level_id: Some(skill_level_id),
-            begin_time: Some(begin_time),
-            duration: Some(1000),
-            skill_cd_type: Some(0),
-            valid_cd_time: Some(1000),
-            sub_cd_ratio: None,
-            sub_cd_fixed: None,
-            accelerate_cd_ratio: None,
-        }
-    }
-
     #[test]
     fn modifier_windows_match_target_uuid_before_uid_fallback() {
         let shared_target_uid = 77_777;
@@ -4556,46 +4512,5 @@ mod tests {
         assert_eq!(buckets.len(), 1);
         assert_eq!(buckets[0].modifier_base_id, 202);
         assert_eq!(buckets[0].modifier_host_uuid, Some(target_b_uuid));
-    }
-
-    #[test]
-    fn factor_skill_casts_from_cooldown_starts_dedupes_by_skill_base_id() {
-        let mut begin_times = HashMap::new();
-        let mut counted = HashSet::new();
-
-        let casts = collect_factor_skill_casts_from_cooldown_starts(
-            &mut begin_times,
-            &[
-                parsed_skill_cd(223801, 1000),
-                parsed_skill_cd(223802, 1000),
-                parsed_skill_cd(223801, 1000),
-            ],
-            &mut counted,
-            0,
-        );
-
-        assert_eq!(casts, vec![2238]);
-        assert_eq!(begin_times.get(&2238), Some(&1000));
-
-        let mut counted = HashSet::new();
-        let casts = collect_factor_skill_casts_from_cooldown_starts(
-            &mut begin_times,
-            &[parsed_skill_cd(223801, 1000)],
-            &mut counted,
-            0,
-        );
-
-        assert!(casts.is_empty());
-
-        let mut counted = HashSet::new();
-        let casts = collect_factor_skill_casts_from_cooldown_starts(
-            &mut begin_times,
-            &[parsed_skill_cd(223801, 2000)],
-            &mut counted,
-            0,
-        );
-
-        assert_eq!(casts, vec![2238]);
-        assert_eq!(begin_times.get(&2238), Some(&2000));
     }
 }

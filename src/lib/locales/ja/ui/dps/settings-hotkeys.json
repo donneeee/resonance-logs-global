@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "オーバーレイ編集モードを切り替え",
   "shortcuts.toggleOverlayWindow": "オーバーレイウィンドウを切り替え",
   "shortcuts.toggleEventLogger": "イベントロガーを切り替え",
-  "conflictAssigned": "そのホットキーはすでに次に割り当てられています"
+  "conflictAssigned": "そのホットキーはすでに次に割り当てられています",
+  "invalid.systemKey": "メディア、ブラウザー、ランチャー、システムキーはグローバルホットキーに使用できません。",
+  "invalid.missingModifier": "グローバルホットキーには Ctrl、Alt、Shift、Win などの修飾キーが少なくとも 1 つ必要です。"
 }

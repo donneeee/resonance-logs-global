@@ -10,13 +10,16 @@ import {
   SETTINGS,
   ensureBuffAliases,
   ensureBuffAlerts,
+  type TeammateBuffColumnKey,
 } from "$lib/settings-store";
 import type { BuffUpdateState, HateEntry, TeammateFantasyState } from "$lib/api";
+import { entityUuidFromAliases, uidFromEntityUuid } from "$lib/entity-id";
 import {
   buildBuffTextRow,
   resolveAlertState,
 } from "../game-overlay/overlay-utils";
 import type { TextBuffDisplay } from "../game-overlay/overlay-types";
+import { legacyEntityFallbacksDisabled } from "$lib/entity-identity-dry-run";
 import { monsterRuntime } from "./monster-runtime.svelte.js";
 import type {
   MonsterBossBuffSection,
@@ -27,16 +30,18 @@ import type {
 } from "./monster-types";
 
 const FANTASY_DISPLAY_TTL_MS = 5000;
+const USE_LEGACY_MONSTER_TARGET_UID_TITLE_FALLBACK = false;
+const USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK = false;
 
 type TeammateColumnDefinition =
   | {
-      key: string;
+      key: TeammateBuffColumnKey;
       label: string;
       kind: "buff";
       buffId: number;
     }
   | {
-      key: string;
+      key: TeammateBuffColumnKey;
       label: string;
       kind: "category";
       categoryKey: BuffCategoryKey;
@@ -56,10 +61,29 @@ function buffCategoryLabel(category: BuffCategoryKey): string {
   return tMonster(`teammate.category.${category}`, getBuffCategoryLabel(category));
 }
 
-function targetTitle(entityKey: string | number): string {
+function legacyTargetTitle(entityKey: string | number): string {
   const key = String(entityKey);
   const uid = uidFromEntityKey(key);
   return `${tMonster("placeholder.targetPrefix", "Target")} ${uid || key}`;
+}
+
+function targetTitle(entityKey: string | number): string {
+  if (USE_LEGACY_MONSTER_TARGET_UID_TITLE_FALLBACK) {
+    return legacyTargetTitle(entityKey);
+  }
+  return tMonster("placeholder.unknownTarget", "Unknown Target");
+}
+
+function unknownEntityName(): string {
+  return tMonster("placeholder.unknownEntity", "Unknown Entity");
+}
+
+function unknownTeammateName(): string {
+  return tMonster("placeholder.unknownTeammate", "Unknown Teammate");
+}
+
+function legacyMonsterUidFallbacksEnabled(): boolean {
+  return !legacyEntityFallbacksDisabled();
 }
 
 const SYNTHETIC_TARGET_PREFIXES = [
@@ -104,10 +128,9 @@ function resolveMonsterSectionTitle(entityKey: string): string {
     return localizeMonsterName(entityMonsterId);
   }
 
-  const numericUid = Number(entityKey);
-  const displayUid = Number.isSafeInteger(numericUid)
-    ? numericUid
-    : uidFromEntityKey(entityKey);
+  const displayUid = legacyMonsterUidFallbacksEnabled()
+    ? uidFromEntityKey(entityKey)
+    : 0;
   const monsterId = displayUid > 0
     ? monsterRuntime.monsterIdCache.get(displayUid)
     : undefined;
@@ -130,6 +153,10 @@ function resolveMonsterSectionTitle(entityKey: string): string {
 }
 
 function resolveEntityDisplayName(uid: number): string {
+  if (!legacyMonsterUidFallbacksEnabled()) {
+    return unknownEntityName();
+  }
+
   const playerName = monsterRuntime.playerNameCache.get(uid)?.trim();
   if (playerName) return playerName;
 
@@ -145,11 +172,13 @@ function resolveEntityDisplayName(uid: number): string {
     return localizeRawMonsterName(rawName, rawName);
   }
 
-  return `UID ${uid}`;
+  return USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK
+    ? `UID ${uid}`
+    : unknownEntityName();
 }
 
 function resolveHateEntryDisplayName(entry: HateEntry): string {
-  const entityKey = entry.entityKey?.trim();
+  const entityKey = entityUuidFromAliases(entry);
   if (entityKey) {
     const playerName = monsterRuntime.playerNameByEntityKey.get(entityKey)?.trim();
     if (playerName) return playerName;
@@ -159,7 +188,9 @@ function resolveHateEntryDisplayName(entry: HateEntry): string {
       return localizeMonsterName(monsterId);
     }
 
-    const displayUid = uidFromEntityKey(entityKey);
+    const displayUid = legacyMonsterUidFallbacksEnabled()
+      ? uidFromEntityKey(entityKey)
+      : 0;
     if (displayUid > 0) return resolveEntityDisplayName(displayUid);
   }
 
@@ -312,6 +343,27 @@ function buildTeammateColumnDefinitions(
   return columns;
 }
 
+function orderTeammateColumnDefinitions(
+  columns: TeammateColumnDefinition[],
+): TeammateColumnDefinition[] {
+  const order = SETTINGS.monsterMonitor.state.teammateBuffColumnOrder ?? [];
+  if (order.length === 0) return columns;
+
+  const byKey = new Map(columns.map((column) => [column.key, column]));
+  const seen = new Set<TeammateBuffColumnKey>();
+  const ordered: TeammateColumnDefinition[] = [];
+  for (const key of order) {
+    const column = byKey.get(key);
+    if (!column || seen.has(column.key)) continue;
+    seen.add(column.key);
+    ordered.push(column);
+  }
+  for (const column of columns) {
+    if (!seen.has(column.key)) ordered.push(column);
+  }
+  return ordered;
+}
+
 function toTeammateDisplayColumns(
   columns: TeammateColumnDefinition[],
 ): MonsterTeammateBuffColumn[] {
@@ -364,20 +416,21 @@ function pickLatestBuff(
 
 function uidFromEntityKey(entityKey: string): number {
   const numeric = Number(entityKey);
-  if (Number.isSafeInteger(numeric) && numeric > 0 && numeric < 1_000_000_000) {
+  const decodedUid = uidFromEntityUuid(entityKey);
+  if (decodedUid > 0) return decodedUid;
+
+  if (Number.isSafeInteger(numeric) && numeric > 0) {
     return numeric;
   }
-  try {
-    return Number(BigInt(entityKey) >> 16n);
-  } catch {
-    return 0;
-  }
+  return 0;
 }
 
 function resolveTeammateDisplayName(entityKey: string): string {
   const playerName = monsterRuntime.playerNameByEntityKey.get(entityKey)?.trim();
   if (playerName) return playerName;
-  return `UID ${uidFromEntityKey(entityKey) || entityKey}`;
+  return USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK
+    ? `UID ${uidFromEntityKey(entityKey) || entityKey}`
+    : unknownTeammateName();
 }
 
 function stripFantasySuffix(name: string): string {
@@ -445,7 +498,9 @@ function buildFantasyRows(now: number): MonsterFantasyRow[] {
     const summonerName =
       entry.summonerName?.trim()
       || monsterRuntime.playerNameByEntityKey.get(entry.summonerUuid)?.trim()
-      || `UID ${uidFromEntityKey(entry.summonerUuid) || entry.summonerUuid}`;
+      || (USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK
+        ? `UID ${uidFromEntityKey(entry.summonerUuid) || entry.summonerUuid}`
+        : unknownTeammateName());
     return {
       key: `fantasy_${entry.summonUuid}`,
       summonUuid: entry.summonUuid,
@@ -501,7 +556,11 @@ function buildHateRows(entries: HateEntry[], maxDisplay: number): TextBuffDispla
 
   return sortedEntries
     .map((entry, index) => ({
-      key: `hate_${entry.entityKey ?? entry.uid}`,
+      key: `hate_${entityUuidFromAliases(entry) || (
+        legacyMonsterUidFallbacksEnabled()
+          ? entry.uid
+          : `missing-entity-key:${entry.uid || "unknown"}`
+      )}`,
       label: `${index + 1}. ${resolveHateEntryDisplayName(entry)}`,
       valueText: `${displayPercents[index] ?? 0}%`,
       progressPercent: 0,
@@ -520,7 +579,9 @@ export function updateMonsterDisplay() {
     durationMs: number,
   ) => resolveAlertState(alertMap[String(baseId)], remainingMs, durationMs);
   const selectedIds = selectedMonsterBuffIds();
-  const teammateColumns = buildTeammateColumnDefinitions(aliases);
+  const teammateColumns = orderTeammateColumnDefinitions(
+    buildTeammateColumnDefinitions(aliases),
+  );
   const fullTeammateDisplayColumns = toTeammateDisplayColumns(teammateColumns);
   const priorityIds = SETTINGS.monsterMonitor.state.buffPriorityIds ?? [];
   const priorityIndex = new Map<number, number>();

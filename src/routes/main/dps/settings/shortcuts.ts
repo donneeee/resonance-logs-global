@@ -12,6 +12,55 @@ import { setClickthrough, showLiveWindowWithoutFocus, toggleClickthrough } from 
 import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
 import { register, unregister, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 
+const SHORTCUT_MODIFIERS = new Set([
+  "ctrl",
+  "control",
+  "shift",
+  "alt",
+  "option",
+  "meta",
+  "cmd",
+  "command",
+  "super",
+  "commandorcontrol",
+  "cmdorctrl",
+]);
+
+const SYSTEM_SHORTCUT_KEYS = new Set([
+  "audiovolumedown",
+  "audiovolumemute",
+  "audiovolumeup",
+  "browserback",
+  "browserfavorites",
+  "browserforward",
+  "browserhome",
+  "browserrefresh",
+  "browsersearch",
+  "browserstop",
+  "contextmenu",
+  "launchapp1",
+  "launchapp2",
+  "launchmail",
+  "launchmediaplayer",
+  "mediaplaypause",
+  "mediaselect",
+  "mediastop",
+  "mediatracknext",
+  "mediatrackprevious",
+  "power",
+  "printscreen",
+  "sleep",
+  "wakeup",
+]);
+
+const SYSTEM_SHORTCUT_KEY_PREFIXES = ["audio", "browser", "launch", "media"];
+
+export type ShortcutValidationReason = "missingModifier" | "systemKey";
+
+export type ShortcutValidationResult =
+  | { valid: true; shortcut: string }
+  | { valid: false; shortcut: string; reason: ShortcutValidationReason };
+
 export type ShortcutOwner = {
   section: "general" | "customTriggers";
   id: string;
@@ -51,6 +100,42 @@ export function normalizeShortcut(shortcutKey: string): string {
     .map((part) => part.trim())
     .filter(Boolean)
     .join("+");
+}
+
+function shortcutParts(shortcutKey: string): string[] {
+  return shortcutKey
+    .trim()
+    .split("+")
+    .map((part) => part.trim())
+    .filter(Boolean);
+}
+
+function isShortcutModifier(part: string): boolean {
+  return SHORTCUT_MODIFIERS.has(part.trim().toLowerCase());
+}
+
+export function isSystemShortcutKey(key: string): boolean {
+  const normalized = key.trim().toLowerCase();
+  return SYSTEM_SHORTCUT_KEYS.has(normalized) || SYSTEM_SHORTCUT_KEY_PREFIXES.some((prefix) => normalized.startsWith(prefix));
+}
+
+export function validateGlobalShortcut(shortcutKey: string): ShortcutValidationResult {
+  const parts = shortcutParts(shortcutKey);
+  const shortcut = parts.join("+");
+  if (!shortcut) {
+    return { valid: false, shortcut, reason: "missingModifier" };
+  }
+
+  const mainKeys = parts.filter((part) => !isShortcutModifier(part));
+  if (!mainKeys.length || !parts.some(isShortcutModifier)) {
+    return { valid: false, shortcut, reason: "missingModifier" };
+  }
+
+  if (mainKeys.some(isSystemShortcutKey)) {
+    return { valid: false, shortcut, reason: "systemKey" };
+  }
+
+  return { valid: true, shortcut };
 }
 
 export function getAllAssignedShortcuts(): ShortcutOwner[] {
@@ -101,12 +186,19 @@ export async function registerShortcut(
   cmdId: string,
   shortcutKey: string,
 ) {
-  if (!shortcutKey) return;
+  const validation = validateGlobalShortcut(shortcutKey);
+  if (!validation.valid) {
+    if (validation.shortcut) {
+      console.warn(`Skipping unsafe global shortcut "${validation.shortcut}" for ${section}:${cmdId} (${validation.reason}).`);
+    }
+    return;
+  }
+  const safeShortcutKey = validation.shortcut;
 
   if (section === "general") {
     switch (cmdId) {
       case "showLiveMeter":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             await showLiveWindowWithoutFocus();
           }
@@ -114,7 +206,7 @@ export async function registerShortcut(
         return;
 
       case "hideLiveMeter":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             const liveWindow = await WebviewWindow.getByLabel("live");
             await liveWindow?.hide();
@@ -123,7 +215,7 @@ export async function registerShortcut(
         return;
 
       case "toggleLiveMeter":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             const liveWindow = await WebviewWindow.getByLabel("live");
             const isVisible = await liveWindow?.isVisible();
@@ -137,7 +229,7 @@ export async function registerShortcut(
         return;
 
       case "toggleOverlayWindow":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             try {
               await commands.toggleGameOverlayWindow();
@@ -149,7 +241,7 @@ export async function registerShortcut(
         return;
 
       case "enableClickthrough":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             setClickthrough(true);
           }
@@ -157,7 +249,7 @@ export async function registerShortcut(
         return;
 
       case "disableClickthrough":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             setClickthrough(false);
           }
@@ -165,7 +257,7 @@ export async function registerShortcut(
         return;
 
       case "toggleClickthrough":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             toggleClickthrough();
           }
@@ -173,7 +265,7 @@ export async function registerShortcut(
         return;
 
       case "resetEncounter":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             commands.resetEncounter();
           }
@@ -181,7 +273,7 @@ export async function registerShortcut(
         return;
 
       case "toggleBossHp":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             const nextValue = !SETTINGS.live.headerCustomization.state.showBossHealth;
             SETTINGS.live.headerCustomization.state.showBossHealth = nextValue;
@@ -190,7 +282,7 @@ export async function registerShortcut(
         return;
 
       case "togglePauseEncounter":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             try {
               await commands.togglePauseEncounter();
@@ -202,7 +294,7 @@ export async function registerShortcut(
         return;
 
       case "toggleOverlayEdit":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             try {
               await commands.toggleGameOverlayEditMode();
@@ -214,7 +306,7 @@ export async function registerShortcut(
         return;
 
       case "toggleEventLogger":
-        await register(shortcutKey, async (event) => {
+        await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
             try {
               await toggleEventLoggerWindow();
@@ -232,7 +324,7 @@ export async function registerShortcut(
 
   switch (cmdId) {
     case "fireSelectedTrigger":
-      await register(shortcutKey, async (event) => {
+      await register(safeShortcutKey, async (event) => {
         if (event.state === "Pressed") {
           const triggerId = SETTINGS.customTriggers.state.selectedHotkeyTriggerId?.trim();
           if (triggerId) await fireCustomTrigger(triggerId);
@@ -241,7 +333,7 @@ export async function registerShortcut(
       return;
 
     case "stopSelectedTrigger":
-      await register(shortcutKey, async (event) => {
+      await register(safeShortcutKey, async (event) => {
         if (event.state === "Pressed") {
           const triggerId = SETTINGS.customTriggers.state.selectedHotkeyTriggerId?.trim();
           if (triggerId) await stopCustomTrigger(triggerId);
@@ -250,7 +342,7 @@ export async function registerShortcut(
       return;
 
     case "resetSelectedTrigger":
-      await register(shortcutKey, async (event) => {
+      await register(safeShortcutKey, async (event) => {
         if (event.state === "Pressed") {
           const triggerId = SETTINGS.customTriggers.state.selectedHotkeyTriggerId?.trim();
           if (triggerId) await resetCustomTrigger(triggerId);
@@ -259,7 +351,7 @@ export async function registerShortcut(
       return;
 
     case "clearSelectedGroup":
-      await register(shortcutKey, async (event) => {
+      await register(safeShortcutKey, async (event) => {
         if (event.state === "Pressed") {
           const groupId = SETTINGS.customTriggers.state.selectedHotkeyGroupId?.trim();
           if (groupId) await resetCustomTriggerGroup(groupId);
@@ -268,7 +360,7 @@ export async function registerShortcut(
       return;
 
     case "resetAllRuntimeState":
-      await register(shortcutKey, async (event) => {
+      await register(safeShortcutKey, async (event) => {
         if (event.state === "Pressed") {
           await resetAllCustomTriggerRuntimeState();
         }
@@ -280,13 +372,22 @@ export async function registerShortcut(
   }
 }
 
+export async function safeUnregisterShortcut(shortcutKey: string) {
+  if (!shortcutKey) return;
+  try {
+    await unregister(shortcutKey);
+  } catch (error) {
+    console.warn(`Failed to unregister shortcut "${shortcutKey}"`, error);
+  }
+}
+
 export async function clearRegisteredShortcut(section: ShortcutOwner["section"], id: string) {
   const current =
     section === "general"
       ? SETTINGS.shortcuts.state[id as keyof typeof SETTINGS.shortcuts.state]
       : SETTINGS.customTriggers.state.hotkeys?.[id as keyof typeof SETTINGS.customTriggers.state.hotkeys] ?? "";
   if (current) {
-    await unregister(current);
+    await safeUnregisterShortcut(current);
   }
   if (section === "general") {
     SETTINGS.shortcuts.state[id as keyof typeof SETTINGS.shortcuts.state] = "";

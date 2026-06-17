@@ -7,6 +7,7 @@ import type {
   RawSkillStats,
   SkillRow,
 } from "$lib/api";
+import { entityUuidFromAliases } from "$lib/entity-id";
 import { classifyOceanWeapon, type EquippedItem } from "$lib/player-equipment";
 import { derivePlayerImagines } from "$lib/player-imagines";
 
@@ -80,6 +81,10 @@ export function computePlayerRowsFromEntities(
   return source.entities
     .map((entity) => {
       const stats = statsByMetric(entity, metric);
+      const entityUuid =
+        entityUuidFromAliases(entity) ??
+        (entity.uuid != null && entity.uuid > 0 ? String(entity.uuid) : null);
+      const displayUid = Number(entity.displayUid ?? entity.uid ?? 0);
       const equippedItems = (entity.equippedItems ?? []) as EquippedItem[];
       const playerImagines = derivePlayerImagines(entity.activeProfessionSkills ?? []);
       const total = Number(stats.total || 0);
@@ -92,9 +97,11 @@ export function computePlayerRowsFromEntities(
 
       const row: PlayerRow = {
         uid: entity.uid,
+        displayUid,
         uuid: entity.uuid ?? null,
-        entityKey: entity.entityKey ?? null,
-        name: entity.name || `#${entity.uid}`,
+        entityUuid,
+        entityKey: entity.entityKey ?? entityUuid,
+        name: entity.name || `#${displayUid || entity.uid}`,
         className: entity.className,
         classSpecName: entity.classSpecName,
         abilityScore: entity.abilityScore,
@@ -205,7 +212,8 @@ export function computeHeaderInfo(
     activeCombatTimeMs: data.activeCombatTimeMs,
     fightStartTimestampMs: data.fightStartTimestampMs,
     dpsDisplayPaused: data.dpsDisplayPaused,
-    localPlayerKey: data.localPlayerKey ?? null,
+    localPlayerUuid: data.localPlayerUuid ?? data.localPlayerKey ?? null,
+    localPlayerKey: data.localPlayerKey ?? data.localPlayerUuid ?? null,
     bosses: data.bosses,
     sceneId: data.sceneId,
     sceneName: data.sceneName,

@@ -10,12 +10,12 @@
   import { uiT } from "$lib/i18n";
   import { deathRecordMatchesRoute } from "$lib/death-record-identity";
   import {
+    liveEntityMatchesLocalPlayer,
     liveEntityMatchesRoute,
     liveRouteIdentityFromSearch,
   } from "$lib/live-entity-route";
 
   const routeIdentity = $derived(liveRouteIdentityFromSearch(page.url.searchParams));
-  const playerUid = $derived(routeIdentity.playerUid ?? -1);
   const deathTs = $derived(Number(page.url.searchParams.get("deathTs") ?? "-1"));
 
   const liveData = $derived(getLiveData());
@@ -32,11 +32,7 @@
   const entity = $derived(
     liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
   );
-  const isLocalPlayer = $derived(
-    liveData?.localPlayerKey && entity?.entityKey
-      ? liveData.localPlayerKey === entity.entityKey
-      : liveData?.localPlayerUid != null && playerUid === liveData.localPlayerUid,
-  );
+  const isLocalPlayer = $derived(liveEntityMatchesLocalPlayer(entity, liveData));
 
   function handleFallback() {
     if (window.history.length > 1) {

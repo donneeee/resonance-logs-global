@@ -7,6 +7,7 @@ pub type EntityUid = i64;
 
 pub const ENTITY_TYPE_SHIFT: i64 = 6;
 pub const ENTITY_UID_SHIFT: i64 = 16;
+pub const DISABLE_LEGACY_ENTITY_FALLBACKS_DRY_RUN: bool = true;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EntityIdentityAuditMode {
@@ -15,12 +16,35 @@ pub enum EntityIdentityAuditMode {
     Strict,
 }
 
+pub fn legacy_entity_fallbacks_disabled() -> bool {
+    static DISABLED: OnceLock<bool> = OnceLock::new();
+    *DISABLED.get_or_init(|| {
+        let value = std::env::var("RES_LOG_DISABLE_LEGACY_ENTITY_FALLBACKS")
+            .unwrap_or_default()
+            .trim()
+            .to_ascii_lowercase();
+        match value.as_str() {
+            "0" | "false" | "off" | "no" => false,
+            "1" | "true" | "on" | "yes" => true,
+            _ => DISABLE_LEGACY_ENTITY_FALLBACKS_DRY_RUN,
+        }
+    })
+}
+
 pub fn entity_identity_audit_mode() -> EntityIdentityAuditMode {
     static MODE: OnceLock<EntityIdentityAuditMode> = OnceLock::new();
     *MODE.get_or_init(|| {
         let value = std::env::var("RES_LOG_ENTITY_ID_AUDIT")
             .unwrap_or_default()
+            .trim()
             .to_ascii_lowercase();
+        if value.is_empty() {
+            return if legacy_entity_fallbacks_disabled() {
+                EntityIdentityAuditMode::Warn
+            } else {
+                EntityIdentityAuditMode::Off
+            };
+        }
         match value.as_str() {
             "strict" | "error" | "fail" | "1" => EntityIdentityAuditMode::Strict,
             "warn" | "warning" | "log" | "true" | "yes" => EntityIdentityAuditMode::Warn,
@@ -31,7 +55,8 @@ pub fn entity_identity_audit_mode() -> EntityIdentityAuditMode {
 
 #[inline]
 pub fn strict_entity_identity_audit_enabled() -> bool {
-    entity_identity_audit_mode() == EntityIdentityAuditMode::Strict
+    legacy_entity_fallbacks_disabled()
+        || entity_identity_audit_mode() == EntityIdentityAuditMode::Strict
 }
 
 pub fn audit_ambiguous_uid_fallback(caller: &str, uid: EntityUid, uuids: &[EntityUuid]) {
@@ -85,7 +110,7 @@ pub fn entity_uuid_string(uuid: EntityUuid) -> String {
 pub fn entity_key_from_uuid_or_uid(uuid: Option<EntityUuid>, uid: EntityUid) -> Option<String> {
     uuid.filter(|value| *value != 0)
         .map(entity_uuid_string)
-        .or_else(|| (uid > 0).then(|| uid.to_string()))
+        .or_else(|| (!legacy_entity_fallbacks_disabled() && uid > 0).then(|| uid.to_string()))
 }
 
 #[inline]

@@ -70,6 +70,7 @@ libloading = "0.9.0"
 libc = "0.2.177"
 cxx = "1.0"
 anyhow = "1.0.102"
+base64 = "0.22.1"
 
 [dependencies.blueprotobuf-lib]
 path = "./src/blueprotobuf-lib"

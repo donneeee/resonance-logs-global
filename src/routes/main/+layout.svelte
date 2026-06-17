@@ -75,7 +75,7 @@
 
     if (!runtimeSnapshotInitialized) {
       runtimeSnapshotInitialized = true;
-      queueRuntimeSnapshotSync(sync, runtimeSnapshot, runtimeSnapshotKey, 250);
+      queueRuntimeSnapshotSync(sync, runtimeSnapshot, runtimeSnapshotKey, 0);
     } else if (runtimeSnapshotKey !== lastRuntimeSnapshotKey) {
       queueRuntimeSnapshotSync(sync, runtimeSnapshot, runtimeSnapshotKey);
     }
@@ -278,7 +278,11 @@
     containColor={SETTINGS.accessibility.state.backgroundImageContainColor || "rgba(0, 0, 0, 0)"}
     opacity={SETTINGS.accessibility.state.backgroundImageOpacity ?? 100}
   />
-  <div class="pointer-events-none absolute inset-0 z-10 bg-background-main"></div>
+  <div
+    class="pointer-events-none absolute inset-0 z-10 {SETTINGS.accessibility.state.backgroundImageEnabled
+      ? 'app-background-wash-main'
+      : 'bg-background-main'}"
+  ></div>
 
   <div class="relative z-20 flex h-full">
     <!-- Left Sidebar - Tool List -->
@@ -308,6 +312,10 @@
 </div>
 
 <style>
+  .app-background-wash-main {
+    background: color-mix(in srgb, var(--background-main) 72%, transparent);
+  }
+
   :global {
     html,
     body {

@@ -8,7 +8,7 @@ use crate::live::commands_models::{
     to_modifier_window_state, to_raw_combat_stats, to_raw_skill_stats,
 };
 use crate::live::entity_attr_store::EntityAttrStore;
-use crate::live::entity_id::entity_key_from_uuid_or_uid;
+use crate::live::entity_id::{entity_key_from_uuid_or_uid, entity_uuid_string, uid_from_uuid};
 use crate::live::opcodes_models::{AttrType, Encounter, class};
 use crate::live::season_cultivate::{
     SeasonCultivateActiveSnapshot, SeasonCultivateFactorSelection,
@@ -589,17 +589,15 @@ pub fn generate_live_data_payload(
         .time_last_combat_packet_ms
         .saturating_sub(encounter.time_fight_start_ms);
     let active_combat_time_ms = encounter.active_combat_time_ms.min(elapsed_ms);
-    let local_player_key = entity_key_from_uuid_or_uid(
-        (encounter.local_player_uuid > 0).then_some(encounter.local_player_uuid),
-        encounter.local_player_uid,
-    );
+    let local_player_uuid =
+        (encounter.local_player_uuid > 0).then(|| entity_uuid_string(encounter.local_player_uuid));
+    let local_player_key = local_player_uuid.clone();
 
-    let entity_entries = encounter.entity_identity_keys();
-    let mut entities = Vec::with_capacity(entity_entries.len());
-    for (uid, entity_uuid) in entity_entries {
-        let Some(entity) = encounter.entity_by_identity(uid, entity_uuid) else {
+    let mut entities = Vec::with_capacity(encounter.entity_uuid_to_entity.len());
+    for (&entity_uuid, entity) in &encounter.entity_uuid_to_entity {
+        if entity_uuid <= 0 {
             continue;
-        };
+        }
         if entity.entity_type != EEntityType::EntChar {
             continue;
         }
@@ -609,18 +607,20 @@ pub fn generate_live_data_payload(
             continue;
         }
 
-        let is_local_player = uid == encounter.local_player_uid
-            || (encounter.local_player_uuid != 0
-                && entity_uuid.or(entity.uuid) == Some(encounter.local_player_uuid));
-        let attr_key = entity_uuid
-            .or(entity.uuid)
-            .filter(|uuid| *uuid > 0)
-            .unwrap_or(uid);
+        let uid = uid_from_uuid(entity_uuid);
+        let is_local_player =
+            encounter.local_player_uuid != 0 && entity_uuid == encounter.local_player_uuid;
+        let attr_key = entity_uuid;
+        let row_uuid = Some(entity_uuid);
+        let row_entity_uuid = entity_uuid_string(entity_uuid);
+        let display_uid = uid;
 
         entities.push(RawEntityData {
+            entity_uuid: row_entity_uuid,
+            display_uid,
             uid,
-            uuid: entity_uuid.or(entity.uuid),
-            entity_key: entity_key_from_uuid_or_uid(entity_uuid.or(entity.uuid), uid),
+            uuid: row_uuid,
+            entity_key: entity_key_from_uuid_or_uid(row_uuid, uid),
             name: attr_store
                 .attr(attr_key, AttrType::Name)
                 .or_else(|| attr_store.attr(uid, AttrType::Name))
@@ -778,17 +778,17 @@ pub fn generate_live_data_payload(
     }
 
     let bosses: Vec<BossHealth> = encounter
-        .entity_identity_keys()
-        .into_iter()
-        .filter_map(|(uid, entity_uuid)| {
-            let entity = encounter.entity_by_identity(uid, entity_uuid)?;
+        .entity_uuid_to_entity
+        .iter()
+        .filter_map(|(&entity_uuid, entity)| {
+            if entity_uuid <= 0 {
+                return None;
+            }
             if !entity.is_boss_metric_target() {
                 return None;
             }
-            let attr_key = entity_uuid
-                .or(entity.uuid)
-                .filter(|uuid| *uuid > 0)
-                .unwrap_or(uid);
+            let uid = uid_from_uuid(entity_uuid);
+            let attr_key = entity_uuid;
 
             if attr_store.is_dead(attr_key) || attr_store.is_dead(uid) {
                 return None;
@@ -820,9 +820,14 @@ pub fn generate_live_data_payload(
                 format!("Boss {uid}")
             };
 
+            let boss_uuid = Some(entity_uuid);
+            let display_uid = uid;
+
             Some(BossHealth {
+                entity_uuid: boss_uuid.map(entity_uuid_string).unwrap_or_default(),
+                display_uid,
                 uid,
-                entity_key: entity_key_from_uuid_or_uid(entity_uuid.or(entity.uuid), uid),
+                entity_key: entity_key_from_uuid_or_uid(boss_uuid, uid),
                 name,
                 current_hp,
                 max_hp,
@@ -843,6 +848,7 @@ pub fn generate_live_data_payload(
         total_heal: encounter.total_heal,
         total_effective_heal: encounter.total_effective_heal,
         local_player_uid: encounter.local_player_uid,
+        local_player_uuid,
         local_player_key,
         scene_id: encounter.current_scene_id,
         scene_name: encounter.current_scene_name.clone(),

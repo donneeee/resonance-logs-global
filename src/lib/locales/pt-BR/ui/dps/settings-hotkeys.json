@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "Alternar modo de edição do overlay",
   "shortcuts.toggleOverlayWindow": "Alternar janela do overlay",
   "shortcuts.toggleEventLogger": "Alternar registrador de eventos",
-  "conflictAssigned": "Esse atalho já está atribuído a"
+  "conflictAssigned": "Esse atalho já está atribuído a",
+  "invalid.systemKey": "Teclas de mídia, navegador, inicializador e sistema não podem ser usadas como atalhos globais.",
+  "invalid.missingModifier": "Atalhos globais devem incluir pelo menos um modificador, como Ctrl, Alt, Shift ou Win."
 }

@@ -10,6 +10,7 @@ import {
   getSeasonCultivateFactorRuleMap,
   getSeasonCultivateFactorSourceIncrementMap,
   getSeasonCultivateFactorThreshold,
+  getSourceTemplateSources,
   getSourceTemplates,
   getSlotTemplates,
   resolveSeasonCultivateSlotSkillLabel,
@@ -95,6 +96,7 @@ import {
   uptimeTotals,
 } from "./overlay-runtime.svelte.js";
 import { overlayNow } from "./overlay-clock.svelte.js";
+import { legacyEntityFallbacksDisabled } from "$lib/entity-identity-dry-run";
 
 function resolveOverlaySkillDisplayName(skillId: number, baseName: string): string {
   return resolveKnownSkillStageDisplayName(
@@ -228,9 +230,10 @@ function getLocalPlayerFactorBuffMap(): Map<number, BuffUpdateState> {
   const result = new Map<number, BuffUpdateState>();
   const data = liveData();
   const localEntity = data?.entities.find((entity) =>
-    data.localPlayerKey
-      ? entity.entityKey === data.localPlayerKey
-      : entity.uid === data.localPlayerUid,
+    (data.localPlayerUuid ?? data.localPlayerKey)
+      ? (entity.entityUuid ?? entity.entityKey) ===
+        (data.localPlayerUuid ?? data.localPlayerKey)
+      : !legacyEntityFallbacksDisabled() && entity.uid === data.localPlayerUid,
   );
   const maybeSet = (baseId: number | null | undefined, buff: BuffUpdateState) => {
     if (!baseId || baseId <= 0) return;
@@ -425,33 +428,35 @@ function getSeasonCultivateFactorTimerText(
 }
 
 function getFirstSourceSkillBaseId(template: SourceTemplate): number | null {
-  const source = template.source;
-  if ("skillCast" in source) return source.skillCast.skillBaseIds[0] ?? null;
-  if ("skillCastComplete" in source) {
-    return source.skillCastComplete.skillBaseIds[0] ?? null;
+  for (const source of getSourceTemplateSources(template)) {
+    if ("skillCast" in source) return source.skillCast.skillBaseIds[0] ?? null;
+    if ("skillCastComplete" in source) {
+      return source.skillCastComplete.skillBaseIds[0] ?? null;
+    }
+    if ("skillDurationTick" in source) return source.skillDurationTick.skillBaseId;
   }
-  if ("skillDurationTick" in source) return source.skillDurationTick.skillBaseId;
   return null;
 }
 
 function getSourceSkillKeyLabel(template: SourceTemplate): string | null {
-  const source = template.source;
-  const skillKeys =
-    "damageBySkillKey" in source
-      ? source.damageBySkillKey.skillKeys
-      : "damageBySkillKeyOnce" in source
-        ? source.damageBySkillKeyOnce.skillKeys
-        : "damageBySkillKeySelfTarget" in source
-          ? source.damageBySkillKeySelfTarget.skillKeys
-          : "damageTaken" in source
-            ? source.damageTaken.skillKeys ?? []
-            : [];
-  for (const skillKey of skillKeys) {
-    const label = lookupLocalizedDamageIdName(
-      skillKey,
-      SETTINGS.live.general.state.language,
-    );
-    if (label && !label.startsWith("Unknown (")) return label;
+  for (const source of getSourceTemplateSources(template)) {
+    const skillKeys =
+      "damageBySkillKey" in source
+        ? source.damageBySkillKey.skillKeys
+        : "damageBySkillKeyOnce" in source
+          ? source.damageBySkillKeyOnce.skillKeys
+          : "damageBySkillKeySelfTarget" in source
+            ? source.damageBySkillKeySelfTarget.skillKeys
+            : "damageTaken" in source
+              ? source.damageTaken.skillKeys ?? []
+              : [];
+    for (const skillKey of skillKeys) {
+      const label = lookupLocalizedDamageIdName(
+        skillKey,
+        SETTINGS.live.general.state.language,
+      );
+      if (label && !label.startsWith("Unknown (")) return label;
+    }
   }
   return null;
 }
@@ -551,6 +556,13 @@ function getSeasonCultivateCandidateSortRank(itemId: number): number {
   return 4;
 }
 
+function isSeasonCultivateStasisFactor(itemId: number): boolean {
+  const template = _seasonCultivateFactorSlotTemplateMap.get(itemId);
+  const templateId = template?.slotTemplateId ?? "";
+  const name = (template?.name ?? "").toLowerCase();
+  return name.includes("stasis") || templateId.startsWith("factor_3059");
+}
+
 function buildSeasonCultivateThresholdRow(
   itemId: number,
   rule: CounterRulePreset,
@@ -569,11 +581,15 @@ function buildSeasonCultivateThresholdRow(
     ?? counterSlot?.threshold
     ?? getSeasonCultivateFactorThreshold(itemId, slot.threshold);
   if (!threshold || threshold <= 0) return null;
-  const total = Math.max(
-    0,
-    counterSlot?.currentCount ?? getInferredFactorEnergyTotal(now),
+  const inferredTotal = getInferredFactorEnergyTotal(now);
+  const total = Math.max(0, counterSlot?.currentCount ?? 0, inferredTotal);
+  const observedProcCount = seasonCultivateFactorProcCounts().get(itemId) ?? 0;
+  const storedProcCount = counterSlot?.procCount ?? 0;
+  const procCount = Math.max(
+    storedProcCount,
+    observedProcCount,
+    Math.floor(total / threshold),
   );
-  const procCount = Math.floor(total / threshold);
   const remainder = total % threshold;
   const linkedBuff = factorBuffMap.get(slot.resetBuffId);
   const active = isBuffActive(linkedBuff, now);
@@ -786,7 +802,14 @@ const _buffSnapshot = $derived.by(() => {
       const thresholdRows: CustomPanelDisplayRow[] = [];
       const sourceRows: CustomPanelDisplayRow[] = [];
       const candidateRows: CustomPanelDisplayRow[] = [];
+      const autoShowStasisFactors = group.autoShowStasisFactors !== false;
       for (const itemId of seasonCultivateFactorSlotItemIds()) {
+        if (
+          !autoShowStasisFactors
+          && isSeasonCultivateStasisFactor(itemId)
+        ) {
+          continue;
+        }
         trustedFactorItemIds.add(itemId);
         const ruleId = getSeasonCultivateFactorRuleId(itemId);
         const rule = _seasonCultivateFactorRuleMap.get(ruleId);
@@ -868,6 +891,12 @@ const _buffSnapshot = $derived.by(() => {
         );
       for (const itemId of sortedCandidateItemIds) {
         if (trustedFactorItemIds.has(itemId)) continue;
+        if (
+          !autoShowStasisFactors
+          && isSeasonCultivateStasisFactor(itemId)
+        ) {
+          continue;
+        }
         const ruleId = getSeasonCultivateFactorRuleId(itemId);
         const rule = _seasonCultivateFactorRuleMap.get(ruleId);
         if (!rule) continue;
@@ -960,12 +989,14 @@ const _buffUptimeRows = $derived.by<BuffUptimeDisplayRow[]>(() => {
   const encounterMs = Math.max(0, live?.elapsedMs ?? 0);
   const trueMs = Math.max(0, live?.activeCombatTimeMs ?? 0);
   const localPlayerUid = live?.localPlayerUid ?? 0;
-  const localPlayerKey = live?.localPlayerKey?.trim() ?? "";
+  const localPlayerKey =
+    live?.localPlayerUuid?.trim() ?? live?.localPlayerKey?.trim() ?? "";
   const rows: BuffUptimeDisplayRow[] = [];
 
   function sourceIsLocal(total: { sourceKey?: string | null; sourceUid: number }): boolean {
     const sourceKey = total.sourceKey?.trim();
     if (sourceKey && localPlayerKey) return sourceKey === localPlayerKey;
+    if (legacyEntityFallbacksDisabled()) return false;
     return total.sourceUid === localPlayerUid;
   }
 
@@ -984,7 +1015,7 @@ const _buffUptimeRows = $derived.by<BuffUptimeDisplayRow[]>(() => {
         return localizeMonsterName(monsterId);
       }
     }
-    if (sourceUid > 0) {
+    if (!legacyEntityFallbacksDisabled() && sourceUid > 0) {
       return names.get(sourceUid) || "Unknown";
     }
     if (sourceConfigId !== null) {

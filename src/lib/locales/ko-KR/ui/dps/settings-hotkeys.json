@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "오버레이 편집 모드 전환",
   "shortcuts.toggleOverlayWindow": "오버레이 창 전환",
   "shortcuts.toggleEventLogger": "이벤트 로거 전환",
-  "conflictAssigned": "해당 단축키는 이미 다음에 할당되어 있습니다"
+  "conflictAssigned": "해당 단축키는 이미 다음에 할당되어 있습니다",
+  "invalid.systemKey": "미디어, 브라우저, 실행기 및 시스템 키는 전역 단축키로 사용할 수 없습니다.",
+  "invalid.missingModifier": "전역 단축키에는 Ctrl, Alt, Shift, Win 같은 보조 키가 하나 이상 필요합니다."
 }

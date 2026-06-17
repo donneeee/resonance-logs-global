@@ -5,6 +5,7 @@
     getTeammatePanelPosition,
     getTeammatePanelScale,
     isMonsterEditing,
+    isMonsterLayoutScaffold,
     monsterTeammateColumns,
     monsterTeammateRows,
     startMonsterDrag,
@@ -13,15 +14,25 @@
   } from "./monster-state.svelte.js";
 
   const editing = $derived(isMonsterEditing());
+  const scaffold = $derived(isMonsterLayoutScaffold());
   const rows = $derived(monsterTeammateRows());
   const columns = $derived(monsterTeammateColumns());
   const styleConfig = $derived(teammatePanelStyle());
   const panelPos = $derived(getTeammatePanelPosition());
   const panelScale = $derived(getTeammatePanelScale());
   const t = uiT("overlay/monster-monitor", () => SETTINGS.live.general.state.language);
+  const displayColumns = $derived.by(
+    () =>
+      columns.length > 0
+        ? columns
+        : rows[0]?.cells.map((cell) => ({
+            key: cell.key,
+            label: cell.buffName,
+          })) ?? [],
+  );
 </script>
 
-{#if rows.length > 0 || editing}
+{#if rows.length > 0 || scaffold}
   <!-- svelte-ignore a11y_no_static_element_interactions -->
   <div
     class="overlay-group teammate-buff-panel"
@@ -30,57 +41,89 @@
     style:top={`${panelPos.y}px`}
     style:transform={`scale(${panelScale})`}
     style:transform-origin="top left"
-    style:--row-gap={`${styleConfig.gap}px`}
-    style:--column-gap={`${styleConfig.columnGap}px`}
-    style:--font-size={`${styleConfig.fontSize}px`}
-    style:--name-color={styleConfig.nameColor}
-    style:--value-color={styleConfig.valueColor}
-    style:--progress-color={styleConfig.progressColor}
-    style:--progress-opacity={String(styleConfig.progressOpacity ?? 0.4)}
-    style:--columns={String(Math.max(1, columns.length))}
     onpointerdown={(event) =>
       startMonsterDrag(event, { kind: "teammatePanel" }, panelPos)}
   >
-    {#if editing}
+    {#if scaffold}
       <div class="group-tag">{t("overlay.teammateBuff", "Teammate Buff Area")}</div>
     {/if}
 
-    <div class="matrix-grid header-row">
-      <div class="teammate-header">{t("teammate.nameHeader", "Teammate")}</div>
-      {#each columns as column (column.key)}
-        <div class="buff-header" title={column.label}>{column.label}</div>
-      {/each}
-    </div>
+    <div class="matrix-shell">
+      <div
+        class="matrix-grid matrix-header"
+        style:--buff-count={Math.max(displayColumns.length, 1)}
+        style:--font-size={`${styleConfig.fontSize}px`}
+        style:--column-gap={`${styleConfig.columnGap}px`}
+        style:--name-column-width={`${styleConfig.nameColumnWidth}px`}
+        style:--buff-column-width={`${styleConfig.buffColumnWidth}px`}
+        style:--row-height={`${styleConfig.rowHeight}px`}
+        style:color={styleConfig.nameColor}
+      >
+        <div class="teammate-header" title={t("teammate.nameHeader", "Teammate")}></div>
+        {#each displayColumns as column (column.key)}
+          <div class="buff-header" title={column.label}>{column.label}</div>
+        {/each}
+      </div>
 
-    <div class="teammate-rows">
-      {#each rows as row (row.teammateEntityUuid)}
-        <div class="matrix-grid teammate-row" class:placeholder={row.isPlaceholder}>
-          <div class="teammate-name" title={row.teammateName}>{row.teammateName}</div>
-          {#each row.cells as cell (cell.key)}
+      <div class="matrix-body" style:gap={`${styleConfig.gap}px`}>
+        {#each rows as row (row.teammateEntityUuid)}
+          <div
+            class="matrix-grid teammate-row"
+            class:placeholder={row.isPlaceholder}
+            style:--buff-count={Math.max(displayColumns.length, 1)}
+            style:--font-size={`${styleConfig.fontSize}px`}
+            style:--column-gap={`${styleConfig.columnGap}px`}
+            style:--name-column-width={`${styleConfig.nameColumnWidth}px`}
+            style:--buff-column-width={`${styleConfig.buffColumnWidth}px`}
+            style:--row-height={`${styleConfig.rowHeight}px`}
+          >
             <div
-              class="buff-cell"
-              class:active={cell.hasBuff}
-              class:placeholder={row.isPlaceholder}
-              class:alert={cell.alert?.flash === true}
-              style:--cell-alert-color={cell.alert?.highlightColor ?? styleConfig.progressColor}
-              title={cell.buffName}
+              class="teammate-name"
+              title={row.teammateName}
+              style:color={styleConfig.nameColor}
             >
-              {#if cell.hasBuff}
-                <div
-                  class="cell-progress"
-                  style:width={`${Math.max(0, Math.min(100, cell.progressPercent))}%`}
-                ></div>
-                <span class="cell-value">{cell.valueText || "--"}</span>
-                {#if cell.metaText}
-                  <span class="cell-meta">{cell.metaText}</span>
-                {/if}
-              {:else}
-                <span class="cell-empty">--</span>
-              {/if}
+              {row.teammateName}
             </div>
-          {/each}
-        </div>
-      {/each}
+            {#each row.cells as cell (cell.key)}
+              <div
+                class="buff-cell"
+                class:active={cell.hasBuff}
+                class:empty={!cell.hasBuff}
+                class:alert-flash={cell.alert?.flash === true}
+                title={cell.hasBuff
+                  ? `${cell.categoryKey ? `${cell.buffName} ` : ""}${cell.metaText ? `${cell.metaText} ` : ""}${cell.valueText}`.trim()
+                  : cell.buffName}
+                style:--alert-color={cell.alert?.highlightColor ?? styleConfig.progressColor}
+                style:--alert-flash-duration={cell.alert
+                  ? `${cell.alert.flashIntervalMs ?? 600}ms`
+                  : undefined}
+              >
+                {#if cell.hasBuff}
+                  <div class="cell-progress-track">
+                    <div
+                      class="cell-progress-fill"
+                      style:width={`${Math.max(0, Math.min(100, cell.progressPercent))}%`}
+                      style:background={cell.alert?.applyToProgress
+                        ? cell.alert.highlightColor
+                        : styleConfig.progressColor}
+                      style:opacity={styleConfig.progressOpacity ?? 0.4}
+                    ></div>
+                  </div>
+                  <span
+                    class="cell-value"
+                    style:color={cell.alert?.highlightColor ?? styleConfig.valueColor}
+                  >
+                    {#if cell.metaText}
+                      <span class="cell-meta">{cell.metaText}</span>
+                    {/if}
+                    {cell.valueText}
+                  </span>
+                {/if}
+              </div>
+            {/each}
+          </div>
+        {/each}
+      </div>
     </div>
 
     {#if editing}
@@ -96,89 +139,155 @@
 
 <style>
   .teammate-buff-panel {
-    min-width: 280px;
-    max-width: 760px;
-    color: var(--value-color);
-    font-size: var(--font-size);
+    min-width: 340px;
+    max-width: min(860px, calc(100vw - 24px));
     pointer-events: auto;
+  }
+
+  .teammate-buff-panel.editable {
+    border: 2px solid rgba(45, 212, 191, 0.9);
+    border-radius: 10px;
+    background: rgba(18, 52, 56, 0.48);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+    margin: -10px;
+    padding: 8px;
+  }
+
+  .matrix-shell {
+    overflow: visible;
+    padding: 2px;
   }
 
   .matrix-grid {
     display: grid;
-    grid-template-columns: minmax(96px, 1.15fr) repeat(var(--columns, 1), minmax(64px, 0.85fr));
-    gap: var(--row-gap) var(--column-gap);
+    grid-template-columns:
+      minmax(32px, var(--name-column-width))
+      repeat(var(--buff-count), minmax(36px, var(--buff-column-width)));
+    column-gap: var(--column-gap);
     align-items: stretch;
+    min-width: max-content;
+    font-size: var(--font-size);
   }
 
-  .header-row {
-    margin-bottom: var(--row-gap);
-    color: var(--name-color);
-    opacity: 0.92;
+  .matrix-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin-bottom: 2px;
   }
 
-  .teammate-rows {
-    display: flex;
-    flex-direction: column;
-    gap: var(--row-gap);
-  }
-
-  .teammate-name,
   .teammate-header,
   .buff-header,
+  .teammate-name,
   .buff-cell {
-    min-width: 0;
-    border-radius: 6px;
-    padding: 4px 7px;
-    background: rgba(15, 23, 42, 0.42);
-    border: 1px solid rgba(148, 163, 184, 0.22);
+    text-shadow:
+      0 0 3px rgba(0, 0, 0, 1),
+      0 0 6px rgba(0, 0, 0, 0.76),
+      0 1px 2px rgba(0, 0, 0, 0.9);
+  }
+
+  .teammate-header,
+  .buff-header {
+    color: currentColor;
+    font-size: max(10px, calc(var(--font-size) - 2px));
+    font-weight: 700;
+    line-height: 1.15;
+  }
+
+  .buff-header {
+    display: -webkit-box;
     overflow: hidden;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    text-align: center;
+    word-break: break-all;
+  }
+
+  .matrix-body {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .teammate-row.placeholder {
+    opacity: 0.75;
+  }
+
+  .teammate-name {
+    min-width: 0;
+    height: var(--row-height);
+    padding: 3px 6px;
+    overflow: hidden;
+    font-weight: 700;
+    line-height: 1.2;
     text-overflow: ellipsis;
     white-space: nowrap;
   }
 
-  .teammate-name {
-    color: var(--name-color);
-    font-weight: 700;
-  }
-
-  .buff-header {
-    color: var(--name-color);
-    text-align: center;
-    font-size: 0.82em;
-  }
-
   .buff-cell {
     position: relative;
-    display: flex;
-    justify-content: center;
-    gap: 4px;
-    color: var(--value-color);
+    min-height: var(--row-height);
+    overflow: hidden;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  .buff-cell.empty {
+    opacity: 0.22;
   }
 
   .buff-cell.active {
-    border-color: color-mix(in srgb, var(--progress-color), transparent 40%);
+    background: rgba(255, 255, 255, 0.15);
   }
 
-  .cell-progress {
+  .buff-cell.alert-flash {
+    animation: teammate-buff-alert-flash var(--alert-flash-duration, 600ms)
+      ease-in-out infinite alternate;
+  }
+
+  .cell-progress-track {
     position: absolute;
-    inset: 0 auto 0 0;
-    background: var(--progress-color);
-    opacity: var(--progress-opacity);
-    pointer-events: none;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.12);
   }
 
-  .cell-value,
-  .cell-meta,
-  .cell-empty {
+  .cell-progress-fill {
+    height: 100%;
+    transition: width 100ms linear;
+  }
+
+  .cell-value {
     position: relative;
     z-index: 1;
+    display: flex;
+    min-width: 0;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 2px 5px;
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    line-height: 1;
+    white-space: nowrap;
   }
 
   .cell-meta {
-    opacity: 0.8;
+    font-size: max(10px, calc(var(--font-size) - 2px));
+    opacity: 0.9;
   }
 
-  .buff-cell.alert {
-    box-shadow: 0 0 10px color-mix(in srgb, var(--cell-alert-color), transparent 30%);
+  @keyframes teammate-buff-alert-flash {
+    0% {
+      opacity: 1;
+      filter: brightness(1);
+    }
+
+    100% {
+      opacity: 0.48;
+      filter: brightness(1.55);
+    }
   }
 </style>

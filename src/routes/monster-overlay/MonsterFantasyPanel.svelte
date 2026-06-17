@@ -6,6 +6,7 @@
     getFantasyPanelPosition,
     getFantasyPanelScale,
     isMonsterEditing,
+    isMonsterLayoutScaffold,
     monsterFantasyRows,
     startMonsterDrag,
     startMonsterResize,
@@ -13,13 +14,14 @@
 
   const t = uiT("overlay/monster-monitor", () => SETTINGS.live.general.state.language);
   const editing = $derived(isMonsterEditing());
+  const scaffold = $derived(isMonsterLayoutScaffold());
   const rows = $derived(monsterFantasyRows());
   const styleConfig = $derived(fantasyPanelStyle());
   const panelPos = $derived(getFantasyPanelPosition());
   const panelScale = $derived(getFantasyPanelScale());
 </script>
 
-{#if rows.length > 0}
+{#if rows.length > 0 || scaffold}
   <div
     class="overlay-group fantasy-panel"
     class:editable={editing}
@@ -30,7 +32,7 @@
     onpointerdown={(event) =>
       startMonsterDrag(event, { kind: "fantasyPanel" }, panelPos)}
   >
-    {#if editing}
+    {#if scaffold}
       <div class="group-tag">{t("overlay.fantasyPanel", "Teammate Fantasy Area")}</div>
     {/if}
 

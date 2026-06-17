@@ -21,6 +21,8 @@ import type { PlayerImagineInfo } from "$lib/player-imagines";
 // Type definitions for event payloads
 export type BossHealth = {
   uid: number;
+  displayUid?: number | null;
+  entityUuid?: string | null;
   entityKey?: string | null;
   name: string;
   currentHp: number | null;
@@ -34,6 +36,7 @@ export type HeaderInfo = {
   activeCombatTimeMs: number;
   fightStartTimestampMs: number; // Unix timestamp when fight started
   dpsDisplayPaused: boolean;
+  localPlayerUuid?: string | null;
   localPlayerKey?: string | null;
   bosses: BossHealth[];
   sceneId: number | null;
@@ -51,7 +54,9 @@ export type TrainingDummyState = {
 
 export type PlayerRow = {
   uid: number;
+  displayUid?: number | null;
   uuid?: number | null;
+  entityUuid?: string | null;
   entityKey?: string | null;
   name: string;
   className: string;
@@ -192,6 +197,7 @@ export type TeammateFantasyUpdatePayload = {
 };
 
 export type HateEntry = {
+  entityUuid?: string | null;
   entityKey?: string | null;
   uid: number;
   hateVal: number;
@@ -231,6 +237,7 @@ export type SeasonCultivateFactorCounterUpdatePayload = {
 export type CounterSlotState = {
   slotId: number;
   currentCount: number;
+  procCount?: number;
   threshold: number | null;
   effectiveThreshold?: number | null;
   isCounting: boolean;
@@ -273,6 +280,8 @@ export type EncounterUpdatePayload = {
 export type RawCombatStats = BindingRawCombatStats;
 export type RawSkillStats = BindingRawSkillStats;
 export type RawEntityData = BindingRawEntityData & {
+  displayUid?: number | null;
+  entityUuid?: string | null;
   entityKey?: string | null;
 };
 export type PerSourceStats = BindingPerSourceStats;
@@ -287,6 +296,7 @@ export type LiveDataPayload = {
   totalHeal: number;
   totalEffectiveHeal: number;
   localPlayerUid: number;
+  localPlayerUuid?: string | null;
   localPlayerKey?: string | null;
   sceneId: number | null;
   sceneName: string | null;
@@ -300,8 +310,12 @@ export type SceneChangePayload = {
   sceneName: string;
 };
 
-export type DamageSnapshot = BindingDamageSnapshot;
-export type DeathRecord = BindingDeathRecord;
+export type DamageSnapshot = BindingDamageSnapshot & {
+  attackerEntityUuid?: string | null;
+};
+export type DeathRecord = BindingDeathRecord & {
+  victimEntityUuid?: string | null;
+};
 
 export type DeathReplayPayload = {
   records: DeathRecord[];

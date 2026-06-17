@@ -19,6 +19,16 @@ const SOURCE_TEXT_OVERRIDES = {
   holy_shield_x3: "Expertise Skill",
 };
 
+const SOURCE_FACTOR_FAMILY_OVERRIDES = {
+  stormblade_s3_x11: 3050110,
+  verdant_oracle_x7: 3056070,
+  stasis_x5_proc: 3059050,
+  stasis_x7_proc: 3059070,
+  stasis_x8_proc: 3059080,
+  heavy_guardian_stasis_x1_proc: 3059200,
+  verdant_oracle_stasis_x1_proc: 3059220,
+};
+
 const SLOT_TEXT_OVERRIDES = {
   giant_blade_s3_x6: "Class Skills",
 };
@@ -269,6 +279,14 @@ function buildGeneratedLabelIndexes(locales) {
   return { byId, nameIndex };
 }
 
+function factorFamilyLabelByBuffId(buffId, locales) {
+  const factors = readJson("parser-data/generated/SeasonPhantomFactors.json");
+  const factor = factors.factorsByBuffId?.[String(buffId)];
+  const names = factor?.familyNames;
+  if (!names || typeof names !== "object") return null;
+  return fillLabel(locales, names);
+}
+
 function labelRowsByIds(indexes, ids, locales) {
   const rows = [];
   const seen = new Set();
@@ -512,6 +530,20 @@ function localizedTemplateText(panels, locales, kind, id, field, fallback) {
 }
 
 function buildSourceEntry(template, panels, indexes, locales) {
+  const overrideFactorBuffId = SOURCE_FACTOR_FAMILY_OVERRIDES[template.sourceId];
+  if (overrideFactorBuffId) {
+    const label = factorFamilyLabelByBuffId(overrideFactorBuffId, locales);
+    if (label) {
+      return {
+        label,
+        evidence: {
+          kind: "factorFamilyOverride",
+          buffId: overrideFactorBuffId,
+        },
+      };
+    }
+  }
+
   const overrideText = SOURCE_TEXT_OVERRIDES[template.sourceId];
   if (overrideText) {
     return {

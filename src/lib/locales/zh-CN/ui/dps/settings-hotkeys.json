@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "切换遮罩编辑模式",
   "shortcuts.toggleOverlayWindow": "切换遮罩窗口",
   "shortcuts.toggleEventLogger": "切换事件日志器",
-  "conflictAssigned": "该快捷键已分配给"
+  "conflictAssigned": "该快捷键已分配给",
+  "invalid.systemKey": "媒体、浏览器、启动器和系统按键不能用作全局快捷键。",
+  "invalid.missingModifier": "全局快捷键必须至少包含一个修饰键，例如 Ctrl、Alt、Shift 或 Win。"
 }

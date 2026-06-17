@@ -47,7 +47,7 @@
   const tooltipText = $derived(
     weapon ? [itemName, levelText].filter(Boolean).join(" ") : "",
   );
-  const badgeStyle = $derived(`width: ${size}px; height: ${size}px;`);
+  const badgeStyle = $derived(`--ocean-badge-size: ${size}px; width: ${size}px; height: ${size}px;`);
   const isLevel200Plus = $derived(
     weapon ? weapon.baseLevel >= 200 || weapon.level >= 200 : false,
   );
@@ -75,10 +75,9 @@
 
 <style>
   .ocean-weapon-badge {
-    display: inline-flex;
+    display: inline-grid;
     flex: 0 0 auto;
-    align-items: center;
-    justify-content: center;
+    place-items: center;
     border: 1px solid color-mix(in oklch, oklch(0.78 0.1 220) 80%, white 20%);
     border-radius: 999px;
     background:
@@ -91,17 +90,22 @@
   }
 
   .ocean-weapon-badge.is-200-plus {
+    border-color: color-mix(in oklch, oklch(0.86 0.16 88) 88%, white 12%);
     box-shadow:
       0 0 0 1px color-mix(in oklch, black 34%, transparent),
-      0 0 6px color-mix(in oklch, oklch(0.68 0.14 226) 65%, transparent),
-      0 0 14px color-mix(in oklch, oklch(0.7 0.16 226) 42%, transparent);
+      0 0 0 2px color-mix(in oklch, oklch(0.86 0.16 88) 40%, transparent),
+      0 0 8px color-mix(in oklch, oklch(0.82 0.17 82) 70%, transparent),
+      0 0 16px color-mix(in oklch, oklch(0.82 0.17 82) 46%, transparent);
   }
 
   .wave-glyph {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-size: 76%;
+    width: 100%;
+    height: 100%;
+    font-size: calc(var(--ocean-badge-size, 20px) * 0.58);
     line-height: 1;
+    transform: translateY(1%);
   }
 </style>

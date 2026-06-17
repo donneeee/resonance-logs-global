@@ -32,6 +32,10 @@
       groupId: string,
       checked: boolean,
     ) => void;
+    setCustomPanelGroupAutoShowStasisFactors: (
+      groupId: string,
+      checked: boolean,
+    ) => void;
     updateCustomPanelGroupStyle: (
       groupId: string,
       updater: (style: CustomPanelStyle) => CustomPanelStyle,
@@ -76,6 +80,7 @@
     removeCustomPanelGroup,
     renameCustomPanelGroup,
     setCustomPanelGroupHideZeroCounters,
+    setCustomPanelGroupAutoShowStasisFactors,
     updateCustomPanelGroupStyle,
     addCustomPanelEntry,
     addUserCounterRule,
@@ -605,6 +610,20 @@
             )}
         />
         <span>{t("customPanel.hideWhenZero", "Hide when count is 0")}</span>
+      </label>
+
+      <label class="flex items-center gap-2 rounded-lg border border-border/60 bg-muted/20 px-3 py-2 text-sm text-foreground">
+        <input
+          type="checkbox"
+          class="h-4 w-4 rounded border-border bg-muted/30 text-primary focus:ring-primary/50"
+          checked={selectedGroup.autoShowStasisFactors !== false}
+          onchange={(event) =>
+            setCustomPanelGroupAutoShowStasisFactors(
+              selectedGroup.id,
+              (event.currentTarget as HTMLInputElement).checked,
+            )}
+        />
+        <span>{t("customPanel.autoShowStasisFactors", "Auto-show Stasis factors")}</span>
       </label>
 
       {#if customizedFactorSlots.length > 0}

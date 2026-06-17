@@ -46,6 +46,7 @@
 - Expanded the dev-only remote equipment probe to decode raw team/social equipment item rows directly, so future Event Logger exports can show whether remote ocean weapons carry hidden level or breakthrough fields beyond slot/config ID.
 - Prevented saved-history player UID hover text from stacking on top of battle-imagine and ocean-weapon badge tooltips.
 - Changed custom background image handling to copy selected files into Local AppData and store only the imported file path/display name in settings, while keeping legacy data-URL backgrounds readable.
+- Fixed path-based custom background images not rendering after selection by loading imported AppData images through a runtime-only image URL while keeping settings JSON path-only.
 - Added supported-locale strings for ocean weapon levels, saved-history graph mode buttons, graph death markers, and graph bucket/window settings.
 - Added supported-locale strings for the Target Dummy timer toggle, duration slider, and countdown tooltip.
 - Removed the hardcoded CN live-reset toast fallback so missing locale data falls back to English instead of untranslated CN text.
@@ -53,10 +54,12 @@
 - Smoothed Season Cultivate / Phantom Factor overlay countdown updates and guarded the shared overlay clock against tight reschedule loops when timers land exactly on an interval boundary.
 - Replaced grouped buff Food/Alchemy UUID clutter with category quick-listen controls so grouped monitor setup matches the cleaner individual-mode category flow.
 - Added user-editable label aliases for live/history meter columns and live header Total Damage / Total DPS labels.
+- Added live header suffix-size and "No Boss" text color controls, and made history summary field visibility, aliases, and font-size settings target the summary renderer fields that actually display.
 - Redesigned saved-history summary panels for team and individual breakdowns with compact grouped sections, tab-aware Damage/Healing/Tanked fields, and colored metric labels.
 - Added saved-history Skill Details scene metadata under the selected player header, with wrapping long text and a responsive layout fix for narrowed windows.
 - Added horizontal graph guide lines aligned to generated left-axis values so saved-history graph totals are easier to read.
 - Reinforced saved-history sticky table headers with opaque layered backgrounds so player, skill, and modifier rows no longer bleed over column headers while scrolling.
+- Improved small-window saved-history scrolling so the final rows can scroll fully into view after the summary/header wraps.
 - Filled missing supported-locale coverage for beta6 UI additions, including saved-history graph/modifier strings, skill-monitor countdown alerts, custom panel controls, HP/shield area controls, and shell labels, and expanded the locale integrity audit to catch mojibake.
 - Added HP/shield area settings for the shared overlay, including toggles for HP, total shield, and shield-detail rows plus bar sizing, spacing, and color controls.
 - Added optional zero-counter hiding for custom panel factor/counter rows so inactive factor counters can stay out of the overlay until they have visible state.

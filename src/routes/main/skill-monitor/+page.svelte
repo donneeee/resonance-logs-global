@@ -327,27 +327,51 @@
   }
 
   function ensureInlineBuffEntries(profile: SkillMonitorProfile): InlineBuffEntry[] {
-    return (profile.inlineBuffEntries ?? []).map((entry, idx) => ({
-      id: entry.id ?? `inline_${idx + 1}`,
-      sourceType: entry.sourceType ?? "buff",
-      sourceId: entry.sourceId,
-      label: entry.sourceType === "counter"
-        ? (entry.label ?? `${t("counterDefault", "Counter")} ${entry.sourceId}`)
-        : (entry.label ?? ""),
-      format: entry.format ?? "timer",
-    }));
+    return (profile.inlineBuffEntries ?? []).map((entry, idx) => {
+      const sourceType = entry.sourceType ?? "buff";
+      return {
+        id: entry.id ?? `inline_${idx + 1}`,
+        sourceType,
+        sourceId: entry.sourceId,
+        ...(entry.counterSlotId !== undefined
+          ? { counterSlotId: entry.counterSlotId }
+          : {}),
+        ...(entry.counterDisplayMode === "factor"
+          ? { counterDisplayMode: "factor" as const }
+          : {}),
+        ...(sourceType === "counter" && entry.hideWhenZero === true
+          ? { hideWhenZero: true }
+          : {}),
+        label: sourceType === "counter"
+          ? (entry.label ?? `${t("counterDefault", "Counter")} ${entry.sourceId}`)
+          : (entry.label ?? ""),
+        format: entry.format ?? "timer",
+      };
+    });
   }
 
   function ensureCustomPanelEntries(entries: InlineBuffEntry[] | undefined): InlineBuffEntry[] {
-    return (entries ?? []).map((entry, idx) => ({
-      id: entry.id ?? `inline_${idx + 1}`,
-      sourceType: entry.sourceType ?? "buff",
-      sourceId: entry.sourceId,
-      label: entry.sourceType === "counter"
-        ? (entry.label ?? `${t("counterDefault", "Counter")} ${entry.sourceId}`)
-        : (entry.label ?? ""),
-      format: entry.format ?? "timer",
-    }));
+    return (entries ?? []).map((entry, idx) => {
+      const sourceType = entry.sourceType ?? "buff";
+      return {
+        id: entry.id ?? `inline_${idx + 1}`,
+        sourceType,
+        sourceId: entry.sourceId,
+        ...(entry.counterSlotId !== undefined
+          ? { counterSlotId: entry.counterSlotId }
+          : {}),
+        ...(entry.counterDisplayMode === "factor"
+          ? { counterDisplayMode: "factor" as const }
+          : {}),
+        ...(sourceType === "counter" && entry.hideWhenZero === true
+          ? { hideWhenZero: true }
+          : {}),
+        label: sourceType === "counter"
+          ? (entry.label ?? `${t("counterDefault", "Counter")} ${entry.sourceId}`)
+          : (entry.label ?? ""),
+        format: entry.format ?? "timer",
+      };
+    });
   }
 
   function ensureCustomPanelGroups(profile: SkillMonitorProfile): CustomPanelGroup[] {
@@ -367,6 +391,8 @@
           group.kind === "seasonCultivateFactor"
             ? []
             : ensureCustomPanelEntries(group.entries),
+        hideZeroCounters: group.hideZeroCounters === true,
+        autoShowStasisFactors: group.autoShowStasisFactors !== false,
         position: group.position ?? {
           x: legacyPosition.x + idx * 40,
           y: legacyPosition.y + idx * 40,
@@ -386,6 +412,8 @@
         name: `${t("monitorAreaDefault", "Monitor Area")} 1`,
         kind: "manual",
         entries: legacyEntries,
+        hideZeroCounters: false,
+        autoShowStasisFactors: true,
         position: legacyPosition,
         scale: legacyScale,
         style: fallbackStyle,
@@ -1344,6 +1372,19 @@
     );
   }
 
+  function setCustomPanelGroupAutoShowStasisFactors(
+    groupId: string,
+    checked: boolean,
+  ) {
+    updateCustomPanelGroups((groups) =>
+      groups.map((group) =>
+        group.id === groupId
+          ? { ...group, autoShowStasisFactors: checked }
+          : group
+      )
+    );
+  }
+
   function updateTextBuffPanelStyle(
     updater: (style: TextBuffPanelStyle) => TextBuffPanelStyle,
   ) {
@@ -2073,6 +2114,7 @@
       {removeCustomPanelGroup}
       {renameCustomPanelGroup}
       {setCustomPanelGroupHideZeroCounters}
+      {setCustomPanelGroupAutoShowStasisFactors}
       {updateCustomPanelGroupStyle}
       {addCustomPanelEntry}
       {addUserCounterRule}

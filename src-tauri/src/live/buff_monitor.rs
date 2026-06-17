@@ -1,6 +1,6 @@
 use crate::database::now_ms;
 use crate::live::commands_models::BuffUpdateState;
-use crate::live::entity_id::{entity_key_from_uuid_or_uid, uid_from_uuid};
+use crate::live::entity_id::{entity_uuid_string, uid_from_uuid};
 use blueprotobuf_lib::blueprotobuf::{
     BuffChange, BuffEffectSync, BuffInfo, EBuffEffectLogicPbType, EBuffEventType,
 };
@@ -88,16 +88,12 @@ impl BuffMonitor {
         &mut self,
         raw_bytes: &[u8],
         server_clock_offset: &mut i64,
-        local_player_uid: i64,
         local_player_uuid: i64,
     ) -> BuffProcessResult {
         self.process_buff_effect_bytes_with_self_source_filter(
             raw_bytes,
             server_clock_offset,
-            |_, source_uid, source_uuid, _, _| {
-                (local_player_uuid != 0 && source_uuid == Some(local_player_uuid))
-                    || (local_player_uid > 0 && source_uid == local_player_uid)
-            },
+            |_, source_uuid, _, _| local_player_uuid != 0 && source_uuid == Some(local_player_uuid),
         )
     }
 
@@ -108,7 +104,7 @@ impl BuffMonitor {
         mut is_self_source: F,
     ) -> BuffProcessResult
     where
-        F: FnMut(i32, i64, Option<i64>, Option<i32>, Option<i32>) -> bool,
+        F: FnMut(i32, Option<i64>, Option<i32>, Option<i32>) -> bool,
     {
         let mut changes = Vec::new();
         let Ok(buff_effect_sync) = BuffEffectSync::decode(raw_bytes) else {
@@ -266,7 +262,6 @@ impl BuffMonitor {
             self.build_update_payload_with_self_source_filter(*server_clock_offset, |buff| {
                 is_self_source(
                     buff.base_id,
-                    buff.source_uid,
                     buff.source_uuid,
                     buff.source_config_id,
                     buff.fight_source_type,
@@ -314,8 +309,8 @@ impl BuffMonitor {
                     layer: buff.layer,
                     duration_ms: buff.duration,
                     create_time_ms: buff.create_time.saturating_add(server_clock_offset),
-                    host_key: entity_key_from_uuid_or_uid(buff.host_uuid, buff.host_uid),
-                    source_key: entity_key_from_uuid_or_uid(buff.source_uuid, buff.source_uid),
+                    host_key: buff.host_uuid.map(entity_uuid_string),
+                    source_key: buff.source_uuid.map(entity_uuid_string),
                     host_uid: buff.host_uid,
                     source_uid: buff.source_uid,
                     source_config_id: buff.source_config_id,

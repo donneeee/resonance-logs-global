@@ -146,6 +146,7 @@ fn world_method_name(method_id: u32) -> Option<&'static str> {
         Pkt::SyncAllServerStateObject => Some("SyncAllServerStateObject"),
         Pkt::NotifyTimerList => Some("NotifyTimerList"),
         Pkt::NotifyTimerUpdate => Some("NotifyTimerUpdate"),
+        Pkt::SyncServerSkillEnd => Some("SyncServerSkillEnd"),
     }
 }
 

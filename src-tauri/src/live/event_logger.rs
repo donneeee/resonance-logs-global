@@ -158,9 +158,7 @@ fn event_logger_enabled(app_handle: &AppHandle) -> bool {
     static EVENT_LOGGER_ENABLED_LOADED: OnceLock<()> = OnceLock::new();
     EVENT_LOGGER_ENABLED_LOADED.get_or_init(|| {
         let config = read_event_logger_settings_config(app_handle).unwrap_or_default();
-        let enabled = config
-            .enabled
-            .unwrap_or_else(default_event_logger_enabled);
+        let enabled = config.enabled.unwrap_or_else(default_event_logger_enabled);
         set_event_logger_enabled_runtime(enabled);
         set_event_logger_capture_options_runtime(
             config

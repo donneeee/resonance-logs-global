@@ -13,6 +13,10 @@ use std::collections::HashMap;
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub struct BossHealth {
+    /// Stable entity UUID of the boss, serialized as a string for JS safety.
+    pub entity_uuid: String,
+    /// Display-only UID derived from the entity UUID.
+    pub display_uid: i64,
     /// The unique ID of the boss.
     pub uid: i64,
     /// Stable string entity key for frontend identity.
@@ -44,6 +48,9 @@ pub struct HeaderInfo {
     pub fight_start_timestamp_ms: u128, // Unix timestamp when fight started
     /// Whether DPS/rate display time should stop advancing while parsing continues.
     pub dps_display_paused: bool,
+    /// Stable entity UUID for the local player, serialized as a string for JS safety.
+    #[serde(default)]
+    pub local_player_uuid: Option<String>,
     /// Stable string entity key for the local player.
     #[serde(default)]
     pub local_player_key: Option<String>,
@@ -72,6 +79,8 @@ pub struct LiveDataPayload {
     pub total_effective_heal: u128,
     pub local_player_uid: i64,
     #[serde(default)]
+    pub local_player_uuid: Option<String>,
+    #[serde(default)]
     pub local_player_key: Option<String>,
     pub scene_id: Option<i32>,
     pub scene_name: Option<String>,
@@ -91,6 +100,8 @@ pub struct TrainingDummyState {
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Default, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct RawEntityData {
+    pub entity_uuid: String,
+    pub display_uid: i64,
     pub uid: i64,
     #[serde(default)]
     pub uuid: Option<i64>,
@@ -1321,8 +1332,10 @@ pub struct TeammateBuffUpdatePayload {
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct HateEntry {
-    #[serde(default, skip_serializing)]
+    #[serde(default, skip)]
     pub entity_uuid: Option<i64>,
+    #[serde(default, rename = "entityUuid")]
+    pub entity_uuid_string: Option<String>,
     #[serde(default)]
     pub entity_key: Option<String>,
     pub uid: i64,
@@ -1377,6 +1390,7 @@ pub struct CounterUpdateState {
 pub struct SlotUpdateState {
     pub slot_id: i32,
     pub current_count: u32,
+    pub proc_count: u32,
     pub threshold: Option<u32>,
     pub effective_threshold: Option<u32>,
     pub is_counting: bool,
@@ -1470,6 +1484,8 @@ pub struct FightResourceUpdatePayload {
 #[serde(rename_all = "camelCase")]
 pub struct DamageSnapshot {
     pub timestamp_ms: u128,
+    #[serde(default)]
+    pub attacker_entity_uuid: Option<String>,
     pub attacker_uid: i64,
     pub attacker_monster_type_id: Option<i32>,
     pub skill_key: i64,
@@ -1479,6 +1495,8 @@ pub struct DamageSnapshot {
 #[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct DeathRecord {
+    #[serde(default)]
+    pub victim_entity_uuid: Option<String>,
     pub victim_uid: i64,
     pub victim_uuid: Option<i64>,
     pub victim_key: Option<String>,

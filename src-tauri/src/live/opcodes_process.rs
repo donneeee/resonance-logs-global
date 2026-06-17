@@ -115,6 +115,7 @@ pub struct LocalDamageEvent {
     pub original_attacker_uid: i64,
     pub top_summoner_uuid: Option<i64>,
     pub top_summoner_uid: Option<i64>,
+    pub type_flag: i32,
     pub is_crit: bool,
     pub is_lucky: bool,
 }
@@ -124,6 +125,7 @@ pub struct LocalDamageTakenEvent {
     pub skill_key: i64,
     pub attacker_uuid: Option<i64>,
     pub attacker_uid: i64,
+    pub type_flag: i32,
 }
 
 #[derive(Debug, Default, Clone)]
@@ -638,9 +640,8 @@ use std::time::{SystemTime, UNIX_EPOCH};
 
 const MAX_OBSERVED_MODIFIER_DAMAGE_HITS: usize = 20_000;
 
-fn is_local_identity(encounter: &Encounter, uid: i64, uuid: i64) -> bool {
-    (encounter.local_player_uuid != 0 && uuid == encounter.local_player_uuid)
-        || (encounter.local_player_uid > 0 && uid == encounter.local_player_uid)
+fn is_local_identity(encounter: &Encounter, _uid: i64, uuid: i64) -> bool {
+    encounter.local_player_uuid != 0 && uuid == encounter.local_player_uuid
 }
 
 /// Increment global active combat time used for True DPS calculations.
@@ -804,7 +805,6 @@ pub fn process_sync_container_data(
     encounter.local_player_uid = player_uid;
     encounter.local_player_uuid = player_uuid;
     encounter.remember_entity_uuid(player_uuid);
-    attr_store.set_local_uid(player_uid);
     attr_store.set_local_uuid(player_uuid);
 
     let target_entity = encounter.entity_by_uuid_or_insert_with(player_uuid, Entity::default);
@@ -1445,20 +1445,15 @@ pub fn process_sync_container_dirty_data<'a>(
         return Some(result);
     }
 
-    let local_player_uid = encounter.local_player_uid;
-    if local_player_uid <= 0 {
+    let local_player_uuid = encounter.local_player_uuid;
+    if local_player_uuid <= 0 {
         return Some(result);
     }
 
-    let local_player_uuid =
-        (encounter.local_player_uuid > 0).then_some(encounter.local_player_uuid);
-    let entity =
-        encounter.entity_by_identity_or_insert_with(local_player_uid, local_player_uuid, || {
-            Entity {
-                entity_type: EEntityType::EntChar,
-                ..Default::default()
-            }
-        });
+    let entity = encounter.entity_by_uuid_or_insert_with(local_player_uuid, || Entity {
+        entity_type: EEntityType::EntChar,
+        ..Default::default()
+    });
 
     for item in selected_factor_items {
         entity
@@ -1624,7 +1619,6 @@ pub fn process_sync_to_me_delta_info(
     if let Some(uuid) = delta_info.uuid {
         encounter.local_player_uuid = uuid;
         encounter.local_player_uid = encounter.remember_entity_uuid(uuid);
-        attr_store.set_local_uid(encounter.local_player_uid);
         attr_store.set_local_uuid(uuid);
     }
 
@@ -1755,7 +1749,6 @@ pub(crate) fn process_enter_scene(
             }) {
                 encounter.local_player_uuid = player_uuid;
                 encounter.local_player_uid = encounter.remember_entity_uuid(player_uuid);
-                attr_store.set_local_uid(encounter.local_player_uid);
                 attr_store.set_local_uuid(player_uuid);
 
                 let entity = encounter.entity_by_uuid_or_insert_with(player_uuid, Entity::default);
@@ -2075,15 +2068,16 @@ pub fn process_aoi_sync_delta(
             sync_damage_info.hit_event_id,
         );
         let skill_key = damage_id;
+        let flag = sync_damage_info.type_flag.unwrap_or_default();
         let is_local_damage_target = is_target_local_player;
         if allow_combat && collect_taken && is_local_damage_target && !is_heal {
             local_damage_taken_events.push(LocalDamageTakenEvent {
                 skill_key,
                 attacker_uuid: Some(attacker_uuid),
                 attacker_uid,
+                type_flag: flag,
             });
         }
-        let flag = sync_damage_info.type_flag.unwrap_or_default();
         // DPS boss aggregate columns count both boss and elite targets.
         let is_boss_target = encounter
             .entity_by_uuid(target_uuid)
@@ -2117,6 +2111,7 @@ pub fn process_aoi_sync_delta(
                 original_attacker_uid,
                 top_summoner_uuid: sync_damage_info.top_summoner_id,
                 top_summoner_uid,
+                type_flag: flag,
                 is_crit,
                 is_lucky: is_attacker_lucky_trigger && !is_lucky_bonus_only,
             });
@@ -2592,6 +2587,7 @@ pub fn process_aoi_sync_delta(
                     .recent_taken_events
                     .push_back(DamageSnapshot {
                         timestamp_ms,
+                        attacker_entity_uuid: Some(entity_uuid_string(attacker_uuid)),
                         attacker_uid,
                         attacker_monster_type_id,
                         skill_key,
@@ -2674,6 +2670,7 @@ fn parse_hate_list_into(raw: &[u8], entries: &mut Vec<HateEntry>) -> Option<()> 
         let entity_uuid = (entry.uuid != 0).then_some(entry.uuid);
         entries.push(HateEntry {
             entity_uuid,
+            entity_uuid_string: entity_uuid.map(entity_uuid_string),
             entity_key: entity_uuid.map(entity_uuid_string),
             uid: uid_from_uuid(entry.uuid),
             hate_val: entry.hate_val,

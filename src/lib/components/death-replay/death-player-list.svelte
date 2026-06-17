@@ -12,11 +12,15 @@
   import PercentFormat from "$lib/components/percent-format.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import { uiT } from "$lib/i18n";
-  import { normalizeLiveEntityKey } from "$lib/live-entity-route";
+  import {
+    liveEntityMatchesLocalPlayer,
+    liveEntityRenderKey,
+  } from "$lib/live-entity-route";
 
   export type DeathPlayerEntry = {
     uid: number;
     uuid?: number | null;
+    entityUuid?: string | null;
     entityKey?: string | null;
     name: string;
     className: string;
@@ -27,6 +31,7 @@
   let {
     entries,
     localPlayerUid = null,
+    localPlayerUuid = null,
     localPlayerKey = null,
     onSelect,
     emptyMessage = "",
@@ -34,6 +39,7 @@
   }: {
     entries: DeathPlayerEntry[];
     localPlayerUid?: number | null;
+    localPlayerUuid?: string | null;
     localPlayerKey?: string | null;
     onSelect: (uid: number, entry?: DeathPlayerEntry) => void;
     emptyMessage?: string;
@@ -139,14 +145,15 @@
   }
 
   function entryRenderKey(entry: DeathPlayerEntry): string | number {
-    return normalizeLiveEntityKey(entry.entityKey) ?? entry.uid;
+    return liveEntityRenderKey(entry);
   }
 
   function isLocalEntry(entry: DeathPlayerEntry): boolean {
-    const localKey = normalizeLiveEntityKey(localPlayerKey);
-    const entryKey = normalizeLiveEntityKey(entry.entityKey);
-    if (localKey && entryKey) return localKey === entryKey;
-    return localPlayerUid != null && entry.uid === localPlayerUid;
+    return liveEntityMatchesLocalPlayer(entry, {
+      localPlayerUuid,
+      localPlayerKey,
+      localPlayerUid,
+    });
   }
 
   function resolveDisplayName(entry: DeathPlayerEntry) {

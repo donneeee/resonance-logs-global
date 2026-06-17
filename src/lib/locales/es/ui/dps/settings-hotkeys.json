@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "Alternar modo de edición de superposición",
   "shortcuts.toggleOverlayWindow": "Alternar ventana de superposición",
   "shortcuts.toggleEventLogger": "Alternar registrador de eventos",
-  "conflictAssigned": "Ese atajo ya está asignado a"
+  "conflictAssigned": "Ese atajo ya está asignado a",
+  "invalid.systemKey": "Las teclas multimedia, del navegador, de inicio y del sistema no se pueden usar como atajos globales.",
+  "invalid.missingModifier": "Los atajos globales deben incluir al menos un modificador, como Ctrl, Alt, Mayús o Win."
 }

@@ -58,3 +58,7 @@ export function monsterFantasyRows() {
 export function isMonsterEditing() {
   return monsterRuntime.isEditing;
 }
+
+export function isMonsterLayoutScaffold() {
+  return monsterRuntime.isEditing;
+}

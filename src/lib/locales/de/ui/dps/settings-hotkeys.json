@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "Overlay-Bearbeitungsmodus umschalten",
   "shortcuts.toggleOverlayWindow": "Overlay-Fenster umschalten",
   "shortcuts.toggleEventLogger": "Ereignisprotokoll umschalten",
-  "conflictAssigned": "Dieser Hotkey ist bereits zugewiesen an"
+  "conflictAssigned": "Dieser Hotkey ist bereits zugewiesen an",
+  "invalid.systemKey": "Medien-, Browser-, Start- und Systemtasten können nicht als globale Hotkeys verwendet werden.",
+  "invalid.missingModifier": "Globale Hotkeys müssen mindestens eine Modifikatortaste enthalten, z. B. Strg, Alt, Umschalt oder Win."
 }

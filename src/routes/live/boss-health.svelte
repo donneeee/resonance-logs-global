@@ -8,6 +8,7 @@
 
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import { localizeRawMonsterName } from "$lib/monster-mappings";
+  import { liveEntityRenderKey } from "$lib/live-entity-route";
 
   let headerInfo: HeaderInfo = $state({
     totalDps: 0,
@@ -16,6 +17,7 @@
     activeCombatTimeMs: 0,
     fightStartTimestampMs: 0,
     dpsDisplayPaused: false,
+    localPlayerUuid: null,
     localPlayerKey: null,
     bosses: [],
     sceneId: null,
@@ -54,7 +56,7 @@
 
 {#if headerInfo.bosses.length > 0}
   <div class="flex flex-col gap-1">
-    {#each headerInfo.bosses as boss (boss.entityKey ?? boss.uid)}
+    {#each headerInfo.bosses as boss (liveEntityRenderKey(boss))}
       {@const hpPercent = boss.maxHp && boss.currentHp !== null ? Math.min(100, Math.max(0, (boss.currentHp / boss.maxHp) * 100)) : 0}
       <div class="flex items-center gap-1 whitespace-nowrap">
         <span class="text-base truncate text-neutral-100 font-semibold tracking-tight" {@attach tooltip(() => localizeRawMonsterName(boss.name, boss.name))}>{localizeRawMonsterName(boss.name, boss.name) + " -"}</span>

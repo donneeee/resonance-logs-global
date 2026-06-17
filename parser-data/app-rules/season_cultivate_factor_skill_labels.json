@@ -939,6 +939,25 @@
         ]
       }
     },
+    "heavy_guardian_stasis_x1_proc": {
+      "label": {
+        "de": "Schwerer-Wächter-Stase X1",
+        "en": "Heavy Guardian Stasis X1",
+        "es": "Estasis: Guardián pesado X1",
+        "fr": "Stase de Gardien imposant X1",
+        "id": "Heavy Steady X1",
+        "ja": "ヘヴィガーディアン・恒常性X1",
+        "ko-KR": "헤비 가디언 안정X1",
+        "pt-BR": "Estase do Guardião Pesado X1",
+        "th": "Heavy Steady X1",
+        "zh-CN": "巨刃稳态X1",
+        "zh-TW": "巨刃穩態X1"
+      },
+      "evidence": {
+        "kind": "factorFamilyOverride",
+        "buffId": 3059200
+      }
+    },
     "holy_shield_s3_x9": {
       "label": {
         "de": "Kreuzzug des Eifers",
@@ -1395,6 +1414,63 @@
         ]
       }
     },
+    "stasis_x5_proc": {
+      "label": {
+        "de": "Stase X5",
+        "en": "Stasis X5",
+        "es": "Estasis X5",
+        "fr": "Stase X5",
+        "id": "Steady X5",
+        "ja": "恒常性X5",
+        "ko-KR": "안정X5",
+        "pt-BR": "Estase X5",
+        "th": "Steady X5",
+        "zh-CN": "稳态X5",
+        "zh-TW": "穩態X5"
+      },
+      "evidence": {
+        "kind": "factorFamilyOverride",
+        "buffId": 3059050
+      }
+    },
+    "stasis_x7_proc": {
+      "label": {
+        "de": "Stase X7",
+        "en": "Stasis X7",
+        "es": "Estasis X7",
+        "fr": "Stase X7",
+        "id": "Steady X7",
+        "ja": "恒常性X7",
+        "ko-KR": "안정X7",
+        "pt-BR": "Estase X7",
+        "th": "Steady X7",
+        "zh-CN": "稳态X7",
+        "zh-TW": "穩態X7"
+      },
+      "evidence": {
+        "kind": "factorFamilyOverride",
+        "buffId": 3059070
+      }
+    },
+    "stasis_x8_proc": {
+      "label": {
+        "de": "Stase X8",
+        "en": "Stasis X8",
+        "es": "Estasis X8",
+        "fr": "Stase X8",
+        "id": "Steady X8",
+        "ja": "恒常性X8",
+        "ko-KR": "안정X8",
+        "pt-BR": "Estase X8",
+        "th": "Steady X8",
+        "zh-CN": "稳态X8",
+        "zh-TW": "穩態X8"
+      },
+      "evidence": {
+        "kind": "factorFamilyOverride",
+        "buffId": 3059080
+      }
+    },
     "stormblade_s3_x10": {
       "label": {
         "de": "Sturmblitz",
@@ -1412,6 +1488,25 @@
       "evidence": {
         "kind": "descriptionText",
         "text": "Stormflash"
+      }
+    },
+    "stormblade_s3_x11": {
+      "label": {
+        "de": "Sturmklinge X11",
+        "en": "Stormblade X11",
+        "es": "Filo tormentoso X11",
+        "fr": "Lame-tempête X11",
+        "id": "Stormblade X11",
+        "ja": "ストームブレイドX11",
+        "ko-KR": "스톰 블레이드X11",
+        "pt-BR": "Lâmina Tempestuosa X11",
+        "th": "Raikage X11",
+        "zh-CN": "雷影X11",
+        "zh-TW": "雷影X11"
+      },
+      "evidence": {
+        "kind": "factorFamilyOverride",
+        "buffId": 3050110
       }
     },
     "stormblade_s3_x3": {
@@ -1602,6 +1697,25 @@
         "text": "Moonblades"
       }
     },
+    "verdant_oracle_stasis_x1_proc": {
+      "label": {
+        "de": "Grünes-Orakel-Stase X1",
+        "en": "Verdant Oracle Stasis X1",
+        "es": "Estasis: Oráculo frondoso X1",
+        "fr": "Stase d'Oracle verdoyant X1",
+        "id": "Verdant Steady X1",
+        "ja": "ヴァーダントオラクル・恒常性X1",
+        "ko-KR": "실반 오라클 안정X1",
+        "pt-BR": "Estase do Oráculo Verdejante X1",
+        "th": "Verdant Steady X1",
+        "zh-CN": "森语稳态X1",
+        "zh-TW": "森語穩態X1"
+      },
+      "evidence": {
+        "kind": "factorFamilyOverride",
+        "buffId": 3059220
+      }
+    },
     "verdant_oracle_x1": {
       "label": {
         "de": "Wilde Blüte / Hirschangriff",
@@ -1750,6 +1864,44 @@
         "ids": [
           1519
         ]
+      }
+    },
+    "verdant_oracle_x6": {
+      "label": {
+        "de": "Naturschutz",
+        "en": "Nature Ward",
+        "es": "Protección Natural",
+        "fr": "Protection de la nature",
+        "id": "Wild Seed",
+        "ja": "荒野の種",
+        "ko-KR": "야생의 씨앗",
+        "pt-BR": "Proteção da Natureza",
+        "th": "Wild Seed",
+        "zh-CN": "自然庇护",
+        "zh-TW": "自然庇護"
+      },
+      "evidence": {
+        "kind": "descriptionText",
+        "text": "Nature Ward"
+      }
+    },
+    "verdant_oracle_x7": {
+      "label": {
+        "de": "Grünes Orakel X7",
+        "en": "Verdant Oracle X7",
+        "es": "Oráculo frondoso X7",
+        "fr": "Oracle verdoyant X7",
+        "id": "Verdant X7",
+        "ja": "ヴァーダントオラクルX7",
+        "ko-KR": "실반 오라클X7",
+        "pt-BR": "Oráculo Verdejante X7",
+        "th": "Verdant X7",
+        "zh-CN": "森语X7",
+        "zh-TW": "森語X7"
+      },
+      "evidence": {
+        "kind": "factorFamilyOverride",
+        "buffId": 3056070
       }
     },
     "verdant_oracle_x8": {

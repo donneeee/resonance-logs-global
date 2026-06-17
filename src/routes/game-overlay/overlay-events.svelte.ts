@@ -68,6 +68,7 @@ import {
   setOverlayWindow,
 } from "./overlay-layout.svelte.js";
 import { initOverlayClock } from "./overlay-clock.svelte.js";
+import { legacyEntityFallbacksDisabled } from "$lib/entity-identity-dry-run";
 
 type TrackedUptimeRow = {
   key: string;
@@ -183,6 +184,13 @@ function entityKeyPart(value: string | null | undefined, fallback: string): stri
   return trimmed ? `entity:${trimmed}` : fallback;
 }
 
+function legacyUidKeyPart(kind: string, uid: number): string {
+  const safeUid = uid || "unknown";
+  return legacyEntityFallbacksDisabled()
+    ? `missing-${kind}-entity-key:${safeUid}`
+    : `uid:${safeUid}`;
+}
+
 function buildTrackedUptimeRows(localPlayerUid: number, now: number) {
   const trackedIds = monitoredUptimeBuffIds();
   const trackingModes = buffUptimeTrackingModes();
@@ -227,9 +235,12 @@ function buildTrackedUptimeRows(localPlayerUid: number, now: number) {
         buff.sourceKey,
         sourceConfigId !== null
           ? `cfg:${sourceConfigId}`
-          : `uid:${sourceUid || "unknown"}`,
+          : legacyUidKeyPart("source", sourceUid),
       );
-      const hostKey = entityKeyPart(buff.hostKey, `uid:${hostUid || "unknown"}`);
+      const hostKey = entityKeyPart(
+        buff.hostKey,
+        legacyUidKeyPart("host", hostUid),
+      );
       const rowKey = `uptime:${baseId}:global:${sourceKey}:host:${hostKey}`;
       const current = grouped.get(rowKey) ?? [];
       current.push(buff);

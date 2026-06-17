@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { unregister } from "@tauri-apps/plugin-global-shortcut";
   import { onDestroy, onMount } from "svelte";
   import { SvelteSet } from "svelte/reactivity";
   import { Button } from "$lib/components/ui/button/index.js";
@@ -42,8 +41,12 @@
     clearRegisteredShortcut,
     CUSTOM_TRIGGER_SHORTCUTS,
     findShortcutConflict,
+    isSystemShortcutKey,
     registerShortcut,
+    safeUnregisterShortcut,
+    validateGlobalShortcut,
     type ShortcutOwner,
+    type ShortcutValidationReason,
   } from "../dps/settings/shortcuts.js";
 
   const t = uiT("custom-triggers/general", () => SETTINGS.live.general.state.language);
@@ -59,6 +62,7 @@
   let audioOutputs = $state<AudioOutputDevice[]>([]);
   let editingHotkeyId: string | null = $state(null);
   let editingHotkeyConflict = $state<ShortcutOwner | null>(null);
+  let editingHotkeyInvalidReason: ShortcutValidationReason | null = $state(null);
 
   const hotkeyModifierOrder = ["ctrl", "shift", "alt", "meta"];
   const HOTKEY_MODIFIERS = new SvelteSet(hotkeyModifierOrder);
@@ -132,23 +136,35 @@
     activeHotkeyMods.clear();
     activeHotkeyMain = null;
     editingHotkeyConflict = null;
+    editingHotkeyInvalidReason = null;
     editingHotkeyId = null;
   }
 
   function handleHotkeyDown(event: KeyboardEvent) {
-    event.preventDefault();
     const modifier = normalizeModifier(event.key);
     if (HOTKEY_MODIFIERS.has(modifier)) {
+      event.preventDefault();
       activeHotkeyMods.add(modifier);
+      editingHotkeyInvalidReason = null;
       return;
     }
-    activeHotkeyMain = getKeyName(event);
+    const keyName = getKeyName(event);
+    if (isSystemShortcutKey(keyName)) {
+      editingHotkeyConflict = null;
+      editingHotkeyInvalidReason = "systemKey";
+      activeHotkeyMain = null;
+      return;
+    }
+
+    event.preventDefault();
+    editingHotkeyInvalidReason = null;
+    activeHotkeyMain = keyName;
   }
 
   async function handleHotkeyUp(event: KeyboardEvent) {
-    event.preventDefault();
     const modifier = normalizeModifier(event.key);
     if (HOTKEY_MODIFIERS.has(modifier)) {
+      event.preventDefault();
       activeHotkeyMods.delete(modifier);
       stopHotkeyEdit();
       return;
@@ -156,22 +172,34 @@
 
     if (!activeHotkeyMain || !editingHotkeyId) return;
     const shortcut = currentHotkeyString();
-    const conflict = findShortcutConflict(shortcut, { section: "customTriggers", id: editingHotkeyId });
+    const validation = validateGlobalShortcut(shortcut);
+    if (!validation.valid) {
+      event.preventDefault();
+      editingHotkeyConflict = null;
+      editingHotkeyInvalidReason = validation.reason;
+      activeHotkeyMain = null;
+      return;
+    }
+
+    const conflict = findShortcutConflict(validation.shortcut, { section: "customTriggers", id: editingHotkeyId });
     if (conflict) {
+      event.preventDefault();
       editingHotkeyConflict = conflict;
       return;
     }
 
     editingHotkeyConflict = null;
+    editingHotkeyInvalidReason = null;
     ensureCustomTriggerHotkeyState();
     const current = SETTINGS.customTriggers.state.hotkeys?.[editingHotkeyId as keyof typeof SETTINGS.customTriggers.state.hotkeys];
     if (current) {
-      await unregister(current);
+      await safeUnregisterShortcut(current);
     }
     if (SETTINGS.customTriggers.state.hotkeys) {
-      SETTINGS.customTriggers.state.hotkeys[editingHotkeyId as keyof typeof SETTINGS.customTriggers.state.hotkeys] = shortcut;
+      SETTINGS.customTriggers.state.hotkeys[editingHotkeyId as keyof typeof SETTINGS.customTriggers.state.hotkeys] = validation.shortcut;
     }
-    await registerShortcut("customTriggers", editingHotkeyId, shortcut);
+    await registerShortcut("customTriggers", editingHotkeyId, validation.shortcut);
+    event.preventDefault();
     stopHotkeyEdit();
   }
 
@@ -184,6 +212,12 @@
     return owner.section === "customTriggers"
       ? t(owner.labelKey, owner.fallbackLabel)
       : globalHotkeyT(owner.labelKey, owner.fallbackLabel);
+  }
+
+  function hotkeyValidationMessage(reason: ShortcutValidationReason): string {
+    return reason === "systemKey"
+      ? globalHotkeyT("invalid.systemKey", "Media, browser, launcher, and system keys cannot be used as global hotkeys.")
+      : globalHotkeyT("invalid.missingModifier", "Global hotkeys must include at least one modifier, such as Ctrl, Alt, Shift, or Win.");
   }
 
   function currentCustomHotkey(id: string): string {
@@ -431,6 +465,11 @@ async function onImportReplaySelected(event: Event) {
       {#if editingHotkeyConflict}
         <div class="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
           {t("hotkeys.conflictAssigned", "That hotkey is already assigned to")}: {conflictLabel(editingHotkeyConflict)}
+        </div>
+      {/if}
+      {#if editingHotkeyInvalidReason}
+        <div class="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-destructive">
+          {hotkeyValidationMessage(editingHotkeyInvalidReason)}
         </div>
       {/if}
 

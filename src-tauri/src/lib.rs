@@ -28,7 +28,7 @@ use tauri_plugin_window_state::{AppHandleExt, StateFlags};
 // the updater plugin.
 use tauri_specta::{Builder, collect_commands};
 mod database;
-use serde_json::json;
+use serde_json::{Value, json};
 
 /// The label for the live window.
 pub const WINDOW_LIVE_LABEL: &str = "live";
@@ -54,7 +54,9 @@ fn is_invalid_settings_json(bytes: &[u8]) -> bool {
 
 #[tauri::command]
 #[specta::specta]
-fn detect_corrupt_settings_json_stores(app_handle: tauri::AppHandle) -> Result<Vec<String>, String> {
+fn detect_corrupt_settings_json_stores(
+    app_handle: tauri::AppHandle,
+) -> Result<Vec<String>, String> {
     let store_dir = app_handle
         .path()
         .app_config_dir()
@@ -77,7 +79,10 @@ fn detect_corrupt_settings_json_stores(app_handle: tauri::AppHandle) -> Result<V
         let bytes = match std::fs::read(&path) {
             Ok(bytes) => bytes,
             Err(error) => {
-                warn!("failed to inspect settings store {}: {error}", path.display());
+                warn!(
+                    "failed to inspect settings store {}: {error}",
+                    path.display()
+                );
                 continue;
             }
         };
@@ -527,6 +532,7 @@ pub fn run() {
             packet_settings_commands::save_packet_capture_settings,
             background_image_commands::clear_imported_background_image,
             background_image_commands::import_background_image,
+            background_image_commands::load_background_image_data_url,
             custom_data_commands::read_custom_definitions,
             custom_data_commands::write_custom_definitions,
             custom_data_commands::read_custom_triggers,
@@ -851,6 +857,7 @@ mod custom_data_commands {
 
 mod background_image_commands {
     use super::*;
+    use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 
     const MAX_BACKGROUND_IMAGE_BYTES: u64 = 30 * 1024 * 1024;
     const BACKGROUND_IMAGE_PREFIX: &str = "custom-background-";
@@ -894,6 +901,33 @@ mod background_image_commands {
                 let _ = std::fs::remove_file(path);
             }
         }
+    }
+
+    fn background_mime_for_extension(extension: &str) -> &'static str {
+        match extension {
+            "jpg" | "jpeg" => "image/jpeg",
+            "webp" => "image/webp",
+            "gif" => "image/gif",
+            "bmp" => "image/bmp",
+            _ => "image/png",
+        }
+    }
+
+    fn imported_background_path(
+        app_handle: &tauri::AppHandle,
+        image_path: &str,
+    ) -> Result<PathBuf, String> {
+        let source = PathBuf::from(image_path.trim());
+        let source = source
+            .canonicalize()
+            .map_err(|e| format!("Failed to resolve background image path: {}", e))?;
+        let dir = background_image_dir(app_handle)?
+            .canonicalize()
+            .map_err(|e| format!("Failed to resolve background image directory: {}", e))?;
+        if !source.starts_with(&dir) {
+            return Err("Background image is outside the imported background folder".to_string());
+        }
+        Ok(source)
     }
 
     #[tauri::command]
@@ -944,6 +978,32 @@ mod background_image_commands {
         let dir = background_image_dir(&app_handle)?;
         remove_imported_background_images(&dir);
         Ok(())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn load_background_image_data_url(
+        app_handle: tauri::AppHandle,
+        image_path: String,
+    ) -> Result<String, String> {
+        let source = imported_background_path(&app_handle, &image_path)?;
+        let metadata = std::fs::metadata(&source)
+            .map_err(|e| format!("Failed to read {}: {}", source.display(), e))?;
+        if metadata.len() > MAX_BACKGROUND_IMAGE_BYTES {
+            return Err(
+                "Background image is too large; please choose a file under 30 MB".to_string(),
+            );
+        }
+
+        let extension = supported_background_extension(&source)?;
+        let bytes = std::fs::read(&source)
+            .map_err(|e| format!("Failed to read {}: {}", source.display(), e))?;
+        let encoded = BASE64_STANDARD.encode(bytes);
+        Ok(format!(
+            "data:{};base64,{}",
+            background_mime_for_extension(&extension),
+            encoded
+        ))
     }
 }
 
@@ -1599,8 +1659,72 @@ fn should_skip_settings_file_content(path: &Path) -> bool {
         || name.ends_with(".exe")
 }
 
+fn is_monitor_runtime_snapshot_file(path: &Path) -> bool {
+    path.file_name()
+        .and_then(|value| value.to_str())
+        .is_some_and(|name| name.eq_ignore_ascii_case("monitorRuntime.json"))
+}
+
+fn summarize_json_array(value: Option<&Value>) -> Value {
+    let Some(items) = value.and_then(|value| value.as_array()) else {
+        return Value::Null;
+    };
+    let first: Vec<Value> = items.iter().take(24).cloned().collect();
+    let mut last: Vec<Value> = items.iter().rev().take(24).cloned().collect();
+    last.reverse();
+    json!({
+        "count": items.len(),
+        "first": first,
+        "last": last,
+    })
+}
+
+fn summarize_json_array_len(value: Option<&Value>) -> Value {
+    value
+        .and_then(|value| value.as_array())
+        .map(|items| json!(items.len()))
+        .unwrap_or(Value::Null)
+}
+
+fn monitor_runtime_json_summary(parsed: &Value) -> Value {
+    let live = parsed.get("live");
+    let skill = parsed.get("skill");
+    let monster = parsed.get("monster");
+    let teammate = parsed.get("teammate");
+
+    json!({
+        "live": {
+            "eventUpdateRateMs": live.and_then(|value| value.get("eventUpdateRateMs")).cloned().unwrap_or(Value::Null),
+            "autoClearOnSceneChange": live.and_then(|value| value.get("autoClearOnSceneChange")).cloned().unwrap_or(Value::Null),
+            "modifierReportsEnabled": live.and_then(|value| value.get("modifierReportsEnabled")).cloned().unwrap_or(Value::Null),
+        },
+        "skill": {
+            "enabled": skill.and_then(|value| value.get("enabled")).cloned().unwrap_or(Value::Null),
+            "monitoredSkillIds": summarize_json_array(skill.and_then(|value| value.get("monitoredSkillIds"))),
+            "monitoredBuffIds": summarize_json_array(skill.and_then(|value| value.get("monitoredBuffIds"))),
+            "monitoredPanelAttrIds": summarize_json_array(skill.and_then(|value| value.get("monitoredPanelAttrIds"))),
+            "buffCounterRules": summarize_json_array_len(skill.and_then(|value| value.get("buffCounterRules"))),
+            "seasonCultivateFactorTemplates": summarize_json_array_len(skill.and_then(|value| value.get("seasonCultivateFactorTemplates"))),
+        },
+        "monster": {
+            "enabled": monster.and_then(|value| value.get("enabled")).cloned().unwrap_or(Value::Null),
+            "globalIds": summarize_json_array(monster.and_then(|value| value.get("globalIds"))),
+            "selfAppliedIds": summarize_json_array(monster.and_then(|value| value.get("selfAppliedIds"))),
+            "monitorAllSelfApplied": monster.and_then(|value| value.get("monitorAllSelfApplied")).cloned().unwrap_or(Value::Null),
+        },
+        "teammate": {
+            "enabled": teammate.and_then(|value| value.get("enabled")).cloned().unwrap_or(Value::Null),
+            "anySourceIds": summarize_json_array(teammate.and_then(|value| value.get("anySourceIds"))),
+            "localPlayerSourceIds": summarize_json_array(teammate.and_then(|value| value.get("localPlayerSourceIds"))),
+            "targetSelfSourceIds": summarize_json_array(teammate.and_then(|value| value.get("targetSelfSourceIds"))),
+            "monitorAll": teammate.and_then(|value| value.get("monitorAll")).cloned().unwrap_or(Value::Null),
+        },
+    })
+}
+
 fn collect_settings_file_entry(root: &Path, path: &Path) -> serde_json::Value {
     const MAX_CONTENT_BYTES: u64 = 512 * 1024;
+    const MAX_MONITOR_RUNTIME_CONTENT_BYTES: u64 = 4 * 1024 * 1024;
     const MAX_TEXT_PREVIEW_CHARS: usize = 64 * 1024;
 
     let relative = path
@@ -1633,8 +1757,14 @@ fn collect_settings_file_entry(root: &Path, path: &Path) -> serde_json::Value {
         return entry;
     }
 
-    if meta.len() > MAX_CONTENT_BYTES {
-        entry["contentSkipped"] = json!(format!("larger than {MAX_CONTENT_BYTES} bytes"));
+    let is_monitor_runtime_snapshot = is_monitor_runtime_snapshot_file(path);
+    let max_content_bytes = if is_monitor_runtime_snapshot {
+        MAX_MONITOR_RUNTIME_CONTENT_BYTES
+    } else {
+        MAX_CONTENT_BYTES
+    };
+    if meta.len() > max_content_bytes {
+        entry["contentSkipped"] = json!(format!("larger than {max_content_bytes} bytes"));
         return entry;
     }
 
@@ -1655,6 +1785,9 @@ fn collect_settings_file_entry(root: &Path, path: &Path) -> serde_json::Value {
         Ok(text) => match serde_json::from_str::<serde_json::Value>(text) {
             Ok(mut parsed) => {
                 redact_settings_json(&mut parsed);
+                if is_monitor_runtime_snapshot {
+                    entry["jsonSummary"] = monitor_runtime_json_summary(&parsed);
+                }
                 entry["json"] = parsed;
             }
             Err(error) => {

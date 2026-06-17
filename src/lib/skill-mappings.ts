@@ -3,6 +3,7 @@ import classSkillConfigsRaw from "$parserData/app-rules/class_skill_configs.json
 import classSpecialBuffDisplaysRaw from "$parserData/app-rules/class_special_buff_displays.json";
 import counterRulesRaw from "$parserData/app-rules/counter_rules.json";
 import seasonCultivateFactorSkillLabelsRaw from "$parserData/app-rules/season_cultivate_factor_skill_labels.json";
+import seasonCultivateFactorCostsRaw from "$parserData/app-rules/season_cultivate_factor_costs.json";
 import counterSlotTemplatesRaw from "$parserData/app-rules/counter_slot_templates.json";
 import counterSourceTemplatesRaw from "$parserData/app-rules/counter_source_templates.json";
 import seasonPhantomFactorsRaw from "$parserData/generated/SeasonPhantomFactors.json";
@@ -330,6 +331,7 @@ export type CounterEffectSlotPreset = {
   freezeDurationMs?: number;
   onFreezeExpire?: CounterAction;
   altFreeze?: { conditionBuffId: number; freezeDurationMs: number };
+  freezeOnThreshold?: boolean;
 };
 
 export type SourceTemplate = {
@@ -337,7 +339,7 @@ export type SourceTemplate = {
   itemIds: number[];
   name: string;
   description: string;
-  source: CounterSource;
+  source: CounterSource | CounterSource[];
   countsAsEnergy?: boolean;
 };
 
@@ -438,6 +440,8 @@ export const SLOT_TEMPLATES: SlotTemplate[] =
 
 const SEASON_CULTIVATE_FACTOR_SKILL_LABELS =
   seasonCultivateFactorSkillLabelsRaw as SeasonCultivateFactorSkillLabels;
+const SEASON_CULTIVATE_FACTOR_COSTS =
+  seasonCultivateFactorCostsRaw as Record<string, number>;
 const SEASON_PHANTOM_FACTORS =
   seasonPhantomFactorsRaw as SeasonPhantomFactorsData;
 const FACTOR_RULE_ID_BASE = 900_000_000;
@@ -581,6 +585,10 @@ export function getCounterRules(): CounterRulePreset[] {
 
 export function getSourceTemplates(): SourceTemplate[] {
   return SOURCE_TEMPLATES.map((template) => localizeSourceTemplate(template));
+}
+
+export function getSourceTemplateSources(template: SourceTemplate): CounterSource[] {
+  return Array.isArray(template.source) ? template.source : [template.source];
 }
 
 export function getSlotTemplates(): SlotTemplate[] {
@@ -764,10 +772,23 @@ export function getSeasonCultivateFactorGradeInfo(
   return getSeasonCultivateFactorGradeInfoMap().get(id);
 }
 
+function getSeasonCultivateFactorCost(
+  itemId: number | null | undefined,
+): number | null {
+  const id = Number(itemId);
+  if (!Number.isInteger(id) || id <= 0) return null;
+  const value = SEASON_CULTIVATE_FACTOR_COSTS[String(id)];
+  return typeof value === "number" && Number.isFinite(value) && value > 0
+    ? value
+    : null;
+}
+
 export function getSeasonCultivateFactorThreshold(
   itemId: number | null | undefined,
   fallback: number | null | undefined,
 ): number | null {
+  const mappedCost = getSeasonCultivateFactorCost(itemId);
+  if (mappedCost !== null) return mappedCost;
   const gradeThreshold = getSeasonCultivateFactorGradeInfo(itemId)?.threshold;
   if (
     typeof gradeThreshold === "number"
@@ -831,6 +852,7 @@ function applySeasonCultivateItemStats(
       ...(shouldApplyLockout
         ? {
             freezeDurationMs: lockoutMs,
+            freezeOnThreshold: true,
             onBuffAdd: counterActionStartsFreeze(slot.onBuffAdd)
               ? slot.onBuffAdd
               : "freeze",
@@ -875,7 +897,7 @@ export function getSeasonCultivateFactorTemplates(): FactorCounterTemplate[] {
     ...SOURCE_TEMPLATES.map((template) => ({
       itemIds: normalizeTemplateItemIds(template),
       usesGlobalEnergy: false,
-      sources: [template.source],
+      sources: getSourceTemplateSources(template),
       effectSlots: [],
     })),
     ...SLOT_TEMPLATES.flatMap((template) => {
@@ -1002,8 +1024,17 @@ export function getSeasonCultivateFactorSourceIncrementMap(): Map<
   const conflicts = new Set<number>();
   for (const template of SOURCE_TEMPLATES) {
     if (template.countsAsEnergy === false) continue;
-    const increment = getCounterSourceIncrement(template.source);
-    if (!Number.isFinite(increment) || increment === null || increment <= 0) {
+    const increments = getSourceTemplateSources(template)
+      .map((source) => getCounterSourceIncrement(source))
+      .filter((increment): increment is number =>
+        increment !== null && Number.isFinite(increment) && increment > 0,
+      );
+    const uniqueIncrements = Array.from(new Set(increments));
+    if (uniqueIncrements.length !== 1) {
+      continue;
+    }
+    const increment = uniqueIncrements[0];
+    if (increment === undefined || !Number.isFinite(increment) || increment <= 0) {
       continue;
     }
     for (const itemId of normalizeTemplateItemIds(template)) {
@@ -1053,7 +1084,7 @@ export function resolveCounterSources(sourceRefs: string[]): CounterSource[] {
   );
   return sourceRefs.flatMap((ref) => {
     const item = templateMap.get(ref);
-    return item ? [item.source] : [];
+    return item ? getSourceTemplateSources(item) : [];
   });
 }
 
@@ -1085,6 +1116,9 @@ export function resolveCounterEffectSlots(
               : {}),
             ...(item.slot.altFreeze !== undefined
               ? { altFreeze: item.slot.altFreeze }
+              : {}),
+            ...(item.slot.freezeOnThreshold !== undefined
+              ? { freezeOnThreshold: item.slot.freezeOnThreshold }
               : {}),
           },
         ]

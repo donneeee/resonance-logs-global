@@ -93,97 +93,71 @@ export const DEFAULT_HISTORY_HEAL_STATS = {
   hitsPerMinute: false,
 };
 
+export type HistorySummaryFieldGroupSettings = Record<string, boolean>;
+
+export type HistorySummaryStyleSettings = {
+  headingFontSize: number;
+  labelFontSize: number;
+  valueFontSize: number;
+};
+
 export type HistorySummarySettings = {
-  time: {
-    encounterTime: boolean;
-    trueDpsTime: boolean;
-  };
-  damage: {
-    totalDmg: boolean;
-    dps: boolean;
-    tdps: boolean;
-    bossDmg: boolean;
-    bossDps: boolean;
-    dmgPct: boolean;
-    critRate: boolean;
-    critDmgRate: boolean;
-    luckyRate: boolean;
-    luckyDmgRate: boolean;
-    hits: boolean;
-    hitsPerMinute: boolean;
-  };
-  healing: {
-    healDealt: boolean;
-    hps: boolean;
-    effectiveHeal: boolean;
-    ehps: boolean;
-    healPct: boolean;
-    critHealRate: boolean;
-    critDmgRate: boolean;
-    luckyRate: boolean;
-    luckyDmgRate: boolean;
-    hitsHeal: boolean;
-    hitsPerMinute: boolean;
-  };
-  tanked: {
-    damageTaken: boolean;
-    tankedPS: boolean;
-    tankedPct: boolean;
-    blockRate: boolean;
-    luckyBlockRate: boolean;
-    critTakenRate: boolean;
-    critDmgRate: boolean;
-    luckyRate: boolean;
-    luckyDmgRate: boolean;
-    hitsTaken: boolean;
-    hitsPerMinute: boolean;
-  };
+  time: HistorySummaryFieldGroupSettings;
+  damage: HistorySummaryFieldGroupSettings;
+  healing: HistorySummaryFieldGroupSettings;
+  tanked: HistorySummaryFieldGroupSettings;
+  aliases: Record<string, string>;
+  style: HistorySummaryStyleSettings;
 };
 
 export const DEFAULT_HISTORY_SUMMARY_FIELDS: HistorySummarySettings = {
   time: {
     encounterTime: true,
     trueDpsTime: true,
+    deaths: true,
   },
   damage: {
     totalDmg: true,
-    dps: true,
-    tdps: true,
     bossDmg: true,
+    critHits: true,
+    luckyHits: true,
+    dps: true,
     bossDps: true,
-    dmgPct: true,
     critRate: true,
-    critDmgRate: false,
     luckyRate: true,
-    luckyDmgRate: false,
+    tdps: true,
     hits: true,
+    critTotal: true,
+    luckyTotal: true,
+    dmgPct: true,
     hitsPerMinute: false,
   },
   healing: {
     healDealt: true,
+    critHits: true,
+    luckyHits: true,
     hps: true,
-    effectiveHeal: true,
-    ehps: true,
-    healPct: true,
-    critHealRate: true,
-    critDmgRate: false,
+    critRate: true,
     luckyRate: true,
-    luckyDmgRate: false,
-    hitsHeal: true,
-    hitsPerMinute: false,
+    effectiveHeal: true,
+    critTotal: true,
+    luckyTotal: true,
+    ehps: true,
   },
   tanked: {
     damageTaken: true,
-    tankedPS: true,
-    tankedPct: true,
-    blockRate: true,
-    luckyBlockRate: true,
-    critTakenRate: true,
-    critDmgRate: false,
-    luckyRate: true,
-    luckyDmgRate: false,
     hitsTaken: true,
-    hitsPerMinute: false,
+    blockRate: true,
+    tankedPS: true,
+    luckyRate: true,
+    blockHits: true,
+    tankedPct: true,
+  },
+  aliases: {},
+  style: {
+    headingFontSize: 11,
+    labelFontSize: 10,
+    valueFontSize: 10,
   },
 };
 
@@ -380,6 +354,14 @@ function cloneHistorySummaryDefaults(): HistorySummarySettings {
   return cloneSettingValue(DEFAULT_HISTORY_SUMMARY_FIELDS) as HistorySummarySettings;
 }
 
+const HISTORY_SUMMARY_GROUP_KEYS = ["time", "damage", "healing", "tanked"] as const;
+
+function clampNumericSetting(value: unknown, fallback: number, min: number, max: number): number {
+  const num = typeof value === "number" ? value : Number(value);
+  if (!Number.isFinite(num)) return fallback;
+  return Math.max(min, Math.min(max, Math.round(num)));
+}
+
 function normalizeHistorySummarySettingsState(value: unknown): HistorySummarySettings {
   const defaults = cloneHistorySummaryDefaults();
   const payload = normalizeObjectWithDefaults(
@@ -388,12 +370,45 @@ function normalizeHistorySummarySettingsState(value: unknown): HistorySummarySet
   ) as MutableRecord;
   const next = cloneHistorySummaryDefaults() as unknown as MutableRecord;
 
-  for (const [groupKey, defaultGroup] of Object.entries(defaults)) {
+  for (const groupKey of HISTORY_SUMMARY_GROUP_KEYS) {
+    const defaultGroup = defaults[groupKey];
     next[groupKey] = normalizeBooleanSettingsState(
       isMutableRecord(payload[groupKey]) ? payload[groupKey] : {},
       defaultGroup as unknown as MutableRecord,
     );
   }
+
+  const aliases: Record<string, string> = {};
+  const aliasPayload = isMutableRecord(payload["aliases"]) ? payload["aliases"] : {};
+  for (const [key, alias] of Object.entries(aliasPayload)) {
+    if (typeof alias !== "string") continue;
+    const trimmed = alias.trim();
+    if (trimmed.length > 0) aliases[key] = trimmed.slice(0, 48);
+  }
+  next["aliases"] = aliases;
+
+  const defaultStyle = defaults.style;
+  const stylePayload = isMutableRecord(payload["style"]) ? payload["style"] : {};
+  next["style"] = {
+    headingFontSize: clampNumericSetting(
+      stylePayload["headingFontSize"],
+      defaultStyle.headingFontSize,
+      8,
+      18,
+    ),
+    labelFontSize: clampNumericSetting(
+      stylePayload["labelFontSize"],
+      defaultStyle.labelFontSize,
+      8,
+      18,
+    ),
+    valueFontSize: clampNumericSetting(
+      stylePayload["valueFontSize"],
+      defaultStyle.valueFontSize,
+      8,
+      20,
+    ),
+  };
 
   return next as unknown as HistorySummarySettings;
 }
@@ -666,6 +681,16 @@ export type CustomPanelStyle = {
   progressOpacity: number;
 };
 
+export type TeammateBuffColumnKey =
+  | `buff:${number}`
+  | `category:${BuffCategoryKey}`;
+
+export type TeammatePanelStyle = CustomPanelStyle & {
+  rowHeight: number;
+  nameColumnWidth: number;
+  buffColumnWidth: number;
+};
+
 export type MonsterOverlayPositions = {
   monsterBuffPanel: Point;
   teammateBuffPanel: Point;
@@ -703,8 +728,10 @@ export type MonsterMonitorConfig = {
   hateListMaxDisplay: number;
   monitoredBuffIds: number[];
   selfAppliedBuffIds: number[];
+  selfAppliedMonitorAll: boolean;
   teammateBuffIds: number[];
   teammateBuffCategories?: BuffCategoryKey[];
+  teammateBuffColumnOrder?: TeammateBuffColumnKey[];
   fantasyWhitelistMonsterIds: number[];
   fantasyMonsterAliases: Record<string, string>;
   fantasyShowAll: boolean;
@@ -715,7 +742,7 @@ export type MonsterMonitorConfig = {
   overlaySizes: MonsterOverlaySizes;
   overlayVisibility: MonsterOverlayVisibility;
   panelStyle: CustomPanelStyle;
-  teammatePanelStyle: CustomPanelStyle;
+  teammatePanelStyle: TeammatePanelStyle;
   hatePanelStyle: CustomPanelStyle;
   fantasyPanelStyle: CustomPanelStyle;
 };
@@ -790,6 +817,7 @@ export type CustomPanelGroup = {
   kind: CustomPanelGroupKind;
   entries: InlineBuffEntry[];
   hideZeroCounters?: boolean;
+  autoShowStasisFactors?: boolean;
   position: Point;
   scale: number;
   style: CustomPanelStyle;
@@ -1026,6 +1054,72 @@ function createDefaultMonsterOverlayVisibility(): MonsterOverlayVisibility {
   };
 }
 
+export function createDefaultTeammatePanelStyle(): TeammatePanelStyle {
+  return {
+    ...createDefaultCustomPanelStyle(),
+    rowHeight: 22,
+    nameColumnWidth: 128,
+    buffColumnWidth: 72,
+  };
+}
+
+export function ensureTeammatePanelStyle(
+  style: Partial<TeammatePanelStyle> | CustomPanelStyle | null | undefined,
+): TeammatePanelStyle {
+  const base = createDefaultTeammatePanelStyle();
+  return {
+    gap: Math.max(0, Math.min(24, Math.round(style?.gap ?? base.gap))),
+    columnGap: Math.max(
+      0,
+      Math.min(240, Math.round(style?.columnGap ?? base.columnGap)),
+    ),
+    fontSize: Math.max(
+      10,
+      Math.min(28, Math.round(style?.fontSize ?? base.fontSize)),
+    ),
+    nameColor: style?.nameColor ?? base.nameColor,
+    valueColor: style?.valueColor ?? base.valueColor,
+    progressColor: style?.progressColor ?? base.progressColor,
+    progressOpacity: Math.max(
+      0,
+      Math.min(1, Number(style?.progressOpacity ?? base.progressOpacity)),
+    ),
+    rowHeight: Math.max(
+      16,
+      Math.min(
+        48,
+        Math.round(
+          style && "rowHeight" in style
+            ? (style.rowHeight ?? base.rowHeight)
+            : base.rowHeight,
+        ),
+      ),
+    ),
+    nameColumnWidth: Math.max(
+      48,
+      Math.min(
+        260,
+        Math.round(
+          style && "nameColumnWidth" in style
+            ? (style.nameColumnWidth ?? base.nameColumnWidth)
+            : base.nameColumnWidth,
+        ),
+      ),
+    ),
+    buffColumnWidth: Math.max(
+      36,
+      Math.min(
+        180,
+        Math.round(
+          style && "buffColumnWidth" in style
+            ? (style.buffColumnWidth ?? base.buffColumnWidth)
+            : base.buffColumnWidth,
+        ),
+      ),
+    ),
+  };
+}
+
 function createDefaultTextBuffPanelStyle(): TextBuffPanelStyle {
   return {
     displayMode: "modern",
@@ -1092,6 +1186,7 @@ export function createDefaultCustomPanelGroup(
     kind,
     entries: [],
     hideZeroCounters: false,
+    autoShowStasisFactors: true,
     position: { x: 700 + (index - 1) * 40, y: 280 + (index - 1) * 40 },
     scale: 1,
     style: createDefaultCustomPanelStyle(),
@@ -1302,8 +1397,10 @@ export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
     hateListMaxDisplay: 5,
     monitoredBuffIds: [],
     selfAppliedBuffIds: [],
+    selfAppliedMonitorAll: false,
     teammateBuffIds: [],
     teammateBuffCategories: [],
+    teammateBuffColumnOrder: [],
     fantasyWhitelistMonsterIds: [],
     fantasyMonsterAliases: {},
     fantasyShowAll: false,
@@ -1314,7 +1411,7 @@ export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
     overlaySizes: createDefaultMonsterOverlaySizes(),
     overlayVisibility: createDefaultMonsterOverlayVisibility(),
     panelStyle: createDefaultCustomPanelStyle(),
-    teammatePanelStyle: createDefaultCustomPanelStyle(),
+    teammatePanelStyle: createDefaultTeammatePanelStyle(),
     hatePanelStyle: createDefaultCustomPanelStyle(),
     fantasyPanelStyle: createDefaultCustomPanelStyle(),
   };
@@ -1850,6 +1947,8 @@ const DEFAULT_SETTINGS = {
       totalDpsLabelAlias: "",
       totalDpsLabelFontSize: 14,
       totalDpsValueFontSize: 18,
+      headerAbbreviatedFontSize: 10,
+      noBossTextColor: "#737373",
       bossHealthLabelFontSize: 14,
       bossHealthNameFontSize: 14,
       bossHealthValueFontSize: 14,
@@ -1983,6 +2082,7 @@ function normalizeCustomPanelGroupsForPersistence(
       kind,
       entries: [] as InlineBuffEntry[],
       hideZeroCounters: false,
+      autoShowStasisFactors: true,
       position: fallbackPosition,
       scale: index === 0 ? legacyScale : 1,
       style: createDefaultCustomPanelStyle(),
@@ -1993,6 +2093,8 @@ function normalizeCustomPanelGroupsForPersistence(
         ? normalizeInlineBuffEntriesForPersistence(normalized.entries)
         : [];
     normalized.hideZeroCounters = group["hideZeroCounters"] === true;
+    normalized.autoShowStasisFactors =
+      group["autoShowStasisFactors"] !== false;
     normalized.style = normalizeObjectWithDefaults(
       normalized.style,
       createDefaultCustomPanelStyle(),
@@ -2089,10 +2191,18 @@ function normalizeProfileLibrarySettingsState(
 function normalizeMonsterMonitorSettingsState(
   value: unknown,
 ): MonsterMonitorConfig {
-  return normalizeObjectWithDefaults(
+  const next = normalizeObjectWithDefaults(
     value,
     DEFAULT_SETTINGS.monsterMonitor,
   ) as MonsterMonitorConfig;
+  next.selfAppliedMonitorAll = next.selfAppliedMonitorAll === true;
+  next.teammateBuffColumnOrder = Array.isArray(next.teammateBuffColumnOrder)
+    ? next.teammateBuffColumnOrder.filter(
+        (key): key is TeammateBuffColumnKey => typeof key === "string",
+      )
+    : [];
+  next.teammatePanelStyle = ensureTeammatePanelStyle(next.teammatePanelStyle);
+  return next;
 }
 
 function normalizeAccessibilitySettingsState(

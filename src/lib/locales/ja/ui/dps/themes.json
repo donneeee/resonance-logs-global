@@ -465,5 +465,10 @@
   "liveWindowBehavior.autoHide": "?????",
   "liveWindowBehavior.pauseAndReset": "?????????",
   "liveWindowBehavior.performance": "???????",
-  "liveWindowBehavior.dynamicHeight": "?????"
+  "liveWindowBehavior.dynamicHeight": "?????",
+  "liveHeader.abbreviatedNumbers": "Abbreviated Numbers",
+  "liveHeader.abbreviatedSuffixFontSize": "Suffix Font Size",
+  "liveHeader.abbreviatedSuffixFontSize.description": "Controls the K/M suffix size for live header numbers.",
+  "liveHeader.noBossTextColor": "No Boss Text Color",
+  "liveHeader.noBossTextColor.description": "Text color used when no boss is detected."
 }

@@ -25,7 +25,7 @@
     orderColumnsByKey,
     type ColumnDefinition,
   } from "$lib/column-data";
-  import { settings, SETTINGS, DEFAULT_HISTORY_STATS } from "$lib/settings-store";
+  import { settings, SETTINGS, DEFAULT_HISTORY_STATS, DEFAULT_HISTORY_SUMMARY_FIELDS } from "$lib/settings-store";
   import { localizeSceneName } from "$lib/scene-mappings";
   import { localizeRawMonsterName } from "$lib/monster-mappings";
   import getDisplayName, { getDisplayIconSpecName } from "$lib/name-display";
@@ -1368,6 +1368,20 @@
       : [],
   );
 
+  let historySummaryPanelStyle = $derived.by(() => {
+    const style = SETTINGS.history.summary.state.style ?? DEFAULT_HISTORY_SUMMARY_FIELDS.style;
+    const headingFontSize = Number.isFinite(style.headingFontSize)
+      ? style.headingFontSize
+      : DEFAULT_HISTORY_SUMMARY_FIELDS.style.headingFontSize;
+    const labelFontSize = Number.isFinite(style.labelFontSize)
+      ? style.labelFontSize
+      : DEFAULT_HISTORY_SUMMARY_FIELDS.style.labelFontSize;
+    const valueFontSize = Number.isFinite(style.valueFontSize)
+      ? style.valueFontSize
+      : DEFAULT_HISTORY_SUMMARY_FIELDS.style.valueFontSize;
+    return `--history-summary-heading-font-size: ${headingFontSize}px; --history-summary-label-font-size: ${labelFontSize}px; --history-summary-value-font-size: ${valueFontSize}px;`;
+  });
+
   function graphMetricForTab(tab: HistoryOverviewTab): HistoryGraphMetric | null {
     if (tab === "damage") return "damage";
     if (tab === "healing") return "healing";
@@ -1670,15 +1684,33 @@
   }
 
   function normalizeSummaryRows(
+    groupKey: string,
     pairsPerRow: number,
     rows: readonly (readonly (PlayerSummaryItem | null)[])[],
   ): (PlayerSummaryItem | null)[][] {
     const normalized: (PlayerSummaryItem | null)[][] = [];
     for (let rowIndex = 0; rowIndex < HISTORY_SUMMARY_DATA_ROWS; rowIndex += 1) {
       const sourceRow = rows[rowIndex] ?? [];
-      normalized.push(Array.from({ length: pairsPerRow }, (_, pairIndex) => sourceRow[pairIndex] ?? null));
+      normalized.push(Array.from({ length: pairsPerRow }, (_, pairIndex) => {
+        const item = sourceRow[pairIndex] ?? null;
+        if (!item || !historySummaryFieldEnabled(groupKey, item.key)) return null;
+        const alias = historySummaryAlias(groupKey, item.key);
+        return alias ? { ...item, label: alias } : item;
+      }));
     }
     return normalized;
+  }
+
+  function historySummaryAlias(groupKey: string, itemKey: string): string {
+    const aliases = SETTINGS.history.summary.state.aliases ?? {};
+    const alias = aliases[`${groupKey}.${itemKey}`];
+    return typeof alias === "string" ? alias.trim() : "";
+  }
+
+  function historySummaryFieldEnabled(groupKey: string, itemKey: string): boolean {
+    const state = SETTINGS.history.summary.state as unknown as Record<string, Record<string, boolean> | undefined>;
+    const defaults = DEFAULT_HISTORY_SUMMARY_FIELDS as unknown as Record<string, Record<string, boolean> | undefined>;
+    return state[groupKey]?.[itemKey] ?? defaults[groupKey]?.[itemKey] ?? true;
   }
 
   function summaryGroup(
@@ -1691,7 +1723,7 @@
       key,
       label,
       columns: pairsPerRow * 2,
-      rows: normalizeSummaryRows(pairsPerRow, rows),
+      rows: normalizeSummaryRows(key, pairsPerRow, rows),
     };
   }
 
@@ -4326,7 +4358,6 @@
     const scopeKey = [
       encounterId ?? "none",
       historyGraphMetric ?? "none",
-      overviewTargetUuid !== null ? `uuid:${overviewTargetUuid}` : `uid:${overviewTargetUid ?? "total"}`,
     ].join(":");
     if (historyGraphSeriesScopeKey !== scopeKey) {
       historyGraphSeriesScopeKey = scopeKey;
@@ -4350,7 +4381,11 @@
     {#if overviewSummaryGroups.length > 0}
       <div class="history-summary-rail">
         <div class="history-overview-summary">
-          <div class="history-summary-panel" aria-label={t("detail.summary.aria", "Player stat summary")}>
+          <div
+            class="history-summary-panel"
+            style={historySummaryPanelStyle}
+            aria-label={t("detail.summary.aria", "Player stat summary")}
+          >
             {#each overviewSummaryGroups as group (group.key)}
               <div
                 class="history-summary-group"
@@ -5613,6 +5648,11 @@
                 />
               </tr>
             {/each}
+            {#if displayedPlayers.length > 0}
+              <tr class="history-bottom-spacer" aria-hidden="true">
+                <td colspan={visiblePlayerColumns.length + 1}></td>
+              </tr>
+            {/if}
             {/if}
           </tbody>
         </table>
@@ -5728,6 +5768,7 @@
         {#if selectedSkillSummaryGroups.length > 0}
           <div
             class="history-summary-panel skill-detail-summary"
+            style={historySummaryPanelStyle}
             aria-label={t("detail.summary.aria", "Player stat summary")}
           >
             {#each selectedSkillSummaryGroups as group (group.key)}
@@ -5965,6 +6006,11 @@
               />
             </tr>
           {/each}
+          {#if flatSkillRows.length > 0}
+            <tr class="history-bottom-spacer" aria-hidden="true">
+              <td colspan={visibleSkillColumns.length + 1}></td>
+            </tr>
+          {/if}
           {/if}
         </tbody>
       </table>
@@ -6067,6 +6113,11 @@
 {/if}
 
 <style>
+  .history-detail-root {
+    min-height: 0;
+    padding-bottom: clamp(2rem, 8dvh, 5rem);
+  }
+
   .skill-detail-header {
     display: flex;
     align-items: flex-start;
@@ -6181,7 +6232,7 @@
     justify-content: center;
     border-bottom: 1px solid hsl(var(--border) / 0.45);
     color: hsl(var(--muted-foreground));
-    font-size: 0.72rem;
+    font-size: var(--history-summary-heading-font-size, 11px);
     font-weight: 700;
     letter-spacing: 0;
     line-height: 1;
@@ -6197,7 +6248,7 @@
     border-bottom: 1px solid hsl(var(--border) / 0.26);
     overflow: hidden;
     padding: 0 0.32rem;
-    font-size: 0.66rem;
+    font-size: var(--history-summary-label-font-size, 10px);
     line-height: 1;
   }
 
@@ -6213,6 +6264,7 @@
   .history-summary-value {
     justify-content: flex-start;
     color: hsl(var(--foreground));
+    font-size: var(--history-summary-value-font-size, 10px);
     font-weight: 700;
     font-variant-numeric: tabular-nums;
     text-align: left;
@@ -6279,14 +6331,14 @@
     --history-sticky-header-bg: var(--popover);
     --history-sticky-border-color: var(--border);
     box-sizing: border-box;
-    max-height: clamp(280px, calc(100dvh - 380px), 64vh);
+    max-height: clamp(280px, calc(100dvh - 360px), 70vh);
     min-height: 0;
     margin-bottom: clamp(1rem, 3dvh, 2rem);
     overflow: auto;
     overscroll-behavior: contain;
-    padding-bottom: 0.75rem;
+    padding-bottom: clamp(1rem, 5dvh, 4rem);
     position: relative;
-    scroll-padding-bottom: 0.75rem;
+    scroll-padding-bottom: clamp(1rem, 5dvh, 4rem);
     isolation: isolate;
     background: var(--history-sticky-frame-bg) !important;
   }
@@ -6346,11 +6398,34 @@
     z-index: 0 !important;
   }
 
+  :global(.history-sticky-table tbody tr:last-child td) {
+    padding-bottom: clamp(1.5rem, 5dvh, 4rem);
+  }
+
+  :global(.history-sticky-table .history-bottom-spacer td) {
+    height: clamp(2rem, 6dvh, 4rem);
+    padding: 0 !important;
+    border: 0;
+    pointer-events: none;
+  }
+
   :global(.history-sticky-table tbody td.absolute) {
     z-index: 0 !important;
   }
 
   :global(.history-sticky-table .table-row-glow-anchor) {
     display: none !important;
+  }
+
+  @media (max-width: 1280px) {
+    :global(.history-sticky-frame) {
+      max-height: clamp(240px, calc(100dvh - 420px), 66vh);
+    }
+  }
+
+  @media (max-width: 1280px) and (max-height: 760px) {
+    :global(.history-sticky-frame) {
+      max-height: clamp(220px, 52dvh, 420px);
+    }
   }
 </style>

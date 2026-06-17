@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "Alihkan mode edit overlay",
   "shortcuts.toggleOverlayWindow": "Alihkan jendela overlay",
   "shortcuts.toggleEventLogger": "Alihkan logger event",
-  "conflictAssigned": "Hotkey itu sudah ditetapkan ke"
+  "conflictAssigned": "Hotkey itu sudah ditetapkan ke",
+  "invalid.systemKey": "Tombol media, browser, peluncur, dan sistem tidak dapat digunakan sebagai hotkey global.",
+  "invalid.missingModifier": "Hotkey global harus menyertakan setidaknya satu modifier, seperti Ctrl, Alt, Shift, atau Win."
 }

@@ -31,14 +31,7 @@
   const colT = uiT("dps/history", () => SETTINGS.live.general.state.language);
   const hiddenDpsColumns = ["effectiveTotal", "effectiveDps"];
   type SummaryGroupKey = "time" | "damage" | "healing" | "tanked";
-  type SummaryColumnField = {
-    key: string;
-    label: string;
-    labelKey?: string;
-    description: string;
-    descriptionKey?: string;
-  };
-  type SummaryField = SummaryColumnField | {
+  type SummaryField = {
     key: string;
     label: string;
     labelKey: string;
@@ -71,27 +64,78 @@
           descriptionKey: "summaryField.trueDpsTime.description",
           description: "Show the active combat time used by true DPS calculations.",
         },
+        {
+          key: "deaths",
+          labelKey: "summaryField.deaths.label",
+          label: "Deaths",
+          descriptionKey: "summaryField.deaths.description",
+          description: "Show death count in the summary.",
+        },
       ],
     },
     {
       key: "damage",
       labelKey: "summaryGroup.damage",
       label: "Damage",
-      fields: historyDpsPlayerColumns.filter((col) => isSummaryField("damage", col.key) && !hiddenDpsColumns.includes(col.key)),
+      fields: [
+        summaryField("totalDmg", "Damage", "Show total damage dealt."),
+        summaryField("bossDmg", "Boss Damage", "Show damage dealt to the boss."),
+        summaryField("critHits", "Crit Hits", "Show critical hit count."),
+        summaryField("luckyHits", "Lucky Hits", "Show lucky hit count."),
+        summaryField("dps", "DPS", "Show damage per second."),
+        summaryField("bossDps", "Boss DPS", "Show boss damage per second."),
+        summaryField("critRate", "Crit%", "Show critical hit rate."),
+        summaryField("luckyRate", "Lucky%", "Show lucky hit rate."),
+        summaryField("tdps", "True DPS", "Show true damage per second."),
+        summaryField("hits", "Hits", "Show total hit count."),
+        summaryField("critTotal", "Crit DMG", "Show total critical damage."),
+        summaryField("luckyTotal", "Lucky DMG", "Show total lucky damage."),
+        summaryField("dmgPct", "Share %", "Show damage share."),
+        summaryField("hitsPerMinute", "Hits/min", "Show hits per minute."),
+      ],
     },
     {
       key: "healing",
       labelKey: "summaryGroup.healing",
       label: "Healing",
-      fields: historyHealPlayerColumns.filter((col) => isSummaryField("healing", col.key)),
+      fields: [
+        summaryField("healDealt", "Healing", "Show total healing."),
+        summaryField("critHits", "Crit Hits", "Show critical heal count."),
+        summaryField("luckyHits", "Lucky Hits", "Show lucky heal count."),
+        summaryField("hps", "HPS", "Show healing per second."),
+        summaryField("critRate", "Crit%", "Show critical heal rate."),
+        summaryField("luckyRate", "Lucky%", "Show lucky heal rate."),
+        summaryField("effectiveHeal", "Effective Heals", "Show effective healing."),
+        summaryField("critTotal", "Crit Heals", "Show total critical healing."),
+        summaryField("luckyTotal", "Lucky Heals", "Show total lucky healing."),
+        summaryField("ehps", "eHPS", "Show effective healing per second."),
+      ],
     },
     {
       key: "tanked",
       labelKey: "summaryGroup.tanked",
       label: "Tanked",
-      fields: historyTankedPlayerColumns.filter((col) => isSummaryField("tanked", col.key)),
+      fields: [
+        summaryField("damageTaken", "Dmg Taken", "Show total damage taken."),
+        summaryField("tankedPS", "DTPS", "Show damage taken per second."),
+        summaryField("hitsTaken", "Hits Taken", "Show hit count taken."),
+        summaryField("tankedPct", "Share %", "Show tanked share."),
+        summaryField("blockRate", "Block%", "Show block rate."),
+        summaryField("luckyRate", "Lucky%", "Show lucky taken hit rate."),
+        summaryField("blockHits", "Blocks", "Show blocked hit count."),
+      ],
     },
   ];
+
+  function summaryField(key: string, label: string, description: string): SummaryField {
+    return {
+      key,
+      label,
+      labelKey: `summaryField.${key}.label`,
+      description,
+      descriptionKey: `summaryField.${key}.description`,
+    };
+  }
 
   function colLabel(col: { label: string; labelKey?: string }): string {
     return col.labelKey ? colT(col.labelKey, col.label) : col.label;
@@ -110,15 +154,11 @@
   }
 
   function summaryFieldDescription(field: SummaryField): string {
-    return field.descriptionKey ? (field.descriptionKey.startsWith("summaryField.") ? t(field.descriptionKey, field.description) : colT(field.descriptionKey, field.description)) : field.description;
+    return t(field.descriptionKey, field.description);
   }
 
   function summaryDefaultsFor(groupKey: SummaryGroupKey): Record<string, boolean> {
     return DEFAULT_HISTORY_SUMMARY_FIELDS[groupKey] as Record<string, boolean>;
-  }
-
-  function isSummaryField(groupKey: SummaryGroupKey, key: string): boolean {
-    return Object.prototype.hasOwnProperty.call(summaryDefaultsFor(groupKey), key);
   }
 
   function summaryFieldEnabled(groupKey: SummaryGroupKey, key: string): boolean {
@@ -129,6 +169,25 @@
   function setSummaryFieldEnabled(groupKey: SummaryGroupKey, key: string, checked: boolean): void {
     const state = SETTINGS.history.summary.state[groupKey] as Record<string, boolean>;
     state[key] = checked;
+  }
+
+  function summaryAliasKey(groupKey: SummaryGroupKey, key: string): string {
+    return `${groupKey}.${key}`;
+  }
+
+  function summaryAliasValue(groupKey: SummaryGroupKey, key: string): string {
+    return SETTINGS.history.summary.state.aliases[summaryAliasKey(groupKey, key)] ?? "";
+  }
+
+  function setSummaryAlias(groupKey: SummaryGroupKey, key: string, value: string): void {
+    const aliasKey = summaryAliasKey(groupKey, key);
+    const aliases = SETTINGS.history.summary.state.aliases;
+    const trimmed = value.trim();
+    if (trimmed.length > 0) {
+      aliases[aliasKey] = trimmed.slice(0, 48);
+    } else {
+      delete aliases[aliasKey];
+    }
   }
 </script>
 
@@ -262,18 +321,58 @@
       {#if expandedSections.summary}
         <div class="px-4 pb-4 space-y-4">
           <p class="text-sm text-muted-foreground">{t("summaryFieldsDescription", "Choose which stats appear in the history summary panel.")}</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <SettingsSlider
+              bind:value={SETTINGS.history.summary.state.style.headingFontSize}
+              min={8}
+              max={18}
+              step={1}
+              unit="px"
+              label={t("summaryHeadingFontSize", "Summary Header Font Size")}
+              description={t("summaryHeadingFontSizeDescription", "Controls the section headers in the history summary panel.")}
+            />
+            <SettingsSlider
+              bind:value={SETTINGS.history.summary.state.style.labelFontSize}
+              min={8}
+              max={18}
+              step={1}
+              unit="px"
+              label={t("summaryLabelFontSize", "Summary Label Font Size")}
+              description={t("summaryLabelFontSizeDescription", "Controls summary field labels.")}
+            />
+            <SettingsSlider
+              bind:value={SETTINGS.history.summary.state.style.valueFontSize}
+              min={8}
+              max={20}
+              step={1}
+              unit="px"
+              label={t("summaryValueFontSize", "Summary Value Font Size")}
+              description={t("summaryValueFontSizeDescription", "Controls summary field values.")}
+            />
+          </div>
           <div class="grid grid-cols-1 xl:grid-cols-2 gap-3">
             {#each summaryFieldGroups as group}
               <section class="rounded-md border border-border/40 bg-background/30 p-3">
                 <h3 class="text-sm font-semibold text-foreground mb-2">{summaryGroupLabel(group)}</h3>
                 <div class="space-y-1">
                   {#each group.fields as field}
-                    <SettingsSwitch
-                      checked={summaryFieldEnabled(group.key, field.key)}
-                      onchange={(checked) => setSummaryFieldEnabled(group.key, field.key, checked)}
-                      label={summaryFieldLabel(field)}
-                      description={summaryFieldDescription(field)}
-                    />
+                    <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(10rem,16rem)] gap-2 rounded-md border border-border/30 bg-background/25 p-2">
+                      <SettingsSwitch
+                        checked={summaryFieldEnabled(group.key, field.key)}
+                        onchange={(checked) => setSummaryFieldEnabled(group.key, field.key, checked)}
+                        label={summaryFieldLabel(field)}
+                        description={summaryFieldDescription(field)}
+                      />
+                      <label class="flex min-w-0 flex-col justify-center gap-1">
+                        <span class="text-xs font-medium text-muted-foreground">{t("summaryAliasPlaceholder", "Alias")}</span>
+                        <input
+                          class="w-full rounded-md border border-border bg-popover px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+                          value={summaryAliasValue(group.key, field.key)}
+                          placeholder={summaryFieldLabel(field)}
+                          oninput={(event) => setSummaryAlias(group.key, field.key, event.currentTarget.value)}
+                        />
+                      </label>
+                    </div>
                   {/each}
                 </div>
               </section>

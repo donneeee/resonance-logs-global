@@ -14,5 +14,7 @@
   "shortcuts.toggleOverlayEdit": "เปิด/ปิดโหมดแก้ไขโอเวอร์เลย์",
   "shortcuts.toggleOverlayWindow": "เปิด/ปิดหน้าต่างโอเวอร์เลย์",
   "shortcuts.toggleEventLogger": "เปิด/ปิดตัวบันทึกอีเวนต์",
-  "conflictAssigned": "ปุ่มลัดนี้ถูกกำหนดให้กับ"
+  "conflictAssigned": "ปุ่มลัดนี้ถูกกำหนดให้กับ",
+  "invalid.systemKey": "ไม่สามารถใช้ปุ่มมีเดีย เบราว์เซอร์ ตัวเปิดโปรแกรม และระบบเป็นปุ่มลัดส่วนกลางได้",
+  "invalid.missingModifier": "ปุ่มลัดส่วนกลางต้องมีปุ่มปรับแต่งอย่างน้อยหนึ่งปุ่ม เช่น Ctrl, Alt, Shift หรือ Win"
 }

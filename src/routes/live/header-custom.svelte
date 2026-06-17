@@ -45,6 +45,7 @@
   import { computeHeaderInfo } from "$lib/live-derived";
   import { localizeRawSceneName } from "$lib/scene-mappings";
   import { localizeRawMonsterName } from "$lib/monster-mappings";
+  import { liveEntityRenderKey } from "$lib/live-entity-route";
 
   // Get header settings
   const h = $derived(SETTINGS.live.headerCustomization.state);
@@ -57,6 +58,17 @@
 
   const totalDamageLabel = $derived(headerLabelAlias(h.totalDamageLabelAlias, "T.DMG"));
   const totalDpsLabel = $derived(headerLabelAlias(h.totalDpsLabelAlias, "T.DPS"));
+  const headerAbbreviatedDecimalPlaces = $derived(
+    SETTINGS.live.general.state.abbreviatedDecimalPlaces,
+  );
+  const headerAbbreviatedSuffixFontSize = $derived(
+    typeof h.headerAbbreviatedFontSize === "number" ? h.headerAbbreviatedFontSize : 10,
+  );
+  const noBossTextColor = $derived(
+    typeof h.noBossTextColor === "string" && h.noBossTextColor.trim()
+      ? h.noBossTextColor
+      : "#737373",
+  );
 
   const liveData = $derived(getLiveData());
   const liveDisplayNowMs = $derived(getLiveDisplayNowMs());
@@ -130,6 +142,7 @@
     activeCombatTimeMs: 0,
     fightStartTimestampMs: 0,
     dpsDisplayPaused: false,
+    localPlayerUuid: null,
     localPlayerKey: null,
     bosses: [],
     sceneId: null,
@@ -470,7 +483,11 @@
         class="font-bold text-foreground"
         style="font-size: {h.totalDamageValueFontSize}px"
         {@attach tooltip(() => displayHeaderInfo.totalDmg.toLocaleString())}
-        ><AbbreviatedNumber num={Number(displayHeaderInfo.totalDmg)} /></span
+        ><AbbreviatedNumber
+          num={Number(displayHeaderInfo.totalDmg)}
+          decimalPlaces={headerAbbreviatedDecimalPlaces}
+          suffixFontSize={headerAbbreviatedSuffixFontSize}
+        /></span
       >
     </div>
   {/if}
@@ -488,7 +505,11 @@
         class="font-bold text-foreground"
         style="font-size: {h.totalDpsValueFontSize}px"
         {@attach tooltip(() => displayHeaderInfo.totalDps.toLocaleString())}
-        ><AbbreviatedNumber num={displayHeaderInfo.totalDps} /></span
+        ><AbbreviatedNumber
+          num={displayHeaderInfo.totalDps}
+          decimalPlaces={headerAbbreviatedDecimalPlaces}
+          suffixFontSize={headerAbbreviatedSuffixFontSize}
+        /></span
       >
     </div>
   {/if}
@@ -509,7 +530,7 @@
           class:flex-row={h.bossHealthLayout === "horizontal"}
           class:flex-wrap={h.bossHealthLayout === "horizontal"}
         >
-          {#each displayBosses as boss (boss.entityKey ?? boss.uid)}
+          {#each displayBosses as boss (liveEntityRenderKey(boss))}
             {@const hpPercent =
               boss.maxHp && boss.currentHp !== null
                 ? Math.min(100, Math.max(0, (boss.currentHp / boss.maxHp) * 100))
@@ -525,9 +546,19 @@
                 class="tabular-nums font-semibold text-foreground"
                 style="font-size: {h.bossHealthValueFontSize}px"
               >
-                <AbbreviatedNumber num={boss.currentHp !== null ? boss.currentHp : 0} />
+                <AbbreviatedNumber
+                  num={boss.currentHp !== null ? boss.currentHp : 0}
+                  decimalPlaces={headerAbbreviatedDecimalPlaces}
+                  suffixFontSize={headerAbbreviatedSuffixFontSize}
+                />
                 {#if boss.maxHp}
-                  <span> / <AbbreviatedNumber num={boss.maxHp} /></span>
+                  <span>
+                    / <AbbreviatedNumber
+                      num={boss.maxHp}
+                      decimalPlaces={headerAbbreviatedDecimalPlaces}
+                      suffixFontSize={headerAbbreviatedSuffixFontSize}
+                    />
+                  </span>
                   <span
                     class="text-destructive ml-1"
                     style="font-size: {h.bossHealthPercentFontSize}px"
@@ -541,7 +572,8 @@
       {:else}
         <span
           class="text-neutral-500 font-medium italic"
-          style="font-size: {h.bossHealthNameFontSize}px">{t("header.noBoss", "No Boss")}</span
+          style="font-size: {h.bossHealthNameFontSize}px; color: {noBossTextColor}"
+          >{t("header.noBoss", "No Boss")}</span
         >
       {/if}
     </div>
@@ -924,6 +956,8 @@
                 )}
                 ><AbbreviatedNumber
                   num={Number(displayHeaderInfo.totalDmg)}
+                  decimalPlaces={headerAbbreviatedDecimalPlaces}
+                  suffixFontSize={headerAbbreviatedSuffixFontSize}
                 /></span
               >
             </div>
@@ -941,7 +975,11 @@
                 style="font-size: {h.totalDpsValueFontSize}px"
                 {@attach tooltip(() =>
                   displayHeaderInfo.totalDps.toLocaleString(),
-                )}><AbbreviatedNumber num={displayHeaderInfo.totalDps} /></span
+                )}><AbbreviatedNumber
+                  num={displayHeaderInfo.totalDps}
+                  decimalPlaces={headerAbbreviatedDecimalPlaces}
+                  suffixFontSize={headerAbbreviatedSuffixFontSize}
+                /></span
               >
             </div>
           {/if}

@@ -87,6 +87,14 @@ async saveAndApplyMonitorRuntimeSnapshot(snapshot: MonitorRuntimeSnapshot) : Pro
     else return { status: "error", error: e  as any };
 }
 },
+async detectCorruptSettingsJsonStores() : Promise<Result<string[], string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("detect_corrupt_settings_json_stores") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 /**
  * Gets a list of recent encounters.
  *
@@ -372,6 +380,14 @@ async clearImportedBackgroundImage() : Promise<Result<null, string>> {
 async importBackgroundImage(sourcePath: string) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("import_background_image", { sourcePath }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async loadBackgroundImageDataUrl(imagePath: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("load_background_image_data_url", { imagePath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -780,15 +796,15 @@ isDefeated: boolean }
 export type CombatTimelineBucketState = { timestampMs: number; targetUuid?: number | null; targetUid: number; targetMonsterTypeId: number | null; damageValue: number; effectiveDamageValue: number; healingValue: number; effectiveHealingValue: number; takenValue: number; hpLossValue: number; shieldLossValue: number }
 export type CounterAction = "reset" | "freeze" | "resetAndFreeze" | "resetAndFreezeKeepCounting" | "resetAndStartCount" | "startCount" | "noOp"
 export type CounterRule = { ruleId: number; sources: CounterSource[]; effectSlots: EffectSlotConfig[] }
-export type CounterSource = { damageBySkillKey: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { damageBySkillKeyOnce: { skillKeys: number[]; increment: number; hitFilter?: DamageHitFilter | null } } | { damageBySkillKeySelfTarget: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { anyDamage: { increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null } } | { damageTaken: { skillKeys?: number[] | null; increment: number; hitsRequired?: number | null } } | { fightResourceSpent: { resourceId: number; unitsRequired: number; increment: number; excludedBuffIds?: number[] } } | { buffAdded: { buffId: number; sourceConfigId?: number | null; increment: number } } | { buffLayerSpent: { buffId: number; unitsRequired: number; increment: number } } | { buffDurationTick: { buffId: number; tickIntervalMs: number; increment: number; attrCondition?: TickAttrCondition | null } } | { skillCast: { skillBaseIds: number[]; increment: number } } | { skillDurationTick: { skillBaseId: number; tickIntervalMs: number; increment: number } } | { skillCastComplete: { skillBaseIds: number[]; increment: number } } | { movementDistance: { buffId: number; attrId: number; metersRequired: number; increment: number } }
+export type CounterSource = { damageBySkillKey: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null; requiredTypeFlags?: number | null } } | { damageBySkillKeyOnce: { skillKeys: number[]; increment: number; hitFilter?: DamageHitFilter | null; requiredTypeFlags?: number | null } } | { damageBySkillKeySelfTarget: { skillKeys: number[]; increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null; requiredTypeFlags?: number | null } } | { anyDamage: { increment: number; hitsRequired?: number | null; hitFilter?: DamageHitFilter | null; requiredTypeFlags?: number | null } } | { damageTaken: { skillKeys?: number[] | null; increment: number; hitsRequired?: number | null; requiredTypeFlags?: number | null } } | { fightResourceSpent: { resourceId: number; unitsRequired: number; increment: number; excludedBuffIds?: number[] } } | { buffAdded: { buffId: number; sourceConfigId?: number | null; increment: number } } | { buffLayerSpent: { buffId: number; unitsRequired: number; increment: number } } | { buffDurationTick: { buffId: number; tickIntervalMs: number; increment: number; attrCondition?: TickAttrCondition | null } } | { skillCast: { skillBaseIds: number[]; increment: number } } | { skillDurationTick: { skillBaseId: number; tickIntervalMs: number; increment: number } } | { skillCastComplete: { skillBaseIds: number[]; increment: number } } | { movementDistance: { buffId: number; attrId: number; metersRequired: number; increment: number } }
 export type CustomDefinitionEntry = { uid: number; type: string; name: string; shortName: string | null; notes: string | null; icon: string | null; color: string | null }
 export type CustomDefinitionsFile = { version: number; definitions: CustomDefinitionEntry[] }
 export type DamageHitFilter = { crit?: boolean | null; lucky?: boolean | null }
 /**
  * A single damage event recorded in the 2s sliding window used for death replay.
  */
-export type DamageSnapshot = { timestampMs: number; attackerUid: number; attackerMonsterTypeId: number | null; skillKey: number; value: number }
-export type DeathRecord = { victimUid: number; victimUuid?: number | null; victimKey?: string | null; deathTimestampMs: number; recentDamages: DamageSnapshot[] }
+export type DamageSnapshot = { timestampMs: number; attackerEntityUuid?: string | null; attackerUid: number; attackerMonsterTypeId: number | null; skillKey: number; value: number }
+export type DeathRecord = { victimEntityUuid?: string | null; victimUid: number; victimUuid: number | null; victimKey: string | null; deathTimestampMs: number; recentDamages: DamageSnapshot[] }
 /**
  * The result of a destructive encounter-delete operation.
  */
@@ -802,7 +818,7 @@ deletedCount: number;
  */
 preservedFavoriteCount: number }
 export type Device = { name: string; description: string | null }
-export type EffectSlotConfig = { slotId: number; threshold: number | null; resetBuffId: number; resetSourceConfigId?: number | null; onBuffAdd?: CounterAction; onBuffChange?: CounterAction; onBuffRemove?: CounterAction; freezeDurationMs?: number | null; onFreezeExpire?: CounterAction; altFreeze?: AltFreezeConfig | null; thresholdModifier?: AttrModifier | null; freezeDurationModifier?: AttrModifier | null; resetSkillKeys?: number[] | null; onResetSkill?: CounterAction }
+export type EffectSlotConfig = { slotId: number; threshold: number | null; resetBuffId: number; resetSourceConfigId?: number | null; onBuffAdd?: CounterAction; onBuffChange?: CounterAction; onBuffRemove?: CounterAction; freezeDurationMs?: number | null; onFreezeExpire?: CounterAction; altFreeze?: AltFreezeConfig | null; thresholdModifier?: AttrModifier | null; freezeDurationModifier?: AttrModifier | null; freezeOnThreshold?: boolean; resetSkillKeys?: number[] | null; onResetSkill?: CounterAction }
 /**
  * Filters for querying encounters.
  */
@@ -921,7 +937,7 @@ export type ModuleInfo = { name: string; config_id: number; uuid: number; qualit
 export type ModulePart = { id: number; name: string; value: number }
 export type ModuleSolution = { modules: ModuleInfo[]; score: number; attr_breakdown: Partial<{ [key in string]: number }> }
 export type MonitorRuntimeSnapshot = { live: LiveRuntimeSnapshot; skill: SkillRuntimeSnapshot; monster: MonsterRuntimeSnapshot; teammate: TeammateRuntimeSnapshot }
-export type MonsterRuntimeSnapshot = { enabled: boolean; globalIds: number[]; selfAppliedIds: number[] }
+export type MonsterRuntimeSnapshot = { enabled: boolean; globalIds: number[]; selfAppliedIds: number[]; monitorAllSelfApplied: boolean }
 export type PerSourceStats = { sourceMonsterId: number | null; totalValue: number; taken: RawCombatStats; skills: Partial<{ [key in number]: RawSkillStats }> }
 export type PerTargetStats = { targetUid: number; targetUuid?: number | null; targetName: string; totalValue: number; damage: RawCombatStats; skills: Partial<{ [key in number]: RawSkillStats }> }
 /**
@@ -999,3 +1015,4 @@ import {
 export type Result<T, E> =
 	| { status: "ok"; data: T }
 	| { status: "error"; error: E };
+

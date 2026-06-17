@@ -5,7 +5,7 @@
   import SettingsSwitch from "../settings/settings-switch.svelte";
   import SettingsColorAlpha from "../settings/settings-color-alpha.svelte";
   import SettingsFilePicker from "../settings/settings-file-picker.svelte";
-  import { invoke } from "@tauri-apps/api/core";
+  import { commands } from "$lib/bindings";
   import {
     SETTINGS,
     DEFAULT_CLASS_COLORS,
@@ -24,24 +24,48 @@
   ];
 
   const t = uiT("dps/themes", () => SETTINGS.live.general.state.language);
+  let backgroundImageError = $state("");
+
+  function errorMessage(error: unknown, fallback: string): string {
+    if (error instanceof Error && error.message) return error.message;
+    if (typeof error === "string" && error) return error;
+    return fallback;
+  }
 
   async function importBackgroundImage(sourcePath: string, fileName: string) {
+    backgroundImageError = "";
     try {
-      const importedPath = await invoke<string>("import_background_image", {
-        sourcePath,
-      });
-      SETTINGS.accessibility.state.backgroundImage = importedPath;
+      const result = await commands.importBackgroundImage(sourcePath);
+      if (result.status === "error") {
+        throw new Error(result.error || "Background image import failed");
+      }
+      SETTINGS.accessibility.state.backgroundImage = result.data;
       SETTINGS.accessibility.state.backgroundImageName = fileName;
+      SETTINGS.accessibility.state.backgroundImageEnabled = true;
     } catch (error) {
+      backgroundImageError = errorMessage(
+        error,
+        "Failed to import background image",
+      );
       console.error("Failed to import background image", error);
+      throw error;
     }
   }
 
   async function clearBackgroundImage() {
+    backgroundImageError = "";
     try {
-      await invoke("clear_imported_background_image");
+      const result = await commands.clearImportedBackgroundImage();
+      if (result.status === "error") {
+        throw new Error(result.error || "Background image clear failed");
+      }
     } catch (error) {
+      backgroundImageError = errorMessage(
+        error,
+        "Failed to clear imported background image",
+      );
       console.warn("Failed to clear imported background image", error);
+      throw error;
     } finally {
       SETTINGS.accessibility.state.backgroundImage = "";
       SETTINGS.accessibility.state.backgroundImageName = "";
@@ -648,6 +672,11 @@
                     onchange={importBackgroundImage}
                     onclear={clearBackgroundImage}
                   />
+                  {#if backgroundImageError}
+                    <p class="px-3 text-xs text-destructive">
+                      {backgroundImageError}
+                    </p>
+                  {/if}
                   <SettingsSlider
                     bind:value={
                       SETTINGS.accessibility.state.backgroundImageOpacity

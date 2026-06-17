@@ -689,6 +689,19 @@
       </div>
 
       <div class="space-y-2 pt-3 border-t border-border/30">
+        <h3 class="text-sm font-semibold text-foreground">{t("liveHeader.abbreviatedNumbers", "Abbreviated Numbers")}</h3>
+        <SettingsSlider
+          bind:value={SETTINGS.live.headerCustomization.state.headerAbbreviatedFontSize}
+          min={6}
+          max={22}
+          step={1}
+          label={t("liveHeader.abbreviatedSuffixFontSize", "Suffix Font Size")}
+          description={t("liveHeader.abbreviatedSuffixFontSize.description", "Controls the K/M suffix size for live header numbers.")}
+          unit="px"
+        />
+      </div>
+
+      <div class="space-y-2 pt-3 border-t border-border/30">
         <h3 class="text-sm font-semibold text-foreground">{t("liveHeader.showBossHealth", "Boss Health")}</h3>
         <SettingsSwitch
           bind:checked={SETTINGS.live.headerCustomization.state.showBossHealth}
@@ -706,6 +719,11 @@
             ]}
           />
           <SettingsSlider bind:value={SETTINGS.live.headerCustomization.state.bossHealthLabelFontSize} min={0} max={20} step={1} label={t("common.labelFontSize", "Label Font Size")} description={t("liveHeader.bossHealthLabelFontSize.description", "\"BOSS\" label font size")} unit="px" />
+          <SettingsColor
+            bind:value={SETTINGS.live.headerCustomization.state.noBossTextColor}
+            label={t("liveHeader.noBossTextColor", "No Boss Text Color")}
+            description={t("liveHeader.noBossTextColor.description", "Text color used when no boss is detected.")}
+          />
           <SettingsSlider bind:value={SETTINGS.live.headerCustomization.state.bossHealthNameFontSize} min={0} max={24} step={1} label={t("liveHeader.bossNameFontSize", "Boss Name Font Size")} description={t("liveHeader.bossNameFontSize.description", "Boss name font size")} unit="px" />
           <SettingsSlider bind:value={SETTINGS.live.headerCustomization.state.bossHealthValueFontSize} min={0} max={24} step={1} label={t("liveHeader.healthValueFontSize", "Health Value Font Size")} description={t("liveHeader.healthValueFontSize.description", "Health value font size (1.5M / 3M)")} unit="px" />
           <SettingsSlider bind:value={SETTINGS.live.headerCustomization.state.bossHealthPercentFontSize} min={0} max={24} step={1} label={t("liveHeader.percentageFontSize", "Percentage Font Size")} description={t("liveHeader.percentageFontSize.description", "Health percentage font size")} unit="px" />

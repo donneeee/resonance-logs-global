@@ -33,6 +33,10 @@
         entry = {
           uid,
           uuid: deathRecordVictimUuid(record),
+          entityUuid:
+            liveEntity?.entityUuid ??
+            liveEntity?.entityKey ??
+            deathRecordVictimEntityKey(record),
           entityKey: liveEntity?.entityKey ?? deathRecordVictimEntityKey(record),
           name: liveEntity?.name ?? `#${uid}`,
           className: liveEntity?.className ?? "",
@@ -54,6 +58,7 @@
 <DeathPlayerList
   {entries}
   localPlayerUid={liveData?.localPlayerUid ?? null}
+  localPlayerUuid={liveData?.localPlayerUuid ?? liveData?.localPlayerKey ?? null}
   localPlayerKey={liveData?.localPlayerKey ?? null}
   onSelect={handleSelect}
 />

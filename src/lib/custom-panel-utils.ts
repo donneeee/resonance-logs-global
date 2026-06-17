@@ -25,6 +25,9 @@ export function ensureCustomPanelEntries(
     ...(entry.counterSlotId !== undefined
       ? { counterSlotId: entry.counterSlotId }
       : {}),
+    ...(entry.counterDisplayMode === "factor"
+      ? { counterDisplayMode: "factor" as const }
+      : {}),
     ...(entry.sourceType === "counter" && entry.hideWhenZero === true
       ? { hideWhenZero: true }
       : {}),
@@ -67,7 +70,8 @@ export function ensureCustomPanelGroups(
         normalizeCustomPanelGroupKind(group.kind) === "manual"
           ? ensureCustomPanelEntries(group.entries)
           : [],
-      ...(group.hideZeroCounters === true ? { hideZeroCounters: true } : {}),
+      hideZeroCounters: group.hideZeroCounters === true,
+      autoShowStasisFactors: group.autoShowStasisFactors !== false,
       position: group.position ?? {
         x: legacyPosition.x + index * 40,
         y: legacyPosition.y + index * 40,
@@ -92,6 +96,7 @@ export function ensureCustomPanelGroups(
       kind: "manual",
       entries: legacyEntries,
       hideZeroCounters: false,
+      autoShowStasisFactors: true,
       position: legacyPosition,
       scale: legacyScale,
       style: fallbackStyle,

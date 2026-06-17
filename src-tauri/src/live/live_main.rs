@@ -1,5 +1,6 @@
 use crate::live::chat_feed;
 use crate::live::entity_id::uid_from_uuid;
+use crate::live::skill_lifecycle::{ClientSkillCast, ServerSkillEnd, SkillId};
 use crate::live::state::{AppState, AppStateManager, StateEvent, resolve_entity_display_name};
 use crate::live::{
     attribution_census::flush_current_census_to_file,
@@ -142,6 +143,42 @@ fn emit_pending_background_logger_entries(app_handle: &AppHandle) {
     emit_auxiliary_entries(app_handle, entries);
 }
 
+fn decode_client_skill_cast(req: &blueprotobuf::UseSlotRequest) -> Option<ClientSkillCast> {
+    let is_skill_slot = req.use_type == Some(blueprotobuf::EUseSlotType::UseSlotTypeSkill as i32);
+    if !is_skill_slot {
+        return None;
+    }
+
+    let extra = req.extra_data.as_deref()?;
+    if extra.is_empty() {
+        return None;
+    }
+
+    let param = blueprotobuf::UseSkillParam::decode(extra).ok()?;
+    let skill_id = SkillId::new(param.skillid?)?;
+    Some(ClientSkillCast {
+        skill_id,
+        slot_id: req.slot_id,
+        begin_time_ms: param.begin_time,
+        target_uuid: param.target_uuid,
+    })
+}
+
+fn decode_use_slot_client_skill_cast(data: Bytes) -> Option<StateEvent> {
+    let use_slot = match blueprotobuf::UseSlot::decode(data) {
+        Ok(value) => value,
+        Err(error) => {
+            warn!("Error decoding UseSlot.. ignoring: {error}");
+            return None;
+        }
+    };
+    use_slot
+        .v_request
+        .as_ref()
+        .and_then(decode_client_skill_cast)
+        .map(StateEvent::ClientSkillCast)
+}
+
 fn handle_capture_event(
     app_handle: &AppHandle,
     capture_event: packets::packet_capture::CaptureEvent,
@@ -154,6 +191,17 @@ fn handle_capture_event(
                 if !auxiliary_entries.is_empty() {
                     emit_auxiliary_entries(app_handle, auxiliary_entries);
                 }
+            }
+
+            if matches!(notify.fragment_type, packets::opcodes::FragmentType::Call)
+                && notify.service_id == packets::opcodes::WORLD_CALL_SERVICE_ID
+                && notify.method_id == packets::opcodes::world_call_method::USE_SLOT
+            {
+                let Some(event) = decode_use_slot_client_skill_cast(notify.payload.clone()) else {
+                    return false;
+                };
+                batch_events.push(event);
+                return false;
             }
 
             if let Some(team_event) = crate::live::team::decode_team_event(
@@ -7111,6 +7159,18 @@ fn decode_state_event(op: packets::opcodes::Pkt, data: Bytes) -> Option<StateEve
                 None
             }
         },
+        packets::opcodes::Pkt::SyncServerSkillEnd => {
+            match blueprotobuf::SyncServerSkillEnd::decode(data) {
+                Ok(value) => value
+                    .skill_uuid
+                    .and_then(SkillId::new)
+                    .map(|skill_id| StateEvent::ServerSkillEnd(ServerSkillEnd { skill_id })),
+                Err(error) => {
+                    warn!("Error decoding SyncServerSkillEnd.. ignoring: {error}");
+                    None
+                }
+            }
+        }
         _ => {
             trace!("Unhandled packet opcode: {op:?}");
             None

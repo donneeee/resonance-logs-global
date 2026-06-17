@@ -12,6 +12,7 @@
     liveDisplayElapsedMs,
   } from "$lib/live-derived";
   import {
+    liveEntityMatchesLocalPlayer,
     liveEntityMatchesRoute,
     livePlayerRoute,
     liveRouteIdentityFromSearch,
@@ -35,7 +36,6 @@
   import { resolveNavigationTranslation, resolveUiTranslation } from "$lib/i18n";
 
   const routeIdentity = liveRouteIdentityFromSearch(page.url.searchParams);
-  const playerUid = routeIdentity.playerUid ?? -1;
 
   let liveData = $derived(getLiveData());
   let liveDisplayNow = $derived(getLiveDisplayNowMs());
@@ -49,18 +49,22 @@
     liveData?.entities.find((entity) => liveEntityMatchesRoute(entity, routeIdentity)) ?? null,
   );
 
-  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+  type LivePlayerIdentity = {
+    uid: number;
+    entityUuid?: string | null;
+    entityKey?: string | null;
+  };
 
   function currentRouteSubject(): LiveEntityRouteSubject {
-    return currentPlayer ?? { uid: playerUid, entityKey: routeIdentity.entityKey };
+    return currentPlayer ?? {
+      uid: -1,
+      entityUuid: routeIdentity.entityUuid,
+      entityKey: routeIdentity.entityKey,
+    };
   }
 
   function isLocalPlayerRow(player: LivePlayerIdentity | null | undefined): boolean {
-    if (!player) return false;
-    const localPlayerKey = liveData?.localPlayerKey?.trim();
-    const playerEntityKey = player.entityKey?.trim();
-    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
-    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+    return liveEntityMatchesLocalPlayer(player, liveData);
   }
 
   let monsterRows = $derived.by(() => {

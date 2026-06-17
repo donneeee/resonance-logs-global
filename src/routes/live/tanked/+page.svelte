@@ -8,7 +8,9 @@
   } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
   import {
+    liveEntityMatchesLocalPlayer,
     liveEntityMatchesRoute,
+    liveEntityRenderKey,
     livePlayerRoute,
   } from "$lib/live-entity-route";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
@@ -38,17 +40,18 @@
     liveData ? computePlayerRows(liveData, "tanked", liveDisplayNowMs) : [],
   );
 
-  type LivePlayerIdentity = { uid: number; entityKey?: string | null };
+  type LivePlayerIdentity = {
+    uid: number;
+    entityUuid?: string | null;
+    entityKey?: string | null;
+  };
 
   function playerRenderKey(player: LivePlayerIdentity): string | number {
-    return player.entityKey?.trim() || player.uid;
+    return liveEntityRenderKey(player);
   }
 
   function isLocalPlayerRow(player: LivePlayerIdentity): boolean {
-    const localPlayerKey = liveData?.localPlayerKey?.trim();
-    const playerEntityKey = player.entityKey?.trim();
-    if (localPlayerKey && playerEntityKey) return localPlayerKey === playerEntityKey;
-    return liveData?.localPlayerUid != null && player.uid === liveData.localPlayerUid;
+    return liveEntityMatchesLocalPlayer(player, liveData);
   }
 
   // Sorting settings
@@ -107,6 +110,7 @@
   function openTankedDetails(player: LivePlayerIdentity): void {
     const routeIdentity = {
       playerUid: player.uid,
+      entityUuid: player.entityUuid ?? player.entityKey ?? null,
       entityKey: player.entityKey?.trim() || null,
     };
     const entity = liveData?.entities.find((row) =>
