@@ -1,5 +1,5 @@
 use libloading::{Library, Symbol};
-use log::info;
+use log::{info, warn};
 use std::ffi::{CStr, CString};
 use std::ptr;
 use std::sync::Arc;
@@ -167,63 +167,52 @@ impl NpcapCapture {
     pub fn new(device_name: &str) -> Result<Self, String> {
         let context = NpcapContext::new()?;
         unsafe {
-            let create: Symbol<PcapCreate> =
-                context.lib.get(b"pcap_create").map_err(|e| e.to_string())?;
-            let set_snaplen: Symbol<PcapSetSnaplen> = context
-                .lib
-                .get(b"pcap_set_snaplen")
-                .map_err(|e| e.to_string())?;
-            let set_promisc: Symbol<PcapSetPromisc> = context
-                .lib
-                .get(b"pcap_set_promisc")
-                .map_err(|e| e.to_string())?;
-            let set_timeout: Symbol<PcapSetTimeout> = context
-                .lib
-                .get(b"pcap_set_timeout")
-                .map_err(|e| e.to_string())?;
-            let set_buffer_size: Symbol<PcapSetBufferSize> = context
-                .lib
-                .get(b"pcap_set_buffer_size")
-                .map_err(|e| e.to_string())?;
-            let set_immediate: Symbol<PcapSetImmediateMode> = context
-                .lib
-                .get(b"pcap_set_immediate_mode")
-                .map_err(|e| e.to_string())?;
-            let activate: Symbol<PcapActivate> = context
-                .lib
-                .get(b"pcap_activate")
-                .map_err(|e| e.to_string())?;
-            let close: Symbol<PcapClose> =
-                context.lib.get(b"pcap_close").map_err(|e| e.to_string())?;
-            let get_err: Symbol<PcapGetErr> =
-                context.lib.get(b"pcap_geterr").map_err(|e| e.to_string())?;
-            let data_link_fn: Symbol<PcapDataLink> = context
-                .lib
-                .get(b"pcap_datalink")
-                .map_err(|e| e.to_string())?;
-            let compile: Symbol<PcapCompile> = context
-                .lib
-                .get(b"pcap_compile")
-                .map_err(|e| e.to_string())?;
-            let set_filter: Symbol<PcapSetFilter> = context
-                .lib
-                .get(b"pcap_setfilter")
-                .map_err(|e| e.to_string())?;
-            let free_code: Symbol<PcapFreeCode> = context
-                .lib
-                .get(b"pcap_freecode")
-                .map_err(|e| e.to_string())?;
+            let create = load_symbol::<PcapCreate>(&context.lib, b"pcap_create")?;
+            let set_snaplen = load_symbol::<PcapSetSnaplen>(&context.lib, b"pcap_set_snaplen")?;
+            let set_promisc = load_symbol::<PcapSetPromisc>(&context.lib, b"pcap_set_promisc")?;
+            let set_timeout = load_symbol::<PcapSetTimeout>(&context.lib, b"pcap_set_timeout")?;
+            let set_buffer_size =
+                load_symbol::<PcapSetBufferSize>(&context.lib, b"pcap_set_buffer_size")?;
+            let set_immediate =
+                match load_symbol::<PcapSetImmediateMode>(&context.lib, b"pcap_set_immediate_mode")
+                {
+                    Ok(symbol) => Some(symbol),
+                    Err(err) => {
+                        warn!(
+                            "Npcap immediate mode unavailable for device {}: {}; continuing without immediate mode",
+                            device_name, err
+                        );
+                        None
+                    }
+                };
+            let activate = load_symbol::<PcapActivate>(&context.lib, b"pcap_activate")?;
+            let close = load_symbol::<PcapClose>(&context.lib, b"pcap_close")?;
+            let get_err = load_symbol::<PcapGetErr>(&context.lib, b"pcap_geterr")?;
+            let data_link_fn = load_symbol::<PcapDataLink>(&context.lib, b"pcap_datalink")?;
+            let bpf_filter_fns = match (
+                load_symbol::<PcapCompile>(&context.lib, b"pcap_compile"),
+                load_symbol::<PcapSetFilter>(&context.lib, b"pcap_setfilter"),
+                load_symbol::<PcapFreeCode>(&context.lib, b"pcap_freecode"),
+            ) {
+                (Ok(compile), Ok(set_filter), Ok(free_code)) => {
+                    Some((compile, set_filter, free_code))
+                }
+                (compile, set_filter, free_code) => {
+                    warn!(
+                        "Npcap BPF filter unavailable for device {}: {}; {}; {}; continuing without kernel filter",
+                        device_name,
+                        compile.err().unwrap_or_else(|| "pcap_compile available".to_string()),
+                        set_filter.err().unwrap_or_else(|| "pcap_setfilter available".to_string()),
+                        free_code.err().unwrap_or_else(|| "pcap_freecode available".to_string())
+                    );
+                    None
+                }
+            };
 
-            let fn_next_ex: PcapNextEx = *context
-                .lib
-                .get::<PcapNextEx>(b"pcap_next_ex")
-                .map_err(|e| e.to_string())?;
-            let fn_get_err: PcapGetErr = *get_err;
-            let fn_close: PcapClose = *close;
-            let fn_dispatch: PcapDispatch = *context
-                .lib
-                .get::<PcapDispatch>(b"pcap_dispatch")
-                .map_err(|e| e.to_string())?;
+            let fn_next_ex = load_symbol::<PcapNextEx>(&context.lib, b"pcap_next_ex")?;
+            let fn_get_err = get_err;
+            let fn_close = close;
+            let fn_dispatch = load_symbol::<PcapDispatch>(&context.lib, b"pcap_dispatch")?;
 
             let device_c = CString::new(device_name).map_err(|e| e.to_string())?;
             let mut errbuf = [0i8; 256];
@@ -240,31 +229,34 @@ impl NpcapCapture {
                 if set_snaplen(handle, NPCAP_SNAPLEN) != 0 {
                     return Err(format!(
                         "pcap_set_snaplen failed: {}",
-                        pcap_error(*get_err, handle)
+                        pcap_error(get_err, handle)
                     ));
                 }
                 if set_promisc(handle, NPCAP_PROMISC) != 0 {
                     return Err(format!(
                         "pcap_set_promisc failed: {}",
-                        pcap_error(*get_err, handle)
+                        pcap_error(get_err, handle)
                     ));
                 }
                 if set_timeout(handle, NPCAP_TIMEOUT_MS) != 0 {
                     return Err(format!(
                         "pcap_set_timeout failed: {}",
-                        pcap_error(*get_err, handle)
+                        pcap_error(get_err, handle)
                     ));
                 }
-                if set_immediate(handle, NPCAP_IMMEDIATE) != 0 {
-                    return Err(format!(
-                        "pcap_set_immediate_mode failed: {}",
-                        pcap_error(*get_err, handle)
-                    ));
+                if let Some(set_immediate) = set_immediate {
+                    if set_immediate(handle, NPCAP_IMMEDIATE) != 0 {
+                        warn!(
+                            "pcap_set_immediate_mode failed for device {}: {}; continuing without immediate mode",
+                            device_name,
+                            pcap_error(get_err, handle)
+                        );
+                    }
                 }
                 if set_buffer_size(handle, NPCAP_BUFFER_SIZE) != 0 {
                     return Err(format!(
                         "pcap_set_buffer_size failed: {}",
-                        pcap_error(*get_err, handle)
+                        pcap_error(get_err, handle)
                     ));
                 }
 
@@ -273,26 +265,33 @@ impl NpcapCapture {
                     return Err(format!(
                         "pcap_activate failed ({}): {}",
                         activate_result,
-                        pcap_error(*get_err, handle)
+                        pcap_error(get_err, handle)
                     ));
                 }
                 if activate_result > 0 {
-                    log::warn!(
+                    warn!(
                         "pcap_activate warning ({}) for device {}: {}",
                         activate_result,
                         device_name,
-                        pcap_error(*get_err, handle)
+                        pcap_error(get_err, handle)
                     );
                 }
 
-                set_bpf_filter(
-                    handle,
-                    *compile,
-                    *set_filter,
-                    *free_code,
-                    *get_err,
-                    NPCAP_BPF_FILTER,
-                )?;
+                if let Some((compile, set_filter, free_code)) = bpf_filter_fns {
+                    if let Err(err) = set_bpf_filter(
+                        handle,
+                        compile,
+                        set_filter,
+                        free_code,
+                        get_err,
+                        NPCAP_BPF_FILTER,
+                    ) {
+                        warn!(
+                            "Npcap BPF filter failed for device {}: {}; continuing without kernel filter",
+                            device_name, err
+                        );
+                    }
+                }
 
                 Ok(())
             };
@@ -401,6 +400,15 @@ impl NpcapCapture {
             other => Err(format!("pcap_dispatch unknown return: {}", other)),
         }
     }
+}
+
+fn load_symbol<T: Copy>(lib: &Library, name: &'static [u8]) -> Result<T, String> {
+    let display_name = String::from_utf8_lossy(name)
+        .trim_end_matches('\0')
+        .to_string();
+    unsafe { lib.get::<T>(name) }
+        .map(|symbol| *symbol)
+        .map_err(|e| format!("GetProcAddress failed for {}: {}", display_name, e))
 }
 
 unsafe fn pcap_error(get_err: PcapGetErr, handle: *mut PcapT) -> String {
