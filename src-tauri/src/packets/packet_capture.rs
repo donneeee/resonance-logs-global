@@ -20,7 +20,9 @@ use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
 #[cfg(debug_assertions)]
 use std::hash::{Hash, Hasher};
-use std::sync::atomic::{AtomicUsize, Ordering};
+use std::sync::atomic::AtomicUsize;
+#[cfg(debug_assertions)]
+use std::sync::atomic::Ordering;
 use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
 use tokio::sync::watch;
@@ -126,11 +128,15 @@ impl NonSceneStreamState {
 }
 
 const NON_SCENE_STREAM_LIMIT: usize = 32;
+#[cfg(debug_assertions)]
 const WORLD_NTF_SERVICE_ID: u64 = 0x0000000063335342;
 const CHIT_CHAT_NTF_SERVICE_ID: u64 = 164931432;
+#[cfg(debug_assertions)]
 const GRPC_TEAM_NTF_SERVICE_ID: u64 = 0x00000000399fca69;
 const NOTIFY_NEWEST_CHIT_CHAT_MSGS_METHOD_ID: u32 = 0x1;
+#[cfg(debug_assertions)]
 const SYNC_CONTAINER_DIRTY_DATA_METHOD_ID: u32 = 0x16;
+#[cfg(debug_assertions)]
 const ITEM_CANDIDATE_METHOD_ID: u32 = 0x39;
 
 #[cfg(debug_assertions)]
@@ -148,6 +154,7 @@ fn should_emit_diagnostic_fragment_count(count: usize) -> bool {
     matches!(count, 1 | 2 | 3 | 5 | 10 | 25 | 50 | 100)
 }
 
+#[cfg(debug_assertions)]
 fn should_probe_candidate_payload(service_id: u64, method_id: u32) -> bool {
     service_id == WORLD_NTF_SERVICE_ID
         && matches!(
@@ -523,6 +530,7 @@ fn hex_preview(bytes: &[u8], limit: usize) -> String {
     out
 }
 
+#[cfg(debug_assertions)]
 fn service_name_for_census(service_id: u64) -> &'static str {
     match service_id {
         WORLD_NTF_SERVICE_ID => "WorldNtf",
@@ -532,6 +540,7 @@ fn service_name_for_census(service_id: u64) -> &'static str {
     }
 }
 
+#[cfg(debug_assertions)]
 fn method_name_for_census(service_id: u64, method_id: u32) -> Option<String> {
     if service_id == WORLD_NTF_SERVICE_ID {
         return Pkt::try_from(method_id)
@@ -894,7 +903,7 @@ fn process_non_scene_chat_packet(
     queue_depth: &AtomicUsize,
     dropped_total: &AtomicUsize,
     #[cfg(debug_assertions)] census_runtime: &mut CaptureCensusRuntime,
-    known_server: Option<Server>,
+    _known_server: Option<Server>,
 ) {
     if !streams.contains_key(endpoint) {
         if streams.len() >= NON_SCENE_STREAM_LIMIT {
@@ -989,7 +998,7 @@ fn process_non_scene_chat_packet(
             collect_capture_census_entries_from_frame(
                 &packet,
                 endpoint,
-                known_server,
+                _known_server,
                 census_runtime,
                 &mut entries,
             );
