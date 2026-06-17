@@ -1426,6 +1426,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOthersSeasonStrength: boolean;
   showOceanWeaponBadge: boolean;
   showPlayerImagineBadges: boolean;
+  alwaysShowYourDpsRow: boolean;
   oceanWeaponBadgeScale: number;
   playerImagineBadgeScale: number;
   relativeToTopDPSPlayer: boolean;
@@ -1462,6 +1463,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOthersSeasonStrength: false,
   showOceanWeaponBadge: true,
   showPlayerImagineBadges: true,
+  alwaysShowYourDpsRow: false,
   oceanWeaponBadgeScale: 100,
   playerImagineBadgeScale: 100,
   relativeToTopDPSPlayer: true,

@@ -74,6 +74,8 @@
   "autoHideOverlaysWithLiveWindowDescription": "Saat Sembunyikan otomatis jendela live aktif, overlay game atau monster yang sedang terlihat ikut disembunyikan bersama meter live, lalu hanya overlay yang sebelumnya terlihat yang dipulihkan.",
   "autoHideLiveWindowDelaySeconds": "Jeda sembunyi otomatis",
   "autoHideLiveWindowDelaySecondsDescription": "Jumlah detik tanpa damage baru sebelum meter live disembunyikan. Atur ke 0 untuk langsung menyembunyikan.",
+  "alwaysShowYourDpsRow": "Always show your DPS row",
+  "alwaysShowYourDpsRowDescription": "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.",
   "secondsUnit": "d",
   "trainingDummyTimerLimitEnabled": "Timer Target Dummy",
   "trainingDummyTimerLimitEnabledDescription": "Gunakan timer segmen target dummy tetap. Timer live menghitung mundur dan segmen selesai saat timer mencapai nol.",

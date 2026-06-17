@@ -442,6 +442,17 @@
           unit={` ${t("dynamicLiveWindow.playersUnit", "players")}`}
         />
       </div>
+
+      <div class="space-y-2 pt-3 border-t border-border/30">
+        <h3 class="text-sm font-semibold text-foreground">
+          {t("liveWindowBehavior.playerRows", "Player Rows")}
+        </h3>
+        <SettingsSwitch
+          bind:checked={SETTINGS.live.general.state.alwaysShowYourDpsRow}
+          label={liveT("alwaysShowYourDpsRow", "Always show your DPS row")}
+          description={liveT("alwaysShowYourDpsRowDescription", "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.")}
+        />
+      </div>
     </div>
   {/if}
 </div>

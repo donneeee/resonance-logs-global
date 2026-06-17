@@ -44,6 +44,8 @@
   "shortenDpsDescription": "Display DPS as 5k, 50k, etc.",
   "shortenTps": "Abbreviate TPS Values",
   "shortenTpsDescription": "Display TPS as 5k, 50k, etc.",
+  "alwaysShowYourDpsRow": "Always show your DPS row",
+  "alwaysShowYourDpsRowDescription": "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.",
   "secondsUnit": "s",
   "showHeaderTargetDummyButton": "Show Header Target Dummy Button",
   "showHeaderTargetDummyButtonDescription": "Show the Target Dummy Mode toggle and status in the live window header.",

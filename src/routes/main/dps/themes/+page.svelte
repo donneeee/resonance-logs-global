@@ -664,7 +664,7 @@
                 <div class="mt-2 space-y-2">
                   <SettingsFilePicker
                     label={t("themes.general.selectImage", "选择图片")}
-                    description={t("themes.general.selectImageDescription", "选择图片文件（PNG/JPG/WebP）")}
+                    description={t("themes.general.selectImageDescription", "选择图片文件（PNG/JPG/WebP/GIF）")}
                     accept="image/*"
                     value={SETTINGS.accessibility.state.backgroundImage}
                     displayName={SETTINGS.accessibility.state.backgroundImageName}

@@ -74,6 +74,8 @@
   "autoHideOverlaysWithLiveWindowDescription": "Cuando Ocultar automáticamente la ventana en vivo está activado, oculta cualquier overlay de juego o monstruos visible junto al medidor en vivo y restaura solo los overlays que estaban visibles antes.",
   "autoHideLiveWindowDelaySeconds": "Retraso de ocultación automática",
   "autoHideLiveWindowDelaySecondsDescription": "Segundos que se esperan sin daño nuevo antes de ocultar el medidor en vivo. Usa 0 para ocultarlo inmediatamente.",
+  "alwaysShowYourDpsRow": "Always show your DPS row",
+  "alwaysShowYourDpsRowDescription": "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.",
   "secondsUnit": "s",
   "trainingDummyTimerLimitEnabled": "Temporizador de muneco",
   "trainingDummyTimerLimitEnabledDescription": "Usa un temporizador fijo para el segmento del muneco de entrenamiento. El temporizador en vivo cuenta hacia atras y el segmento termina cuando llega a cero.",

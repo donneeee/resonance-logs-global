@@ -74,6 +74,8 @@
   "autoHideOverlaysWithLiveWindowDescription": "启用“自动隐藏实时窗口”后，实时计量表隐藏时会一起隐藏当前可见的游戏/怪物悬浮窗，并只恢复自动隐藏前原本可见的悬浮窗。",
   "autoHideLiveWindowDelaySeconds": "自动隐藏延迟",
   "autoHideLiveWindowDelaySecondsDescription": "没有检测到新伤害后，等待多少秒再隐藏实时计量表。设为 0 可立即隐藏。",
+  "alwaysShowYourDpsRow": "Always show your DPS row",
+  "alwaysShowYourDpsRowDescription": "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.",
   "secondsUnit": "秒",
   "trainingDummyTimerLimitEnabled": "打桩计时器",
   "trainingDummyTimerLimitEnabledDescription": "使用固定的打桩分段计时。实时计时器会倒计时，归零时结束本段。",

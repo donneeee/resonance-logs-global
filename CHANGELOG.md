@@ -46,7 +46,7 @@
 - Expanded the dev-only remote equipment probe to decode raw team/social equipment item rows directly, so future Event Logger exports can show whether remote ocean weapons carry hidden level or breakthrough fields beyond slot/config ID.
 - Prevented saved-history player UID hover text from stacking on top of battle-imagine and ocean-weapon badge tooltips.
 - Changed custom background image handling to copy selected files into Local AppData and store only the imported file path/display name in settings, while keeping legacy data-URL backgrounds readable.
-- Fixed path-based custom background images not rendering after selection by loading imported AppData images through a runtime-only image URL while keeping settings JSON path-only.
+- Fixed path-based custom background images, including GIF backgrounds, not rendering after selection by loading imported AppData images through a runtime-only image URL while keeping settings JSON path-only.
 - Added supported-locale strings for ocean weapon levels, saved-history graph mode buttons, graph death markers, and graph bucket/window settings.
 - Added supported-locale strings for the Target Dummy timer toggle, duration slider, and countdown tooltip.
 - Removed the hardcoded CN live-reset toast fallback so missing locale data falls back to English instead of untranslated CN text.
@@ -55,6 +55,7 @@
 - Replaced grouped buff Food/Alchemy UUID clutter with category quick-listen controls so grouped monitor setup matches the cleaner individual-mode category flow.
 - Added user-editable label aliases for live/history meter columns and live header Total Damage / Total DPS labels.
 - Added live header suffix-size and "No Boss" text color controls, and made history summary field visibility, aliases, and font-size settings target the summary renderer fields that actually display.
+- Added an optional "Always show your DPS row" live behavior setting that pins your local DPS row under the header only when the normal row is not fully visible, showing your true rank while hiding battle-imagine badges and keeping the ocean weapon badge.
 - Redesigned saved-history summary panels for team and individual breakdowns with compact grouped sections, tab-aware Damage/Healing/Tanked fields, and colored metric labels.
 - Added saved-history Skill Details scene metadata under the selected player header, with wrapping long text and a responsive layout fix for narrowed windows.
 - Added horizontal graph guide lines aligned to generated left-axis values so saved-history graph totals are easier to read.

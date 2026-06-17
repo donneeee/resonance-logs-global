@@ -25,7 +25,9 @@ export function measurePlayerTableMaxHeight(
     : 0;
   const rows = Array.from(container.querySelectorAll("tbody tr")).filter(
     (row): row is HTMLTableRowElement =>
-      row instanceof HTMLTableRowElement && row.getClientRects().length > 0,
+      row instanceof HTMLTableRowElement &&
+      row.dataset["pinnedSelfRow"] !== "true" &&
+      row.getClientRects().length > 0,
   );
   const sampledRows = rows.slice(0, Math.min(rows.length, maxRows));
   const measuredRowHeight =

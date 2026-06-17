@@ -19,6 +19,22 @@ impl Server {
             dst_port,
         }
     }
+
+    pub fn source_addr(self) -> [u8; 4] {
+        self.src_addr
+    }
+
+    pub fn source_port(self) -> u16 {
+        self.src_port
+    }
+
+    pub fn destination_addr(self) -> [u8; 4] {
+        self.dst_addr
+    }
+
+    pub fn destination_port(self) -> u16 {
+        self.dst_port
+    }
 }
 
 impl fmt::Display for Server {

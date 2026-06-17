@@ -74,6 +74,8 @@
   "autoHideOverlaysWithLiveWindowDescription": "เมื่อเปิดซ่อนหน้าต่างสดอัตโนมัติ โอเวอร์เลย์เกมหรือมอนสเตอร์ที่มองเห็นอยู่จะถูกซ่อนไปพร้อมมิเตอร์สด และจะคืนเฉพาะโอเวอร์เลย์ที่เคยมองเห็นก่อนถูกซ่อนอัตโนมัติ",
   "autoHideLiveWindowDelaySeconds": "ดีเลย์ซ่อนอัตโนมัติ",
   "autoHideLiveWindowDelaySecondsDescription": "จำนวนวินาทีที่รอหลังไม่พบดาเมจใหม่ก่อนซ่อนมิเตอร์สด ตั้งเป็น 0 เพื่อซ่อนทันที",
+  "alwaysShowYourDpsRow": "Always show your DPS row",
+  "alwaysShowYourDpsRowDescription": "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.",
   "secondsUnit": "วิ",
   "trainingDummyTimerLimitEnabled": "ตัวจับเวลา Target Dummy",
   "trainingDummyTimerLimitEnabledDescription": "ใช้ตัวจับเวลาช่วง Target Dummy แบบคงที่ ตัวจับเวลาสดจะนับถอยหลังและจบช่วงเมื่อถึงศูนย์",

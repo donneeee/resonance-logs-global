@@ -74,6 +74,8 @@
   "autoHideOverlaysWithLiveWindowDescription": "「ライブウィンドウを自動非表示」が有効な場合、ライブメーターと一緒に表示中のゲーム/モンスターオーバーレイを非表示にし、自動非表示前に表示されていたものだけを復元します。",
   "autoHideLiveWindowDelaySeconds": "自動非表示の遅延",
   "autoHideLiveWindowDelaySecondsDescription": "新しいダメージが検出されなくなってから、ライブメーターを非表示にするまでの秒数。0 にすると即時に非表示にします。",
+  "alwaysShowYourDpsRow": "Always show your DPS row",
+  "alwaysShowYourDpsRowDescription": "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.",
   "secondsUnit": "秒",
   "trainingDummyTimerLimitEnabled": "ターゲットダミータイマー",
   "trainingDummyTimerLimitEnabledDescription": "固定のターゲットダミー計測タイマーを使います。ライブタイマーは残り時間を表示し、0 になるとセグメントが終了します。",

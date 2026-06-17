@@ -1,5 +1,6 @@
 use crate::live::chat_feed;
 use crate::live::event_logger::{EventLoggerEntry, now_ms};
+use crate::packets::game_connections::{GameConnectionFilter, Verdict};
 use crate::packets::npcap::NpcapCapture;
 use crate::packets::opcodes::{FragmentType, Pkt};
 use crate::packets::packet_process::process_packet;
@@ -1163,6 +1164,7 @@ fn read_packets(
     let mut known_servers: HashSet<Server> = HashSet::new();
     let mut scene_streams: HashMap<Server, NonSceneStreamState> = HashMap::new();
     let mut non_scene_streams: HashMap<String, NonSceneStreamState> = HashMap::new();
+    let mut game_connections = GameConnectionFilter::new();
     #[cfg(debug_assertions)]
     let mut capture_census_runtime = CaptureCensusRuntime::default();
 
@@ -1208,7 +1210,16 @@ fn read_packets(
         //     tcp_packet.payload(),
         // );
 
-        if known_servers.contains(&curr_server) {
+        let session_known = known_servers.contains(&curr_server);
+        let process_verdict = game_connections.classify(curr_server);
+        if !session_known
+            && !matches!(process_verdict, Verdict::Game)
+            && game_connections.has_known_game_endpoint()
+        {
+            continue;
+        }
+
+        if session_known {
             let stream = scene_streams
                 .entry(curr_server)
                 .or_insert_with(NonSceneStreamState::new);

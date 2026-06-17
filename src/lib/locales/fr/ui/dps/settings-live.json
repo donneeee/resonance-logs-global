@@ -74,6 +74,8 @@
   "autoHideOverlaysWithLiveWindowDescription": "Quand le masquage automatique de la fenêtre live est activé, masque les overlays de jeu ou de monstres visibles avec le compteur live, puis restaure uniquement ceux qui étaient visibles avant le masquage.",
   "autoHideLiveWindowDelaySeconds": "Délai de masquage automatique",
   "autoHideLiveWindowDelaySecondsDescription": "Nombre de secondes à attendre sans nouveau dégât avant de masquer le compteur live. Mettez 0 pour masquer immédiatement.",
+  "alwaysShowYourDpsRow": "Always show your DPS row",
+  "alwaysShowYourDpsRowDescription": "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.",
   "secondsUnit": "s",
   "trainingDummyTimerLimitEnabled": "Chronometre du mannequin",
   "trainingDummyTimerLimitEnabledDescription": "Utilise un chronometre fixe pour le segment du mannequin d'entrainement. Le minuteur en direct decompte et le segment se termine lorsqu'il atteint zero.",
