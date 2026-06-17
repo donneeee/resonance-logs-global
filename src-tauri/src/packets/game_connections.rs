@@ -112,6 +112,10 @@ impl GameConnectionFilter {
         !self.game_endpoints.is_empty()
     }
 
+    pub fn forget_flow(&mut self, server: Server) {
+        self.non_game_flows.remove(&FlowKey::from_server(server));
+    }
+
     fn contains_positive(&self, server: Server) -> bool {
         self.contains_endpoint(server.source_addr(), server.source_port())
             || self.contains_endpoint(server.destination_addr(), server.destination_port())

@@ -3,7 +3,7 @@ use crate::live::event_logger::{EventLoggerEntry, now_ms};
 use crate::packets::game_connections::{GameConnectionFilter, Verdict};
 use crate::packets::npcap::NpcapCapture;
 use crate::packets::opcodes::{FragmentType, Pkt};
-use crate::packets::packet_process::process_packet;
+use crate::packets::packet_process::{process_packet, try_send_capture_event};
 use crate::packets::parser::ParsedNotifyFragment;
 use crate::packets::reassembler::Reassembler;
 use crate::packets::utils::{Server, TCPReassembler, TcpInsertResult, tcp_sequence_before};
@@ -22,6 +22,7 @@ use std::collections::{HashMap, HashSet};
 use std::hash::{Hash, Hasher};
 use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, OnceLock};
+use std::time::{Duration, Instant};
 use tokio::sync::watch;
 
 // Global sender for restart signal
@@ -85,6 +86,8 @@ fn capture_payload_probes_enabled() -> bool {
 }
 
 const MAX_BACKTRACK_BYTES: u32 = 2 * 1024 * 1024; // 2 MiB safety window before considering a reset
+const SESSION_IDLE_TIMEOUT: Duration = Duration::from_secs(90);
+const CAPTURE_CHANNEL_CAP: usize = 4096;
 
 // Common libpcap datalink constants we care about.
 const DLT_NULL: i32 = 0;
@@ -109,6 +112,7 @@ pub enum CaptureEvent {
 struct NonSceneStreamState {
     tcp_reassembler: TCPReassembler,
     reassembler: Reassembler,
+    last_seen: Instant,
 }
 
 impl NonSceneStreamState {
@@ -116,6 +120,7 @@ impl NonSceneStreamState {
         Self {
             tcp_reassembler: TCPReassembler::new(),
             reassembler: Reassembler::new(),
+            last_seen: Instant::now(),
         }
     }
 }
@@ -885,8 +890,9 @@ fn process_non_scene_chat_packet(
     tcp_packet: &etherparse::TcpSlice<'_>,
     payload: &[u8],
     streams: &mut HashMap<String, NonSceneStreamState>,
-    packet_sender: &tokio::sync::mpsc::UnboundedSender<CaptureEvent>,
+    packet_sender: &tokio::sync::mpsc::Sender<CaptureEvent>,
     queue_depth: &AtomicUsize,
+    dropped_total: &AtomicUsize,
     #[cfg(debug_assertions)] census_runtime: &mut CaptureCensusRuntime,
     known_server: Option<Server>,
 ) {
@@ -898,9 +904,12 @@ fn process_non_scene_chat_packet(
                     .stream_limit_logged
                     .insert(endpoint.to_string())
             {
-                let _ = packet_sender.send(CaptureEvent::AuxiliaryEntries(vec![
-                    enqueue_capture_stream_limit(endpoint),
-                ]));
+                try_send_capture_event(
+                    packet_sender,
+                    queue_depth,
+                    dropped_total,
+                    CaptureEvent::AuxiliaryEntries(vec![enqueue_capture_stream_limit(endpoint)]),
+                );
             }
             return;
         }
@@ -910,6 +919,7 @@ fn process_non_scene_chat_packet(
     let Some(state) = streams.get_mut(endpoint) else {
         return;
     };
+    state.last_seen = Instant::now();
 
     let sequence_number = tcp_packet.sequence_number();
     let mut defer_reset = false;
@@ -986,11 +996,12 @@ fn process_non_scene_chat_packet(
         }
         collect_chat_logger_entries_from_frame(&packet, ts_ms, &mut entries);
         if !entries.is_empty() {
-            if let Err(err) = packet_sender.send(CaptureEvent::AuxiliaryEntries(entries)) {
-                debug!("Failed to send non-scene chat entries: {err}");
-            } else {
-                queue_depth.fetch_add(1, Ordering::Relaxed);
-            }
+            try_send_capture_event(
+                packet_sender,
+                queue_depth,
+                dropped_total,
+                CaptureEvent::AuxiliaryEntries(entries),
+            );
         }
     }
 
@@ -1022,7 +1033,7 @@ impl NpcapSource {
         }
     }
 
-    fn normalize_packet(&self, data: Vec<u8>) -> Option<Vec<u8>> {
+    fn normalize_packet_slice<'a>(&self, data: &'a [u8]) -> Option<&'a [u8]> {
         match self.capture.datalink() {
             DLT_EN10MB | DLT_RAW => Some(data),
             DLT_NULL | DLT_LOOP => {
@@ -1031,8 +1042,8 @@ impl NpcapSource {
                 }
                 let family = u32::from_ne_bytes([data[0], data[1], data[2], data[3]]);
                 match family {
-                    2 => Some(data[4..].to_vec()), // AF_INET on Windows
-                    23 | 24 => None,               // IPv6 families, ignored for now
+                    2 => Some(&data[4..]), // AF_INET on Windows
+                    23 | 24 => None,       // IPv6 families, ignored for now
                     other => {
                         log_unsupported_loopback_family(other, self.capture.datalink());
                         None
@@ -1046,15 +1057,28 @@ impl NpcapSource {
         }
     }
 
+    #[allow(dead_code)]
     fn next_packet(&mut self) -> Result<Option<Vec<u8>>, String> {
         match self.capture.next_packet()? {
-            Some(data) => Ok(self.normalize_packet(data)),
+            Some(data) => Ok(self
+                .normalize_packet_slice(&data)
+                .map(|slice| slice.to_vec())),
             None => Ok(None),
         }
     }
 
     fn packet_format(&self) -> PacketFormat {
         self.packet_format_for_datalink()
+    }
+
+    fn pump<F: FnMut(PacketFormat, &[u8])>(&mut self, on_packet: &mut F) -> Result<i32, String> {
+        let packet_format = self.packet_format();
+        self.capture.dispatch_batch(-1, &mut |raw_packet: &[u8]| {
+            let Some(packet) = self.normalize_packet_slice(raw_packet) else {
+                return;
+            };
+            on_packet(packet_format, packet);
+        })
     }
 }
 
@@ -1080,13 +1104,13 @@ fn log_unsupported_datalink(datalink: i32) {
 
 pub fn start_capture(
     npcap_device: String,
-) -> (
-    tokio::sync::mpsc::UnboundedReceiver<CaptureEvent>,
-    Arc<AtomicUsize>,
-) {
-    let (packet_sender, packet_receiver) = tokio::sync::mpsc::unbounded_channel::<CaptureEvent>();
+) -> (tokio::sync::mpsc::Receiver<CaptureEvent>, Arc<AtomicUsize>) {
+    let (packet_sender, packet_receiver) =
+        tokio::sync::mpsc::channel::<CaptureEvent>(CAPTURE_CHANNEL_CAP);
     let queue_depth = Arc::new(AtomicUsize::new(0));
     let capture_queue_depth = Arc::clone(&queue_depth);
+    let dropped_total = Arc::new(AtomicUsize::new(0));
+    let capture_dropped_total = Arc::clone(&dropped_total);
     let (restart_sender, mut restart_receiver) = watch::channel(false);
     RESTART_SENDER.set(restart_sender.clone()).ok();
 
@@ -1110,6 +1134,7 @@ pub fn start_capture(
             read_packets(
                 &packet_sender,
                 &capture_queue_depth,
+                &capture_dropped_total,
                 &mut restart_receiver,
                 &npcap_device,
             );
@@ -1135,8 +1160,9 @@ pub fn start_capture(
 
 #[allow(clippy::too_many_lines)]
 fn read_packets(
-    packet_sender: &tokio::sync::mpsc::UnboundedSender<CaptureEvent>,
+    packet_sender: &tokio::sync::mpsc::Sender<CaptureEvent>,
     queue_depth: &AtomicUsize,
+    dropped_total: &AtomicUsize,
     restart_receiver: &mut watch::Receiver<bool>,
     npcap_device: &str,
 ) {
@@ -1165,122 +1191,129 @@ fn read_packets(
     let mut scene_streams: HashMap<Server, NonSceneStreamState> = HashMap::new();
     let mut non_scene_streams: HashMap<String, NonSceneStreamState> = HashMap::new();
     let mut game_connections = GameConnectionFilter::new();
+    let mut cleanup_last_run = Instant::now();
     #[cfg(debug_assertions)]
     let mut capture_census_runtime = CaptureCensusRuntime::default();
 
     loop {
-        let packet_data = match source.next_packet() {
-            Ok(Some(data)) => data,
-            Ok(None) => continue, // Timeout or ignored packet
-            Err(e) => {
-                error!(target: "app::capture", "capture_error err={}", e);
-                break; // Exit loop on error? Or retry?
-            }
-        };
-
-        // info!("{}", line!());
-        let packet_format = source.packet_format();
-        let network_slices = match packet_format {
-            PacketFormat::RawIp => SlicedPacket::from_ip(&packet_data),
-            PacketFormat::Ethernet => SlicedPacket::from_ethernet(&packet_data),
-            PacketFormat::Unsupported => continue,
-        };
-        let Ok(network_slices) = network_slices else {
-            continue; // if it's not ip, go next packet
-        };
-        // info!("{}", line!());
-        let Some(Ipv4(ip_packet)) = network_slices.net else {
-            continue;
-        };
-        // info!("{}", line!());
-        let Some(Tcp(tcp_packet)) = network_slices.transport else {
-            continue;
-        };
-        // info!("{}", line!());
-        let curr_server = Server::new(
-            ip_packet.header().source(),
-            tcp_packet.to_header().source_port,
-            ip_packet.header().destination(),
-            tcp_packet.to_header().destination_port,
-        );
-        // trace!(
-        //     "{} ({}) => {:?}",
-        //     curr_server,
-        //     tcp_packet.payload().len(),
-        //     tcp_packet.payload(),
-        // );
-
-        let session_known = known_servers.contains(&curr_server);
-        let process_verdict = game_connections.classify(curr_server);
-        if !session_known
-            && !matches!(process_verdict, Verdict::Game)
-            && game_connections.has_known_game_endpoint()
-        {
-            continue;
-        }
-
-        if session_known {
-            let stream = scene_streams
-                .entry(curr_server)
-                .or_insert_with(NonSceneStreamState::new);
-            process_scene_stream_packet(
-                curr_server,
-                &tcp_packet,
-                stream,
-                packet_sender,
-                queue_depth,
-                #[cfg(debug_assertions)]
-                &mut capture_census_runtime,
+        let mut needs_cleanup = false;
+        let dispatch_result = source.pump(&mut |packet_format, packet_data| {
+            let network_slices = match packet_format {
+                PacketFormat::RawIp => SlicedPacket::from_ip(packet_data),
+                PacketFormat::Ethernet => SlicedPacket::from_ethernet(packet_data),
+                PacketFormat::Unsupported => return,
+            };
+            let Ok(network_slices) = network_slices else {
+                return;
+            };
+            let Some(Ipv4(ip_packet)) = network_slices.net else {
+                return;
+            };
+            let Some(Tcp(tcp_packet)) = network_slices.transport else {
+                return;
+            };
+            let curr_server = Server::new(
+                ip_packet.header().source(),
+                tcp_packet.to_header().source_port,
+                ip_packet.header().destination(),
+                tcp_packet.to_header().destination_port,
             );
-            if *restart_receiver.borrow() {
-                break;
+
+            let session_known = known_servers.contains(&curr_server);
+            let process_verdict = game_connections.classify(curr_server);
+            if !session_known
+                && !matches!(process_verdict, Verdict::Game)
+                && game_connections.has_known_game_endpoint()
+            {
+                return;
             }
-            continue;
-        }
 
-        let tcp_payload = tcp_packet.payload();
-        // 1. Try to identify game server via small packets.
-        if tcp_payload.len() >= 10 && tcp_payload[4] == 0 {
-            const FRAG_LENGTH_SIZE: usize = 4;
-            const SIGNATURE: [u8; 6] = [0x00, 0x63, 0x33, 0x53, 0x42, 0x00];
-            const MAX_FRAG_ITERATIONS: usize = 2000; // Circuit breaker
-
-            let mut i = 0usize;
-            let mut offset = 10usize;
-            while tcp_payload.len().saturating_sub(offset) >= FRAG_LENGTH_SIZE {
-                i += 1;
-                if i >= MAX_FRAG_ITERATIONS {
-                    error!(
-                        "TCP fragment processing stuck after {i} iterations - forcing recovery. \
-                        remaining={}, line={}",
-                        tcp_payload.len().saturating_sub(offset),
-                        line!()
-                    );
-                    break;
+            if session_known {
+                let stream = scene_streams
+                    .entry(curr_server)
+                    .or_insert_with(NonSceneStreamState::new);
+                stream.last_seen = Instant::now();
+                process_scene_stream_packet(
+                    curr_server,
+                    &tcp_packet,
+                    stream,
+                    packet_sender,
+                    queue_depth,
+                    dropped_total,
+                    &mut game_connections,
+                    #[cfg(debug_assertions)]
+                    &mut capture_census_runtime,
+                );
+                if cleanup_last_run.elapsed() >= Duration::from_secs(30) {
+                    needs_cleanup = true;
                 }
-                if i % 1000 == 0 {
-                    warn!(
-                        "High iteration count in fragment processing: iteration={i}, remaining={}, line={}",
-                        tcp_payload.len().saturating_sub(offset),
-                        line!()
-                    );
+                return;
+            }
+
+            let tcp_payload = tcp_packet.payload();
+            // 1. Try to identify game server via small packets.
+            if tcp_payload.len() >= 10 && tcp_payload[4] == 0 {
+                const FRAG_LENGTH_SIZE: usize = 4;
+                const SIGNATURE: [u8; 6] = [0x00, 0x63, 0x33, 0x53, 0x42, 0x00];
+                const MAX_FRAG_ITERATIONS: usize = 2000; // Circuit breaker
+
+                let mut i = 0usize;
+                let mut offset = 10usize;
+                while tcp_payload.len().saturating_sub(offset) >= FRAG_LENGTH_SIZE {
+                    i += 1;
+                    if i >= MAX_FRAG_ITERATIONS {
+                        error!(
+                            "TCP fragment processing stuck after {i} iterations - forcing recovery. \
+                            remaining={}, line={}",
+                            tcp_payload.len().saturating_sub(offset),
+                            line!()
+                        );
+                        break;
+                    }
+                    if i % 1000 == 0 {
+                        warn!(
+                            "High iteration count in fragment processing: iteration={i}, remaining={}, line={}",
+                            tcp_payload.len().saturating_sub(offset),
+                            line!()
+                        );
+                    }
+
+                    let len_bytes = &tcp_payload[offset..offset + FRAG_LENGTH_SIZE];
+                    let tcp_frag_payload_len =
+                        u32::from_be_bytes([len_bytes[0], len_bytes[1], len_bytes[2], len_bytes[3]])
+                            .saturating_sub(FRAG_LENGTH_SIZE as u32) as usize;
+                    offset += FRAG_LENGTH_SIZE;
+
+                    if tcp_payload.len().saturating_sub(offset) < tcp_frag_payload_len {
+                        break;
+                    }
+
+                    let tcp_frag = &tcp_payload[offset..offset + tcp_frag_payload_len];
+                    offset += tcp_frag_payload_len;
+
+                    if tcp_frag.len() >= 5 + SIGNATURE.len()
+                        && tcp_frag[5..5 + SIGNATURE.len()] == SIGNATURE
+                    {
+                        register_scene_stream(
+                            &mut known_servers,
+                            &mut scene_streams,
+                            curr_server,
+                            &tcp_packet,
+                            tcp_payload.len(),
+                            "address-change-signature",
+                        );
+                        break;
+                    }
                 }
-
-                let len_bytes = &tcp_payload[offset..offset + FRAG_LENGTH_SIZE];
-                let tcp_frag_payload_len =
-                    u32::from_be_bytes([len_bytes[0], len_bytes[1], len_bytes[2], len_bytes[3]])
-                        .saturating_sub(FRAG_LENGTH_SIZE as u32) as usize;
-                offset += FRAG_LENGTH_SIZE;
-
-                if tcp_payload.len().saturating_sub(offset) < tcp_frag_payload_len {
-                    break;
-                }
-
-                let tcp_frag = &tcp_payload[offset..offset + tcp_frag_payload_len];
-                offset += tcp_frag_payload_len;
-
-                if tcp_frag.len() >= 5 + SIGNATURE.len()
-                    && tcp_frag[5..5 + SIGNATURE.len()] == SIGNATURE
+            }
+            // 2. Payload length is 98 = Login packets?
+            if tcp_payload.len() == 98 {
+                const SIGNATURE_1: [u8; 10] =
+                    [0x00, 0x00, 0x00, 0x62, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01];
+                const SIGNATURE_2: [u8; 6] = [0x00, 0x00, 0x00, 0x00, 0x0a, 0x4e];
+                if tcp_payload.len() >= 20
+                    && tcp_payload[0..10] == SIGNATURE_1
+                    && tcp_payload[14..20] == SIGNATURE_2
                 {
                     register_scene_stream(
                         &mut known_servers,
@@ -1288,44 +1321,67 @@ fn read_packets(
                         curr_server,
                         &tcp_packet,
                         tcp_payload.len(),
-                        "address-change-signature",
+                        "login-return-signature",
                     );
-                    break;
                 }
             }
-        }
-        // 2. Payload length is 98 = Login packets?
-        if tcp_payload.len() == 98 {
-            const SIGNATURE_1: [u8; 10] =
-                [0x00, 0x00, 0x00, 0x62, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01];
-            const SIGNATURE_2: [u8; 6] = [0x00, 0x00, 0x00, 0x00, 0x0a, 0x4e];
-            if tcp_payload.len() >= 20
-                && tcp_payload[0..10] == SIGNATURE_1
-                && tcp_payload[14..20] == SIGNATURE_2
-            {
-                register_scene_stream(
-                    &mut known_servers,
-                    &mut scene_streams,
-                    curr_server,
+            if !known_servers.is_empty() {
+                process_non_scene_chat_packet(
+                    &curr_server.to_string(),
                     &tcp_packet,
-                    tcp_payload.len(),
-                    "login-return-signature",
+                    tcp_payload,
+                    &mut non_scene_streams,
+                    packet_sender,
+                    queue_depth,
+                    dropped_total,
+                    #[cfg(debug_assertions)]
+                    &mut capture_census_runtime,
+                    known_servers.iter().next().copied(),
+                );
+            }
+            if cleanup_last_run.elapsed() >= Duration::from_secs(30) {
+                needs_cleanup = true;
+            }
+        });
+
+        match dispatch_result {
+            Ok(0) => {
+                std::thread::sleep(Duration::from_millis(1));
+            }
+            Ok(_) => {}
+            Err(e) => {
+                error!(target: "app::capture", "capture_error err={}", e);
+                break;
+            }
+        }
+
+        if needs_cleanup {
+            cleanup_last_run = Instant::now();
+            let before_scene = scene_streams.len();
+            scene_streams.retain(|server, stream| {
+                let keep = stream.last_seen.elapsed() < SESSION_IDLE_TIMEOUT;
+                if !keep {
+                    known_servers.remove(server);
+                    game_connections.forget_flow(*server);
+                }
+                keep
+            });
+            let removed_scene = before_scene.saturating_sub(scene_streams.len());
+
+            let before_non_scene = non_scene_streams.len();
+            non_scene_streams.retain(|_, stream| stream.last_seen.elapsed() < SESSION_IDLE_TIMEOUT);
+            let removed_non_scene = before_non_scene.saturating_sub(non_scene_streams.len());
+
+            if removed_scene > 0 || removed_non_scene > 0 {
+                info!(
+                    target: "app::capture",
+                    "Removed idle TCP streams scene={} non_scene={}",
+                    removed_scene,
+                    removed_non_scene
                 );
             }
         }
-        if !known_servers.is_empty() {
-            process_non_scene_chat_packet(
-                &curr_server.to_string(),
-                &tcp_packet,
-                tcp_payload,
-                &mut non_scene_streams,
-                packet_sender,
-                queue_depth,
-                #[cfg(debug_assertions)]
-                &mut capture_census_runtime,
-                known_servers.iter().next().copied(),
-            );
-        }
+
         if *restart_receiver.borrow() {
             break;
         }
@@ -1365,8 +1421,10 @@ fn process_scene_stream_packet(
     curr_server: Server,
     tcp_packet: &etherparse::TcpSlice<'_>,
     stream: &mut NonSceneStreamState,
-    packet_sender: &tokio::sync::mpsc::UnboundedSender<CaptureEvent>,
+    packet_sender: &tokio::sync::mpsc::Sender<CaptureEvent>,
     queue_depth: &AtomicUsize,
+    dropped_total: &AtomicUsize,
+    game_connections: &mut GameConnectionFilter,
     #[cfg(debug_assertions)] capture_census_runtime: &mut CaptureCensusRuntime,
 ) {
     let sequence_number = tcp_packet.sequence_number();
@@ -1391,6 +1449,7 @@ fn process_scene_stream_packet(
     let mut defer_reset = false;
     if tcp_packet.fin() || tcp_packet.rst() {
         defer_reset = true;
+        game_connections.forget_flow(curr_server);
     }
 
     if payload_len == 0 {
@@ -1455,14 +1514,15 @@ fn process_scene_stream_packet(
                 &mut entries,
             );
             if !entries.is_empty() {
-                if let Err(err) = packet_sender.send(CaptureEvent::AuxiliaryEntries(entries)) {
-                    debug!("Failed to send capture census entries: {err}");
-                } else {
-                    queue_depth.fetch_add(1, Ordering::Relaxed);
-                }
+                try_send_capture_event(
+                    packet_sender,
+                    queue_depth,
+                    dropped_total,
+                    CaptureEvent::AuxiliaryEntries(entries),
+                );
             }
         }
-        process_packet(&packet, packet_sender, queue_depth);
+        process_packet(&packet, packet_sender, queue_depth, dropped_total);
     }
 
     if defer_reset {

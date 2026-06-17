@@ -65,6 +65,7 @@
 - Added HP/shield area settings for the shared overlay, including toggles for HP, total shield, and shield-detail rows plus bar sizing, spacing, and color controls.
 - Added optional zero-counter hiding for custom panel factor/counter rows so inactive factor counters can stay out of the overlay until they have visible state.
 - Fixed packet capture scene-server detection so multi-stream traffic no longer repeatedly emits synthetic server-change resets that could clear the meter, flood logs, or trigger WebView message quota pressure.
+- Adapted CN 0.1.6 packet-capture optimizations for Global's Npcap path, including immediate-mode/BPF capture setup, batched packet dispatch, bounded capture-event delivery, idle stream cleanup, and game-process flow filtering while preserving Global's scene-proven parser guards.
 - Restored self-only monster/on-hit monitoring for local-owned or unknown-source buff rows while still filtering known other-player sources, fixing Steel Beak and similar non-boss monster monitor rows.
 - Made the Clear Meter on Scene Change setting protect monster, teammate, modifier, and training-dummy runtime monitor state before any scene-change cleanup runs, so disabling it also prevents monitor overlays from being wiped.
 

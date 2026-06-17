@@ -2,13 +2,41 @@ use crate::packets::opcodes::FragmentType;
 use crate::packets::packet_capture::CaptureEvent;
 use crate::packets::parser;
 use bytes::Bytes;
-use log::debug;
+use log::{debug, warn};
 use std::sync::atomic::{AtomicUsize, Ordering};
+
+const DROP_LOG_INTERVAL: usize = 500;
+
+pub fn try_send_capture_event(
+    packet_sender: &tokio::sync::mpsc::Sender<CaptureEvent>,
+    queue_depth: &AtomicUsize,
+    dropped_total: &AtomicUsize,
+    event: CaptureEvent,
+) {
+    match packet_sender.try_send(event) {
+        Ok(()) => {
+            queue_depth.fetch_add(1, Ordering::Relaxed);
+        }
+        Err(tokio::sync::mpsc::error::TrySendError::Full(_)) => {
+            let n = dropped_total.fetch_add(1, Ordering::Relaxed) + 1;
+            if n % DROP_LOG_INTERVAL == 1 {
+                warn!(
+                    target: "app::capture",
+                    "capture channel full, dropped_total={n}"
+                );
+            }
+        }
+        Err(tokio::sync::mpsc::error::TrySendError::Closed(_)) => {
+            debug!("capture channel closed");
+        }
+    }
+}
 
 pub fn process_packet(
     frame: &Bytes,
-    packet_sender: &tokio::sync::mpsc::UnboundedSender<CaptureEvent>,
+    packet_sender: &tokio::sync::mpsc::Sender<CaptureEvent>,
     queue_depth: &AtomicUsize,
+    dropped_total: &AtomicUsize,
 ) {
     let mut offset = 0usize;
     let buf = frame.as_ref();
@@ -57,11 +85,12 @@ pub fn process_packet(
                     is_zstd_compressed,
                     fragment_type,
                 ) {
-                    if let Err(err) = packet_sender.send(CaptureEvent::Notify(notify)) {
-                        debug!("Failed to send packet: {err}");
-                    } else {
-                        queue_depth.fetch_add(1, Ordering::Relaxed);
-                    }
+                    try_send_capture_event(
+                        packet_sender,
+                        queue_depth,
+                        dropped_total,
+                        CaptureEvent::Notify(notify),
+                    );
                 }
             }
             FragmentType::FrameDown => {
@@ -77,7 +106,12 @@ pub fn process_packet(
                     match zstd::decode_all(nested_packet) {
                         Ok(tcp_fragment_decompressed) => {
                             let nested_bytes = Bytes::from(tcp_fragment_decompressed);
-                            process_packet(&nested_bytes, packet_sender, queue_depth);
+                            process_packet(
+                                &nested_bytes,
+                                packet_sender,
+                                queue_depth,
+                                dropped_total,
+                            );
                         }
                         Err(_e) => {
                             debug!("FrameDown: zstd decompression failed");
@@ -85,7 +119,7 @@ pub fn process_packet(
                     }
                 } else {
                     let nested_bytes = frame.slice(nested_start..payload_end);
-                    process_packet(&nested_bytes, packet_sender, queue_depth);
+                    process_packet(&nested_bytes, packet_sender, queue_depth, dropped_total);
                 }
             }
             _ => {}
