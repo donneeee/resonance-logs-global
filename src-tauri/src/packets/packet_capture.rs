@@ -1139,30 +1139,20 @@ pub fn start_capture(
             device = %npcap_device
         );
         let _capture_guard = capture_span.enter();
-        loop {
-            read_packets(
-                &packet_sender,
-                &capture_queue_depth,
-                &capture_dropped_total,
-                &mut restart_receiver,
-                &npcap_device,
-            );
+        read_packets(
+            &packet_sender,
+            &capture_queue_depth,
+            &capture_dropped_total,
+            &mut restart_receiver,
+            &npcap_device,
+        );
 
-            // Check if this was a requested restart or a crash/exit
-            if !*restart_receiver.borrow() {
-                warn!("Packet capture exited unexpectedly. Restarting in 1s...");
-                std::thread::sleep(std::time::Duration::from_secs(1));
-                continue;
-            }
-
-            // Wait for restart signal if it was requested
-            while !*restart_receiver.borrow() {
-                std::thread::sleep(std::time::Duration::from_millis(100));
-            }
-            // Reset signal to false before next loop
+        if *restart_receiver.borrow() {
             let _ = restart_sender.send(false);
+            warn!("Packet capture restart requested; capture thread exiting for bounded restart");
+        } else {
+            warn!("Packet capture exited unexpectedly; capture thread exiting for bounded restart");
         }
-        // info!("oopsies {}", line!());
     });
     (packet_receiver, queue_depth)
 }

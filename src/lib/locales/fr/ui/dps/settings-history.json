@@ -139,5 +139,6 @@
   "summaryField.blockRate.label": "Block%",
   "summaryField.blockRate.description": "Show block rate.",
   "summaryField.blockHits.label": "Blocks",
-  "summaryField.blockHits.description": "Show blocked hit count."
+  "summaryField.blockHits.description": "Show blocked hit count.",
+  "graphSettings": "Param?tres du graphique"
 }

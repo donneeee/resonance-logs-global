@@ -6,6 +6,9 @@
   "networkDeviceDescription": "Pilih adapter jaringan untuk menangkap traffic.",
   "npcapMissing": "Npcap tidak terdeteksi.",
   "npcapMissingSuffix": "Instal Npcap sebelum menggunakan metode ini.",
+  "npcapDll": "Npcap DLL",
+  "npcapDllUnavailable": "Unavailable",
+  "npcapLoadError": "Load error",
   "selectDevice": "Pilih Perangkat Jaringan",
   "title": "Packet Capture"
 }

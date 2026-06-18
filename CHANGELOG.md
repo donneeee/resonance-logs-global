@@ -11,6 +11,9 @@
 - Hardened corrupt settings-store handling so unreadable or binary critical stores are detected, preserved instead of overwritten with defaults, and skipped by runtime monitor snapshot sync until they can be repaired.
 - Fixed custom save-location handling for diagnostics bundles, profile-library files, and Event Logger session files by routing those operations through generated Tauri command bindings with the selected paths.
 - Registered and persisted the Event Logger Events/Snapshots capture toggles in Rust, preventing the profile settings page from calling a missing command and allowing snapshot rows to be filtered separately from event rows.
+- Fixed Npcap startup on systems with mismatched or stale `wpcap.dll` companion DLLs by loading the standard Npcap install path with DLL-load-dir search flags and removing the unqualified `wpcap.dll` fallback that could trigger a Windows entry-point dialog.
+- Added a read-only Npcap diagnostic to Network settings showing the `wpcap.dll` path used for packet capture, plus the loader error when Npcap cannot be opened.
+- Made custom background images more repair/update tolerant by remembering the originally selected file path as a fallback while still preferring the imported Local AppData copy for normal rendering.
 
 ## v1.1.0_beta5 - Global Beta
 
@@ -55,7 +58,8 @@
 - Replaced grouped buff Food/Alchemy UUID clutter with category quick-listen controls so grouped monitor setup matches the cleaner individual-mode category flow.
 - Added user-editable label aliases for live/history meter columns and live header Total Damage / Total DPS labels.
 - Added live header suffix-size and "No Boss" text color controls, and made history summary field visibility, aliases, and font-size settings target the summary renderer fields that actually display.
-- Added an optional "Always show your DPS row" live behavior setting that pins your local DPS row under the header only when the normal row is not fully visible, showing your true rank while hiding battle-imagine badges and keeping the ocean weapon badge.
+- Added an optional "Always show your DPS row" live behavior setting that shows a copied local DPS row only when the normal row is not fully visible, supports bottom-of-list (default), top-of-list, and above-header placement modes, shows a localized rank badge in place of battle-imagine badges, keeps the ocean weapon badge visible, and renders the bottom-pinned row as a solid footer layer for readability.
+- Added a red missing battle-imagine slot marker for players with exactly one battle imagine equipped, using the same badge size/scale settings as equipped imagine badges.
 - Redesigned saved-history summary panels for team and individual breakdowns with compact grouped sections, tab-aware Damage/Healing/Tanked fields, and colored metric labels.
 - Added saved-history Skill Details scene metadata under the selected player header, with wrapping long text and a responsive layout fix for narrowed windows.
 - Added horizontal graph guide lines aligned to generated left-axis values so saved-history graph totals are easier to read.

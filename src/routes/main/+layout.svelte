@@ -274,6 +274,7 @@
   <AppBackgroundLayer
     enabled={SETTINGS.accessibility.state.backgroundImageEnabled}
     image={SETTINGS.accessibility.state.backgroundImage}
+    fallbackImage={SETTINGS.accessibility.state.backgroundImageSource}
     mode={SETTINGS.accessibility.state.backgroundImageMode || "cover"}
     containColor={SETTINGS.accessibility.state.backgroundImageContainColor || "rgba(0, 0, 0, 0)"}
     opacity={SETTINGS.accessibility.state.backgroundImageOpacity ?? 100}

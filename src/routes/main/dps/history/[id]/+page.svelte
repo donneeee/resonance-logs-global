@@ -5210,16 +5210,6 @@
               {/each}
               {#each graph.overallYTicks as tick}
                 {@const y = graphY(tick, graph.maxOverallValue, HISTORY_GRAPH_OVERALL_TOP)}
-                <line
-                  x1={HISTORY_GRAPH_LEFT}
-                  x2={HISTORY_GRAPH_VIEW_WIDTH - HISTORY_GRAPH_RIGHT}
-                  y1={y}
-                  y2={y}
-                  stroke="hsl(var(--muted-foreground) / 0.42)"
-                  stroke-width="1"
-                  stroke-dasharray={graphGuideLineDasharray(settings.state.history.general.historyGraphGuideLineStyle)}
-                  stroke-linecap={graphGuideLineCap(settings.state.history.general.historyGraphGuideLineStyle)}
-                />
                 <text
                   x={HISTORY_GRAPH_LEFT - 10}
                   y={y + 4}
@@ -5232,16 +5222,6 @@
               {/each}
               {#each graph.movingYTicks as tick}
                 {@const y = graphY(tick, graph.maxMovingValue, HISTORY_GRAPH_MOVING_TOP)}
-                <line
-                  x1={HISTORY_GRAPH_LEFT}
-                  x2={HISTORY_GRAPH_VIEW_WIDTH - HISTORY_GRAPH_RIGHT}
-                  y1={y}
-                  y2={y}
-                  stroke="hsl(var(--muted-foreground) / 0.42)"
-                  stroke-width="1"
-                  stroke-dasharray={graphGuideLineDasharray(settings.state.history.general.historyGraphGuideLineStyle)}
-                  stroke-linecap={graphGuideLineCap(settings.state.history.general.historyGraphGuideLineStyle)}
-                />
                 <text
                   x={HISTORY_GRAPH_LEFT - 10}
                   y={y + 4}
@@ -5347,6 +5327,8 @@
                   stroke="rgb(148 163 184)"
                   stroke-opacity="0.38"
                   stroke-width="1.2"
+                  stroke-dasharray={graphGuideLineDasharray(settings.state.history.general.historyGraphGuideLineStyle)}
+                  stroke-linecap={graphGuideLineCap(settings.state.history.general.historyGraphGuideLineStyle)}
                   pointer-events="none"
                   vector-effect="non-scaling-stroke"
                 />
@@ -5361,6 +5343,8 @@
                   stroke="rgb(148 163 184)"
                   stroke-opacity="0.38"
                   stroke-width="1.2"
+                  stroke-dasharray={graphGuideLineDasharray(settings.state.history.general.historyGraphGuideLineStyle)}
+                  stroke-linecap={graphGuideLineCap(settings.state.history.general.historyGraphGuideLineStyle)}
                   pointer-events="none"
                   vector-effect="non-scaling-stroke"
                 />
@@ -5420,34 +5404,6 @@
                   </g>
                 {/each}
               {/each}
-              <g pointer-events="none" shape-rendering="crispEdges">
-                {#each graph.overallYTicks as tick}
-                  {@const y = graphY(tick, graph.maxOverallValue, HISTORY_GRAPH_OVERALL_TOP)}
-                  <line
-                    x1={HISTORY_GRAPH_LEFT}
-                    x2={HISTORY_GRAPH_VIEW_WIDTH - HISTORY_GRAPH_RIGHT}
-                    y1={y}
-                    y2={y}
-                    stroke="rgb(148 163 184)"
-                    stroke-opacity="0.5"
-                    stroke-width="1.25"
-                    vector-effect="non-scaling-stroke"
-                  />
-                {/each}
-                {#each graph.movingYTicks as tick}
-                  {@const y = graphY(tick, graph.maxMovingValue, HISTORY_GRAPH_MOVING_TOP)}
-                  <line
-                    x1={HISTORY_GRAPH_LEFT}
-                    x2={HISTORY_GRAPH_VIEW_WIDTH - HISTORY_GRAPH_RIGHT}
-                    y1={y}
-                    y2={y}
-                    stroke="rgb(148 163 184)"
-                    stroke-opacity="0.5"
-                    stroke-width="1.25"
-                    vector-effect="non-scaling-stroke"
-                  />
-                {/each}
-              </g>
             </svg>
           </div>
 

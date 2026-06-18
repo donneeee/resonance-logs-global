@@ -32,5 +32,15 @@
   "bundleSaveTitle": "Save Diagnostics Bundle",
   "bundleCreatedCopied": "Diagnostics bundle created and path copied:",
   "bundleCreated": "Diagnostics bundle created:",
-  "bundleFailed": "Failed to create diagnostics bundle:"
+  "bundleFailed": "Failed to create diagnostics bundle:",
+  "cleanupTitle": "Diagnosedateien bereinigen",
+  "cleanupDescription": "Alte Debug-Pakete und Event-Logger-Sitzungsdateien aus AppData l?schen. Profile, Einstellungen und gespeicherte K?mpfe bleiben erhalten.",
+  "cleanupOlderThanDays": "?lter als Tage",
+  "cleanupIncludeEventSessions": "Event-Logger-Sitzungen einschlie?en",
+  "cleanupButton": "Diagnose bereinigen",
+  "cleanupRunning": "Bereinige...",
+  "cleanupSuccess": "Diagnosebereinigung abgeschlossen:",
+  "cleanupPartial": "Bereinigung mit Warnungen abgeschlossen:",
+  "cleanupFailed": "Diagnosebereinigung fehlgeschlagen:",
+  "cleanupFilesUnit": "Dateien"
 }

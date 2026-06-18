@@ -5,7 +5,7 @@ use crate::live::entity_attr_store::EntityAttrStore;
 use crate::live::opcodes_models::PositionAttr;
 use crate::live::opcodes_process::{LocalDamageEvent, LocalDamageTakenEvent};
 use crate::live::skill_lifecycle::{SkillId, SkillLifecycleOutput};
-use log::info;
+use log::{debug, info};
 use serde::{Deserialize, Deserializer, Serialize};
 use std::collections::HashMap;
 
@@ -355,7 +355,7 @@ impl BuffCounterTracker {
             rules.len()
         );
         for rule in &rules {
-            info!(
+            debug!(
                 target: "app::live",
                 "[buff-counter] rule_id={} sources={:?} effect_slots={:?}",
                 rule.rule_id,
@@ -873,8 +873,7 @@ impl BuffCounterTracker {
                     acc.saturating_add(complete_state.increment)
                 });
             if increment > 0 {
-                changed |=
-                    add_increment_to_slots(&rule.effect_slots, state, increment, None, 0);
+                changed |= add_increment_to_slots(&rule.effect_slots, state, increment, None, 0);
             }
         }
         changed

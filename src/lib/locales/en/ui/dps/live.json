@@ -236,6 +236,8 @@
   "live.resetToast": "Encounter reset",
   "live.resumeToast": "Encounter resumed",
   "live.unknownClass": "Unknown Class",
+  "liveDps.rankLabel": "Rank #{rank}",
+  "liveDps.missingSecondBattleImagine": "Missing second battle imagine",
   "table.skill": "Skill",
   "columns.liveTankedPlayers.blockRate.description": "Show the chance that incoming hits were blocked",
   "columns.liveTankedPlayers.blockRate.header": "Block %",

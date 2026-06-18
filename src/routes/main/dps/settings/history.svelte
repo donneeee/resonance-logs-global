@@ -14,6 +14,7 @@
   // Collapsible section state - all collapsed by default
   let expandedSections = $state({
     general: false,
+    graph: false,
     summary: false,
     dpsPlayers: false,
     dpsSkills: false,
@@ -252,6 +253,46 @@
             label={t("oceanWeaponBadgeScale", "Ocean Weapon Badge Size")}
             description={t("oceanWeaponBadgeScaleDescription", "Scale ocean weapon badges in history player rows without changing class icon size.")}
           />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSPlayer} label={t("relativeToTopDPSPlayer", "以最高 DPS 为基准（玩家）")} description={t("relativeToTopDPSPlayerDescription", "颜色条按最高 DPS 玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSSkill} label={t("relativeToTopDPSSkill", "以最高 DPS 为基准（技能）")} description={t("relativeToTopDPSSkillDescription", "颜色条按最高 DPS 技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopHealPlayer} label={t("relativeToTopHealPlayer", "以最高治疗为基准（玩家）")} description={t("relativeToTopHealPlayerDescription", "颜色条按最高治疗玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopHealSkill} label={t("relativeToTopHealSkill", "以最高治疗为基准（技能）")} description={t("relativeToTopHealSkillDescription", "颜色条按最高治疗技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopTankedPlayer} label={t("relativeToTopTankedPlayer", "以最高承伤为基准（玩家）")} description={t("relativeToTopTankedPlayerDescription", "颜色条按最高承伤玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopTankedSkill} label={t("relativeToTopTankedSkill", "以最高承伤为基准（技能）")} description={t("relativeToTopTankedSkillDescription", "颜色条按最高承伤技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.shortenTps} label={t("shortenTps", "缩写 TPS 数值")} description={t("shortenTpsDescription", "将 TPS 显示为 5k、50k 等")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.shortenAbilityScore} label={t("shortenAbilityScore", "缩写能力评分")} description={t("shortenAbilityScoreDescription", "将能力评分显示为缩写形式")} />
+          <SettingsSwitch bind:checked={SETTINGS.history.general.state.shortenDps} label={t("shortenDps", "缩写 DPS 数值")} description={t("shortenDpsDescription", "将 DPS 显示为 5k、50k 等")} />
+          <SettingsSelect
+            bind:selected={SETTINGS.history.general.state.abbreviatedDecimalPlaces}
+            label={t("abbreviatedDecimalPlaces", "缩写小数位数")}
+            description={t("abbreviatedDecimalPlacesDescription", "设置玩家表与技能明细中的 DPS/HPS/TPS 等缩写数值保留的小数位数")}
+            values={[
+              { label: t("abbreviatedDecimalPlaces.option1", "1位 (1.2m)"), value: 1 },
+              { label: t("abbreviatedDecimalPlaces.option2", "2位 (1.23m)"), value: 2 },
+              { label: t("abbreviatedDecimalPlaces.option3", "3位 (1.234m)"), value: 3 },
+              { label: t("abbreviatedDecimalPlaces.option4", "4位 (1.2345m)"), value: 4 },
+            ]}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.live.general.state.modifierReportsEnabled}
+            label={t("modifierReportsEnabled", "Enable Modifier (WIP) Analysis")}
+            description={t("modifierReportsEnabledDescription", "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.")}
+          />
+        </div>
+      {/if}
+    </div>
+
+    <div class="bg-popover/40 rounded-lg border border-border/50 overflow-hidden">
+      <button
+        type="button"
+        class="w-full flex items-center justify-between px-4 py-3 hover:bg-popover/50 transition-colors"
+        onclick={() => toggleSection('graph')}
+      >
+        <h2 class="text-base font-semibold text-foreground">{t("graphSettings", "Graph Settings")}</h2>
+        <ChevronDown class="w-5 h-5 text-muted-foreground transition-transform duration-200 {expandedSections.graph ? 'rotate-180' : ''}" />
+      </button>
+      {#if expandedSections.graph}
+        <div class="px-4 pb-3 space-y-1">
           <SettingsSlider
             bind:value={SETTINGS.history.general.state.historyGraphBucketSeconds}
             min={1}
@@ -279,31 +320,6 @@
             ]}
             label={t("historyGraphGuideLineStyle", "Graph guide line style")}
             description={t("historyGraphGuideLineStyleDescription", "Choose how horizontal guide lines are drawn behind history graph values.")}
-          />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSPlayer} label={t("relativeToTopDPSPlayer", "以最高 DPS 为基准（玩家）")} description={t("relativeToTopDPSPlayerDescription", "颜色条按最高 DPS 玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopDPSSkill} label={t("relativeToTopDPSSkill", "以最高 DPS 为基准（技能）")} description={t("relativeToTopDPSSkillDescription", "颜色条按最高 DPS 技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopHealPlayer} label={t("relativeToTopHealPlayer", "以最高治疗为基准（玩家）")} description={t("relativeToTopHealPlayerDescription", "颜色条按最高治疗玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopHealSkill} label={t("relativeToTopHealSkill", "以最高治疗为基准（技能）")} description={t("relativeToTopHealSkillDescription", "颜色条按最高治疗技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopTankedPlayer} label={t("relativeToTopTankedPlayer", "以最高承伤为基准（玩家）")} description={t("relativeToTopTankedPlayerDescription", "颜色条按最高承伤玩家进行相对缩放，而不是按所有玩家。适用于 20 人或世界 Boss。")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.relativeToTopTankedSkill} label={t("relativeToTopTankedSkill", "以最高承伤为基准（技能）")} description={t("relativeToTopTankedSkillDescription", "颜色条按最高承伤技能进行相对缩放，而不是按所有技能。适用于 20 人或世界 Boss。")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.shortenTps} label={t("shortenTps", "缩写 TPS 数值")} description={t("shortenTpsDescription", "将 TPS 显示为 5k、50k 等")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.shortenAbilityScore} label={t("shortenAbilityScore", "缩写能力评分")} description={t("shortenAbilityScoreDescription", "将能力评分显示为缩写形式")} />
-          <SettingsSwitch bind:checked={SETTINGS.history.general.state.shortenDps} label={t("shortenDps", "缩写 DPS 数值")} description={t("shortenDpsDescription", "将 DPS 显示为 5k、50k 等")} />
-          <SettingsSelect
-            bind:selected={SETTINGS.history.general.state.abbreviatedDecimalPlaces}
-            label={t("abbreviatedDecimalPlaces", "缩写小数位数")}
-            description={t("abbreviatedDecimalPlacesDescription", "设置玩家表与技能明细中的 DPS/HPS/TPS 等缩写数值保留的小数位数")}
-            values={[
-              { label: t("abbreviatedDecimalPlaces.option1", "1位 (1.2m)"), value: 1 },
-              { label: t("abbreviatedDecimalPlaces.option2", "2位 (1.23m)"), value: 2 },
-              { label: t("abbreviatedDecimalPlaces.option3", "3位 (1.234m)"), value: 3 },
-              { label: t("abbreviatedDecimalPlaces.option4", "4位 (1.2345m)"), value: 4 },
-            ]}
-          />
-          <SettingsSwitch
-            bind:checked={SETTINGS.live.general.state.modifierReportsEnabled}
-            label={t("modifierReportsEnabled", "Enable Modifier (WIP) Analysis")}
-            description={t("modifierReportsEnabledDescription", "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.")}
           />
         </div>
       {/if}

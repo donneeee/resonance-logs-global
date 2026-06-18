@@ -26,6 +26,7 @@
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
   import PercentFormat from "$lib/components/percent-format.svelte";
   import { scaledBadgeSize } from "$lib/badge-sizing";
+  import PinnedSelfDpsRow from "./pinned-self-dps-row.svelte";
   import getDisplayName, {
     getDisplayIconSpecName,
     normalizeNameDisplaySetting,
@@ -49,6 +50,7 @@
     player: PlayerRow;
     rank: number;
   };
+  type PinnedSelfRowPlacement = "aboveHeader" | "top" | "bottom";
 
   function playerRenderKey(player: LivePlayerIdentity): string | number {
     return liveEntityRenderKey(player);
@@ -105,6 +107,14 @@
   let alwaysShowYourDpsRow = $derived(
     SETTINGS.live.general.state.alwaysShowYourDpsRow === true,
   );
+  let alwaysShowYourDpsRowPlacement = $derived(
+    SETTINGS.live.general.state.alwaysShowYourDpsRowPlacement === "top"
+      ? "top"
+      : "bottom",
+  );
+  let pinYourDpsRowAboveHeader = $derived(
+    SETTINGS.live.general.state.pinYourDpsRowAboveHeader === true,
+  );
   let playerTableFrameElement: HTMLDivElement | undefined = undefined;
   let playerTableMeasurementFrame = 0;
   let localRowVisibilityFrame = 0;
@@ -115,6 +125,7 @@
   );
   function fallbackPlayerTableMaxHeight(): number {
     return ((tableSettings.showTableHeader && !compactMode) ? tableSettings.tableHeaderHeight : 0)
+      + (showPinnedSelfRowAboveHeader ? tableSettings.playerRowHeight : 0)
       + tableSettings.playerRowHeight * dynamicMaxPlayerRows;
   }
 
@@ -135,7 +146,9 @@
             maxRows: dynamicMaxPlayerRows,
             fallbackRowHeight: tableSettings.playerRowHeight,
             fallbackHeaderHeight: tableSettings.tableHeaderHeight,
-            includeHeader: tableSettings.showTableHeader && !compactMode,
+            includeHeader:
+              (tableSettings.showTableHeader && !compactMode) ||
+              showPinnedSelfRowAboveHeader,
           },
         );
       });
@@ -209,6 +222,18 @@
   let showPinnedSelfRow = $derived(
     alwaysShowYourDpsRow && selfDpsRow !== null && !localDpsRowFullyVisible,
   );
+  let showPinnedSelfRowAboveHeader = $derived(
+    showPinnedSelfRow && pinYourDpsRowAboveHeader,
+  );
+  let showInlinePinnedSelfRow = $derived(
+    showPinnedSelfRow && !pinYourDpsRowAboveHeader,
+  );
+  let showPinnedSelfRowTop = $derived(
+    showInlinePinnedSelfRow && alwaysShowYourDpsRowPlacement === "top",
+  );
+  let showPinnedSelfRowBottom = $derived(
+    showInlinePinnedSelfRow && alwaysShowYourDpsRowPlacement === "bottom",
+  );
 
   function scheduleLocalDpsRowVisibilityCheck(): void {
     if (localRowVisibilityFrame) cancelAnimationFrame(localRowVisibilityFrame);
@@ -237,17 +262,26 @@
 
     const frameRect = playerTableFrameElement.getBoundingClientRect();
     const headerHeight =
-      tableSettings.showTableHeader && !compactMode
+      (tableSettings.showTableHeader && !compactMode) || showPinnedSelfRowAboveHeader
         ? (playerTableFrameElement.querySelector("thead")?.getBoundingClientRect().height ??
           tableSettings.tableHeaderHeight)
         : 0;
-    const pinnedRowHeight = showPinnedSelfRow
+    const topPinnedRowHeight = showPinnedSelfRowTop
       ? (playerTableFrameElement
-          .querySelector<HTMLTableRowElement>('tr[data-pinned-self-row="true"]')
+          .querySelector<HTMLTableRowElement>(
+            'tr[data-pinned-self-row-placement="top"]',
+          )
           ?.getBoundingClientRect().height ?? tableSettings.playerRowHeight)
       : 0;
-    const topBoundary = frameRect.top + headerHeight + pinnedRowHeight;
-    const bottomBoundary = frameRect.bottom;
+    const bottomPinnedRowHeight = showPinnedSelfRowBottom
+      ? (playerTableFrameElement
+          .querySelector<HTMLTableRowElement>(
+            'tr[data-pinned-self-row-placement="bottom"]',
+          )
+          ?.getBoundingClientRect().height ?? tableSettings.playerRowHeight)
+      : 0;
+    const topBoundary = frameRect.top + headerHeight + topPinnedRowHeight;
+    const bottomBoundary = frameRect.bottom - bottomPinnedRowHeight;
     const rowRect = row.getBoundingClientRect();
     const nextVisible =
       rowRect.top >= topBoundary - 1 && rowRect.bottom <= bottomBoundary + 1;
@@ -269,8 +303,13 @@
     dpsData.length;
     compactDpsData.length;
     alwaysShowYourDpsRow;
+    alwaysShowYourDpsRowPlacement;
+    pinYourDpsRowAboveHeader;
     selfDpsRow?.rank;
     showPinnedSelfRow;
+    showPinnedSelfRowTop;
+    showPinnedSelfRowBottom;
+    showPinnedSelfRowAboveHeader;
     visiblePlayerColumns.length;
     schedulePlayerTableMeasurement();
     scheduleLocalDpsRowVisibilityCheck();
@@ -308,6 +347,39 @@ function thLabel(col: ColumnDefinition): string {
   return columnLabelWithAlias(SETTINGS.live.columnAliases.state, col, fallback);
 }
 
+function rankLabel(rank: number): string {
+  return t("liveDps.rankLabel", "Rank #{rank}").replace("{rank}", String(rank));
+}
+
+function rankBadgeWidth(compact: boolean): number {
+  if (SETTINGS.live.general.state.showPlayerImagineBadges === false) {
+    return 0;
+  }
+
+  const baseSize = compact
+    ? Math.max(28, Math.round(tableSettings.playerIconSize * 1.4))
+    : Math.max(26, Math.round(tableSettings.playerIconSize * 1.22));
+  const badgeSize = scaledBadgeSize(
+    baseSize,
+    SETTINGS.live.general.state.playerImagineBadgeScale,
+  );
+  return Math.max(64, Math.round(badgeSize * 2 + 8));
+}
+
+function pinnedSelfRowClass(placement: PinnedSelfRowPlacement): string {
+  return [
+    placement === "top" ? "sticky z-40" : "",
+    "bg-amber-500/10 hover:bg-amber-500/15 transition-colors cursor-pointer group shadow-[inset_0_1px_0_rgba(251,191,36,0.85),inset_0_-1px_0_rgba(251,191,36,0.85)]",
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function pinnedSelfRowStyle(placement: PinnedSelfRowPlacement): string {
+  const stickyTop = placement === "top" ? `top: ${pinnedSelfRowTop}px; ` : "";
+  return `${stickyTop}height: ${tableSettings.playerRowHeight}px; font-size: ${tableSettings.playerFontSize}px;`;
+}
+
 </script>
 
 <div
@@ -317,8 +389,25 @@ function thLabel(col: ColumnDefinition): string {
   onscroll={scheduleLocalDpsRowVisibilityCheck}
 >
   <table class="w-full border-separate border-spacing-0">
-    {#if tableSettings.showTableHeader && !compactMode}
+    {#if showPinnedSelfRowAboveHeader || (tableSettings.showTableHeader && !compactMode)}
       <thead class="sticky top-0 z-50">
+        {#if showPinnedSelfRowAboveHeader && selfDpsRow}
+          <PinnedSelfDpsRow
+            player={selfDpsRow.player}
+            rank={selfDpsRow.rank}
+            {compactMode}
+            placement="aboveHeader"
+            {visiblePlayerColumns}
+            {tableSettings}
+            settingsYourName={SETTINGS_YOUR_NAME}
+            settingsOthersName={SETTINGS_OTHERS_NAME}
+            {compactDpsKey}
+            {maxDamage}
+            {customThemeColors}
+            {abbreviatedDecimalPlaces}
+          />
+        {/if}
+        {#if tableSettings.showTableHeader && !compactMode}
         <tr
           class="bg-popover"
           style="height: {tableSettings.tableHeaderHeight}px;"
@@ -344,10 +433,11 @@ function thLabel(col: ColumnDefinition): string {
             </th>
           {/each}
         </tr>
+        {/if}
       </thead>
     {/if}
     <tbody>
-      {#if showPinnedSelfRow && selfDpsRow}
+      {#if showPinnedSelfRowTop && selfDpsRow}
         {@const player = selfDpsRow.player}
         {@const displayName = getDisplayName({
           player: {
@@ -372,8 +462,9 @@ function thLabel(col: ColumnDefinition): string {
         {#if compactMode}
           <tr
             data-pinned-self-row="true"
-            class="sticky z-40 bg-amber-500/10 hover:bg-amber-500/15 transition-colors cursor-pointer group shadow-[inset_0_1px_0_rgba(251,191,36,0.85),inset_0_-1px_0_rgba(251,191,36,0.85)]"
-            style="top: {pinnedSelfRowTop}px; height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
+            data-pinned-self-row-placement="top"
+            class={pinnedSelfRowClass("top")}
+            style={pinnedSelfRowStyle("top")}
             onclick={() => goto(livePlayerRoute("/live/dps/skills", player))}
           >
             <td
@@ -390,8 +481,11 @@ function thLabel(col: ColumnDefinition): string {
                     classSpecName={iconSpecName}
                     alt={t("historyDetail.classIcon", "Class icon")}
                   />
-                  <span class="inline-flex shrink-0 items-center rounded border border-amber-300/70 bg-amber-400/15 px-1.5 py-0.5 text-[0.78em] font-semibold tabular-nums text-amber-100">
-                    #{selfDpsRow.rank}
+                  <span
+                    class="inline-flex shrink-0 items-center justify-center rounded border border-amber-300/70 bg-amber-400/15 px-1.5 py-0.5 text-[0.78em] font-semibold tabular-nums text-amber-100"
+                    style={rankBadgeWidth(true) > 0 ? `min-width: ${rankBadgeWidth(true)}px;` : ""}
+                  >
+                    {rankLabel(selfDpsRow.rank)}
                   </span>
                   {#if player.abilityScore > 0 || player.seasonStrength > 0}
                     <span class="tabular-nums text-muted-foreground">
@@ -461,8 +555,9 @@ function thLabel(col: ColumnDefinition): string {
         {:else}
           <tr
             data-pinned-self-row="true"
-            class="sticky z-40 bg-amber-500/10 hover:bg-amber-500/15 transition-colors cursor-pointer group shadow-[inset_0_1px_0_rgba(251,191,36,0.85),inset_0_-1px_0_rgba(251,191,36,0.85)]"
-            style="top: {pinnedSelfRowTop}px; height: {tableSettings.playerRowHeight}px; font-size: {tableSettings.playerFontSize}px;"
+            data-pinned-self-row-placement="top"
+            class={pinnedSelfRowClass("top")}
+            style={pinnedSelfRowStyle("top")}
             onclick={() => goto(livePlayerRoute("/live/dps/skills", player))}
           >
             <td class="px-3 py-1 relative z-10">
@@ -476,8 +571,11 @@ function thLabel(col: ColumnDefinition): string {
                   tooltipText={formatClassSpecLabel(player.className, player.classSpecName) ||
                       t("historyDetail.unknownClass", "Unknown Class")}
                 />
-                <span class="inline-flex shrink-0 items-center rounded border border-amber-300/70 bg-amber-400/15 px-1.5 py-0.5 text-[0.78em] font-semibold tabular-nums text-amber-100">
-                  #{selfDpsRow.rank}
+                <span
+                  class="inline-flex shrink-0 items-center justify-center rounded border border-amber-300/70 bg-amber-400/15 px-1.5 py-0.5 text-[0.78em] font-semibold tabular-nums text-amber-100"
+                  style={rankBadgeWidth(false) > 0 ? `min-width: ${rankBadgeWidth(false)}px;` : ""}
+                >
+                  {rankLabel(selfDpsRow.rank)}
                 </span>
                 {#if (player.abilityScore > 0 && SETTINGS.live.general.state.showYourAbilityScore) || (player.seasonStrength > 0 && SETTINGS.live.general.state.showYourSeasonStrength)}
                   <span
@@ -943,5 +1041,23 @@ function thLabel(col: ColumnDefinition): string {
       {/each}
       {/if}
     </tbody>
+    {#if showPinnedSelfRowBottom && selfDpsRow}
+      <tfoot class="sticky bottom-0 z-[60] bg-popover">
+        <PinnedSelfDpsRow
+          player={selfDpsRow.player}
+          rank={selfDpsRow.rank}
+          {compactMode}
+          placement="bottom"
+          {visiblePlayerColumns}
+          {tableSettings}
+          settingsYourName={SETTINGS_YOUR_NAME}
+          settingsOthersName={SETTINGS_OTHERS_NAME}
+          {compactDpsKey}
+          {maxDamage}
+          {customThemeColors}
+          {abbreviatedDecimalPlaces}
+        />
+      </tfoot>
+    {/if}
   </table>
 </div>

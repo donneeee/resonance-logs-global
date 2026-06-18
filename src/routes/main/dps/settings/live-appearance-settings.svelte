@@ -402,7 +402,7 @@
         <SettingsSwitch
           bind:checked={SETTINGS.live.general.state.autoClearOnSceneChange}
           label={liveT("autoClearOnSceneChange", "Clear Meter on Scene Change")}
-          description={liveT("autoClearOnSceneChangeDescription", "Automatically save and clear the current meter when the game changes scene or server. Turn this off to keep the current meter running across scene changes.")}
+          description={liveT("autoClearOnSceneChangeDescription", "Automatically save and clear the current meter when the game changes scene or server. Turn this off to pause the current meter across scene changes until you resume it; while it is off, manual resets must be done.")}
         />
       </div>
 
@@ -450,8 +450,24 @@
         <SettingsSwitch
           bind:checked={SETTINGS.live.general.state.alwaysShowYourDpsRow}
           label={liveT("alwaysShowYourDpsRow", "Always show your DPS row")}
-          description={liveT("alwaysShowYourDpsRowDescription", "When your row falls outside the visible live DPS list, show it pinned under the header with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.")}
+          description={liveT("alwaysShowYourDpsRowDescription", "When your row falls outside the visible live DPS list, show a copy of it with your true rank. The pinned row hides battle imagine badges but keeps the ocean weapon badge.")}
         />
+        {#if SETTINGS.live.general.state.alwaysShowYourDpsRow}
+          <SettingsSelect
+            bind:selected={SETTINGS.live.general.state.alwaysShowYourDpsRowPlacement}
+            label={liveT("alwaysShowYourDpsRowPlacement", "Pinned row position")}
+            description={liveT("alwaysShowYourDpsRowPlacementDescription", "Choose where your copied row appears when it is inside the visible player list.")}
+            values={[
+              { label: liveT("alwaysShowYourDpsRowPlacementBottom", "Bottom of visible list"), value: "bottom" },
+              { label: liveT("alwaysShowYourDpsRowPlacementTop", "Top of visible list"), value: "top" },
+            ]}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.live.general.state.pinYourDpsRowAboveHeader}
+            label={liveT("pinYourDpsRowAboveHeader", "Pin your DPS row above the header")}
+            description={liveT("pinYourDpsRowAboveHeaderDescription", "Show your copied row above the player table header instead of inside the visible player list.")}
+          />
+        {/if}
       </div>
     </div>
   {/if}

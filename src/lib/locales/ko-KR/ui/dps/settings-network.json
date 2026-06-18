@@ -6,6 +6,9 @@
   "networkDeviceDescription": "트래픽을 캡처할 네트워크 어댑터를 선택합니다.",
   "npcapMissing": "Npcap이 감지되지 않았습니다.",
   "npcapMissingSuffix": "이 방식을 사용하려면 먼저 Npcap을 설치하세요.",
+  "npcapDll": "Npcap DLL",
+  "npcapDllUnavailable": "Unavailable",
+  "npcapLoadError": "Load error",
   "selectDevice": "네트워크 장치 선택",
   "title": "패킷 캡처"
 }

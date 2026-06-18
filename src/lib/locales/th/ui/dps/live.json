@@ -236,6 +236,8 @@
   "live.resetToast": "รีเซ็ต Encounter แล้ว",
   "live.resumeToast": "Encounter ดำเนินต่อแล้ว",
   "live.unknownClass": "คลาสไม่ทราบ",
+  "liveDps.rankLabel": "Rank #{rank}",
+  "liveDps.missingSecondBattleImagine": "ไม่มี Battle Imagine ช่องที่สอง",
   "table.skill": "สกิล",
   "columns.liveTankedPlayers.blockRate.description": "แสดงโอกาสบล็อกการโจมตีที่ได้รับ",
   "columns.liveTankedPlayers.blockRate.header": "บล็อก %",

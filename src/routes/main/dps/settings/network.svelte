@@ -11,8 +11,15 @@
         description: string | null;
     };
 
+    type NpcapDiagnostics = {
+        detected: boolean;
+        dllPath: string | null;
+        error: string | null;
+    };
+
     let devices = $state<Device[]>([]);
     let npcapInstalled = $state(false);
+    let npcapDiagnostics = $state<NpcapDiagnostics | null>(null);
     let loading = $state(false);
     let mounted = $state(false);
     let initialDevice = $state<string | null>(null);
@@ -22,12 +29,17 @@
     async function loadDevices() {
         loading = true;
         try {
-            npcapInstalled = await invoke("check_npcap_status");
+            npcapDiagnostics = await invoke<NpcapDiagnostics>("get_npcap_diagnostics");
+            npcapInstalled = npcapDiagnostics.detected;
             if (npcapInstalled) {
-                devices = await invoke("get_network_devices");
+                devices = await invoke<Device[]>("get_network_devices");
+            } else {
+                devices = [];
             }
         } catch (e) {
             console.error("Failed to load network info", e);
+            npcapInstalled = false;
+            devices = [];
         }
         loading = false;
     }
@@ -71,6 +83,30 @@
             <h2 class="text-base font-semibold text-foreground mb-2">
                 {t("title", "Packet Capture")}
             </h2>
+
+            <div
+                class="mb-3 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground"
+            >
+                <div class="flex flex-wrap gap-x-2 gap-y-1">
+                    <span class="font-medium text-foreground/80">
+                        {t("npcapDll", "Npcap DLL")}:
+                    </span>
+                    <span class="break-all">
+                        {npcapDiagnostics?.dllPath ??
+                            (loading
+                                ? t("loadingDevices", "Loading network devices...")
+                                : t("npcapDllUnavailable", "Unavailable"))}
+                    </span>
+                </div>
+                {#if npcapDiagnostics?.error}
+                    <div class="mt-1 break-words text-destructive/90">
+                        <span class="font-medium">
+                            {t("npcapLoadError", "Load error")}:
+                        </span>
+                        {npcapDiagnostics.error}
+                    </div>
+                {/if}
+            </div>
 
             {#if !npcapInstalled}
                 <div

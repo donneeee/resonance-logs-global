@@ -65,7 +65,11 @@ impl SkillLifecycleRuntime {
         let skill_id = event.skill_id;
         outputs.push(SkillLifecycleOutput::CastStarted(skill_id));
 
-        match self.pending_main_casts.front().map(|active| active.skill_id) {
+        match self
+            .pending_main_casts
+            .front()
+            .map(|active| active.skill_id)
+        {
             Some(active_skill_id) if active_skill_id != skill_id => {
                 outputs.push(SkillLifecycleOutput::CastCompleted(skill_id));
             }

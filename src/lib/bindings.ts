@@ -554,6 +554,9 @@ async getNetworkDevices() : Promise<Result<Device[], string>> {
 async checkNpcapStatus() : Promise<boolean> {
     return await TAURI_INVOKE("check_npcap_status");
 },
+async getNpcapDiagnostics() : Promise<NpcapDiagnostics> {
+    return await TAURI_INVOKE("get_npcap_diagnostics");
+},
 async openLogDir() : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("open_log_dir") };
@@ -571,6 +574,14 @@ async openLogDir() : Promise<Result<null, string>> {
 async createDiagnosticsBundle(destinationPath: string | null, settingsSnapshot: string | null) : Promise<Result<string, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("create_diagnostics_bundle", { destinationPath, settingsSnapshot }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async cleanupDiagnosticsFiles(olderThanDays: number | null, includeEventSessions: boolean) : Promise<Result<DiagnosticsCleanupResult, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("cleanup_diagnostics_files", { olderThanDays, includeEventSessions }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -818,6 +829,8 @@ deletedCount: number;
  */
 preservedFavoriteCount: number }
 export type Device = { name: string; description: string | null }
+export type DiagnosticsCleanupResult = { deletedFiles: number; deletedBytes: number; scannedFiles: number; skippedFiles: number; errors: string[] }
+export type NpcapDiagnostics = { detected: boolean; dllPath: string | null; error: string | null }
 export type EffectSlotConfig = { slotId: number; threshold: number | null; resetBuffId: number; resetSourceConfigId?: number | null; onBuffAdd?: CounterAction; onBuffChange?: CounterAction; onBuffRemove?: CounterAction; freezeDurationMs?: number | null; onFreezeExpire?: CounterAction; altFreeze?: AltFreezeConfig | null; thresholdModifier?: AttrModifier | null; freezeDurationModifier?: AttrModifier | null; freezeOnThreshold?: boolean; resetSkillKeys?: number[] | null; onResetSkill?: CounterAction }
 /**
  * Filters for querying encounters.
@@ -1015,4 +1028,3 @@ import {
 export type Result<T, E> =
 	| { status: "ok"; data: T }
 	| { status: "error"; error: E };
-

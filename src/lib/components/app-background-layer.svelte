@@ -6,12 +6,14 @@
   let {
     enabled = false,
     image = "",
+    fallbackImage = "",
     mode = "cover",
     containColor = "rgba(0, 0, 0, 0)",
     opacity = 100,
   }: {
     enabled?: boolean;
     image?: string;
+    fallbackImage?: string;
     mode?: BackgroundImageMode;
     containColor?: string;
     opacity?: number;
@@ -40,12 +42,25 @@
     return convertFileSrc(/^file:/i.test(source) ? fileUrlToPath(source) : source);
   }
 
+  function setConvertedLocalSource(source: string): boolean {
+    if (!source.trim()) return false;
+    try {
+      renderedImage = convertLocalFileSource(source);
+      return true;
+    } catch (error) {
+      console.warn("Failed to convert background image path", error);
+      renderedImage = "";
+      return false;
+    }
+  }
+
   function cssUrlValue(source: string): string {
     return source.replace(/\\/g, "\\\\").replace(/"/g, "%22").replace(/[\r\n]/g, "");
   }
 
   $effect(() => {
     const source = image.trim();
+    const fallbackSource = fallbackImage.trim();
     const token = ++loadToken;
     if (!source) {
       renderedImage = "";
@@ -59,12 +74,7 @@
     const localPath = /^file:/i.test(source) ? fileUrlToPath(source) : source;
     let cancelled = false;
 
-    try {
-      renderedImage = convertLocalFileSource(source);
-    } catch (error) {
-      console.warn("Failed to convert background image path", error);
-      renderedImage = "";
-    }
+    renderedImage = "";
 
     invoke<string>("load_background_image_data_url", { imagePath: localPath })
       .then((dataUrl) => {
@@ -75,6 +85,14 @@
       .catch((error) => {
         if (!cancelled && token === loadToken) {
           console.warn("Failed to load background image data", error);
+          if (
+            fallbackSource &&
+            fallbackSource !== source &&
+            setConvertedLocalSource(fallbackSource)
+          ) {
+            return;
+          }
+          setConvertedLocalSource(source);
         }
       });
 

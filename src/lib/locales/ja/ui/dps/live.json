@@ -236,6 +236,8 @@
   "live.resetToast": "戦闘記録をリセットしました",
   "live.resumeToast": "戦闘を再開しました",
   "live.unknownClass": "不明なクラス",
+  "liveDps.rankLabel": "#{rank}位",
+  "liveDps.missingSecondBattleImagine": "2つ目のバトルイマジン未装備",
   "table.skill": "スキル",
   "columns.liveTankedPlayers.blockRate.description": "被弾時にブロックした割合を表示",
   "columns.liveTankedPlayers.blockRate.header": "ブロック%",

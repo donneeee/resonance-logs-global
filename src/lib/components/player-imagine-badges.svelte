@@ -3,6 +3,7 @@
   import { SETTINGS } from "$lib/settings-store";
   import {
     isLocaleCode,
+    resolveUiTranslation,
     type LocaleCode,
   } from "$lib/i18n";
   import {
@@ -26,7 +27,9 @@
       : ("en" as LocaleCode),
   );
   const visibleImagines = $derived((imagines ?? []).slice(0, 2));
-  const badgeStyle = $derived(`width: ${size}px; height: ${size}px;`);
+  const badgeStyle = $derived(
+    `width: ${size}px; height: ${size}px; --player-imagine-badge-size: ${size}px;`,
+  );
   const wrapperClass = $derived(
     ["player-imagine-badges", classAttr].filter(Boolean).join(" "),
   );
@@ -36,6 +39,14 @@
   function tooltipText(imagine: PlayerImagineInfo): string {
     const name = resolvePlayerImagineName(imagine, locale);
     return `${name} T${imagine.tier}`;
+  }
+
+  function missingSecondImagineLabel(): string {
+    return resolveUiTranslation(
+      "liveDps.missingSecondBattleImagine",
+      locale,
+      "Missing second battle imagine",
+    );
   }
 
   function clearHideTooltipTimer() {
@@ -98,6 +109,17 @@
         {/if}
       </span>
     {/each}
+    {#if visibleImagines.length === 1}
+      <span
+        class="player-imagine-badge player-imagine-missing-slot"
+        style={badgeStyle}
+        aria-label={missingSecondImagineLabel()}
+        title={missingSecondImagineLabel()}
+        data-tauri-drag-region="false"
+      >
+        <span class="player-imagine-missing-x" aria-hidden="true">X</span>
+      </span>
+    {/if}
   </span>
 {/if}
 
@@ -137,6 +159,30 @@
     font-size: 0.55rem;
     font-weight: 800;
     line-height: 1;
+  }
+
+  .player-imagine-missing-slot {
+    border-color: oklch(0.64 0.24 25);
+    background:
+      linear-gradient(
+        135deg,
+        color-mix(in oklch, oklch(0.42 0.12 25) 28%, transparent),
+        color-mix(in oklch, black 36%, transparent)
+      ),
+      color-mix(in oklch, var(--background) 82%, black 10%);
+    box-shadow:
+      0 0 0 1px color-mix(in oklch, black 54%, transparent),
+      0 0 5px color-mix(in oklch, oklch(0.68 0.23 25) 34%, transparent);
+  }
+
+  .player-imagine-missing-x {
+    color: oklch(0.68 0.24 25);
+    font-size: calc(var(--player-imagine-badge-size, 24px) * 0.48);
+    font-weight: 900;
+    line-height: 1;
+    text-shadow:
+      0 0 2px color-mix(in oklch, black 72%, transparent),
+      0 0 4px color-mix(in oklch, oklch(0.66 0.24 25) 42%, transparent);
   }
 
   :global(.player-imagine-tooltip) {

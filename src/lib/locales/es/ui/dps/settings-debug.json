@@ -32,5 +32,15 @@
   "bundleSaveTitle": "Save Diagnostics Bundle",
   "bundleCreatedCopied": "Diagnostics bundle created and path copied:",
   "bundleCreated": "Diagnostics bundle created:",
-  "bundleFailed": "Failed to create diagnostics bundle:"
+  "bundleFailed": "Failed to create diagnostics bundle:",
+  "cleanupTitle": "Limpieza de archivos de diagn?stico",
+  "cleanupDescription": "Elimina paquetes de depuraci?n antiguos y sesiones del Event Logger en AppData. No elimina perfiles, ajustes ni encuentros guardados.",
+  "cleanupOlderThanDays": "M?s antiguo que d?as",
+  "cleanupIncludeEventSessions": "Incluir sesiones del Event Logger",
+  "cleanupButton": "Limpiar diagn?stico",
+  "cleanupRunning": "Limpiando...",
+  "cleanupSuccess": "Limpieza de diagn?stico completada:",
+  "cleanupPartial": "Limpieza finalizada con advertencias:",
+  "cleanupFailed": "Error al limpiar diagn?stico:",
+  "cleanupFilesUnit": "archivos"
 }

@@ -14,3 +14,25 @@
 
   done:
 !macroend
+
+!macro NSIS_HOOK_POSTUNINSTALL
+  IfSilent done
+
+  IfFileExists "$APPDATA\com.resonance-logs-global\*.*" ask 0
+  IfFileExists "$LOCALAPPDATA\com.resonance-logs-global\*.*" ask 0
+  IfFileExists "$APPDATA\resonance-logs-global\*.*" ask 0
+  IfFileExists "$LOCALAPPDATA\resonance-logs-global\*.*" ask 0
+  Goto done
+
+  ask:
+    MessageBox MB_ICONEXCLAMATION|MB_YESNO "Delete Resonance Logs - Global application data folders too?$\r$\n$\r$\nThis removes settings, profiles, logs, local caches, and saved app data from AppData. Use this only as a last-resort cleanup when reinstalling or repairing corrupted local data." IDYES clean IDNO done
+
+  clean:
+    ClearErrors
+    RMDir /r "$APPDATA\com.resonance-logs-global"
+    RMDir /r "$LOCALAPPDATA\com.resonance-logs-global"
+    RMDir /r "$APPDATA\resonance-logs-global"
+    RMDir /r "$LOCALAPPDATA\resonance-logs-global"
+
+  done:
+!macroend

@@ -199,6 +199,7 @@ let settingsChangedTimer: ReturnType<typeof setTimeout> | null = null;
 let liveSettingsRefreshInFlight: Promise<void> | null = null;
 let settingsRepairInFlight: Promise<void> | null = null;
 const settingsStoreReadFailures = new Set<string>();
+const settingsStoreWriteFailures = new Set<string>();
 const RUNTIME_CRITICAL_SETTINGS_STORES = new Set([
   "skillMonitor",
   "profileLibrary",
@@ -209,8 +210,16 @@ export function getSettingsStoreReadFailures(): string[] {
   return [...settingsStoreReadFailures].sort();
 }
 
+export function getSettingsStoreWriteFailures(): string[] {
+  return [...settingsStoreWriteFailures].sort();
+}
+
 export function clearSettingsStoreReadFailure(storeId: string): void {
   settingsStoreReadFailures.delete(storeId);
+}
+
+export function clearSettingsStoreWriteFailure(storeId: string): void {
+  settingsStoreWriteFailures.delete(storeId);
 }
 
 export function hasRuntimeCriticalSettingsStoreReadFailure(): boolean {
@@ -1427,6 +1436,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOceanWeaponBadge: boolean;
   showPlayerImagineBadges: boolean;
   alwaysShowYourDpsRow: boolean;
+  alwaysShowYourDpsRowPlacement: 'top' | 'bottom';
+  pinYourDpsRowAboveHeader: boolean;
   oceanWeaponBadgeScale: number;
   playerImagineBadgeScale: number;
   relativeToTopDPSPlayer: boolean;
@@ -1464,6 +1475,8 @@ const DEFAULT_GENERAL_SETTINGS: {
   showOceanWeaponBadge: true,
   showPlayerImagineBadges: true,
   alwaysShowYourDpsRow: false,
+  alwaysShowYourDpsRowPlacement: 'bottom',
+  pinYourDpsRowAboveHeader: false,
   oceanWeaponBadgeScale: 100,
   playerImagineBadgeScale: 100,
   relativeToTopDPSPlayer: true,
@@ -1806,6 +1819,7 @@ const DEFAULT_SETTINGS = {
     customThemeColors: { ...DEFAULT_CUSTOM_THEME_COLORS },
     // Background image settings
     backgroundImage: "" as string,
+    backgroundImageSource: "" as string,
     backgroundImageName: "" as string,
     backgroundImageEnabled: false,
     backgroundImageMode: "cover" as "cover" | "contain" | "fit-width",
@@ -2560,12 +2574,27 @@ async function refreshSettingsStoreFromBackend<T extends MutableRecord>(
     replaceRecordContents(store.state, nextState);
   }
   if (options.persistRepair && currentBackendJson !== nextStateJson) {
-    await patchStoreState(store.id, nextState);
-    await saveStoreNow(store.id);
+    try {
+      await patchStoreState(store.id, nextState);
+      await saveStoreNow(store.id);
+      settingsStoreWriteFailures.delete(store.id);
+    } catch (error) {
+      settingsStoreWriteFailures.add(store.id);
+      console.warn(
+        `Failed to repair settings store ${store.id}; leaving the in-memory repair active only.`,
+        error,
+      );
+      return false;
+    }
   }
   if (options.restartAfterRepair) {
-    await store.stop();
-    await store.start();
+    try {
+      await store.stop();
+      await store.start();
+    } catch (error) {
+      console.warn(`Failed to restart settings store ${store.id} after repair.`, error);
+      return false;
+    }
   }
   return true;
 }
@@ -2591,8 +2620,29 @@ async function persistSettingsStoreState<T extends MutableRecord>(
   if (JSON.stringify(store.state) !== JSON.stringify(nextState)) {
     replaceRecordContents(store.state, nextState);
   }
-  await patchStoreState(store.id, nextState);
-  await saveStoreNow(store.id);
+  try {
+    await patchStoreState(store.id, nextState);
+    await saveStoreNow(store.id);
+    settingsStoreWriteFailures.delete(store.id);
+  } catch (error) {
+    settingsStoreWriteFailures.add(store.id);
+    console.warn(`Failed to persist settings store ${store.id}.`, error);
+    throw error;
+  }
+}
+
+function logSettledSettingsFailures(
+  context: string,
+  results: PromiseSettledResult<unknown>[],
+): void {
+  const rejected = results.filter(
+    (result): result is PromiseRejectedResult => result.status === "rejected",
+  );
+  if (rejected.length === 0) return;
+  console.warn(
+    `${context}: ${rejected.length} settings operation(s) failed while others continued.`,
+    rejected.map((result) => result.reason),
+  );
 }
 
 export async function persistProfileLibrarySettings(): Promise<void> {
@@ -2605,7 +2655,7 @@ export async function persistProfileLibrarySettings(): Promise<void> {
 }
 
 function persistCurrentLiveSettingsStores(): Promise<void> {
-  return Promise.all([
+  return Promise.allSettled([
     persistSettingsStoreState(
       SETTINGS.accessibility,
       DEFAULT_SETTINGS.accessibility,
@@ -2800,7 +2850,9 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
       DEFAULT_HISTORY_COLUMN_ALIASES,
       (value) => normalizeColumnAliasSettingsState(value, DEFAULT_HISTORY_COLUMN_ALIASES),
     ),
-  ]).then(() => undefined);
+  ]).then((results) => {
+    logSettledSettingsFailures("Persist current live/history settings", results);
+  });
 }
 
 export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
@@ -2952,7 +3004,7 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
 export async function repairPersistedSettingsStores(): Promise<void> {
   if (settingsRepairInFlight) return settingsRepairInFlight;
 
-  settingsRepairInFlight = Promise.all(
+  settingsRepairInFlight = Promise.allSettled(
     persistedSettingsRepairRegistry.map(async (entry) => {
       const loaded = await refreshSettingsStoreFromBackend(
         entry.store,
@@ -2967,9 +3019,23 @@ export async function repairPersistedSettingsStores(): Promise<void> {
     }),
   )
     .then(async (results) => {
+      logSettledSettingsFailures("Load persisted settings for repair", results);
+      const loadedEntries = results
+        .filter(
+          (
+            result,
+          ): result is PromiseFulfilledResult<{
+            entry: SettingsStoreRepairRegistration;
+            loaded: boolean;
+          }> => result.status === "fulfilled",
+        )
+        .map((result) => result.value)
+        .filter(({ loaded }) => loaded)
+        .map(({ entry }) => entry);
+
       normalizePersistedSettings();
-      await Promise.all(
-        results.filter(({ loaded }) => loaded).map(({ entry }) =>
+      const persistResults = await Promise.allSettled(
+        loadedEntries.map((entry) =>
           persistSettingsStoreState(
             entry.store,
             entry.defaults,
@@ -2977,6 +3043,7 @@ export async function repairPersistedSettingsStores(): Promise<void> {
           ),
         ),
       );
+      logSettledSettingsFailures("Persist repaired settings", persistResults);
     })
     .finally(() => {
       settingsRepairInFlight = null;

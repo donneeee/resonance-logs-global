@@ -40,6 +40,7 @@
         throw new Error(result.error || "Background image import failed");
       }
       SETTINGS.accessibility.state.backgroundImage = result.data;
+      SETTINGS.accessibility.state.backgroundImageSource = sourcePath;
       SETTINGS.accessibility.state.backgroundImageName = fileName;
       SETTINGS.accessibility.state.backgroundImageEnabled = true;
     } catch (error) {
@@ -68,6 +69,7 @@
       throw error;
     } finally {
       SETTINGS.accessibility.state.backgroundImage = "";
+      SETTINGS.accessibility.state.backgroundImageSource = "";
       SETTINGS.accessibility.state.backgroundImageName = "";
     }
   }

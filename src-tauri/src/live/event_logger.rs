@@ -105,6 +105,7 @@ pub struct EventLoggerBatchPayload {
 
 pub const EVENT_LOGGER_BUFFER_LIMIT: usize = 5000;
 pub const EVENT_LOGGER_SESSION_ENTRY_LIMIT: usize = 50_000;
+pub const EVENT_LOGGER_SESSION_RAW_BYTES_LIMIT: usize = 64 * 1024 * 1024;
 
 fn event_logger_buffer() -> &'static Mutex<Vec<EventLoggerEntry>> {
     static EVENT_LOGGER_BUFFER: OnceLock<Mutex<Vec<EventLoggerEntry>>> = OnceLock::new();
@@ -1075,6 +1076,47 @@ fn next_available_session_file_path(dir: &Path, base_name: &str) -> PathBuf {
     dir.join(format!("{stem}.overflow.json"))
 }
 
+fn estimated_export_entry_bytes(entry: &EventLoggerEntry) -> usize {
+    let option_text_len = |value: &Option<String>| value.as_deref().map(str::len).unwrap_or(0);
+    512 + entry.category.len()
+        + entry.action.len()
+        + option_text_len(&entry.source_label)
+        + option_text_len(&entry.target_label)
+        + option_text_len(&entry.name_hint)
+        + option_text_len(&entry.summary)
+        + option_text_len(&entry.value)
+        + entry.raw.len()
+}
+
+fn trim_export_entries_to_size_limit(entries: Vec<EventLoggerEntry>) -> Vec<EventLoggerEntry> {
+    let mut total_bytes = 0usize;
+    let mut keep_start = entries.len();
+
+    for (index, entry) in entries.iter().enumerate().rev() {
+        let entry_bytes = estimated_export_entry_bytes(entry);
+        if total_bytes > 0
+            && total_bytes.saturating_add(entry_bytes) > EVENT_LOGGER_SESSION_RAW_BYTES_LIMIT
+        {
+            break;
+        }
+        total_bytes = total_bytes.saturating_add(entry_bytes);
+        keep_start = index;
+    }
+
+    if keep_start == 0 {
+        return entries;
+    }
+
+    log::warn!(
+        target: "app::event_logger",
+        "trimming event logger session export from {} entries to {} entries at approximate {} byte cap",
+        entries.len(),
+        entries.len().saturating_sub(keep_start),
+        EVENT_LOGGER_SESSION_RAW_BYTES_LIMIT
+    );
+    entries.into_iter().skip(keep_start).collect()
+}
+
 pub fn flush_current_session_to_file(
     app_handle: &AppHandle,
     boundary: &str,
@@ -1152,6 +1194,7 @@ pub fn flush_current_session_to_file(
     let file_path = next_available_session_file_path(&session_dir, &file_name);
     let entries = filter_export_entries(entries, file_storage.include_repeated_snapshot_rows);
     let entries = normalize_export_entries(entries, &context, scene_name.as_deref());
+    let entries = trim_export_entries_to_size_limit(entries);
 
     let payload = EventLoggerSessionFile {
         boundary: boundary.to_string(),

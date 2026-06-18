@@ -7,7 +7,7 @@ use crate::live::opcodes_models::{
 };
 use crate::live::opcodes_process::ParsedSkillCd;
 use crate::parser_data;
-use log::{debug, info, warn};
+use log::{debug, warn};
 use serde::Deserialize;
 use std::collections::{HashMap, HashSet};
 use std::sync::LazyLock;
@@ -347,7 +347,7 @@ impl SkillCdMonitor {
             let anchor_preserved =
                 anchored_valid_cd_time != valid_cd_time || anchored_received_at != now;
 
-            info!(
+            debug!(
                 "[skill-cd-trace] skill_level_id={} base_id={} begin_time={} duration_ms={} raw_valid_ms={} anchored_valid_ms={} raw_received_at={} anchored_received_at={} observed_rate={:.3} accel_rate={:.3} packet_sub_ratio={} packet_sub_fixed={} packet_accel_ratio={} calculated_ms={} anchor_preserved={}",
                 id,
                 base_id,

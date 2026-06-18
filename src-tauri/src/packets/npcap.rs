@@ -1,6 +1,7 @@
 use libloading::{Library, Symbol};
 use log::{info, warn};
 use std::ffi::{CStr, CString};
+use std::path::PathBuf;
 use std::ptr;
 use std::sync::Arc;
 use std::sync::OnceLock;
@@ -75,14 +76,40 @@ pub enum PcapT {}
 
 pub struct NpcapContext {
     lib: Arc<Library>,
+    dll_path: PathBuf,
 }
 
 impl NpcapContext {
     pub fn new() -> Result<Self, String> {
         unsafe {
-            let lib = Library::new("wpcap.dll")
-                .map_err(|e| format!("Failed to load wpcap.dll: {}", e))?;
-            Ok(Self { lib: Arc::new(lib) })
+            let mut errors = Vec::new();
+            for candidate in npcap_dll_candidates() {
+                if !candidate.is_file() {
+                    errors.push(format!("{}: missing", candidate.display()));
+                    continue;
+                }
+                match load_npcap_library(&candidate) {
+                    Ok(lib) => {
+                        info!(
+                            target: "app::capture",
+                            "Loaded Npcap library from {}",
+                            candidate.display()
+                        );
+                        return Ok(Self {
+                            lib: Arc::new(lib),
+                            dll_path: candidate,
+                        });
+                    }
+                    Err(error) => {
+                        errors.push(format!("{}: {}", candidate.display(), error));
+                    }
+                }
+            }
+
+            Err(format!(
+                "Failed to load Npcap wpcap.dll: {}",
+                errors.join("; ")
+            ))
         }
     }
 
@@ -130,10 +157,53 @@ impl NpcapContext {
     }
 }
 
+fn npcap_dll_candidates() -> Vec<PathBuf> {
+    let mut candidates = Vec::new();
+    if let Some(system_root) = std::env::var_os("SystemRoot") {
+        candidates.push(
+            PathBuf::from(system_root)
+                .join("System32")
+                .join("Npcap")
+                .join("wpcap.dll"),
+        );
+    }
+    candidates.push(PathBuf::from(r"C:\Windows\System32\Npcap\wpcap.dll"));
+    candidates
+}
+
+#[cfg(windows)]
+unsafe fn load_npcap_library(path: &PathBuf) -> Result<Library, libloading::Error> {
+    use libloading::os::windows::{
+        Library as WindowsLibrary, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS,
+        LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR,
+    };
+
+    unsafe {
+        WindowsLibrary::load_with_flags(
+            path.as_os_str(),
+            LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS,
+        )
+    }
+    .map(Library::from)
+}
+
+#[cfg(not(windows))]
+unsafe fn load_npcap_library(path: &PathBuf) -> Result<Library, libloading::Error> {
+    Library::new(path.as_os_str())
+}
+
 #[derive(Debug, Clone, serde::Serialize, specta::Type)]
 pub struct Device {
     pub name: String,
     pub description: Option<String>,
+}
+
+#[derive(Debug, Clone, serde::Serialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub struct NpcapDiagnostics {
+    pub detected: bool,
+    pub dll_path: Option<String>,
+    pub error: Option<String>,
 }
 
 #[tauri::command]
@@ -147,6 +217,26 @@ pub fn get_network_devices() -> Result<Vec<Device>, String> {
 #[specta::specta]
 pub fn check_npcap_status() -> bool {
     NpcapContext::new().is_ok()
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_npcap_diagnostics() -> NpcapDiagnostics {
+    match NpcapContext::new() {
+        Ok(context) => NpcapDiagnostics {
+            detected: true,
+            dll_path: Some(context.dll_path.display().to_string()),
+            error: None,
+        },
+        Err(error) => NpcapDiagnostics {
+            detected: false,
+            dll_path: npcap_dll_candidates()
+                .into_iter()
+                .find(|path| path.is_file())
+                .map(|path| path.display().to_string()),
+            error: Some(error),
+        },
+    }
 }
 
 pub struct NpcapCapture {
@@ -173,18 +263,19 @@ impl NpcapCapture {
             let set_timeout = load_symbol::<PcapSetTimeout>(&context.lib, b"pcap_set_timeout")?;
             let set_buffer_size =
                 load_symbol::<PcapSetBufferSize>(&context.lib, b"pcap_set_buffer_size")?;
-            let set_immediate =
-                match load_symbol::<PcapSetImmediateMode>(&context.lib, b"pcap_set_immediate_mode")
-                {
-                    Ok(symbol) => Some(symbol),
-                    Err(err) => {
-                        warn!(
-                            "Npcap immediate mode unavailable for device {}: {}; continuing without immediate mode",
-                            device_name, err
-                        );
-                        None
-                    }
-                };
+            let set_immediate = match load_symbol::<PcapSetImmediateMode>(
+                &context.lib,
+                b"pcap_set_immediate_mode",
+            ) {
+                Ok(symbol) => Some(symbol),
+                Err(err) => {
+                    warn!(
+                        "Npcap immediate mode unavailable for device {}: {}; continuing without immediate mode",
+                        device_name, err
+                    );
+                    None
+                }
+            };
             let activate = load_symbol::<PcapActivate>(&context.lib, b"pcap_activate")?;
             let close = load_symbol::<PcapClose>(&context.lib, b"pcap_close")?;
             let get_err = load_symbol::<PcapGetErr>(&context.lib, b"pcap_geterr")?;
@@ -201,9 +292,15 @@ impl NpcapCapture {
                     warn!(
                         "Npcap BPF filter unavailable for device {}: {}; {}; {}; continuing without kernel filter",
                         device_name,
-                        compile.err().unwrap_or_else(|| "pcap_compile available".to_string()),
-                        set_filter.err().unwrap_or_else(|| "pcap_setfilter available".to_string()),
-                        free_code.err().unwrap_or_else(|| "pcap_freecode available".to_string())
+                        compile
+                            .err()
+                            .unwrap_or_else(|| "pcap_compile available".to_string()),
+                        set_filter
+                            .err()
+                            .unwrap_or_else(|| "pcap_setfilter available".to_string()),
+                        free_code
+                            .err()
+                            .unwrap_or_else(|| "pcap_freecode available".to_string())
                     );
                     None
                 }

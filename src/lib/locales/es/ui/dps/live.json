@@ -236,6 +236,8 @@
   "live.resetToast": "Combate reiniciado",
   "live.resumeToast": "Combate reanudado",
   "live.unknownClass": "Clase desconocida",
+  "liveDps.rankLabel": "Rango #{rank}",
+  "liveDps.missingSecondBattleImagine": "Falta el segundo Battle Imagine",
   "table.skill": "Habilidad",
   "columns.liveTankedPlayers.blockRate.description": "Muestra la probabilidad de bloquear golpes recibidos",
   "columns.liveTankedPlayers.blockRate.header": "Bloqueo %",

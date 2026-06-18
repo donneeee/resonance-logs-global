@@ -29,15 +29,17 @@ use prost::Message;
 use std::collections::{HashMap, HashSet, VecDeque};
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicUsize, Ordering};
-use std::sync::{Mutex, OnceLock};
+use std::sync::{Arc, Mutex, OnceLock};
 use std::time::{Duration, Instant};
 use tauri::{AppHandle, Manager};
-use tokio::sync::mpsc::UnboundedReceiver;
+use tokio::sync::mpsc::{Receiver, UnboundedReceiver};
 
 static RAW_SERVICE_PROBE_ALL_COUNT: AtomicUsize = AtomicUsize::new(0);
 static RAW_SERVICE_PROBE_NEAR_DELTA_COUNT: AtomicUsize = AtomicUsize::new(0);
 const EQUIPMENT_PROBE_ATTR_ID: i32 = 200;
 const EQUIPMENT_PROBE_WEAPON_SLOT: u64 = 200;
+const CAPTURE_RESTART_MAX_ATTEMPTS: usize = 20;
+const CAPTURE_RESTART_MAX_DELAY_SECS: u64 = 10;
 const OCEAN_WEAPON_ITEM_ID_MIN: u64 = 2_000_617;
 const OCEAN_WEAPON_ITEM_ID_MAX: u64 = 2_000_634;
 const EMBER_OCEAN_WEAPON_ITEM_ID_MIN: u64 = 2_000_626;
@@ -7178,6 +7180,15 @@ fn decode_state_event(op: packets::opcodes::Pkt, data: Bytes) -> Option<StateEve
     }
 }
 
+async fn recv_capture_event(
+    rx: &mut Option<Receiver<packets::packet_capture::CaptureEvent>>,
+) -> Option<packets::packet_capture::CaptureEvent> {
+    match rx.as_mut() {
+        Some(rx) => rx.recv().await,
+        None => std::future::pending::<Option<packets::packet_capture::CaptureEvent>>().await,
+    }
+}
+
 /// Starts the live meter.
 ///
 /// This function captures packets, processes them, and emits events to the frontend.
@@ -7217,9 +7228,12 @@ pub async fn start(
 
     // 1. Start capturing packets and send to rx
     let npcap_device = get_capture_device(&app_handle);
-    let (mut rx, queue_depth) = packets::packet_capture::start_capture(npcap_device);
+    let (rx, mut queue_depth) = packets::packet_capture::start_capture(npcap_device);
+    let mut rx = Some(rx);
     let mut queue_depth_warn_counter = 0usize;
     let mut queue_depth_last_log_at = Instant::now();
+    let mut capture_restart_delay = Duration::from_secs(1);
+    let mut capture_restart_attempts = 0usize;
 
     // 2. Use channels to receive packets and control commands, and process whichever arrives first
     loop {
@@ -7241,8 +7255,10 @@ pub async fn start(
                 flush_outbound_events(&app_handle, &mut state);
                 emit_pending_background_logger_entries(&app_handle);
             }
-            packet = rx.recv() => match packet {
+            packet = recv_capture_event(&mut rx) => match packet {
             Some(notify) => {
+                capture_restart_delay = Duration::from_secs(1);
+                capture_restart_attempts = 0;
                 queue_depth
                     .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |depth| {
                         Some(depth.saturating_sub(1))
@@ -7274,6 +7290,10 @@ pub async fn start(
                     if Instant::now().duration_since(drain_start) >= drain_time_budget {
                         break;
                     }
+
+                    let Some(rx) = rx.as_mut() else {
+                        break;
+                    };
 
                     match rx.try_recv() {
                         Ok(notify) => {
@@ -7323,11 +7343,38 @@ pub async fn start(
                 emit_pending_background_logger_entries(&app_handle);
             }
             None => {
+                if capture_restart_attempts >= CAPTURE_RESTART_MAX_ATTEMPTS {
+                    warn!(
+                        target: "app::live",
+                        "Packet capture restart attempts exhausted after {} attempts; capture is disabled until app restart or repair",
+                        CAPTURE_RESTART_MAX_ATTEMPTS
+                    );
+                    rx = None;
+                    queue_depth = Arc::new(AtomicUsize::new(0));
+                    queue_depth_warn_counter = 0;
+                    queue_depth_last_log_at = Instant::now();
+                    continue;
+                }
+
+                capture_restart_attempts += 1;
                 warn!(
                     target: "app::live",
-                    "Packet capture channel closed, exiting live meter loop"
+                    "Packet capture channel closed; restart attempt {}/{} after {:?}",
+                    capture_restart_attempts,
+                    CAPTURE_RESTART_MAX_ATTEMPTS,
+                    capture_restart_delay
                 );
-                break;
+                tokio::time::sleep(capture_restart_delay).await;
+                let npcap_device = get_capture_device(&app_handle);
+                let (next_rx, next_queue_depth) =
+                    packets::packet_capture::start_capture(npcap_device);
+                rx = Some(next_rx);
+                queue_depth = next_queue_depth;
+                queue_depth_warn_counter = 0;
+                queue_depth_last_log_at = Instant::now();
+                capture_restart_delay = (capture_restart_delay + Duration::from_secs(1))
+                    .min(Duration::from_secs(CAPTURE_RESTART_MAX_DELAY_SECS));
+                continue;
             }
             },
             _ = tokio::time::sleep(idle_sleep_duration) => {
@@ -7344,16 +7391,6 @@ pub async fn start(
             }
         }
     }
-
-    if let Err(error) = flush_current_session_to_file(
-        &app_handle,
-        "live_loop_exit",
-        build_event_logger_session_context(&state),
-    ) {
-        warn!(target: "app::live", "event_logger_session_flush_failed boundary=live_loop_exit error={}", error);
-    }
-    flush_attribution_census(&app_handle, "live_loop_exit", &state);
-    flush_selected_factor_cache_if_needed(&app_handle, &mut state);
 }
 
 fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {

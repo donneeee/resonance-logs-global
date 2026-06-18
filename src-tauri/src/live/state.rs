@@ -18,8 +18,8 @@ use crate::live::opcodes_models::{
     AttrType, AttrValue, Encounter, Entity, ObservedActiveBuff, ObservedCombatTimelineBucket,
     ObservedDamageHit, ObservedEffectBuff, ObservedEffectSource, ObservedEquippedItem,
     ObservedFactorBuff, ObservedFactorItem, ObservedModifierHitBucket, ObservedModifierReplayHit,
-    ObservedModifierReplaySource, ObservedModifierWindow, ObservedSkillCastEvent,
-    ObservedSkillCooldownEvent,
+    ObservedModifierReplaySource, ObservedModifierWindow, ObservedProfessionSkill,
+    ObservedSkillCastEvent, ObservedSkillCooldownEvent,
 };
 use crate::live::opcodes_process::ParsedSkillCd;
 use crate::live::season_cultivate::{FactorCounterTemplate, SeasonCultivateRuntimeState};
@@ -30,7 +30,7 @@ use crate::live::skill_cd_monitor::{
     SkillCdMonitor, SkillCdRuntimeSnapshot, buff_changes_affect_skill_cd, calculate_skill_cd,
 };
 use crate::live::skill_lifecycle::{
-    ClientSkillCast, ServerSkillEnd, SkillLifecycleOutput, SkillLifecycleRuntime,
+    ClientSkillCast, ServerSkillEnd, SkillId, SkillLifecycleOutput, SkillLifecycleRuntime,
 };
 use crate::live::team::{TeamEquipmentItem, TeamEvent, TeamMemberEquipment, TeamRuntimeState};
 use crate::live::training_dummy::{CombatGate, TrainingDummyRuntime, inspect_aoi_delta};
@@ -300,7 +300,7 @@ fn emit_skill_cd_update_if_needed(state: &mut AppState, payload: Vec<SkillCdStat
         })
         .collect::<Vec<_>>()
         .join("; ");
-    info!("[skill-cd-publish] {}", published);
+    debug!("[skill-cd-publish] {}", published);
     state.event_manager.emit_skill_cd_update(payload);
 }
 
@@ -983,6 +983,35 @@ fn finish_training_dummy_if_due(state: &mut AppState, source: &str) -> bool {
         source
     );
     true
+}
+
+fn pause_active_encounter_for_scene_change(state: &mut AppState, source: &str) {
+    let has_active_meter =
+        encounter_has_stats(&state.encounter) || state.training_dummy.is_active();
+    if !has_active_meter {
+        info!(
+            target: "app::live",
+            "scene_change_auto_clear_disabled_no_active_meter source={}",
+            source
+        );
+        return;
+    }
+
+    if state.encounter.is_encounter_paused {
+        info!(
+            target: "app::live",
+            "scene_change_auto_clear_disabled_already_paused source={}",
+            source
+        );
+        return;
+    }
+
+    info!(
+        target: "app::live",
+        "scene_change_auto_clear_disabled_pausing_encounter source={}",
+        source
+    );
+    state.set_encounter_paused(true);
 }
 
 fn build_encounter_metadata(
@@ -2724,6 +2753,34 @@ fn local_active_profession_skills(
         .unwrap_or_default()
 }
 
+fn observed_profession_skill_matches_id(skill: &ObservedProfessionSkill, skill_id: i32) -> bool {
+    skill.skill_id == skill_id
+        || skill.skill_level_id == Some(skill_id)
+        || skill.base_skill_id == Some(skill_id)
+        || skill.replace_skill_ids.contains(&skill_id)
+}
+
+fn normalize_skill_lifecycle_id(state: &AppState, skill_id: SkillId) -> SkillId {
+    let raw_id = skill_id.get();
+    let Some(entity) = local_player_entity(&state.encounter) else {
+        return skill_id;
+    };
+
+    let Some(active_skill) = entity
+        .active_profession_skills
+        .iter()
+        .find(|skill| observed_profession_skill_matches_id(skill, raw_id))
+    else {
+        return skill_id;
+    };
+
+    active_skill
+        .base_skill_id
+        .or_else(|| (active_skill.skill_id > 0).then_some(active_skill.skill_id))
+        .and_then(SkillId::new)
+        .unwrap_or(skill_id)
+}
+
 fn local_active_effect_sources(
     state: &AppState,
 ) -> Vec<crate::live::opcodes_models::ObservedEffectSource> {
@@ -2939,6 +2996,10 @@ impl AppStateManager {
                 self.reset_encounter(state, is_manual);
             }
             StateEvent::ClientSkillCast(event) => {
+                let event = ClientSkillCast {
+                    skill_id: normalize_skill_lifecycle_id(state, event.skill_id),
+                    ..event
+                };
                 let outputs = state
                     .local_monitor
                     .skill_lifecycle
@@ -2949,6 +3010,9 @@ impl AppStateManager {
                 factor_counter_dirty |= next_factor_counter_dirty;
             }
             StateEvent::ServerSkillEnd(event) => {
+                let event = ServerSkillEnd {
+                    skill_id: normalize_skill_lifecycle_id(state, event.skill_id),
+                };
                 let outputs = state
                     .local_monitor
                     .skill_lifecycle
@@ -2959,10 +3023,10 @@ impl AppStateManager {
                 factor_counter_dirty |= next_factor_counter_dirty;
             }
         }
-        let outputs = state
-            .local_monitor
-            .skill_lifecycle
-            .on_actor_state_sample(&state.attr_store, current_local_player_uuid(&state.encounter));
+        let outputs = state.local_monitor.skill_lifecycle.on_actor_state_sample(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
         let (next_counter_dirty, next_factor_counter_dirty) =
             apply_skill_lifecycle_outputs(state, outputs);
         counter_dirty |= next_counter_dirty;
@@ -3198,48 +3262,57 @@ impl AppStateManager {
 
         info!(
             target: "app::live",
-            "[runtime-monitor] applying snapshot: event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} skill_enabled={} season_cultivate_factor_templates={} monster_enabled={} teammate_enabled={}",
+            "[runtime-monitor] applying snapshot: event_update_rate_ms={} auto_clear_on_scene_change={} modifier_reports_enabled={} skill_enabled={} monitored_skills={} monitored_buffs={} panel_attrs={} counter_rules={} season_cultivate_factor_templates={} monster_enabled={} monster_global={} monster_self_applied={} teammate_enabled={} teammate_any={} teammate_local={} teammate_self={}",
             live.event_update_rate_ms,
             live.auto_clear_on_scene_change,
             live.modifier_reports_enabled,
             skill.enabled,
+            skill.monitored_skill_ids.len(),
+            skill.monitored_buff_ids.len(),
+            skill.monitored_panel_attr_ids.len(),
+            skill.buff_counter_rules.len(),
             skill.season_cultivate_factor_templates.len(),
             monster.enabled,
-            teammate.enabled
+            monster.global_ids.len(),
+            monster.self_applied_ids.len(),
+            teammate.enabled,
+            teammate.any_source_ids.len(),
+            teammate.local_player_source_ids.len(),
+            teammate.target_self_source_ids.len()
         );
-        info!(
+        debug!(
             target: "app::live",
             "[monitor-buff] set monitorAllBuff: {:?}",
             skill.monitor_all_buff
         );
-        info!(
+        debug!(
             target: "app::live",
             "[skill-cd] set monitored skills: {:?}",
             skill.monitored_skill_ids
         );
-        info!(
+        debug!(
             target: "app::live",
             "[buff] set monitored buffs: {:?}",
             skill.monitored_buff_ids
         );
-        info!(
+        debug!(
             target: "app::live",
             "[panel-attr] set monitored attrs: {:?}",
             skill.monitored_panel_attr_ids
         );
-        info!(
+        debug!(
             target: "app::live",
             "[buff-counter] set rules: {}",
             skill.buff_counter_rules.len()
         );
-        info!(
+        debug!(
             target: "app::live",
             "[boss-buff] set monitored buffs: global={:?} self_applied={:?} monitor_all_self={:?}",
             monster.global_ids,
             monster.self_applied_ids,
             monster.monitor_all_self_applied
         );
-        info!(
+        debug!(
             target: "app::live",
             "[teammate-buff] set monitored buffs: any={:?} local_player={:?} target_self={:?} monitor_all={:?}",
             teammate.any_source_ids,
@@ -3310,7 +3383,7 @@ impl AppStateManager {
         state.pending_auto_reset = None;
 
         if !state.auto_clear_on_scene_change {
-            info!(target: "app::live", "server_change_auto_clear_skipped");
+            pause_active_encounter_for_scene_change(state, "server_change");
             return;
         }
 
@@ -3349,13 +3422,23 @@ impl AppStateManager {
             state.modifier_capture_enabled,
         );
 
-        if !state.initial_scene_change_handled {
+        let was_initial_scene = !state.initial_scene_change_handled;
+        if was_initial_scene {
             info!("Initial scene detected");
             state.initial_scene_change_handled = true;
         }
-        let previous = build_training_dummy_state(&state.training_dummy);
-        state.training_dummy.clear();
-        emit_training_dummy_update_if_changed(state, previous);
+        if state.auto_clear_on_scene_change {
+            let previous = build_training_dummy_state(&state.training_dummy);
+            state.training_dummy.clear();
+            emit_training_dummy_update_if_changed(state, previous);
+        } else if !was_initial_scene {
+            pause_active_encounter_for_scene_change(state, "enter_scene");
+        } else {
+            info!(
+                target: "app::live",
+                "enter_scene_auto_clear_disabled_initial_scene_no_pause"
+            );
+        }
 
         if let Some(scene_id) = parsed.scene_id {
             let scene_name = scene_names::lookup(scene_id);
@@ -3433,10 +3516,14 @@ impl AppStateManager {
     ) -> bool {
         use crate::live::opcodes_process::process_sync_container_data;
 
-        persist_segment_unless_saved(state, false, "container_data_resync");
-        state.encounter.clear_entities();
+        if state.auto_clear_on_scene_change {
+            persist_segment_unless_saved(state, false, "container_data_resync");
+            state.encounter.clear_entities();
+            state.encounter.reset_combat_state();
+        } else {
+            pause_active_encounter_for_scene_change(state, "container_data_resync");
+        }
         state.attr_store.clear_all_entities();
-        state.encounter.reset_combat_state();
         state.local_monitor.clear_runtime_state();
         state.modifier_buff_monitor.active_buffs.clear();
         state.boss_buff_monitors.clear();
@@ -3448,9 +3535,11 @@ impl AppStateManager {
         state.sent_overlay_uids.clear();
         state.battle_state = BattleStateMachine::default();
         state.pending_auto_reset = None;
-        let previous = build_training_dummy_state(&state.training_dummy);
-        state.training_dummy.clear();
-        emit_training_dummy_update_if_changed(state, previous);
+        if state.auto_clear_on_scene_change {
+            let previous = build_training_dummy_state(&state.training_dummy);
+            state.training_dummy.clear();
+            emit_training_dummy_update_if_changed(state, previous);
+        }
 
         let Some(result) = process_sync_container_data(
             &mut state.encounter,

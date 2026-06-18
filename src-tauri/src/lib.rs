@@ -47,21 +47,53 @@ const LEGACY_LOG_FILE_PREFIX: &str = "resonance-logs-cn_v";
 
 static HIDE_MAIN_WINDOW_TO_TRAY: AtomicBool = AtomicBool::new(false);
 
+#[derive(specta::Type, serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct DiagnosticsCleanupResult {
+    pub deleted_files: u32,
+    pub deleted_bytes: u64,
+    pub scanned_files: u32,
+    pub skipped_files: u32,
+    pub errors: Vec<String>,
+}
+
+impl DiagnosticsCleanupResult {
+    fn new() -> Self {
+        Self {
+            deleted_files: 0,
+            deleted_bytes: 0,
+            scanned_files: 0,
+            skipped_files: 0,
+            errors: Vec::new(),
+        }
+    }
+
+    fn absorb(&mut self, other: DiagnosticsCleanupResult) {
+        self.deleted_files += other.deleted_files;
+        self.deleted_bytes += other.deleted_bytes;
+        self.scanned_files += other.scanned_files;
+        self.skipped_files += other.skipped_files;
+        self.errors.extend(other.errors);
+    }
+}
+
 fn is_invalid_settings_json(bytes: &[u8]) -> bool {
     bytes.iter().take(1024).any(|byte| *byte == 0)
         || serde_json::from_slice::<serde_json::Value>(bytes).is_err()
 }
 
-#[tauri::command]
-#[specta::specta]
-fn detect_corrupt_settings_json_stores(
-    app_handle: tauri::AppHandle,
-) -> Result<Vec<String>, String> {
-    let store_dir = app_handle
+fn settings_json_store_dir(app_handle: &tauri::AppHandle) -> Result<PathBuf, String> {
+    Ok(app_handle
         .path()
         .app_config_dir()
         .map_err(|error| format!("failed to resolve app_config_dir: {error}"))?
-        .join("tauri-plugin-svelte");
+        .join("tauri-plugin-svelte"))
+}
+
+fn collect_corrupt_settings_json_stores(
+    app_handle: &tauri::AppHandle,
+) -> Result<Vec<PathBuf>, String> {
+    let store_dir = settings_json_store_dir(app_handle)?;
     if !store_dir.exists() {
         return Ok(Vec::new());
     }
@@ -86,15 +118,67 @@ fn detect_corrupt_settings_json_stores(
                 continue;
             }
         };
-        if !is_invalid_settings_json(&bytes) {
-            continue;
+        if is_invalid_settings_json(&bytes) {
+            corrupt.push(path);
         }
-
-        warn!("detected corrupt settings store {}", path.display());
-        corrupt.push(path.display().to_string());
     }
 
     Ok(corrupt)
+}
+
+fn unique_quarantine_path(path: &Path) -> PathBuf {
+    let parent = path.parent().unwrap_or_else(|| Path::new("."));
+    let name = path
+        .file_name()
+        .and_then(|value| value.to_str())
+        .unwrap_or("settings-store.json");
+    let timestamp = chrono::Local::now().format("%Y-%m-%d_%H-%M-%S").to_string();
+    for suffix in 0..1000 {
+        let candidate_name = if suffix == 0 {
+            format!("{name}.corrupt-{timestamp}")
+        } else {
+            format!("{name}.corrupt-{timestamp}.{suffix}")
+        };
+        let candidate = parent.join(candidate_name);
+        if !candidate.exists() {
+            return candidate;
+        }
+    }
+    parent.join(format!("{name}.corrupt-{timestamp}.overflow"))
+}
+
+fn quarantine_corrupt_settings_json_stores(
+    app_handle: &tauri::AppHandle,
+) -> Result<Vec<String>, String> {
+    let corrupt = collect_corrupt_settings_json_stores(app_handle)?;
+    let mut quarantined = Vec::new();
+
+    for path in corrupt {
+        let quarantine_path = unique_quarantine_path(&path);
+        std::fs::rename(&path, &quarantine_path).map_err(|error| {
+            format!(
+                "failed to quarantine corrupt settings store {} to {}: {error}",
+                path.display(),
+                quarantine_path.display()
+            )
+        })?;
+        let message = format!("{} -> {}", path.display(), quarantine_path.display());
+        warn!("quarantined corrupt settings store {message}");
+        quarantined.push(message);
+    }
+
+    Ok(quarantined)
+}
+
+#[tauri::command]
+#[specta::specta]
+fn detect_corrupt_settings_json_stores(
+    app_handle: tauri::AppHandle,
+) -> Result<Vec<String>, String> {
+    Ok(collect_corrupt_settings_json_stores(&app_handle)?
+        .into_iter()
+        .map(|path| path.display().to_string())
+        .collect())
 }
 
 #[cfg(target_os = "windows")]
@@ -555,8 +639,10 @@ pub fn run() {
             debug_commands::open_event_logger_session_dir,
             packets::npcap::get_network_devices,
             packets::npcap::check_npcap_status,
+            packets::npcap::get_npcap_diagnostics,
             debug_commands::open_log_dir,
             debug_commands::create_diagnostics_bundle,
+            debug_commands::cleanup_diagnostics_files,
             module_optimizer::commands::check_gpu_support,
             module_optimizer::commands::get_latest_modules,
             module_optimizer::commands::get_latest_module_status,
@@ -610,6 +696,23 @@ pub fn run() {
             // If logging fails, fall back to stderr so we still get a breadcrumb.
             if let Err(e) = setup_logs(&app_handle) {
                 eprintln!("Failed to setup logs: {e}");
+            }
+
+            match quarantine_corrupt_settings_json_stores(&app_handle) {
+                Ok(quarantined) if !quarantined.is_empty() => {
+                    warn!(
+                        target: "app::settings",
+                        "quarantined {} corrupt settings store file(s): {:?}",
+                        quarantined.len(),
+                        quarantined
+                    );
+                }
+                Ok(_) => {}
+                Err(error) => warn!(
+                    target: "app::settings",
+                    "failed to inspect settings stores for corruption: {}",
+                    error
+                ),
             }
 
             // Attach key-value-ish context to the setup flow via a span.
@@ -1443,6 +1546,16 @@ mod debug_commands {
     ) -> Result<String, String> {
         crate::create_diagnostics_bundle(&app_handle, destination_path, settings_snapshot)
     }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn cleanup_diagnostics_files(
+        app_handle: tauri::AppHandle,
+        older_than_days: Option<u32>,
+        include_event_sessions: bool,
+    ) -> Result<crate::DiagnosticsCleanupResult, String> {
+        crate::cleanup_diagnostics_files(&app_handle, older_than_days, include_event_sessions)
+    }
 }
 
 // Updater helper: checks for updates and emits an event for frontend reminder.
@@ -1608,6 +1721,167 @@ fn cleanup_old_logs(log_dir: &Path, keep: usize) -> Result<(), String> {
     Ok(())
 }
 
+fn should_delete_for_age(meta: &std::fs::Metadata, older_than_days: Option<u32>) -> bool {
+    let Some(days) = older_than_days.filter(|value| *value > 0) else {
+        return true;
+    };
+    let Ok(modified_at) = meta.modified().or_else(|_| meta.created()) else {
+        return false;
+    };
+    let Ok(age) = SystemTime::now().duration_since(modified_at) else {
+        return false;
+    };
+    age >= std::time::Duration::from_secs(u64::from(days) * 24 * 60 * 60)
+}
+
+fn cleanup_matching_files_recursive<F>(
+    root: &Path,
+    older_than_days: Option<u32>,
+    matches_file: &F,
+) -> DiagnosticsCleanupResult
+where
+    F: Fn(&Path) -> bool,
+{
+    let mut result = DiagnosticsCleanupResult::new();
+    if !root.exists() {
+        return result;
+    }
+
+    let entries = match std::fs::read_dir(root) {
+        Ok(entries) => entries,
+        Err(error) => {
+            result
+                .errors
+                .push(format!("failed to read {}: {error}", root.display()));
+            return result;
+        }
+    };
+
+    for entry in entries {
+        let entry = match entry {
+            Ok(entry) => entry,
+            Err(error) => {
+                result
+                    .errors
+                    .push(format!("failed to inspect {}: {error}", root.display()));
+                continue;
+            }
+        };
+        let path = entry.path();
+        let Ok(file_type) = entry.file_type() else {
+            result
+                .errors
+                .push(format!("failed to inspect {}", path.display()));
+            continue;
+        };
+        if file_type.is_symlink() {
+            result.skipped_files += 1;
+            continue;
+        }
+        if file_type.is_dir() {
+            let child = cleanup_matching_files_recursive(&path, older_than_days, matches_file);
+            result.absorb(child);
+            if std::fs::read_dir(&path)
+                .map(|mut children| children.next().is_none())
+                .unwrap_or(false)
+            {
+                let _ = std::fs::remove_dir(&path);
+            }
+            continue;
+        }
+        if !file_type.is_file() {
+            result.skipped_files += 1;
+            continue;
+        }
+
+        result.scanned_files += 1;
+        if !matches_file(&path) {
+            result.skipped_files += 1;
+            continue;
+        }
+        let meta = match entry.metadata() {
+            Ok(meta) => meta,
+            Err(error) => {
+                result
+                    .errors
+                    .push(format!("failed to inspect {}: {error}", path.display()));
+                continue;
+            }
+        };
+        if !should_delete_for_age(&meta, older_than_days) {
+            result.skipped_files += 1;
+            continue;
+        }
+
+        let bytes = meta.len();
+        match std::fs::remove_file(&path) {
+            Ok(()) => {
+                result.deleted_files += 1;
+                result.deleted_bytes += bytes;
+            }
+            Err(error) => result
+                .errors
+                .push(format!("failed to remove {}: {error}", path.display())),
+        }
+    }
+
+    result
+}
+
+fn is_debug_bundle_file(path: &Path) -> bool {
+    path.file_name()
+        .and_then(|value| value.to_str())
+        .map(|name| {
+            let lower = name.to_ascii_lowercase();
+            lower.starts_with("debug_") && lower.ends_with(".zip")
+        })
+        .unwrap_or(false)
+}
+
+fn is_json_file(path: &Path) -> bool {
+    path.extension()
+        .and_then(|value| value.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("json"))
+}
+
+fn cleanup_diagnostics_files(
+    app_handle: &tauri::AppHandle,
+    older_than_days: Option<u32>,
+    include_event_sessions: bool,
+) -> Result<DiagnosticsCleanupResult, String> {
+    let mut result = DiagnosticsCleanupResult::new();
+
+    if let Ok(log_dir) = app_handle.path().app_log_dir() {
+        result.absorb(cleanup_matching_files_recursive(
+            &log_dir,
+            older_than_days,
+            &is_debug_bundle_file,
+        ));
+    }
+
+    if include_event_sessions {
+        if let Ok(local_data_dir) = app_handle.path().app_local_data_dir() {
+            let legacy_event_sessions = local_data_dir.join("logs").join("event-sessions");
+            result.absorb(cleanup_matching_files_recursive(
+                &legacy_event_sessions,
+                older_than_days,
+                &is_json_file,
+            ));
+        }
+
+        if let Ok(app_data_dir) = app_handle.path().app_data_dir() {
+            let default_event_logs = app_data_dir.join("EventLogs");
+            result.absorb(cleanup_matching_files_recursive(
+                &default_event_logs,
+                older_than_days,
+                &is_json_file,
+            ));
+        }
+    }
+
+    Ok(result)
+}
+
 fn is_sensitive_settings_key(key: &str) -> bool {
     let lower = key.to_ascii_lowercase();
     lower.contains("apikey")
@@ -1656,7 +1930,19 @@ fn should_skip_settings_file_content(path: &Path) -> bool {
         || name.ends_with(".jpeg")
         || name.ends_with(".webp")
         || name.ends_with(".ico")
+        || name.ends_with(".log")
         || name.ends_with(".exe")
+}
+
+fn should_skip_settings_snapshot_dir(path: &Path) -> bool {
+    path.file_name()
+        .and_then(|value| value.to_str())
+        .map(|name| {
+            name.eq_ignore_ascii_case("EBWebView")
+                || name.eq_ignore_ascii_case("EventLogs")
+                || name.eq_ignore_ascii_case("event-sessions")
+        })
+        .unwrap_or(false)
 }
 
 fn is_monitor_runtime_snapshot_file(path: &Path) -> bool {
@@ -1835,6 +2121,10 @@ fn collect_settings_directory_snapshot(label: &str, root: PathBuf) -> serde_json
                 continue;
             }
             if file_type.is_dir() {
+                if should_skip_settings_snapshot_dir(&path) {
+                    issues.push(format!("skipped noisy directory {}", path.display()));
+                    continue;
+                }
                 stack.push((path, depth + 1));
                 continue;
             }

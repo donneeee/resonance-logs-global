@@ -6,6 +6,9 @@
   "networkDeviceDescription": "トラフィックのキャプチャに使用するネットワークアダプターを選択します。",
   "npcapMissing": "Npcap が検出されませんでした。",
   "npcapMissingSuffix": "この方式を使用する前に Npcap をインストールしてください。",
+  "npcapDll": "Npcap DLL",
+  "npcapDllUnavailable": "Unavailable",
+  "npcapLoadError": "Load error",
   "selectDevice": "ネットワークデバイスを選択",
   "title": "パケットキャプチャ"
 }

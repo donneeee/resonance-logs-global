@@ -236,6 +236,8 @@
   "live.resetToast": "戰鬥記錄已重設",
   "live.resumeToast": "戰鬥已繼續",
   "live.unknownClass": "未知職業",
+  "liveDps.rankLabel": "第{rank}名",
+  "liveDps.missingSecondBattleImagine": "缺少第二個戰鬥幻象",
   "table.skill": "技能",
   "columns.liveTankedPlayers.blockRate.description": "顯示承受傷害時的格擋機率",
   "columns.liveTankedPlayers.blockRate.header": "格擋%",

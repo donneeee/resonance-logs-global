@@ -6,6 +6,9 @@
   "networkDeviceDescription": "选择用于捕获流量的网卡。",
   "npcapMissing": "未检测到 Npcap。",
   "npcapMissingSuffix": "请安装 Npcap 后再使用该方式。",
+  "npcapDll": "Npcap DLL",
+  "npcapDllUnavailable": "Unavailable",
+  "npcapLoadError": "Load error",
   "selectDevice": "选择网络设备",
   "title": "抓包"
 }

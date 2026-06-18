@@ -6,6 +6,9 @@
   "networkDeviceDescription": "Choose the network adapter used to capture traffic.",
   "npcapMissing": "Npcap was not detected.",
   "npcapMissingSuffix": "Please install Npcap before using this method.",
+  "npcapDll": "Npcap DLL",
+  "npcapDllUnavailable": "Unavailable",
+  "npcapLoadError": "Load error",
   "selectDevice": "Select Network Device",
   "title": "Packet Capture"
 }

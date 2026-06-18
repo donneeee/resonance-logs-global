@@ -236,6 +236,8 @@
   "live.resetToast": "Kampf zurückgesetzt",
   "live.resumeToast": "Kampf fortgesetzt",
   "live.unknownClass": "Unbekannte Klasse",
+  "liveDps.rankLabel": "Rang #{rank}",
+  "liveDps.missingSecondBattleImagine": "Zweites Kampf-Imagine fehlt",
   "table.skill": "Fertigkeit",
   "columns.liveTankedPlayers.blockRate.description": "Zeigt die Chance, eingehende Treffer zu blocken",
   "columns.liveTankedPlayers.blockRate.header": "Block %",

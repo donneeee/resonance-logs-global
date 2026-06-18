@@ -236,6 +236,8 @@
   "live.resetToast": "Encounter direset",
   "live.resumeToast": "Encounter dilanjutkan",
   "live.unknownClass": "Class Tidak Dikenal",
+  "liveDps.rankLabel": "Rank #{rank}",
+  "liveDps.missingSecondBattleImagine": "Battle Imagine kedua kosong",
   "table.skill": "Skill",
   "columns.liveTankedPlayers.blockRate.description": "Menampilkan peluang memblokir serangan yang diterima",
   "columns.liveTankedPlayers.blockRate.header": "Blok %",

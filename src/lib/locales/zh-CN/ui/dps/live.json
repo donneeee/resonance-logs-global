@@ -236,6 +236,8 @@
   "live.resetToast": "战斗记录已重置",
   "live.resumeToast": "战斗已继续",
   "live.unknownClass": "Unknown Class",
+  "liveDps.rankLabel": "第{rank}名",
+  "liveDps.missingSecondBattleImagine": "缺少第二个战斗幻象",
   "table.skill": "技能",
   "columns.liveTankedPlayers.blockRate.description": "显示承受伤害时的格挡几率",
   "columns.liveTankedPlayers.blockRate.header": "格挡%",
