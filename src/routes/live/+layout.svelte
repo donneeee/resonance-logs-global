@@ -1141,6 +1141,9 @@ t("live.resumeToast", "战斗已继续"),
     mode={SETTINGS.accessibility.state.backgroundImageMode || "cover"}
     containColor={SETTINGS.accessibility.state.backgroundImageContainColor || "rgba(0, 0, 0, 0)"}
     opacity={SETTINGS.accessibility.state.backgroundImageOpacity ?? 100}
+    onRestored={(imagePath) => {
+      SETTINGS.accessibility.state.backgroundImage = imagePath;
+    }}
   />
   <div
     class="pointer-events-none absolute inset-0 z-10 {SETTINGS.accessibility.state.backgroundImageEnabled

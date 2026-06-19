@@ -726,6 +726,22 @@ async toggleLiveWindow() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async showLiveWindow() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("show_live_window") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async hideLiveWindow() : Promise<Result<null, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("hide_live_window") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async setHideMainWindowToTray(enabled: boolean) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("set_hide_main_window_to_tray", { enabled }) };
@@ -1028,3 +1044,4 @@ import {
 export type Result<T, E> =
 	| { status: "ok"; data: T }
 	| { status: "error"; error: E };
+

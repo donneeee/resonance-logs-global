@@ -1457,7 +1457,7 @@ pub struct ShieldDetailUpdatePayload {
     pub entries: Vec<ShieldDetailEntry>,
 }
 
-#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone)]
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct FightResourceEntry {
     pub id: i32,

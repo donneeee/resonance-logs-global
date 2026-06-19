@@ -2,6 +2,8 @@
   "clearHint": "Right-click to clear hotkeys",
   "pressKey": "Press key",
   "unbound": "Unbound",
+  "allowSingleKeyHotkeys": "Allow single-key hotkeys",
+  "allowSingleKeyHotkeysDescription": "Warning: allowing single-key global hotkeys can stop Windows or other programs from receiving those keys. Use modifier hotkeys unless you specifically need one-key controls.",
   "shortcuts.showLiveMeter": "Show live meter",
   "shortcuts.hideLiveMeter": "Hide live meter",
   "shortcuts.toggleLiveMeter": "Toggle live meter",

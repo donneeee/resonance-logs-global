@@ -2,6 +2,8 @@
   "clearHint": "Klik kanan untuk menghapus hotkey",
   "pressKey": "Tekan tombol",
   "unbound": "Belum Diikat",
+  "allowSingleKeyHotkeys": "Allow single-key hotkeys",
+  "allowSingleKeyHotkeysDescription": "Warning: allowing single-key global hotkeys can stop Windows or other programs from receiving those keys. Use modifier hotkeys unless you specifically need one-key controls.",
   "shortcuts.showLiveMeter": "Tampilkan meter live",
   "shortcuts.hideLiveMeter": "Sembunyikan meter live",
   "shortcuts.toggleLiveMeter": "Alihkan meter live",

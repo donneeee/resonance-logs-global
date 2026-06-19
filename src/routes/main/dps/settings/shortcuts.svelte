@@ -11,6 +11,7 @@
   import { SETTINGS } from "$lib/settings-store";
   import { uiT } from "$lib/i18n";
   import {
+    CUSTOM_TRIGGER_SHORTCUTS,
     GENERAL_SHORTCUTS,
     clearRegisteredShortcut,
     findShortcutConflict,
@@ -22,6 +23,7 @@
     type ShortcutValidationReason,
   } from "./shortcuts.js";
   import type { BaseInput } from "./settings.js";
+  import SettingsSwitch from "./settings-switch.svelte";
 
   let editingId: string | null = $state(null);
   let editingConflict = $state<ShortcutOwner | null>(null);
@@ -145,6 +147,24 @@
     await clearRegisteredShortcut("general", shortcut.id);
   }
 
+  async function handleAllowSingleKeyHotkeysChange(checked: boolean) {
+    if (checked) return;
+
+    for (const shortcut of GENERAL_SHORTCUTS) {
+      const current = SETTINGS.shortcuts.state[shortcut.id];
+      if (current && !validateGlobalShortcut(current, { allowSingleKey: false }).valid) {
+        await clearRegisteredShortcut("general", shortcut.id);
+      }
+    }
+
+    for (const shortcut of CUSTOM_TRIGGER_SHORTCUTS) {
+      const current = SETTINGS.customTriggers.state.hotkeys?.[shortcut.id as keyof typeof SETTINGS.customTriggers.state.hotkeys] ?? "";
+      if (current && !validateGlobalShortcut(current, { allowSingleKey: false }).valid) {
+        await clearRegisteredShortcut("customTriggers", shortcut.id);
+      }
+    }
+  }
+
   const t = uiT("dps/settings-hotkeys", () => SETTINGS.live.general.state.language);
   const customHotkeyT = uiT("custom-triggers/general", () => SETTINGS.live.general.state.language);
 
@@ -172,6 +192,14 @@
 
 <Tabs.Content value={SETTINGS_CATEGORY}>
   <div class="space-y-3">
+    <div class="rounded-lg border bg-card/40 border-border/60 p-1 shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]">
+      <SettingsSwitch
+        bind:checked={SETTINGS.shortcuts.state.allowSingleKeyHotkeys}
+        onchange={handleAllowSingleKeyHotkeysChange}
+        label={t("allowSingleKeyHotkeys", "Allow single-key hotkeys")}
+        description={t("allowSingleKeyHotkeysDescription", "Warning: allowing single-key global hotkeys can stop Windows or other programs from receiving those keys. Use modifier hotkeys unless you specifically need one-key controls.")}
+      />
+    </div>
     <Alert.Root class="shadow-[inset_0_1px_0_rgba(255,255,255,0.03)]">
       <AlertCircleIcon />
       <Alert.Title>{t("clearHint", "右键可清除快捷键")}</Alert.Title>

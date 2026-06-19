@@ -7,9 +7,8 @@ import {
   resetCustomTriggerGroup,
   stopCustomTrigger,
 } from "$lib/custom-trigger-runtime.svelte";
-import { SETTINGS } from "$lib/settings-store";
-import { setClickthrough, showLiveWindowWithoutFocus, toggleClickthrough } from "$lib/utils.svelte";
-import { WebviewWindow } from "@tauri-apps/api/webviewWindow";
+import { SETTINGS, type ShortcutCommandSettingId } from "$lib/settings-store";
+import { setClickthrough, toggleClickthrough } from "$lib/utils.svelte";
 import { register, unregister, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 
 const SHORTCUT_MODIFIERS = new Set([
@@ -60,6 +59,10 @@ export type ShortcutValidationReason = "missingModifier" | "systemKey";
 export type ShortcutValidationResult =
   | { valid: true; shortcut: string }
   | { valid: false; shortcut: string; reason: ShortcutValidationReason };
+
+export type ShortcutValidationOptions = {
+  allowSingleKey?: boolean;
+};
 
 export type ShortcutOwner = {
   section: "general" | "customTriggers";
@@ -119,20 +122,23 @@ export function isSystemShortcutKey(key: string): boolean {
   return SYSTEM_SHORTCUT_KEYS.has(normalized) || SYSTEM_SHORTCUT_KEY_PREFIXES.some((prefix) => normalized.startsWith(prefix));
 }
 
-export function validateGlobalShortcut(shortcutKey: string): ShortcutValidationResult {
+export function validateGlobalShortcut(
+  shortcutKey: string,
+  options: ShortcutValidationOptions = {},
+): ShortcutValidationResult {
   const parts = shortcutParts(shortcutKey);
   const shortcut = parts.join("+");
   if (!shortcut) {
     return { valid: false, shortcut, reason: "missingModifier" };
   }
 
+  const allowSingleKey = options.allowSingleKey ?? SETTINGS.shortcuts.state.allowSingleKeyHotkeys;
   const mainKeys = parts.filter((part) => !isShortcutModifier(part));
-  if (!mainKeys.length || !parts.some(isShortcutModifier)) {
-    return { valid: false, shortcut, reason: "missingModifier" };
-  }
-
   if (mainKeys.some(isSystemShortcutKey)) {
     return { valid: false, shortcut, reason: "systemKey" };
+  }
+  if (!mainKeys.length || (!allowSingleKey && !parts.some(isShortcutModifier))) {
+    return { valid: false, shortcut, reason: "missingModifier" };
   }
 
   return { valid: true, shortcut };
@@ -140,9 +146,10 @@ export function validateGlobalShortcut(shortcutKey: string): ShortcutValidationR
 
 export function getAllAssignedShortcuts(): ShortcutOwner[] {
   const general = GENERAL_SHORTCUTS.flatMap((shortcut) => {
-    const value = SETTINGS.shortcuts.state[shortcut.id as keyof typeof SETTINGS.shortcuts.state];
-    return value
-      ? [{ section: "general" as const, id: shortcut.id, shortcut: value, labelKey: shortcut.labelKey, fallbackLabel: shortcut.fallbackLabel }]
+    const id = shortcut.id as ShortcutCommandSettingId;
+    const value = SETTINGS.shortcuts.state[id];
+    return typeof value === "string" && value
+      ? [{ section: "general" as const, id, shortcut: value, labelKey: shortcut.labelKey, fallbackLabel: shortcut.fallbackLabel }]
       : [];
   });
 
@@ -173,6 +180,7 @@ export async function setupShortcuts() {
   await unregisterAll();
 
   for (const [cmdId, shortcutKey] of Object.entries(SETTINGS.shortcuts.state)) {
+    if (typeof shortcutKey !== "string") continue;
     await registerShortcut("general", cmdId, shortcutKey);
   }
 
@@ -200,7 +208,11 @@ export async function registerShortcut(
       case "showLiveMeter":
         await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
-            await showLiveWindowWithoutFocus();
+            try {
+              await commands.showLiveWindow();
+            } catch (error) {
+              console.error("Failed to show live meter hotkey", error);
+            }
           }
         });
         return;
@@ -208,8 +220,11 @@ export async function registerShortcut(
       case "hideLiveMeter":
         await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
-            const liveWindow = await WebviewWindow.getByLabel("live");
-            await liveWindow?.hide();
+            try {
+              await commands.hideLiveWindow();
+            } catch (error) {
+              console.error("Failed to hide live meter hotkey", error);
+            }
           }
         });
         return;
@@ -217,12 +232,10 @@ export async function registerShortcut(
       case "toggleLiveMeter":
         await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
-            const liveWindow = await WebviewWindow.getByLabel("live");
-            const isVisible = await liveWindow?.isVisible();
-            if (isVisible) {
-              await liveWindow?.hide();
-            } else {
-              await showLiveWindowWithoutFocus(liveWindow);
+            try {
+              await commands.toggleLiveWindow();
+            } catch (error) {
+              console.error("Failed to toggle live meter hotkey", error);
             }
           }
         });
@@ -386,11 +399,11 @@ export async function clearRegisteredShortcut(section: ShortcutOwner["section"],
     section === "general"
       ? SETTINGS.shortcuts.state[id as keyof typeof SETTINGS.shortcuts.state]
       : SETTINGS.customTriggers.state.hotkeys?.[id as keyof typeof SETTINGS.customTriggers.state.hotkeys] ?? "";
-  if (current) {
+  if (typeof current === "string" && current) {
     await safeUnregisterShortcut(current);
   }
   if (section === "general") {
-    SETTINGS.shortcuts.state[id as keyof typeof SETTINGS.shortcuts.state] = "";
+    SETTINGS.shortcuts.state[id as ShortcutCommandSettingId] = "";
   } else if (SETTINGS.customTriggers.state.hotkeys) {
     SETTINGS.customTriggers.state.hotkeys[id as keyof typeof SETTINGS.customTriggers.state.hotkeys] = "";
   }

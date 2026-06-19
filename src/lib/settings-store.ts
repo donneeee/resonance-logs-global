@@ -464,6 +464,7 @@ function normalizeLiveSortSettingsState<T extends { sortKey: string; sortDesc: b
 }
 
 export type ShortcutSettingId = keyof typeof DEFAULT_SETTINGS.shortcuts;
+export type ShortcutCommandSettingId = Exclude<ShortcutSettingId, "allowSingleKeyHotkeys">;
 
 export type Point = {
   x: number;
@@ -1853,6 +1854,7 @@ const DEFAULT_SETTINGS = {
     customFontMonoName: "" as string,
   },
   shortcuts: {
+    allowSingleKeyHotkeys: false,
     showLiveMeter: "",
     hideLiveMeter: "",
     toggleLiveMeter: "",

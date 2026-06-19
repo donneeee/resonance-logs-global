@@ -3104,6 +3104,13 @@ fn process_monster_attrs(
             if monster_entity.monster_type_id.is_none() {
                 monster_entity.name = name;
             }
+            if let Some(packet_name) = monster_entity.monster_name_packet.as_ref() {
+                let _ = attr_store.set_attr(
+                    target_entity_uuid,
+                    AttrType::Name,
+                    AttrValue::String(packet_name.clone()),
+                );
+            }
             continue;
         }
 

@@ -32,6 +32,7 @@ import type {
 const FANTASY_DISPLAY_TTL_MS = 5000;
 const USE_LEGACY_MONSTER_TARGET_UID_TITLE_FALLBACK = false;
 const USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK = false;
+const MAX_DIRECT_ENTITY_UID = 0xFFFF_FFFF;
 
 type TeammateColumnDefinition =
   | {
@@ -115,6 +116,37 @@ function syntheticTargetUid(rawName: string): number | null {
   return Number.isSafeInteger(uid) && uid > 0 ? uid : null;
 }
 
+function isSyntheticEntityName(rawName: string, uid = 0): boolean {
+  const trimmed = rawName.trim();
+  if (!trimmed) return true;
+  if (syntheticTargetUid(trimmed) !== null) return true;
+  if (/^UID\s+\d+$/i.test(trimmed)) return true;
+
+  if (uid > 0 && trimmed.includes(String(uid))) {
+    const compactPrefix = trimmed
+      .replace(String(uid), "")
+      .replace(/\s+/g, "")
+      .toLowerCase();
+    if (compactPrefix === "uid" || compactPrefix === "target") return true;
+    if (compactPrefix && !/[a-z]/i.test(compactPrefix) && /[^\x00-\x7F]/.test(compactPrefix)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
+function cachedRawNameForUid(uid: number): string | null {
+  if (uid <= 0) return null;
+  const rawName = monsterRuntime.nameCache.get(uid)?.trim();
+  if (!rawName || isSyntheticEntityName(rawName, uid)) return null;
+  return localizeRawMonsterName(rawName, rawName);
+}
+
+function cachedUidForEntityKey(entityKey: string): number {
+  return uidFromEntityKey(entityKey);
+}
+
 function compareEntityKeys(left: string, right: string): number {
   const leftUid = uidFromEntityKey(left);
   const rightUid = uidFromEntityKey(right);
@@ -128,9 +160,7 @@ function resolveMonsterSectionTitle(entityKey: string): string {
     return localizeMonsterName(entityMonsterId);
   }
 
-  const displayUid = legacyMonsterUidFallbacksEnabled()
-    ? uidFromEntityKey(entityKey)
-    : 0;
+  const displayUid = cachedUidForEntityKey(entityKey);
   const monsterId = displayUid > 0
     ? monsterRuntime.monsterIdCache.get(displayUid)
     : undefined;
@@ -141,22 +171,14 @@ function resolveMonsterSectionTitle(entityKey: string): string {
   const playerName = monsterRuntime.playerNameByEntityKey.get(entityKey)?.trim();
   if (playerName) return playerName;
 
-  const rawName = displayUid > 0
-    ? monsterRuntime.nameCache.get(displayUid)?.trim()
-    : undefined;
+  const rawName = cachedRawNameForUid(displayUid);
   if (rawName) {
-    const fallbackUid = syntheticTargetUid(rawName);
-    if (fallbackUid !== null) return targetTitle(fallbackUid);
-    return localizeRawMonsterName(rawName, rawName);
+    return rawName;
   }
   return targetTitle(entityKey);
 }
 
 function resolveEntityDisplayName(uid: number): string {
-  if (!legacyMonsterUidFallbacksEnabled()) {
-    return unknownEntityName();
-  }
-
   const playerName = monsterRuntime.playerNameCache.get(uid)?.trim();
   if (playerName) return playerName;
 
@@ -165,11 +187,9 @@ function resolveEntityDisplayName(uid: number): string {
     return localizeMonsterName(monsterId);
   }
 
-  const rawName = monsterRuntime.nameCache.get(uid)?.trim();
+  const rawName = cachedRawNameForUid(uid);
   if (rawName) {
-    const fallbackUid = syntheticTargetUid(rawName);
-    if (fallbackUid !== null) return targetTitle(fallbackUid);
-    return localizeRawMonsterName(rawName, rawName);
+    return rawName;
   }
 
   return USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK
@@ -188,9 +208,7 @@ function resolveHateEntryDisplayName(entry: HateEntry): string {
       return localizeMonsterName(monsterId);
     }
 
-    const displayUid = legacyMonsterUidFallbacksEnabled()
-      ? uidFromEntityKey(entityKey)
-      : 0;
+    const displayUid = cachedUidForEntityKey(entityKey);
     if (displayUid > 0) return resolveEntityDisplayName(displayUid);
   }
 
@@ -416,6 +434,10 @@ function pickLatestBuff(
 
 function uidFromEntityKey(entityKey: string): number {
   const numeric = Number(entityKey);
+  if (Number.isSafeInteger(numeric) && numeric > 0 && numeric <= MAX_DIRECT_ENTITY_UID) {
+    return numeric;
+  }
+
   const decodedUid = uidFromEntityUuid(entityKey);
   if (decodedUid > 0) return decodedUid;
 
@@ -428,6 +450,11 @@ function uidFromEntityKey(entityKey: string): number {
 function resolveTeammateDisplayName(entityKey: string): string {
   const playerName = monsterRuntime.playerNameByEntityKey.get(entityKey)?.trim();
   if (playerName) return playerName;
+  const displayUid = cachedUidForEntityKey(entityKey);
+  const cachedName = displayUid > 0
+    ? monsterRuntime.playerNameCache.get(displayUid)?.trim()
+    : "";
+  if (cachedName) return cachedName;
   return USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK
     ? `UID ${uidFromEntityKey(entityKey) || entityKey}`
     : unknownTeammateName();

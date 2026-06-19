@@ -5,7 +5,8 @@ use crate::live::buff_monitor::{
 };
 use crate::live::commands_models::{
     BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceEntry, FightResourceState,
-    PanelAttrState, ShieldDetailEntry, SkillCdState, TeammateFantasyState, TrainingDummyState,
+    HateEntry, PanelAttrState, ShieldDetailEntry, SkillCdState, TeammateFantasyState,
+    TrainingDummyState,
 };
 use crate::live::counter_tracker::{BuffCounterTracker, CounterRule};
 use crate::live::dungeon_log::{BattleStateMachine, EncounterResetReason};
@@ -39,6 +40,7 @@ use blueprotobuf_lib::blueprotobuf::AoiSyncDelta;
 use blueprotobuf_lib::blueprotobuf::EEntityType;
 use log::{debug, info, warn};
 use std::collections::{HashMap, HashSet};
+use std::fmt::Write as _;
 use std::time::{Duration, Instant};
 use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender, unbounded_channel};
 
@@ -49,6 +51,7 @@ const ACTIVE_EFFECT_BUFF_SOURCE_RUNTIME_PREFIX: &str = "activeEffectBuffs.";
 const SELECTED_FACTOR_RUNTIME_PREFIX: &str = "SyncContainerDirtyData.v_data.dirty_tree.";
 const MAX_FACTOR_SELECTOR_ZERO_SLOTS: usize = 128;
 const FACTOR_SELECTOR_ZERO_SLOT_TTL: Duration = Duration::from_secs(120);
+const OVERLAY_IDENTITY_RESEND_INTERVAL: Duration = Duration::from_secs(1);
 
 /// Represents the possible events that can be handled by the state manager.
 #[derive(Debug, Clone)]
@@ -135,6 +138,20 @@ pub struct AppState {
     pub training_dummy: TrainingDummyRuntime,
     /// UIDs whose display names have already been pushed to the monster overlay.
     pub sent_overlay_uids: HashSet<i64>,
+    /// Last entity names pushed to the monster overlay by display UID.
+    pub sent_overlay_uid_names: HashMap<i64, String>,
+    /// Last entity names pushed to the monster overlay by stable entity key.
+    pub sent_overlay_identity_names: HashMap<String, String>,
+    /// Last monster IDs pushed to the overlay identity maps by stable entity key.
+    pub sent_overlay_monster_ids: HashMap<String, i32>,
+    /// Last time the current monster-overlay target identity was resent.
+    pub last_overlay_identity_resend: Option<Instant>,
+    /// Last monster-overlay hate list snapshot signature emitted to the frontend.
+    pub last_overlay_hate_lists_signature: Option<String>,
+    /// Last monster-overlay boss buff snapshot signature emitted to the frontend.
+    pub last_overlay_boss_buffs_signature: Option<String>,
+    /// Last monster-overlay teammate buff snapshot signature emitted to the frontend.
+    pub last_overlay_teammate_buffs_signature: Option<String>,
     /// Set after a new death replay record is appended and cleared after the next frontend emit.
     pub death_snapshot_dirty: bool,
     /// Runtime state from GrpcTeamNtf packets, keyed by canonical player UUID.
@@ -248,6 +265,13 @@ impl AppState {
             pending_auto_reset: None,
             training_dummy: TrainingDummyRuntime::default(),
             sent_overlay_uids: HashSet::new(),
+            sent_overlay_uid_names: HashMap::new(),
+            sent_overlay_identity_names: HashMap::new(),
+            sent_overlay_monster_ids: HashMap::new(),
+            last_overlay_identity_resend: None,
+            last_overlay_hate_lists_signature: None,
+            last_overlay_boss_buffs_signature: None,
+            last_overlay_teammate_buffs_signature: None,
             death_snapshot_dirty: false,
             team: TeamRuntimeState::default(),
         }
@@ -327,30 +351,60 @@ fn emit_local_buff_update_snapshot(state: &mut AppState) {
 fn emit_boss_buff_update_snapshot(state: &mut AppState) {
     let mut payload = build_monster_buff_snapshots(state);
     payload.retain(|&entity_uuid, _| !state.attr_store.is_dead(entity_uuid));
+    let mut identity_names = HashMap::new();
     let mut monster_ids = HashMap::new();
     for &entity_uuid in payload.keys() {
         let entity = state.encounter.entity_by_uuid(entity_uuid);
         let display_uid = entity
             .map(|entity| state.encounter.display_uid_for_entity(entity_uuid, entity))
             .unwrap_or_else(|| uid_from_uuid(entity_uuid));
+        if let Some(name) =
+            known_entity_display_name(display_uid, Some(entity_uuid), entity, &state.attr_store)
+        {
+            queue_overlay_identity_name(
+                &mut state.sent_overlay_identity_names,
+                &mut identity_names,
+                entity_uuid_string(entity_uuid),
+                name,
+                false,
+            );
+        }
         if let Some(monster_id) = monster_id_for_uuid(state, entity_uuid, entity) {
-            monster_ids.insert(entity_uuid_string(entity_uuid), monster_id);
+            queue_overlay_monster_id(
+                &mut state.sent_overlay_monster_ids,
+                &mut monster_ids,
+                entity_uuid_string(entity_uuid),
+                monster_id,
+                false,
+            );
             if display_uid > 0 {
-                monster_ids.insert(display_uid.to_string(), monster_id);
+                queue_overlay_monster_id(
+                    &mut state.sent_overlay_monster_ids,
+                    &mut monster_ids,
+                    display_uid.to_string(),
+                    monster_id,
+                    false,
+                );
             }
         }
     }
-    if !monster_ids.is_empty() {
+    if !identity_names.is_empty() || !monster_ids.is_empty() {
         state
             .event_manager
-            .emit_entity_identity_map(HashMap::new(), monster_ids);
+            .emit_entity_identity_map(identity_names, monster_ids);
     }
-    state.event_manager.emit_boss_buff_update(
-        payload
-            .into_iter()
-            .map(|(entity_uuid, buffs)| (entity_uuid_string(entity_uuid), buffs))
-            .collect(),
-    );
+    let boss_buff_snapshot: HashMap<String, Vec<BuffUpdateState>> = payload
+        .into_iter()
+        .map(|(entity_uuid, buffs)| (entity_uuid_string(entity_uuid), buffs))
+        .collect();
+    if should_emit_overlay_signature(
+        &mut state.last_overlay_boss_buffs_signature,
+        buff_snapshot_signature(&boss_buff_snapshot),
+    ) {
+        state
+            .event_manager
+            .emit_boss_buff_update(boss_buff_snapshot);
+    }
 }
 
 fn emit_shield_detail_update_if_needed(state: &mut AppState, mut entries: Vec<ShieldDetailEntry>) {
@@ -546,6 +600,201 @@ pub(crate) fn resolve_entity_display_name(
         return entity.name.clone();
     }
     format!("目标 {uid}")
+}
+
+fn known_entity_display_name(
+    uid: i64,
+    uuid: Option<i64>,
+    entity: Option<&Entity>,
+    attr_store: &EntityAttrStore,
+) -> Option<String> {
+    if let Some(name) = entity
+        .and_then(|entity| entity.uuid)
+        .or(uuid)
+        .filter(|uuid| *uuid > 0)
+        .and_then(|uuid| attr_store.attr(uuid, AttrType::Name))
+        .and_then(|value| value.as_string())
+    {
+        let trimmed = name.trim();
+        if !trimmed.is_empty() {
+            return Some(trimmed.to_string());
+        }
+    }
+    if let Some(name) = attr_store
+        .attr(uid, AttrType::Name)
+        .and_then(|value| value.as_string())
+    {
+        let trimmed = name.trim();
+        if !trimmed.is_empty() {
+            return Some(trimmed.to_string());
+        }
+    }
+    if let Some(entity) = entity {
+        let trimmed = entity.name.trim();
+        if !trimmed.is_empty() {
+            return Some(trimmed.to_string());
+        }
+        if let Some(packet_name) = &entity.monster_name_packet {
+            let trimmed = packet_name.trim();
+            if !trimmed.is_empty() {
+                return Some(trimmed.to_string());
+            }
+        }
+    }
+    None
+}
+
+fn queue_overlay_uid_name(
+    sent_names: &mut HashMap<i64, String>,
+    queued_names: &mut HashMap<i64, String>,
+    uid: i64,
+    name: String,
+) {
+    if uid <= 0
+        || sent_names
+            .get(&uid)
+            .is_some_and(|previous| previous == &name)
+    {
+        return;
+    }
+    sent_names.insert(uid, name.clone());
+    queued_names.insert(uid, name);
+}
+
+fn queue_overlay_identity_name(
+    sent_names: &mut HashMap<String, String>,
+    queued_names: &mut HashMap<String, String>,
+    entity_key: String,
+    name: String,
+    force: bool,
+) {
+    if entity_key.trim().is_empty()
+        || (!force
+            && sent_names
+                .get(&entity_key)
+                .is_some_and(|previous| previous == &name))
+    {
+        return;
+    }
+    sent_names.insert(entity_key.clone(), name.clone());
+    queued_names.insert(entity_key, name);
+}
+
+fn queue_overlay_monster_id(
+    sent_monster_ids: &mut HashMap<String, i32>,
+    queued_monster_ids: &mut HashMap<String, i32>,
+    entity_key: String,
+    monster_id: i32,
+    force: bool,
+) {
+    if entity_key.trim().is_empty()
+        || monster_id <= 0
+        || (!force
+            && sent_monster_ids
+                .get(&entity_key)
+                .is_some_and(|previous| *previous == monster_id))
+    {
+        return;
+    }
+    sent_monster_ids.insert(entity_key.clone(), monster_id);
+    queued_monster_ids.insert(entity_key, monster_id);
+}
+
+fn should_resend_overlay_identity_names(state: &mut AppState) -> bool {
+    let now = Instant::now();
+    let should_resend = state
+        .last_overlay_identity_resend
+        .map(|last| now.duration_since(last) >= OVERLAY_IDENTITY_RESEND_INTERVAL)
+        .unwrap_or(true);
+    if should_resend {
+        state.last_overlay_identity_resend = Some(now);
+    }
+    should_resend
+}
+
+fn buff_snapshot_signature(snapshot: &HashMap<String, Vec<BuffUpdateState>>) -> String {
+    let mut keys: Vec<&String> = snapshot.keys().collect();
+    keys.sort();
+
+    let mut signature = String::new();
+    for key in keys {
+        let _ = write!(signature, "{}=", key);
+        let mut buffs = snapshot.get(key).cloned().unwrap_or_default();
+        buffs.sort_by(|left, right| {
+            left.base_id
+                .cmp(&right.base_id)
+                .then_with(|| left.host_key.cmp(&right.host_key))
+                .then_with(|| left.source_key.cmp(&right.source_key))
+                .then_with(|| left.host_uid.cmp(&right.host_uid))
+                .then_with(|| left.source_uid.cmp(&right.source_uid))
+                .then_with(|| left.create_time_ms.cmp(&right.create_time_ms))
+                .then_with(|| left.duration_ms.cmp(&right.duration_ms))
+                .then_with(|| left.layer.cmp(&right.layer))
+        });
+        for buff in buffs {
+            let _ = write!(
+                signature,
+                "{}:{}:{}:{}:{}:{}:{:?}:{:?}|",
+                buff.base_id,
+                buff.layer,
+                buff.duration_ms,
+                buff.create_time_ms,
+                buff.host_uid,
+                buff.source_uid,
+                buff.host_key,
+                buff.source_key
+            );
+        }
+        signature.push(';');
+    }
+
+    signature
+}
+
+fn hate_snapshot_signature(snapshot: &HashMap<String, Vec<HateEntry>>) -> String {
+    let mut keys: Vec<&String> = snapshot.keys().collect();
+    keys.sort();
+
+    let mut signature = String::new();
+    for key in keys {
+        let _ = write!(signature, "{}=", key);
+        let mut entries = snapshot.get(key).cloned().unwrap_or_default();
+        entries.sort_by(|left, right| {
+            left.uid
+                .cmp(&right.uid)
+                .then_with(|| left.entity_uuid_string.cmp(&right.entity_uuid_string))
+                .then_with(|| left.entity_key.cmp(&right.entity_key))
+                .then_with(|| left.hate_val.cmp(&right.hate_val))
+        });
+        for entry in entries {
+            let _ = write!(
+                signature,
+                "{}:{}:{:?}:{:?}|",
+                entry.uid, entry.hate_val, entry.entity_uuid_string, entry.entity_key
+            );
+        }
+        signature.push(';');
+    }
+
+    signature
+}
+
+fn should_emit_overlay_signature(
+    last_signature: &mut Option<String>,
+    next_signature: String,
+) -> bool {
+    if last_signature.as_deref() == Some(next_signature.as_str()) {
+        return false;
+    }
+
+    *last_signature = Some(next_signature);
+    true
+}
+
+fn clear_overlay_snapshot_signatures(state: &mut AppState) {
+    state.last_overlay_hate_lists_signature = None;
+    state.last_overlay_boss_buffs_signature = None;
+    state.last_overlay_teammate_buffs_signature = None;
 }
 
 fn resolve_player_display_name(
@@ -3571,6 +3820,11 @@ impl AppStateManager {
         state.local_owned_source_config_ids.clear();
         state.local_factor_selector_zero_slots.clear();
         state.sent_overlay_uids.clear();
+        state.sent_overlay_uid_names.clear();
+        state.sent_overlay_identity_names.clear();
+        state.sent_overlay_monster_ids.clear();
+        state.last_overlay_identity_resend = None;
+        clear_overlay_snapshot_signatures(state);
         state.battle_state = BattleStateMachine::default();
         state.pending_auto_reset = None;
         if state.auto_clear_on_scene_change {
@@ -3828,26 +4082,34 @@ impl AppStateManager {
                 .attr_store
                 .fight_resource_ids(current_local_player_uuid(&state.encounter));
             if !ids.is_empty() {
-                let now = crate::database::now_ms();
-                let new_state = FightResourceState {
-                    entries: ids
-                        .iter()
-                        .copied()
-                        .zip(values)
-                        .map(|(id, value)| FightResourceEntry { id, value })
-                        .collect(),
-                    received_at: now,
-                };
-                counter_dirty |= state
+                let entries: Vec<FightResourceEntry> = ids
+                    .iter()
+                    .copied()
+                    .zip(values)
+                    .map(|(id, value)| FightResourceEntry { id, value })
+                    .collect();
+                let changed = state
                     .local_monitor
-                    .counter_tracker
-                    .on_fight_resource_update(&new_state.entries);
-                factor_counter_dirty |= state
-                    .local_monitor
-                    .factor_counter_tracker
-                    .on_fight_resource_update(&new_state.entries);
-                state.local_monitor.fight_res_state = Some(new_state.clone());
-                state.event_manager.emit_fight_resource_update(new_state);
+                    .fight_res_state
+                    .as_ref()
+                    .map(|previous| previous.entries != entries)
+                    .unwrap_or(true);
+                if changed {
+                    let new_state = FightResourceState {
+                        entries,
+                        received_at: crate::database::now_ms(),
+                    };
+                    counter_dirty |= state
+                        .local_monitor
+                        .counter_tracker
+                        .on_fight_resource_update(&new_state.entries);
+                    factor_counter_dirty |= state
+                        .local_monitor
+                        .factor_counter_tracker
+                        .on_fight_resource_update(&new_state.entries);
+                    state.local_monitor.fight_res_state = Some(new_state.clone());
+                    state.event_manager.emit_fight_resource_update(new_state);
+                }
             }
         }
 
@@ -4417,19 +4679,54 @@ impl AppStateManager {
                 }
             }
 
+            let force_identity_resend = should_resend_overlay_identity_names(state);
             let target_entity = state.encounter.entity_by_uuid(target_uuid);
-            if let Some(entity) = target_entity {
-                if state.sent_overlay_uids.insert(target_display_uid) {
-                    new_names.insert(
-                        target_display_uid,
-                        resolve_entity_display_name(target_display_uid, entity, &state.attr_store),
-                    );
-                }
+            if let Some(name) = known_entity_display_name(
+                target_display_uid,
+                Some(target_uuid),
+                target_entity,
+                &state.attr_store,
+            ) {
+                queue_overlay_identity_name(
+                    &mut state.sent_overlay_identity_names,
+                    &mut player_names,
+                    target_key.clone(),
+                    name.clone(),
+                    force_identity_resend,
+                );
+                queue_overlay_uid_name(
+                    &mut state.sent_overlay_uid_names,
+                    &mut new_names,
+                    target_display_uid,
+                    name,
+                );
+            } else if let Some(entity) = target_entity {
+                let name =
+                    resolve_entity_display_name(target_display_uid, entity, &state.attr_store);
+                state.sent_overlay_uids.insert(target_display_uid);
+                queue_overlay_uid_name(
+                    &mut state.sent_overlay_uid_names,
+                    &mut new_names,
+                    target_display_uid,
+                    name,
+                );
             }
             if let Some(monster_id) = monster_id_for_uuid(state, target_uuid, target_entity) {
-                monster_ids.insert(target_key.clone(), monster_id);
+                queue_overlay_monster_id(
+                    &mut state.sent_overlay_monster_ids,
+                    &mut monster_ids,
+                    target_key.clone(),
+                    monster_id,
+                    force_identity_resend,
+                );
                 if target_display_uid > 0 {
-                    monster_ids.insert(target_display_uid.to_string(), monster_id);
+                    queue_overlay_monster_id(
+                        &mut state.sent_overlay_monster_ids,
+                        &mut monster_ids,
+                        target_display_uid.to_string(),
+                        monster_id,
+                        force_identity_resend,
+                    );
                 }
             }
 
@@ -4465,7 +4762,13 @@ impl AppStateManager {
                         .map(entity_uuid_string)
                         .unwrap_or_else(|| entity_uuid_string(entry.uid));
                     if let Some(monster_id) = entity.and_then(|entity| entity.monster_type_id) {
-                        monster_ids.insert(identity_key, monster_id);
+                        queue_overlay_monster_id(
+                            &mut state.sent_overlay_monster_ids,
+                            &mut monster_ids,
+                            identity_key,
+                            monster_id,
+                            force_identity_resend,
+                        );
                     } else {
                         player_names.insert(
                             identity_key,
@@ -4496,14 +4799,22 @@ impl AppStateManager {
                 let display_uid = state
                     .encounter
                     .display_uid_for_entity(teammate_uuid, entity);
-                player_names.insert(
+                queue_overlay_identity_name(
+                    &mut state.sent_overlay_identity_names,
+                    &mut player_names,
                     teammate_key,
                     resolve_player_display_name(display_uid, Some(entity), &state.attr_store),
+                    false,
                 );
             }
         }
 
-        state.event_manager.emit_hate_list_update(all_hate_lists);
+        if should_emit_overlay_signature(
+            &mut state.last_overlay_hate_lists_signature,
+            hate_snapshot_signature(&all_hate_lists),
+        ) {
+            state.event_manager.emit_hate_list_update(all_hate_lists);
+        }
 
         if !new_names.is_empty() {
             state.event_manager.emit_entity_name_map(new_names);
@@ -4513,12 +4824,22 @@ impl AppStateManager {
                 .event_manager
                 .emit_entity_identity_map(player_names, monster_ids);
         }
-        state
-            .event_manager
-            .emit_boss_buff_update(boss_buff_snapshot);
-        state
-            .event_manager
-            .emit_teammate_buff_update(teammate_buff_snapshot);
+        if should_emit_overlay_signature(
+            &mut state.last_overlay_boss_buffs_signature,
+            buff_snapshot_signature(&boss_buff_snapshot),
+        ) {
+            state
+                .event_manager
+                .emit_boss_buff_update(boss_buff_snapshot);
+        }
+        if should_emit_overlay_signature(
+            &mut state.last_overlay_teammate_buffs_signature,
+            buff_snapshot_signature(&teammate_buff_snapshot),
+        ) {
+            state
+                .event_manager
+                .emit_teammate_buff_update(teammate_buff_snapshot);
+        }
     }
 
     fn prepare_training_dummy_for_delta(

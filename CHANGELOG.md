@@ -1,8 +1,11 @@
 # Changelog
 
-## v1.1.0_beta6RC - Global Beta Release Candidate
+## v1.1.0_RC1 - Global Release Candidate
 
-- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta6RC` release-candidate build.
+- Updated package, Tauri, Rust crate, lockfile, sidebar display, and window-title metadata for the `v1.1.0_RC1` release-candidate build.
+- Added an advanced hotkey option to allow single-key global shortcuts, with an in-app warning that single-key hotkeys can override Windows or other application shortcuts.
+- Routed live-window show/hide hotkey actions through native Rust commands for faster response and less frontend WebView message traffic.
+- Reduced `PostMessage failed` / WebView2 queue pressure by coalescing pending live snapshot events, skipping hidden-window emits, clearing stale queued snapshots on reset, and deduping unchanged overlay/resource snapshots before they are emitted.
 - Corrected Stasis X5 Phantom Factor proc/lockout matching to use the generated observed factor buff `3059050` instead of the unproven `3059051` mapping, so its proc timer can appear from live effect evidence.
 - Made the live Training Dummy countdown tick from a local timer anchored to the latest backend state, so the visible header timer keeps counting down between combat packets while the backend still owns segment completion.
 - Reduced live-window header/table flicker by limiting Training Dummy header countdown repaint churn and adding hysteresis to dynamic live-window height resizing.

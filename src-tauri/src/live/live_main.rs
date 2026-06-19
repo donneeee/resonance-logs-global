@@ -7770,14 +7770,21 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
                 player_names,
                 monster_ids,
             } => {
+                let payload = EntityIdentityMapPayload {
+                    player_names,
+                    monster_ids,
+                };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "entity-identities",
+                    payload.clone(),
+                );
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "entity-identities",
-                    EntityIdentityMapPayload {
-                        player_names,
-                        monster_ids,
-                    },
+                    payload,
                 );
             }
             OutboundEvent::BuffCounterUpdate(counters) => {

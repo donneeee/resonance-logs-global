@@ -415,6 +415,38 @@ fn toggle_live_window(app: tauri::AppHandle) -> Result<(), String> {
 
 #[tauri::command]
 #[specta::specta]
+fn show_live_window(app: tauri::AppHandle) -> Result<(), String> {
+    let Some(live_window) = app.get_webview_window(WINDOW_LIVE_LABEL) else {
+        return Err("Live window not found".into());
+    };
+
+    let _ = live_window.set_focusable(false);
+    let _ = live_window.set_ignore_cursor_events(false);
+    live_window.show().map_err(|e| e.to_string())?;
+    live_window.unminimize().map_err(|e| e.to_string())?;
+    let _ = live_window.set_focusable(true);
+    app.emit("live-window-manual-show", ())
+        .map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
+fn hide_live_window(app: tauri::AppHandle) -> Result<(), String> {
+    let Some(live_window) = app.get_webview_window(WINDOW_LIVE_LABEL) else {
+        return Err("Live window not found".into());
+    };
+
+    let _ = live_window.set_ignore_cursor_events(true);
+    let _ = live_window.set_focusable(false);
+    live_window.hide().map_err(|e| e.to_string())?;
+
+    Ok(())
+}
+
+#[tauri::command]
+#[specta::specta]
 fn set_hide_main_window_to_tray(enabled: bool) -> Result<(), String> {
     HIDE_MAIN_WINDOW_TO_TRAY.store(enabled, Ordering::Relaxed);
     Ok(())
@@ -661,6 +693,8 @@ pub fn run() {
             translation_runtime::generate_all_ui_translation_scaffolds,
             toggle_game_overlay_window,
             toggle_live_window,
+            show_live_window,
+            hide_live_window,
             set_hide_main_window_to_tray,
             toggle_game_overlay_edit_mode,
             sync_monster_overlay_window_to_game_overlay,

@@ -10,6 +10,7 @@
     mode = "cover",
     containColor = "rgba(0, 0, 0, 0)",
     opacity = 100,
+    onRestored,
   }: {
     enabled?: boolean;
     image?: string;
@@ -17,6 +18,7 @@
     mode?: BackgroundImageMode;
     containColor?: string;
     opacity?: number;
+    onRestored?: (imagePath: string) => void;
   } = $props();
 
   function fileUrlToPath(source: string): string {
@@ -85,11 +87,25 @@
       .catch((error) => {
         if (!cancelled && token === loadToken) {
           console.warn("Failed to load background image data", error);
-          if (
-            fallbackSource &&
-            fallbackSource !== source &&
-            setConvertedLocalSource(fallbackSource)
-          ) {
+          if (fallbackSource && fallbackSource !== source) {
+            invoke<string>("import_background_image", { sourcePath: fallbackSource })
+              .then((restoredPath) => {
+                if (cancelled || token !== loadToken) return null;
+                onRestored?.(restoredPath);
+                return invoke<string>("load_background_image_data_url", {
+                  imagePath: restoredPath,
+                });
+              })
+              .then((dataUrl) => {
+                if (!dataUrl || cancelled || token !== loadToken) return;
+                renderedImage = dataUrl;
+              })
+              .catch((restoreError) => {
+                if (cancelled || token !== loadToken) return;
+                console.warn("Failed to restore imported background image", restoreError);
+                if (setConvertedLocalSource(fallbackSource)) return;
+                setConvertedLocalSource(source);
+              });
             return;
           }
           setConvertedLocalSource(source);

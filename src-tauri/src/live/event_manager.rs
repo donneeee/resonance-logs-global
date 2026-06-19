@@ -125,32 +125,30 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
         return false;
     };
 
-    if target_label != crate::WINDOW_LIVE_LABEL {
-        match window.is_visible() {
-            Ok(true) => {}
-            Ok(false) => {
+    match window.is_visible() {
+        Ok(true) => {}
+        Ok(false) => {
+            trace!(
+                "Skipping emit for '{}': target window '{}' is hidden",
+                event, target_label
+            );
+            return false;
+        }
+        Err(e) => {
+            let error_msg = e.to_string();
+            mark_webview_emit_backoff(target_label);
+            if is_webview_state_error(&error_msg) {
                 trace!(
-                    "Skipping emit for '{}': target window '{}' is hidden",
-                    event, target_label
+                    "WebView2 not ready for visibility check on '{}' (window may be closing)",
+                    target_label
                 );
-                return false;
+            } else {
+                warn!(
+                    "Failed to check visibility for '{}' on '{}': {}",
+                    event, target_label, e
+                );
             }
-            Err(e) => {
-                let error_msg = e.to_string();
-                mark_webview_emit_backoff(target_label);
-                if is_webview_state_error(&error_msg) {
-                    trace!(
-                        "WebView2 not ready for visibility check on '{}' (window may be closing)",
-                        target_label
-                    );
-                } else {
-                    warn!(
-                        "Failed to check visibility for '{}' on '{}': {}",
-                        event, target_label, e
-                    );
-                }
-                return false;
-            }
+            return false;
         }
     }
 
@@ -194,32 +192,30 @@ pub(crate) fn safe_emit_json_to(
         return false;
     };
 
-    if target_label != crate::WINDOW_LIVE_LABEL {
-        match window.is_visible() {
-            Ok(true) => {}
-            Ok(false) => {
+    match window.is_visible() {
+        Ok(true) => {}
+        Ok(false) => {
+            trace!(
+                "Skipping emit for '{}': target window '{}' is hidden",
+                event, target_label
+            );
+            return false;
+        }
+        Err(e) => {
+            let error_msg = e.to_string();
+            mark_webview_emit_backoff(target_label);
+            if is_webview_state_error(&error_msg) {
                 trace!(
-                    "Skipping emit for '{}': target window '{}' is hidden",
-                    event, target_label
+                    "WebView2 not ready for visibility check on '{}' (window may be closing)",
+                    target_label
                 );
-                return false;
+            } else {
+                warn!(
+                    "Failed to check visibility for '{}' on '{}': {}",
+                    event, target_label, e
+                );
             }
-            Err(e) => {
-                let error_msg = e.to_string();
-                mark_webview_emit_backoff(target_label);
-                if is_webview_state_error(&error_msg) {
-                    trace!(
-                        "WebView2 not ready for visibility check on '{}' (window may be closing)",
-                        target_label
-                    );
-                } else {
-                    warn!(
-                        "Failed to check visibility for '{}' on '{}': {}",
-                        event, target_label, e
-                    );
-                }
-                return false;
-            }
+            return false;
         }
     }
 
@@ -295,6 +291,47 @@ impl EventManager {
         }
     }
 
+    fn push_coalesced<F>(&mut self, event: OutboundEvent, mut matches_event: F)
+    where
+        F: FnMut(&OutboundEvent) -> bool,
+    {
+        if let Some(pending) = self
+            .outbound_events
+            .iter_mut()
+            .find(|pending| matches_event(pending))
+        {
+            *pending = event;
+            return;
+        }
+
+        self.outbound_events.push(event);
+    }
+
+    fn clear_pending_snapshots(&mut self) {
+        self.outbound_events.retain(|event| {
+            !matches!(
+                event,
+                OutboundEvent::EncounterUpdate { .. }
+                    | OutboundEvent::TrainingDummyUpdate(_)
+                    | OutboundEvent::LiveData(_)
+                    | OutboundEvent::BuffUpdate(_)
+                    | OutboundEvent::BossBuffUpdate(_)
+                    | OutboundEvent::TeammateBuffUpdate(_)
+                    | OutboundEvent::TeammateFantasyUpdate(_)
+                    | OutboundEvent::HateListUpdate(_)
+                    | OutboundEvent::EntityNameMap { .. }
+                    | OutboundEvent::EntityIdentityMap { .. }
+                    | OutboundEvent::BuffCounterUpdate(_)
+                    | OutboundEvent::SeasonCultivateFactorCounterUpdate { .. }
+                    | OutboundEvent::SkillCdUpdate(_)
+                    | OutboundEvent::PanelAttrUpdate(_)
+                    | OutboundEvent::FightResourceUpdate(_)
+                    | OutboundEvent::ShieldDetailUpdate { .. }
+                    | OutboundEvent::DeathReplay(_)
+            )
+        });
+    }
+
     /// Emits an encounter update event.
     ///
     /// # Arguments
@@ -302,14 +339,18 @@ impl EventManager {
     /// * `header_info` - The header information for the encounter.
     /// * `is_paused` - Whether the encounter is paused.
     pub fn emit_encounter_update(&mut self, header_info: HeaderInfo, is_paused: bool) {
-        self.outbound_events.push(OutboundEvent::EncounterUpdate {
-            header_info,
-            is_paused,
-        });
+        self.push_coalesced(
+            OutboundEvent::EncounterUpdate {
+                header_info,
+                is_paused,
+            },
+            |event| matches!(event, OutboundEvent::EncounterUpdate { .. }),
+        );
     }
 
     /// Emits an encounter reset event.
     pub fn emit_encounter_reset(&mut self) {
+        self.clear_pending_snapshots();
         self.outbound_events.push(OutboundEvent::EncounterReset);
     }
 
@@ -340,8 +381,10 @@ impl EventManager {
     }
 
     pub fn emit_training_dummy_update(&mut self, training_dummy: TrainingDummyState) {
-        self.outbound_events
-            .push(OutboundEvent::TrainingDummyUpdate(training_dummy));
+        self.push_coalesced(
+            OutboundEvent::TrainingDummyUpdate(training_dummy),
+            |event| matches!(event, OutboundEvent::TrainingDummyUpdate(_)),
+        );
     }
 
     /// Returns whether the `EventManager` should emit events.
@@ -350,40 +393,61 @@ impl EventManager {
     }
 
     pub fn emit_live_data(&mut self, payload: LiveDataPayload) {
-        self.outbound_events.push(OutboundEvent::LiveData(payload));
+        self.push_coalesced(OutboundEvent::LiveData(payload), |event| {
+            matches!(event, OutboundEvent::LiveData(_))
+        });
     }
 
     pub fn emit_buff_update(&mut self, buffs: Vec<BuffUpdateState>) {
-        self.outbound_events.push(OutboundEvent::BuffUpdate(buffs));
+        self.push_coalesced(OutboundEvent::BuffUpdate(buffs), |event| {
+            matches!(event, OutboundEvent::BuffUpdate(_))
+        });
     }
 
     pub fn emit_boss_buff_update(&mut self, boss_buffs: HashMap<String, Vec<BuffUpdateState>>) {
-        self.outbound_events
-            .push(OutboundEvent::BossBuffUpdate(boss_buffs));
+        self.push_coalesced(OutboundEvent::BossBuffUpdate(boss_buffs), |event| {
+            matches!(event, OutboundEvent::BossBuffUpdate(_))
+        });
     }
 
     pub fn emit_teammate_buff_update(
         &mut self,
         teammate_buffs: HashMap<String, Vec<BuffUpdateState>>,
     ) {
-        self.outbound_events
-            .push(OutboundEvent::TeammateBuffUpdate(teammate_buffs));
+        self.push_coalesced(OutboundEvent::TeammateBuffUpdate(teammate_buffs), |event| {
+            matches!(event, OutboundEvent::TeammateBuffUpdate(_))
+        });
     }
 
     pub fn emit_teammate_fantasy_update(&mut self, fantasies: Vec<TeammateFantasyState>) {
         if fantasies.is_empty() {
             return;
         }
-        self.outbound_events
-            .push(OutboundEvent::TeammateFantasyUpdate(fantasies));
+        self.push_coalesced(OutboundEvent::TeammateFantasyUpdate(fantasies), |event| {
+            matches!(event, OutboundEvent::TeammateFantasyUpdate(_))
+        });
     }
 
     pub fn emit_hate_list_update(&mut self, hate_lists: HashMap<String, Vec<HateEntry>>) {
-        self.outbound_events
-            .push(OutboundEvent::HateListUpdate(hate_lists));
+        self.push_coalesced(OutboundEvent::HateListUpdate(hate_lists), |event| {
+            matches!(event, OutboundEvent::HateListUpdate(_))
+        });
     }
 
     pub fn emit_entity_name_map(&mut self, names: HashMap<i64, String>) {
+        if names.is_empty() {
+            return;
+        }
+
+        if let Some(OutboundEvent::EntityNameMap { names: pending }) = self
+            .outbound_events
+            .iter_mut()
+            .find(|event| matches!(event, OutboundEvent::EntityNameMap { .. }))
+        {
+            pending.extend(names);
+            return;
+        }
+
         self.outbound_events
             .push(OutboundEvent::EntityNameMap { names });
     }
@@ -393,6 +457,23 @@ impl EventManager {
         player_names: HashMap<String, String>,
         monster_ids: HashMap<String, i32>,
     ) {
+        if player_names.is_empty() && monster_ids.is_empty() {
+            return;
+        }
+
+        if let Some(OutboundEvent::EntityIdentityMap {
+            player_names: pending_player_names,
+            monster_ids: pending_monster_ids,
+        }) = self
+            .outbound_events
+            .iter_mut()
+            .find(|event| matches!(event, OutboundEvent::EntityIdentityMap { .. }))
+        {
+            pending_player_names.extend(player_names);
+            pending_monster_ids.extend(monster_ids);
+            return;
+        }
+
         self.outbound_events.push(OutboundEvent::EntityIdentityMap {
             player_names,
             monster_ids,
@@ -400,8 +481,9 @@ impl EventManager {
     }
 
     pub fn emit_buff_counter_update(&mut self, counters: Vec<CounterUpdateState>) {
-        self.outbound_events
-            .push(OutboundEvent::BuffCounterUpdate(counters));
+        self.push_coalesced(OutboundEvent::BuffCounterUpdate(counters), |event| {
+            matches!(event, OutboundEvent::BuffCounterUpdate(_))
+        });
     }
 
     pub fn emit_season_cultivate_factor_counter_update(
@@ -410,26 +492,37 @@ impl EventManager {
         snapshot: SeasonCultivateActiveSnapshot,
         counters: Vec<CounterUpdateState>,
     ) {
-        self.outbound_events
-            .push(OutboundEvent::SeasonCultivateFactorCounterUpdate {
+        self.push_coalesced(
+            OutboundEvent::SeasonCultivateFactorCounterUpdate {
                 selection,
                 snapshot,
                 counters,
-            });
+            },
+            |event| {
+                matches!(
+                    event,
+                    OutboundEvent::SeasonCultivateFactorCounterUpdate { .. }
+                )
+            },
+        );
     }
 
     pub fn emit_skill_cd_update(&mut self, cds: Vec<SkillCdState>) {
-        self.outbound_events.push(OutboundEvent::SkillCdUpdate(cds));
+        self.push_coalesced(OutboundEvent::SkillCdUpdate(cds), |event| {
+            matches!(event, OutboundEvent::SkillCdUpdate(_))
+        });
     }
 
     pub fn emit_panel_attr_update(&mut self, attrs: Vec<PanelAttrState>) {
-        self.outbound_events
-            .push(OutboundEvent::PanelAttrUpdate(attrs));
+        self.push_coalesced(OutboundEvent::PanelAttrUpdate(attrs), |event| {
+            matches!(event, OutboundEvent::PanelAttrUpdate(_))
+        });
     }
 
     pub fn emit_fight_resource_update(&mut self, fight_res: FightResourceState) {
-        self.outbound_events
-            .push(OutboundEvent::FightResourceUpdate(fight_res));
+        self.push_coalesced(OutboundEvent::FightResourceUpdate(fight_res), |event| {
+            matches!(event, OutboundEvent::FightResourceUpdate(_))
+        });
     }
 
     pub fn emit_shield_detail_update(
@@ -438,12 +531,14 @@ impl EventManager {
         max_hp: i64,
         entries: Vec<ShieldDetailEntry>,
     ) {
-        self.outbound_events
-            .push(OutboundEvent::ShieldDetailUpdate {
+        self.push_coalesced(
+            OutboundEvent::ShieldDetailUpdate {
                 current_hp,
                 max_hp,
                 entries,
-            });
+            },
+            |event| matches!(event, OutboundEvent::ShieldDetailUpdate { .. }),
+        );
     }
 
     pub fn emit_death_replay(&mut self, records: Vec<DeathRecord>) {
