@@ -293,8 +293,25 @@
     payload: LiveDataPayload,
     nowMs = Date.now(),
   ): void {
-    suppressEmptyClearAfterSceneChange = false;
+    if (
+      payload.dpsDisplayPaused !== true ||
+      SETTINGS.live.general.state.autoClearOnSceneChange !== false
+    ) {
+      suppressEmptyClearAfterSceneChange = false;
+    }
     updateLiveActivityFromPayload(payload, nowMs);
+  }
+
+  function applyTrainingDummyUpdate(
+    trainingDummy: LiveDataPayload["trainingDummy"],
+  ): void {
+    setTrainingDummyState(trainingDummy);
+    if (latestLivePayload) {
+      latestLivePayload = {
+        ...latestLivePayload,
+        trainingDummy,
+      };
+    }
   }
 
   function shouldSuppressEmptyLiveClear(): boolean {
@@ -768,7 +785,7 @@ t("live.resumeToast", "战斗已继续"),
         lastEventTime = Date.now();
         hadAnyEvent = true;
         markLiveActivity(lastEventTime);
-        setTrainingDummyState(event.payload);
+        applyTrainingDummyUpdate(event.payload);
       });
 
       if (isDestroyed) {

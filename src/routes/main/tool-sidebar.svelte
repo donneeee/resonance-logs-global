@@ -58,7 +58,9 @@
   }
 
   function formatAppVersion(version: string): string {
-    return version.replace(/-beta\.?(\d+)$/i, "_beta$1");
+    return version.replace(/-beta\.?(\d+)(rc)?$/i, (_, number, rc) =>
+      `_beta${number}${rc ? "RC" : ""}`,
+    );
   }
 
   async function toggleOverlayWindow() {

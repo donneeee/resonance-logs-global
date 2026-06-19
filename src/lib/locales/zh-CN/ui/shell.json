@@ -40,6 +40,8 @@
   "settings.profile.autoHideWindowsOnGameBlurDescription": "启用此配置方案时，若其他应用获得焦点，实时计量表和当前可见的悬浮窗会自动隐藏；当 Blue Protocol: Star Resonance 或 Resonance Logs - Global 重新激活后会恢复。此功能只检查系统前台窗口，不读取游戏内存。",
   "settings.profile.highlightDpsHealerSpecIcons": "高亮 DPS 治疗专精",
   "settings.profile.highlightDpsHealerSpecIconsDescription": "Smite 和 Dissonance 保持治疗绿色，并可选择添加红色发光，用于在实时和历史行中标记 DPS 治疗定位。",
+  "settings.profile.restore8165RoseOrbs": "Restore 8165 Rose Orbs",
+  "settings.profile.restore8165RoseOrbsTooltip": "Added option to restore 8165 orbs for players affected by scam. This option doesn't do anything. It's just here for the vibes. #NeverForget",
   "settings.profileLibrary.chooseFolder": "Choose Folder",
   "settings.profileLibrary.currentFolder": "Current folder",
   "settings.profileLibrary.description": "Load profile JSON files from a folder. Missing fields are added from the current defaults, and the last selected profile is remembered outside the JSON files.",

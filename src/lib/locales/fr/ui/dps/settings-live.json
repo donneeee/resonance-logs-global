@@ -67,7 +67,7 @@
   "targetDummy.guardianElite": "Mannequin gardien d’élite",
   "targetDummyMode": "Mode mannequin d’entraînement",
   "autoClearOnSceneChange": "Vider le compteur au changement de scène",
-  "autoClearOnSceneChangeDescription": "Enregistre et vide automatiquement le compteur actuel lorsque le jeu change de scène ou de serveur. Désactivez cette option pour mettre le compteur actuel en pause lors des changements de scène jusqu'à sa reprise ; tant qu'elle est désactivée, les réinitialisations doivent être faites manuellement.",
+  "autoClearOnSceneChangeDescription": "Enregistre et vide automatiquement le compteur actuel lorsque le jeu change de scène ou de serveur. Désactivez cette option pour garder le compteur terminé visible après les changements de scène ; le prochain combat démarre automatiquement un nouveau compteur.",
   "autoHideLiveWindow": "Masquer automatiquement la fenêtre live",
   "autoHideLiveWindowDescription": "Masque le compteur live après le délai si aucun nouveau dégât n'est détecté, puis le réaffiche automatiquement dès qu'un dégât apparaît.",
   "autoHideOverlaysWithLiveWindow": "Masquer les overlays avec la fenêtre live",

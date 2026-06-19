@@ -67,7 +67,7 @@
   "targetDummy.guardianElite": "エリート守護者ダミー",
   "targetDummyMode": "ターゲットダミーモード",
   "autoClearOnSceneChange": "シーン変更時にメーターをクリア",
-  "autoClearOnSceneChangeDescription": "ゲームのシーンまたはサーバーが変わったとき、現在のメーターを自動保存してクリアします。オフにすると、再開するまでシーン変更時に現在のメーターを一時停止します。オフの間は手動でリセットする必要があります。",
+  "autoClearOnSceneChangeDescription": "ゲームのシーンまたはサーバーが変わったとき、現在のメーターを自動保存してクリアします。オフにすると、シーン変更後も終了時のメーターを表示したままにし、次の戦闘で新しいメーターを自動開始します。",
   "autoHideLiveWindow": "ライブウィンドウを自動非表示",
   "autoHideLiveWindowDescription": "新しいダメージが検出されない場合、遅延後にライブメーターを非表示にし、ダメージが発生すると自動で表示します。",
   "autoHideOverlaysWithLiveWindow": "ライブウィンドウと一緒にオーバーレイを自動非表示",

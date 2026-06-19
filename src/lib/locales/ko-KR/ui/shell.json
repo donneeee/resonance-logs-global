@@ -40,6 +40,8 @@
   "settings.profile.autoHideWindowsOnGameBlurDescription": "이 프로필이 활성화되어 있을 때 다른 앱에 포커스가 있으면 라이브 미터와 표시 중인 오버레이 창을 숨기고, Blue Protocol: Star Resonance 또는 Resonance Logs - Global이 다시 활성화되면 복원합니다. OS의 전면 창만 확인하며 게임 메모리는 읽지 않습니다.",
   "settings.profile.highlightDpsHealerSpecIcons": "DPS 힐러 특성 강조",
   "settings.profile.highlightDpsHealerSpecIconsDescription": "Smite와 Dissonance는 힐러 녹색을 유지하며, 선택적으로 붉은 빛을 더해 라이브와 기록 행에서 DPS 힐러 역할을 표시합니다.",
+  "settings.profile.restore8165RoseOrbs": "Restore 8165 Rose Orbs",
+  "settings.profile.restore8165RoseOrbsTooltip": "Added option to restore 8165 orbs for players affected by scam. This option doesn't do anything. It's just here for the vibes. #NeverForget",
   "settings.profileLibrary.chooseFolder": "Choose Folder",
   "settings.profileLibrary.currentFolder": "Current folder",
   "settings.profileLibrary.description": "Load profile JSON files from a folder. Missing fields are added from the current defaults, and the last selected profile is remembered outside the JSON files.",

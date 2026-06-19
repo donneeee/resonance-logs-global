@@ -105,7 +105,7 @@
       baseSize,
       SETTINGS.live.general.state.playerImagineBadgeScale,
     );
-    return Math.max(64, Math.round(badgeSize * 2 + 8));
+    return Math.round(badgeSize * 2 + 4);
   }
 
   function rowClass(): string {
@@ -124,7 +124,9 @@
 
   const rankWidthStyle = $derived.by(() => {
     const width = rankBadgeWidth();
-    return width > 0 ? `min-width: ${width}px;` : "";
+    return width > 0
+      ? `width: ${width}px; min-width: ${width}px; max-width: ${width}px; box-sizing: border-box;`
+      : "";
   });
 
   function cellClass(baseClass: string): string {
@@ -164,7 +166,7 @@
             alt={t("historyDetail.classIcon", "Class icon")}
           />
           <span
-            class="inline-flex shrink-0 items-center justify-center rounded border border-amber-300/70 bg-amber-400/15 px-1.5 py-0.5 text-[0.78em] font-semibold tabular-nums text-amber-100"
+            class="inline-flex shrink-0 items-center justify-center overflow-hidden whitespace-nowrap rounded border border-amber-300/70 bg-amber-400/15 px-0 py-0.5 text-[0.74em] font-semibold tabular-nums text-amber-100"
             style={rankWidthStyle}
           >
             {rankLabel()}
@@ -252,7 +254,7 @@
             t("historyDetail.unknownClass", "Unknown Class")}
         />
         <span
-          class="inline-flex shrink-0 items-center justify-center rounded border border-amber-300/70 bg-amber-400/15 px-1.5 py-0.5 text-[0.78em] font-semibold tabular-nums text-amber-100"
+          class="inline-flex shrink-0 items-center justify-center overflow-hidden whitespace-nowrap rounded border border-amber-300/70 bg-amber-400/15 px-0 py-0.5 text-[0.74em] font-semibold tabular-nums text-amber-100"
           style={rankWidthStyle}
         >
           {rankLabel()}

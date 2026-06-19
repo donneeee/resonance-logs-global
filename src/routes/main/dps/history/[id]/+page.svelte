@@ -2828,6 +2828,7 @@
   let abbreviatedDecimalPlaces = $derived(
     SETTINGS.history.general.state.abbreviatedDecimalPlaces ?? 1,
   );
+  let historyTableSettings = $derived(SETTINGS.history.tableCustomization.state);
 
   function toggleGroup(id: number) {
     const next = new Set(expandedGroups);
@@ -5444,7 +5445,11 @@
       </div>
     {:else}
     <div class="history-sticky-frame rounded border border-border/60 bg-card">
-        <table class="history-sticky-table w-full border-separate border-spacing-0">
+        <table
+          class="history-sticky-table history-player-table w-full border-separate border-spacing-0"
+          style="--history-player-row-height: {historyTableSettings.playerRowHeight}px; --history-player-font-size: {historyTableSettings.playerFontSize}px; --history-player-header-height: {historyTableSettings.tableHeaderHeight}px; --history-player-header-font-size: {historyTableSettings.tableHeaderFontSize}px; --history-player-header-color: {historyTableSettings.tableHeaderTextColor};"
+        >
+          {#if historyTableSettings.showTableHeader}
           <thead>
             <tr class="bg-popover">
               <th
@@ -5459,6 +5464,7 @@
               {/each}
             </tr>
           </thead>
+          {/if}
           <tbody class="bg-background/40">
             {#if encounterEntitiesLoading && displayedPlayers.length === 0}
               <tr class="border-t border-border/40">
@@ -5498,7 +5504,8 @@
                 >
                   <div class="flex items-center gap-2 h-full">
                     <ClassSpecIcon
-                      class="size-5 object-contain"
+                      class="shrink-0 object-contain"
+                      style="width: {historyTableSettings.playerIconSize}px; height: {historyTableSettings.playerIconSize}px;"
                       className={p.className}
                       classSpecName={iconSpecName}
                       alt={t("detail.classIcon", "职业图标")}
@@ -5521,7 +5528,10 @@
                             ? SETTINGS.history.general.state.showYourAbilityScore
                             : SETTINGS.history.general.state.showOthersAbilityScore)}
                             {#if SETTINGS.history.general.state.shortenAbilityScore}
-                              <AbbreviatedNumber num={p.abilityScore} />
+                              <AbbreviatedNumber
+                                num={p.abilityScore}
+                                suffixFontSize={historyTableSettings.abbreviatedFontSize}
+                              />
                             {:else}
                               <span>{p.abilityScore}</span>
                             {/if}
@@ -5575,6 +5585,7 @@
                         <AbbreviatedNumber
                           num={p[col.key] ?? 0}
                           decimalPlaces={abbreviatedDecimalPlaces}
+                          suffixFontSize={historyTableSettings.abbreviatedFontSize}
                         />
                       {:else}
                         {col.format(p[col.key] ?? 0)}
@@ -5587,6 +5598,7 @@
                 <TableRowGlow
                   className={p.className}
                   classSpecName={p.classSpecName}
+                  settingsScope="history"
                   percentage={activeTab === "healing"
                     ? SETTINGS.history.general.state.relativeToTopHealPlayer &&
                       maxHealPlayer > 0
@@ -5604,11 +5616,6 @@
                 />
               </tr>
             {/each}
-            {#if displayedPlayers.length > 0}
-              <tr class="history-bottom-spacer" aria-hidden="true">
-                <td colspan={visiblePlayerColumns.length + 1}></td>
-              </tr>
-            {/if}
             {/if}
           </tbody>
         </table>
@@ -5790,7 +5797,11 @@
     {/if}
 
     <div class="history-sticky-frame rounded border border-border/60 bg-card">
-      <table class="history-sticky-table w-full border-separate border-spacing-0">
+      <table
+        class="history-sticky-table history-skill-table w-full border-separate border-spacing-0"
+        style="--history-skill-row-height: {historyTableSettings.skillRowHeight}px; --history-skill-font-size: {historyTableSettings.skillFontSize}px; --history-skill-header-height: {historyTableSettings.skillHeaderHeight}px; --history-skill-header-font-size: {historyTableSettings.skillHeaderFontSize}px; --history-skill-header-color: {historyTableSettings.skillHeaderTextColor};"
+      >
+        {#if historyTableSettings.skillShowHeader}
         <thead>
           <tr class="bg-popover">
             <th
@@ -5805,6 +5816,7 @@
             {/each}
           </tr>
         </thead>
+        {/if}
         <tbody class="bg-background/40">
           {#if targetDetailsLoading && (selectedSkillTargetUid !== null || selectedSkillTargetUuid !== null) && flatSkillRows.length === 0}
             <tr class="border-t border-border/40">
@@ -5847,7 +5859,8 @@
                     </svg>
                     {#if skillIconPath}
                       <img
-                        class="size-4 shrink-0 rounded-sm object-cover"
+                        class="shrink-0 rounded-sm object-cover"
+                        style="width: {historyTableSettings.skillIconSize}px; height: {historyTableSettings.skillIconSize}px;"
                         src={skillIconPath}
                         alt=""
                         loading="lazy"
@@ -5891,7 +5904,8 @@
                     {/if}
                     {#if skillIconPath}
                       <img
-                        class="size-4 shrink-0 rounded-sm object-cover"
+                        class="shrink-0 rounded-sm object-cover"
+                        style="width: {historyTableSettings.skillIconSize}px; height: {historyTableSettings.skillIconSize}px;"
                         src={skillIconPath}
                         alt=""
                         loading="lazy"
@@ -5935,6 +5949,7 @@
                     <AbbreviatedNumber
                       num={skillCellValue(item, col.key)}
                       decimalPlaces={abbreviatedDecimalPlaces}
+                      suffixFontSize={historyTableSettings.skillAbbreviatedFontSize}
                     />
                   {:else if col.key === "property" || col.key === "damageMode"}
                     {localizedDamageColumnValue(col, item.row[col.key] ?? null)}
@@ -5945,6 +5960,8 @@
               {/each}
               <TableRowGlow
                 className={selectedPlayer.className}
+                isSkill={true}
+                settingsScope="history"
                 percentage={skillType === "heal"
                   ? SETTINGS.history.general.state.relativeToTopHealSkill &&
                     maxSkillTotal > 0
@@ -5962,11 +5979,6 @@
               />
             </tr>
           {/each}
-          {#if flatSkillRows.length > 0}
-            <tr class="history-bottom-spacer" aria-hidden="true">
-              <td colspan={visibleSkillColumns.length + 1}></td>
-            </tr>
-          {/if}
           {/if}
         </tbody>
       </table>
@@ -6292,9 +6304,9 @@
     margin-bottom: clamp(1rem, 3dvh, 2rem);
     overflow: auto;
     overscroll-behavior: contain;
-    padding-bottom: clamp(1rem, 5dvh, 4rem);
+    padding-bottom: 0.5rem;
     position: relative;
-    scroll-padding-bottom: clamp(1rem, 5dvh, 4rem);
+    scroll-padding-bottom: 0.5rem;
     isolation: isolate;
     background: var(--history-sticky-frame-bg) !important;
   }
@@ -6354,15 +6366,42 @@
     z-index: 0 !important;
   }
 
-  :global(.history-sticky-table tbody tr:last-child td) {
-    padding-bottom: clamp(1.5rem, 5dvh, 4rem);
+  :global(.history-player-table thead tr) {
+    height: var(--history-player-header-height, 44px);
   }
 
-  :global(.history-sticky-table .history-bottom-spacer td) {
-    height: clamp(2rem, 6dvh, 4rem);
-    padding: 0 !important;
-    border: 0;
-    pointer-events: none;
+  :global(.history-player-table th) {
+    color: var(--history-player-header-color, var(--muted-foreground)) !important;
+    font-size: var(--history-player-header-font-size, 12px) !important;
+  }
+
+  :global(.history-player-table tbody tr) {
+    height: var(--history-player-row-height, 44px);
+  }
+
+  :global(.history-player-table tbody td) {
+    font-size: var(--history-player-font-size, 14px) !important;
+    padding-bottom: 0.25rem;
+    padding-top: 0.25rem;
+  }
+
+  :global(.history-skill-table thead tr) {
+    height: var(--history-skill-header-height, 44px);
+  }
+
+  :global(.history-skill-table th) {
+    color: var(--history-skill-header-color, var(--muted-foreground)) !important;
+    font-size: var(--history-skill-header-font-size, 12px) !important;
+  }
+
+  :global(.history-skill-table tbody tr) {
+    height: var(--history-skill-row-height, 44px);
+  }
+
+  :global(.history-skill-table tbody td) {
+    font-size: var(--history-skill-font-size, 14px) !important;
+    padding-bottom: 0.25rem;
+    padding-top: 0.25rem;
   }
 
   :global(.history-sticky-table tbody td.absolute) {

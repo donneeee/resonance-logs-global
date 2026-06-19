@@ -28,6 +28,7 @@
 
   let loadingLoggerSessionDir = $state(false);
   let loggerSessionDirectory = $state<EventLoggerSessionDirectoryPayload | null>(null);
+  let restoreRoseOrbsMeme = $state(false);
   const activeProfile = $derived.by(() => activeProfileOrDefault());
 
   function ensureLoggerSettingsShape() {
@@ -236,6 +237,38 @@
           "Smite and Dissonance stay healer-green, with an optional red glow to mark their DPS-healer role in live and history rows.",
         )}
       />
+
+      <label
+        class="group flex cursor-pointer items-center gap-3 rounded-md px-3 py-2.5 transition-colors hover:bg-popover/50"
+        title={tShell(
+          "settings.profile.restore8165RoseOrbsTooltip",
+          "Added option to restore 8165 orbs for players affected by scam. This option doesn't do anything. It's just here for the vibes. #NeverForget",
+        )}
+      >
+        <div class="relative flex shrink-0 items-center justify-center">
+          <input
+            type="checkbox"
+            bind:checked={restoreRoseOrbsMeme}
+            class="peer h-5 w-5 cursor-pointer appearance-none rounded border-2 border-border bg-popover transition-all checked:border-primary checked:bg-primary hover:border-border/80 checked:hover:border-primary/80 focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-0"
+          />
+          <svg
+            class="pointer-events-none absolute h-3.5 w-3.5 text-white opacity-0 transition-opacity peer-checked:opacity-100"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="3"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="min-w-0 flex-1">
+          <div class="text-sm font-medium text-foreground transition-colors group-hover:text-foreground">
+            {tShell("settings.profile.restore8165RoseOrbs", "Restore 8165 Rose Orbs")}
+          </div>
+        </div>
+      </label>
 
       <div class="space-y-3 rounded-lg border border-border/60 bg-background/40 p-4 text-sm">
         <div class="flex flex-wrap items-start justify-between gap-3">

@@ -985,33 +985,67 @@ fn finish_training_dummy_if_due(state: &mut AppState, source: &str) -> bool {
     true
 }
 
-fn pause_active_encounter_for_scene_change(state: &mut AppState, source: &str) {
-    let has_active_meter =
-        encounter_has_stats(&state.encounter) || state.training_dummy.is_active();
+fn emit_current_scene_change_boundary(state: &mut AppState, fallback_scene_name: &str) {
+    if !state.event_manager.should_emit_events() {
+        return;
+    }
+
+    let scene_name = state
+        .encounter
+        .current_scene_name
+        .clone()
+        .unwrap_or_else(|| fallback_scene_name.to_string());
+    state.event_manager.emit_scene_change(scene_name);
+}
+
+fn clear_combat_runtime_silently(state: &mut AppState) {
+    state.encounter.reset_combat_state();
+    sync_selected_factor_items_to_local_entity(state);
+    reset_season_cultivate_factor_counters(state);
+    state.modifier_buff_monitor.active_buffs.clear();
+    state.boss_buff_monitors.clear();
+    state.teammate_buff_monitors.clear();
+    state.local_owned_source_uids.clear();
+    state.local_owned_source_uuids.clear();
+    state.local_owned_source_config_ids.clear();
+    state.local_factor_selector_zero_slots.clear();
+    state.death_snapshot_dirty = false;
+    state.battle_state = BattleStateMachine::default();
+    state.pending_auto_reset = None;
+}
+
+fn hold_active_encounter_for_scene_change(state: &mut AppState, source: &str) -> bool {
+    let has_combat_stats = encounter_has_stats(&state.encounter);
+    let has_active_meter = has_combat_stats || state.training_dummy.is_active();
     if !has_active_meter {
         info!(
             target: "app::live",
             "scene_change_auto_clear_disabled_no_active_meter source={}",
             source
         );
-        return;
-    }
-
-    if state.encounter.is_encounter_paused {
-        info!(
-            target: "app::live",
-            "scene_change_auto_clear_disabled_already_paused source={}",
-            source
-        );
-        return;
+        return false;
     }
 
     info!(
         target: "app::live",
-        "scene_change_auto_clear_disabled_pausing_encounter source={}",
+        "scene_change_auto_clear_disabled_holding_encounter source={}",
         source
     );
-    state.set_encounter_paused(true);
+    persist_segment_unless_saved(state, false, source);
+
+    state.encounter.dps_display_paused = has_combat_stats;
+    let live_payload = crate::live::event_manager::generate_live_data_payload(
+        &state.encounter,
+        &state.attr_store,
+        build_training_dummy_state(&state.training_dummy),
+    );
+    state.event_manager.emit_live_data(live_payload);
+
+    let previous = build_training_dummy_state(&state.training_dummy);
+    state.training_dummy.clear();
+    emit_training_dummy_update_if_changed(state, previous);
+    clear_combat_runtime_silently(state);
+    true
 }
 
 fn build_encounter_metadata(
@@ -3383,7 +3417,9 @@ impl AppStateManager {
         state.pending_auto_reset = None;
 
         if !state.auto_clear_on_scene_change {
-            pause_active_encounter_for_scene_change(state, "server_change");
+            if hold_active_encounter_for_scene_change(state, "server_change") {
+                emit_current_scene_change_boundary(state, "Server changed");
+            }
             return;
         }
 
@@ -3432,7 +3468,7 @@ impl AppStateManager {
             state.training_dummy.clear();
             emit_training_dummy_update_if_changed(state, previous);
         } else if !was_initial_scene {
-            pause_active_encounter_for_scene_change(state, "enter_scene");
+            hold_active_encounter_for_scene_change(state, "enter_scene");
         } else {
             info!(
                 target: "app::live",
@@ -3521,7 +3557,9 @@ impl AppStateManager {
             state.encounter.clear_entities();
             state.encounter.reset_combat_state();
         } else {
-            pause_active_encounter_for_scene_change(state, "container_data_resync");
+            if hold_active_encounter_for_scene_change(state, "container_data_resync") {
+                emit_current_scene_change_boundary(state, "Container data resync");
+            }
         }
         state.attr_store.clear_all_entities();
         state.local_monitor.clear_runtime_state();

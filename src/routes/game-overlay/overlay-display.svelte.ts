@@ -581,15 +581,13 @@ function buildSeasonCultivateThresholdRow(
     ?? counterSlot?.threshold
     ?? getSeasonCultivateFactorThreshold(itemId, slot.threshold);
   if (!threshold || threshold <= 0) return null;
-  const inferredTotal = getInferredFactorEnergyTotal(now);
-  const total = Math.max(0, counterSlot?.currentCount ?? 0, inferredTotal);
-  const observedProcCount = seasonCultivateFactorProcCounts().get(itemId) ?? 0;
+  const hasCounterSlot = Boolean(counterSlot);
+  const total = Math.max(0, counterSlot?.currentCount ?? 0);
+  const observedProcCount = hasCounterSlot
+    ? 0
+    : seasonCultivateFactorProcCounts().get(itemId) ?? 0;
   const storedProcCount = counterSlot?.procCount ?? 0;
-  const procCount = Math.max(
-    storedProcCount,
-    observedProcCount,
-    Math.floor(total / threshold),
-  );
+  const procCount = hasCounterSlot ? storedProcCount : observedProcCount;
   const remainder = total % threshold;
   const linkedBuff = factorBuffMap.get(slot.resetBuffId);
   const active = isBuffActive(linkedBuff, now);

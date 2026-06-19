@@ -67,7 +67,7 @@
   "targetDummy.guardianElite": "Dummy Guardian Elite",
   "targetDummyMode": "Mode Target Dummy",
   "autoClearOnSceneChange": "Bersihkan Meter saat Scene Berubah",
-  "autoClearOnSceneChangeDescription": "Secara otomatis menyimpan dan membersihkan meter saat game berganti scene atau server. Matikan ini untuk menjeda meter saat ini saat scene berubah hingga Anda melanjutkannya; selama dimatikan, reset harus dilakukan secara manual.",
+  "autoClearOnSceneChangeDescription": "Secara otomatis menyimpan dan membersihkan meter saat game berganti scene atau server. Matikan ini untuk tetap menampilkan meter yang sudah selesai setelah scene berubah; combat berikutnya akan memulai meter baru secara otomatis.",
   "autoHideLiveWindow": "Sembunyikan otomatis jendela live",
   "autoHideLiveWindowDescription": "Sembunyikan meter live setelah jeda saat tidak ada damage baru yang terdeteksi, lalu tampilkan otomatis begitu damage muncul.",
   "autoHideOverlaysWithLiveWindow": "Sembunyikan overlay bersama jendela live",

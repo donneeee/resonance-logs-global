@@ -7,12 +7,14 @@
     className,
     classSpecName = "",
     percentage,
-    isSkill = false
+    isSkill = false,
+    settingsScope = "live",
   }: {
     className: string;
     classSpecName?: string;
     percentage: number;
     isSkill?: boolean;
+    settingsScope?: "live" | "history";
   } = $props();
 
   let classColor = $derived.by(() =>
@@ -24,12 +26,15 @@
     Number.isFinite(percentage) ? Math.max(0, Math.min(100, percentage)) : 0,
   );
 
-  // derive customization from live table settings using runes-friendly $derived
-  // Choose skill-specific settings when rendering skill rows
-  let mode = $derived.by(() => isSkill ? SETTINGS.live.tableCustomization.state.skillRowGlowMode : SETTINGS.live.tableCustomization.state.rowGlowMode);
-  let opacity = $derived.by(() => isSkill ? SETTINGS.live.tableCustomization.state.skillRowGlowOpacity : SETTINGS.live.tableCustomization.state.rowGlowOpacity);
-  let borderHeight = $derived(SETTINGS.live.tableCustomization.state.rowGlowBorderHeight);
-  let rowBorderRadius = $derived.by(() => isSkill ? SETTINGS.live.tableCustomization.state.skillRowBorderRadius : SETTINGS.live.tableCustomization.state.rowBorderRadius);
+  let tableSettings = $derived.by(() =>
+    settingsScope === "history"
+      ? SETTINGS.history.tableCustomization.state
+      : SETTINGS.live.tableCustomization.state,
+  );
+  let mode = $derived.by(() => isSkill ? tableSettings.skillRowGlowMode : tableSettings.rowGlowMode);
+  let opacity = $derived.by(() => isSkill ? tableSettings.skillRowGlowOpacity : tableSettings.rowGlowOpacity);
+  let borderHeight = $derived.by(() => tableSettings.rowGlowBorderHeight);
+  let rowBorderRadius = $derived.by(() => isSkill ? tableSettings.skillRowBorderRadius : tableSettings.rowBorderRadius);
   
 
   // glowColor is always the class/spec color

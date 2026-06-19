@@ -402,7 +402,7 @@
         <SettingsSwitch
           bind:checked={SETTINGS.live.general.state.autoClearOnSceneChange}
           label={liveT("autoClearOnSceneChange", "Clear Meter on Scene Change")}
-          description={liveT("autoClearOnSceneChangeDescription", "Automatically save and clear the current meter when the game changes scene or server. Turn this off to pause the current meter across scene changes until you resume it; while it is off, manual resets must be done.")}
+          description={liveT("autoClearOnSceneChangeDescription", "Automatically save and clear the current meter when the game changes scene or server. Turn this off to keep the finished meter visible after scene changes; the next combat starts a new meter automatically.")}
         />
       </div>
 

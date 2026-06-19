@@ -180,7 +180,7 @@ fn build_counter_rules(
                 .iter()
                 .copied()
                 .filter(|source_template| {
-                    template.uses_global_energy
+                    template_uses_global_energy(template)
                         || templates_share_item_id(source_template, template)
                 })
                 .collect();
@@ -188,7 +188,7 @@ fn build_counter_rules(
                 .iter()
                 .flat_map(|template| template.sources.iter().cloned())
                 .collect();
-            if sources.is_empty() && !template.uses_global_energy {
+            if sources.is_empty() && !template_uses_global_energy(template) {
                 return None;
             }
             Some(CounterRule {
@@ -239,6 +239,14 @@ fn templates_share_item_id(left: &FactorCounterTemplate, right: &FactorCounterTe
     left.item_ids
         .iter()
         .any(|item_id| template_matches_item_id(right, *item_id))
+}
+
+fn template_uses_global_energy(template: &FactorCounterTemplate) -> bool {
+    template.uses_global_energy
+        || template.effect_slots.iter().any(|slot| {
+            slot.threshold
+                .is_some_and(|threshold| threshold > 0)
+        })
 }
 
 fn active_snapshot_from_data(
@@ -781,6 +789,7 @@ mod tests {
                     increment: 1,
                     hits_required: None,
                     hit_filter: None,
+                    required_type_flags: None,
                 }],
                 effect_slots: Vec::new(),
             },
@@ -833,6 +842,7 @@ mod tests {
                     increment: 1,
                     hits_required: None,
                     hit_filter: None,
+                    required_type_flags: None,
                 }],
                 effect_slots: Vec::new(),
             },
@@ -840,7 +850,7 @@ mod tests {
                 item_ids: vec![2001],
                 uses_global_energy: false,
                 sources: Vec::new(),
-                effect_slots: vec![slot_config(7001)],
+                effect_slots: vec![slot_config_with_threshold(7001, None)],
             },
         ]);
 
@@ -853,6 +863,58 @@ mod tests {
             }
         );
         assert!(state.build_factor_counter_rules().is_empty());
+    }
+
+    #[test]
+    fn factor_rule_generation_treats_threshold_slots_as_global_energy() {
+        let mut data = blueprotobuf::SeasonCultivateLineData::default();
+        let mut line = blueprotobuf::CultivateLineData::default();
+        let mut sub_type = blueprotobuf::CultivateLineSubTypeData::default();
+
+        sub_type
+            .cultivate_line_data_map
+            .insert(1, area_with_middle_items(vec![1001, 2001, 3001]));
+        line.cultivate_line_map.insert(10, sub_type);
+        data.season_cultivate_line_map.insert(20, line);
+
+        let mut state = SeasonCultivateRuntimeState::default();
+        state.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 51,
+                    hits_required: None,
+                    hit_filter: None,
+                    required_type_flags: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::SkillCast {
+                    skill_base_ids: vec![2232],
+                    increment: 150,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![3001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config(8001)],
+            },
+        ]);
+
+        assert!(state.replace_data(data));
+
+        let rules = state.build_factor_counter_rules();
+        assert_eq!(rules.len(), 1);
+        assert_eq!(rules[0].rule_id, factor_rule_id(3001));
+        assert_eq!(rules[0].sources.len(), 2);
+        assert_eq!(rules[0].effect_slots.len(), 1);
+        assert_eq!(rules[0].effect_slots[0].reset_buff_id, 8001);
     }
 
     #[test]
@@ -876,6 +938,7 @@ mod tests {
                     increment: 5,
                     hits_required: None,
                     hit_filter: None,
+                    required_type_flags: None,
                 }],
                 effect_slots: Vec::new(),
             },
@@ -934,6 +997,7 @@ mod tests {
                     increment: 92,
                     hits_required: None,
                     hit_filter: None,
+                    required_type_flags: None,
                 }],
                 effect_slots: Vec::new(),
             },
@@ -947,13 +1011,13 @@ mod tests {
                 item_ids: vec![3001],
                 uses_global_energy: false,
                 sources: Vec::new(),
-                effect_slots: vec![slot_config(8001)],
+                effect_slots: vec![slot_config_with_threshold(8001, None)],
             },
             FactorCounterTemplate {
                 item_ids: vec![4001],
                 uses_global_energy: false,
                 sources: Vec::new(),
-                effect_slots: vec![slot_config(9001)],
+                effect_slots: vec![slot_config_with_threshold(9001, None)],
             },
         ]);
 

@@ -1,8 +1,8 @@
 # Changelog
 
-## v1.1.0_beta6 - Global Beta
+## v1.1.0_beta6RC - Global Beta Release Candidate
 
-- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta6` beta release.
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `1.1.0_beta6RC` release-candidate build.
 - Corrected Stasis X5 Phantom Factor proc/lockout matching to use the generated observed factor buff `3059050` instead of the unproven `3059051` mapping, so its proc timer can appear from live effect evidence.
 - Made the live Training Dummy countdown tick from a local timer anchored to the latest backend state, so the visible header timer keeps counting down between combat packets while the backend still owns segment completion.
 - Reduced live-window header/table flicker by limiting Training Dummy header countdown repaint churn and adding hysteresis to dynamic live-window height resizing.
@@ -14,6 +14,9 @@
 - Fixed Npcap startup on systems with mismatched or stale `wpcap.dll` companion DLLs by loading the standard Npcap install path with DLL-load-dir search flags and removing the unqualified `wpcap.dll` fallback that could trigger a Windows entry-point dialog.
 - Added a read-only Npcap diagnostic to Network settings showing the `wpcap.dll` path used for packet capture, plus the loader error when Npcap cannot be opened.
 - Made custom background images more repair/update tolerant by remembering the originally selected file path as a fallback while still preferring the imported Local AppData copy for normal rendering.
+- Fixed inflated Reality factor overlay proc counts, including Marksman Reality X4, by using the backend factor counter for thresholded Reality rows instead of noisy buff-layer fallback totals.
+- Fixed Reality factor counters so thresholded Reality slots always consume the shared Inspiration energy pool, restoring Marksman Reality X6 proc counting from other active Inspiration sources.
+- Separated Reality factor lockouts from linked effect-duration timers, so only descriptions with "Can trigger at most once within ..." freeze energy gain while no-lockout Reality effects can keep counting procs during their active duration.
 
 ## v1.1.0_beta5 - Global Beta
 

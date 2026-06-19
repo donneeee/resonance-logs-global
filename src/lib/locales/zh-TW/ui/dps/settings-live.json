@@ -67,7 +67,7 @@
   "targetDummy.guardianElite": "精英守護木樁",
   "targetDummyMode": "打樁模式",
   "autoClearOnSceneChange": "切換場景時清空計量表",
-  "autoClearOnSceneChangeDescription": "當遊戲切換場景或伺服器時，自動儲存並清空目前的計量表。關閉此項後，場景切換時會暫停目前計量表，直到你手動繼續；關閉期間必須手動重置。",
+  "autoClearOnSceneChangeDescription": "當遊戲切換場景或伺服器時，自動儲存並清空目前的計量表。關閉此項後，場景切換後會保留結束時的計量表顯示；下一次戰鬥會自動開始新的計量表。",
   "autoHideLiveWindow": "自動隱藏即時視窗",
   "autoHideLiveWindowDescription": "沒有偵測到新傷害時，延遲後隱藏即時計量表；一旦出現傷害會自動顯示。",
   "autoHideOverlaysWithLiveWindow": "隨即時視窗自動隱藏疊加層",

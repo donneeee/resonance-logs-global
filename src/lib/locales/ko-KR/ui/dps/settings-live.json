@@ -67,7 +67,7 @@
   "targetDummy.guardianElite": "정예 수호자 더미",
   "targetDummyMode": "타겟 더미 모드",
   "autoClearOnSceneChange": "장면 변경 시 미터 지우기",
-  "autoClearOnSceneChangeDescription": "게임의 장면이나 서버가 바뀌면 현재 미터를 자동으로 저장하고 지웁니다. 이 옵션을 끄면 다시 시작할 때까지 장면 변경 시 현재 미터를 일시 정지합니다. 꺼져 있는 동안에는 수동으로 초기화해야 합니다.",
+  "autoClearOnSceneChangeDescription": "게임의 장면이나 서버가 바뀌면 현재 미터를 자동으로 저장하고 지웁니다. 이 옵션을 끄면 장면 변경 후 완료된 미터를 계속 표시하며, 다음 전투가 시작되면 새 미터가 자동으로 시작됩니다.",
   "autoHideLiveWindow": "라이브 창 자동 숨기기",
   "autoHideLiveWindowDescription": "새 피해가 감지되지 않으면 지연 후 라이브 미터를 숨기고, 피해가 발생하면 자동으로 다시 보여줍니다.",
   "autoHideOverlaysWithLiveWindow": "라이브 창과 함께 오버레이 자동 숨기기",

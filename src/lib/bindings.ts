@@ -830,7 +830,6 @@ deletedCount: number;
 preservedFavoriteCount: number }
 export type Device = { name: string; description: string | null }
 export type DiagnosticsCleanupResult = { deletedFiles: number; deletedBytes: number; scannedFiles: number; skippedFiles: number; errors: string[] }
-export type NpcapDiagnostics = { detected: boolean; dllPath: string | null; error: string | null }
 export type EffectSlotConfig = { slotId: number; threshold: number | null; resetBuffId: number; resetSourceConfigId?: number | null; onBuffAdd?: CounterAction; onBuffChange?: CounterAction; onBuffRemove?: CounterAction; freezeDurationMs?: number | null; onFreezeExpire?: CounterAction; altFreeze?: AltFreezeConfig | null; thresholdModifier?: AttrModifier | null; freezeDurationModifier?: AttrModifier | null; freezeOnThreshold?: boolean; resetSkillKeys?: number[] | null; onResetSkill?: CounterAction }
 /**
  * Filters for querying encounters.
@@ -951,6 +950,7 @@ export type ModulePart = { id: number; name: string; value: number }
 export type ModuleSolution = { modules: ModuleInfo[]; score: number; attr_breakdown: Partial<{ [key in string]: number }> }
 export type MonitorRuntimeSnapshot = { live: LiveRuntimeSnapshot; skill: SkillRuntimeSnapshot; monster: MonsterRuntimeSnapshot; teammate: TeammateRuntimeSnapshot }
 export type MonsterRuntimeSnapshot = { enabled: boolean; globalIds: number[]; selfAppliedIds: number[]; monitorAllSelfApplied: boolean }
+export type NpcapDiagnostics = { detected: boolean; dllPath: string | null; error: string | null }
 export type PerSourceStats = { sourceMonsterId: number | null; totalValue: number; taken: RawCombatStats; skills: Partial<{ [key in number]: RawSkillStats }> }
 export type PerTargetStats = { targetUid: number; targetUuid?: number | null; targetName: string; totalValue: number; damage: RawCombatStats; skills: Partial<{ [key in number]: RawSkillStats }> }
 /**

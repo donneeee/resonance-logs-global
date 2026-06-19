@@ -253,7 +253,54 @@ fn is_local_player_damage(
 
     damage
         .top_summoner_id
-        .or(damage.attacker_uuid)
-        .map(|uuid| uuid == local_player_uuid)
-        .unwrap_or(false)
+        .is_some_and(|uuid| uuid == local_player_uuid)
+        || damage
+            .attacker_uuid
+            .is_some_and(|uuid| uuid == local_player_uuid)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use blueprotobuf_lib::blueprotobuf::SyncDamageInfo;
+
+    fn player_damage(attacker_uuid: Option<i64>, top_summoner_id: Option<i64>) -> SyncDamageInfo {
+        SyncDamageInfo {
+            r#type: Some(EDamageType::Normal as i32),
+            value: Some(1),
+            attacker_uuid,
+            top_summoner_id,
+            owner_id: Some(1),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn local_attacker_counts_even_with_non_local_top_summoner() {
+        let damage = player_damage(Some(100), Some(200));
+
+        assert!(is_local_player_damage(&damage, 100));
+    }
+
+    #[test]
+    fn local_top_summoner_counts_for_owned_sources() {
+        let damage = player_damage(Some(200), Some(100));
+
+        assert!(is_local_player_damage(&damage, 100));
+    }
+
+    #[test]
+    fn non_local_damage_does_not_lock_training_dummy() {
+        let damage = player_damage(Some(200), Some(300));
+
+        assert!(!is_local_player_damage(&damage, 100));
+    }
+
+    #[test]
+    fn healing_does_not_lock_training_dummy() {
+        let mut damage = player_damage(Some(100), None);
+        damage.r#type = Some(EDamageType::Heal as i32);
+
+        assert!(!is_local_player_damage(&damage, 100));
+    }
 }

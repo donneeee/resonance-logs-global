@@ -40,6 +40,8 @@
   "settings.profile.autoHideWindowsOnGameBlurDescription": "Saat profil ini aktif, meter live dan jendela overlay yang terlihat akan disembunyikan ketika aplikasi lain mendapat fokus, lalu muncul kembali saat Blue Protocol: Star Resonance atau Resonance Logs - Global aktif lagi. Opsi ini hanya memeriksa jendela foreground OS dan tidak membaca memori game.",
   "settings.profile.highlightDpsHealerSpecIcons": "Sorot spec healer DPS",
   "settings.profile.highlightDpsHealerSpecIconsDescription": "Smite dan Dissonance tetap hijau sebagai healer, dengan glow merah opsional untuk menandai peran healer DPS di baris live dan history.",
+  "settings.profile.restore8165RoseOrbs": "Restore 8165 Rose Orbs",
+  "settings.profile.restore8165RoseOrbsTooltip": "Added option to restore 8165 orbs for players affected by scam. This option doesn't do anything. It's just here for the vibes. #NeverForget",
   "settings.profileLibrary.chooseFolder": "Choose Folder",
   "settings.profileLibrary.currentFolder": "Current folder",
   "settings.profileLibrary.description": "Load profile JSON files from a folder. Missing fields are added from the current defaults, and the last selected profile is remembered outside the JSON files.",

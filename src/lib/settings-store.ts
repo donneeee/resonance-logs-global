@@ -1645,6 +1645,25 @@ export const DEFAULT_LIVE_TABLE_SETTINGS = {
   rowBorderRadius: 0,
 };
 
+export const DEFAULT_HISTORY_TABLE_SETTINGS = {
+  ...DEFAULT_LIVE_TABLE_SETTINGS,
+  compactMode: false,
+  playerRowHeight: 44,
+  playerFontSize: 14,
+  playerIconSize: 20,
+  showTableHeader: true,
+  tableHeaderHeight: 44,
+  tableHeaderFontSize: 12,
+  abbreviatedFontSize: 10,
+  skillRowHeight: 44,
+  skillFontSize: 14,
+  skillIconSize: 16,
+  skillShowHeader: true,
+  skillHeaderHeight: 44,
+  skillHeaderFontSize: 12,
+  skillAbbreviatedFontSize: 10,
+};
+
 export const DEFAULT_LIVE_DYNAMIC_WINDOW_SETTINGS = {
   enabled: false,
   maxPlayerRows: 10,
@@ -1978,6 +1997,7 @@ const DEFAULT_SETTINGS = {
   history: {
     general: { ...DEFAULT_GENERAL_SETTINGS },
     summary: cloneHistorySummaryDefaults(),
+    tableCustomization: { ...DEFAULT_HISTORY_TABLE_SETTINGS },
     dpsPlayers: { ...DEFAULT_HISTORY_STATS },
     dpsSkillBreakdown: { ...DEFAULT_HISTORY_DPS_SKILL_STATS },
     healPlayers: { ...DEFAULT_HISTORY_HEAL_STATS },
@@ -2465,6 +2485,10 @@ export const SETTINGS = {
       DEFAULT_SETTINGS.history.summary,
       normalizeHistorySummarySettingsState,
     ),
+    tableCustomization: createSettingsStore(
+      "historyTableCustomization",
+      DEFAULT_SETTINGS.history.tableCustomization,
+    ),
     dps: {
       players: createSettingsStore(
         "historyDpsPlayers",
@@ -2784,6 +2808,10 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
       SETTINGS.history.summary,
       DEFAULT_SETTINGS.history.summary,
       normalizeHistorySummarySettingsState,
+    ),
+    persistSettingsStoreState(
+      SETTINGS.history.tableCustomization,
+      DEFAULT_SETTINGS.history.tableCustomization,
     ),
     persistSettingsStoreState(
       SETTINGS.history.dps.players,
@@ -3106,6 +3134,7 @@ export const settings = {
       history: {
         general: SETTINGS.history.general.state,
         summary: SETTINGS.history.summary.state,
+        tableCustomization: SETTINGS.history.tableCustomization.state,
         dps: {
           players: SETTINGS.history.dps.players.state,
           skillBreakdown: SETTINGS.history.dps.skillBreakdown.state,
@@ -3247,6 +3276,13 @@ export function normalizePersistedSettings(): void {
   Object.assign(
     SETTINGS.history.summary.state,
     normalizeHistorySummarySettingsState(SETTINGS.history.summary.state),
+  );
+  Object.assign(
+    SETTINGS.history.tableCustomization.state,
+    normalizeObjectWithDefaults(
+      SETTINGS.history.tableCustomization.state,
+      DEFAULT_SETTINGS.history.tableCustomization,
+    ),
   );
   Object.assign(
     SETTINGS.history.dps.players.state,

@@ -15,6 +15,8 @@
   let expandedSections = $state({
     general: false,
     graph: false,
+    playerTableSettings: false,
+    skillTableSettings: false,
     summary: false,
     dpsPlayers: false,
     dpsSkills: false,
@@ -278,6 +280,107 @@
             label={t("modifierReportsEnabled", "Enable Modifier (WIP) Analysis")}
             description={t("modifierReportsEnabledDescription", "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.")}
           />
+        </div>
+      {/if}
+    </div>
+
+    <div class="bg-popover/40 rounded-lg border border-border/50 overflow-hidden">
+      <button
+        type="button"
+        class="w-full flex items-center justify-between px-4 py-3 hover:bg-popover/50 transition-colors"
+        onclick={() => toggleSection('playerTableSettings')}
+      >
+        <h2 class="text-base font-semibold text-foreground">{t("playerTableSettings.title", "Player Table Settings")}</h2>
+        <ChevronDown class="w-5 h-5 text-muted-foreground transition-transform duration-200 {expandedSections.playerTableSettings ? 'rotate-180' : ''}" />
+      </button>
+      {#if expandedSections.playerTableSettings}
+        <div class="px-4 pb-4 space-y-4">
+          <p class="text-xs text-muted-foreground">
+            {t("playerTableSettings.description", "Control row sizing, headers, row highlights, and abbreviated-number suffixes in history player tables.")}
+          </p>
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-foreground">{t("playerTableSettings.playerRows", "Player Rows")}</h3>
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.playerRowHeight} min={0} max={100} step={1} label={t("common.rowHeight", "Row Height")} description={t("playerTableSettings.rowHeight.description", "Height of each player row in history tables.")} unit="px" />
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.playerFontSize} min={0} max={100} step={1} label={t("common.fontSize", "Font Size")} description={t("playerTableSettings.fontSize.description", "Font size for player names and stats in history tables.")} unit="px" />
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.playerIconSize} min={0} max={100} step={1} label={t("common.iconSize", "Icon Size")} description={t("playerTableSettings.iconSize.description", "Class/spec icon size in history player rows.")} unit="px" />
+
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-muted-foreground">{t("common.mode", "Mode")}</span>
+              <div class="flex items-center gap-1">
+                <button type="button" class="px-2 py-1 text-xs rounded {SETTINGS.history.tableCustomization.state.rowGlowMode === 'gradient-underline' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-popover/30'}" onclick={() => (SETTINGS.history.tableCustomization.state.rowGlowMode = "gradient-underline")}>{t("common.gradientUnderline", "Gradient (Underline)")}</button>
+                <button type="button" class="px-2 py-1 text-xs rounded {SETTINGS.history.tableCustomization.state.rowGlowMode === 'gradient' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-popover/30'}" onclick={() => (SETTINGS.history.tableCustomization.state.rowGlowMode = "gradient")}>{t("common.gradient", "Gradient")}</button>
+                <button type="button" class="px-2 py-1 text-xs rounded {SETTINGS.history.tableCustomization.state.rowGlowMode === 'solid' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-popover/30'}" onclick={() => (SETTINGS.history.tableCustomization.state.rowGlowMode = "solid")}>{t("common.solid", "Solid")}</button>
+              </div>
+            </div>
+
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.rowGlowOpacity} min={0} max={1} step={0.01} label={t("playerTableSettings.rowHighlightOpacity", "Row Highlight Opacity")} description={t("playerTableSettings.rowHighlightOpacity.description", "Row highlight fill opacity in history player tables.")} />
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.rowBorderRadius} min={0} max={24} step={1} label={t("playerTableSettings.rowCornerRadius", "Row Corner Radius")} description={t("playerTableSettings.rowCornerRadius.description", "Corner radius for history player row highlights.")} unit="px" />
+          </div>
+
+          <div class="space-y-2 pt-3 border-t border-border/30">
+            <h3 class="text-sm font-semibold text-foreground">{t("common.headerSettings", "Header Settings")}</h3>
+            <SettingsSwitch bind:checked={SETTINGS.history.tableCustomization.state.showTableHeader} label={t("common.showHeader", "Show Header")} description={t("playerTableSettings.showHeader.description", "Toggle history player table column title visibility.")} />
+            {#if SETTINGS.history.tableCustomization.state.showTableHeader}
+              <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.tableHeaderHeight} min={0} max={100} step={1} label={t("common.headerHeight", "Header Height")} description={t("playerTableSettings.headerHeight.description", "History player table header row height.")} unit="px" />
+              <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.tableHeaderFontSize} min={0} max={100} step={1} label={t("common.headerFontSize", "Header Font Size")} description={t("playerTableSettings.headerFontSize.description", "History player table column title font size.")} unit="px" />
+            {/if}
+          </div>
+
+          <div class="space-y-2 pt-3 border-t border-border/30">
+            <h3 class="text-sm font-semibold text-foreground">{t("playerTableSettings.suffixFontSize", "Suffix Font Size")}</h3>
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.abbreviatedFontSize} min={0} max={100} step={1} label={t("playerTableSettings.suffixFontSize", "Suffix Font Size")} description={t("playerTableSettings.suffixFontSize.description", "Font size for K/M suffixes in history player rows.")} unit="px" />
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <div class="bg-popover/40 rounded-lg border border-border/50 overflow-hidden">
+      <button
+        type="button"
+        class="w-full flex items-center justify-between px-4 py-3 hover:bg-popover/50 transition-colors"
+        onclick={() => toggleSection('skillTableSettings')}
+      >
+        <h2 class="text-base font-semibold text-foreground">{t("skillTableSettings.title", "Skill Table Settings")}</h2>
+        <ChevronDown class="w-5 h-5 text-muted-foreground transition-transform duration-200 {expandedSections.skillTableSettings ? 'rotate-180' : ''}" />
+      </button>
+      {#if expandedSections.skillTableSettings}
+        <div class="px-4 pb-4 space-y-4">
+          <p class="text-xs text-muted-foreground">
+            {t("skillTableSettings.description", "Customize size, headers, row highlights, and abbreviated-number suffixes in history skill tables.")}
+          </p>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-foreground">{t("skillTableSettings.skillRows", "Skill Rows")}</h3>
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillRowHeight} min={0} max={100} step={1} label={t("skillTableSettings.skillRowHeight", "Skill Row Height")} description={t("skillTableSettings.skillRowHeight.description", "Height of each skill row in history tables.")} unit="px" />
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillFontSize} min={0} max={100} step={1} label={t("skillTableSettings.skillFontSize", "Skill Font Size")} description={t("skillTableSettings.skillFontSize.description", "Font size for skill names and stats in history tables.")} unit="px" />
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillIconSize} min={0} max={100} step={1} label={t("skillTableSettings.skillIconSize", "Skill Icon Size")} description={t("skillTableSettings.skillIconSize.description", "Skill icon size in history skill rows.")} unit="px" />
+
+            <div class="flex items-center gap-2">
+              <span class="text-sm text-muted-foreground">{t("common.mode", "Mode")}</span>
+              <div class="flex items-center gap-1">
+                <button type="button" class="px-2 py-1 text-xs rounded {SETTINGS.history.tableCustomization.state.skillRowGlowMode === 'gradient-underline' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-popover/30'}" onclick={() => (SETTINGS.history.tableCustomization.state.skillRowGlowMode = "gradient-underline")}>{t("common.gradientUnderline", "Gradient (Underline)")}</button>
+                <button type="button" class="px-2 py-1 text-xs rounded {SETTINGS.history.tableCustomization.state.skillRowGlowMode === 'gradient' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-popover/30'}" onclick={() => (SETTINGS.history.tableCustomization.state.skillRowGlowMode = "gradient")}>{t("common.gradient", "Gradient")}</button>
+                <button type="button" class="px-2 py-1 text-xs rounded {SETTINGS.history.tableCustomization.state.skillRowGlowMode === 'solid' ? 'bg-muted text-foreground' : 'text-muted-foreground hover:bg-popover/30'}" onclick={() => (SETTINGS.history.tableCustomization.state.skillRowGlowMode = "solid")}>{t("common.solid", "Solid")}</button>
+              </div>
+            </div>
+
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillRowGlowOpacity} min={0} max={1} step={0.01} label={t("skillTableSettings.skillRowHighlightOpacity", "Skill Row Highlight Opacity")} description={t("skillTableSettings.skillRowHighlightOpacity.description", "Skill row highlight fill opacity in history tables.")} />
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillRowBorderRadius} min={0} max={24} step={1} label={t("skillTableSettings.skillRowCornerRadius", "Skill Row Corner Radius")} description={t("skillTableSettings.skillRowCornerRadius.description", "Corner radius for history skill row highlights.")} unit="px" />
+          </div>
+
+          <div class="space-y-2 pt-3 border-t border-border/30">
+            <h3 class="text-sm font-semibold text-foreground">{t("skillTableSettings.showSkillHeader", "Skill Header")}</h3>
+            <SettingsSwitch bind:checked={SETTINGS.history.tableCustomization.state.skillShowHeader} label={t("skillTableSettings.showSkillHeader", "Show Skill Header")} description={t("skillTableSettings.showSkillHeader.description", "Toggle history skill table column title visibility.")} />
+            {#if SETTINGS.history.tableCustomization.state.skillShowHeader}
+              <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillHeaderHeight} min={0} max={100} step={1} label={t("skillTableSettings.skillHeaderHeight", "Skill Header Height")} description={t("skillTableSettings.skillHeaderHeight.description", "History skill table header row height.")} unit="px" />
+              <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillHeaderFontSize} min={0} max={100} step={1} label={t("skillTableSettings.skillHeaderFontSize", "Skill Header Font Size")} description={t("skillTableSettings.skillHeaderFontSize.description", "History skill table column title font size.")} unit="px" />
+            {/if}
+          </div>
+
+          <div class="space-y-2 pt-3 border-t border-border/30">
+            <h3 class="text-sm font-semibold text-foreground">{t("skillTableSettings.skillSuffixFontSize", "Skill Suffix Font Size")}</h3>
+            <SettingsSlider bind:value={SETTINGS.history.tableCustomization.state.skillAbbreviatedFontSize} min={0} max={100} step={1} label={t("skillTableSettings.skillSuffixFontSize", "Skill Suffix Font Size")} description={t("skillTableSettings.skillSuffixFontSize.description", "Font size for K/M suffixes in history skill rows.")} unit="px" />
+          </div>
         </div>
       {/if}
     </div>

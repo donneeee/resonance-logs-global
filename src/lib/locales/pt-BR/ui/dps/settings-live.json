@@ -67,7 +67,7 @@
   "targetDummy.guardianElite": "Boneco guardião de elite",
   "targetDummyMode": "Modo de boneco de treino",
   "autoClearOnSceneChange": "Limpar medidor ao mudar de cena",
-  "autoClearOnSceneChangeDescription": "Salva e limpa automaticamente o medidor atual quando o jogo muda de cena ou servidor. Desative para pausar o medidor atual entre mudanças de cena até retomá-lo; enquanto estiver desativado, as redefinições devem ser feitas manualmente.",
+  "autoClearOnSceneChangeDescription": "Salva e limpa automaticamente o medidor atual quando o jogo muda de cena ou servidor. Desative para manter o medidor finalizado visível após mudanças de cena; o próximo combate inicia um novo medidor automaticamente.",
   "autoHideLiveWindow": "Ocultar automaticamente a janela ao vivo",
   "autoHideLiveWindowDescription": "Oculta o medidor ao vivo após o atraso quando nenhum dano novo é detectado, e volta a mostrá-lo automaticamente assim que dano aparece.",
   "autoHideOverlaysWithLiveWindow": "Ocultar overlays com a janela ao vivo",

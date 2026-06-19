@@ -811,13 +811,17 @@ export function getSeasonCultivateFactorLockoutMs(
   itemId: number | null | undefined,
   fallback: number | null | undefined,
 ): number | null {
-  const lockoutMs = getSeasonCultivateFactorGradeInfo(itemId)?.lockoutMs;
+  const gradeInfo = getSeasonCultivateFactorGradeInfo(itemId);
+  const lockoutMs = gradeInfo?.lockoutMs;
   if (
     typeof lockoutMs === "number"
     && Number.isFinite(lockoutMs)
     && lockoutMs > 0
   ) {
     return lockoutMs;
+  }
+  if (isRealityFactorGradeInfo(gradeInfo)) {
+    return null;
   }
   if (
     typeof fallback === "number"
@@ -827,6 +831,39 @@ export function getSeasonCultivateFactorLockoutMs(
     return fallback;
   }
   return null;
+}
+
+function isRealityFactorGradeInfo(
+  gradeInfo: SeasonCultivateFactorGradeInfo | undefined,
+): boolean {
+  if (!gradeInfo) return false;
+  const names = [
+    gradeInfo.familyName,
+    gradeInfo.familyNames?.en,
+    gradeInfo.familyNames?.["zh-CN"],
+    gradeInfo.familyNames?.["zh-TW"],
+  ];
+  return names.some((name) =>
+    typeof name === "string"
+    && /\bReality\s+Factor\b|\u771f\u5b9e\u56e0\u5b50|\u771f\u5be6\u56e0\u5b50/i.test(name),
+  );
+}
+
+function withoutCounterFreezeControls(
+  slot: CounterEffectSlotPreset,
+): CounterEffectSlotPreset {
+  const {
+    freezeDurationMs,
+    onFreezeExpire,
+    altFreeze,
+    freezeOnThreshold,
+    ...rest
+  } = slot;
+  void freezeDurationMs;
+  void onFreezeExpire;
+  void altFreeze;
+  void freezeOnThreshold;
+  return rest;
 }
 
 function counterActionStartsFreeze(action: CounterAction | undefined): boolean {
@@ -841,11 +878,23 @@ function applySeasonCultivateItemStats(
 ): CounterEffectSlotPreset[] {
   return slots.map((slot) => {
     const threshold = getSeasonCultivateFactorThreshold(itemId, slot.threshold);
+    const isRealityFactor = isRealityFactorGradeInfo(
+      getSeasonCultivateFactorGradeInfo(itemId),
+    );
     const lockoutMs = getSeasonCultivateFactorLockoutMs(
       itemId,
       slot.freezeDurationMs,
     );
     const shouldApplyLockout = threshold !== null && threshold > 0 && lockoutMs !== null;
+    if (isRealityFactor && threshold !== null && threshold > 0 && !shouldApplyLockout) {
+      return {
+        ...withoutCounterFreezeControls(slot),
+        threshold,
+        onBuffAdd: "noOp",
+        onBuffChange: "noOp",
+        onBuffRemove: "noOp",
+      };
+    }
     return {
       ...slot,
       threshold,
