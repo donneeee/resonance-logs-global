@@ -747,7 +747,7 @@
   },
   {
     "sourceId": "flame_berserker_x5",
-    "name": "Twin Axe X5, Hellfire Meteor Lucky Strike grants 54 Illusion Energy",
+    "name": "Twin Striker X5, Hellfire Meteor Lucky Strike grants 54 Illusion Energy",
     "description": "When Hellfire Meteor triggers Lucky Strike, grants 54 Illusion Energy.",
     "source": {
       "damageBySkillKey": {
@@ -1516,10 +1516,8 @@
     "name": "神射S3 X10, 释放爆炸射击获得 92 点能量",
     "description": "释放爆炸射击获得 92 点能量",
     "source": {
-      "skillCast": {
-        "skillBaseIds": [
-          2238
-        ],
+      "buffUpserted": {
+        "buffId": 3053101,
         "increment": 92
       }
     },

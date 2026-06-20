@@ -26,6 +26,7 @@ pub mod season_phantom_factors;
 pub mod seasonal_factor_selector;
 pub mod selected_factor_cache;
 pub mod skill_cd_monitor;
+pub mod skill_ids;
 pub mod skill_lifecycle;
 pub mod state;
 pub mod team;

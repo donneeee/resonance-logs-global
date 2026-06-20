@@ -15065,9 +15065,9 @@
       }
     },
     "mrs:af9a13519336": {
-      "description": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless Spec: ATK +8%. Crimson Spec: Crimson Recovery effect +10%.",
+      "description": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless: ATK +8%. Crimson: Crimson Recovery effect +10%.",
       "descriptions": {
-        "en": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless Spec: ATK +8%. Crimson Spec: Crimson Recovery effect +10%. Infernal Combo.: Expertise Skill Attack SPD +5% for 10s, stacking up to 5 times.",
+        "en": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless: ATK +8%. Crimson: Crimson Recovery effect +10%. Infernal Combo.: Expertise Skill Attack SPD +5% for 10s, stacking up to 5 times.",
         "zh-CN": "业火连击达到最大层数时获得自适应效果： 无相流：攻击力+8%。 赤红流：赤红回复效果+10%。 业火连击: 专精技能攻击速度+5%，持续10秒，最多叠加5层。",
         "zh-TW": "業火連擊達到最大層數時獲得自我調整效果： 無相流：攻擊力+8%。 赤紅流：赤紅回復效果+10%。 業火連擊: 專精技能攻擊速度+5%，持續10秒，最多疊加5層。",
         "ja": "業火連撃が最大スタック数に達すると適応効果を獲得する。 無相流：攻撃力+8%。 赤紅流：赤紅回復効果+10%。 業火連撃: マスタリースキル攻撃速度+5%。持続10秒、5スタックまで可。",
@@ -15076,7 +15076,7 @@
         "de": "Gewährt adaptive Effekte, wenn Höllenkombo die maximalen Stapel erreicht: Formlos-Spezialisierung: ANG +8 %. Karmesin-Spezialisierung: Effekt von Karmesin-Erholung +10 %. Infernalische Kombo.: Angriff-GES von Expertisefähigkeiten +5 % für 10 Sek., bis zu 5-mal stapelbar.",
         "es": "Se obtienen efectos adaptativos cuando Combo Infernal alcanza el máximo de acumulaciones: Especialización de Amorfo: ATQ +8 %. Especialización de Carmesí: efecto de Recuperación Carmesí +10 %. Combo Infernal: VEL de ATQ de habilidad de pericia +5 % durante 10 s, se acumula hasta 5 veces.",
         "pt-BR": "Ganha efeitos adaptativos quando Combo Infernal atinge os acúmulos máximos: Especialização Informe: ATQ +8%. Especialização Carmesim: efeito de Recuperação Carmesim +10%. Combo Infernal.: VEL de Ataque de Habilidade de Perícia +5% por 10 s, acumulando até 5 vezes.",
-        "th": "เมื่อ Infernal Combo มี stack สูงสุด จะได้รับเอฟเฟกต์แบบ adaptive: Formless Spec: ATK +8% Crimson Spec: เอฟเฟกต์ Crimson Recovery +10% การโจมตีต่อเนื่องด้วยไฟนรก: ทักษะเฉพาะทางเพิ่มความเร็วในการโจมตี+5% เป็นเวลา10วินาที สะสมได้สูงสุด5 Stack",
+        "th": "เมื่อ Infernal Combo มี stack สูงสุด จะได้รับเอฟเฟกต์แบบ adaptive: Formless: ATK +8% Crimson: เอฟเฟกต์ Crimson Recovery +10% การโจมตีต่อเนื่องด้วยไฟนรก: ทักษะเฉพาะทางเพิ่มความเร็วในการโจมตี+5% เป็นเวลา10วินาที สะสมได้สูงสุด5 Stack",
         "id": "Saat Wild Fire Combo mencapai tumpukan tertinggi, akan mendapat efek adaptif: Formless Flow: ATK 8%. Crimson Flow: Efek Crimson Recovery +10%. Serangan Beruntun Api: Keahlian Khusus Kecepatan Serangan +5%, berlangsung selama 10 detik, dapat ditumpuk hingga 5 lapis."
       }
     },

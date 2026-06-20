@@ -111,7 +111,7 @@ function getLocaleText(map, locale) {
 
 function isTwinAxeFactor(row) {
   const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
-  return /\b(?:Flame Vanguard|Flame Berserker)\b/i.test(englishName);
+  return /\b(?:Twin Striker|Flame Berserker)\b/i.test(englishName);
 }
 
 function getTwinAxeFactorKind(row) {
@@ -145,7 +145,7 @@ function getDisplayFamilyName(row, locale, classLabels) {
   const rawName = getFactorLocaleText(row, "familyNames", locale);
   if (!rawName || !isTwinAxeFactor(row)) return rawName;
 
-  const className = getLocaleText(classLabels?.[TWIN_AXE_CLASS_LABEL_KEY], locale) || "Twin Axe";
+  const className = getLocaleText(classLabels?.[TWIN_AXE_CLASS_LABEL_KEY], locale) || "Twin Striker";
   return joinTwinAxeName(locale, className, getTwinAxeFactorKind(row), getTwinAxeSlot(row)) || rawName;
 }
 

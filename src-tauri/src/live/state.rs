@@ -2950,6 +2950,7 @@ fn record_local_skill_cast_event(state: &mut AppState, skill_id: i32) {
     if skill_id <= 0 {
         return;
     }
+    let skill_id = crate::live::skill_ids::normalize_skill_id(skill_id);
     let Some(entity) = local_player_entity_mut(&mut state.encounter) else {
         return;
     };
@@ -3045,8 +3046,10 @@ fn observed_profession_skill_matches_id(skill: &ObservedProfessionSkill, skill_i
 
 fn normalize_skill_lifecycle_id(state: &AppState, skill_id: SkillId) -> SkillId {
     let raw_id = skill_id.get();
+    let normalized_from_table =
+        || SkillId::new(crate::live::skill_ids::normalize_skill_id(raw_id)).unwrap_or(skill_id);
     let Some(entity) = local_player_entity(&state.encounter) else {
-        return skill_id;
+        return normalized_from_table();
     };
 
     let Some(active_skill) = entity
@@ -3054,14 +3057,17 @@ fn normalize_skill_lifecycle_id(state: &AppState, skill_id: SkillId) -> SkillId 
         .iter()
         .find(|skill| observed_profession_skill_matches_id(skill, raw_id))
     else {
-        return skill_id;
+        return normalized_from_table();
     };
 
-    active_skill
+    let active_skill_id = active_skill
         .base_skill_id
         .or_else(|| (active_skill.skill_id > 0).then_some(active_skill.skill_id))
+        .map(crate::live::skill_ids::normalize_skill_id);
+
+    active_skill_id
         .and_then(SkillId::new)
-        .unwrap_or(skill_id)
+        .unwrap_or_else(normalized_from_table)
 }
 
 fn local_active_effect_sources(

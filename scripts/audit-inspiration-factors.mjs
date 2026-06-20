@@ -14,7 +14,7 @@ const skillIconsPath = path.join(generatedDir, "skill_aoyi_icons.json");
 
 const CLASS_PREFIXES = [
   ["stormblade", "Stormblade"],
-  ["flame_berserker", "Twin Axe"],
+  ["flame_berserker", "Twin Striker"],
   ["beat_performer", "Beat Performer"],
   ["marksman", "Marksman"],
   ["frost_mage", "Frost Mage"],
@@ -25,7 +25,7 @@ const CLASS_PREFIXES = [
 
 const CLASS_NAME_PATTERNS = [
   ["Stormblade", /stormblade|raikage|雷影/i],
-  ["Twin Axe", /flame (vanguard|berserker)|flame berserker|twin axe|双斧/i],
+  ["Twin Striker", /flame (vanguard|berserker)|flame berserker|twin axe|双斧/i],
   ["Beat Performer", /beat performer|soul|灵魂/i],
   ["Marksman", /marksman|sharpshooter|神射/i],
   ["Frost Mage", /frost mage|ice demon|冰魔/i],
@@ -54,7 +54,7 @@ function cleanText(value) {
 }
 
 function displayFactorName(value) {
-  return cleanText(value).replace(/\b(?:Flame Vanguard|Flame Berserker)\b/g, "Twin Axe");
+  return cleanText(value).replace(/\b(?:Twin Striker|Flame Berserker)\b/g, "Twin Striker");
 }
 
 function unique(values) {

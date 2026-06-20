@@ -102,11 +102,11 @@ function getLocaleText(map, locale, fallbackLabel) {
 
 function isTwinAxeFactor(row) {
   const englishName = cleanText(row?.familyNames?.en) || cleanText(row?.familyName);
-  return /\b(?:Flame Vanguard|Flame Berserker)\b/i.test(englishName);
+  return /\b(?:Twin Striker|Flame Berserker)\b/i.test(englishName);
 }
 
 function getTwinAxeClassLabel(classLabels, locale) {
-  return getLocaleText(classLabels?.[TWIN_AXE_CLASS_LABEL_KEY], locale, "Twin Axe class label");
+  return getLocaleText(classLabels?.[TWIN_AXE_CLASS_LABEL_KEY], locale, "Twin Striker class label");
 }
 
 function getTwinAxeFactorKind(row) {

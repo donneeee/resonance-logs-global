@@ -115,6 +115,7 @@ type SeasonPhantomFactorRaw = {
   buffId?: number;
   familyName?: string;
   familyNames?: MultiLangValue;
+  classGateIds?: number[];
   descriptionId?: number;
   descriptions?: MultiLangValue;
   modifierEvidence?: {
@@ -126,12 +127,31 @@ type SeasonPhantomFactorsData = {
   factorsByBuffId?: Record<string, SeasonPhantomFactorRaw>;
 };
 
+export type SeasonCultivateFactorKind =
+  | "inspiration"
+  | "reality"
+  | "stasis"
+  | "rhapsody"
+  | "polarity"
+  | "unknown";
+
+export type SeasonCultivateFactorIdentity = {
+  factorBuffId: number;
+  familyId: number | null;
+  factorKind: SeasonCultivateFactorKind;
+  slotNumber: number | null;
+  classGateIds: number[];
+};
+
 export type SeasonCultivateFactorGradeInfo = {
   itemId: number;
   grade: number | null;
   itemQualityTier: number | null;
   familyId: number | null;
   factorBuffId: number;
+  factorKind: SeasonCultivateFactorKind;
+  slotNumber: number | null;
+  classGateIds: number[];
   familyName: string;
   familyNames: MultiLangValue;
   descriptionId: number | null;
@@ -332,6 +352,10 @@ export type CounterEffectSlotPreset = {
   onFreezeExpire?: CounterAction;
   altFreeze?: { conditionBuffId: number; freezeDurationMs: number };
   freezeOnThreshold?: boolean;
+  countThresholdProcs?: boolean;
+  countResetBuffProcs?: boolean;
+  resetSkillKeys?: number[];
+  onResetSkill?: CounterAction;
 };
 
 export type SourceTemplate = {
@@ -676,6 +700,116 @@ function extractFactorLockoutMs(description: string): number | null {
   return null;
 }
 
+const FACTOR_KIND_PATTERNS: Array<{
+  kind: Exclude<SeasonCultivateFactorKind, "inspiration" | "unknown">;
+  patterns: RegExp[];
+}> = [
+  {
+    kind: "reality",
+    patterns: [
+      /\bReality\s+Factor\b/i,
+      /真实因子/i,
+      /真實因子/i,
+      /実像因子/i,
+      /진실\s*인자/i,
+      /\bFacteur\s+de\s+r[ée]alit[ée]\b/i,
+      /\bRealit[aä]tsfaktor\b/i,
+      /\bFactor\s+de\s+Realidad\b/i,
+      /\bFator\s+de\s+Realidade\b/i,
+      /\bTruth\s+Factor\b/i,
+    ],
+  },
+  {
+    kind: "stasis",
+    patterns: [
+      /\bStasis\b/i,
+      /\bSteady\b/i,
+      /稳态/i,
+      /穩態/i,
+      /恒常性/i,
+      /안정/i,
+      /\bStase\b/i,
+      /\bEstasis\b/i,
+      /\bEstase\b/i,
+    ],
+  },
+  {
+    kind: "rhapsody",
+    patterns: [
+      /\bRhapsody\b/i,
+      /狂想/i,
+      /광상/i,
+      /\bRhapsodie\b/i,
+      /\bRapsodia\b/i,
+      /\bRaps[óo]dia\b/i,
+    ],
+  },
+  {
+    kind: "polarity",
+    patterns: [
+      /\bPolarity\b/i,
+      /极性/i,
+      /極性/i,
+      /\bPolaridad\b/i,
+      /\bPolaridade\b/i,
+      /\bPolarität\b/i,
+      /\bPolarité\b/i,
+    ],
+  },
+];
+
+function getSeasonCultivateFactorNameCorpus(
+  factor: SeasonPhantomFactorRaw,
+): string[] {
+  return [
+    factor.familyName,
+    ...Object.values(factor.familyNames ?? {}),
+  ].filter((value): value is string => typeof value === "string" && value.trim().length > 0);
+}
+
+function classifySeasonCultivateFactorKind(
+  factor: SeasonPhantomFactorRaw,
+): SeasonCultivateFactorKind {
+  const names = getSeasonCultivateFactorNameCorpus(factor);
+  for (const { kind, patterns } of FACTOR_KIND_PATTERNS) {
+    if (names.some((name) => patterns.some((pattern) => pattern.test(name)))) {
+      return kind;
+    }
+  }
+  return names.some((name) => /\bX\d+\b/i.test(name))
+    ? "inspiration"
+    : "unknown";
+}
+
+function extractSeasonCultivateFactorSlotNumber(
+  factor: SeasonPhantomFactorRaw,
+): number | null {
+  for (const name of getSeasonCultivateFactorNameCorpus(factor)) {
+    const match = name.match(/\bX\s*(\d+)\b/i);
+    if (!match) continue;
+    const value = Number(match[1]);
+    if (Number.isInteger(value) && value > 0) return value;
+  }
+  return null;
+}
+
+function buildSeasonCultivateFactorIdentity(
+  factor: SeasonPhantomFactorRaw,
+  factorBuffId: number,
+): SeasonCultivateFactorIdentity {
+  return {
+    factorBuffId,
+    familyId: Number.isInteger(factor.familyId)
+      ? Number(factor.familyId)
+      : null,
+    factorKind: classifySeasonCultivateFactorKind(factor),
+    slotNumber: extractSeasonCultivateFactorSlotNumber(factor),
+    classGateIds: (factor.classGateIds ?? []).filter((classId) =>
+      Number.isInteger(classId) && classId > 0,
+    ),
+  };
+}
+
 function buildSeasonCultivateFactorGradeInfoMap(): Map<
   number,
   SeasonCultivateFactorGradeInfo
@@ -686,6 +820,7 @@ function buildSeasonCultivateFactorGradeInfoMap(): Map<
   )) {
     const factorBuffId = Number(factor.buffId ?? buffIdKey);
     if (!Number.isFinite(factorBuffId) || factorBuffId <= 0) continue;
+    const identity = buildSeasonCultivateFactorIdentity(factor, factorBuffId);
 
     for (const row of factor.modifierEvidence?.gradeRows ?? []) {
       const itemId = Number(row.itemId);
@@ -725,10 +860,11 @@ function buildSeasonCultivateFactorGradeInfoMap(): Map<
         itemQualityTier: Number.isInteger(row.itemQualityTier)
           ? Number(row.itemQualityTier)
           : null,
-        familyId: Number.isInteger(factor.familyId)
-          ? Number(factor.familyId)
-          : null,
-        factorBuffId,
+        familyId: identity.familyId,
+        factorBuffId: identity.factorBuffId,
+        factorKind: identity.factorKind,
+        slotNumber: identity.slotNumber,
+        classGateIds: identity.classGateIds,
         familyName: factor.familyName?.trim() || `Factor ${factorBuffId}`,
         familyNames: factor.familyNames ?? {},
         descriptionId: Number.isInteger(factor.descriptionId)
@@ -770,6 +906,20 @@ export function getSeasonCultivateFactorGradeInfo(
   const id = Number(itemId);
   if (!Number.isInteger(id) || id <= 0) return undefined;
   return getSeasonCultivateFactorGradeInfoMap().get(id);
+}
+
+export function getSeasonCultivateFactorIdentity(
+  itemId: number | null | undefined,
+): SeasonCultivateFactorIdentity | undefined {
+  const gradeInfo = getSeasonCultivateFactorGradeInfo(itemId);
+  if (!gradeInfo) return undefined;
+  return {
+    factorBuffId: gradeInfo.factorBuffId,
+    familyId: gradeInfo.familyId,
+    factorKind: gradeInfo.factorKind,
+    slotNumber: gradeInfo.slotNumber,
+    classGateIds: gradeInfo.classGateIds,
+  };
 }
 
 function getSeasonCultivateFactorCost(
@@ -836,17 +986,7 @@ export function getSeasonCultivateFactorLockoutMs(
 function isRealityFactorGradeInfo(
   gradeInfo: SeasonCultivateFactorGradeInfo | undefined,
 ): boolean {
-  if (!gradeInfo) return false;
-  const names = [
-    gradeInfo.familyName,
-    gradeInfo.familyNames?.en,
-    gradeInfo.familyNames?.["zh-CN"],
-    gradeInfo.familyNames?.["zh-TW"],
-  ];
-  return names.some((name) =>
-    typeof name === "string"
-    && /\bReality\s+Factor\b|\u771f\u5b9e\u56e0\u5b50|\u771f\u5be6\u56e0\u5b50/i.test(name),
-  );
+  return gradeInfo?.factorKind === "reality";
 }
 
 function withoutCounterFreezeControls(
@@ -863,7 +1003,24 @@ function withoutCounterFreezeControls(
   void onFreezeExpire;
   void altFreeze;
   void freezeOnThreshold;
-  return rest;
+  return {
+    ...rest,
+    onBuffAdd: withoutFreezeCounterAction(rest.onBuffAdd),
+    onBuffChange: withoutFreezeCounterAction(rest.onBuffChange),
+    onBuffRemove: withoutFreezeCounterAction(rest.onBuffRemove),
+  };
+}
+
+function withoutFreezeCounterAction(action: CounterAction | undefined): CounterAction {
+  switch (action) {
+    case "freeze":
+      return "noOp";
+    case "resetAndFreeze":
+    case "resetAndFreezeKeepCounting":
+      return "reset";
+    default:
+      return action ?? "noOp";
+  }
 }
 
 function counterActionStartsFreeze(action: CounterAction | undefined): boolean {
@@ -876,11 +1033,10 @@ function applySeasonCultivateItemStats(
   slots: CounterEffectSlotPreset[],
   itemId: number,
 ): CounterEffectSlotPreset[] {
+  const gradeInfo = getSeasonCultivateFactorGradeInfo(itemId);
+  const isRealityFactor = isRealityFactorGradeInfo(gradeInfo);
   return slots.map((slot) => {
     const threshold = getSeasonCultivateFactorThreshold(itemId, slot.threshold);
-    const isRealityFactor = isRealityFactorGradeInfo(
-      getSeasonCultivateFactorGradeInfo(itemId),
-    );
     const lockoutMs = getSeasonCultivateFactorLockoutMs(
       itemId,
       slot.freezeDurationMs,
@@ -890,9 +1046,6 @@ function applySeasonCultivateItemStats(
       return {
         ...withoutCounterFreezeControls(slot),
         threshold,
-        onBuffAdd: "noOp",
-        onBuffChange: "noOp",
-        onBuffRemove: "noOp",
       };
     }
     return {
@@ -1048,6 +1201,7 @@ function getCounterSourceIncrement(source: CounterSource): number | null {
     return source.fightResourceSpent.increment;
   }
   if ("buffAdded" in source) return source.buffAdded.increment;
+  if ("buffUpserted" in source) return source.buffUpserted.increment;
   if ("buffLayerSpent" in source) return source.buffLayerSpent.increment;
   if ("buffDurationTick" in source) {
     return source.buffDurationTick.increment;
@@ -1168,6 +1322,18 @@ export function resolveCounterEffectSlots(
               : {}),
             ...(item.slot.freezeOnThreshold !== undefined
               ? { freezeOnThreshold: item.slot.freezeOnThreshold }
+              : {}),
+            ...(item.slot.countThresholdProcs !== undefined
+              ? { countThresholdProcs: item.slot.countThresholdProcs }
+              : {}),
+            ...(item.slot.countResetBuffProcs !== undefined
+              ? { countResetBuffProcs: item.slot.countResetBuffProcs }
+              : {}),
+            ...(item.slot.resetSkillKeys !== undefined
+              ? { resetSkillKeys: item.slot.resetSkillKeys }
+              : {}),
+            ...(item.slot.onResetSkill !== undefined
+              ? { onResetSkill: item.slot.onResetSkill }
               : {}),
           },
         ]

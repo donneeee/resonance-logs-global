@@ -480,9 +480,9 @@
       "specs": {
         "312": {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -547,9 +547,9 @@
         },
         "342": {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -27000,9 +27000,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -27017,9 +27017,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -27100,9 +27100,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -27117,9 +27117,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -27198,9 +27198,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -27349,9 +27349,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -27377,8 +27377,8 @@
         "Combo Infernal",
         "Crimson Lotus",
         "Crimson Recovery",
-        "Crimson Spec",
-        "Formless Spec",
+        "Crimson",
+        "Formless",
         "Höllenkombo",
         "Infernal Combo",
         "Saat Wild Fire Combo",
@@ -27395,9 +27395,9 @@
           "/\\b(?:cooldown|cd|energy|resource|combo|stack|proc|trigger|chance|summon|companion|wolf|falcon)\\b/i"
         ]
       },
-      "description": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless Spec: ATK +8%. Crimson Spec: Crimson Recovery effect +10%.",
+      "description": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless: ATK +8%. Crimson: Crimson Recovery effect +10%.",
       "descriptions": {
-        "en": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless Spec: ATK +8%. Crimson Spec: Crimson Recovery effect +10%.",
+        "en": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless: ATK +8%. Crimson: Crimson Recovery effect +10%.",
         "zh-CN": "业火连击达到最大层数时获得自适应效果： 无相流：攻击力+8%。 赤红流：赤红回复效果+10%。",
         "zh-TW": "業火連擊達到最大層數時獲得自我調整效果： 無相流：攻擊力+8%。 赤紅流：赤紅回復效果+10%。",
         "ja": "業火連撃が最大スタック数に達すると適応効果を獲得する。 無相流：攻撃力+8%。 赤紅流：赤紅回復効果+10%。",
@@ -27406,19 +27406,19 @@
         "de": "Gewährt adaptive Effekte, wenn Höllenkombo die maximalen Stapel erreicht: Formlos-Spezialisierung: ANG +8 %. Karmesin-Spezialisierung: Effekt von Karmesin-Erholung +10 %.",
         "es": "Se obtienen efectos adaptativos cuando Combo Infernal alcanza el máximo de acumulaciones: Especialización de Amorfo: ATQ +8 %. Especialización de Carmesí: efecto de Recuperación Carmesí +10 %.",
         "pt-BR": "Ganha efeitos adaptativos quando Combo Infernal atinge os acúmulos máximos: Especialização Informe: ATQ +8%. Especialização Carmesim: efeito de Recuperação Carmesim +10%.",
-        "th": "เมื่อ Infernal Combo มี stack สูงสุด จะได้รับเอฟเฟกต์แบบ adaptive: Formless Spec: ATK +8% Crimson Spec: เอฟเฟกต์ Crimson Recovery +10%",
+        "th": "เมื่อ Infernal Combo มี stack สูงสุด จะได้รับเอฟเฟกต์แบบ adaptive: Formless: ATK +8% Crimson: เอฟเฟกต์ Crimson Recovery +10%",
         "id": "Saat Wild Fire Combo mencapai tumpukan tertinggi, akan mendapat efek adaptif: Formless Flow: ATK 8%. Crimson Flow: Efek Crimson Recovery +10%."
       },
       "descriptionParagraphs": [
         "Gain adaptive effects when Infernal Combo reaches max stacks:",
-        "Formless Spec: ATK +8%.",
-        "Crimson Spec: Crimson Recovery effect +10%."
+        "Formless: ATK +8%.",
+        "Crimson: Crimson Recovery effect +10%."
       ],
       "descriptionParagraphsByLocale": {
         "en": [
           "Gain adaptive effects when Infernal Combo reaches max stacks:",
-          "Formless Spec: ATK +8%.",
-          "Crimson Spec: Crimson Recovery effect +10%."
+          "Formless: ATK +8%.",
+          "Crimson: Crimson Recovery effect +10%."
         ],
         "zh-CN": [
           "业火连击达到最大层数时获得自适应效果：",
@@ -27462,8 +27462,8 @@
         ],
         "th": [
           "เมื่อ Infernal Combo มี stack สูงสุด จะได้รับเอฟเฟกต์แบบ adaptive:",
-          "Formless Spec: ATK +8%",
-          "Crimson Spec: เอฟเฟกต์ Crimson Recovery +10%"
+          "Formless: ATK +8%",
+          "Crimson: เอฟเฟกต์ Crimson Recovery +10%"
         ],
         "id": [
           "Saat Wild Fire Combo mencapai tumpukan tertinggi, akan mendapat efek adaptif:",
@@ -27532,9 +27532,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -27549,9 +27549,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -27704,9 +27704,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -27721,9 +27721,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -27868,9 +27868,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -27885,9 +27885,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -28069,9 +28069,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -28237,9 +28237,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -28254,9 +28254,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -28409,9 +28409,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -28426,9 +28426,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -28576,9 +28576,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -28593,9 +28593,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -28755,9 +28755,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -28772,9 +28772,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -28909,9 +28909,9 @@
     },
     "312": {
       "talentId": 312,
-      "name": "Formless Expertise Spec",
+      "name": "Formless",
       "names": {
-        "en": "Formless Expertise Spec",
+        "en": "Formless",
         "zh-CN": "无相专精流",
         "zh-TW": "無相專精流",
         "ja": "無相専精流",
@@ -28944,9 +28944,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -28979,7 +28979,7 @@
         "Expertise Skills",
         "Fendoir de rage",
         "Formless",
-        "Formless Expertise Spec",
+        "Formless",
         "Hendidura de Furia",
         "Investida Flamejante",
         "Lodernder Ansturm",
@@ -29140,9 +29140,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -29296,9 +29296,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -29485,9 +29485,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -29656,9 +29656,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -29811,9 +29811,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -29828,9 +29828,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -29994,9 +29994,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -30011,9 +30011,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -30182,9 +30182,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -30376,9 +30376,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -30522,9 +30522,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -30666,9 +30666,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -30822,9 +30822,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -31007,9 +31007,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -31163,9 +31163,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -31180,9 +31180,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -31324,9 +31324,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -31341,9 +31341,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -31488,9 +31488,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -31666,9 +31666,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -31683,9 +31683,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -31845,9 +31845,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -31862,9 +31862,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -32014,9 +32014,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -32031,9 +32031,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -32201,9 +32201,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -32218,9 +32218,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -32373,9 +32373,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -32390,9 +32390,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -32542,9 +32542,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -32559,9 +32559,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -32734,9 +32734,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -32880,9 +32880,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -33035,9 +33035,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -33052,9 +33052,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -33213,9 +33213,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -33382,9 +33382,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -33399,9 +33399,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -33543,9 +33543,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -33560,9 +33560,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -33703,9 +33703,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -33849,9 +33849,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -33866,9 +33866,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -33978,9 +33978,9 @@
     },
     "342": {
       "talentId": 342,
-      "name": "Crimson Expertise Spec",
+      "name": "Crimson",
       "names": {
-        "en": "Crimson Expertise Spec",
+        "en": "Crimson",
         "zh-CN": "赤红专精流",
         "zh-TW": "赤紅專精流",
         "ja": "赤紅専精流",
@@ -34013,9 +34013,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -34043,7 +34043,7 @@
         "Ascension flamboyante",
         "Blazing Ascension",
         "Corte Frenético",
-        "Crimson Expertise Spec",
+        "Crimson",
         "Crimson Recovery",
         "Crimson Soul Gauge",
         "Dança das Chamas",
@@ -34137,9 +34137,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -34293,9 +34293,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -34454,9 +34454,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -34620,9 +34620,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -34764,9 +34764,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -34781,9 +34781,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -34939,9 +34939,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -34956,9 +34956,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -35117,9 +35117,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -35134,9 +35134,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -35296,9 +35296,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -35313,9 +35313,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -35499,9 +35499,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -35516,9 +35516,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -35660,9 +35660,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -35821,9 +35821,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -35838,9 +35838,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -35983,9 +35983,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -36166,9 +36166,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -36335,9 +36335,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -36352,9 +36352,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -36530,9 +36530,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -36677,9 +36677,9 @@
       "specs": [
         {
           "specId": 312,
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -36694,9 +36694,9 @@
         },
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -36839,9 +36839,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -37005,9 +37005,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -37148,9 +37148,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -37318,9 +37318,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -37493,9 +37493,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -37678,9 +37678,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -37847,9 +37847,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -38000,9 +38000,9 @@
       "specs": [
         {
           "specId": 342,
-          "specName": "Crimson Expertise Spec",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",

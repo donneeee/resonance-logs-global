@@ -442,17 +442,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "specIds": [
         312,
@@ -462,9 +462,9 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "specNames": {
-            "en": "Formless Expertise Spec",
+            "en": "Formless",
             "zh-CN": "无相专精流",
             "zh-TW": "無相專精流",
             "ja": "無相専精流",
@@ -479,10 +479,10 @@
         },
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "specNames": {
-            "en": "Crimson Expertise Spec",
+            "en": "Crimson",
             "zh-CN": "赤红专精流",
             "zh-TW": "赤紅專精流",
             "ja": "赤紅専精流",
@@ -2127,22 +2127,22 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "specNameKey": "Formless",
-      "specName": "Formless Expertise Spec",
+      "specName": "Formless",
       "specNames": {
-        "en": "Formless Expertise Spec",
+        "en": "Formless",
         "zh-CN": "无相专精流",
         "zh-TW": "無相專精流",
         "ja": "無相専精流",
@@ -2173,7 +2173,7 @@
         "Expertise Skills",
         "Fendoir de rage",
         "Formless",
-        "Formless Expertise",
+        "Formless",
         "Formlose Expertise-Spezialisierung",
         "Hendidura de Furia",
         "Investida Flamejante",
@@ -2214,22 +2214,22 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
-      "specNameKey": "Crimson Expertise",
-      "specName": "Crimson Expertise Spec",
+      "specNameKey": "Crimson",
+      "specName": "Crimson",
       "specNames": {
-        "en": "Crimson Expertise Spec",
+        "en": "Crimson",
         "zh-CN": "赤红专精流",
         "zh-TW": "赤紅專精流",
         "ja": "赤紅専精流",
@@ -2255,7 +2255,7 @@
         "0.8",
         "Aliran Keahlian Merah",
         "Corte Frenético",
-        "Crimson Expertise",
+        "Crimson",
         "Crimson Recovery",
         "Crimson Soul Gauge",
         "Dança das Chamas",
@@ -24239,17 +24239,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24286,17 +24286,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24332,17 +24332,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -24355,7 +24355,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208030
@@ -24384,7 +24384,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -24424,17 +24424,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -24447,7 +24447,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208040
@@ -24457,8 +24457,8 @@
         "Combo Infernal",
         "Crimson Lotus",
         "Crimson Recovery",
-        "Crimson Spec",
-        "Formless Spec",
+        "Crimson",
+        "Formless",
         "Höllenkombo",
         "Infernal Combo",
         "Saat Wild Fire Combo",
@@ -24479,7 +24479,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 90,
           "evidence": [
             {
@@ -24492,8 +24492,8 @@
         },
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -24539,17 +24539,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24590,17 +24590,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24641,17 +24641,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24703,17 +24703,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -24723,10 +24723,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208080
@@ -24755,8 +24755,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -24796,17 +24796,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24855,17 +24855,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24914,17 +24914,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -24983,17 +24983,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -25018,9 +25018,9 @@
     },
     "312": {
       "talentId": 312,
-      "name": "Formless Expertise Spec",
+      "name": "Formless",
       "names": {
-        "en": "Formless Expertise Spec",
+        "en": "Formless",
         "zh-CN": "无相专精流",
         "zh-TW": "無相專精流",
         "ja": "無相専精流",
@@ -25035,17 +25035,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-selector",
       "ownershipStatus": "game-file-spec-selector",
@@ -25058,7 +25058,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208130
@@ -25075,7 +25075,7 @@
         "Expertise Skills",
         "Fendoir de rage",
         "Formless",
-        "Formless Expertise Spec",
+        "Formless",
         "Hendidura de Furia",
         "Investida Flamejante",
         "Lodernder Ansturm",
@@ -25108,7 +25108,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 1186,
           "evidence": [
             {
@@ -25494,17 +25494,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -25517,7 +25517,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208140
@@ -25548,7 +25548,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 340,
           "evidence": [
             {
@@ -25696,17 +25696,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -25719,7 +25719,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208150
@@ -25774,7 +25774,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -25814,17 +25814,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -25837,7 +25837,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208160
@@ -25884,7 +25884,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 918,
           "evidence": [
             {
@@ -26236,17 +26236,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -26259,7 +26259,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208170
@@ -26291,7 +26291,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -26331,17 +26331,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -26391,17 +26391,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -26453,17 +26453,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -26476,7 +26476,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208200
@@ -26537,7 +26537,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 816,
           "evidence": [
             {
@@ -26853,17 +26853,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -26876,7 +26876,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208210
@@ -26897,7 +26897,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -26937,17 +26937,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -26960,7 +26960,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208220
@@ -26981,7 +26981,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -27021,17 +27021,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -27044,7 +27044,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208230
@@ -27075,7 +27075,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 374,
           "evidence": [
             {
@@ -27148,8 +27148,8 @@
         },
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -27255,17 +27255,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -27278,7 +27278,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208240
@@ -27316,7 +27316,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 272,
           "evidence": [
             {
@@ -27440,17 +27440,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -27463,7 +27463,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208250
@@ -27496,7 +27496,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 340,
           "evidence": [
             {
@@ -27644,17 +27644,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -27694,17 +27694,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -27740,17 +27740,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -27763,7 +27763,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208280
@@ -27818,7 +27818,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 884,
           "evidence": [
             {
@@ -28158,17 +28158,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28217,17 +28217,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28268,17 +28268,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28328,17 +28328,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28388,17 +28388,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28447,17 +28447,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28530,17 +28530,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -28553,7 +28553,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208350
@@ -28575,7 +28575,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -28615,17 +28615,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -28638,7 +28638,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208360
@@ -28669,7 +28669,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -28709,17 +28709,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28770,17 +28770,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -28793,7 +28793,7 @@
         "Formless"
       ],
       "specNames": [
-        "Formless Expertise Spec"
+        "Formless"
       ],
       "sourceBuffIds": [
         2208380
@@ -28823,7 +28823,7 @@
         {
           "specId": 312,
           "specNameKey": "Formless",
-          "specName": "Formless Expertise Spec",
+          "specName": "Formless",
           "score": 34,
           "evidence": [
             {
@@ -28863,17 +28863,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28912,17 +28912,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -28962,17 +28962,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -28982,10 +28982,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208410
@@ -29005,8 +29005,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -29046,17 +29046,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -29079,9 +29079,9 @@
     },
     "342": {
       "talentId": 342,
-      "name": "Crimson Expertise Spec",
+      "name": "Crimson",
       "names": {
-        "en": "Crimson Expertise Spec",
+        "en": "Crimson",
         "zh-CN": "赤红专精流",
         "zh-TW": "赤紅專精流",
         "ja": "赤紅専精流",
@@ -29096,17 +29096,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-selector",
       "ownershipStatus": "game-file-spec-selector",
@@ -29116,10 +29116,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208430
@@ -29131,7 +29131,7 @@
         "Ascension flamboyante",
         "Blazing Ascension",
         "Corte Frenético",
-        "Crimson Expertise Spec",
+        "Crimson",
         "Crimson Recovery",
         "Crimson Soul Gauge",
         "Dança das Chamas",
@@ -29178,8 +29178,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 1016,
           "evidence": [
             {
@@ -29505,17 +29505,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -29525,10 +29525,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208440
@@ -29549,8 +29549,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -29590,17 +29590,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -29610,10 +29610,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208450
@@ -29638,8 +29638,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -29679,17 +29679,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -29699,10 +29699,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208460
@@ -29732,8 +29732,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 340,
           "evidence": [
             {
@@ -29881,17 +29881,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -29901,10 +29901,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208470
@@ -29924,8 +29924,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -29965,17 +29965,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -30030,17 +30030,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -30082,17 +30082,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -30151,17 +30151,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -30239,17 +30239,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -30289,17 +30289,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-leaning",
       "ownershipStatus": "medium-confidence",
@@ -30309,10 +30309,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208530
@@ -30342,8 +30342,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 68,
           "evidence": [
             {
@@ -30395,17 +30395,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -30446,17 +30446,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -30466,10 +30466,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208550
@@ -30507,8 +30507,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 306,
           "evidence": [
             {
@@ -30644,17 +30644,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -30664,10 +30664,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208560
@@ -30707,8 +30707,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 306,
           "evidence": [
             {
@@ -30844,17 +30844,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -30914,17 +30914,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -30934,10 +30934,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208580
@@ -30956,8 +30956,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -30997,17 +30997,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "class-wide-candidate",
       "ownershipStatus": "unresolved-class-bucket",
@@ -31047,17 +31047,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -31067,10 +31067,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208600
@@ -31101,8 +31101,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -31142,17 +31142,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -31162,10 +31162,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208610
@@ -31184,8 +31184,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {
@@ -31225,17 +31225,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -31245,10 +31245,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208620
@@ -31277,8 +31277,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 306,
           "evidence": [
             {
@@ -31414,17 +31414,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -31434,10 +31434,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208630
@@ -31477,8 +31477,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 272,
           "evidence": [
             {
@@ -31602,17 +31602,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -31622,10 +31622,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208640
@@ -31683,8 +31683,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 272,
           "evidence": [
             {
@@ -31808,17 +31808,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -31828,10 +31828,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208650
@@ -31870,8 +31870,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 272,
           "evidence": [
             {
@@ -31995,17 +31995,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "spec-exclusive",
       "ownershipStatus": "high-confidence",
@@ -32015,10 +32015,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208660
@@ -32046,8 +32046,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 272,
           "evidence": [
             {
@@ -32171,17 +32171,17 @@
       "classId": 3,
       "className": "Flame Berserker",
       "classNames": {
-        "en": "Twin Axe",
+        "en": "Twin Striker",
         "zh-CN": "赤炎狂战士",
         "zh-TW": "赤炎狂戰士",
-        "ja": "Twin Axe",
-        "ko-KR": "Twin Axe",
-        "fr": "Twin Axe",
-        "de": "Twin Axe",
-        "es": "Twin Axe",
-        "pt-BR": "Twin Axe",
-        "th": "Twin Axe",
-        "id": "Twin Axe"
+        "ja": "Twin Striker",
+        "ko-KR": "Twin Striker",
+        "fr": "Twin Striker",
+        "de": "Twin Striker",
+        "es": "Twin Striker",
+        "pt-BR": "Twin Striker",
+        "th": "Twin Striker",
+        "id": "Twin Striker"
       },
       "ownershipKind": "ambiguous",
       "ownershipStatus": "needs-review",
@@ -32191,10 +32191,10 @@
         342
       ],
       "specNameKeys": [
-        "Crimson Expertise"
+        "Crimson"
       ],
       "specNames": [
-        "Crimson Expertise Spec"
+        "Crimson"
       ],
       "sourceBuffIds": [
         2208670
@@ -32227,8 +32227,8 @@
       "scores": [
         {
           "specId": 342,
-          "specNameKey": "Crimson Expertise",
-          "specName": "Crimson Expertise Spec",
+          "specNameKey": "Crimson",
+          "specName": "Crimson",
           "score": 34,
           "evidence": [
             {

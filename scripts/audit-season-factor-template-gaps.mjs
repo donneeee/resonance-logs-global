@@ -39,7 +39,7 @@ function cleanText(value) {
 }
 
 function displayFactorName(value) {
-  return cleanText(value).replace(/\b(?:Flame Vanguard|Flame Berserker)\b/g, "Twin Axe");
+  return cleanText(value).replace(/\b(?:Twin Striker|Flame Berserker)\b/g, "Twin Striker");
 }
 
 function csvCell(value) {

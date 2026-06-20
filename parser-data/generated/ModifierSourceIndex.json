@@ -414590,7 +414590,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -414835,7 +414835,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -414952,9 +414952,9 @@
           "th": "Crimson Lotus",
           "id": "Red Lotus"
         },
-        "description": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless Spec: ATK +8%. Crimson Spec: Crimson Recovery effect +10%.",
+        "description": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless: ATK +8%. Crimson: Crimson Recovery effect +10%.",
         "descriptions": {
-          "en": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless Spec: ATK +8%. Crimson Spec: Crimson Recovery effect +10%. Infernal Combo.: Expertise Skill Attack SPD +5% for 10s, stacking up to 5 times.",
+          "en": "Gain adaptive effects when Infernal Combo reaches max stacks: Formless: ATK +8%. Crimson: Crimson Recovery effect +10%. Infernal Combo.: Expertise Skill Attack SPD +5% for 10s, stacking up to 5 times.",
           "zh-CN": "业火连击达到最大层数时获得自适应效果： 无相流：攻击力+8%。 赤红流：赤红回复效果+10%。 业火连击: 专精技能攻击速度+5%，持续10秒，最多叠加5层。",
           "zh-TW": "業火連擊達到最大層數時獲得自我調整效果： 無相流：攻擊力+8%。 赤紅流：赤紅回復效果+10%。 業火連擊: 專精技能攻擊速度+5%，持續10秒，最多疊加5層。",
           "ja": "業火連撃が最大スタック数に達すると適応効果を獲得する。 無相流：攻撃力+8%。 赤紅流：赤紅回復効果+10%。 業火連撃: マスタリースキル攻撃速度+5%。持続10秒、5スタックまで可。",
@@ -414963,7 +414963,7 @@
           "de": "Gewährt adaptive Effekte, wenn Höllenkombo die maximalen Stapel erreicht: Formlos-Spezialisierung: ANG +8 %. Karmesin-Spezialisierung: Effekt von Karmesin-Erholung +10 %. Infernalische Kombo.: Angriff-GES von Expertisefähigkeiten +5 % für 10 Sek., bis zu 5-mal stapelbar.",
           "es": "Se obtienen efectos adaptativos cuando Combo Infernal alcanza el máximo de acumulaciones: Especialización de Amorfo: ATQ +8 %. Especialización de Carmesí: efecto de Recuperación Carmesí +10 %. Combo Infernal: VEL de ATQ de habilidad de pericia +5 % durante 10 s, se acumula hasta 5 veces.",
           "pt-BR": "Ganha efeitos adaptativos quando Combo Infernal atinge os acúmulos máximos: Especialização Informe: ATQ +8%. Especialização Carmesim: efeito de Recuperação Carmesim +10%. Combo Infernal.: VEL de Ataque de Habilidade de Perícia +5% por 10 s, acumulando até 5 vezes.",
-          "th": "เมื่อ Infernal Combo มี stack สูงสุด จะได้รับเอฟเฟกต์แบบ adaptive: Formless Spec: ATK +8% Crimson Spec: เอฟเฟกต์ Crimson Recovery +10% การโจมตีต่อเนื่องด้วยไฟนรก: ทักษะเฉพาะทางเพิ่มความเร็วในการโจมตี+5% เป็นเวลา10วินาที สะสมได้สูงสุด5 Stack",
+          "th": "เมื่อ Infernal Combo มี stack สูงสุด จะได้รับเอฟเฟกต์แบบ adaptive: Formless: ATK +8% Crimson: เอฟเฟกต์ Crimson Recovery +10% การโจมตีต่อเนื่องด้วยไฟนรก: ทักษะเฉพาะทางเพิ่มความเร็วในการโจมตี+5% เป็นเวลา10วินาที สะสมได้สูงสุด5 Stack",
           "id": "Saat Wild Fire Combo mencapai tumpukan tertinggi, akan mendapat efek adaptif: Formless Flow: ATK 8%. Crimson Flow: Efek Crimson Recovery +10%. Serangan Beruntun Api: Keahlian Khusus Kecepatan Serangan +5%, berlangsung selama 10 detik, dapat ditumpuk hingga 5 lapis."
         },
         "iconPath": "ui/atlas/talent_passive_3/shuangfu303",
@@ -415084,7 +415084,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -415884,10 +415884,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -416670,9 +416670,9 @@
         "sourceKind": "talent-passive",
         "sourceType": "talent",
         "sourceEntityId": 312,
-        "sourceName": "Formless Expertise Spec",
+        "sourceName": "Formless",
         "sourceNames": {
-          "en": "Formless Expertise Spec",
+          "en": "Formless",
           "zh-CN": "无相专精流",
           "zh-TW": "無相專精流",
           "ja": "無相専精流",
@@ -416812,7 +416812,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -417143,7 +417143,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -417390,7 +417390,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -417582,7 +417582,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -417889,7 +417889,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": false,
@@ -418761,7 +418761,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -419025,7 +419025,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -419195,7 +419195,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -419342,7 +419342,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -419611,7 +419611,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -419858,7 +419858,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": false,
@@ -420279,7 +420279,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -421382,7 +421382,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -421531,7 +421531,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -421840,7 +421840,7 @@
             "Formless"
           ],
           "specNames": [
-            "Formless Expertise Spec"
+            "Formless"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -422283,10 +422283,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -422656,9 +422656,9 @@
         "sourceKind": "talent-passive",
         "sourceType": "talent",
         "sourceEntityId": 342,
-        "sourceName": "Crimson Expertise Spec",
+        "sourceName": "Crimson",
         "sourceNames": {
-          "en": "Crimson Expertise Spec",
+          "en": "Crimson",
           "zh-CN": "赤红专精流",
           "zh-TW": "赤紅專精流",
           "ja": "赤紅専精流",
@@ -422792,10 +422792,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -423078,10 +423078,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -423305,10 +423305,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -423476,10 +423476,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -423724,10 +423724,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -424635,10 +424635,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -424950,10 +424950,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -425196,10 +425196,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -425647,10 +425647,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -426073,10 +426073,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -426244,10 +426244,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -426476,10 +426476,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -426827,10 +426827,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -427125,10 +427125,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -427424,10 +427424,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -427660,10 +427660,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -427927,10 +427927,10 @@
             342
           ],
           "specNameKeys": [
-            "Crimson Expertise"
+            "Crimson"
           ],
           "specNames": [
-            "Crimson Expertise Spec"
+            "Crimson"
           ],
           "dpsRelevance": {
             "affectsDps": true,
@@ -504653,9 +504653,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3059260,
-        "sourceName": "Flame Vanguard Stasis X1",
+        "sourceName": "Twin Striker Stasis X1",
         "sourceNames": {
-          "en": "Flame Vanguard Stasis X1",
+          "en": "Twin Striker Stasis X1",
           "zh-CN": "赤炎稳态X1",
           "zh-TW": "赤炎穩態X1",
           "ja": "赤炎の狂戦士・恒常性X1",
@@ -504765,9 +504765,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3059270,
-        "sourceName": "Flame Vanguard Stasis X2",
+        "sourceName": "Twin Striker Stasis X2",
         "sourceNames": {
-          "en": "Flame Vanguard Stasis X2",
+          "en": "Twin Striker Stasis X2",
           "zh-CN": "赤炎稳态X2",
           "zh-TW": "赤炎穩態X2",
           "ja": "赤炎の狂戦士・恒常性X2",
@@ -504968,9 +504968,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060010,
-        "sourceName": "Flame Vanguard X1",
+        "sourceName": "Twin Striker X1",
         "sourceNames": {
-          "en": "Flame Vanguard X1",
+          "en": "Twin Striker X1",
           "zh-CN": "赤炎X1",
           "zh-TW": "赤炎X1",
           "ja": "赤炎の狂戦士X1",
@@ -504979,7 +504979,7 @@
           "de": "Flammen-Vorhut X1",
           "es": "Vanguardia ígnea X1",
           "pt-BR": "Vanguarda das Chamas X1",
-          "th": "Flame Vanguard X1",
+          "th": "Twin Striker X1",
           "id": "Redflame X1"
         },
         "description": "Formless Flame Slash Illusion-Breaking DMG +. Dealing damage with Formless Flame Slash grants Illusion Energy.",
@@ -505122,9 +505122,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060020,
-        "sourceName": "Flame Vanguard X2",
+        "sourceName": "Twin Striker X2",
         "sourceNames": {
-          "en": "Flame Vanguard X2",
+          "en": "Twin Striker X2",
           "zh-CN": "赤炎X2",
           "zh-TW": "赤炎X2",
           "ja": "赤炎の狂戦士X2",
@@ -505133,7 +505133,7 @@
           "de": "Flammen-Vorhut X2",
           "es": "Vanguardia ígnea X2",
           "pt-BR": "Vanguarda das Chamas X2",
-          "th": "Flame Vanguard X2",
+          "th": "Twin Striker X2",
           "id": "Redflame X2"
         },
         "description": "Rage Cleave Illusion-Breaking DMG +. Casting Rage Cleave grants Illusion Energy.",
@@ -505244,9 +505244,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060030,
-        "sourceName": "Flame Vanguard X3",
+        "sourceName": "Twin Striker X3",
         "sourceNames": {
-          "en": "Flame Vanguard X3",
+          "en": "Twin Striker X3",
           "zh-CN": "赤炎X3",
           "zh-TW": "赤炎X3",
           "ja": "赤炎の狂戦士X3",
@@ -505255,7 +505255,7 @@
           "de": "Flammen-Vorhut X3",
           "es": "Vanguardia ígnea X3",
           "pt-BR": "Vanguarda das Chamas X3",
-          "th": "Flame Vanguard X3",
+          "th": "Twin Striker X3",
           "id": "Redflame X3"
         },
         "description": "Axe Wind Illusion-Breaking DMG +. While Axe Wind is active, Grants Illusion Energy every 0.5s.",
@@ -505367,9 +505367,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060040,
-        "sourceName": "Flame Vanguard X4",
+        "sourceName": "Twin Striker X4",
         "sourceNames": {
-          "en": "Flame Vanguard X4",
+          "en": "Twin Striker X4",
           "zh-CN": "赤炎X4",
           "zh-TW": "赤炎X4",
           "ja": "赤炎の狂戦士X4",
@@ -505378,7 +505378,7 @@
           "de": "Flammen-Vorhut X4",
           "es": "Vanguardia ígnea X4",
           "pt-BR": "Vanguarda das Chamas X4",
-          "th": "Flame Vanguard X4",
+          "th": "Twin Striker X4",
           "id": "Redflame X4"
         },
         "description": "While Wasteland's End is active, Formless Flame Slash trigger chance +. While Wasteland's End is active, grants Illusion Energy every second.",
@@ -505489,9 +505489,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060050,
-        "sourceName": "Flame Vanguard X5",
+        "sourceName": "Twin Striker X5",
         "sourceNames": {
-          "en": "Flame Vanguard X5",
+          "en": "Twin Striker X5",
           "zh-CN": "赤炎X5",
           "zh-TW": "赤炎X5",
           "ja": "赤炎の狂戦士X5",
@@ -505500,7 +505500,7 @@
           "de": "Flammen-Vorhut X5",
           "es": "Vanguardia ígnea X5",
           "pt-BR": "Vanguarda das Chamas X5",
-          "th": "Flame Vanguard X5",
+          "th": "Twin Striker X5",
           "id": "Redflame X5"
         },
         "description": "Hellfire Meteor can trigger Lucky Strike; Hellfire Meteor Illusion-Breaking DMG +. When Hellfire Meteor triggers Lucky Strike, grants Illusion Energy.",
@@ -505611,9 +505611,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060060,
-        "sourceName": "Flame Vanguard X6",
+        "sourceName": "Twin Striker X6",
         "sourceNames": {
-          "en": "Flame Vanguard X6",
+          "en": "Twin Striker X6",
           "zh-CN": "赤炎X6",
           "zh-TW": "赤炎X6",
           "ja": "赤炎の狂戦士X6",
@@ -505622,7 +505622,7 @@
           "de": "Flammen-Vorhut X6",
           "es": "Vanguardia ígnea X6",
           "pt-BR": "Vanguarda das Chamas X6",
-          "th": "Flame Vanguard X6",
+          "th": "Twin Striker X6",
           "id": "Redflame X6"
         },
         "description": "Wildfire Dance ignores + of the target's Armor. While Wildfire Dance is active, grants Illusion Energy every 0.5s.",
@@ -505758,9 +505758,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060070,
-        "sourceName": "Flame Vanguard X7",
+        "sourceName": "Twin Striker X7",
         "sourceNames": {
-          "en": "Flame Vanguard X7",
+          "en": "Twin Striker X7",
           "zh-CN": "赤炎X7",
           "zh-TW": "赤炎X7",
           "ja": "赤炎の狂戦士X7",
@@ -505769,7 +505769,7 @@
           "de": "Flammen-Vorhut X7",
           "es": "Vanguardia ígnea X7",
           "pt-BR": "Vanguarda das Chamas X7",
-          "th": "Flame Vanguard X7",
+          "th": "Twin Striker X7",
           "id": "Redflame X7"
         },
         "description": "Flowing Splendor Slash Illusion-Breaking DMG +. Casting Flowing Splendor Slash grants Illusion Energy.",
@@ -505880,9 +505880,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060080,
-        "sourceName": "Flame Vanguard X8",
+        "sourceName": "Twin Striker X8",
         "sourceNames": {
-          "en": "Flame Vanguard X8",
+          "en": "Twin Striker X8",
           "zh-CN": "赤炎X8",
           "zh-TW": "赤炎X8",
           "ja": "赤炎の狂戦士X8",
@@ -505891,7 +505891,7 @@
           "de": "Flammen-Vorhut X8",
           "es": "Vanguardia ígnea X8",
           "pt-BR": "Vanguarda das Chamas X8",
-          "th": "Flame Vanguard X8",
+          "th": "Twin Striker X8",
           "id": "Redflame X8"
         },
         "description": "Unbound Meteor and Falling Hellfire Illusion-Breaking DMG +. Casting Unbound Meteor or Falling Hellfire grants Illusion Energy.",
@@ -506002,9 +506002,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060090,
-        "sourceName": "Flame Vanguard X9",
+        "sourceName": "Twin Striker X9",
         "sourceNames": {
-          "en": "Flame Vanguard X9",
+          "en": "Twin Striker X9",
           "zh-CN": "赤炎X9",
           "zh-TW": "赤炎X9",
           "ja": "赤炎の狂戦士X9",
@@ -506013,7 +506013,7 @@
           "de": "Flammen-Vorhut X9",
           "es": "Vanguardia ígnea X9",
           "pt-BR": "Vanguarda das Chamas X9",
-          "th": "Flame Vanguard X9",
+          "th": "Twin Striker X9",
           "id": "Redflame X9"
         },
         "description": "Casting Unbound Meteor, Falling Hellfire, or Flowing Splendor Slash has a 50% chance to trigger Great Crimson Lotus; Great Crimson Lotus Illusion-Breaking DMG +. Dealing damage with Great Crimson Lotus grants Illusion Energy.",
@@ -506157,9 +506157,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060100,
-        "sourceName": "Flame Vanguard X10",
+        "sourceName": "Twin Striker X10",
         "sourceNames": {
-          "en": "Flame Vanguard X10",
+          "en": "Twin Striker X10",
           "zh-CN": "赤炎X10",
           "zh-TW": "赤炎X10",
           "ja": "赤炎の狂戦士X10",
@@ -506168,7 +506168,7 @@
           "de": "Flammen-Vorhut X10",
           "es": "Vanguardia ígnea X10",
           "pt-BR": "Vanguarda das Chamas X10",
-          "th": "Flame Vanguard X10",
+          "th": "Twin Striker X10",
           "id": "Redflame X10"
         },
         "description": "Wildfire Dance restores Crimson Soul Gauge upon dealing damage to the main target; the gauge is restored after the skill ends. While in combat and standing still, grants Illusion Energy per second.",
@@ -506311,9 +506311,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060110,
-        "sourceName": "Flame Vanguard X11",
+        "sourceName": "Twin Striker X11",
         "sourceNames": {
-          "en": "Flame Vanguard X11",
+          "en": "Twin Striker X11",
           "zh-CN": "赤炎X11",
           "zh-TW": "赤炎X11",
           "ja": "赤炎の狂戦士X11",
@@ -506322,7 +506322,7 @@
           "de": "Flammen-Vorhut X11",
           "es": "Vanguardia ígnea X11",
           "pt-BR": "Vanguarda das Chamas X11",
-          "th": "Flame Vanguard X11",
+          "th": "Twin Striker X11",
           "id": "Redflame X11"
         },
         "description": "Expertise Skills ignore more of the target's Armor. Grants Illusion Energy for every 50 Flame Souls consumed.",
@@ -506458,9 +506458,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060120,
-        "sourceName": "Flame Vanguard Rhapsody X1",
+        "sourceName": "Twin Striker Rhapsody X1",
         "sourceNames": {
-          "en": "Flame Vanguard Rhapsody X1",
+          "en": "Twin Striker Rhapsody X1",
           "zh-CN": "赤炎狂想X1",
           "zh-TW": "赤炎狂想X1",
           "ja": "赤炎の狂戦士・狂想X1",
@@ -506534,9 +506534,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060130,
-        "sourceName": "Flame Vanguard Rhapsody X2",
+        "sourceName": "Twin Striker Rhapsody X2",
         "sourceNames": {
-          "en": "Flame Vanguard Rhapsody X2",
+          "en": "Twin Striker Rhapsody X2",
           "zh-CN": "赤炎狂想X2",
           "zh-TW": "赤炎狂想X2",
           "ja": "赤炎の狂戦士・狂想X2",
@@ -506610,9 +506610,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060140,
-        "sourceName": "Flame Vanguard Rhapsody X3",
+        "sourceName": "Twin Striker Rhapsody X3",
         "sourceNames": {
-          "en": "Flame Vanguard Rhapsody X3",
+          "en": "Twin Striker Rhapsody X3",
           "zh-CN": "赤炎狂想X3",
           "zh-TW": "赤炎狂想X3",
           "ja": "赤炎の狂戦士・狂想X3",
@@ -506737,9 +506737,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060150,
-        "sourceName": "Flame Vanguard Rhapsody X4",
+        "sourceName": "Twin Striker Rhapsody X4",
         "sourceNames": {
-          "en": "Flame Vanguard Rhapsody X4",
+          "en": "Twin Striker Rhapsody X4",
           "zh-CN": "赤炎狂想X4",
           "zh-TW": "赤炎狂想X4",
           "ja": "赤炎の狂戦士・狂想X4",
@@ -509118,9 +509118,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060400,
-        "sourceName": "Flame Vanguard Reality Factor X1",
+        "sourceName": "Twin Striker Reality Factor X1",
         "sourceNames": {
-          "en": "Flame Vanguard Reality Factor X1",
+          "en": "Twin Striker Reality Factor X1",
           "zh-CN": "赤炎真实因子X1",
           "zh-TW": "赤炎真實因子X1",
           "ja": "ツインストライカー・実像因子X1",
@@ -509129,7 +509129,7 @@
           "de": "Flammen-Vorhut-Realitätsfaktor X1",
           "es": "Vanguardia ígnea X1",
           "pt-BR": "Fator de Realidade de Vanguarda das Chamas X1",
-          "th": "Flame Vanguard Reality Factor X1",
+          "th": "Twin Striker Reality Factor X1",
           "id": "Redflame Truth Factor X1"
         },
         "description": "When Illusion Energy reaches points, Formless Flame Slash is guaranteed to Crit for 10s, and its Crit DMG is always counted as .",
@@ -509340,9 +509340,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060410,
-        "sourceName": "Flame Vanguard Reality Factor X2",
+        "sourceName": "Twin Striker Reality Factor X2",
         "sourceNames": {
-          "en": "Flame Vanguard Reality Factor X2",
+          "en": "Twin Striker Reality Factor X2",
           "zh-CN": "赤炎真实因子X2",
           "zh-TW": "赤炎真實因子X2",
           "ja": "ツインストライカー・実像因子X2",
@@ -509351,7 +509351,7 @@
           "de": "Flammen-Vorhut-Realitätsfaktor X2",
           "es": "Vanguardia ígnea X2",
           "pt-BR": "Fator de Realidade de Vanguarda das Chamas X2",
-          "th": "Flame Vanguard Reality Factor X2",
+          "th": "Twin Striker Reality Factor X2",
           "id": "Redflame Truth Factor X2"
         },
         "description": "When Illusion Energy reaches points, the next Axe Wind has its resource consumption reduced by 50%, range increased by 2m, and Illusion DMG increased by .",
@@ -509473,9 +509473,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060420,
-        "sourceName": "Flame Vanguard Reality Factor X3",
+        "sourceName": "Twin Striker Reality Factor X3",
         "sourceNames": {
-          "en": "Flame Vanguard Reality Factor X3",
+          "en": "Twin Striker Reality Factor X3",
           "zh-CN": "赤炎真实因子X3",
           "zh-TW": "赤炎真實因子X3",
           "ja": "ツインストライカー・実像因子X3",
@@ -509484,7 +509484,7 @@
           "de": "Flammen-Vorhut-Realitätsfaktor X3",
           "es": "Vanguardia ígnea X3",
           "pt-BR": "Fator de Realidade de Vanguarda das Chamas X3",
-          "th": "Flame Vanguard Reality Factor X3",
+          "th": "Twin Striker Reality Factor X3",
           "id": "Redflame Truth Factor X3"
         },
         "description": "When Illusion Energy reaches points, Formless Flame Slash Final DMG + for 10s.",
@@ -509674,9 +509674,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060430,
-        "sourceName": "Flame Vanguard Reality Factor X4",
+        "sourceName": "Twin Striker Reality Factor X4",
         "sourceNames": {
-          "en": "Flame Vanguard Reality Factor X4",
+          "en": "Twin Striker Reality Factor X4",
           "zh-CN": "赤炎真实因子X4",
           "zh-TW": "赤炎真實因子X4",
           "ja": "ツインストライカー・実像因子X4",
@@ -509685,7 +509685,7 @@
           "de": "Flammen-Vorhut-Realitätsfaktor X4",
           "es": "Vanguardia ígnea X4",
           "pt-BR": "Fator de Realidade de Vanguarda das Chamas X4",
-          "th": "Flame Vanguard Reality Factor X4",
+          "th": "Twin Striker Reality Factor X4",
           "id": "Redflame Truth Factor X4"
         },
         "description": "When Illusion Energy reaches points, triggers Great Crimson Lotus; Great Crimson Lotus's Illusion DMG is increased by . Can trigger at most once within .",
@@ -509796,9 +509796,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060440,
-        "sourceName": "Flame Vanguard Reality Factor X5",
+        "sourceName": "Twin Striker Reality Factor X5",
         "sourceNames": {
-          "en": "Flame Vanguard Reality Factor X5",
+          "en": "Twin Striker Reality Factor X5",
           "zh-CN": "赤炎真实因子X5",
           "zh-TW": "赤炎真實因子X5",
           "ja": "ツインストライカー・実像因子X5",
@@ -509807,7 +509807,7 @@
           "de": "Flammen-Vorhut-Realitätsfaktor X5",
           "es": "Vanguardia ígnea X5",
           "pt-BR": "Fator de Realidade de Vanguarda das Chamas X5",
-          "th": "Flame Vanguard Reality Factor X5",
+          "th": "Twin Striker Reality Factor X5",
           "id": "Redflame Truth Factor X5"
         },
         "description": "When Illusion Energy reaches points, Wildfire Dance Final DMG + for 10s.",
@@ -509997,9 +509997,9 @@
         "sourceKind": "phantom-factor",
         "sourceType": "season-phantom-factor",
         "sourceEntityId": 3060450,
-        "sourceName": "Flame Vanguard Reality Factor X6",
+        "sourceName": "Twin Striker Reality Factor X6",
         "sourceNames": {
-          "en": "Flame Vanguard Reality Factor X6",
+          "en": "Twin Striker Reality Factor X6",
           "zh-CN": "赤炎真实因子X6",
           "zh-TW": "赤炎真實因子X6",
           "ja": "ツインストライカー・実像因子X6",
@@ -510008,7 +510008,7 @@
           "de": "Flammen-Vorhut-Realitätsfaktor X6",
           "es": "Vanguardia ígnea X6",
           "pt-BR": "Fator de Realidade de Vanguarda das Chamas X6",
-          "th": "Flame Vanguard Reality Factor X6",
+          "th": "Twin Striker Reality Factor X6",
           "id": "Redflame Truth Factor X6"
         },
         "description": "When Illusion Energy reaches points, the remaining CD of the Ultimate is reduced by 0.5s. Can trigger at most once within .",

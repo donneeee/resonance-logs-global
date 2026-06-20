@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.1.0_RC2 - Global Release Candidate
+
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `v1.1.0_RC2` release-candidate build.
+- Added a generated Phantom Factor community validation workbook with separate tabs for all combat classes plus Polarity and Stasis, grade-driven descriptions, source offsets, trigger/counter evidence, and validation note/status columns.
+- Normalized public factor/class naming from Twin Axe / Flame Vanguard to Twin Striker, and simplified Twin Striker spec labels to Formless and Crimson across generated data and supported UI locale surfaces.
+- Expanded Phantom Factor extraction so Polarity and Stasis rows can use season effect descriptions when item-package factor rows are not enough.
+- Refined factor counter behavior for duration-linked sources, including reset-buff proc counting, threshold proc suppression where needed, and a BuffUpserted source path for factors whose active buff refreshes instead of cleanly re-adding.
+- Corrected the Marksman X10 factor text/trigger override so Blast Shot, not the mistranslated Explosive Arrow text, is treated as the energy source.
+
 ## v1.1.0_RC1 - Global Release Candidate
 
 - Updated package, Tauri, Rust crate, lockfile, sidebar display, and window-title metadata for the `v1.1.0_RC1` release-candidate build.

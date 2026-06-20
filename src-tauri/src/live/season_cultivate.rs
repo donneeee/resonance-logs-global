@@ -243,10 +243,10 @@ fn templates_share_item_id(left: &FactorCounterTemplate, right: &FactorCounterTe
 
 fn template_uses_global_energy(template: &FactorCounterTemplate) -> bool {
     template.uses_global_energy
-        || template.effect_slots.iter().any(|slot| {
-            slot.threshold
-                .is_some_and(|threshold| threshold > 0)
-        })
+        || template
+            .effect_slots
+            .iter()
+            .any(|slot| slot.threshold.is_some_and(|threshold| threshold > 0))
 }
 
 fn active_snapshot_from_data(
@@ -1181,6 +1181,8 @@ mod tests {
             threshold_modifier: None,
             freeze_duration_modifier: None,
             freeze_on_threshold: false,
+            count_threshold_procs: true,
+            count_reset_buff_procs: false,
             reset_skill_keys: None,
             on_reset_skill: CounterAction::NoOp,
         }

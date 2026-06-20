@@ -50,6 +50,9 @@ function getCounterRuleBuffIds(rule: CounterRule): number[] {
     if ("buffAdded" in source) {
       result.push(source.buffAdded.buffId);
     }
+    if ("buffUpserted" in source) {
+      result.push(source.buffUpserted.buffId);
+    }
     if ("buffLayerSpent" in source) {
       result.push(source.buffLayerSpent.buffId);
     }

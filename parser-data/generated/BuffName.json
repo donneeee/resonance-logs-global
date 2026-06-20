@@ -180181,13 +180181,13 @@
   {
     "Id": 2208130,
     "Level": 30,
-    "NameDesign": "Formless Expertise Spec",
+    "NameDesign": "Formless",
     "NameId": 1051080594,
     "NameIdSource": "CTB:3345237628",
     "NameOffset": 220821,
     "DesignName": "塔塔Rank判定",
     "Names": {
-      "en": "Formless Expertise Spec",
+      "en": "Formless",
       "zh-CN": "无相专精流",
       "zh-TW": "無相專精流",
       "ja": "無相専精流",
@@ -181724,13 +181724,13 @@
   {
     "Id": 2208430,
     "Level": 30,
-    "NameDesign": "Crimson Expertise Spec",
+    "NameDesign": "Crimson",
     "NameId": 1051080693,
     "NameIdSource": "CTB:3345237628",
     "NameOffset": 221907,
     "DesignName": "狂战池子积攒",
     "Names": {
-      "en": "Crimson Expertise Spec",
+      "en": "Crimson",
       "zh-CN": "赤红专精流",
       "zh-TW": "赤紅專精流",
       "ja": "赤紅専精流",
@@ -187466,14 +187466,14 @@
   {
     "Id": 2409081,
     "Level": 81,
-    "NameDesign": "Formless Expertise",
+    "NameDesign": "Formless",
     "NameId": 838014167,
     "NameIdSource": "BuffTable",
     "NameOffset": 232994,
     "DescriptionId": 220907733,
     "DesignName": "无相火斩增伤",
     "Names": {
-      "en": "Formless Expertise",
+      "en": "Formless",
       "zh-CN": "无相专精",
       "zh-TW": "無相專精",
       "ja": "無相専精",
@@ -187482,8 +187482,8 @@
       "de": "Formlose Expertise",
       "es": "Pericia Amorfa",
       "pt-BR": "Perícia Informe",
-      "th": "Formless Expertise",
-      "id": "Formless Expertise",
+      "th": "Formless",
+      "id": "Formless",
       "design": "无相火斩增伤"
     },
     "Descriptions": {

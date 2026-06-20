@@ -27937,9 +27937,9 @@
     },
     "mrs:3f884c108202": {
       "sourceId": "talent:312",
-      "sourceName": "Formless Expertise Spec",
+      "sourceName": "Formless",
       "sourceNames": {
-        "en": "Formless Expertise Spec",
+        "en": "Formless",
         "zh-CN": "无相专精流",
         "zh-TW": "無相專精流",
         "ja": "無相専精流",
@@ -28507,9 +28507,9 @@
     },
     "mrs:241dc027e88c": {
       "sourceId": "talent:342",
-      "sourceName": "Crimson Expertise Spec",
+      "sourceName": "Crimson",
       "sourceNames": {
-        "en": "Crimson Expertise Spec",
+        "en": "Crimson",
         "zh-CN": "赤红专精流",
         "zh-TW": "赤紅專精流",
         "ja": "赤紅専精流",
@@ -37827,9 +37827,9 @@
     },
     "mrs:fe24aa5f1b6f": {
       "sourceId": "phantom-factor:3059260",
-      "sourceName": "Flame Vanguard Stasis X1",
+      "sourceName": "Twin Striker Stasis X1",
       "sourceNames": {
-        "en": "Flame Vanguard Stasis X1",
+        "en": "Twin Striker Stasis X1",
         "zh-CN": "赤炎稳态X1",
         "zh-TW": "赤炎穩態X1",
         "ja": "赤炎の狂戦士・恒常性X1",
@@ -37845,9 +37845,9 @@
     },
     "mrs:e01495ff77e5": {
       "sourceId": "phantom-factor:3059270",
-      "sourceName": "Flame Vanguard Stasis X2",
+      "sourceName": "Twin Striker Stasis X2",
       "sourceNames": {
-        "en": "Flame Vanguard Stasis X2",
+        "en": "Twin Striker Stasis X2",
         "zh-CN": "赤炎稳态X2",
         "zh-TW": "赤炎穩態X2",
         "ja": "赤炎の狂戦士・恒常性X2",
@@ -37863,9 +37863,9 @@
     },
     "mrs:e9cc02b6353a": {
       "sourceId": "phantom-factor:3060010",
-      "sourceName": "Flame Vanguard X1",
+      "sourceName": "Twin Striker X1",
       "sourceNames": {
-        "en": "Flame Vanguard X1",
+        "en": "Twin Striker X1",
         "zh-CN": "赤炎X1",
         "zh-TW": "赤炎X1",
         "ja": "赤炎の狂戦士X1",
@@ -37874,16 +37874,16 @@
         "de": "Flammen-Vorhut X1",
         "es": "Vanguardia ígnea X1",
         "pt-BR": "Vanguarda das Chamas X1",
-        "th": "Flame Vanguard X1",
+        "th": "Twin Striker X1",
         "id": "Redflame X1"
       },
       "iconPath": "yinzi_s2_03_001"
     },
     "mrs:8d1931e51121": {
       "sourceId": "phantom-factor:3060020",
-      "sourceName": "Flame Vanguard X2",
+      "sourceName": "Twin Striker X2",
       "sourceNames": {
-        "en": "Flame Vanguard X2",
+        "en": "Twin Striker X2",
         "zh-CN": "赤炎X2",
         "zh-TW": "赤炎X2",
         "ja": "赤炎の狂戦士X2",
@@ -37892,16 +37892,16 @@
         "de": "Flammen-Vorhut X2",
         "es": "Vanguardia ígnea X2",
         "pt-BR": "Vanguarda das Chamas X2",
-        "th": "Flame Vanguard X2",
+        "th": "Twin Striker X2",
         "id": "Redflame X2"
       },
       "iconPath": "yinzi_s2_03_002"
     },
     "mrs:55d2e4b5a8d6": {
       "sourceId": "phantom-factor:3060030",
-      "sourceName": "Flame Vanguard X3",
+      "sourceName": "Twin Striker X3",
       "sourceNames": {
-        "en": "Flame Vanguard X3",
+        "en": "Twin Striker X3",
         "zh-CN": "赤炎X3",
         "zh-TW": "赤炎X3",
         "ja": "赤炎の狂戦士X3",
@@ -37910,16 +37910,16 @@
         "de": "Flammen-Vorhut X3",
         "es": "Vanguardia ígnea X3",
         "pt-BR": "Vanguarda das Chamas X3",
-        "th": "Flame Vanguard X3",
+        "th": "Twin Striker X3",
         "id": "Redflame X3"
       },
       "iconPath": "yinzi_s2_03_003"
     },
     "mrs:b2275b6b9f1d": {
       "sourceId": "phantom-factor:3060040",
-      "sourceName": "Flame Vanguard X4",
+      "sourceName": "Twin Striker X4",
       "sourceNames": {
-        "en": "Flame Vanguard X4",
+        "en": "Twin Striker X4",
         "zh-CN": "赤炎X4",
         "zh-TW": "赤炎X4",
         "ja": "赤炎の狂戦士X4",
@@ -37928,16 +37928,16 @@
         "de": "Flammen-Vorhut X4",
         "es": "Vanguardia ígnea X4",
         "pt-BR": "Vanguarda das Chamas X4",
-        "th": "Flame Vanguard X4",
+        "th": "Twin Striker X4",
         "id": "Redflame X4"
       },
       "iconPath": "yinzi_s2_03_004"
     },
     "mrs:5e0aa777dac9": {
       "sourceId": "phantom-factor:3060050",
-      "sourceName": "Flame Vanguard X5",
+      "sourceName": "Twin Striker X5",
       "sourceNames": {
-        "en": "Flame Vanguard X5",
+        "en": "Twin Striker X5",
         "zh-CN": "赤炎X5",
         "zh-TW": "赤炎X5",
         "ja": "赤炎の狂戦士X5",
@@ -37946,16 +37946,16 @@
         "de": "Flammen-Vorhut X5",
         "es": "Vanguardia ígnea X5",
         "pt-BR": "Vanguarda das Chamas X5",
-        "th": "Flame Vanguard X5",
+        "th": "Twin Striker X5",
         "id": "Redflame X5"
       },
       "iconPath": "yinzi_s2_03_005"
     },
     "mrs:599276e906d5": {
       "sourceId": "phantom-factor:3060060",
-      "sourceName": "Flame Vanguard X6",
+      "sourceName": "Twin Striker X6",
       "sourceNames": {
-        "en": "Flame Vanguard X6",
+        "en": "Twin Striker X6",
         "zh-CN": "赤炎X6",
         "zh-TW": "赤炎X6",
         "ja": "赤炎の狂戦士X6",
@@ -37964,16 +37964,16 @@
         "de": "Flammen-Vorhut X6",
         "es": "Vanguardia ígnea X6",
         "pt-BR": "Vanguarda das Chamas X6",
-        "th": "Flame Vanguard X6",
+        "th": "Twin Striker X6",
         "id": "Redflame X6"
       },
       "iconPath": "yinzi_s2_03_006"
     },
     "mrs:17e48c88e599": {
       "sourceId": "phantom-factor:3060070",
-      "sourceName": "Flame Vanguard X7",
+      "sourceName": "Twin Striker X7",
       "sourceNames": {
-        "en": "Flame Vanguard X7",
+        "en": "Twin Striker X7",
         "zh-CN": "赤炎X7",
         "zh-TW": "赤炎X7",
         "ja": "赤炎の狂戦士X7",
@@ -37982,16 +37982,16 @@
         "de": "Flammen-Vorhut X7",
         "es": "Vanguardia ígnea X7",
         "pt-BR": "Vanguarda das Chamas X7",
-        "th": "Flame Vanguard X7",
+        "th": "Twin Striker X7",
         "id": "Redflame X7"
       },
       "iconPath": "yinzi_s2_03_007"
     },
     "mrs:5169c43ac279": {
       "sourceId": "phantom-factor:3060080",
-      "sourceName": "Flame Vanguard X8",
+      "sourceName": "Twin Striker X8",
       "sourceNames": {
-        "en": "Flame Vanguard X8",
+        "en": "Twin Striker X8",
         "zh-CN": "赤炎X8",
         "zh-TW": "赤炎X8",
         "ja": "赤炎の狂戦士X8",
@@ -38000,16 +38000,16 @@
         "de": "Flammen-Vorhut X8",
         "es": "Vanguardia ígnea X8",
         "pt-BR": "Vanguarda das Chamas X8",
-        "th": "Flame Vanguard X8",
+        "th": "Twin Striker X8",
         "id": "Redflame X8"
       },
       "iconPath": "yinzi_s2_03_008"
     },
     "mrs:8890c5711d15": {
       "sourceId": "phantom-factor:3060090",
-      "sourceName": "Flame Vanguard X9",
+      "sourceName": "Twin Striker X9",
       "sourceNames": {
-        "en": "Flame Vanguard X9",
+        "en": "Twin Striker X9",
         "zh-CN": "赤炎X9",
         "zh-TW": "赤炎X9",
         "ja": "赤炎の狂戦士X9",
@@ -38018,16 +38018,16 @@
         "de": "Flammen-Vorhut X9",
         "es": "Vanguardia ígnea X9",
         "pt-BR": "Vanguarda das Chamas X9",
-        "th": "Flame Vanguard X9",
+        "th": "Twin Striker X9",
         "id": "Redflame X9"
       },
       "iconPath": "yinzi_s2_03_009"
     },
     "mrs:75362d50ff99": {
       "sourceId": "phantom-factor:3060100",
-      "sourceName": "Flame Vanguard X10",
+      "sourceName": "Twin Striker X10",
       "sourceNames": {
-        "en": "Flame Vanguard X10",
+        "en": "Twin Striker X10",
         "zh-CN": "赤炎X10",
         "zh-TW": "赤炎X10",
         "ja": "赤炎の狂戦士X10",
@@ -38036,16 +38036,16 @@
         "de": "Flammen-Vorhut X10",
         "es": "Vanguardia ígnea X10",
         "pt-BR": "Vanguarda das Chamas X10",
-        "th": "Flame Vanguard X10",
+        "th": "Twin Striker X10",
         "id": "Redflame X10"
       },
       "iconPath": "yinzi_s2_03_010"
     },
     "mrs:adcf938f480d": {
       "sourceId": "phantom-factor:3060110",
-      "sourceName": "Flame Vanguard X11",
+      "sourceName": "Twin Striker X11",
       "sourceNames": {
-        "en": "Flame Vanguard X11",
+        "en": "Twin Striker X11",
         "zh-CN": "赤炎X11",
         "zh-TW": "赤炎X11",
         "ja": "赤炎の狂戦士X11",
@@ -38054,16 +38054,16 @@
         "de": "Flammen-Vorhut X11",
         "es": "Vanguardia ígnea X11",
         "pt-BR": "Vanguarda das Chamas X11",
-        "th": "Flame Vanguard X11",
+        "th": "Twin Striker X11",
         "id": "Redflame X11"
       },
       "iconPath": "yinzi_s2_03_011"
     },
     "mrs:d45b89b308bd": {
       "sourceId": "phantom-factor:3060120",
-      "sourceName": "Flame Vanguard Rhapsody X1",
+      "sourceName": "Twin Striker Rhapsody X1",
       "sourceNames": {
-        "en": "Flame Vanguard Rhapsody X1",
+        "en": "Twin Striker Rhapsody X1",
         "zh-CN": "赤炎狂想X1",
         "zh-TW": "赤炎狂想X1",
         "ja": "赤炎の狂戦士・狂想X1",
@@ -38079,9 +38079,9 @@
     },
     "mrs:34eafc7d1def": {
       "sourceId": "phantom-factor:3060130",
-      "sourceName": "Flame Vanguard Rhapsody X2",
+      "sourceName": "Twin Striker Rhapsody X2",
       "sourceNames": {
-        "en": "Flame Vanguard Rhapsody X2",
+        "en": "Twin Striker Rhapsody X2",
         "zh-CN": "赤炎狂想X2",
         "zh-TW": "赤炎狂想X2",
         "ja": "赤炎の狂戦士・狂想X2",
@@ -38097,9 +38097,9 @@
     },
     "mrs:468a3fc9c049": {
       "sourceId": "phantom-factor:3060140",
-      "sourceName": "Flame Vanguard Rhapsody X3",
+      "sourceName": "Twin Striker Rhapsody X3",
       "sourceNames": {
-        "en": "Flame Vanguard Rhapsody X3",
+        "en": "Twin Striker Rhapsody X3",
         "zh-CN": "赤炎狂想X3",
         "zh-TW": "赤炎狂想X3",
         "ja": "赤炎の狂戦士・狂想X3",
@@ -38115,9 +38115,9 @@
     },
     "mrs:0c4a2a829d8b": {
       "sourceId": "phantom-factor:3060150",
-      "sourceName": "Flame Vanguard Rhapsody X4",
+      "sourceName": "Twin Striker Rhapsody X4",
       "sourceNames": {
-        "en": "Flame Vanguard Rhapsody X4",
+        "en": "Twin Striker Rhapsody X4",
         "zh-CN": "赤炎狂想X4",
         "zh-TW": "赤炎狂想X4",
         "ja": "赤炎の狂戦士・狂想X4",
@@ -38440,9 +38440,9 @@
     },
     "mrs:205c77ebb1b1": {
       "sourceId": "phantom-factor:3060400",
-      "sourceName": "Flame Vanguard Reality Factor X1",
+      "sourceName": "Twin Striker Reality Factor X1",
       "sourceNames": {
-        "en": "Flame Vanguard Reality Factor X1",
+        "en": "Twin Striker Reality Factor X1",
         "zh-CN": "赤炎真实因子X1",
         "zh-TW": "赤炎真實因子X1",
         "ja": "ツインストライカー・実像因子X1",
@@ -38451,16 +38451,16 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X1",
         "es": "Vanguardia ígnea X1",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X1",
-        "th": "Flame Vanguard Reality Factor X1",
+        "th": "Twin Striker Reality Factor X1",
         "id": "Redflame Truth Factor X1"
       },
       "iconPath": "xuwangyinzi_s2_03_001"
     },
     "mrs:9645206bc3b7": {
       "sourceId": "phantom-factor:3060410",
-      "sourceName": "Flame Vanguard Reality Factor X2",
+      "sourceName": "Twin Striker Reality Factor X2",
       "sourceNames": {
-        "en": "Flame Vanguard Reality Factor X2",
+        "en": "Twin Striker Reality Factor X2",
         "zh-CN": "赤炎真实因子X2",
         "zh-TW": "赤炎真實因子X2",
         "ja": "ツインストライカー・実像因子X2",
@@ -38469,16 +38469,16 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X2",
         "es": "Vanguardia ígnea X2",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X2",
-        "th": "Flame Vanguard Reality Factor X2",
+        "th": "Twin Striker Reality Factor X2",
         "id": "Redflame Truth Factor X2"
       },
       "iconPath": "xuwangyinzi_s2_03_002"
     },
     "mrs:6dccaeb5f246": {
       "sourceId": "phantom-factor:3060420",
-      "sourceName": "Flame Vanguard Reality Factor X3",
+      "sourceName": "Twin Striker Reality Factor X3",
       "sourceNames": {
-        "en": "Flame Vanguard Reality Factor X3",
+        "en": "Twin Striker Reality Factor X3",
         "zh-CN": "赤炎真实因子X3",
         "zh-TW": "赤炎真實因子X3",
         "ja": "ツインストライカー・実像因子X3",
@@ -38487,16 +38487,16 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X3",
         "es": "Vanguardia ígnea X3",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X3",
-        "th": "Flame Vanguard Reality Factor X3",
+        "th": "Twin Striker Reality Factor X3",
         "id": "Redflame Truth Factor X3"
       },
       "iconPath": "xuwangyinzi_s2_03_003"
     },
     "mrs:20fc01642346": {
       "sourceId": "phantom-factor:3060430",
-      "sourceName": "Flame Vanguard Reality Factor X4",
+      "sourceName": "Twin Striker Reality Factor X4",
       "sourceNames": {
-        "en": "Flame Vanguard Reality Factor X4",
+        "en": "Twin Striker Reality Factor X4",
         "zh-CN": "赤炎真实因子X4",
         "zh-TW": "赤炎真實因子X4",
         "ja": "ツインストライカー・実像因子X4",
@@ -38505,16 +38505,16 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X4",
         "es": "Vanguardia ígnea X4",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X4",
-        "th": "Flame Vanguard Reality Factor X4",
+        "th": "Twin Striker Reality Factor X4",
         "id": "Redflame Truth Factor X4"
       },
       "iconPath": "xuwangyinzi_s2_03_004"
     },
     "mrs:d637d7806812": {
       "sourceId": "phantom-factor:3060440",
-      "sourceName": "Flame Vanguard Reality Factor X5",
+      "sourceName": "Twin Striker Reality Factor X5",
       "sourceNames": {
-        "en": "Flame Vanguard Reality Factor X5",
+        "en": "Twin Striker Reality Factor X5",
         "zh-CN": "赤炎真实因子X5",
         "zh-TW": "赤炎真實因子X5",
         "ja": "ツインストライカー・実像因子X5",
@@ -38523,16 +38523,16 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X5",
         "es": "Vanguardia ígnea X5",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X5",
-        "th": "Flame Vanguard Reality Factor X5",
+        "th": "Twin Striker Reality Factor X5",
         "id": "Redflame Truth Factor X5"
       },
       "iconPath": "xuwangyinzi_s2_03_005"
     },
     "mrs:ad77b763d749": {
       "sourceId": "phantom-factor:3060450",
-      "sourceName": "Flame Vanguard Reality Factor X6",
+      "sourceName": "Twin Striker Reality Factor X6",
       "sourceNames": {
-        "en": "Flame Vanguard Reality Factor X6",
+        "en": "Twin Striker Reality Factor X6",
         "zh-CN": "赤炎真实因子X6",
         "zh-TW": "赤炎真實因子X6",
         "ja": "ツインストライカー・実像因子X6",
@@ -38541,7 +38541,7 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X6",
         "es": "Vanguardia ígnea X6",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X6",
-        "th": "Flame Vanguard Reality Factor X6",
+        "th": "Twin Striker Reality Factor X6",
         "id": "Redflame Truth Factor X6"
       },
       "iconPath": "xuwangyinzi_s2_03_006"

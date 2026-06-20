@@ -1,10 +1,11 @@
 {
   "summary": {
     "source": "SeasonPhantomFactorProbe",
-    "sourcePath": "output/probing-reports/SeasonPhantomFactorProbe.json",
-    "breakdownSource": "output/SkillBreakdownDetails.json",
-    "factorFamilies": 219,
-    "factorBuffIds": 219,
+    "sourcePath": "../BPSR-UID-Extractors/output/probing-reports/SeasonPhantomFactorProbe.json",
+    "breakdownSource": "parser-data/generated/SkillBreakdownDetails.json",
+    "effectDescriptionSource": "parser-data/generated/SeasonEffectDescriptions.json",
+    "factorFamilies": 228,
+    "factorBuffIds": 228,
     "directlyLinkedDamageRows": 6,
     "descriptionTargetRecountRows": 0,
     "gradeProvenByRuntime": false,
@@ -180,6 +181,10 @@
     3057430,
     3057440,
     3057450,
+    3058010,
+    3058020,
+    3058030,
+    3058040,
     3058050,
     3058060,
     3058070,
@@ -187,10 +192,15 @@
     3058090,
     3058100,
     3058110,
+    3059010,
+    3059020,
+    3059030,
+    3059040,
     3059050,
     3059060,
     3059070,
     3059080,
+    3059090,
     3059100,
     3059110,
     3059120,
@@ -41345,6 +41355,856 @@
       "affectedDamageEvidence": {},
       "affectedRecountEvidence": {}
     },
+    "3058010": {
+      "familyId": 202189,
+      "buffId": 3058010,
+      "buffIdSource": "season-effect-description-polarity-slot-id",
+      "familyName": "Polarity X1",
+      "familyNames": {
+        "en": "Polarity X1",
+        "zh-CN": "极性X1",
+        "zh-TW": "極性X1",
+        "ja": "極性X1",
+        "ko-KR": "극성X1",
+        "fr": "Polarité X1",
+        "de": "Polarität X1",
+        "es": "Polaridad X1",
+        "pt-BR": "Polaridade X1",
+        "th": "Polarity X1",
+        "id": "Polarity X1"
+      },
+      "iconPath": "yinzi_s2_common_001",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685881031,
+      "descriptions": {
+        "en": "Element Strength",
+        "zh-CN": "元素强度",
+        "zh-TW": "元素強度",
+        "ja": "属性強度",
+        "ko-KR": "원소 강도",
+        "fr": "Force élémentaire",
+        "de": "Elementstärke",
+        "es": "Fuerza elemental",
+        "pt-BR": "Força Elemental",
+        "th": "ความแกร่งธาตุ",
+        "id": "Element Power"
+      },
+      "cleanDescriptions": {
+        "en": "Element Strength",
+        "zh-CN": "元素强度",
+        "zh-TW": "元素強度",
+        "ja": "属性強度",
+        "ko-KR": "원소 강도",
+        "fr": "Force élémentaire",
+        "de": "Elementstärke",
+        "es": "Fuerza elemental",
+        "pt-BR": "Força Elemental",
+        "th": "ความแกร่งธาตุ",
+        "id": "Element Power"
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20020881,
+        20020882,
+        20020883,
+        20020884,
+        20020885,
+        20020886,
+        20020887,
+        20020888,
+        20020889,
+        20020890
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20020881,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+85"
+            ],
+            "cleanResolvedDescription": "Element Strength +85",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761973820
+          },
+          {
+            "grade": 2,
+            "itemId": 20020882,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+115"
+            ],
+            "cleanResolvedDescription": "Element Strength +115",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761973868
+          },
+          {
+            "grade": 3,
+            "itemId": 20020883,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+146"
+            ],
+            "cleanResolvedDescription": "Element Strength +146",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761973916
+          },
+          {
+            "grade": 4,
+            "itemId": 20020884,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+176"
+            ],
+            "cleanResolvedDescription": "Element Strength +176",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761973964
+          },
+          {
+            "grade": 5,
+            "itemId": 20020885,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+207"
+            ],
+            "cleanResolvedDescription": "Element Strength +207",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974012
+          },
+          {
+            "grade": 6,
+            "itemId": 20020886,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+238"
+            ],
+            "cleanResolvedDescription": "Element Strength +238",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974060
+          },
+          {
+            "grade": 7,
+            "itemId": 20020887,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+268"
+            ],
+            "cleanResolvedDescription": "Element Strength +268",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974108
+          },
+          {
+            "grade": 8,
+            "itemId": 20020888,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+299"
+            ],
+            "cleanResolvedDescription": "Element Strength +299",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974156
+          },
+          {
+            "grade": 9,
+            "itemId": 20020889,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+329"
+            ],
+            "cleanResolvedDescription": "Element Strength +329",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974204
+          },
+          {
+            "grade": 10,
+            "itemId": 20020890,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+360"
+            ],
+            "cleanResolvedDescription": "Element Strength +360",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974252
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
+    "3058020": {
+      "familyId": 202190,
+      "buffId": 3058020,
+      "buffIdSource": "season-effect-description-polarity-slot-id",
+      "familyName": "Polarity X2",
+      "familyNames": {
+        "en": "Polarity X2",
+        "zh-CN": "极性X2",
+        "zh-TW": "極性X2",
+        "ja": "極性X2",
+        "ko-KR": "극성X2",
+        "fr": "Polarité X2",
+        "de": "Polarität X2",
+        "es": "Polaridad X2",
+        "pt-BR": "Polaridade X2",
+        "th": "Polarity X2",
+        "id": "Polarity X2"
+      },
+      "iconPath": "yinzi_s2_common_002",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685881064,
+      "descriptions": {
+        "en": "Strength: Fixed Value + Percentage",
+        "zh-CN": "力量：固定值+百分比",
+        "zh-TW": "力量：固定值+百分比",
+        "ja": "筋力：固定値+割合",
+        "ko-KR": "힘: 고정값+백분율",
+        "fr": "Force : valeur fixe + pourcentage",
+        "de": "Stärke: Fester Wert + Prozentsatz",
+        "es": "Fuerza: Valor fijo + porcentaje",
+        "pt-BR": "Força: Valor Fixo + Porcentagem",
+        "th": "Power: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "STR: Nilai tetap + persentase"
+      },
+      "cleanDescriptions": {
+        "en": "Strength: Fixed Value + Percentage",
+        "zh-CN": "力量：固定值+百分比",
+        "zh-TW": "力量：固定值+百分比",
+        "ja": "筋力：固定値+割合",
+        "ko-KR": "힘: 고정값+백분율",
+        "fr": "Force : valeur fixe + pourcentage",
+        "de": "Stärke: Fester Wert + Prozentsatz",
+        "es": "Fuerza: Valor fijo + porcentaje",
+        "pt-BR": "Força: Valor Fixo + Porcentagem",
+        "th": "Power: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "STR: Nilai tetap + persentase"
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20020891,
+        20020892,
+        20020893,
+        20020894,
+        20020895,
+        20020896,
+        20020897,
+        20020898,
+        20020899,
+        20020900
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20020891,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+42",
+              "+0.6%"
+            ],
+            "cleanResolvedDescription": "Strength +42; Strength +0.6%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974300
+          },
+          {
+            "grade": 2,
+            "itemId": 20020892,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+49",
+              "+0.75%"
+            ],
+            "cleanResolvedDescription": "Strength +49; Strength +0.75%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974348
+          },
+          {
+            "grade": 3,
+            "itemId": 20020893,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+56",
+              "+0.91%"
+            ],
+            "cleanResolvedDescription": "Strength +56; Strength +0.91%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974396
+          },
+          {
+            "grade": 4,
+            "itemId": 20020894,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+63",
+              "+1.06%"
+            ],
+            "cleanResolvedDescription": "Strength +63; Strength +1.06%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974444
+          },
+          {
+            "grade": 5,
+            "itemId": 20020895,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+70",
+              "+1.22%"
+            ],
+            "cleanResolvedDescription": "Strength +70; Strength +1.22%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974492
+          },
+          {
+            "grade": 6,
+            "itemId": 20020896,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+77",
+              "+1.37%"
+            ],
+            "cleanResolvedDescription": "Strength +77; Strength +1.37%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974540
+          },
+          {
+            "grade": 7,
+            "itemId": 20020897,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+84",
+              "+1.53%"
+            ],
+            "cleanResolvedDescription": "Strength +84; Strength +1.53%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974588
+          },
+          {
+            "grade": 8,
+            "itemId": 20020898,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+91",
+              "+1.68%"
+            ],
+            "cleanResolvedDescription": "Strength +91; Strength +1.68%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974636
+          },
+          {
+            "grade": 9,
+            "itemId": 20020899,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+98",
+              "+1.84%"
+            ],
+            "cleanResolvedDescription": "Strength +98; Strength +1.84%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974684
+          },
+          {
+            "grade": 10,
+            "itemId": 20020900,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+105",
+              "+2%"
+            ],
+            "cleanResolvedDescription": "Strength +105; Strength +2%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974732
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
+    "3058030": {
+      "familyId": 202191,
+      "buffId": 3058030,
+      "buffIdSource": "season-effect-description-polarity-slot-id",
+      "familyName": "Polarity X3",
+      "familyNames": {
+        "en": "Polarity X3",
+        "zh-CN": "极性X3",
+        "zh-TW": "極性X3",
+        "ja": "極性X3",
+        "ko-KR": "극성X3",
+        "fr": "Polarité X3",
+        "de": "Polarität X3",
+        "es": "Polaridad X3",
+        "pt-BR": "Polaridade X3",
+        "th": "Polarity X3",
+        "id": "Polarity X3"
+      },
+      "iconPath": "yinzi_s2_common_003",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685881097,
+      "descriptions": {
+        "en": "Intellect: Fixed Value + Percentage",
+        "zh-CN": "智力：固定值+百分比",
+        "zh-TW": "智力：固定值+百分比",
+        "ja": "知力：固定値+割合",
+        "ko-KR": "지력: 고정값+백분율",
+        "fr": "Intelligence : valeur fixe + pourcentage",
+        "de": "Intelligenz: Fester Wert + Prozentsatz",
+        "es": "Intelecto: Valor fijo + porcentaje",
+        "pt-BR": "Intelecto: Valor Fixo + Porcentagem",
+        "th": "INT: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "INT: Nilai tetap + persentase"
+      },
+      "cleanDescriptions": {
+        "en": "Intellect: Fixed Value + Percentage",
+        "zh-CN": "智力：固定值+百分比",
+        "zh-TW": "智力：固定值+百分比",
+        "ja": "知力：固定値+割合",
+        "ko-KR": "지력: 고정값+백분율",
+        "fr": "Intelligence : valeur fixe + pourcentage",
+        "de": "Intelligenz: Fester Wert + Prozentsatz",
+        "es": "Intelecto: Valor fijo + porcentaje",
+        "pt-BR": "Intelecto: Valor Fixo + Porcentagem",
+        "th": "INT: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "INT: Nilai tetap + persentase"
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20020901,
+        20020902,
+        20020903,
+        20020904,
+        20020905,
+        20020906,
+        20020907,
+        20020908,
+        20020909,
+        20020910
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20020901,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+42",
+              "+0.6%"
+            ],
+            "cleanResolvedDescription": "Intellect +42; Intellect +0.6%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974780
+          },
+          {
+            "grade": 2,
+            "itemId": 20020902,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+49",
+              "+0.75%"
+            ],
+            "cleanResolvedDescription": "Intellect +49; Intellect +0.75%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974828
+          },
+          {
+            "grade": 3,
+            "itemId": 20020903,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+56",
+              "+0.91%"
+            ],
+            "cleanResolvedDescription": "Intellect +56; Intellect +0.91%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974876
+          },
+          {
+            "grade": 4,
+            "itemId": 20020904,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+63",
+              "+1.06%"
+            ],
+            "cleanResolvedDescription": "Intellect +63; Intellect +1.06%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974924
+          },
+          {
+            "grade": 5,
+            "itemId": 20020905,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+70",
+              "+1.22%"
+            ],
+            "cleanResolvedDescription": "Intellect +70; Intellect +1.22%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761974972
+          },
+          {
+            "grade": 6,
+            "itemId": 20020906,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+77",
+              "+1.37%"
+            ],
+            "cleanResolvedDescription": "Intellect +77; Intellect +1.37%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975020
+          },
+          {
+            "grade": 7,
+            "itemId": 20020907,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+84",
+              "+1.53%"
+            ],
+            "cleanResolvedDescription": "Intellect +84; Intellect +1.53%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975068
+          },
+          {
+            "grade": 8,
+            "itemId": 20020908,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+91",
+              "+1.68%"
+            ],
+            "cleanResolvedDescription": "Intellect +91; Intellect +1.68%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975116
+          },
+          {
+            "grade": 9,
+            "itemId": 20020909,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+98",
+              "+1.84%"
+            ],
+            "cleanResolvedDescription": "Intellect +98; Intellect +1.84%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975164
+          },
+          {
+            "grade": 10,
+            "itemId": 20020910,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+105",
+              "+2%"
+            ],
+            "cleanResolvedDescription": "Intellect +105; Intellect +2%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975212
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
+    "3058040": {
+      "familyId": 202192,
+      "buffId": 3058040,
+      "buffIdSource": "season-effect-description-polarity-slot-id",
+      "familyName": "Polarity X4",
+      "familyNames": {
+        "en": "Polarity X4",
+        "zh-CN": "极性X4",
+        "zh-TW": "極性X4",
+        "ja": "極性X4",
+        "ko-KR": "극성X4",
+        "fr": "Polarité X4",
+        "de": "Polarität X4",
+        "es": "Polaridad X4",
+        "pt-BR": "Polaridade X4",
+        "th": "Polarity X4",
+        "id": "Polarity X4"
+      },
+      "iconPath": "yinzi_s2_common_004",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685881130,
+      "descriptions": {
+        "en": "Agility: Fixed Value + Percentage",
+        "zh-CN": "敏捷：固定值+百分比",
+        "zh-TW": "敏捷：固定值+百分比",
+        "ja": "敏捷：固定値+割合",
+        "ko-KR": "민첩: 고정값+백분율",
+        "fr": "Agilité : valeur fixe + pourcentage",
+        "de": "Agilität: Fester Wert + Prozentsatz",
+        "es": "Agilidad: Valor fijo + porcentaje",
+        "pt-BR": "Agilidade: Valor Fixo + Porcentagem",
+        "th": "AGI: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "AGI: Nilai tetap + persentase"
+      },
+      "cleanDescriptions": {
+        "en": "Agility: Fixed Value + Percentage",
+        "zh-CN": "敏捷：固定值+百分比",
+        "zh-TW": "敏捷：固定值+百分比",
+        "ja": "敏捷：固定値+割合",
+        "ko-KR": "민첩: 고정값+백분율",
+        "fr": "Agilité : valeur fixe + pourcentage",
+        "de": "Agilität: Fester Wert + Prozentsatz",
+        "es": "Agilidad: Valor fijo + porcentaje",
+        "pt-BR": "Agilidade: Valor Fixo + Porcentagem",
+        "th": "AGI: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "AGI: Nilai tetap + persentase"
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20020911,
+        20020912,
+        20020913,
+        20020914,
+        20020915,
+        20020916,
+        20020917,
+        20020918,
+        20020919,
+        20020920
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20020911,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+42",
+              "+0.6%"
+            ],
+            "cleanResolvedDescription": "Agility +42; Agility +0.6%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975260
+          },
+          {
+            "grade": 2,
+            "itemId": 20020912,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+49",
+              "+0.75%"
+            ],
+            "cleanResolvedDescription": "Agility +49; Agility +0.75%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975308
+          },
+          {
+            "grade": 3,
+            "itemId": 20020913,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+56",
+              "+0.91%"
+            ],
+            "cleanResolvedDescription": "Agility +56; Agility +0.91%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975356
+          },
+          {
+            "grade": 4,
+            "itemId": 20020914,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+63",
+              "+1.06%"
+            ],
+            "cleanResolvedDescription": "Agility +63; Agility +1.06%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975404
+          },
+          {
+            "grade": 5,
+            "itemId": 20020915,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+70",
+              "+1.22%"
+            ],
+            "cleanResolvedDescription": "Agility +70; Agility +1.22%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975452
+          },
+          {
+            "grade": 6,
+            "itemId": 20020916,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+77",
+              "+1.37%"
+            ],
+            "cleanResolvedDescription": "Agility +77; Agility +1.37%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975500
+          },
+          {
+            "grade": 7,
+            "itemId": 20020917,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+84",
+              "+1.53%"
+            ],
+            "cleanResolvedDescription": "Agility +84; Agility +1.53%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975548
+          },
+          {
+            "grade": 8,
+            "itemId": 20020918,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+91",
+              "+1.68%"
+            ],
+            "cleanResolvedDescription": "Agility +91; Agility +1.68%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975596
+          },
+          {
+            "grade": 9,
+            "itemId": 20020919,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+98",
+              "+1.84%"
+            ],
+            "cleanResolvedDescription": "Agility +98; Agility +1.84%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975644
+          },
+          {
+            "grade": 10,
+            "itemId": 20020920,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+105",
+              "+2%"
+            ],
+            "cleanResolvedDescription": "Agility +105; Agility +2%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761975692
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
     "3058050": {
       "familyId": 202193,
       "buffId": 3058050,
@@ -42950,6 +43810,856 @@
       "affectedDamageEvidence": {},
       "affectedRecountEvidence": {}
     },
+    "3059010": {
+      "familyId": 202200,
+      "buffId": 3059010,
+      "buffIdSource": "season-effect-description-stasis-slot-id",
+      "familyName": "Stasis X1",
+      "familyNames": {
+        "en": "Stasis X1",
+        "zh-CN": "稳态X1",
+        "zh-TW": "穩態X1",
+        "ja": "恒常性X1",
+        "ko-KR": "안정X1",
+        "fr": "Stase X1",
+        "de": "Stase X1",
+        "es": "Estasis X1",
+        "pt-BR": "Estase X1",
+        "th": "Steady X1",
+        "id": "Steady X1"
+      },
+      "iconPath": "yinzi_s2_common_012",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685916968,
+      "descriptions": {
+        "en": "Element Resistance",
+        "zh-CN": "元素抗性",
+        "zh-TW": "元素抗性",
+        "ja": "属性耐性",
+        "ko-KR": "원소 저항",
+        "fr": "Résistance élémentaire",
+        "de": "Elementwiderstand",
+        "es": "Resistencia elemental.",
+        "pt-BR": "Resistência Elemental",
+        "th": "ความต้านทานธาตุ",
+        "id": "Element Res"
+      },
+      "cleanDescriptions": {
+        "en": "Element Resistance",
+        "zh-CN": "元素抗性",
+        "zh-TW": "元素抗性",
+        "ja": "属性耐性",
+        "ko-KR": "원소 저항",
+        "fr": "Résistance élémentaire",
+        "de": "Elementwiderstand",
+        "es": "Resistencia elemental.",
+        "pt-BR": "Resistência Elemental",
+        "th": "ความต้านทานธาตุ",
+        "id": "Element Res"
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20020991,
+        20020992,
+        20020993,
+        20020994,
+        20020995,
+        20020996,
+        20020997,
+        20020998,
+        20020999,
+        20021000
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20020991,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1.7%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +1.7%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979100
+          },
+          {
+            "grade": 2,
+            "itemId": 20020992,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2.04%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +2.04%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979148
+          },
+          {
+            "grade": 3,
+            "itemId": 20020993,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2.38%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +2.38%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979196
+          },
+          {
+            "grade": 4,
+            "itemId": 20020994,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2.72%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +2.72%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979244
+          },
+          {
+            "grade": 5,
+            "itemId": 20020995,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+3.06%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +3.06%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979292
+          },
+          {
+            "grade": 6,
+            "itemId": 20020996,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+3.4%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +3.4%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979340
+          },
+          {
+            "grade": 7,
+            "itemId": 20020997,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+3.74%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +3.74%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979388
+          },
+          {
+            "grade": 8,
+            "itemId": 20020998,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+4.08%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +4.08%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979436
+          },
+          {
+            "grade": 9,
+            "itemId": 20020999,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+4.42%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +4.42%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979484
+          },
+          {
+            "grade": 10,
+            "itemId": 20021000,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+4.76%"
+            ],
+            "cleanResolvedDescription": "Element Resistance +4.76%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979532
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
+    "3059020": {
+      "familyId": 202201,
+      "buffId": 3059020,
+      "buffIdSource": "season-effect-description-stasis-slot-id",
+      "familyName": "Stasis X2",
+      "familyNames": {
+        "en": "Stasis X2",
+        "zh-CN": "稳态X2",
+        "zh-TW": "穩態X2",
+        "ja": "恒常性X2",
+        "ko-KR": "안정X2",
+        "fr": "Stase X2",
+        "de": "Stase X2",
+        "es": "Estasis X2",
+        "pt-BR": "Estase X2",
+        "th": "Steady X2",
+        "id": "Steady X2"
+      },
+      "iconPath": "yinzi_s2_common_013",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685917001,
+      "descriptions": {
+        "en": "Endurance: Fixed Value + Percentage",
+        "zh-CN": "耐力：固定值+百分比",
+        "zh-TW": "耐力：固定值+百分比",
+        "ja": "耐久力：固定値+割合",
+        "ko-KR": "내구력: 고정값+백분율",
+        "fr": "Endurance : valeur fixe + pourcentage",
+        "de": "Ausdauer: Fester Wert + Prozentsatz",
+        "es": "Aguante: Valor fijo + porcentaje",
+        "pt-BR": "Tenacidade: Valor Fixo + Porcentagem",
+        "th": "Endurance: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "END: Nilai tetap + persentase"
+      },
+      "cleanDescriptions": {
+        "en": "Endurance: Fixed Value + Percentage",
+        "zh-CN": "耐力：固定值+百分比",
+        "zh-TW": "耐力：固定值+百分比",
+        "ja": "耐久力：固定値+割合",
+        "ko-KR": "내구력: 고정값+백분율",
+        "fr": "Endurance : valeur fixe + pourcentage",
+        "de": "Ausdauer: Fester Wert + Prozentsatz",
+        "es": "Aguante: Valor fijo + porcentaje",
+        "pt-BR": "Tenacidade: Valor Fixo + Porcentagem",
+        "th": "Endurance: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "END: Nilai tetap + persentase"
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20021001,
+        20021002,
+        20021003,
+        20021004,
+        20021005,
+        20021006,
+        20021007,
+        20021008,
+        20021009,
+        20021010
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20021001,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+168",
+              "+1%"
+            ],
+            "cleanResolvedDescription": "Endurance +168; Endurance +1%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979580
+          },
+          {
+            "grade": 2,
+            "itemId": 20021002,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+196",
+              "+1.15%"
+            ],
+            "cleanResolvedDescription": "Endurance +196; Endurance +1.15%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979628
+          },
+          {
+            "grade": 3,
+            "itemId": 20021003,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+224",
+              "+1.31%"
+            ],
+            "cleanResolvedDescription": "Endurance +224; Endurance +1.31%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979676
+          },
+          {
+            "grade": 4,
+            "itemId": 20021004,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+252",
+              "+1.46%"
+            ],
+            "cleanResolvedDescription": "Endurance +252; Endurance +1.46%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979724
+          },
+          {
+            "grade": 5,
+            "itemId": 20021005,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+280",
+              "+1.62%"
+            ],
+            "cleanResolvedDescription": "Endurance +280; Endurance +1.62%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979772
+          },
+          {
+            "grade": 6,
+            "itemId": 20021006,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+308",
+              "+1.77%"
+            ],
+            "cleanResolvedDescription": "Endurance +308; Endurance +1.77%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979820
+          },
+          {
+            "grade": 7,
+            "itemId": 20021007,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+336",
+              "+1.93%"
+            ],
+            "cleanResolvedDescription": "Endurance +336; Endurance +1.93%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979868
+          },
+          {
+            "grade": 8,
+            "itemId": 20021008,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+364",
+              "+2.08%"
+            ],
+            "cleanResolvedDescription": "Endurance +364; Endurance +2.08%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979916
+          },
+          {
+            "grade": 9,
+            "itemId": 20021009,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+392",
+              "+2.24%"
+            ],
+            "cleanResolvedDescription": "Endurance +392; Endurance +2.24%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761979964
+          },
+          {
+            "grade": 10,
+            "itemId": 20021010,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+420",
+              "+2.4%"
+            ],
+            "cleanResolvedDescription": "Endurance +420; Endurance +2.4%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980012
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
+    "3059030": {
+      "familyId": 202202,
+      "buffId": 3059030,
+      "buffIdSource": "season-effect-description-stasis-slot-id",
+      "familyName": "Stasis X3",
+      "familyNames": {
+        "en": "Stasis X3",
+        "zh-CN": "稳态X3",
+        "zh-TW": "穩態X3",
+        "ja": "恒常性X3",
+        "ko-KR": "안정X3",
+        "fr": "Stase X3",
+        "de": "Stase X3",
+        "es": "Estasis X3",
+        "pt-BR": "Estase X3",
+        "th": "Steady X3",
+        "id": "Steady X3"
+      },
+      "iconPath": "yinzi_s2_common_014",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685917034,
+      "descriptions": {
+        "en": "Armor: Fixed Value + Percentage",
+        "zh-CN": "物理防御：固定值+百分比",
+        "zh-TW": "物理防禦：固定值+百分比",
+        "ja": "物理防御力：固定値+割合",
+        "ko-KR": "물리 방어: 고정값+백분율",
+        "fr": "Armure : valeur fixe + pourcentage",
+        "de": "Rüstung: Fester Wert + Prozentsatz",
+        "es": "Armadura: Valor fijo + porcentaje.",
+        "pt-BR": "Armadura: Valor Fixo + Porcentagem",
+        "th": "P.DEF: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "PDEF: Nilai tetap + persentase"
+      },
+      "cleanDescriptions": {
+        "en": "Armor: Fixed Value + Percentage",
+        "zh-CN": "物理防御：固定值+百分比",
+        "zh-TW": "物理防禦：固定值+百分比",
+        "ja": "物理防御力：固定値+割合",
+        "ko-KR": "물리 방어: 고정값+백분율",
+        "fr": "Armure : valeur fixe + pourcentage",
+        "de": "Rüstung: Fester Wert + Prozentsatz",
+        "es": "Armadura: Valor fijo + porcentaje.",
+        "pt-BR": "Armadura: Valor Fixo + Porcentagem",
+        "th": "P.DEF: ค่าคงที่ + เปอร์เซ็นต์",
+        "id": "PDEF: Nilai tetap + persentase"
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20021011,
+        20021012,
+        20021013,
+        20021014,
+        20021015,
+        20021016,
+        20021017,
+        20021018,
+        20021019,
+        20021020
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20021011,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+360",
+              "+1.2%"
+            ],
+            "cleanResolvedDescription": "Armor +360; Armor +1.2%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980060
+          },
+          {
+            "grade": 2,
+            "itemId": 20021012,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+450",
+              "+1.34%"
+            ],
+            "cleanResolvedDescription": "Armor +450; Armor +1.34%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980108
+          },
+          {
+            "grade": 3,
+            "itemId": 20021013,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+540",
+              "+1.48%"
+            ],
+            "cleanResolvedDescription": "Armor +540; Armor +1.48%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980156
+          },
+          {
+            "grade": 4,
+            "itemId": 20021014,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+630",
+              "+1.63%"
+            ],
+            "cleanResolvedDescription": "Armor +630; Armor +1.63%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980204
+          },
+          {
+            "grade": 5,
+            "itemId": 20021015,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+720",
+              "+1.77%"
+            ],
+            "cleanResolvedDescription": "Armor +720; Armor +1.77%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980252
+          },
+          {
+            "grade": 6,
+            "itemId": 20021016,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+810",
+              "+1.92%"
+            ],
+            "cleanResolvedDescription": "Armor +810; Armor +1.92%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980300
+          },
+          {
+            "grade": 7,
+            "itemId": 20021017,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+900",
+              "+2.06%"
+            ],
+            "cleanResolvedDescription": "Armor +900; Armor +2.06%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980348
+          },
+          {
+            "grade": 8,
+            "itemId": 20021018,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+990",
+              "+2.21%"
+            ],
+            "cleanResolvedDescription": "Armor +990; Armor +2.21%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980396
+          },
+          {
+            "grade": 9,
+            "itemId": 20021019,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1080",
+              "+2.35%"
+            ],
+            "cleanResolvedDescription": "Armor +1080; Armor +2.35%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980444
+          },
+          {
+            "grade": 10,
+            "itemId": 20021020,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1170",
+              "+2.5%"
+            ],
+            "cleanResolvedDescription": "Armor +1170; Armor +2.5%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980492
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
+    "3059040": {
+      "familyId": 202203,
+      "buffId": 3059040,
+      "buffIdSource": "season-effect-description-stasis-slot-id",
+      "familyName": "Stasis X4",
+      "familyNames": {
+        "en": "Stasis X4",
+        "zh-CN": "稳态X4",
+        "zh-TW": "穩態X4",
+        "ja": "恒常性X4",
+        "ko-KR": "안정X4",
+        "fr": "Stase X4",
+        "de": "Stase X4",
+        "es": "Estasis X4",
+        "pt-BR": "Estase X4",
+        "th": "Steady X4",
+        "id": "Steady X4"
+      },
+      "iconPath": "yinzi_s2_common_015",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685917067,
+      "descriptions": {
+        "en": "Max HP +X, Max HP% +X",
+        "zh-CN": "生命值+X，生命值%+X",
+        "zh-TW": "生命值+X，生命值%+X",
+        "ja": "HP+X、HP%+X",
+        "ko-KR": "체력 +x, 체력% +x",
+        "fr": "PV max +X, % de PV max +X",
+        "de": "Max. LP +X, Max. LP % +X",
+        "es": "PS máx. +X, % de PS máx. +X",
+        "pt-BR": "PV Máximo +X, PV Máximo % +X",
+        "th": "HP+X, HP%+X",
+        "id": "HP +X, persentase HP +X."
+      },
+      "cleanDescriptions": {
+        "en": "Max HP +X, Max HP% +X",
+        "zh-CN": "生命值+X，生命值%+X",
+        "zh-TW": "生命值+X，生命值%+X",
+        "ja": "HP+X、HP%+X",
+        "ko-KR": "체력 +x, 체력% +x",
+        "fr": "PV max +X, % de PV max +X",
+        "de": "Max. LP +X, Max. LP % +X",
+        "es": "PS máx. +X, % de PS máx. +X",
+        "pt-BR": "PV Máximo +X, PV Máximo % +X",
+        "th": "HP+X, HP%+X",
+        "id": "HP +X, persentase HP +X."
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20021021,
+        20021022,
+        20021023,
+        20021024,
+        20021025,
+        20021026,
+        20021027,
+        20021028,
+        20021029,
+        20021030
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20021021,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+840",
+              "+0.5%"
+            ],
+            "cleanResolvedDescription": "Max HP +840; Max HP +0.5%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980540
+          },
+          {
+            "grade": 2,
+            "itemId": 20021022,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1680",
+              "+0.61%"
+            ],
+            "cleanResolvedDescription": "Max HP +1680; Max HP +0.61%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980588
+          },
+          {
+            "grade": 3,
+            "itemId": 20021023,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2520",
+              "+0.72%"
+            ],
+            "cleanResolvedDescription": "Max HP +2520; Max HP +0.72%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980636
+          },
+          {
+            "grade": 4,
+            "itemId": 20021024,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+3360",
+              "+0.83%"
+            ],
+            "cleanResolvedDescription": "Max HP +3360; Max HP +0.83%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980684
+          },
+          {
+            "grade": 5,
+            "itemId": 20021025,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+4200",
+              "+0.94%"
+            ],
+            "cleanResolvedDescription": "Max HP +4200; Max HP +0.94%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980732
+          },
+          {
+            "grade": 6,
+            "itemId": 20021026,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+5040",
+              "+1.05%"
+            ],
+            "cleanResolvedDescription": "Max HP +5040; Max HP +1.05%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980780
+          },
+          {
+            "grade": 7,
+            "itemId": 20021027,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+5880",
+              "+1.16%"
+            ],
+            "cleanResolvedDescription": "Max HP +5880; Max HP +1.16%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980828
+          },
+          {
+            "grade": 8,
+            "itemId": 20021028,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+6720",
+              "+1.27%"
+            ],
+            "cleanResolvedDescription": "Max HP +6720; Max HP +1.27%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980876
+          },
+          {
+            "grade": 9,
+            "itemId": 20021029,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+7560",
+              "+1.38%"
+            ],
+            "cleanResolvedDescription": "Max HP +7560; Max HP +1.38%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980924
+          },
+          {
+            "grade": 10,
+            "itemId": 20021030,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+8400",
+              "+1.5%"
+            ],
+            "cleanResolvedDescription": "Max HP +8400; Max HP +1.5%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761980972
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
+      "affectedRecountEvidence": {}
+    },
     "3059050": {
       "familyId": 202204,
       "buffId": 3059050,
@@ -43902,6 +45612,221 @@
           "buffSourceId": 3059080
         }
       },
+      "affectedRecountEvidence": {}
+    },
+    "3059090": {
+      "familyId": 202208,
+      "buffId": 3059090,
+      "buffIdSource": "season-effect-description-stasis-slot-id",
+      "familyName": "Stasis X9",
+      "familyNames": {
+        "en": "Stasis X9",
+        "zh-CN": "稳态X9",
+        "zh-TW": "穩態X9",
+        "ja": "恒常性X9",
+        "ko-KR": "안정X9",
+        "fr": "Stase X9",
+        "de": "Stase X9",
+        "es": "Estasis X9",
+        "pt-BR": "Estase X9",
+        "th": "Steady X9",
+        "id": "Steady X9"
+      },
+      "iconPath": "yinzi_s2_common_020",
+      "runtimeDetection": "selected-factor-grade-item",
+      "classGateIds": [],
+      "descriptionId": 685917232,
+      "descriptions": {
+        "en": "Healing Received +X%, Shield Strength +X%",
+        "zh-CN": "受治疗加成+X%，护盾强度+X%",
+        "zh-TW": "受治療加成+X%，護盾強度+X%",
+        "ja": "受ける回復ボーナス+X%、バリア強度+X%",
+        "ko-KR": "치료 받는 보너스 +x%, 실드 강도 +x%",
+        "fr": "Soins reçus +X %, puissance du bouclier +X %",
+        "de": "Erhaltene Heilung +X %, Schildstärke +X %",
+        "es": "Curación recibida +X %, fuerza de escudo +X %.",
+        "pt-BR": "Cura Recebida +X%, Força do Escudo +X%",
+        "th": "โบนัสการ Heal ที่ได้รับ +X%, ความแข็งแกร่งของโล่ +X%",
+        "id": "Heal Received Boost +X%, Shield Power +X%."
+      },
+      "cleanDescriptions": {
+        "en": "Healing Received +X%, Shield Strength +X%",
+        "zh-CN": "受治疗加成+X%，护盾强度+X%",
+        "zh-TW": "受治療加成+X%，護盾強度+X%",
+        "ja": "受ける回復ボーナス+X%、バリア強度+X%",
+        "ko-KR": "치료 받는 보너스 +x%, 실드 강도 +x%",
+        "fr": "Soins reçus +X %, puissance du bouclier +X %",
+        "de": "Erhaltene Heilung +X %, Schildstärke +X %",
+        "es": "Curación recibida +X %, fuerza de escudo +X %.",
+        "pt-BR": "Cura Recebida +X%, Força do Escudo +X%",
+        "th": "โบนัสการ Heal ที่ได้รับ +X%, ความแข็งแกร่งของโล่ +X%",
+        "id": "Heal Received Boost +X%, Shield Power +X%."
+      },
+      "gradeCount": 10,
+      "gradeIds": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "gradeItemIds": [
+        20021071,
+        20021072,
+        20021073,
+        20021074,
+        20021075,
+        20021076,
+        20021077,
+        20021078,
+        20021079,
+        20021080
+      ],
+      "modifierEvidence": {
+        "source": "SeasonPhantomFactorProbe.gradeRows",
+        "valueStatus": "grade-table-rendered-description-or-raw-effect-record",
+        "runtimeSelectionStatus": "active-buff-observed-grade-not-exposed",
+        "gradeRows": [
+          {
+            "grade": 1,
+            "itemId": 20021071,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1.2%",
+              "+2.6%"
+            ],
+            "cleanResolvedDescription": "Healing Received +1.2%; Shield Strength +2.6%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761982940
+          },
+          {
+            "grade": 2,
+            "itemId": 20021072,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1.4%",
+              "+2.86%"
+            ],
+            "cleanResolvedDescription": "Healing Received +1.4%; Shield Strength +2.86%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761982988
+          },
+          {
+            "grade": 3,
+            "itemId": 20021073,
+            "itemQualityTier": 1,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1.6%",
+              "+3.13%"
+            ],
+            "cleanResolvedDescription": "Healing Received +1.6%; Shield Strength +3.13%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983036
+          },
+          {
+            "grade": 4,
+            "itemId": 20021074,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+1.8%",
+              "+3.4%"
+            ],
+            "cleanResolvedDescription": "Healing Received +1.8%; Shield Strength +3.4%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983084
+          },
+          {
+            "grade": 5,
+            "itemId": 20021075,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2%",
+              "+3.66%"
+            ],
+            "cleanResolvedDescription": "Healing Received +2%; Shield Strength +3.66%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983132
+          },
+          {
+            "grade": 6,
+            "itemId": 20021076,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2.2%",
+              "+3.93%"
+            ],
+            "cleanResolvedDescription": "Healing Received +2.2%; Shield Strength +3.93%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983180
+          },
+          {
+            "grade": 7,
+            "itemId": 20021077,
+            "itemQualityTier": 2,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2.4%",
+              "+4.2%"
+            ],
+            "cleanResolvedDescription": "Healing Received +2.4%; Shield Strength +4.2%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983228
+          },
+          {
+            "grade": 8,
+            "itemId": 20021078,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2.6%",
+              "+4.46%"
+            ],
+            "cleanResolvedDescription": "Healing Received +2.6%; Shield Strength +4.46%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983276
+          },
+          {
+            "grade": 9,
+            "itemId": 20021079,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+2.8%",
+              "+4.73%"
+            ],
+            "cleanResolvedDescription": "Healing Received +2.8%; Shield Strength +4.73%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983324
+          },
+          {
+            "grade": 10,
+            "itemId": 20021080,
+            "itemQualityTier": 3,
+            "parameterValues": [],
+            "valueTexts": [
+              "+3%",
+              "+5%"
+            ],
+            "cleanResolvedDescription": "Healing Received +3%; Shield Strength +5%",
+            "descriptionSource": "effectRecords.rawValues",
+            "sourceOffset": 761983372
+          }
+        ]
+      },
+      "affectedDamageIds": [],
+      "affectedRecountIds": [],
+      "affectedDamageEvidence": {},
       "affectedRecountEvidence": {}
     },
     "3059100": {
@@ -47513,9 +49438,9 @@
       "familyId": 202268,
       "buffId": 3059260,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Stasis X1",
+      "familyName": "Twin Striker Stasis X1",
       "familyNames": {
-        "en": "Flame Vanguard Stasis X1",
+        "en": "Twin Striker Stasis X1",
         "zh-CN": "赤炎稳态X1",
         "zh-TW": "赤炎穩態X1",
         "ja": "赤炎の狂戦士・恒常性X1",
@@ -47730,9 +49655,9 @@
       "familyId": 202269,
       "buffId": 3059270,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Stasis X2",
+      "familyName": "Twin Striker Stasis X2",
       "familyNames": {
-        "en": "Flame Vanguard Stasis X2",
+        "en": "Twin Striker Stasis X2",
         "zh-CN": "赤炎稳态X2",
         "zh-TW": "赤炎穩態X2",
         "ja": "赤炎の狂戦士・恒常性X2",
@@ -47947,9 +49872,9 @@
       "familyId": 202257,
       "buffId": 3060010,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X1",
+      "familyName": "Twin Striker X1",
       "familyNames": {
-        "en": "Flame Vanguard X1",
+        "en": "Twin Striker X1",
         "zh-CN": "赤炎X1",
         "zh-TW": "赤炎X1",
         "ja": "赤炎の狂戦士X1",
@@ -47958,7 +49883,7 @@
         "de": "Flammen-Vorhut X1",
         "es": "Vanguardia ígnea X1",
         "pt-BR": "Vanguarda das Chamas X1",
-        "th": "Flame Vanguard X1",
+        "th": "Twin Striker X1",
         "id": "Redflame X1"
       },
       "iconPath": "yinzi_s2_03_001",
@@ -48184,9 +50109,9 @@
       "familyId": 202258,
       "buffId": 3060020,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X2",
+      "familyName": "Twin Striker X2",
       "familyNames": {
-        "en": "Flame Vanguard X2",
+        "en": "Twin Striker X2",
         "zh-CN": "赤炎X2",
         "zh-TW": "赤炎X2",
         "ja": "赤炎の狂戦士X2",
@@ -48195,7 +50120,7 @@
         "de": "Flammen-Vorhut X2",
         "es": "Vanguardia ígnea X2",
         "pt-BR": "Vanguarda das Chamas X2",
-        "th": "Flame Vanguard X2",
+        "th": "Twin Striker X2",
         "id": "Redflame X2"
       },
       "iconPath": "yinzi_s2_03_002",
@@ -48421,9 +50346,9 @@
       "familyId": 202259,
       "buffId": 3060030,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X3",
+      "familyName": "Twin Striker X3",
       "familyNames": {
-        "en": "Flame Vanguard X3",
+        "en": "Twin Striker X3",
         "zh-CN": "赤炎X3",
         "zh-TW": "赤炎X3",
         "ja": "赤炎の狂戦士X3",
@@ -48432,7 +50357,7 @@
         "de": "Flammen-Vorhut X3",
         "es": "Vanguardia ígnea X3",
         "pt-BR": "Vanguarda das Chamas X3",
-        "th": "Flame Vanguard X3",
+        "th": "Twin Striker X3",
         "id": "Redflame X3"
       },
       "iconPath": "yinzi_s2_03_003",
@@ -48668,9 +50593,9 @@
       "familyId": 202260,
       "buffId": 3060040,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X4",
+      "familyName": "Twin Striker X4",
       "familyNames": {
-        "en": "Flame Vanguard X4",
+        "en": "Twin Striker X4",
         "zh-CN": "赤炎X4",
         "zh-TW": "赤炎X4",
         "ja": "赤炎の狂戦士X4",
@@ -48679,7 +50604,7 @@
         "de": "Flammen-Vorhut X4",
         "es": "Vanguardia ígnea X4",
         "pt-BR": "Vanguarda das Chamas X4",
-        "th": "Flame Vanguard X4",
+        "th": "Twin Striker X4",
         "id": "Redflame X4"
       },
       "iconPath": "yinzi_s2_03_004",
@@ -48905,9 +50830,9 @@
       "familyId": 202261,
       "buffId": 3060050,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X5",
+      "familyName": "Twin Striker X5",
       "familyNames": {
-        "en": "Flame Vanguard X5",
+        "en": "Twin Striker X5",
         "zh-CN": "赤炎X5",
         "zh-TW": "赤炎X5",
         "ja": "赤炎の狂戦士X5",
@@ -48916,7 +50841,7 @@
         "de": "Flammen-Vorhut X5",
         "es": "Vanguardia ígnea X5",
         "pt-BR": "Vanguarda das Chamas X5",
-        "th": "Flame Vanguard X5",
+        "th": "Twin Striker X5",
         "id": "Redflame X5"
       },
       "iconPath": "yinzi_s2_03_005",
@@ -49142,9 +51067,9 @@
       "familyId": 202262,
       "buffId": 3060060,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X6",
+      "familyName": "Twin Striker X6",
       "familyNames": {
-        "en": "Flame Vanguard X6",
+        "en": "Twin Striker X6",
         "zh-CN": "赤炎X6",
         "zh-TW": "赤炎X6",
         "ja": "赤炎の狂戦士X6",
@@ -49153,7 +51078,7 @@
         "de": "Flammen-Vorhut X6",
         "es": "Vanguardia ígnea X6",
         "pt-BR": "Vanguarda das Chamas X6",
-        "th": "Flame Vanguard X6",
+        "th": "Twin Striker X6",
         "id": "Redflame X6"
       },
       "iconPath": "yinzi_s2_03_006",
@@ -49389,9 +51314,9 @@
       "familyId": 202263,
       "buffId": 3060070,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X7",
+      "familyName": "Twin Striker X7",
       "familyNames": {
-        "en": "Flame Vanguard X7",
+        "en": "Twin Striker X7",
         "zh-CN": "赤炎X7",
         "zh-TW": "赤炎X7",
         "ja": "赤炎の狂戦士X7",
@@ -49400,7 +51325,7 @@
         "de": "Flammen-Vorhut X7",
         "es": "Vanguardia ígnea X7",
         "pt-BR": "Vanguarda das Chamas X7",
-        "th": "Flame Vanguard X7",
+        "th": "Twin Striker X7",
         "id": "Redflame X7"
       },
       "iconPath": "yinzi_s2_03_007",
@@ -49626,9 +51551,9 @@
       "familyId": 202264,
       "buffId": 3060080,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X8",
+      "familyName": "Twin Striker X8",
       "familyNames": {
-        "en": "Flame Vanguard X8",
+        "en": "Twin Striker X8",
         "zh-CN": "赤炎X8",
         "zh-TW": "赤炎X8",
         "ja": "赤炎の狂戦士X8",
@@ -49637,7 +51562,7 @@
         "de": "Flammen-Vorhut X8",
         "es": "Vanguardia ígnea X8",
         "pt-BR": "Vanguarda das Chamas X8",
-        "th": "Flame Vanguard X8",
+        "th": "Twin Striker X8",
         "id": "Redflame X8"
       },
       "iconPath": "yinzi_s2_03_008",
@@ -49863,9 +51788,9 @@
       "familyId": 202265,
       "buffId": 3060090,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X9",
+      "familyName": "Twin Striker X9",
       "familyNames": {
-        "en": "Flame Vanguard X9",
+        "en": "Twin Striker X9",
         "zh-CN": "赤炎X9",
         "zh-TW": "赤炎X9",
         "ja": "赤炎の狂戦士X9",
@@ -49874,7 +51799,7 @@
         "de": "Flammen-Vorhut X9",
         "es": "Vanguardia ígnea X9",
         "pt-BR": "Vanguarda das Chamas X9",
-        "th": "Flame Vanguard X9",
+        "th": "Twin Striker X9",
         "id": "Redflame X9"
       },
       "iconPath": "yinzi_s2_03_009",
@@ -50110,9 +52035,9 @@
       "familyId": 202266,
       "buffId": 3060100,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X10",
+      "familyName": "Twin Striker X10",
       "familyNames": {
-        "en": "Flame Vanguard X10",
+        "en": "Twin Striker X10",
         "zh-CN": "赤炎X10",
         "zh-TW": "赤炎X10",
         "ja": "赤炎の狂戦士X10",
@@ -50121,7 +52046,7 @@
         "de": "Flammen-Vorhut X10",
         "es": "Vanguardia ígnea X10",
         "pt-BR": "Vanguarda das Chamas X10",
-        "th": "Flame Vanguard X10",
+        "th": "Twin Striker X10",
         "id": "Redflame X10"
       },
       "iconPath": "yinzi_s2_03_010",
@@ -50347,9 +52272,9 @@
       "familyId": 202267,
       "buffId": 3060110,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard X11",
+      "familyName": "Twin Striker X11",
       "familyNames": {
-        "en": "Flame Vanguard X11",
+        "en": "Twin Striker X11",
         "zh-CN": "赤炎X11",
         "zh-TW": "赤炎X11",
         "ja": "赤炎の狂戦士X11",
@@ -50358,7 +52283,7 @@
         "de": "Flammen-Vorhut X11",
         "es": "Vanguardia ígnea X11",
         "pt-BR": "Vanguarda das Chamas X11",
-        "th": "Flame Vanguard X11",
+        "th": "Twin Striker X11",
         "id": "Redflame X11"
       },
       "iconPath": "yinzi_s2_03_011",
@@ -50594,9 +52519,9 @@
       "familyId": 202270,
       "buffId": 3060120,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Rhapsody X1",
+      "familyName": "Twin Striker Rhapsody X1",
       "familyNames": {
-        "en": "Flame Vanguard Rhapsody X1",
+        "en": "Twin Striker Rhapsody X1",
         "zh-CN": "赤炎狂想X1",
         "zh-TW": "赤炎狂想X1",
         "ja": "赤炎の狂戦士・狂想X1",
@@ -50821,9 +52746,9 @@
       "familyId": 202271,
       "buffId": 3060130,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Rhapsody X2",
+      "familyName": "Twin Striker Rhapsody X2",
       "familyNames": {
-        "en": "Flame Vanguard Rhapsody X2",
+        "en": "Twin Striker Rhapsody X2",
         "zh-CN": "赤炎狂想X2",
         "zh-TW": "赤炎狂想X2",
         "ja": "赤炎の狂戦士・狂想X2",
@@ -51038,9 +52963,9 @@
       "familyId": 202272,
       "buffId": 3060140,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Rhapsody X3",
+      "familyName": "Twin Striker Rhapsody X3",
       "familyNames": {
-        "en": "Flame Vanguard Rhapsody X3",
+        "en": "Twin Striker Rhapsody X3",
         "zh-CN": "赤炎狂想X3",
         "zh-TW": "赤炎狂想X3",
         "ja": "赤炎の狂戦士・狂想X3",
@@ -51275,9 +53200,9 @@
       "familyId": 202273,
       "buffId": 3060150,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Rhapsody X4",
+      "familyName": "Twin Striker Rhapsody X4",
       "familyNames": {
-        "en": "Flame Vanguard Rhapsody X4",
+        "en": "Twin Striker Rhapsody X4",
         "zh-CN": "赤炎狂想X4",
         "zh-TW": "赤炎狂想X4",
         "ja": "赤炎の狂戦士・狂想X4",
@@ -51502,9 +53427,9 @@
       "familyId": 202322,
       "buffId": 3060400,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Reality Factor X1",
+      "familyName": "Twin Striker Reality Factor X1",
       "familyNames": {
-        "en": "Flame Vanguard Reality Factor X1",
+        "en": "Twin Striker Reality Factor X1",
         "zh-CN": "赤炎真实因子X1",
         "zh-TW": "赤炎真實因子X1",
         "ja": "ツインストライカー・実像因子X1",
@@ -51513,7 +53438,7 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X1",
         "es": "Vanguardia ígnea X1",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X1",
-        "th": "Flame Vanguard Reality Factor X1",
+        "th": "Twin Striker Reality Factor X1",
         "id": "Redflame Truth Factor X1"
       },
       "iconPath": "xuwangyinzi_s2_03_001",
@@ -51759,9 +53684,9 @@
       "familyId": 202323,
       "buffId": 3060410,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Reality Factor X2",
+      "familyName": "Twin Striker Reality Factor X2",
       "familyNames": {
-        "en": "Flame Vanguard Reality Factor X2",
+        "en": "Twin Striker Reality Factor X2",
         "zh-CN": "赤炎真实因子X2",
         "zh-TW": "赤炎真實因子X2",
         "ja": "ツインストライカー・実像因子X2",
@@ -51770,7 +53695,7 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X2",
         "es": "Vanguardia ígnea X2",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X2",
-        "th": "Flame Vanguard Reality Factor X2",
+        "th": "Twin Striker Reality Factor X2",
         "id": "Redflame Truth Factor X2"
       },
       "iconPath": "xuwangyinzi_s2_03_002",
@@ -52026,9 +53951,9 @@
       "familyId": 202324,
       "buffId": 3060420,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Reality Factor X3",
+      "familyName": "Twin Striker Reality Factor X3",
       "familyNames": {
-        "en": "Flame Vanguard Reality Factor X3",
+        "en": "Twin Striker Reality Factor X3",
         "zh-CN": "赤炎真实因子X3",
         "zh-TW": "赤炎真實因子X3",
         "ja": "ツインストライカー・実像因子X3",
@@ -52037,7 +53962,7 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X3",
         "es": "Vanguardia ígnea X3",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X3",
-        "th": "Flame Vanguard Reality Factor X3",
+        "th": "Twin Striker Reality Factor X3",
         "id": "Redflame Truth Factor X3"
       },
       "iconPath": "xuwangyinzi_s2_03_003",
@@ -52283,9 +54208,9 @@
       "familyId": 202325,
       "buffId": 3060430,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Reality Factor X4",
+      "familyName": "Twin Striker Reality Factor X4",
       "familyNames": {
-        "en": "Flame Vanguard Reality Factor X4",
+        "en": "Twin Striker Reality Factor X4",
         "zh-CN": "赤炎真实因子X4",
         "zh-TW": "赤炎真實因子X4",
         "ja": "ツインストライカー・実像因子X4",
@@ -52294,7 +54219,7 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X4",
         "es": "Vanguardia ígnea X4",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X4",
-        "th": "Flame Vanguard Reality Factor X4",
+        "th": "Twin Striker Reality Factor X4",
         "id": "Redflame Truth Factor X4"
       },
       "iconPath": "xuwangyinzi_s2_03_004",
@@ -52540,9 +54465,9 @@
       "familyId": 202326,
       "buffId": 3060440,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Reality Factor X5",
+      "familyName": "Twin Striker Reality Factor X5",
       "familyNames": {
-        "en": "Flame Vanguard Reality Factor X5",
+        "en": "Twin Striker Reality Factor X5",
         "zh-CN": "赤炎真实因子X5",
         "zh-TW": "赤炎真實因子X5",
         "ja": "ツインストライカー・実像因子X5",
@@ -52551,7 +54476,7 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X5",
         "es": "Vanguardia ígnea X5",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X5",
-        "th": "Flame Vanguard Reality Factor X5",
+        "th": "Twin Striker Reality Factor X5",
         "id": "Redflame Truth Factor X5"
       },
       "iconPath": "xuwangyinzi_s2_03_005",
@@ -52796,9 +54721,9 @@
       "familyId": 202327,
       "buffId": 3060450,
       "buffIdSource": "probe-primary-buff-id",
-      "familyName": "Flame Vanguard Reality Factor X6",
+      "familyName": "Twin Striker Reality Factor X6",
       "familyNames": {
-        "en": "Flame Vanguard Reality Factor X6",
+        "en": "Twin Striker Reality Factor X6",
         "zh-CN": "赤炎真实因子X6",
         "zh-TW": "赤炎真實因子X6",
         "ja": "ツインストライカー・実像因子X6",
@@ -52807,7 +54732,7 @@
         "de": "Flammen-Vorhut-Realitätsfaktor X6",
         "es": "Vanguardia ígnea X6",
         "pt-BR": "Fator de Realidade de Vanguarda das Chamas X6",
-        "th": "Flame Vanguard Reality Factor X6",
+        "th": "Twin Striker Reality Factor X6",
         "id": "Redflame Truth Factor X6"
       },
       "iconPath": "xuwangyinzi_s2_03_006",

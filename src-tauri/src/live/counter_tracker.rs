@@ -95,6 +95,13 @@ pub enum CounterSource {
         source_config_id: Option<i32>,
         increment: u32,
     },
+    BuffUpserted {
+        #[serde(rename = "buffId")]
+        buff_id: i32,
+        #[serde(default, rename = "sourceConfigId")]
+        source_config_id: Option<i32>,
+        increment: u32,
+    },
     BuffLayerSpent {
         #[serde(rename = "buffId")]
         buff_id: i32,
@@ -188,6 +195,10 @@ pub struct EffectSlotConfig {
     pub freeze_duration_modifier: Option<AttrModifier>,
     #[serde(default)]
     pub freeze_on_threshold: bool,
+    #[serde(default = "default_true")]
+    pub count_threshold_procs: bool,
+    #[serde(default)]
+    pub count_reset_buff_procs: bool,
     #[serde(default)]
     pub reset_skill_keys: Option<Vec<i64>>,
     #[serde(default)]
@@ -331,6 +342,8 @@ impl<'de> Deserialize<'de> for CounterRule {
                     threshold_modifier: None,
                     freeze_duration_modifier: None,
                     freeze_on_threshold: false,
+                    count_threshold_procs: true,
+                    count_reset_buff_procs: false,
                     reset_skill_keys: None,
                     on_reset_skill: CounterAction::NoOp,
                 }],
@@ -930,20 +943,18 @@ impl BuffCounterTracker {
                 }
                 let mut pending_increment = 0u32;
                 for source in &rule.sources {
-                    let CounterSource::BuffAdded {
-                        buff_id,
-                        source_config_id,
-                        increment,
-                    } = source
-                    else {
-                        continue;
-                    };
-                    if change.change_type == BuffChangeType::Added
-                        && change.base_id == *buff_id
-                        && source_config_id
-                            .map_or(true, |required| change.source_config_id == Some(required))
-                    {
-                        pending_increment = pending_increment.saturating_add(*increment);
+                    match source {
+                        CounterSource::BuffAdded { increment, .. } => {
+                            if source_matches_buff_change(source, change) {
+                                pending_increment = pending_increment.saturating_add(*increment);
+                            }
+                        }
+                        CounterSource::BuffUpserted { increment, .. } => {
+                            if source_matches_buff_change(source, change) {
+                                pending_increment = pending_increment.saturating_add(*increment);
+                            }
+                        }
+                        _ => {}
                     }
                 }
                 for layer_spent_state in &mut state.buff_layer_spent_states {
@@ -965,6 +976,11 @@ impl BuffCounterTracker {
                 for (slot_config, slot_state) in
                     rule.effect_slots.iter().zip(&mut state.slot_states)
                 {
+                    let has_same_buff_source_increment = pending_increment > 0
+                        && rule
+                            .sources
+                            .iter()
+                            .any(|source| source_matches_buff_change(source, change));
                     if let Some(alt_freeze) = &slot_config.alt_freeze {
                         if alt_freeze.condition_buff_id == change.base_id {
                             match change.change_type {
@@ -1010,6 +1026,11 @@ impl BuffCounterTracker {
                             }
                         }
                     }
+                    let action = if has_same_buff_source_increment {
+                        action_preserving_same_buff_source_increment(action)
+                    } else {
+                        action
+                    };
                     changed |= apply_action(slot_state, action);
                     changed |= start_freeze_with_resolved_duration(
                         slot_config,
@@ -1283,6 +1304,10 @@ fn default_basis_points_per_unit() -> u32 {
     1
 }
 
+fn default_true() -> bool {
+    true
+}
+
 fn resolve_attr_scale_bp(
     modifier: Option<&AttrModifier>,
     attr_store: &EntityAttrStore,
@@ -1347,6 +1372,43 @@ fn slot_matches_buff_change(slot_config: &EffectSlotConfig, change: &BuffChangeE
     true
 }
 
+fn source_matches_buff_change(source: &CounterSource, change: &BuffChangeEvent) -> bool {
+    match source {
+        CounterSource::BuffAdded {
+            buff_id,
+            source_config_id,
+            ..
+        } => {
+            change.change_type == BuffChangeType::Added
+                && change.base_id == *buff_id
+                && source_config_id
+                    .map_or(true, |required| change.source_config_id == Some(required))
+        }
+        CounterSource::BuffUpserted {
+            buff_id,
+            source_config_id,
+            ..
+        } => {
+            matches!(
+                change.change_type,
+                BuffChangeType::Added | BuffChangeType::Changed
+            ) && change.base_id == *buff_id
+                && source_config_id
+                    .map_or(true, |required| change.source_config_id == Some(required))
+        }
+        _ => false,
+    }
+}
+
+fn action_preserving_same_buff_source_increment(action: CounterAction) -> CounterAction {
+    match action {
+        CounterAction::Reset => CounterAction::NoOp,
+        CounterAction::ResetAndFreeze => CounterAction::Freeze,
+        CounterAction::ResetAndStartCount => CounterAction::NoOp,
+        other => other,
+    }
+}
+
 fn action_for_buff_change(
     slot_config: &EffectSlotConfig,
     change_type: &BuffChangeType,
@@ -1378,7 +1440,8 @@ fn should_count_reset_buff_proc(
     change: &BuffChangeEvent,
     action: CounterAction,
 ) -> bool {
-    if !is_source_less_rule || !action_records_proc(action) {
+    let count_reset_buff_proc = is_source_less_rule || slot_config.count_reset_buff_procs;
+    if !count_reset_buff_proc || !action_records_proc(action) {
         return false;
     }
     match slot_config.threshold {
@@ -1387,7 +1450,13 @@ fn should_count_reset_buff_proc(
     }
 
     match change.change_type {
-        BuffChangeType::Added => !slot_state.reset_buff_active,
+        BuffChangeType::Added => {
+            if slot_config.count_reset_buff_procs {
+                true
+            } else {
+                !slot_state.reset_buff_active
+            }
+        }
         BuffChangeType::Changed => {
             let Some((previous_layer, current_layer)) =
                 change.previous_layer.zip(change.current_layer)
@@ -1673,16 +1742,18 @@ fn add_increment_to_slots(
             && threshold.is_some_and(|value| value > 0 && previous < value && raw_next >= value)
             && resolve_freeze_duration(slot_config, slot_state, attr_store, local_player_uuid)
                 .is_some();
-        if let Some(value) = threshold.filter(|value| *value > 0) {
-            let previous_bucket = previous / value;
-            let next_bucket = raw_next / value;
-            if next_bucket > previous_bucket {
-                let proc_delta = if slot_config.freeze_on_threshold {
-                    1
-                } else {
-                    next_bucket.saturating_sub(previous_bucket)
-                };
-                changed |= add_slot_proc_count(slot_state, proc_delta);
+        if slot_config.count_threshold_procs {
+            if let Some(value) = threshold.filter(|value| *value > 0) {
+                let previous_bucket = previous / value;
+                let next_bucket = raw_next / value;
+                if next_bucket > previous_bucket {
+                    let proc_delta = if slot_config.freeze_on_threshold {
+                        1
+                    } else {
+                        next_bucket.saturating_sub(previous_bucket)
+                    };
+                    changed |= add_slot_proc_count(slot_state, proc_delta);
+                }
             }
         }
         let next = if threshold_reached {
@@ -1931,6 +2002,8 @@ mod tests {
             threshold_modifier: None,
             freeze_duration_modifier: None,
             freeze_on_threshold: false,
+            count_threshold_procs: true,
+            count_reset_buff_procs: false,
             reset_skill_keys: None,
             on_reset_skill: CounterAction::NoOp,
         }
@@ -1956,6 +2029,17 @@ mod tests {
             source_uuid: None,
             host_uid: 0,
             source_uid: 0,
+        }
+    }
+
+    fn buff_changed(base_id: i32, event_time_ms: i64) -> BuffChangeEvent {
+        BuffChangeEvent {
+            change_type: BuffChangeType::Changed,
+            event_time_ms,
+            create_time_ms: Some(event_time_ms),
+            previous_layer: Some(1),
+            current_layer: Some(1),
+            ..buff_added(base_id, event_time_ms)
         }
     }
 
@@ -2011,6 +2095,74 @@ mod tests {
         assert_eq!(slot.current_count, 0);
         assert_eq!(slot.proc_count, 1);
         assert!(slot.is_counting);
+    }
+
+    #[test]
+    fn explicit_reset_buff_proc_counts_source_backed_proc_without_threshold_double_count() {
+        let mut slot_config = effect_slot_config(200);
+        slot_config.on_buff_add = CounterAction::Reset;
+        slot_config.freeze_duration_ms = None;
+        slot_config.count_threshold_procs = false;
+        slot_config.count_reset_buff_procs = true;
+
+        let mut tracker = BuffCounterTracker::default();
+        tracker.set_rules(vec![CounterRule {
+            rule_id: 1,
+            sources: vec![CounterSource::BuffAdded {
+                buff_id: 100,
+                source_config_id: None,
+                increment: 100,
+            }],
+            effect_slots: vec![slot_config],
+        }]);
+
+        let changed = tracker.on_buff_changes(
+            &[buff_added(100, 1_000), buff_added(200, 1_001)],
+            &EntityAttrStore::default(),
+            1,
+        );
+
+        assert!(changed);
+        let slot = &tracker.states.get(&1).unwrap().slot_states[0];
+        assert_eq!(slot.current_count, 0);
+        assert_eq!(slot.proc_count, 1);
+        assert!(slot.is_counting);
+    }
+
+    #[test]
+    fn buff_upsert_source_counts_added_and_changed_events() {
+        let mut slot_config = effect_slot_config(200);
+        slot_config.threshold = None;
+        slot_config.on_buff_add = CounterAction::Reset;
+        slot_config.on_buff_change = CounterAction::Reset;
+        slot_config.freeze_duration_ms = None;
+
+        let mut tracker = BuffCounterTracker::default();
+        tracker.set_rules(vec![CounterRule {
+            rule_id: 1,
+            sources: vec![CounterSource::BuffUpserted {
+                buff_id: 200,
+                source_config_id: None,
+                increment: 92,
+            }],
+            effect_slots: vec![slot_config],
+        }]);
+
+        assert!(
+            tracker.on_buff_changes(&[buff_added(200, 1_000)], &EntityAttrStore::default(), 1,)
+        );
+        let slot = &tracker.states.get(&1).unwrap().slot_states[0];
+        assert_eq!(slot.current_count, 92);
+        assert_eq!(slot.proc_count, 0);
+
+        assert!(tracker.on_buff_changes(
+            &[buff_changed(200, 2_000)],
+            &EntityAttrStore::default(),
+            1,
+        ));
+        let slot = &tracker.states.get(&1).unwrap().slot_states[0];
+        assert_eq!(slot.current_count, 184);
+        assert_eq!(slot.proc_count, 0);
     }
 
     #[test]

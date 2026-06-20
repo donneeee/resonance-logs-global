@@ -174,8 +174,8 @@ fn npcap_dll_candidates() -> Vec<PathBuf> {
 #[cfg(windows)]
 unsafe fn load_npcap_library(path: &PathBuf) -> Result<Library, libloading::Error> {
     use libloading::os::windows::{
-        Library as WindowsLibrary, LOAD_LIBRARY_SEARCH_DEFAULT_DIRS,
-        LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR,
+        LOAD_LIBRARY_SEARCH_DEFAULT_DIRS, LOAD_LIBRARY_SEARCH_DLL_LOAD_DIR,
+        Library as WindowsLibrary,
     };
 
     unsafe {

@@ -78,17 +78,17 @@
     "ko-KR": "프로스트 메이지"
   },
   "class.Flame Berserker": {
-    "en": "Twin Axe",
+    "en": "Twin Striker",
     "zh-CN": "赤炎狂战士",
     "zh-TW": "赤炎狂戰士",
-    "ja": "Twin Axe",
-    "ko-KR": "Twin Axe",
-    "fr": "Twin Axe",
-    "de": "Twin Axe",
-    "es": "Twin Axe",
-    "pt-BR": "Twin Axe",
-    "th": "Twin Axe",
-    "id": "Twin Axe"
+    "ja": "Twin Striker",
+    "ko-KR": "Twin Striker",
+    "fr": "Twin Striker",
+    "de": "Twin Striker",
+    "es": "Twin Striker",
+    "pt-BR": "Twin Striker",
+    "th": "Twin Striker",
+    "id": "Twin Striker"
   },
   "class.Verdant Oracle": {
     "en": "Verdant Oracle",
@@ -247,7 +247,7 @@
     "id": "Ray"
   },
   "spec.Voidflame": {
-    "en": "Formless Expertise",
+    "en": "Formless",
     "zh-CN": "无相专精流",
     "zh-TW": "無相專精流",
     "ja": "無相専精流",
@@ -260,7 +260,7 @@
     "id": "Aliran Expertise Aspek"
   },
   "spec.Blazecrimson": {
-    "en": "Crimson Expertise",
+    "en": "Crimson",
     "zh-CN": "赤红专精流",
     "zh-TW": "赤紅專精流",
     "ja": "赤紅専精流",

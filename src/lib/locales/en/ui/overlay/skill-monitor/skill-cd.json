@@ -1,6 +1,6 @@
 {
   "classLabel.beatPerformer": "Beat Performer",
-  "classLabel.flameBerserker": "Twin Axe",
+  "classLabel.flameBerserker": "Twin Striker",
   "classLabel.frostMage": "Frost Mage",
   "classLabel.heavyGuardian": "Heavy Guardian",
   "classLabel.marksman": "Marksman",
@@ -9,7 +9,7 @@
   "classLabel.verdantOracle": "Verdant Oracle",
   "classLabel.windKnight": "Wind Knight",
   "className.beat_performer": "Beat Performer",
-  "className.flame_berserker": "Twin Axe",
+  "className.flame_berserker": "Twin Striker",
   "className.frost_mage": "Frost Mage",
   "className.stormblade": "Stormblade",
   "className.wind_knight": "Wind Knight",

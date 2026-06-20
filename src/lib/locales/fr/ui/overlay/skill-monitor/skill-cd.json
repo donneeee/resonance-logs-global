@@ -1,6 +1,6 @@
 {
   "classLabel.beatPerformer": "Virtuose du rythme",
-  "classLabel.flameBerserker": "Twin Axe",
+  "classLabel.flameBerserker": "Twin Striker",
   "classLabel.frostMage": "Mage de givre",
   "classLabel.heavyGuardian": "Gardien imposant",
   "classLabel.marksman": "Tireur d'élite",
@@ -112,7 +112,7 @@
   "className.heavy_guardian": "Gardien imposant",
   "className.shield_knight": "Chevalier au bouclier",
   "className.marksman": "Tireur d'élite",
-  "className.flame_berserker": "Twin Axe",
+  "className.flame_berserker": "Twin Striker",
   "className.verdant_oracle": "Oracle verdoyant",
   "className.beat_performer": "Virtuose du rythme",
   "classSkill.heavy_guardian.1901": "Tranchant de hallebarde",

@@ -1,6 +1,6 @@
 {
   "classLabel.beatPerformer": "Artista do Ritmo",
-  "classLabel.flameBerserker": "Twin Axe",
+  "classLabel.flameBerserker": "Twin Striker",
   "classLabel.frostMage": "Mago do Gelo",
   "classLabel.heavyGuardian": "Guardião Pesado",
   "classLabel.marksman": "Atirador de Elite",
@@ -112,7 +112,7 @@
   "className.heavy_guardian": "Guardião Pesado",
   "className.shield_knight": "Cavaleiro do Escudo",
   "className.marksman": "Atirador de Elite",
-  "className.flame_berserker": "Twin Axe",
+  "className.flame_berserker": "Twin Striker",
   "className.verdant_oracle": "Oráculo Verdejante",
   "className.beat_performer": "Artista do Ritmo",
   "classSkill.heavy_guardian.1901": "Gume da Alabarda",

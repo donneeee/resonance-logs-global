@@ -1,6 +1,6 @@
 {
   "classLabel.beatPerformer": "Beat Performer",
-  "classLabel.flameBerserker": "Twin Axe",
+  "classLabel.flameBerserker": "Twin Striker",
   "classLabel.frostMage": "Frost Mage",
   "classLabel.heavyGuardian": "Heavy Guardian",
   "classLabel.marksman": "Divine Archer",
@@ -112,7 +112,7 @@
   "className.heavy_guardian": "Heavy Guardian",
   "className.shield_knight": "Shield Fighter",
   "className.marksman": "Divine Archer",
-  "className.flame_berserker": "Twin Axe",
+  "className.flame_berserker": "Twin Striker",
   "className.verdant_oracle": "Verdant Oracle",
   "className.beat_performer": "Beat Performer",
   "classSkill.heavy_guardian.1901": "Blade of Truce",

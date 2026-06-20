@@ -1,6 +1,6 @@
 {
   "classLabel.beatPerformer": "ビートパフォーマー",
-  "classLabel.flameBerserker": "Twin Axe",
+  "classLabel.flameBerserker": "Twin Striker",
   "classLabel.frostMage": "フロストメイジ",
   "classLabel.heavyGuardian": "ヘヴィガーディアン",
   "classLabel.marksman": "ディバインアーチャー",
@@ -112,7 +112,7 @@
   "className.heavy_guardian": "ヘヴィガーディアン",
   "className.shield_knight": "シールドファイター",
   "className.marksman": "ディバインアーチャー",
-  "className.flame_berserker": "Twin Axe",
+  "className.flame_berserker": "Twin Striker",
   "className.verdant_oracle": "ヴァーダントオラクル",
   "className.beat_performer": "ビートパフォーマー",
   "classSkill.heavy_guardian.1901": "止戦刃",

@@ -18,6 +18,12 @@ const defaultBreakdownPath = path.join(
   "generated",
   "SkillBreakdownDetails.json",
 );
+const defaultEffectDescriptionsPath = path.join(
+  repoRoot,
+  "parser-data",
+  "generated",
+  "SeasonEffectDescriptions.json",
+);
 const defaultOutPath = path.join(
   repoRoot,
   "parser-data",
@@ -29,6 +35,7 @@ function parseArgs(argv) {
   const args = {
     probePath: defaultProbePath,
     breakdownPath: defaultBreakdownPath,
+    effectDescriptionsPath: defaultEffectDescriptionsPath,
     outPath: defaultOutPath,
   };
 
@@ -40,6 +47,9 @@ function parseArgs(argv) {
       index += 1;
     } else if (arg === "--breakdown" && next) {
       args.breakdownPath = path.resolve(next);
+      index += 1;
+    } else if (arg === "--effect-descriptions" && next) {
+      args.effectDescriptionsPath = path.resolve(next);
       index += 1;
     } else if (arg === "--out" && next) {
       args.outPath = path.resolve(next);
@@ -80,6 +90,22 @@ function preferredText(values) {
     ?? "";
 }
 
+function nonEmptyObject(value) {
+  return value && typeof value === "object" && !Array.isArray(value) && Object.keys(value).length > 0;
+}
+
+function descriptionByBuffId(effectDescriptions) {
+  if (!effectDescriptions) return {};
+  if (nonEmptyObject(effectDescriptions.byBuffId)) return effectDescriptions.byBuffId;
+
+  const byBuffId = {};
+  for (const row of effectDescriptions.rows ?? []) {
+    const buffId = toNumber(row.buffId ?? row.Id ?? row.id);
+    if (buffId !== null) byBuffId[String(buffId)] = row;
+  }
+  return byBuffId;
+}
+
 const rawEffectStatRenderers = new Map([
   [11012, { label: "Strength", divisor: 1, suffix: "" }],
   [11014, { label: "Strength", divisor: 100, suffix: "%" }],
@@ -87,6 +113,16 @@ const rawEffectStatRenderers = new Map([
   [11024, { label: "Intellect", divisor: 100, suffix: "%" }],
   [11032, { label: "Agility", divisor: 1, suffix: "" }],
   [11034, { label: "Agility", divisor: 100, suffix: "%" }],
+  [11042, { label: "Endurance", divisor: 1, suffix: "" }],
+  [11044, { label: "Endurance", divisor: 100, suffix: "%" }],
+  [11322, { label: "Max HP", divisor: 1, suffix: "" }],
+  [11324, { label: "Max HP", divisor: 100, suffix: "%" }],
+  [11352, { label: "Armor", divisor: 1, suffix: "" }],
+  [11354, { label: "Armor", divisor: 100, suffix: "%" }],
+  [11802, { label: "Healing Received", divisor: 100, suffix: "%" }],
+  [11812, { label: "Shield Strength", divisor: 100, suffix: "%" }],
+  [13002, { label: "Element Strength", divisor: 1, suffix: "" }],
+  [13202, { label: "Element Resistance", divisor: 100, suffix: "%" }],
 ]);
 
 function formatEffectNumber(value) {
@@ -178,7 +214,49 @@ function inferredBuffIdForFamily(family) {
   return buffId >= 3_050_000 && buffId <= 3_069_990 ? buffId : null;
 }
 
-function factorBuffRowsForFamily(family) {
+function seasonEffectBuffIdForCurrentFamily(family, effectDescriptionsByBuffId) {
+  const familyId = toNumber(family.familyId);
+  if (familyId === null) return null;
+
+  const familyName = preferredText(family.familyNames) || family.familyName || "";
+  const slot = toNumber(familyName.match(/\bX(\d+)\b/i)?.[1]);
+  if (slot === null) return null;
+
+  const currentSeasonEffectRows = [
+    {
+      minFamilyId: 202_189,
+      maxFamilyId: 202_199,
+      namePattern: /\bPolarity\b/i,
+      buffBase: 3_058_000,
+      source: "season-effect-description-polarity-slot-id",
+    },
+    {
+      minFamilyId: 202_200,
+      maxFamilyId: 202_208,
+      namePattern: /\bStasis\b/i,
+      buffBase: 3_059_000,
+      source: "season-effect-description-stasis-slot-id",
+    },
+  ];
+
+  for (const row of currentSeasonEffectRows) {
+    if (familyId < row.minFamilyId || familyId > row.maxFamilyId || !row.namePattern.test(familyName)) {
+      continue;
+    }
+
+    const buffId = row.buffBase + slot * 10;
+    if (effectDescriptionsByBuffId[String(buffId)]) {
+      return {
+        buffId,
+        source: row.source,
+      };
+    }
+  }
+
+  return null;
+}
+
+function factorBuffRowsForFamily(family, effectDescriptionsByBuffId) {
   const primaryBuffIds = uniqueNumbers(family.primaryBuffIds ?? []);
   if (primaryBuffIds.length > 0) {
     return primaryBuffIds.map((buffId) => ({
@@ -186,6 +264,15 @@ function factorBuffRowsForFamily(family) {
       buffIdSource: "probe-primary-buff-id",
       runtimeDetection: "active-buff-or-selected-factor-grade-item",
     }));
+  }
+
+  const seasonEffectBuffId = seasonEffectBuffIdForCurrentFamily(family, effectDescriptionsByBuffId);
+  if (seasonEffectBuffId !== null) {
+    return [{
+      buffId: seasonEffectBuffId.buffId,
+      buffIdSource: seasonEffectBuffId.source,
+      runtimeDetection: "selected-factor-grade-item",
+    }];
   }
 
   const gradeRows = Array.isArray(family.gradeRows) ? family.gradeRows : [];
@@ -199,15 +286,22 @@ function factorBuffRowsForFamily(family) {
   }];
 }
 
-function buildFactorsByBuffId(probe) {
+function buildFactorsByBuffId(probe, effectDescriptionsByBuffId) {
   const factorsByBuffId = {};
   const factorBuffIds = [];
 
   for (const family of probe.families ?? []) {
-    for (const buffRow of factorBuffRowsForFamily(family)) {
+    for (const buffRow of factorBuffRowsForFamily(family, effectDescriptionsByBuffId)) {
       const { buffId, buffIdSource, runtimeDetection } = buffRow;
       factorBuffIds.push(buffId);
       const gradeRows = Array.isArray(family.gradeRows) ? family.gradeRows : [];
+      const effectDescription = effectDescriptionsByBuffId[String(buffId)] ?? {};
+      const descriptions = nonEmptyObject(family.descriptions)
+        ? family.descriptions
+        : effectDescription.descriptions;
+      const cleanDescriptions = nonEmptyObject(family.cleanDescriptions)
+        ? family.cleanDescriptions
+        : effectDescription.cleanDescriptions;
       factorsByBuffId[String(buffId)] = stripUndefined({
         familyId: toNumber(family.familyId),
         buffId,
@@ -217,9 +311,9 @@ function buildFactorsByBuffId(probe) {
         iconPath: family.iconPath,
         runtimeDetection,
         classGateIds: uniqueNumbers(family.classGateIds ?? []),
-        descriptionId: toNumber(family.descriptionId),
-        descriptions: family.descriptions ?? {},
-        cleanDescriptions: family.cleanDescriptions ?? {},
+        descriptionId: toNumber(family.descriptionId ?? effectDescription.descriptionId),
+        descriptions: descriptions ?? {},
+        cleanDescriptions: cleanDescriptions ?? {},
         gradeCount: gradeRows.length,
         gradeIds: uniqueNumbers(gradeRows.map((row) => row.grade)),
         gradeItemIds: uniqueNumbers(gradeRows.map((row) => row.itemId)),
@@ -353,8 +447,11 @@ function main() {
   const args = parseArgs(process.argv.slice(2));
   const probe = readJson(args.probePath);
   const breakdown = readJson(args.breakdownPath);
+  const effectDescriptionsByBuffId = fs.existsSync(args.effectDescriptionsPath)
+    ? descriptionByBuffId(readJson(args.effectDescriptionsPath))
+    : {};
 
-  const { factorBuffIds, factorsByBuffId } = buildFactorsByBuffId(probe);
+  const { factorBuffIds, factorsByBuffId } = buildFactorsByBuffId(probe, effectDescriptionsByBuffId);
   const damageIdToFactorBuffIds = applyDamageLinks(
     factorsByBuffId,
     factorBuffIds,
@@ -367,6 +464,9 @@ function main() {
       source: "SeasonPhantomFactorProbe",
       sourcePath: path.relative(repoRoot, args.probePath).replaceAll("\\", "/"),
       breakdownSource: path.relative(repoRoot, args.breakdownPath).replaceAll("\\", "/"),
+      effectDescriptionSource: fs.existsSync(args.effectDescriptionsPath)
+        ? path.relative(repoRoot, args.effectDescriptionsPath).replaceAll("\\", "/")
+        : null,
       factorFamilies: Object.values(factorsByBuffId).length,
       factorBuffIds: factorBuffIds.length,
       directlyLinkedDamageRows: Object.keys(damageIdToFactorBuffIds).length,

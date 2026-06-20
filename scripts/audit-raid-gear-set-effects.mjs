@@ -30,7 +30,7 @@ const classGroups = {
   6: { classKey: "heavy_guardian", className: "Heavy Guardian" },
   7: { classKey: "shield_knight", className: "Shield Knight" },
   8: { classKey: "beat_performer", className: "Beat Performer" },
-  9: { classKey: "twin_axe", className: "Twin Axe" },
+  9: { classKey: "twin_axe", className: "Twin Striker" },
 };
 
 function readJson(relativePath) {

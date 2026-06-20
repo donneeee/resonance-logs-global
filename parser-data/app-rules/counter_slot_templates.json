@@ -563,7 +563,9 @@
       "resetBuffId": 3053451,
       "onBuffAdd": "reset",
       "onBuffChange": "noOp",
-      "onBuffRemove": "noOp"
+      "onBuffRemove": "noOp",
+      "countThresholdProcs": false,
+      "countResetBuffProcs": true
     },
     "effectBuffIds": [
       3053451
@@ -2224,7 +2226,7 @@
   {
     "slotTemplateId": "factor_3053100",
     "name": "Marksman X10",
-    "description": "For the next 10s after Blast Shot is cast, Falcon (Strike, Lightning Strike, Phantom Falcon) Illusion-Breaking DMG +. Casting Explosive Arrow grants Illusion Energy.",
+    "description": "For the next 10s after Blast Shot is cast, Falcon (Strike, Lightning Strike, Phantom Falcon) Illusion-Breaking DMG +. Casting Blast Shot grants Illusion Energy.",
     "slot": {
       "threshold": null,
       "resetBuffId": 3053101,
@@ -5059,7 +5061,7 @@
   },
   {
     "slotTemplateId": "factor_3060010",
-    "name": "Twin Axe X1",
+    "name": "Twin Striker X1",
     "description": "Formless Flame Slash Illusion-Breaking DMG +. Dealing damage with Formless Flame Slash grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5086,7 +5088,7 @@
   },
   {
     "slotTemplateId": "factor_3060020",
-    "name": "Twin Axe X2",
+    "name": "Twin Striker X2",
     "description": "Rage Cleave Illusion-Breaking DMG +. Casting Rage Cleave grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5113,7 +5115,7 @@
   },
   {
     "slotTemplateId": "factor_3060030",
-    "name": "Twin Axe X3",
+    "name": "Twin Striker X3",
     "description": "Axe Wind Illusion-Breaking DMG +. While Axe Wind is active, Grants Illusion Energy every 0.5s.",
     "slot": {
       "threshold": null,
@@ -5140,7 +5142,7 @@
   },
   {
     "slotTemplateId": "factor_3060040",
-    "name": "Twin Axe X4",
+    "name": "Twin Striker X4",
     "description": "While Wasteland's End is active, Formless Flame Slash trigger chance +. While Wasteland's End is active, grants Illusion Energy every second.",
     "slot": {
       "threshold": null,
@@ -5167,7 +5169,7 @@
   },
   {
     "slotTemplateId": "factor_3060050",
-    "name": "Twin Axe X5",
+    "name": "Twin Striker X5",
     "description": "Hellfire Meteor can trigger Lucky Strike; Hellfire Meteor Illusion-Breaking DMG +. When Hellfire Meteor triggers Lucky Strike, grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5194,7 +5196,7 @@
   },
   {
     "slotTemplateId": "factor_3060060",
-    "name": "Twin Axe X6",
+    "name": "Twin Striker X6",
     "description": "Wildfire Dance ignores + of the target's Armor. While Wildfire Dance is active, grants Illusion Energy every 0.5s.",
     "slot": {
       "threshold": null,
@@ -5221,7 +5223,7 @@
   },
   {
     "slotTemplateId": "factor_3060070",
-    "name": "Twin Axe X7",
+    "name": "Twin Striker X7",
     "description": "Flowing Splendor Slash Illusion-Breaking DMG +. Casting Flowing Splendor Slash grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5248,7 +5250,7 @@
   },
   {
     "slotTemplateId": "factor_3060080",
-    "name": "Twin Axe X8",
+    "name": "Twin Striker X8",
     "description": "Unbound Meteor and Falling Hellfire Illusion-Breaking DMG +. Casting Unbound Meteor or Falling Hellfire grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5275,7 +5277,7 @@
   },
   {
     "slotTemplateId": "factor_3060090",
-    "name": "Twin Axe X9",
+    "name": "Twin Striker X9",
     "description": "Casting Unbound Meteor, Falling Hellfire, or Flowing Splendor Slash has a 50% chance to trigger Great Crimson Lotus; Great Crimson Lotus Illusion-Breaking DMG +. Dealing damage with Great Crimson Lotus grants Illusion Energy.",
     "slot": {
       "threshold": null,
@@ -5302,7 +5304,7 @@
   },
   {
     "slotTemplateId": "factor_3060100",
-    "name": "Twin Axe X10",
+    "name": "Twin Striker X10",
     "description": "Wildfire Dance restores Crimson Soul Gauge upon dealing damage to the main target; the gauge is restored after the skill ends. While in combat and standing still, grants Illusion Energy per second.",
     "slot": {
       "threshold": null,
@@ -5329,7 +5331,7 @@
   },
   {
     "slotTemplateId": "factor_3060110",
-    "name": "Twin Axe X11",
+    "name": "Twin Striker X11",
     "description": "Expertise Skills ignore more of the target's Armor. Grants Illusion Energy for every 50 Flame Souls consumed.",
     "slot": {
       "threshold": null,
@@ -5356,7 +5358,7 @@
   },
   {
     "slotTemplateId": "factor_3059260",
-    "name": "Twin Axe Stasis X1",
+    "name": "Twin Striker Stasis X1",
     "description": "Each level of the Formless effect grants All-Element DMG Reduction.",
     "slot": {
       "threshold": null,
@@ -5383,7 +5385,7 @@
   },
   {
     "slotTemplateId": "factor_3059270",
-    "name": "Twin Axe Stasis X2",
+    "name": "Twin Striker Stasis X2",
     "description": "While casting Wildfire Dance, grants Super Armor and increases Illusion-Breaking DMG Reduction by .",
     "slot": {
       "threshold": null,
@@ -5410,7 +5412,7 @@
   },
   {
     "slotTemplateId": "factor_3060120",
-    "name": "Twin Axe Rhapsody X1",
+    "name": "Twin Striker Rhapsody X1",
     "description": "Triggering Formless Flame Slash Stage 3 will trigger Hellfire Meteor; Hellfire Meteor Illusion-Breaking DMG +",
     "slot": {
       "threshold": null,
@@ -5437,7 +5439,7 @@
   },
   {
     "slotTemplateId": "factor_3060130",
-    "name": "Twin Axe Rhapsody X2",
+    "name": "Twin Striker Rhapsody X2",
     "description": "When Explosion is triggered, randomly infect a target once. If there is only one target, it triggers twice. Explosion Illusion-Breaking DMG+",
     "slot": {
       "threshold": null,
@@ -5464,7 +5466,7 @@
   },
   {
     "slotTemplateId": "factor_3060140",
-    "name": "Twin Axe Rhapsody X3",
+    "name": "Twin Striker Rhapsody X3",
     "description": "For every 50 hits Wildfire Dance deals to the primary target, gain Enhancement: Great Crimson Lotus Illusion-Breaking DMG+ for 5s",
     "slot": {
       "threshold": null,
@@ -5491,7 +5493,7 @@
   },
   {
     "slotTemplateId": "factor_3060150",
-    "name": "Twin Axe Rhapsody X4",
+    "name": "Twin Striker Rhapsody X4",
     "description": "For every 7 hits Wildfire Dance deals to the primary target, unleashes a Flowing Splendor Slash. Flowing Splendor Slash Illusion-Breaking DMG+",
     "slot": {
       "threshold": null,
@@ -5939,7 +5941,7 @@
   },
   {
     "slotTemplateId": "factor_3060450",
-    "name": "Twin Axe Reality Factor X6",
+    "name": "Twin Striker Reality Factor X6",
     "description": "When Illusion Energy reaches points, the remaining CD of the Ultimate is reduced by 0.5s. Can trigger at most once within .",
     "slot": {
       "threshold": 72,
