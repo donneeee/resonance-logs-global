@@ -8,6 +8,10 @@
 - Expanded Phantom Factor extraction so Polarity and Stasis rows can use season effect descriptions when item-package factor rows are not enough.
 - Refined factor counter behavior for duration-linked sources, including reset-buff proc counting, threshold proc suppression where needed, and a BuffUpserted source path for factors whose active buff refreshes instead of cleanly re-adding.
 - Corrected the Marksman X10 factor text/trigger override so Blast Shot, not the mistranslated Explosive Arrow text, is treated as the energy source.
+- Made Event Logger packet/session capture opt-in on every app start so diagnostic logging cannot remain enabled after a restart unless the user turns it back on.
+- Reduced WebView2 `PostMessage failed` pressure by flushing only immediate lifecycle events between normal live snapshot ticks while preserving coalesced monitor, buff, and overlay updates.
+- Fixed the final live DPS/timer snapshot after changing scenes with Clear Meter on Scene Change disabled, so the held parse no longer gets overwritten or delayed by the optimized snapshot cadence.
+- Changed the uninstaller AppData cleanup to honor the Delete application data checkbox directly and removed the second confirmation pop-up, with the destructive warning shown in the checkbox text instead.
 
 ## v1.1.0_RC1 - Global Release Candidate
 

@@ -552,6 +552,25 @@ impl EventManager {
     pub fn drain_outbound_events(&mut self) -> Vec<OutboundEvent> {
         std::mem::take(&mut self.outbound_events)
     }
+
+    pub fn drain_outbound_events_matching<F>(&mut self, mut should_drain: F) -> Vec<OutboundEvent>
+    where
+        F: FnMut(&OutboundEvent) -> bool,
+    {
+        let mut drained = Vec::new();
+        let mut pending = Vec::with_capacity(self.outbound_events.len());
+
+        for event in std::mem::take(&mut self.outbound_events) {
+            if should_drain(&event) {
+                drained.push(event);
+            } else {
+                pending.push(event);
+            }
+        }
+
+        self.outbound_events = pending;
+        drained
+    }
 }
 
 /// The payload for an encounter update event.

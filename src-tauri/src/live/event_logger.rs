@@ -159,8 +159,7 @@ fn event_logger_enabled(app_handle: &AppHandle) -> bool {
     static EVENT_LOGGER_ENABLED_LOADED: OnceLock<()> = OnceLock::new();
     EVENT_LOGGER_ENABLED_LOADED.get_or_init(|| {
         let config = read_event_logger_settings_config(app_handle).unwrap_or_default();
-        let enabled = config.enabled.unwrap_or_else(default_event_logger_enabled);
-        set_event_logger_enabled_runtime(enabled);
+        set_event_logger_enabled_runtime(default_event_logger_enabled());
         set_event_logger_capture_options_runtime(
             config
                 .capture_events
@@ -698,8 +697,7 @@ pub fn get_event_logger_file_storage_payload(
         _default_capture_census_enabled,
         _default_attribution_census_enabled,
     ) = event_logger_file_storage_defaults();
-    let enabled = config.enabled.unwrap_or_else(default_event_logger_enabled);
-    set_event_logger_enabled_runtime(enabled);
+    let enabled = is_event_logger_enabled(app_handle);
 
     Ok(build_event_logger_file_storage_payload(
         configured_directory,
@@ -727,7 +725,7 @@ pub fn set_event_logger_file_storage_settings(
     attribution_census_enabled: bool,
 ) -> Result<EventLoggerFileStoragePayload, String> {
     let mut config = read_event_logger_settings_config(app_handle)?;
-    config.enabled = Some(enabled);
+    config.enabled = Some(false);
     config.store_log_files = Some(store_log_files);
     config.include_repeated_snapshot_rows = Some(include_repeated_snapshot_rows);
     config.delete_older_than_days = delete_older_than_days.filter(|value| *value > 0);
@@ -746,6 +744,7 @@ pub fn set_event_logger_file_storage_settings(
         let _ = cleanup_old_event_logger_files(&dir, delete_older_than_days);
     }
 
+    let _ = event_logger_enabled(app_handle);
     set_event_logger_enabled_runtime(enabled);
     if !enabled {
         clear_logger_runtime_state();

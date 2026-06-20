@@ -6976,7 +6976,29 @@ fn build_live_snapshot_logger_entries(
 const QUEUE_DEPTH_WARN_THRESHOLD: usize = 100;
 const QUEUE_DEPTH_ERROR_THRESHOLD: usize = 500;
 const QUEUE_DEPTH_CRITICAL_THRESHOLD: usize = 2000;
-const QUEUE_DEPTH_LOG_INTERVAL: Duration = Duration::from_millis(500);
+const QUEUE_DEPTH_LOG_INTERVAL: Duration = Duration::from_secs(5);
+
+#[derive(Clone, Copy)]
+enum OutboundFlushMode {
+    All,
+    ImmediateOnly,
+}
+
+fn is_immediate_outbound_event(event: &OutboundEvent) -> bool {
+    matches!(
+        event,
+        OutboundEvent::EncounterReset
+            | OutboundEvent::EncounterUpdate { .. }
+            | OutboundEvent::EncounterPause(_)
+            | OutboundEvent::SceneChange(_)
+            // Normal live snapshots are queued inside the throttled update block
+            // and flushed immediately afterward. A LiveData event present before
+            // that block is a lifecycle snapshot, such as the final held parse
+            // emitted on scene change when auto-clear is disabled.
+            | OutboundEvent::LiveData(_)
+            | OutboundEvent::TrainingDummyUpdate(_)
+    )
+}
 
 fn log_queue_depth_if_needed(
     queue_depth: &std::sync::atomic::AtomicUsize,
@@ -7252,7 +7274,7 @@ pub async fn start(
             Some(command) = control_rx.recv() => {
                 state_manager.apply_control_command(&mut state, command);
                 state_manager.drain_control_commands(&mut state, &mut control_rx);
-                flush_outbound_events(&app_handle, &mut state);
+                flush_outbound_events(&app_handle, &mut state, OutboundFlushMode::All);
                 emit_pending_background_logger_entries(&app_handle);
             }
             packet = recv_capture_event(&mut rx) => match packet {
@@ -7321,8 +7343,11 @@ pub async fn start(
 
                 state_manager.handle_events_batch_with_state(&mut state, batch_events);
                 state_manager.drain_control_commands(&mut state, &mut control_rx);
-                flush_outbound_events(&app_handle, &mut state);
-                emit_pending_background_logger_entries(&app_handle);
+                flush_outbound_events(
+                    &app_handle,
+                    &mut state,
+                    OutboundFlushMode::ImmediateOnly,
+                );
 
                 // Check if we should emit events (throttling)
                 // Read current event update rate from state dynamically
@@ -7338,9 +7363,9 @@ pub async fn start(
                 if should_emit {
                     last_emit_time = now;
                     state_manager.update_and_emit_events_with_state(&mut state);
+                    flush_outbound_events(&app_handle, &mut state, OutboundFlushMode::All);
+                    emit_pending_background_logger_entries(&app_handle);
                 }
-                flush_outbound_events(&app_handle, &mut state);
-                emit_pending_background_logger_entries(&app_handle);
             }
             None => {
                 if capture_restart_attempts >= CAPTURE_RESTART_MAX_ATTEMPTS {
@@ -7386,17 +7411,24 @@ pub async fn start(
                     last_emit_time = now;
                     state_manager.update_and_emit_events_with_state(&mut state);
                 }
-                flush_outbound_events(&app_handle, &mut state);
+                flush_outbound_events(&app_handle, &mut state, OutboundFlushMode::All);
                 emit_pending_background_logger_entries(&app_handle);
             }
         }
     }
 }
 
-fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState) {
+fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: OutboundFlushMode) {
     flush_selected_factor_cache_if_needed(app_handle, state);
 
-    for event in state.event_manager.drain_outbound_events() {
+    let events = match mode {
+        OutboundFlushMode::All => state.event_manager.drain_outbound_events(),
+        OutboundFlushMode::ImmediateOnly => state
+            .event_manager
+            .drain_outbound_events_matching(is_immediate_outbound_event),
+    };
+
+    for event in events {
         let ts_ms = now_ms();
 
         match event {

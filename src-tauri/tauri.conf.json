@@ -106,6 +106,12 @@
     "createUpdaterArtifacts": true,
     "windows": {
       "nsis": {
+        "languages": [
+          "English"
+        ],
+        "customLanguageFiles": {
+          "English": "nsis-languages/English.nsh"
+        },
         "installerHooks": "installer-hooks.nsh"
       }
     }
