@@ -90,8 +90,46 @@ impl SeasonCultivateRuntimeState {
         &self.active_selection
     }
 
+    pub fn selected_factor_selection(
+        &self,
+        selected_item_ids: &[i32],
+        selected_items_authoritative: bool,
+    ) -> SeasonCultivateFactorSelection {
+        if selected_item_ids.is_empty() && !selected_items_authoritative {
+            return self.active_selection.clone();
+        }
+
+        extract_selection_from_item_ids(&self.templates, selected_item_ids)
+    }
+
+    pub fn visible_selected_factor_selection(
+        &self,
+        selected_item_ids: &[i32],
+        selected_items_authoritative: bool,
+    ) -> SeasonCultivateFactorSelection {
+        let selection =
+            self.selected_factor_selection(selected_item_ids, selected_items_authoritative);
+        gate_selection_sources_to_visible_rows(&self.templates, selection)
+    }
+
     pub fn build_factor_counter_rules(&self) -> Vec<CounterRule> {
-        build_counter_rules(&self.templates, &self.active_selection)
+        let selection =
+            gate_selection_sources_to_visible_rows(&self.templates, self.active_selection.clone());
+        build_counter_rules(&self.templates, &selection)
+    }
+
+    pub fn build_factor_counter_rules_for_selected_items(
+        &self,
+        selected_item_ids: &[i32],
+        selected_items_authoritative: bool,
+    ) -> Vec<CounterRule> {
+        if selected_item_ids.is_empty() && !selected_items_authoritative {
+            return self.build_factor_counter_rules();
+        }
+
+        let selection =
+            self.visible_selected_factor_selection(selected_item_ids, selected_items_authoritative);
+        build_counter_rules(&self.templates, &selection)
     }
 
     fn rebuild_active_selection(&mut self) -> bool {
@@ -100,6 +138,11 @@ impl SeasonCultivateRuntimeState {
         self.active_selection = selection;
         changed
     }
+}
+
+pub fn dirty_bytes_may_touch_season_cultivate(bytes: &[u8]) -> bool {
+    let mut reader = DirtyReader::new(bytes);
+    dirty_bytes_may_touch_season_cultivate_inner(&mut reader).unwrap_or(false)
 }
 
 pub fn factor_rule_id(item_id: i32) -> i32 {
@@ -124,6 +167,13 @@ fn extract_active_selection(
     templates: &[FactorCounterTemplate],
     snapshot: &SeasonCultivateActiveSnapshot,
 ) -> SeasonCultivateFactorSelection {
+    extract_selection_from_item_ids(templates, &snapshot.active_item_ids)
+}
+
+fn extract_selection_from_item_ids(
+    templates: &[FactorCounterTemplate],
+    item_ids: &[i32],
+) -> SeasonCultivateFactorSelection {
     let source_ids = template_item_id_set(
         templates
             .iter()
@@ -134,15 +184,13 @@ fn extract_active_selection(
             .iter()
             .filter(|template| !template.effect_slots.is_empty()),
     );
-    let mut slot_item_ids: Vec<i32> = snapshot
-        .active_item_ids
+    let mut slot_item_ids: Vec<i32> = item_ids
         .iter()
         .copied()
         .filter(|item_id| slot_ids.contains(item_id))
         .collect();
     normalize_ids(&mut slot_item_ids);
-    let mut source_item_ids: Vec<i32> = snapshot
-        .active_item_ids
+    let mut source_item_ids: Vec<i32> = item_ids
         .iter()
         .copied()
         .filter(|item_id| source_ids.contains(item_id))
@@ -152,6 +200,42 @@ fn extract_active_selection(
         source_item_ids,
         slot_item_ids,
     }
+}
+
+fn gate_selection_sources_to_visible_rows(
+    templates: &[FactorCounterTemplate],
+    mut selection: SeasonCultivateFactorSelection,
+) -> SeasonCultivateFactorSelection {
+    if selection.source_item_ids.is_empty() || selection.slot_item_ids.is_empty() {
+        selection.source_item_ids.clear();
+        return selection;
+    }
+
+    let visible_slot_templates: Vec<&FactorCounterTemplate> = selection
+        .slot_item_ids
+        .iter()
+        .filter_map(|slot_item_id| {
+            templates.iter().find(|template| {
+                !template.effect_slots.is_empty()
+                    && template_matches_item_id(template, *slot_item_id)
+            })
+        })
+        .collect();
+
+    selection.source_item_ids.retain(|source_item_id| {
+        templates
+            .iter()
+            .filter(|template| {
+                !template.sources.is_empty() && template_matches_item_id(template, *source_item_id)
+            })
+            .any(|source_template| {
+                visible_slot_templates
+                    .iter()
+                    .any(|slot_template| templates_share_item_id(source_template, slot_template))
+            })
+    });
+    normalize_ids(&mut selection.source_item_ids);
+    selection
 }
 
 fn build_counter_rules(
@@ -429,6 +513,28 @@ fn skip_object(reader: &mut DirtyReader<'_>) -> DirtyResult<()> {
         return Ok(());
     };
     finish_object(reader, end)
+}
+
+fn dirty_bytes_may_touch_season_cultivate_inner(reader: &mut DirtyReader<'_>) -> DirtyResult<bool> {
+    let Some(end) = read_object_header(reader)? else {
+        return Ok(false);
+    };
+    while reader.off < end {
+        let field_id = reader.i32()?;
+        if field_id <= 0 {
+            return Err(DirtyParseError::InvalidFieldId(field_id));
+        }
+        if field_id == CHAR_SERIALIZE_FIELD_SEASON_CULTIVATE {
+            return Ok(true);
+        }
+        if reader.peek_i32()? == DIRTY_BEGIN {
+            skip_object(reader)?;
+        } else {
+            reader.skip_to(end)?;
+        }
+    }
+    finish_object(reader, end)?;
+    Ok(false)
 }
 
 fn merge_char_serialize_dirty(
@@ -757,6 +863,7 @@ mod tests {
             ]),
         ]);
 
+        assert!(dirty_bytes_may_touch_season_cultivate(&dirty_bytes));
         assert!(state.apply_dirty_bytes(&dirty_bytes));
         assert_eq!(
             state.active_snapshot(),
@@ -766,6 +873,17 @@ mod tests {
                 active_fantasy_ids: vec![2002],
             }
         );
+    }
+
+    #[test]
+    fn dirty_bytes_may_touch_season_cultivate_ignores_unrelated_dirty_data() {
+        let unrelated = object(vec![
+            i32_bytes(200),
+            object(vec![i32_bytes(1), i32_bytes(123)]),
+        ]);
+
+        assert!(!dirty_bytes_may_touch_season_cultivate(&unrelated));
+        assert!(!dirty_bytes_may_touch_season_cultivate(&[1, 2, 3]));
     }
 
     #[test]
@@ -891,6 +1009,12 @@ mod tests {
                 effect_slots: Vec::new(),
             },
             FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7101, None)],
+            },
+            FactorCounterTemplate {
                 item_ids: vec![2001],
                 uses_global_energy: false,
                 sources: vec![CounterSource::SkillCast {
@@ -898,6 +1022,12 @@ mod tests {
                     increment: 150,
                 }],
                 effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7201, None)],
             },
             FactorCounterTemplate {
                 item_ids: vec![3001],
@@ -910,11 +1040,13 @@ mod tests {
         assert!(state.replace_data(data));
 
         let rules = state.build_factor_counter_rules();
-        assert_eq!(rules.len(), 1);
-        assert_eq!(rules[0].rule_id, factor_rule_id(3001));
-        assert_eq!(rules[0].sources.len(), 2);
-        assert_eq!(rules[0].effect_slots.len(), 1);
-        assert_eq!(rules[0].effect_slots[0].reset_buff_id, 8001);
+        let global_rule = rules
+            .iter()
+            .find(|rule| rule.rule_id == factor_rule_id(3001))
+            .expect("global energy rule exists");
+        assert_eq!(global_rule.sources.len(), 2);
+        assert_eq!(global_rule.effect_slots.len(), 1);
+        assert_eq!(global_rule.effect_slots[0].reset_buff_id, 8001);
     }
 
     #[test]
@@ -943,6 +1075,12 @@ mod tests {
                 effect_slots: Vec::new(),
             },
             FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7101, None)],
+            },
+            FactorCounterTemplate {
                 item_ids: vec![2001],
                 uses_global_energy: false,
                 sources: vec![CounterSource::SkillCast {
@@ -950,6 +1088,12 @@ mod tests {
                     increment: 150,
                 }],
                 effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7201, None)],
             },
             FactorCounterTemplate {
                 item_ids: vec![3001],
@@ -964,6 +1108,64 @@ mod tests {
             state.active_selection(),
             &SeasonCultivateFactorSelection {
                 source_item_ids: vec![1001, 2001],
+                slot_item_ids: vec![1001, 2001, 3001],
+            }
+        );
+
+        let rules = state.build_factor_counter_rules();
+        let global_rule = rules
+            .iter()
+            .find(|rule| rule.rule_id == factor_rule_id(3001))
+            .expect("global energy rule exists");
+        assert_eq!(global_rule.sources.len(), 2);
+        assert_eq!(global_rule.effect_slots.len(), 1);
+        assert_eq!(global_rule.effect_slots[0].reset_buff_id, 8001);
+    }
+
+    #[test]
+    fn factor_rule_generation_ignores_hidden_source_without_visible_row() {
+        let mut data = blueprotobuf::SeasonCultivateLineData::default();
+        let mut line = blueprotobuf::CultivateLineData::default();
+        let mut sub_type = blueprotobuf::CultivateLineSubTypeData::default();
+
+        sub_type
+            .cultivate_line_data_map
+            .insert(1, area_with_middle_items(vec![1001, 3001]));
+        line.cultivate_line_map.insert(10, sub_type);
+        data.season_cultivate_line_map.insert(20, line);
+
+        let mut state = SeasonCultivateRuntimeState::default();
+        state.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001, 2001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 51,
+                    hits_required: None,
+                    hit_filter: None,
+                    required_type_flags: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7001, None)],
+            },
+            FactorCounterTemplate {
+                item_ids: vec![3001],
+                uses_global_energy: true,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config(8001)],
+            },
+        ]);
+
+        assert!(state.replace_data(data));
+        assert_eq!(
+            state.active_selection(),
+            &SeasonCultivateFactorSelection {
+                source_item_ids: vec![1001],
                 slot_item_ids: vec![3001],
             }
         );
@@ -971,9 +1173,147 @@ mod tests {
         let rules = state.build_factor_counter_rules();
         assert_eq!(rules.len(), 1);
         assert_eq!(rules[0].rule_id, factor_rule_id(3001));
-        assert_eq!(rules[0].sources.len(), 2);
-        assert_eq!(rules[0].effect_slots.len(), 1);
-        assert_eq!(rules[0].effect_slots[0].reset_buff_id, 8001);
+        assert!(rules[0].sources.is_empty());
+    }
+
+    #[test]
+    fn factor_rule_generation_keeps_source_when_matching_row_is_visible() {
+        let mut data = blueprotobuf::SeasonCultivateLineData::default();
+        let mut line = blueprotobuf::CultivateLineData::default();
+        let mut sub_type = blueprotobuf::CultivateLineSubTypeData::default();
+
+        sub_type
+            .cultivate_line_data_map
+            .insert(1, area_with_middle_items(vec![1001, 2001, 3001]));
+        line.cultivate_line_map.insert(10, sub_type);
+        data.season_cultivate_line_map.insert(20, line);
+
+        let mut state = SeasonCultivateRuntimeState::default();
+        state.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001, 2001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 51,
+                    hits_required: None,
+                    hit_filter: None,
+                    required_type_flags: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7001, None)],
+            },
+            FactorCounterTemplate {
+                item_ids: vec![3001],
+                uses_global_energy: true,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config(8001)],
+            },
+        ]);
+
+        assert!(state.replace_data(data));
+
+        let rules = state.build_factor_counter_rules();
+        assert_eq!(rules.len(), 2);
+        let global_rule = rules
+            .iter()
+            .find(|rule| rule.rule_id == factor_rule_id(3001))
+            .expect("global energy rule exists");
+        assert_eq!(global_rule.sources.len(), 1);
+        assert!(matches!(
+            global_rule.sources[0],
+            CounterSource::AnyDamage { increment: 51, .. }
+        ));
+    }
+
+    #[test]
+    fn factor_rule_generation_uses_selected_items_over_active_line_items() {
+        let mut data = blueprotobuf::SeasonCultivateLineData::default();
+        let mut line = blueprotobuf::CultivateLineData::default();
+        let mut sub_type = blueprotobuf::CultivateLineSubTypeData::default();
+
+        sub_type
+            .cultivate_line_data_map
+            .insert(1, area_with_middle_items(vec![1001, 1002, 3001]));
+        line.cultivate_line_map.insert(10, sub_type);
+        data.season_cultivate_line_map.insert(20, line);
+
+        let mut state = SeasonCultivateRuntimeState::default();
+        state.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::SkillCast {
+                    skill_base_ids: vec![2232],
+                    increment: 40,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7101, None)],
+            },
+            FactorCounterTemplate {
+                item_ids: vec![1002],
+                uses_global_energy: false,
+                sources: vec![CounterSource::SkillCast {
+                    skill_base_ids: vec![2248],
+                    increment: 60,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![1002],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config_with_threshold(7201, None)],
+            },
+            FactorCounterTemplate {
+                item_ids: vec![3001],
+                uses_global_energy: true,
+                sources: Vec::new(),
+                effect_slots: vec![slot_config(8001)],
+            },
+        ]);
+
+        assert!(state.replace_data(data));
+
+        let active_rules = state.build_factor_counter_rules();
+        let active_global_rule = active_rules
+            .iter()
+            .find(|rule| rule.rule_id == factor_rule_id(3001))
+            .expect("active global energy rule exists");
+        assert_eq!(active_global_rule.sources.len(), 2);
+
+        let no_selected_rules = state.build_factor_counter_rules_for_selected_items(&[], false);
+        let no_selected_global_rule = no_selected_rules
+            .iter()
+            .find(|rule| rule.rule_id == factor_rule_id(3001))
+            .expect("fallback global energy rule exists");
+        assert_eq!(no_selected_global_rule.sources.len(), 2);
+
+        let selected_slot_only_rules =
+            state.build_factor_counter_rules_for_selected_items(&[3001], true);
+        assert_eq!(selected_slot_only_rules.len(), 1);
+        assert!(selected_slot_only_rules[0].sources.is_empty());
+
+        let selected_rules =
+            state.build_factor_counter_rules_for_selected_items(&[1001, 3001], true);
+        let selected_global_rule = selected_rules
+            .iter()
+            .find(|rule| rule.rule_id == factor_rule_id(3001))
+            .expect("selected global energy rule exists");
+        assert_eq!(selected_global_rule.sources.len(), 1);
+        assert!(matches!(
+            selected_global_rule.sources[0],
+            CounterSource::SkillCast { increment: 40, .. }
+        ));
     }
 
     #[test]

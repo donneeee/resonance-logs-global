@@ -49,6 +49,7 @@ const COMBAT_TIMELINE_BUCKET_MS: i64 = 1_000;
 const MAX_COMBAT_TIMELINE_BUCKETS_PER_ENTITY: usize = 20_000;
 const ACTIVE_EFFECT_BUFF_SOURCE_RUNTIME_PREFIX: &str = "activeEffectBuffs.";
 const SELECTED_FACTOR_RUNTIME_PREFIX: &str = "SyncContainerDirtyData.v_data.dirty_tree.";
+const EQUIPPED_FACTOR_RUNTIME_PREFIX: &str = "selfItemInstance:CharSerialize.equip.";
 const MAX_FACTOR_SELECTOR_ZERO_SLOTS: usize = 128;
 const FACTOR_SELECTOR_ZERO_SLOT_TTL: Duration = Duration::from_secs(120);
 const OVERLAY_IDENTITY_RESEND_INTERVAL: Duration = Duration::from_secs(1);
@@ -115,10 +116,16 @@ pub struct AppState {
     pub local_owned_source_config_ids: HashSet<i32>,
     /// Selected Deep-Slumber/Phantom Factor items observed from local loadout dirty packets.
     pub local_selected_factor_items: Vec<ObservedFactorItem>,
+    /// Whether selected-factor packet state has been observed and should override active tree fallback.
+    pub selected_factor_selection_observed: bool,
     /// Set when packet-proven selected factor grades need to be saved to disk.
     pub selected_factor_cache_dirty: bool,
     /// Recently emptied factor-selector slots, used to prove later zero-to-grade selections.
     local_factor_selector_zero_slots: Vec<FactorSelectorZeroSlot>,
+    /// Factor item ids explicitly removed from selector packets during this session.
+    suppressed_factor_item_ids: HashSet<i32>,
+    /// Factor selector slots explicitly cleared during this session.
+    suppressed_factor_selector_slot_keys: HashSet<String>,
     /// Whether we've already handled the first scene change after startup.
     pub initial_scene_change_handled: bool,
     /// Event update rate in milliseconds (default: 200ms). Controls how often events are emitted to frontend.
@@ -254,8 +261,11 @@ impl AppState {
             local_owned_source_uuids: HashSet::new(),
             local_owned_source_config_ids: HashSet::new(),
             local_selected_factor_items: Vec::new(),
+            selected_factor_selection_observed: false,
             selected_factor_cache_dirty: false,
             local_factor_selector_zero_slots: Vec::new(),
+            suppressed_factor_item_ids: HashSet::new(),
+            suppressed_factor_selector_slot_keys: HashSet::new(),
             initial_scene_change_handled: false,
             event_update_rate_ms: 200,
             auto_clear_on_scene_change: true,
@@ -448,11 +458,11 @@ fn emit_buff_counter_update_if_needed(state: &mut AppState, payload: Vec<Counter
 }
 
 fn emit_season_cultivate_factor_counter_update(state: &mut AppState) {
+    let selected_item_ids = season_cultivate_factor_counter_item_ids(state);
     let selection = state
         .local_monitor
         .season_cultivate
-        .active_selection()
-        .clone();
+        .selected_factor_selection(&selected_item_ids, state.selected_factor_selection_observed);
     let snapshot = state
         .local_monitor
         .season_cultivate
@@ -557,16 +567,178 @@ where
 }
 
 fn refresh_season_cultivate_factor_rules(state: &mut AppState) {
+    let selected_item_ids = season_cultivate_factor_counter_item_ids(state);
     let rules = state
         .local_monitor
         .season_cultivate
-        .build_factor_counter_rules();
+        .build_factor_counter_rules_for_selected_items(
+            &selected_item_ids,
+            state.selected_factor_selection_observed,
+        );
+    log::debug!(
+        target: "app::live",
+        "season cultivate factor rules refreshed selected_observed={} selected_item_ids={:?} active_item_ids={:?} rule_count={}",
+        state.selected_factor_selection_observed,
+        selected_item_ids,
+        state
+            .local_monitor
+            .season_cultivate
+            .active_snapshot()
+            .active_item_ids,
+        rules.len()
+    );
     state.local_monitor.factor_counter_tracker.set_rules(rules);
 }
 
 fn reset_season_cultivate_factor_counters(state: &mut AppState) {
     state.local_monitor.factor_counter_tracker.reset_counts();
     emit_season_cultivate_factor_counter_update(state);
+}
+
+fn selected_factor_rule_item_ids(items: &[ObservedFactorItem]) -> Vec<i32> {
+    let mut ids: Vec<i32> = items
+        .iter()
+        .map(|item| item.item_config_id)
+        .filter(|item_id| *item_id > 0)
+        .collect();
+    ids.sort_unstable();
+    ids.dedup();
+    ids
+}
+
+fn selected_factor_rule_gate_signature(state: &AppState) -> (Vec<i32>, Vec<String>) {
+    let mut suppressed_item_ids: Vec<i32> =
+        state.suppressed_factor_item_ids.iter().copied().collect();
+    suppressed_item_ids.sort_unstable();
+
+    let mut suppressed_slot_keys: Vec<String> = state
+        .suppressed_factor_selector_slot_keys
+        .iter()
+        .cloned()
+        .collect();
+    suppressed_slot_keys.sort();
+
+    (suppressed_item_ids, suppressed_slot_keys)
+}
+
+fn selected_factor_item_is_suppressed(state: &AppState, item: &ObservedFactorItem) -> bool {
+    if state
+        .suppressed_factor_item_ids
+        .contains(&item.item_config_id)
+    {
+        return true;
+    }
+    let Some(slot_key) = selected_factor_item_slot_key(item) else {
+        return false;
+    };
+    state
+        .suppressed_factor_selector_slot_keys
+        .contains(&slot_key)
+}
+
+fn season_cultivate_factor_counter_item_ids(state: &AppState) -> Vec<i32> {
+    let mut ids: HashSet<i32> = state
+        .local_selected_factor_items
+        .iter()
+        .filter(|item| !selected_factor_item_is_suppressed(state, item))
+        .map(|item| item.item_config_id)
+        .filter(|item_id| *item_id > 0)
+        .collect();
+
+    let active_selection = state.local_monitor.season_cultivate.active_selection();
+    let can_use_active_source_fallback = !state.selected_factor_selection_observed
+        && state.local_selected_factor_items.is_empty()
+        && state.suppressed_factor_item_ids.is_empty()
+        && state.suppressed_factor_selector_slot_keys.is_empty();
+    if can_use_active_source_fallback {
+        for item_id in &active_selection.source_item_ids {
+            if *item_id > 0 && !state.suppressed_factor_item_ids.contains(item_id) {
+                ids.insert(*item_id);
+            }
+        }
+    }
+
+    for item_id in &active_selection.slot_item_ids {
+        if *item_id > 0 && !state.suppressed_factor_item_ids.contains(item_id) {
+            ids.insert(*item_id);
+        }
+    }
+
+    let mut ids: Vec<i32> = ids.into_iter().collect();
+    ids.sort_unstable();
+    ids
+}
+
+fn prune_selected_factor_items_to_active_snapshot(state: &mut AppState) -> bool {
+    let active_item_ids = &state
+        .local_monitor
+        .season_cultivate
+        .active_snapshot()
+        .active_item_ids;
+    if active_item_ids.is_empty() || state.local_selected_factor_items.is_empty() {
+        return false;
+    }
+
+    let before = state.local_selected_factor_items.len();
+    state
+        .local_selected_factor_items
+        .retain(|item| active_item_ids.binary_search(&item.item_config_id).is_ok());
+    let changed = state.local_selected_factor_items.len() != before;
+    if changed {
+        state.selected_factor_cache_dirty = true;
+        log::debug!(
+            target: "app::live",
+            "pruned stale selected factor item(s) against active season cultivate snapshot remaining_ids={:?}",
+            selected_factor_rule_item_ids(&state.local_selected_factor_items)
+        );
+    }
+    changed
+}
+
+fn replace_selected_factor_items_from_equipped_snapshot(state: &mut AppState) -> bool {
+    let Some(entity) = local_player_entity(&state.encounter) else {
+        return false;
+    };
+
+    let mut equipped_items: Vec<ObservedFactorItem> = entity
+        .active_factor_items
+        .iter()
+        .filter(|item| observed_factor_item_is_equipped_snapshot(item))
+        .cloned()
+        .collect();
+    equipped_items.sort_by_key(|item| {
+        (
+            item.factor_buff_id,
+            item.grade.unwrap_or(0),
+            item.item_config_id,
+            item.item_uuid.unwrap_or(0),
+        )
+    });
+    if equipped_items.is_empty() {
+        return false;
+    }
+
+    let before_ids = selected_factor_rule_item_ids(&state.local_selected_factor_items);
+    let after_ids = selected_factor_rule_item_ids(&equipped_items);
+    let observed_before = state.selected_factor_selection_observed;
+    let had_suppressed_items = !state.suppressed_factor_item_ids.is_empty()
+        || !state.suppressed_factor_selector_slot_keys.is_empty();
+    let changed = before_ids != after_ids || !observed_before || had_suppressed_items;
+    if !changed {
+        return false;
+    }
+
+    state.local_selected_factor_items = equipped_items;
+    state.selected_factor_selection_observed = true;
+    state.selected_factor_cache_dirty = true;
+    state.suppressed_factor_item_ids.clear();
+    state.suppressed_factor_selector_slot_keys.clear();
+    log::debug!(
+        target: "app::live",
+        "selected factor items replaced from equipped snapshot selected_item_ids={:?}",
+        selected_factor_rule_item_ids(&state.local_selected_factor_items)
+    );
+    true
 }
 
 fn hydrate_entities_from_attr_store(state: &mut AppState) {
@@ -1656,8 +1828,11 @@ fn combined_modifier_active_buffs(state: &AppState) -> HashMap<i32, ActiveBuff> 
 fn clear_modifier_capture_state(state: &mut AppState) {
     state.modifier_buff_monitor.active_buffs.clear();
     state.local_selected_factor_items.clear();
+    state.selected_factor_selection_observed = false;
     state.selected_factor_cache_dirty = false;
     state.local_factor_selector_zero_slots.clear();
+    state.suppressed_factor_item_ids.clear();
+    state.suppressed_factor_selector_slot_keys.clear();
     for entity in state.encounter.entities_mut() {
         entity.active_factor_buffs.clear();
         entity.active_effect_buffs.clear();
@@ -1711,9 +1886,27 @@ fn upsert_selected_factor_items(
     });
 }
 
+fn unsuppress_selected_factor_items(state: &mut AppState, selected: &[ObservedFactorItem]) {
+    for item in selected {
+        if item.item_config_id > 0 {
+            state
+                .suppressed_factor_item_ids
+                .remove(&item.item_config_id);
+        }
+        if let Some(slot_key) = selected_factor_item_slot_key(item) {
+            state.suppressed_factor_selector_slot_keys.remove(&slot_key);
+        }
+    }
+}
+
 fn observed_factor_item_is_packet_selected(item: &ObservedFactorItem) -> bool {
     item.runtime_source
         .starts_with(SELECTED_FACTOR_RUNTIME_PREFIX)
+}
+
+fn observed_factor_item_is_equipped_snapshot(item: &ObservedFactorItem) -> bool {
+    item.runtime_source
+        .starts_with(EQUIPPED_FACTOR_RUNTIME_PREFIX)
 }
 
 fn selector_offset_as_i32(offset: usize) -> Option<i32> {
@@ -1750,14 +1943,46 @@ fn factor_selector_node_slot_key(node: &FactorSelectorDirtyNode) -> String {
 fn remove_selected_factor_slot(
     target: &mut Vec<ObservedFactorItem>,
     node: &FactorSelectorDirtyNode,
-) -> bool {
+) -> Vec<i32> {
     let slot_key = factor_selector_node_slot_key(node);
-    let before = target.len();
+    let mut removed_factor_ids = HashSet::new();
+    let mut removed_family_ids = HashSet::new();
+    let mut removed_item_ids = HashSet::new();
+
     target.retain(|item| match selected_factor_item_slot_key(item) {
-        Some(existing_key) => existing_key != slot_key,
-        None => true,
+        Some(existing_key) if existing_key == slot_key => {
+            if item.factor_buff_id > 0 {
+                removed_factor_ids.insert(item.factor_buff_id);
+            }
+            if item.item_config_id > 0 {
+                removed_item_ids.insert(item.item_config_id);
+            }
+            if let Some(family_id) = item.family_id.filter(|family_id| *family_id > 0) {
+                removed_family_ids.insert(family_id);
+            }
+            false
+        }
+        _ => true,
     });
-    before != target.len()
+
+    if removed_factor_ids.is_empty() && removed_family_ids.is_empty() {
+        return Vec::new();
+    }
+
+    target.retain(|item| {
+        let same_factor = removed_factor_ids.contains(&item.factor_buff_id)
+            || item
+                .family_id
+                .map(|family_id| removed_family_ids.contains(&family_id))
+                .unwrap_or(false);
+        if same_factor && item.item_config_id > 0 {
+            removed_item_ids.insert(item.item_config_id);
+        }
+        !same_factor
+    });
+    let mut removed_item_ids: Vec<i32> = removed_item_ids.into_iter().collect();
+    removed_item_ids.sort_unstable();
+    removed_item_ids
 }
 
 fn prune_factor_selector_zero_slots(state: &mut AppState) {
@@ -1838,20 +2063,43 @@ fn selected_factor_item_from_transition_node(
 fn selected_factor_items_from_dirty_transitions(
     state: &mut AppState,
     sync_container_dirty_data: &blueprotobuf::SyncContainerDirtyData,
-) -> Vec<ObservedFactorItem> {
+) -> (Vec<ObservedFactorItem>, bool) {
     let nodes = crate::live::seasonal_factor_selector::factor_selector_dirty_nodes_from_dirty_data(
         sync_container_dirty_data,
     );
     if nodes.is_empty() {
-        return Vec::new();
+        return (Vec::new(), false);
     }
 
     let mut selected = Vec::new();
     let mut seen_item_config_ids = HashSet::new();
     for node in nodes {
         if node.value == 0 {
-            if remove_selected_factor_slot(&mut state.local_selected_factor_items, &node) {
+            let slot_key = factor_selector_node_slot_key(&node);
+            state
+                .suppressed_factor_selector_slot_keys
+                .insert(slot_key.clone());
+            let removed_item_ids =
+                remove_selected_factor_slot(&mut state.local_selected_factor_items, &node);
+            if !removed_item_ids.is_empty() {
+                for item_id in &removed_item_ids {
+                    state.suppressed_factor_item_ids.insert(*item_id);
+                }
                 state.selected_factor_cache_dirty = true;
+                log::debug!(
+                    target: "app::live",
+                    "suppressed removed factor item ids slot_key={} removed_item_ids={:?} suppressed_item_ids={:?}",
+                    slot_key,
+                    removed_item_ids,
+                    state.suppressed_factor_item_ids,
+                );
+            } else {
+                log::debug!(
+                    target: "app::live",
+                    "factor selector slot cleared without a known prior item id slot_key={} suppressed_slots={:?}",
+                    slot_key,
+                    state.suppressed_factor_selector_slot_keys,
+                );
             }
             remember_factor_selector_zero_slot(state, &node);
             continue;
@@ -1868,6 +2116,8 @@ fn selected_factor_items_from_dirty_transitions(
         selected.push(item);
     }
 
+    unsuppress_selected_factor_items(state, &selected);
+
     selected.sort_by_key(|item| {
         (
             item.factor_buff_id,
@@ -1875,7 +2125,7 @@ fn selected_factor_items_from_dirty_transitions(
             item.item_config_id,
         )
     });
-    selected
+    (selected, true)
 }
 
 fn sync_selected_factor_items_to_local_entity(state: &mut AppState) {
@@ -3854,12 +4104,18 @@ impl AppStateManager {
         } else {
             state.local_monitor.season_cultivate.clear_data()
         };
-        if season_cultivate_changed {
+        let selected_factor_items_replaced = result.active_factor_items_authoritative
+            && replace_selected_factor_items_from_equipped_snapshot(state);
+        let selected_factor_items_pruned = prune_selected_factor_items_to_active_snapshot(state);
+        if season_cultivate_changed
+            || selected_factor_items_replaced
+            || selected_factor_items_pruned
+        {
             refresh_season_cultivate_factor_rules(state);
         }
 
         sync_selected_factor_items_to_local_entity(state);
-        season_cultivate_changed
+        season_cultivate_changed || selected_factor_items_replaced || selected_factor_items_pruned
     }
 
     fn process_sync_container_dirty_data(
@@ -3869,26 +4125,38 @@ impl AppStateManager {
     ) -> bool {
         use crate::live::opcodes_process::process_sync_container_dirty_data;
         let loadout_updates_allowed = !encounter_has_stats(&state.encounter);
-        let mut selected_factor_items = if loadout_updates_allowed {
+        let selected_factor_selection_observed_before = state.selected_factor_selection_observed;
+        let selected_factor_gate_signature_before = selected_factor_rule_gate_signature(state);
+        let selected_factor_rule_item_ids_before =
+            selected_factor_rule_item_ids(&state.local_selected_factor_items);
+        let season_cultivate_dirty_bytes = sync_container_dirty_data
+            .v_data
+            .as_ref()
+            .and_then(|v_data| v_data.buffer.as_deref());
+        let mut selected_factor_items =
             crate::live::seasonal_factor_selector::selected_factor_items_from_dirty_data(
                 &sync_container_dirty_data,
-            )
-        } else {
-            Vec::new()
-        };
-        if loadout_updates_allowed {
-            selected_factor_items.extend(selected_factor_items_from_dirty_transitions(
-                state,
-                &sync_container_dirty_data,
-            ));
+            );
+        let selected_factor_values_seen = !selected_factor_items.is_empty();
+        let (transition_selected_factor_items, selector_nodes_seen) =
+            selected_factor_items_from_dirty_transitions(state, &sync_container_dirty_data);
+        selected_factor_items.extend(transition_selected_factor_items);
+        if selected_factor_values_seen || selector_nodes_seen || !selected_factor_items.is_empty() {
+            state.selected_factor_selection_observed = true;
         }
         if !selected_factor_items.is_empty() {
+            unsuppress_selected_factor_items(state, &selected_factor_items);
             upsert_selected_factor_items(
                 &mut state.local_selected_factor_items,
                 &selected_factor_items,
             );
             state.selected_factor_cache_dirty = true;
         }
+        let selected_factor_items_changed =
+            selected_factor_rule_item_ids(&state.local_selected_factor_items)
+                != selected_factor_rule_item_ids_before;
+        let selected_factor_selection_observed_changed =
+            state.selected_factor_selection_observed != selected_factor_selection_observed_before;
         let Some(result) = process_sync_container_dirty_data(
             &mut state.encounter,
             &sync_container_dirty_data,
@@ -3900,20 +4168,38 @@ impl AppStateManager {
         };
 
         let mut season_cultivate_changed = false;
-        if let Some(bytes) = result.season_cultivate_dirty_bytes {
+        let season_cultivate_dirty_bytes = result
+            .season_cultivate_dirty_bytes
+            .or(season_cultivate_dirty_bytes)
+            .filter(|bytes| {
+                crate::live::season_cultivate::dirty_bytes_may_touch_season_cultivate(bytes)
+            });
+        if let Some(bytes) = season_cultivate_dirty_bytes {
             season_cultivate_changed = state
                 .local_monitor
                 .season_cultivate
                 .apply_dirty_bytes(bytes);
-            if season_cultivate_changed {
-                refresh_season_cultivate_factor_rules(state);
-            }
+        }
+        let selected_factor_items_pruned = prune_selected_factor_items_to_active_snapshot(state);
+        let selected_factor_gate_changed =
+            selected_factor_rule_gate_signature(state) != selected_factor_gate_signature_before;
+        let should_refresh_factor_rules = season_cultivate_changed
+            || selected_factor_items_changed
+            || selected_factor_selection_observed_changed
+            || selected_factor_gate_changed
+            || selected_factor_items_pruned;
+        if should_refresh_factor_rules {
+            refresh_season_cultivate_factor_rules(state);
         }
 
-        if loadout_updates_allowed {
+        if should_refresh_factor_rules || !selected_factor_items.is_empty() {
             sync_selected_factor_items_to_local_entity(state);
         }
         season_cultivate_changed
+            || selected_factor_items_changed
+            || selected_factor_selection_observed_changed
+            || selected_factor_gate_changed
+            || selected_factor_items_pruned
     }
 
     fn process_sync_dungeon_data(
@@ -4899,7 +5185,300 @@ impl AppStateManager {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::live::counter_tracker::{CounterAction, CounterSource, EffectSlotConfig};
     use crate::live::entity_id::entity_id_to_uuid;
+
+    fn factor_item(item_config_id: i32) -> ObservedFactorItem {
+        ObservedFactorItem {
+            factor_buff_id: item_config_id + 10,
+            item_config_id,
+            item_uuid: None,
+            package_key: 0,
+            package_type: None,
+            grade: Some(1),
+            family_id: Some(item_config_id + 20),
+            runtime_source: SELECTED_FACTOR_TRANSITION_RUNTIME_SOURCE.to_string(),
+            selector_path: Some("slot.path".to_string()),
+            selector_signature: Some("tree".to_string()),
+            selector_offset: Some(8),
+        }
+    }
+
+    fn area_with_middle_items(item_ids: Vec<i32>) -> blueprotobuf::CultivateAreaData {
+        let mut area = blueprotobuf::CultivateAreaData {
+            is_active: Some(true),
+            ..Default::default()
+        };
+        for (idx, item_id) in item_ids.into_iter().enumerate() {
+            area.cultivate_middle_node_map.insert(
+                i32::try_from(idx + 1).unwrap(),
+                blueprotobuf::CultivateMiddleNodeData {
+                    item_id: Some(item_id),
+                },
+            );
+        }
+        area
+    }
+
+    fn season_cultivate_data_with_middle_items(
+        item_ids: Vec<i32>,
+    ) -> blueprotobuf::SeasonCultivateLineData {
+        let mut data = blueprotobuf::SeasonCultivateLineData::default();
+        let mut line = blueprotobuf::CultivateLineData::default();
+        let mut sub_type = blueprotobuf::CultivateLineSubTypeData::default();
+        sub_type
+            .cultivate_line_data_map
+            .insert(1, area_with_middle_items(item_ids));
+        line.cultivate_line_map.insert(10, sub_type);
+        data.season_cultivate_line_map.insert(20, line);
+        data
+    }
+
+    #[test]
+    fn selected_factor_slot_suppression_filters_cached_item() {
+        let mut state = AppState::new();
+        let item = factor_item(2001);
+        let slot_key = selected_factor_item_slot_key(&item).unwrap();
+        state.local_selected_factor_items.push(item);
+
+        assert_eq!(season_cultivate_factor_counter_item_ids(&state), vec![2001]);
+
+        state.suppressed_factor_selector_slot_keys.insert(slot_key);
+
+        assert!(season_cultivate_factor_counter_item_ids(&state).is_empty());
+    }
+
+    #[test]
+    fn factor_item_suppression_filters_active_fallback_item_ids() {
+        let mut state = AppState::new();
+        state.local_monitor.season_cultivate.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 1,
+                    hits_required: None,
+                    hit_filter: None,
+                    required_type_flags: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![EffectSlotConfig {
+                    slot_id: 1,
+                    threshold: Some(1),
+                    reset_buff_id: 7001,
+                    reset_source_config_id: None,
+                    on_buff_add: CounterAction::NoOp,
+                    on_buff_change: CounterAction::NoOp,
+                    on_buff_remove: CounterAction::NoOp,
+                    freeze_duration_ms: None,
+                    on_freeze_expire: CounterAction::NoOp,
+                    alt_freeze: None,
+                    threshold_modifier: None,
+                    freeze_duration_modifier: None,
+                    freeze_on_threshold: false,
+                    count_threshold_procs: true,
+                    count_reset_buff_procs: false,
+                    reset_skill_keys: None,
+                    on_reset_skill: CounterAction::NoOp,
+                }],
+            },
+        ]);
+        state
+            .local_monitor
+            .season_cultivate
+            .replace_data(season_cultivate_data_with_middle_items(vec![1001, 2001]));
+
+        assert_eq!(
+            season_cultivate_factor_counter_item_ids(&state),
+            vec![1001, 2001]
+        );
+
+        state.suppressed_factor_item_ids.insert(2001);
+
+        assert!(season_cultivate_factor_counter_item_ids(&state).is_empty());
+    }
+
+    #[test]
+    fn cleared_selector_slot_disables_active_source_fallback() {
+        let mut state = AppState::new();
+        state.local_monitor.season_cultivate.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 51,
+                    hits_required: None,
+                    hit_filter: None,
+                    required_type_flags: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: true,
+                sources: Vec::new(),
+                effect_slots: vec![EffectSlotConfig {
+                    slot_id: 1,
+                    threshold: Some(1),
+                    reset_buff_id: 7001,
+                    reset_source_config_id: None,
+                    on_buff_add: CounterAction::NoOp,
+                    on_buff_change: CounterAction::NoOp,
+                    on_buff_remove: CounterAction::NoOp,
+                    freeze_duration_ms: None,
+                    on_freeze_expire: CounterAction::NoOp,
+                    alt_freeze: None,
+                    threshold_modifier: None,
+                    freeze_duration_modifier: None,
+                    freeze_on_threshold: false,
+                    count_threshold_procs: true,
+                    count_reset_buff_procs: false,
+                    reset_skill_keys: None,
+                    on_reset_skill: CounterAction::NoOp,
+                }],
+            },
+        ]);
+        state
+            .local_monitor
+            .season_cultivate
+            .replace_data(season_cultivate_data_with_middle_items(vec![1001, 2001]));
+
+        assert_eq!(
+            season_cultivate_factor_counter_item_ids(&state),
+            vec![1001, 2001]
+        );
+
+        state
+            .suppressed_factor_selector_slot_keys
+            .insert("tree|path|4".to_string());
+
+        assert_eq!(season_cultivate_factor_counter_item_ids(&state), vec![2001]);
+    }
+
+    #[test]
+    fn selected_factor_mode_does_not_borrow_active_source_item_ids() {
+        let mut state = AppState::new();
+        state.local_monitor.season_cultivate.set_templates(vec![
+            FactorCounterTemplate {
+                item_ids: vec![1001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 51,
+                    hits_required: None,
+                    hit_filter: None,
+                    required_type_flags: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![3001],
+                uses_global_energy: false,
+                sources: vec![CounterSource::AnyDamage {
+                    increment: 99,
+                    hits_required: None,
+                    hit_filter: None,
+                    required_type_flags: None,
+                }],
+                effect_slots: Vec::new(),
+            },
+            FactorCounterTemplate {
+                item_ids: vec![3001],
+                uses_global_energy: false,
+                sources: Vec::new(),
+                effect_slots: vec![EffectSlotConfig {
+                    slot_id: 1,
+                    threshold: None,
+                    reset_buff_id: 8001,
+                    reset_source_config_id: None,
+                    on_buff_add: CounterAction::NoOp,
+                    on_buff_change: CounterAction::NoOp,
+                    on_buff_remove: CounterAction::NoOp,
+                    freeze_duration_ms: None,
+                    on_freeze_expire: CounterAction::NoOp,
+                    alt_freeze: None,
+                    threshold_modifier: None,
+                    freeze_duration_modifier: None,
+                    freeze_on_threshold: false,
+                    count_threshold_procs: true,
+                    count_reset_buff_procs: false,
+                    reset_skill_keys: None,
+                    on_reset_skill: CounterAction::NoOp,
+                }],
+            },
+            FactorCounterTemplate {
+                item_ids: vec![2001],
+                uses_global_energy: true,
+                sources: Vec::new(),
+                effect_slots: vec![EffectSlotConfig {
+                    slot_id: 1,
+                    threshold: Some(1),
+                    reset_buff_id: 7001,
+                    reset_source_config_id: None,
+                    on_buff_add: CounterAction::NoOp,
+                    on_buff_change: CounterAction::NoOp,
+                    on_buff_remove: CounterAction::NoOp,
+                    freeze_duration_ms: None,
+                    on_freeze_expire: CounterAction::NoOp,
+                    alt_freeze: None,
+                    threshold_modifier: None,
+                    freeze_duration_modifier: None,
+                    freeze_on_threshold: false,
+                    count_threshold_procs: true,
+                    count_reset_buff_procs: false,
+                    reset_skill_keys: None,
+                    on_reset_skill: CounterAction::NoOp,
+                }],
+            },
+        ]);
+        state
+            .local_monitor
+            .season_cultivate
+            .replace_data(season_cultivate_data_with_middle_items(vec![1001, 2001]));
+        state.local_selected_factor_items.push(factor_item(3001));
+        state.selected_factor_selection_observed = true;
+
+        let selected_item_ids = season_cultivate_factor_counter_item_ids(&state);
+        assert_eq!(selected_item_ids, vec![2001, 3001]);
+
+        let rules = state
+            .local_monitor
+            .season_cultivate
+            .build_factor_counter_rules_for_selected_items(&selected_item_ids, true);
+        let global_rule = rules
+            .iter()
+            .find(|rule| rule.rule_id == crate::live::season_cultivate::factor_rule_id(2001))
+            .expect("global energy rule exists");
+        assert_eq!(global_rule.sources.len(), 1);
+        assert!(matches!(
+            global_rule.sources[0],
+            CounterSource::AnyDamage { increment: 99, .. }
+        ));
+    }
+
+    #[test]
+    fn factor_gate_signature_tracks_suppressed_slots_and_items() {
+        let mut state = AppState::new();
+
+        assert_eq!(
+            selected_factor_rule_gate_signature(&state),
+            (Vec::<i32>::new(), Vec::<String>::new())
+        );
+
+        state.suppressed_factor_item_ids.insert(2001);
+        state
+            .suppressed_factor_selector_slot_keys
+            .insert("tree|path|4".to_string());
+
+        assert_eq!(
+            selected_factor_rule_gate_signature(&state),
+            (vec![2001], vec!["tree|path|4".to_string()])
+        );
+    }
 
     #[test]
     fn modifier_windows_match_target_uuid_before_uid_fallback() {

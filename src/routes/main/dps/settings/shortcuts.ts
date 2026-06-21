@@ -8,7 +8,7 @@ import {
   stopCustomTrigger,
 } from "$lib/custom-trigger-runtime.svelte";
 import { SETTINGS, type ShortcutCommandSettingId } from "$lib/settings-store";
-import { setClickthrough, toggleClickthrough } from "$lib/utils.svelte";
+import { setClickthroughPreference, toggleClickthroughPreference } from "$lib/utils.svelte";
 import { register, unregister, unregisterAll } from "@tauri-apps/plugin-global-shortcut";
 
 const SHORTCUT_MODIFIERS = new Set([
@@ -256,7 +256,11 @@ export async function registerShortcut(
       case "enableClickthrough":
         await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
-            setClickthrough(true);
+            try {
+              await setClickthroughPreference(true);
+            } catch (error) {
+              console.error("Failed to enable clickthrough hotkey", error);
+            }
           }
         });
         return;
@@ -264,7 +268,11 @@ export async function registerShortcut(
       case "disableClickthrough":
         await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
-            setClickthrough(false);
+            try {
+              await setClickthroughPreference(false);
+            } catch (error) {
+              console.error("Failed to disable clickthrough hotkey", error);
+            }
           }
         });
         return;
@@ -272,7 +280,11 @@ export async function registerShortcut(
       case "toggleClickthrough":
         await register(safeShortcutKey, async (event) => {
           if (event.state === "Pressed") {
-            toggleClickthrough();
+            try {
+              await toggleClickthroughPreference();
+            } catch (error) {
+              console.error("Failed to toggle clickthrough hotkey", error);
+            }
           }
         });
         return;

@@ -92,6 +92,8 @@
 - Fixed installed beta6 packet capture startup on systems whose Npcap/Wpcap DLL does not expose newer optional capture symbols, falling back to the older compatible startup path instead of restarting capture every second with `GetProcAddress` failures.
 - Restored self-only monster/on-hit monitoring for local-owned or unknown-source buff rows while still filtering known other-player sources, fixing Steel Beak and similar non-boss monster monitor rows.
 - Made the Clear Meter on Scene Change setting protect monster, teammate, modifier, and training-dummy runtime monitor state before any scene-change cleanup runs, so disabling it also prevents monitor overlays from being wiped.
+- Gated Phantom Factor Inspiration sources to visible/selected factor rows so unequipped or stale source-side factor IDs can no longer keep feeding Reality factor energy after the row disappears from the overlay.
+- Avoided recomputing the visible-factor source gate during every factor counter emit, preserving the stale-source fix without reintroducing combat-time CPU spikes.
 
 ## v1.1.0_beta4 - Global Beta
 

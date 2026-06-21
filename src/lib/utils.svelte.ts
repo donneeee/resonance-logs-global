@@ -334,10 +334,14 @@ export async function setClickthrough(bool: boolean) {
 }
 
 export async function toggleClickthrough() {
-  const liveWindow = await WebviewWindow.getByLabel("live");
-  await liveWindow?.setIgnoreCursorEvents(!isClickthrough);
-  if (isClickthrough) {
-    await liveWindow?.setFocusable(true);
-  }
-  isClickthrough = !isClickthrough;
+  await setClickthrough(!shouldIgnoreLiveWindowCursorEvents());
+}
+
+export async function setClickthroughPreference(enabled: boolean) {
+  SETTINGS.accessibility.state.clickthrough = enabled;
+  await setClickthrough(enabled);
+}
+
+export async function toggleClickthroughPreference() {
+  await setClickthroughPreference(!shouldIgnoreLiveWindowCursorEvents());
 }

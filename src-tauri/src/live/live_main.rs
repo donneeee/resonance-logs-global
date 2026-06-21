@@ -7233,8 +7233,10 @@ pub async fn start(
     // Get the state manager from app state
     let state_manager = app_handle.state::<AppStateManager>().inner().clone();
     let mut state = AppState::new();
-    state.local_selected_factor_items =
+    let selected_factor_items =
         crate::live::selected_factor_cache::load_selected_factor_items(&app_handle);
+    state.selected_factor_selection_observed = !selected_factor_items.is_empty();
+    state.local_selected_factor_items = selected_factor_items;
     if let Some(snapshot) =
         crate::live::bootstrap_snapshot::load_monitor_runtime_snapshot(&app_handle)
     {

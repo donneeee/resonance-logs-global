@@ -152,6 +152,14 @@ fn selected_factor_items_from_dirty_buffer(buffer: &[u8]) -> Vec<ObservedFactorI
 }
 
 fn factor_selector_dirty_nodes_from_dirty_buffer(buffer: &[u8]) -> Vec<FactorSelectorDirtyNode> {
+    let matching_layouts: Vec<_> = SELECTED_FACTOR_TREE_LAYOUTS
+        .iter()
+        .filter(|layout| layout.buffer_len == buffer.len())
+        .collect();
+    if matching_layouts.is_empty() {
+        return Vec::new();
+    }
+
     let tokens = dirty_tree_tokens(buffer);
     if tokens.is_empty() {
         return Vec::new();
@@ -159,6 +167,13 @@ fn factor_selector_dirty_nodes_from_dirty_buffer(buffer: &[u8]) -> Vec<FactorSel
 
     dirty_tree_value_nodes(&tokens)
         .into_iter()
+        .filter(|node| {
+            matching_layouts.iter().any(|layout| {
+                node.path == layout.tree_path
+                    && node.tree_signature == layout.tree_signature
+                    && node.offset == layout.value_offset
+            })
+        })
         .filter_map(factor_selector_dirty_node_from_value_node)
         .collect()
 }

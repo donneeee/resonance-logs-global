@@ -862,7 +862,15 @@ pub fn process_sync_container_data(
     if let Some(active_profession_talents) = selected_profession_talents(&v_data) {
         target_entity.active_profession_talents = active_profession_talents;
     }
-    target_entity.active_factor_items = observed_season_phantom_factor_items(&v_data);
+    let active_factor_items = if v_data.equip.is_some() && v_data.item_package.is_some() {
+        observed_season_phantom_factor_items(&v_data)
+    } else {
+        Vec::new()
+    };
+    let active_factor_items_authoritative = !active_factor_items.is_empty();
+    if active_factor_items_authoritative {
+        target_entity.active_factor_items = active_factor_items;
+    }
     target_entity.active_effect_sources = selected_season_medal_effect_sources(&v_data);
 
     // Note: HP data comes from attribute packets (ATTR_CURRENT_HP, ATTR_MAX_HP)
@@ -881,12 +889,14 @@ pub fn process_sync_container_data(
 
     Some(SyncContainerProcessResult {
         season_cultivate_line_data,
+        active_factor_items_authoritative,
     })
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct SyncContainerProcessResult {
     pub season_cultivate_line_data: Option<blueprotobuf::SeasonCultivateLineData>,
+    pub active_factor_items_authoritative: bool,
 }
 
 fn push_profession_skill_spec(specs: &mut Vec<ClassSpec>, class_id: i32, skill_id: i32) {

@@ -23,10 +23,24 @@ use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::RwLock;
 
 const WEBVIEW_EMIT_BACKOFF: Duration = Duration::from_secs(5);
+const WEBVIEW_EMIT_BUDGET_WINDOW: Duration = Duration::from_secs(1);
+const WEBVIEW_EMIT_MAX_PER_WINDOW: usize = 40;
+
+#[derive(Debug, Clone, Copy)]
+struct WebviewEmitBudget {
+    window_start: Instant,
+    count: usize,
+}
 
 fn webview_emit_backoff_until() -> &'static Mutex<HashMap<String, Instant>> {
     static WEBVIEW_EMIT_BACKOFF_UNTIL: OnceLock<Mutex<HashMap<String, Instant>>> = OnceLock::new();
     WEBVIEW_EMIT_BACKOFF_UNTIL.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn webview_emit_budget() -> &'static Mutex<HashMap<String, WebviewEmitBudget>> {
+    static WEBVIEW_EMIT_BUDGET: OnceLock<Mutex<HashMap<String, WebviewEmitBudget>>> =
+        OnceLock::new();
+    WEBVIEW_EMIT_BUDGET.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
 fn is_webview_state_error(error_msg: &str) -> bool {
@@ -52,6 +66,29 @@ fn should_skip_webview_emit(target_label: &str) -> bool {
     }
     backoff.remove(target_label);
     false
+}
+
+fn reserve_webview_emit_budget(target_label: &str) -> bool {
+    let now = Instant::now();
+    let mut budgets = webview_emit_budget().lock().unwrap();
+    let budget = budgets
+        .entry(target_label.to_string())
+        .or_insert(WebviewEmitBudget {
+            window_start: now,
+            count: 0,
+        });
+
+    if now.duration_since(budget.window_start) >= WEBVIEW_EMIT_BUDGET_WINDOW {
+        budget.window_start = now;
+        budget.count = 0;
+    }
+
+    if budget.count >= WEBVIEW_EMIT_MAX_PER_WINDOW {
+        return false;
+    }
+
+    budget.count += 1;
+    true
 }
 
 fn mark_webview_emit_backoff(target_label: &str) {
@@ -112,6 +149,13 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
     if should_skip_webview_emit(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' is in WebView backoff",
+            event, target_label
+        );
+        return false;
+    }
+    if !reserve_webview_emit_budget(target_label) {
+        trace!(
+            "Skipping emit for '{}': target window '{}' exceeded WebView emit budget",
             event, target_label
         );
         return false;
@@ -179,6 +223,13 @@ pub(crate) fn safe_emit_json_to(
     if should_skip_webview_emit(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' is in WebView backoff",
+            event, target_label
+        );
+        return false;
+    }
+    if !reserve_webview_emit_budget(target_label) {
+        trace!(
+            "Skipping emit for '{}': target window '{}' exceeded WebView emit budget",
             event, target_label
         );
         return false;
