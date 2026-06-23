@@ -496,6 +496,59 @@ fn apply_skill_lifecycle_outputs(
     (counter_dirty, factor_counter_dirty)
 }
 
+fn should_drop_event_while_paused(state: &AppState, event: &StateEvent) -> bool {
+    state.is_encounter_paused()
+        && matches!(
+            event,
+            StateEvent::SyncNearEntities(_)
+                | StateEvent::SyncContainerData(_)
+                | StateEvent::SyncContainerDirtyData(_)
+                | StateEvent::SyncToMeDeltaInfo(_)
+                | StateEvent::SyncNearDeltaInfo(_)
+        )
+}
+
+fn tick_counter_trackers(state: &mut AppState) -> (bool, bool) {
+    let tick_now_ms = now_ms();
+    let local_player_uuid = current_local_player_uuid(&state.encounter);
+    let counter_dirty = state.local_monitor.counter_tracker.tick_counters(
+        tick_now_ms,
+        &state.attr_store,
+        local_player_uuid,
+    );
+    let factor_counter_dirty = state.local_monitor.factor_counter_tracker.tick_counters(
+        tick_now_ms,
+        &state.attr_store,
+        local_player_uuid,
+    );
+    (counter_dirty, factor_counter_dirty)
+}
+
+fn sample_actor_state_for_lifecycle(state: &mut AppState) -> (bool, bool) {
+    let outputs = state.local_monitor.skill_lifecycle.on_actor_state_sample(
+        &state.attr_store,
+        current_local_player_uuid(&state.encounter),
+    );
+    apply_skill_lifecycle_outputs(state, outputs)
+}
+
+fn emit_counter_updates_if_dirty(
+    state: &mut AppState,
+    counter_dirty: bool,
+    factor_counter_dirty: bool,
+) {
+    if counter_dirty {
+        let payload = state.local_monitor.counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        emit_buff_counter_update_if_needed(state, payload);
+    }
+    if factor_counter_dirty {
+        emit_season_cultivate_factor_counter_update(state);
+    }
+}
+
 fn collect_dungeon_player_equipment(
     v_data: &blueprotobuf::DungeonSyncData,
 ) -> Vec<TeamMemberEquipment> {
@@ -3417,9 +3470,28 @@ impl AppStateManager {
         if events.is_empty() {
             return;
         }
+        let should_tick_runtime = events
+            .iter()
+            .any(|event| !should_drop_event_while_paused(state, event));
+        let (mut counter_dirty, mut factor_counter_dirty) = if should_tick_runtime {
+            tick_counter_trackers(state)
+        } else {
+            (false, false)
+        };
         for event in events {
-            self.apply_event(state, event);
+            let (next_counter_dirty, next_factor_counter_dirty) =
+                self.apply_event_without_periodic_runtime(state, event);
+            counter_dirty |= next_counter_dirty;
+            factor_counter_dirty |= next_factor_counter_dirty;
         }
+        if should_tick_runtime {
+            let (next_counter_dirty, next_factor_counter_dirty) =
+                sample_actor_state_for_lifecycle(state);
+            counter_dirty |= next_counter_dirty;
+            factor_counter_dirty |= next_factor_counter_dirty;
+        }
+        emit_counter_updates_if_dirty(state, counter_dirty, factor_counter_dirty);
+        self.apply_attr_store_changes(state);
     }
 
     pub fn drain_control_commands(
@@ -3444,33 +3516,38 @@ impl AppStateManager {
     }
 
     fn apply_event(&self, state: &mut AppState, event: StateEvent) {
+        let (mut counter_dirty, mut factor_counter_dirty) =
+            if should_drop_event_while_paused(state, &event) {
+                debug!("packet dropped due to encounter paused");
+                return;
+            } else {
+                tick_counter_trackers(state)
+            };
+        let (next_counter_dirty, next_factor_counter_dirty) =
+            self.apply_event_without_periodic_runtime(state, event);
+        counter_dirty |= next_counter_dirty;
+        factor_counter_dirty |= next_factor_counter_dirty;
+        let (next_counter_dirty, next_factor_counter_dirty) =
+            sample_actor_state_for_lifecycle(state);
+        counter_dirty |= next_counter_dirty;
+        factor_counter_dirty |= next_factor_counter_dirty;
+        emit_counter_updates_if_dirty(state, counter_dirty, factor_counter_dirty);
+        self.apply_attr_store_changes(state);
+    }
+
+    fn apply_event_without_periodic_runtime(
+        &self,
+        state: &mut AppState,
+        event: StateEvent,
+    ) -> (bool, bool) {
         // Check if encounter is paused for events that should be dropped
-        if state.is_encounter_paused()
-            && matches!(
-                event,
-                StateEvent::SyncNearEntities(_)
-                    | StateEvent::SyncContainerData(_)
-                    | StateEvent::SyncContainerDirtyData(_)
-                    | StateEvent::SyncToMeDeltaInfo(_)
-                    | StateEvent::SyncNearDeltaInfo(_)
-            )
-        {
-            info!("packet dropped due to encounter paused");
-            return;
+        if should_drop_event_while_paused(state, &event) {
+            debug!("packet dropped due to encounter paused");
+            return (false, false);
         }
 
-        let tick_now_ms = now_ms();
-        let local_player_uuid = current_local_player_uuid(&state.encounter);
-        let mut counter_dirty = state.local_monitor.counter_tracker.tick_counters(
-            tick_now_ms,
-            &state.attr_store,
-            local_player_uuid,
-        );
-        let mut factor_counter_dirty = state.local_monitor.factor_counter_tracker.tick_counters(
-            tick_now_ms,
-            &state.attr_store,
-            local_player_uuid,
-        );
+        let mut counter_dirty = false;
+        let mut factor_counter_dirty = false;
         match event {
             StateEvent::ServerChange => {
                 self.on_server_change(state);
@@ -3562,25 +3639,7 @@ impl AppStateManager {
                 factor_counter_dirty |= next_factor_counter_dirty;
             }
         }
-        let outputs = state.local_monitor.skill_lifecycle.on_actor_state_sample(
-            &state.attr_store,
-            current_local_player_uuid(&state.encounter),
-        );
-        let (next_counter_dirty, next_factor_counter_dirty) =
-            apply_skill_lifecycle_outputs(state, outputs);
-        counter_dirty |= next_counter_dirty;
-        factor_counter_dirty |= next_factor_counter_dirty;
-        if counter_dirty {
-            let payload = state.local_monitor.counter_tracker.build_payload(
-                &state.attr_store,
-                current_local_player_uuid(&state.encounter),
-            );
-            emit_buff_counter_update_if_needed(state, payload);
-        }
-        if factor_counter_dirty {
-            emit_season_cultivate_factor_counter_update(state);
-        }
-        self.apply_attr_store_changes(state);
+        (counter_dirty, factor_counter_dirty)
     }
 
     fn process_team_event(&self, state: &mut AppState, event: TeamEvent) {

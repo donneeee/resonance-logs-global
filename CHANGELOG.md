@@ -12,6 +12,24 @@
 - Reduced WebView2 `PostMessage failed` pressure by flushing only immediate lifecycle events between normal live snapshot ticks while preserving coalesced monitor, buff, and overlay updates.
 - Fixed the final live DPS/timer snapshot after changing scenes with Clear Meter on Scene Change disabled, so the held parse no longer gets overwritten or delayed by the optimized snapshot cadence.
 - Changed the uninstaller AppData cleanup to honor the Delete application data checkbox directly and removed the second confirmation pop-up, with the destructive warning shown in the checkbox text instead.
+- Added a dirty-container precheck for Season Cultivate / Phantom Factor data so factor rules are refreshed only when the dirty packet can actually touch the season-cultivate tree, reducing unnecessary rule rebuilds during normal packet flow.
+- Reworked selected Phantom Factor tracking around the equipped factor snapshot, selector dirty packets, removed item IDs, and cleared selector slots so stale factors are pruned from the backend counter rules instead of only being hidden in the overlay.
+- Kept the explicit refresh behavior when the Season Cultivate tree itself changes, so factor rules still rebuild when the underlying Deep-Slumber / psychoscope state changes rather than relying on manual overlay refreshes.
+- Gated Phantom Factor Inspiration energy sources to visible/selected factor rows so unequipped or stale source-side factor IDs can no longer keep feeding Reality factor energy after their row disappears from the overlay.
+- Avoided recomputing the visible-factor source gate during every factor counter emit, preserving the stale-source fix without reintroducing combat-time CPU spikes.
+- Reduced live runtime lag during packet bursts by ticking counter timers and actor-state lifecycle sampling once per packet batch instead of repeating that periodic work for every packet, while still processing each packet's damage/buff/factor changes individually.
+- Reduced combat-time FPS and UI hitching by shrinking packet backlog catch-up slices, letting pending control commands interrupt packet drains, and allowing reset/pause/scene/training lifecycle events to bypass the normal noisy WebView snapshot budget.
+- Added focused backend tests for the stale-factor gate: hidden source rows are ignored, visible matching rows still feed energy, cleared selector slots suppress active-source fallback, and selected-factor mode does not borrow unrelated active-source IDs.
+- Promoted local active effect/factor buff rows into buff-monitor display candidates when explicitly selected, restoring Photon Energy Enhancement and similar threshold/effect buffs without exposing those internal aliases in generic monitor-all views.
+
+### RC2 restart handoff
+
+- Latest pushed commit before restart: `05e7943 Fix factor gating and live event pressure` on branch `beta`.
+- Last built installer: `src-tauri/target/release/bundle/nsis/Resonance Logs - Global_1.1.0-rc.2_x64-setup.exe`.
+- Last verification run: `npm.cmd run check` passed with 0 errors / 0 warnings; `cargo check --no-default-features` passed; focused factor-gating tests passed.
+- Build note: `npm.cmd run tauri -- build` produced the NSIS installer, then exited nonzero only because updater signing has a public key configured but no `TAURI_SIGNING_PRIVATE_KEY` in the environment.
+- Open retest target after restart: unequip an Inspiration factor such as Marksman X7, confirm it disappears from the factor overlay, and confirm Reality rows no longer gain that stale `51` energy from the removed source.
+- Local untracked items intentionally left out of the commit before restart: `--help` and `.debug/`.
 
 ## v1.1.0_RC1 - Global Release Candidate
 
@@ -92,8 +110,6 @@
 - Fixed installed beta6 packet capture startup on systems whose Npcap/Wpcap DLL does not expose newer optional capture symbols, falling back to the older compatible startup path instead of restarting capture every second with `GetProcAddress` failures.
 - Restored self-only monster/on-hit monitoring for local-owned or unknown-source buff rows while still filtering known other-player sources, fixing Steel Beak and similar non-boss monster monitor rows.
 - Made the Clear Meter on Scene Change setting protect monster, teammate, modifier, and training-dummy runtime monitor state before any scene-change cleanup runs, so disabling it also prevents monitor overlays from being wiped.
-- Gated Phantom Factor Inspiration sources to visible/selected factor rows so unequipped or stale source-side factor IDs can no longer keep feeding Reality factor energy after the row disappears from the overlay.
-- Avoided recomputing the visible-factor source gate during every factor counter emit, preserving the stale-source fix without reintroducing combat-time CPU spikes.
 
 ## v1.1.0_beta4 - Global Beta
 

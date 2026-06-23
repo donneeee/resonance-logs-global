@@ -17,7 +17,10 @@ use crate::live::{
         emit_logger_entries, flush_current_session_to_file, is_event_logger_enabled, now_ms,
     },
     event_manager::{EncounterUpdatePayload, SceneChangePayload},
-    event_manager::{OutboundEvent, safe_emit_json_to, safe_emit_to},
+    event_manager::{
+        OutboundEvent, safe_emit_json_to, safe_emit_json_to_priority, safe_emit_to,
+        safe_emit_to_priority,
+    },
     opcodes_models::{AttrType, attr_type},
     opcodes_process::parse_fight_resources,
 };
@@ -6977,6 +6980,14 @@ const QUEUE_DEPTH_WARN_THRESHOLD: usize = 100;
 const QUEUE_DEPTH_ERROR_THRESHOLD: usize = 500;
 const QUEUE_DEPTH_CRITICAL_THRESHOLD: usize = 2000;
 const QUEUE_DEPTH_LOG_INTERVAL: Duration = Duration::from_secs(5);
+const PACKET_DRAIN_NORMAL_BUDGET: Duration = Duration::from_millis(8);
+const PACKET_DRAIN_WARN_BUDGET: Duration = Duration::from_millis(16);
+const PACKET_DRAIN_ERROR_BUDGET: Duration = Duration::from_millis(24);
+const PACKET_DRAIN_CRITICAL_BUDGET: Duration = Duration::from_millis(32);
+const PACKET_DRAIN_NORMAL_MAX: usize = 24;
+const PACKET_DRAIN_WARN_MAX: usize = 80;
+const PACKET_DRAIN_ERROR_MAX: usize = 160;
+const PACKET_DRAIN_CRITICAL_MAX: usize = 260;
 
 #[derive(Clone, Copy)]
 enum OutboundFlushMode {
@@ -7297,15 +7308,16 @@ pub async fn start(
                 let queued_at_batch_start = queue_depth.load(Ordering::Relaxed);
                 let (drain_time_budget, max_drain) =
                     if queued_at_batch_start >= QUEUE_DEPTH_CRITICAL_THRESHOLD {
-                        (Duration::from_millis(120), 1_000usize)
+                        (PACKET_DRAIN_CRITICAL_BUDGET, PACKET_DRAIN_CRITICAL_MAX)
                     } else if queued_at_batch_start >= QUEUE_DEPTH_ERROR_THRESHOLD {
-                        (Duration::from_millis(90), 600usize)
+                        (PACKET_DRAIN_ERROR_BUDGET, PACKET_DRAIN_ERROR_MAX)
                     } else if queued_at_batch_start >= QUEUE_DEPTH_WARN_THRESHOLD {
-                        (Duration::from_millis(60), 240usize)
+                        (PACKET_DRAIN_WARN_BUDGET, PACKET_DRAIN_WARN_MAX)
                     } else {
-                        (Duration::from_millis(20), 40usize)
+                        (PACKET_DRAIN_NORMAL_BUDGET, PACKET_DRAIN_NORMAL_MAX)
                     };
                 let mut drained = 0usize;
+                let mut pending_control_command = None;
 
                 loop {
                     if drained >= max_drain {
@@ -7313,6 +7325,21 @@ pub async fn start(
                     }
                     if Instant::now().duration_since(drain_start) >= drain_time_budget {
                         break;
+                    }
+
+                    match control_rx.try_recv() {
+                        Ok(command) => {
+                            pending_control_command = Some(command);
+                            break;
+                        }
+                        Err(tokio::sync::mpsc::error::TryRecvError::Empty) => {}
+                        Err(tokio::sync::mpsc::error::TryRecvError::Disconnected) => {
+                            warn!(
+                                target: "app::live",
+                                "Live control channel closed while draining packets"
+                            );
+                            break;
+                        }
                     }
 
                     let Some(rx) = rx.as_mut() else {
@@ -7344,6 +7371,9 @@ pub async fn start(
                 }
 
                 state_manager.handle_events_batch_with_state(&mut state, batch_events);
+                if let Some(command) = pending_control_command {
+                    state_manager.apply_control_command(&mut state, command);
+                }
                 state_manager.drain_control_commands(&mut state, &mut control_rx);
                 flush_outbound_events(
                     &app_handle,
@@ -7354,11 +7384,20 @@ pub async fn start(
                 // Check if we should emit events (throttling)
                 // Read current event update rate from state dynamically
                 let emit_rate_ms = state.event_update_rate_ms;
-                let emit_throttle_duration = Duration::from_millis(emit_rate_ms);
+                let backlog_depth = queue_depth.load(Ordering::Relaxed);
+                let effective_emit_rate_ms = if backlog_depth >= QUEUE_DEPTH_CRITICAL_THRESHOLD {
+                    emit_rate_ms.saturating_mul(4).max(500)
+                } else if backlog_depth >= QUEUE_DEPTH_ERROR_THRESHOLD {
+                    emit_rate_ms.saturating_mul(3).max(350)
+                } else if backlog_depth >= QUEUE_DEPTH_WARN_THRESHOLD {
+                    emit_rate_ms.saturating_mul(2).max(250)
+                } else {
+                    emit_rate_ms
+                };
+                let emit_throttle_duration = Duration::from_millis(effective_emit_rate_ms);
                 let now = Instant::now();
                 let time_since_last_emit = now.duration_since(last_emit_time);
-                let backlog_elevated =
-                    queue_depth.load(Ordering::Relaxed) >= QUEUE_DEPTH_WARN_THRESHOLD;
+                let backlog_elevated = backlog_depth >= QUEUE_DEPTH_WARN_THRESHOLD;
                 let should_emit = (!backlog_elevated
                     && time_since_last_emit >= emit_throttle_duration)
                     || time_since_last_emit >= heartbeat_duration;
@@ -7423,6 +7462,7 @@ pub async fn start(
 fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: OutboundFlushMode) {
     flush_selected_factor_cache_if_needed(app_handle, state);
 
+    let priority_live_data = matches!(mode, OutboundFlushMode::ImmediateOnly);
     let events = match mode {
         OutboundFlushMode::All => state.event_manager.drain_outbound_events(),
         OutboundFlushMode::ImmediateOnly => state
@@ -7438,7 +7478,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 header_info,
                 is_paused,
             } => {
-                safe_emit_to(
+                safe_emit_to_priority(
                     app_handle,
                     crate::WINDOW_LIVE_LABEL,
                     "encounter-update",
@@ -7476,7 +7516,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 });
             }
             OutboundEvent::EncounterReset => {
-                safe_emit_to(app_handle, crate::WINDOW_LIVE_LABEL, "reset-encounter", "");
+                safe_emit_to_priority(app_handle, crate::WINDOW_LIVE_LABEL, "reset-encounter", "");
                 emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
                         ts_ms,
@@ -7509,7 +7549,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 flush_attribution_census(app_handle, "encounter_reset", state);
             }
             OutboundEvent::EncounterPause(is_paused) => {
-                safe_emit_to(
+                safe_emit_to_priority(
                     app_handle,
                     crate::WINDOW_LIVE_LABEL,
                     "pause-encounter",
@@ -7548,7 +7588,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 }
                 flush_attribution_census(app_handle, "scene_change", state);
 
-                safe_emit_to(
+                safe_emit_to_priority(
                     app_handle,
                     crate::WINDOW_LIVE_LABEL,
                     "scene-change",
@@ -7578,7 +7618,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 });
             }
             OutboundEvent::TrainingDummyUpdate(training_dummy) => {
-                safe_emit_to(
+                safe_emit_to_priority(
                     app_handle,
                     crate::WINDOW_LIVE_LABEL,
                     "training-dummy-update",
@@ -7611,12 +7651,21 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 });
                 match serde_json::to_string(&payload) {
                     Ok(payload_json) => {
-                        safe_emit_json_to(
-                            app_handle,
-                            crate::WINDOW_LIVE_LABEL,
-                            "live-data",
-                            payload_json,
-                        );
+                        if priority_live_data {
+                            safe_emit_json_to_priority(
+                                app_handle,
+                                crate::WINDOW_LIVE_LABEL,
+                                "live-data",
+                                payload_json,
+                            );
+                        } else {
+                            safe_emit_json_to(
+                                app_handle,
+                                crate::WINDOW_LIVE_LABEL,
+                                "live-data",
+                                payload_json,
+                            );
+                        }
                     }
                     Err(error) => {
                         warn!(target: "app::live", "live_data_payload_serialize_failed error={}", error);

@@ -140,20 +140,21 @@ pub(crate) fn safe_emit<S: Serialize + Clone>(
     }
 }
 
-pub(crate) fn safe_emit_to<S: Serialize + Clone>(
+fn safe_emit_to_internal<S: Serialize + Clone>(
     app_handle: &AppHandle,
     target_label: &str,
     event: &str,
     payload: S,
+    priority: bool,
 ) -> bool {
-    if should_skip_webview_emit(target_label) {
+    if !priority && should_skip_webview_emit(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' is in WebView backoff",
             event, target_label
         );
         return false;
     }
-    if !reserve_webview_emit_budget(target_label) {
+    if !priority && !reserve_webview_emit_budget(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' exceeded WebView emit budget",
             event, target_label
@@ -214,20 +215,39 @@ pub(crate) fn safe_emit_to<S: Serialize + Clone>(
     }
 }
 
-pub(crate) fn safe_emit_json_to(
+pub(crate) fn safe_emit_to<S: Serialize + Clone>(
+    app_handle: &AppHandle,
+    target_label: &str,
+    event: &str,
+    payload: S,
+) -> bool {
+    safe_emit_to_internal(app_handle, target_label, event, payload, false)
+}
+
+pub(crate) fn safe_emit_to_priority<S: Serialize + Clone>(
+    app_handle: &AppHandle,
+    target_label: &str,
+    event: &str,
+    payload: S,
+) -> bool {
+    safe_emit_to_internal(app_handle, target_label, event, payload, true)
+}
+
+fn safe_emit_json_to_internal(
     app_handle: &AppHandle,
     target_label: &str,
     event: &str,
     payload_json: String,
+    priority: bool,
 ) -> bool {
-    if should_skip_webview_emit(target_label) {
+    if !priority && should_skip_webview_emit(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' is in WebView backoff",
             event, target_label
         );
         return false;
     }
-    if !reserve_webview_emit_budget(target_label) {
+    if !priority && !reserve_webview_emit_budget(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' exceeded WebView emit budget",
             event, target_label
@@ -286,6 +306,24 @@ pub(crate) fn safe_emit_json_to(
             false
         }
     }
+}
+
+pub(crate) fn safe_emit_json_to(
+    app_handle: &AppHandle,
+    target_label: &str,
+    event: &str,
+    payload_json: String,
+) -> bool {
+    safe_emit_json_to_internal(app_handle, target_label, event, payload_json, false)
+}
+
+pub(crate) fn safe_emit_json_to_priority(
+    app_handle: &AppHandle,
+    target_label: &str,
+    event: &str,
+    payload_json: String,
+) -> bool {
+    safe_emit_json_to_internal(app_handle, target_label, event, payload_json, true)
 }
 
 /// Manages events and emits them to the frontend.

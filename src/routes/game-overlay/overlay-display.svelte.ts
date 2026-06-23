@@ -226,21 +226,33 @@ function resolveFactorBuffName(
   );
 }
 
-function getLocalPlayerFactorBuffMap(): Map<number, BuffUpdateState> {
-  const result = new Map<number, BuffUpdateState>();
+function getLocalPlayerEntity() {
   const data = liveData();
-  const localEntity = data?.entities.find((entity) =>
+  return data?.entities.find((entity) =>
     (data.localPlayerUuid ?? data.localPlayerKey)
       ? (entity.entityUuid ?? entity.entityKey) ===
         (data.localPlayerUuid ?? data.localPlayerKey)
       : !legacyEntityFallbacksDisabled() && entity.uid === data.localPlayerUid,
   );
+}
+
+function setNewestBuffCandidate(
+  result: Map<number, BuffUpdateState>,
+  baseId: number | null | undefined,
+  buff: BuffUpdateState,
+): void {
+  if (!baseId || baseId <= 0) return;
+  const existing = result.get(baseId);
+  if (!existing || buff.createTimeMs >= existing.createTimeMs) {
+    result.set(baseId, buff);
+  }
+}
+
+function getLocalPlayerMonitorableBuffMap(): Map<number, BuffUpdateState> {
+  const result = new Map<number, BuffUpdateState>();
+  const localEntity = getLocalPlayerEntity();
   const maybeSet = (baseId: number | null | undefined, buff: BuffUpdateState) => {
-    if (!baseId || baseId <= 0) return;
-    const existing = result.get(baseId);
-    if (!existing || buff.createTimeMs >= existing.createTimeMs) {
-      result.set(baseId, buff);
-    }
+    setNewestBuffCandidate(result, baseId, buff);
   };
   for (const [baseId, buff] of buffMap()) {
     maybeSet(baseId, buff);
@@ -276,6 +288,28 @@ function getLocalPlayerFactorBuffMap(): Map<number, BuffUpdateState> {
       ...converted,
       baseId: buff.factorBuffId,
     });
+  }
+  return result;
+}
+
+function getPromotedBuffCandidateIds(): Set<number> {
+  const result = new Set(expandedMonitoredBuffIds());
+  for (const group of _normalizedBuffGroups) {
+    if (group.monitorAll) continue;
+    for (const buffId of getGroupSelectedBuffIdSet(group)) {
+      result.add(buffId);
+    }
+  }
+  return result;
+}
+
+function getDisplayBuffMap(
+  localRuntimeBuffMap: Map<number, BuffUpdateState>,
+): Map<number, BuffUpdateState> {
+  const result = new Map(buffMap());
+  for (const baseId of getPromotedBuffCandidateIds()) {
+    const buff = localRuntimeBuffMap.get(baseId);
+    if (buff) setNewestBuffCandidate(result, baseId, buff);
   }
   return result;
 }
@@ -661,13 +695,15 @@ const _buffSnapshot = $derived.by(() => {
   );
   const currentBuffAliases = buffAliases();
   const factorOwnedEffectBuffIds = _seasonCultivateFactorOwnedEffectBuffIds;
+  const localRuntimeBuffMap = getLocalPlayerMonitorableBuffMap();
+  const displayBuffMap = getDisplayBuffMap(localRuntimeBuffMap);
   const nextActiveBuffIds = new Set<number>();
   const nextBuffDurationPercents = new Map<number, number>();
   const nextIconBuffs: IconBuffDisplay[] = [];
   const nextTextBuffs: TextBuffDisplay[] = [];
   const nextCustomPanelRowsByGroup = new Map<string, CustomPanelDisplayRow[]>();
 
-  for (const [baseId, buff] of buffMap()) {
+  for (const [baseId, buff] of displayBuffMap) {
     if (skippedInlineBuffIds.has(baseId)) continue;
 
     const end = buff.createTimeMs + buff.durationMs;
@@ -689,7 +725,9 @@ const _buffSnapshot = $derived.by(() => {
     // Keep monitor-all quiet, but allow explicitly selected state buffs with no timer.
     const allowPassiveSingleStack = expandedSelectedBuffIds.has(baseId);
     if (buff.durationMs <= 0 && buff.layer <= 1 && !allowPassiveSingleStack) continue;
-    if (factorOwnedEffectBuffIds.has(baseId)) continue;
+    if (factorOwnedEffectBuffIds.has(baseId) && !expandedSelectedBuffIds.has(baseId)) {
+      continue;
+    }
 
     const definition = buffDefinitionsMap.get(baseId);
     const name = resolveBuffOverlayDisplayName(baseId, currentBuffAliases);
@@ -735,7 +773,6 @@ const _buffSnapshot = $derived.by(() => {
     const iconIds = new Set(nextIconBuffs.map((buff) => buff.baseId));
     const textIds = new Set(nextTextBuffs.map((buff) => buff.key));
     for (const baseId of explicitSelectedBuffIds) {
-      if (factorOwnedEffectBuffIds.has(baseId)) continue;
       if (iconIds.has(baseId) || textIds.has(`buff_${baseId}`)) continue;
       const definition = buffDefinitionsMap.get(baseId);
       const name = resolveBuffOverlayDisplayName(baseId, currentBuffAliases);
@@ -795,7 +832,7 @@ const _buffSnapshot = $derived.by(() => {
       const inferredEnergyRow = buildInferredFactorEnergyRow(now);
       if (inferredEnergyRow) nextRows.push(inferredEnergyRow);
 
-      const factorBuffMap = getLocalPlayerFactorBuffMap();
+      const factorBuffMap = localRuntimeBuffMap;
       const trustedFactorItemIds = new Set<number>();
       const thresholdRows: CustomPanelDisplayRow[] = [];
       const sourceRows: CustomPanelDisplayRow[] = [];
@@ -949,7 +986,7 @@ const _buffSnapshot = $derived.by(() => {
         const row = getCustomPanelDisplayRow(
           entry,
           now,
-          buffMap(),
+          localRuntimeBuffMap,
           counterMap(),
           _counterRuleMap,
           (baseId) => resolveBuffOverlayDisplayName(baseId, currentBuffAliases),
