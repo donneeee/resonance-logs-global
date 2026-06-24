@@ -1111,6 +1111,29 @@ fn log_unsupported_datalink(datalink: i32) {
     }
 }
 
+fn is_scene_stream_discovery_candidate(tcp_payload: &[u8]) -> bool {
+    const DISCOVERY_MAX_PAYLOAD_LEN: usize = 16 * 1024;
+    const ADDRESS_CHANGE_SIGNATURE: [u8; 6] = [0x00, 0x63, 0x33, 0x53, 0x42, 0x00];
+    const LOGIN_SIGNATURE_1: [u8; 10] =
+        [0x00, 0x00, 0x00, 0x62, 0x00, 0x03, 0x00, 0x00, 0x00, 0x01];
+    const LOGIN_SIGNATURE_2: [u8; 6] = [0x00, 0x00, 0x00, 0x00, 0x0a, 0x4e];
+
+    if tcp_payload.len() == 98
+        && tcp_payload.len() >= 20
+        && tcp_payload[0..10] == LOGIN_SIGNATURE_1
+        && tcp_payload[14..20] == LOGIN_SIGNATURE_2
+    {
+        return true;
+    }
+
+    tcp_payload.len() <= DISCOVERY_MAX_PAYLOAD_LEN
+        && tcp_payload.len() >= 10
+        && tcp_payload[4] == 0
+        && tcp_payload
+            .windows(ADDRESS_CHANGE_SIGNATURE.len())
+            .any(|window| window == ADDRESS_CHANGE_SIGNATURE)
+}
+
 pub fn start_capture(
     npcap_device: String,
 ) -> (tokio::sync::mpsc::Receiver<CaptureEvent>, Arc<AtomicUsize>) {
@@ -1217,14 +1240,22 @@ fn read_packets(
                 ip_packet.header().destination(),
                 tcp_packet.to_header().destination_port,
             );
+            let tcp_payload = tcp_packet.payload();
 
             let session_known = known_servers.contains(&curr_server);
-            let process_verdict = game_connections.classify(curr_server);
-            if !session_known
-                && !matches!(process_verdict, Verdict::Game)
-                && game_connections.has_known_game_endpoint()
-            {
+            if !session_known && tcp_payload.is_empty() {
                 return;
+            }
+
+            let process_verdict = if session_known {
+                Verdict::Game
+            } else {
+                game_connections.classify(curr_server)
+            };
+            if !session_known && !matches!(process_verdict, Verdict::Game) {
+                if !is_scene_stream_discovery_candidate(tcp_payload) {
+                    return;
+                }
             }
 
             if session_known {
@@ -1249,7 +1280,6 @@ fn read_packets(
                 return;
             }
 
-            let tcp_payload = tcp_packet.payload();
             // 1. Try to identify game server via small packets.
             if tcp_payload.len() >= 10 && tcp_payload[4] == 0 {
                 const FRAG_LENGTH_SIZE: usize = 4;
@@ -1324,7 +1354,7 @@ fn read_packets(
                     );
                 }
             }
-            if !known_servers.is_empty() {
+            if !known_servers.is_empty() && matches!(process_verdict, Verdict::Game) {
                 process_non_scene_chat_packet(
                     &curr_server.to_string(),
                     &tcp_packet,

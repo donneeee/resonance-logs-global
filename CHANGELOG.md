@@ -19,6 +19,9 @@
 - Avoided recomputing the visible-factor source gate during every factor counter emit, preserving the stale-source fix without reintroducing combat-time CPU spikes.
 - Reduced live runtime lag during packet bursts by ticking counter timers and actor-state lifecycle sampling once per packet batch instead of repeating that periodic work for every packet, while still processing each packet's damage/buff/factor changes individually.
 - Reduced combat-time FPS and UI hitching by shrinking packet backlog catch-up slices, letting pending control commands interrupt packet drains, and allowing reset/pause/scene/training lifecycle events to bypass the normal noisy WebView snapshot budget.
+- Reduced packet-capture CPU pressure outside active game traffic by caching game-process TCP classifications, throttling TCP table refreshes, skipping empty unknown payloads, and limiting non-game scene discovery to known login/address-change signatures.
+- Kept the auto-hide live window WebView mounted while visually hidden, so incoming damage can restore the window without losing live runtime state or depending on a fully hidden native window to wake back up.
+- Reduced live-window drag/repaint lag, especially with GIF backgrounds, by removing a duplicate always-running header animation-frame timer and isolating the custom background layer's paint/compositing work.
 - Added focused backend tests for the stale-factor gate: hidden source rows are ignored, visible matching rows still feed energy, cleared selector slots suppress active-source fallback, and selected-factor mode does not borrow unrelated active-source IDs.
 - Promoted local active effect/factor buff rows into buff-monitor display candidates when explicitly selected, restoring Photon Energy Enhancement and similar threshold/effect buffs without exposing those internal aliases in generic monitor-all views.
 

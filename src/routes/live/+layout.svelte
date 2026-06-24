@@ -109,7 +109,7 @@
   let isDestroyed = false;
   let autoHideRecentlyDamaged = false;
   let autoHideLastObservedDamageTotal = 0;
-  let autoHideHiddenByFeature = false;
+  let autoHideHiddenByFeature = $state(false);
   let autoHideHiddenOverlayLabels = new Set<string>();
   let autoHideOperation: Promise<void> = Promise.resolve();
   let autoHideTimer: ReturnType<typeof setTimeout> | null = null;
@@ -433,11 +433,9 @@
         return;
       }
 
+      autoHideHiddenByFeature = true;
       await liveWindow.setFocusable(false);
       await liveWindow.setIgnoreCursorEvents(true);
-      await liveWindow.hide();
-      await liveWindow.setIgnoreCursorEvents(true);
-      autoHideHiddenByFeature = true;
       if (SETTINGS.live.general.state.autoHideOverlaysWithLiveWindow === true) {
         autoHideHiddenOverlayLabels = await hideVisiblePassiveOverlayWindows();
       }
@@ -1131,6 +1129,7 @@ t("live.resumeToast", "战斗已继续"),
 <div
   bind:this={rootElement}
   class="relative isolate {dynamicWindowEnabled ? 'min-h-0' : 'h-screen'} overflow-hidden rounded-xl text-[13px] text-foreground font-sans shadow-[0_10px_30px_-10px_rgba(0,0,0,0.6)]"
+  class:auto-hide-visual-hidden={autoHideHiddenByFeature}
   style="padding: {SETTINGS.live.headerCustomization.state.windowPadding}px"
   data-tauri-drag-region
 >
@@ -1169,6 +1168,11 @@ t("live.resumeToast", "战斗已继续"),
 <style>
   .app-background-wash-live {
     background: color-mix(in srgb, var(--background-live) 72%, transparent);
+  }
+
+  .auto-hide-visual-hidden {
+    opacity: 0;
+    pointer-events: none;
   }
 
   :global {

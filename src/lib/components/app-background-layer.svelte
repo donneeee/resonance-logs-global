@@ -136,7 +136,16 @@
 
 {#if visible}
   <div
-    class="pointer-events-none absolute inset-0 z-0"
+    class="app-background-layer pointer-events-none absolute inset-0 z-0"
     style={layerStyle}
   ></div>
 {/if}
+
+<style>
+  .app-background-layer {
+    backface-visibility: hidden;
+    contain: paint;
+    transform: translateZ(0);
+    will-change: opacity, transform;
+  }
+</style>

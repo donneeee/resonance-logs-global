@@ -90,23 +90,7 @@
   let clientElapsedMs = $state(0);
   let trainingDummyCountdownNowMs = $state(Date.now());
   let trainingDummyCountdownAnchor = $state<TrainingDummyCountdownAnchor | null>(null);
-  let animationFrameId: number | null = null;
   let trainingDummyBusy = $state(false);
-
-  // Client-side timer loop for smooth local elapsed display.
-  function updateClientTimer() {
-    if (
-      headerInfo.fightStartTimestampMs > 0 &&
-      !isEncounterPaused &&
-      !headerInfo.dpsDisplayPaused
-    ) {
-      clientElapsedMs = Math.max(
-        0,
-        liveDisplayNowMs - headerInfo.fightStartTimestampMs,
-      );
-    }
-    animationFrameId = requestAnimationFrame(updateClientTimer);
-  }
 
   function resetTimer() {
     clientElapsedMs = 0;
@@ -118,13 +102,6 @@
     } catch (error) {
       console.error("Failed to get current live webview window", error);
     }
-
-    animationFrameId = requestAnimationFrame(updateClientTimer);
-    return () => {
-      if (animationFrameId !== null) {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
   });
 
   function formatElapsed(msElapsed: number) {

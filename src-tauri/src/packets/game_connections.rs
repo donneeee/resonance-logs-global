@@ -1,5 +1,6 @@
 use crate::packets::utils::Server;
 use std::collections::{HashMap, HashSet};
+use std::time::{Duration, Instant};
 
 const GAME_PROCESS_NAMES: &[&str] = &[
     "bpsr",
@@ -69,12 +70,15 @@ struct TcpTableSnapshot {
 type SnapshotFn =
     fn(&HashSet<&'static str>, &HashMap<u32, bool>) -> Result<TcpTableSnapshot, String>;
 
+const TCP_TABLE_REFRESH_INTERVAL: Duration = Duration::from_millis(750);
+
 pub struct GameConnectionFilter {
     game_endpoints: HashSet<Endpoint>,
     non_game_flows: HashSet<FlowKey>,
     pid_cache: HashMap<u32, bool>,
     process_names: HashSet<&'static str>,
     snapshot: SnapshotFn,
+    last_refresh: Option<Instant>,
 }
 
 impl GameConnectionFilter {
@@ -85,6 +89,7 @@ impl GameConnectionFilter {
             pid_cache: HashMap::new(),
             process_names: GAME_PROCESS_NAMES.iter().copied().collect(),
             snapshot: platform::snapshot_tcp_table,
+            last_refresh: None,
         }
     }
 
@@ -94,11 +99,13 @@ impl GameConnectionFilter {
         }
 
         let flow = FlowKey::from_server(server);
-        if self.non_game_flows.contains(&flow) {
+        if self.non_game_flows.contains(&flow) && !self.refresh_due() {
             return Verdict::NonGame;
         }
 
-        self.refresh();
+        if self.refresh_due() {
+            self.refresh();
+        }
 
         if self.contains_positive(server) {
             return Verdict::Game;
@@ -106,10 +113,6 @@ impl GameConnectionFilter {
 
         self.non_game_flows.insert(flow);
         Verdict::NonGame
-    }
-
-    pub fn has_known_game_endpoint(&self) -> bool {
-        !self.game_endpoints.is_empty()
     }
 
     pub fn forget_flow(&mut self, server: Server) {
@@ -126,6 +129,7 @@ impl GameConnectionFilter {
     }
 
     fn refresh(&mut self) {
+        self.last_refresh = Some(Instant::now());
         match (self.snapshot)(&self.process_names, &self.pid_cache) {
             Ok(snapshot) => {
                 self.game_endpoints = snapshot.game_endpoints;
@@ -136,6 +140,11 @@ impl GameConnectionFilter {
                 log::debug!(target: "app::capture", "failed to refresh game TCP connections: {err}");
             }
         }
+    }
+
+    fn refresh_due(&self) -> bool {
+        self.last_refresh
+            .is_none_or(|last_refresh| last_refresh.elapsed() >= TCP_TABLE_REFRESH_INTERVAL)
     }
 }
 
