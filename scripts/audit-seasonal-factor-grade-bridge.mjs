@@ -173,14 +173,6 @@ function incrementMap(map, key, amount = 1) {
   map.set(stringKey, (map.get(stringKey) ?? 0) + amount);
 }
 
-function addToSetMap(map, key, value) {
-  if (value === null || value === undefined || value === "") return;
-  const stringKey = String(key);
-  const set = map.get(stringKey) ?? new Set();
-  set.add(String(value));
-  map.set(stringKey, set);
-}
-
 function sortedMapCounts(map, limit = 12) {
   return Object.fromEntries(
     [...map.entries()]

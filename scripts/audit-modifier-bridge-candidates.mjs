@@ -160,10 +160,6 @@ function hasDescription(entry) {
   );
 }
 
-function hasSelectedValue(entry) {
-  return asArray(entry.selectedValues).length > 0;
-}
-
 function hasFormulaZone(entry) {
   return asArray(entry.formulaZoneIds).length > 0
     || asArray(entry.formulaTermIds).length > 0

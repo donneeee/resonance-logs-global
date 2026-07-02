@@ -1,5 +1,6 @@
 <script lang="ts">
   import { invoke } from "@tauri-apps/api/core";
+  import { onMount } from "svelte";
   import { Button } from "$lib/components/ui/button";
   import { save } from "@tauri-apps/plugin-dialog";
   import { toast } from "svelte-sonner";
@@ -12,6 +13,21 @@
   let cleanupDays = $state("30");
   let cleanupIncludeEventSessions = $state(true);
   let cleanupRunning = $state(false);
+  let factorTraceStatus = $state<FactorTraceStatus | null>(null);
+  let factorTraceBusy = $state(false);
+  let factorTraceExporting = $state(false);
+
+  type FactorTraceStatus = {
+    enabled: boolean;
+    startedAtMs: number | null;
+    entryCount: number;
+    droppedEntries: number;
+    entryLimit: number;
+  };
+
+  onMount(() => {
+    void refreshFactorTraceStatus();
+  });
 
   function parseCleanupDays(): number | null {
     const trimmed = cleanupDays.trim();
@@ -96,6 +112,75 @@
       cleanupRunning = false;
     }
   }
+
+  async function refreshFactorTraceStatus() {
+    try {
+      factorTraceStatus = await invoke<FactorTraceStatus>("get_factor_trace_capture_status");
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  function factorTraceDefaultName(): string {
+    const ts = new Date();
+    const pad = (value: number) => value.toString().padStart(2, "0");
+    return `factor_trace_${ts.getFullYear()}-${pad(ts.getMonth() + 1)}-${pad(ts.getDate())}_${pad(ts.getHours())}-${pad(ts.getMinutes())}-${pad(ts.getSeconds())}.json`;
+  }
+
+  async function startFactorTraceCapture() {
+    factorTraceBusy = true;
+    try {
+      factorTraceStatus = await invoke<FactorTraceStatus>("start_factor_trace_capture");
+      toast.success(t("factorTraceStarted", "Factor trace capture started"));
+    } catch (e) {
+      console.error(e);
+      toast.error(`${t("factorTraceStartFailed", "Failed to start factor trace:")} ${String(e)}`);
+    } finally {
+      factorTraceBusy = false;
+    }
+  }
+
+  async function stopFactorTraceCapture() {
+    factorTraceBusy = true;
+    try {
+      factorTraceStatus = await invoke<FactorTraceStatus>("stop_factor_trace_capture");
+      toast.success(t("factorTraceStopped", "Factor trace capture stopped"));
+    } catch (e) {
+      console.error(e);
+      toast.error(`${t("factorTraceStopFailed", "Failed to stop factor trace:")} ${String(e)}`);
+    } finally {
+      factorTraceBusy = false;
+    }
+  }
+
+  async function exportFactorTraceCapture() {
+    factorTraceExporting = true;
+    try {
+      const destinationPath = await save({
+        title: t("factorTraceSaveTitle", "Save Factor Trace"),
+        defaultPath: factorTraceDefaultName(),
+        filters: [{ name: "JSON", extensions: ["json"] }],
+      });
+
+      if (!destinationPath) {
+        return;
+      }
+
+      const path = await invoke<string>("export_factor_trace_capture", { destinationPath });
+      await refreshFactorTraceStatus();
+      try {
+        await navigator.clipboard.writeText(path);
+        toast.success(`${t("factorTraceExportedCopied", "Factor trace exported and path copied:")} ${path}`);
+      } catch {
+        toast.success(`${t("factorTraceExported", "Factor trace exported:")} ${path}`);
+      }
+    } catch (e) {
+      console.error(e);
+      toast.error(`${t("factorTraceExportFailed", "Failed to export factor trace:")} ${String(e)}`);
+    } finally {
+      factorTraceExporting = false;
+    }
+  }
 </script>
 
 <div class="space-y-3">
@@ -159,6 +244,62 @@
             </label>
             <Button variant="outline" onclick={cleanupDiagnosticsFiles} disabled={cleanupRunning}>
               {cleanupRunning ? t("cleanupRunning", "Cleaning...") : t("cleanupButton", "Clean Diagnostics")}
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 border-t border-border/50 pt-4">
+        <div class="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+          <div class="min-w-0 text-sm text-muted-foreground">
+            <div class="font-medium text-foreground">
+              {t("factorTraceTitle", "Temporary Factor Trace")}
+            </div>
+            <p>
+              {t("factorTraceDescription", "Opt-in capture for factor energy bugs. Start it, reproduce for 30-60 seconds, stop it, then export JSON. This is separate from diagnostics bundles.")}
+            </p>
+            <div class="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs">
+              <span>
+                {t("factorTraceStatus", "Status")}:
+                <strong class="text-foreground">
+                  {factorTraceStatus?.enabled
+                    ? t("factorTraceRecording", "Recording")
+                    : t("factorTraceStoppedStatus", "Stopped")}
+                </strong>
+              </span>
+              <span>
+                {t("factorTraceEntries", "Entries")}:
+                <strong class="text-foreground">
+                  {factorTraceStatus?.entryCount ?? 0}/{factorTraceStatus?.entryLimit ?? 5000}
+                </strong>
+              </span>
+              <span>
+                {t("factorTraceDropped", "Dropped")}:
+                <strong class="text-foreground">{factorTraceStatus?.droppedEntries ?? 0}</strong>
+              </span>
+            </div>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <Button
+              variant="outline"
+              onclick={startFactorTraceCapture}
+              disabled={factorTraceBusy || factorTraceStatus?.enabled}
+            >
+              {t("factorTraceStartButton", "Start Trace")}
+            </Button>
+            <Button
+              variant="outline"
+              onclick={stopFactorTraceCapture}
+              disabled={factorTraceBusy || !factorTraceStatus?.enabled}
+            >
+              {t("factorTraceStopButton", "Stop Trace")}
+            </Button>
+            <Button
+              variant="outline"
+              onclick={exportFactorTraceCapture}
+              disabled={factorTraceExporting}
+            >
+              {factorTraceExporting ? t("factorTraceExporting", "Exporting...") : t("factorTraceExportButton", "Export JSON")}
             </Button>
           </div>
         </div>

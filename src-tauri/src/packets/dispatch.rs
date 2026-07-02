@@ -108,7 +108,6 @@ fn action(fragment_type: FragmentType) -> &'static str {
 
 fn world_method_name(method_id: u32) -> Option<&'static str> {
     match Pkt::try_from(method_id).ok()? {
-        Pkt::ServerChangeInfo => Some("ServerChangeInfo"),
         Pkt::SyncSubSceneAttrs => Some("SyncSubSceneAttrs"),
         Pkt::NotifySwitchSceneEnd => Some("NotifySwitchSceneEnd"),
         Pkt::EnterScene => Some("EnterScene"),

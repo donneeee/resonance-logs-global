@@ -14,6 +14,7 @@
   } from "$lib/live-entity-route";
   import { measurePlayerTableMaxHeight } from "$lib/live-table-sizing";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
+  import ChallengeWarningIcon from "$lib/components/ChallengeWarningIcon.svelte";
   import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
   import PlayerImagineBadges from "$lib/components/player-imagine-badges.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
@@ -37,8 +38,11 @@
 
   let liveData = $derived(getLiveData());
   let liveDisplayNowMs = $derived(getLiveDisplayNowMs());
+  let forbiddenDamageIds = $derived(
+    new Set(SETTINGS.challengeWatch.state.forbiddenDamageIds),
+  );
   let rawDpsData = $derived(
-    liveData ? computePlayerRows(liveData, "dps", liveDisplayNowMs) : [],
+    liveData ? computePlayerRows(liveData, "dps", liveDisplayNowMs, forbiddenDamageIds) : [],
   );
 
   type LivePlayerIdentity = {
@@ -509,6 +513,9 @@ function pinnedSelfRowStyle(placement: PinnedSelfRowPlacement): string {
                     />
                   {/if}
                   <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
+                  {#if player.forbiddenHit}
+                    <ChallengeWarningIcon ids={player.forbiddenHitIds} />
+                  {/if}
                   {#if player.classSpecName || player.className}
                     <span class="text-muted-foreground truncate">
                       {formatClassSpecLabel(player.className, player.classSpecName)}
@@ -623,6 +630,9 @@ function pinnedSelfRowStyle(placement: PinnedSelfRowPlacement): string {
                   style="color: {customThemeColors.tableTextColor};"
                   >{displayName || `#${player.uid}`}</span
                 >
+                {#if player.forbiddenHit}
+                  <ChallengeWarningIcon ids={player.forbiddenHitIds} />
+                {/if}
               </div>
             </td>
             {#each visiblePlayerColumns as col (col.key)}
@@ -799,6 +809,9 @@ function pinnedSelfRowStyle(placement: PinnedSelfRowPlacement): string {
                     />
                   {/if}
                   <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
+                  {#if player.forbiddenHit}
+                    <ChallengeWarningIcon ids={player.forbiddenHitIds} />
+                  {/if}
                   {#if player.classSpecName || player.className}
                     <span class="text-muted-foreground truncate">
                       {formatClassSpecLabel(player.className, player.classSpecName)}
@@ -944,6 +957,9 @@ function pinnedSelfRowStyle(placement: PinnedSelfRowPlacement): string {
                 style="color: {customThemeColors.tableTextColor};"
                 >{displayName || `#${player.uid}`}</span
               >
+              {#if player.forbiddenHit}
+                <ChallengeWarningIcon ids={player.forbiddenHitIds} />
+              {/if}
             </div>
           </td>
           {#each visiblePlayerColumns as col (col.key)}

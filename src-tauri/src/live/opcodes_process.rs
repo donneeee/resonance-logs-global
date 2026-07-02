@@ -11,7 +11,7 @@ use crate::live::opcodes_models::class::{
     get_class_spec_from_talent_node_id,
 };
 use crate::live::opcodes_models::{
-    AttrType, AttrValue, Encounter, Entity, ObservedDamageHit, ObservedEffectSource,
+    AttrType, AttrValue, Encounter, Entity, MarkerFact, ObservedDamageHit, ObservedEffectSource,
     ObservedEquippedItem, ObservedFormulaAttr, ObservedGearSet, ObservedGearSetAttr,
     ObservedPassiveSkill, ObservedProfessionSkill, ObservedProfessionTalent, PositionAttr, Skill,
     attr_type, damage_type_flag,
@@ -20,7 +20,7 @@ use crate::live::training_dummy::CombatGate;
 use blueprotobuf_lib::blueprotobuf;
 use blueprotobuf_lib::blueprotobuf::{Attr, EDamageType, EEntityType};
 use bytes::Buf;
-use log::{info, warn};
+use log::{debug, info, warn};
 use prost::Message;
 use std::collections::HashMap;
 use std::default::Default;
@@ -41,7 +41,9 @@ pub struct TeammateFantasyDetection {
 
 #[derive(Debug, Default)]
 pub struct SyncNearEntitiesProcessResult {
+    pub initial_buff_snapshots: Vec<(i64, blueprotobuf::BuffInfoSync)>,
     pub teammate_fantasies: Vec<TeammateFantasyDetection>,
+    pub disappeared: Vec<i64>,
 }
 
 fn has_resonance_fantasy_marker(buff_infos: Option<&blueprotobuf::BuffInfoSync>) -> bool {
@@ -104,7 +106,7 @@ pub struct SyncToMeDeltaResult {
     pub temp_attr_modifier_changes: Vec<TempAttrModifierChange>,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize)]
 pub struct LocalDamageEvent {
     pub skill_key: i64,
     pub target_uuid: Option<i64>,
@@ -120,7 +122,7 @@ pub struct LocalDamageEvent {
     pub is_lucky: bool,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, serde::Serialize)]
 pub struct LocalDamageTakenEvent {
     pub skill_key: i64,
     pub attacker_uuid: Option<i64>,
@@ -177,7 +179,7 @@ fn apply_taken_skill_delta(
 }
 
 const FORMULA_ATTACKER_ATTRS: &[(AttrType, &str)] = &[
-    (AttrType::AttackPower, "AttackPower"),
+    (AttrType::Facing, "Facing"),
     (AttrType::PhysicalAttack, "PhysicalAttack"),
     (AttrType::MagicAttack, "MagicAttack"),
     (AttrType::Unknown(11010), "PanelStrength"),
@@ -293,11 +295,11 @@ pub(crate) fn should_overwrite_entity_type(existing: EEntityType, observed: EEnt
         return false;
     }
 
-    if existing == EEntityType::EntErrType {
-        return true;
+    if matches!(existing, EEntityType::EntChar | EEntityType::EntMonster) {
+        return false;
     }
 
-    false
+    true
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -677,13 +679,20 @@ pub fn process_sync_near_entities(
     sync_near_entities: blueprotobuf::SyncNearEntities,
     capture_modifier_evidence: bool,
 ) -> Option<SyncNearEntitiesProcessResult> {
-    let mut result = SyncNearEntitiesProcessResult::default();
+    let blueprotobuf::SyncNearEntities { appear, disappear } = sync_near_entities;
+    let mut result = SyncNearEntitiesProcessResult {
+        disappeared: Vec::with_capacity(disappear.len()),
+        ..Default::default()
+    };
 
-    for pkt_entity in sync_near_entities.appear {
+    for pkt_entity in appear {
         let target_uuid = pkt_entity.uuid?;
         let initial_buff_infos = pkt_entity.buff_infos;
         let target_uid = encounter.remember_entity_uuid(target_uuid);
-        let target_entity_type = EEntityType::from(target_uuid);
+        let target_entity_type = pkt_entity
+            .ent_type
+            .and_then(|value| EEntityType::try_from(value).ok())
+            .unwrap_or_else(|| EEntityType::from(target_uuid));
         let is_target_local_player = is_local_identity(encounter, target_uid, target_uuid);
 
         let target_entity = encounter.entity_by_uuid_or_insert_with(target_uuid, || Entity {
@@ -694,7 +703,7 @@ pub fn process_sync_near_entities(
         if should_overwrite_entity_type(existing_type, target_entity_type) {
             target_entity.entity_type = target_entity_type;
         } else if existing_type != target_entity_type {
-            info!(
+            debug!(
                 target: "app::live",
                 "SyncNearEntities: blocked entity_type overwrite for uid={} from {:?} to {:?} (uuid=0x{:x}, low16={})",
                 target_uid,
@@ -731,7 +740,6 @@ pub fn process_sync_near_entities(
                 process_monster_attrs(
                     target_entity,
                     target_uuid,
-                    Some(target_uuid),
                     attr_collection.attrs,
                     attr_store,
                 );
@@ -746,8 +754,54 @@ pub fn process_sync_near_entities(
                     }
                 }
             }
-            _ => {}
+            EEntityType::EntDummy | EEntityType::EntBullet | EEntityType::EntSceneObject => {
+                let attr_collection = pkt_entity.attrs?;
+                process_mechanic_entity_attrs(
+                    target_entity,
+                    target_uuid,
+                    attr_collection.attrs,
+                    attr_store,
+                );
+            }
+            _ => {
+                let attr_collection = pkt_entity.attrs?;
+                process_mechanic_entity_attrs(
+                    target_entity,
+                    target_uuid,
+                    attr_collection.attrs,
+                    attr_store,
+                );
+            }
         }
+
+        if let Some(buff_infos) = initial_buff_infos {
+            result
+                .initial_buff_snapshots
+                .push((target_uuid, buff_infos));
+        }
+    }
+
+    for disappear_entity in disappear {
+        let Some(target_uuid) = disappear_entity.uuid else {
+            continue;
+        };
+        let target_entity_type = encounter
+            .entity_uuid_to_entity
+            .get(&target_uuid)
+            .map(|entity| entity.entity_type)
+            .unwrap_or_else(|| EEntityType::from(target_uuid));
+
+        if matches!(
+            target_entity_type,
+            EEntityType::EntChar | EEntityType::EntMonster
+        ) {
+            attr_store.clear_transient_attrs(target_uuid);
+        } else {
+            encounter.entity_uuid_to_entity.remove(&target_uuid);
+            attr_store.remove_entity(target_uuid);
+        }
+
+        result.disappeared.push(target_uuid);
     }
 
     // Track party members for wipe detection (collect data first to avoid borrow issues)
@@ -1492,12 +1546,19 @@ pub struct SyncContainerDirtyProcessResult<'a> {
     pub season_cultivate_dirty_bytes: Option<&'a [u8]>,
 }
 
+#[derive(Debug, Default, Clone, Copy)]
+pub struct DungeonProcessResult {
+    pub reset_reason: Option<EncounterResetReason>,
+    pub entered_playing: bool,
+}
+
 pub fn process_sync_dungeon_data(
     battle_state: &mut BattleStateMachine,
     sync_dungeon_data: blueprotobuf::SyncDungeonData,
     encounter_has_stats: bool,
-) -> Option<EncounterResetReason> {
+) -> DungeonProcessResult {
     let mut reset_reason = None;
+    let mut entered_playing = false;
     info!(
         target: "app::live",
         "Processing SyncDungeonData (encounter_has_stats={})",
@@ -1507,6 +1568,7 @@ pub fn process_sync_dungeon_data(
         if let Some(flow_info) = v_data.flow_info {
             if let Some(state) = flow_info.state {
                 info!(target: "app::live", "SyncDungeonData flow_info.state={}", state);
+                entered_playing |= battle_state.record_dungeon_flow_state(state);
             }
         }
 
@@ -1533,14 +1595,17 @@ pub fn process_sync_dungeon_data(
     if let Some(reason) = reset_reason {
         info!(target: "app::live", "SyncDungeonData produced reset reason: {:?}", reason);
     }
-    reset_reason
+    DungeonProcessResult {
+        reset_reason,
+        entered_playing,
+    }
 }
 
 pub fn process_sync_dungeon_dirty_data(
     battle_state: &mut BattleStateMachine,
     sync_dungeon_dirty_data: blueprotobuf::SyncDungeonDirtyData,
     encounter_has_stats: bool,
-) -> Option<EncounterResetReason> {
+) -> DungeonProcessResult {
     info!(
         target: "app::live",
         "Processing SyncDungeonDirtyData (encounter_has_stats={})",
@@ -1548,11 +1613,11 @@ pub fn process_sync_dungeon_dirty_data(
     );
     let Some(v_data) = sync_dungeon_dirty_data.v_data else {
         warn!(target: "app::live", "SyncDungeonDirtyData missing v_data");
-        return None;
+        return DungeonProcessResult::default();
     };
     let Some(bytes) = v_data.buffer else {
         warn!(target: "app::live", "SyncDungeonDirtyData missing buffer");
-        return None;
+        return DungeonProcessResult::default();
     };
     info!(
         target: "app::live",
@@ -1568,17 +1633,19 @@ pub fn process_sync_dungeon_dirty_data(
                     "Failed to decode dirty dungeon blob from buffer: {}",
                     e
                 );
-                return None;
+                return DungeonProcessResult::default();
             }
         };
 
     let mut reset_reason = None;
+    let mut entered_playing = false;
     if let Some(state) = dirty_sync.flow_state {
         info!(
             target: "app::live",
             "SyncDungeonDirtyData flow_info.state={}",
             state
         );
+        entered_playing |= battle_state.record_dungeon_flow_state(state);
     }
 
     for target_data in dirty_sync.targets {
@@ -1604,7 +1671,10 @@ pub fn process_sync_dungeon_dirty_data(
             reason
         );
     }
-    reset_reason
+    DungeonProcessResult {
+        reset_reason,
+        entered_playing,
+    }
 }
 
 pub fn process_sync_to_me_delta_info(
@@ -1969,7 +2039,12 @@ pub fn process_aoi_sync_delta(
     }
 
     // Process attributes
-    let target_entity_type = EEntityType::from(target_uuid);
+    let target_entity_type = encounter
+        .entity_uuid_to_entity
+        .get(&target_uuid)
+        .map(|entity| entity.entity_type)
+        .filter(|entity_type| *entity_type != EEntityType::EntErrType)
+        .unwrap_or_else(|| EEntityType::from(target_uuid));
     let mut target_entity = encounter.entity_by_uuid_or_insert_with(target_uuid, || Entity {
         entity_type: target_entity_type,
         ..Default::default()
@@ -1978,7 +2053,7 @@ pub fn process_aoi_sync_delta(
     if should_overwrite_entity_type(target_entity.entity_type, target_entity_type) {
         target_entity.entity_type = target_entity_type;
     } else if target_entity.entity_type != target_entity_type {
-        info!(
+        debug!(
             target: "app::live",
             "AoiSyncDelta: blocked entity_type overwrite for uid={} from {:?} to {:?} (uuid=0x{:x}, low16={})",
             target_uid,
@@ -2003,12 +2078,67 @@ pub fn process_aoi_sync_delta(
                 process_monster_attrs(
                     &mut target_entity,
                     target_uuid,
-                    Some(target_uuid),
                     attrs_collection.attrs,
                     attr_store,
                 );
             }
-            _ => {}
+            EEntityType::EntDummy | EEntityType::EntBullet | EEntityType::EntSceneObject => {
+                process_mechanic_entity_attrs(
+                    &mut target_entity,
+                    target_uuid,
+                    attrs_collection.attrs,
+                    attr_store,
+                );
+            }
+            _ => {
+                process_mechanic_entity_attrs(
+                    &mut target_entity,
+                    target_uuid,
+                    attrs_collection.attrs,
+                    attr_store,
+                );
+            }
+        }
+    }
+
+    // DBM player markers are stateful passive-skill packets. They must be
+    // handled before the skill_effects early return because marker packets
+    // usually carry no damage/heal payload.
+    if let Some(seq) = aoi_sync_delta.passive_skill_infos.as_ref() {
+        for info in &seq.passive_infos {
+            let (Some(uuid), Some(skill_id)) = (info.uuid, info.skill_id) else {
+                continue;
+            };
+            if !(1101..=1106).contains(&skill_id) {
+                continue;
+            }
+            let marker_position_uuid = info
+                .target_uuid
+                .filter(|uuid| *uuid != 0)
+                .or(seq.actor_uuid.filter(|uuid| *uuid != 0))
+                .unwrap_or(target_uuid);
+            let (x, z) = attr_store
+                .attr(marker_position_uuid, AttrType::Position)
+                .and_then(AttrValue::as_position)
+                .map_or((None, None), |position| {
+                    (Some(position.x), Some(position.z))
+                });
+            encounter.markers.insert(
+                uuid,
+                MarkerFact {
+                    uuid,
+                    skill_id,
+                    x,
+                    z,
+                },
+            );
+        }
+    }
+    if let Some(end) = aoi_sync_delta.passive_skill_end_infos.as_ref() {
+        for &dead in &end.uuids {
+            if let Ok(uuid) = i32::try_from(dead) {
+                encounter.markers.remove(&uuid);
+            }
         }
     }
 
@@ -3076,7 +3206,80 @@ fn process_player_attrs(
 
         if let Some((attr_type, value)) = decoded {
             retain_player_identity_attr(player_entity, attr_type, &value);
+            if attr_type == AttrType::SkillId
+                && let Some(skill_id) = value.as_int().and_then(|raw| i32::try_from(raw).ok())
+                && skill_id > 0
+            {
+                attr_store.push_skill_cast(target_entity_uuid, skill_id);
+            }
             let _ = attr_store.set_attr(target_entity_uuid, attr_type, value);
+        }
+    }
+}
+
+fn process_mechanic_entity_attrs(
+    target_entity: &mut Entity,
+    target_entity_uuid: i64,
+    attrs: Vec<Attr>,
+    attr_store: &mut EntityAttrStore,
+) {
+    let packet_monster_id = attrs.iter().find_map(|attr| {
+        (attr.id == Some(attr_type::ATTR_ID))
+            .then(|| decode_varint_i64_or_default(attr.raw_data.as_deref()))
+            .and_then(|id| i32::try_from(id).ok())
+            .filter(|id| *id > 0)
+    });
+
+    for attr in attrs {
+        let Some(attr_id) = attr.id else { continue };
+        let raw_bytes_opt = attr.raw_data.as_deref();
+
+        if attr_id == attr_type::ATTR_ID {
+            if let Some(monster_id) = packet_monster_id {
+                target_entity.set_monster_type(monster_id);
+                let _ = attr_store.set_attr(
+                    target_entity_uuid,
+                    AttrType::MonsterId,
+                    AttrValue::Int(i64::from(monster_id)),
+                );
+            }
+            continue;
+        }
+
+        if attr_id == attr_type::ATTR_NAME {
+            continue;
+        }
+
+        if attr_id == attr_type::ATTR_HATE_LIST {
+            let hate_list = attr_store.hate_list_mut(target_entity_uuid);
+            if let Some(raw) = raw_bytes_opt {
+                let _ = parse_hate_list_into(raw, hate_list);
+            } else {
+                hate_list.clear();
+            }
+            continue;
+        }
+
+        if attr_id == attr_type::ATTR_POS {
+            if let Some(position) = decode_position_attr(raw_bytes_opt) {
+                let _ = attr_store.set_attr(
+                    target_entity_uuid,
+                    AttrType::Position,
+                    AttrValue::Position(position),
+                );
+            }
+            continue;
+        }
+
+        if let Some(attr_type) = AttrType::from_id(attr_id) {
+            let value = decode_varint_i64_or_default(raw_bytes_opt);
+            if attr_type == AttrType::SkillId
+                && let Ok(skill_id) = i32::try_from(value)
+                && skill_id > 0
+            {
+                attr_store.push_skill_cast(target_entity_uuid, skill_id);
+            }
+            let _ = attr_store.set_attr(target_entity_uuid, attr_type, AttrValue::Int(value));
         }
     }
 }
@@ -3084,31 +3287,12 @@ fn process_player_attrs(
 fn process_monster_attrs(
     monster_entity: &mut Entity,
     target_entity_uuid: i64,
-    target_uuid: Option<i64>,
     attrs: Vec<Attr>,
     attr_store: &mut EntityAttrStore,
 ) {
-    for attr in attrs {
-        let Some(attr_id) = attr.id else { continue };
-        let raw_bytes_opt = attr.raw_data.as_deref();
-
-        if attr_id == attr_type::ATTR_ID {
-            if let Some(monster_id) =
-                i32::try_from(decode_varint_i64_or_default(raw_bytes_opt)).ok()
-            {
-                if monster_id > 0 {
-                    monster_entity.set_monster_type(monster_id);
-                    let _ = attr_store.set_attr(
-                        target_entity_uuid,
-                        AttrType::MonsterId,
-                        AttrValue::Int(i64::from(monster_id)),
-                    );
-                }
-            }
-            continue;
-        }
-
-        if attr_id == attr_type::ATTR_NAME {
+    for attr in &attrs {
+        if attr.id == Some(attr_type::ATTR_NAME) {
+            let raw_bytes_opt = attr.raw_data.as_deref();
             let name = decode_prefixed_string_or_default(raw_bytes_opt);
             monster_entity.monster_name_packet = Some(name.clone());
             if monster_entity.monster_type_id.is_none() {
@@ -3121,22 +3305,8 @@ fn process_monster_attrs(
                     AttrValue::String(packet_name.clone()),
                 );
             }
-            continue;
-        }
-
-        if attr_id == attr_type::ATTR_HATE_LIST {
-            let hate_list = attr_store.hate_list_mut(target_uuid.unwrap_or(target_entity_uuid));
-            if let Some(raw) = raw_bytes_opt {
-                let _ = parse_hate_list_into(raw, hate_list);
-            } else {
-                hate_list.clear();
-            }
-            continue;
-        }
-
-        if let Some(attr_type) = AttrType::from_id(attr_id) {
-            let value = decode_varint_i64_or_default(raw_bytes_opt);
-            let _ = attr_store.set_attr(target_entity_uuid, attr_type, AttrValue::Int(value));
         }
     }
+
+    process_mechanic_entity_attrs(monster_entity, target_entity_uuid, attrs, attr_store);
 }

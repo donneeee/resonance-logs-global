@@ -99,10 +99,6 @@ function stripUndefined(value) {
   return value;
 }
 
-function preferredName(names, fallback = "") {
-  return names?.en || names?.["zh-CN"] || names?.design || fallback || "";
-}
-
 function preferredText(values, fallback = "") {
   return values?.en
     ?? values?.["zh-CN"]

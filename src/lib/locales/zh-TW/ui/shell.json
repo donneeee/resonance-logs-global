@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "隨應用啟動",
   "settings.overlay.startWithAppDescription": "當應用啟動且已啟用遮罩發布時，自動打開共享遮罩。",
+  "settings.overlay.skillAutoHideDaily": "日常場景自動隱藏技能監控",
+  "settings.overlay.skillAutoHideDailyDescription": "啟用技能監控時，進入日常場景黑名單會隱藏共享遮罩，離開後恢復正常顯示狀態。",
+  "settings.overlay.monsterAutoHideDaily": "日常場景自動隱藏怪物監控",
+  "settings.overlay.monsterAutoHideDailyDescription": "啟用怪物監控時，進入日常場景黑名單會隱藏共享遮罩，離開後恢復正常顯示狀態。",
   "settings.overlay.autoHideWithLiveWindow": "隨即時視窗自動隱藏",
   "settings.overlay.autoHideWithLiveWindowDescription": "啟用「自動隱藏即時視窗」後，可見的疊加層會隨即時計量表一起隱藏，且只在自動隱藏前原本可見時恢復。",
   "settings.overlay.autoHideWithLiveWindowHelp": "此選項跟隨即時計量表依傷害判斷的隱藏/顯示流程，不會自行開啟疊加層；關閉「自動隱藏即時視窗」時不會生效。",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "控制不綁定到單一懸浮窗或儀表檢視的全域應用程式行為。",
   "settings.hideMainWindowToTray": "關閉時將主視窗隱藏到系統匣",
   "settings.hideMainWindowToTrayDescription": "啟用後，關閉主視窗會將其隱藏而不是結束。使用系統匣圖示還原，或選擇結束以完全關閉。",
-  "sidebar.openChangelog": "查看更新日誌"
+  "sidebar.openChangelog": "查看更新日誌",
+  "tool.minimap": "DBM"
 }

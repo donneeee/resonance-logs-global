@@ -18,6 +18,7 @@ const GENERATED_FILES = [
   "scenenames.json",
   "DamageAttrIdName.json",
   "RecountTable.json",
+  "DbmTable.json",
   "EffectSources.json",
   "ModifierDisplayTable.json",
   "ModifierRecountTable.json",
@@ -40,7 +41,6 @@ const DEFAULT_FOCUS_IDS = [
 const AUXILIARY_LOCALES = new Set(["design", "und"]);
 const NAME_FIELD_PATTERN = /(^|\.)(Names|names|sourceNames|familyNames|DisplayNames|DamageNames|LinkedNames|LinkedBuffNames|ParentRecountNames|MonsterOwnerNames|OwnerNames)$/;
 const PLACEHOLDER_PATTERN = /\b(?:Unmapped|Unknown|Active)\s+(?:Buff|Skill|Source|Item|Monster|Scene)\s+\d+\b/i;
-const CJK_PATTERN = /[\u3400-\u9fff]/u;
 
 function parseArgs(argv) {
   const options = {

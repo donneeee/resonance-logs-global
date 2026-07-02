@@ -60,7 +60,7 @@ function readJson(filePath, fallback) {
   if (!text) return fallback;
   try {
     return JSON.parse(text);
-  } catch (error) {
+  } catch {
     return fallback;
   }
 }

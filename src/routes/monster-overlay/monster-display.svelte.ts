@@ -4,6 +4,7 @@ import {
   resolveBuffOverlayDisplayName,
   type BuffCategoryKey,
 } from "$lib/config/buff-name-table";
+import { resolveDbmSkillName } from "$lib/config/dbm-table";
 import { localizeMonsterName, localizeRawMonsterName } from "$lib/monster-mappings";
 import { resolveMonsterMonitorTranslation } from "$lib/i18n";
 import {
@@ -12,24 +13,37 @@ import {
   ensureBuffAlerts,
   type TeammateBuffColumnKey,
 } from "$lib/settings-store";
-import type { BuffUpdateState, HateEntry, TeammateFantasyState } from "$lib/api";
+import type {
+  BuffUpdateState,
+  HateEntry,
+  StunEntry,
+  TeammateFantasyState,
+} from "$lib/api";
 import { entityUuidFromAliases, uidFromEntityUuid } from "$lib/entity-id";
 import {
   buildBuffTextRow,
+  formatTimerText,
   resolveAlertState,
 } from "../game-overlay/overlay-utils";
-import type { TextBuffDisplay } from "../game-overlay/overlay-types";
+import type { BuffAlertState, TextBuffDisplay } from "../game-overlay/overlay-types";
 import { legacyEntityFallbacksDisabled } from "$lib/entity-identity-dry-run";
 import { monsterRuntime } from "./monster-runtime.svelte.js";
+import {
+  fantasyEntryKey,
+  withPreservedFantasySummonerName,
+} from "./monster-fantasy";
 import type {
   MonsterBossBuffSection,
   MonsterFantasyRow,
   MonsterHateSection,
+  MonsterStunSection,
   MonsterTeammateBuffColumn,
   MonsterTeammateBuffRow,
 } from "./monster-types";
 
 const FANTASY_DISPLAY_TTL_MS = 5000;
+const STUN_BROKEN_HIGHLIGHT_COLOR = "#ff4d4f";
+const STUN_BROKEN_FLASH_INTERVAL_MS = 600;
 const USE_LEGACY_MONSTER_TARGET_UID_TITLE_FALLBACK = false;
 const USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK = false;
 const MAX_DIRECT_ENTITY_UID = 0xFFFF_FFFF;
@@ -497,22 +511,55 @@ function buildFantasyPlaceholderRows(): MonsterFantasyRow[] {
   ];
 }
 
+function sortFantasyEntries(
+  entries: TeammateFantasyState[],
+  persistentDisplay: boolean,
+) {
+  return [...entries].sort((left, right) => {
+    if (!persistentDisplay) {
+      return right.detectedAtMs - left.detectedAtMs;
+    }
+
+    return (
+      left.summonerUuid.localeCompare(right.summonerUuid) ||
+      left.monsterId - right.monsterId ||
+      left.remodelLevel - right.remodelLevel
+    );
+  });
+}
+
 function buildFantasyRows(now: number): MonsterFantasyRow[] {
-  const latestBySummon = new Map<string, TeammateFantasyState>();
+  const state = SETTINGS.monsterMonitor.state;
+  const persistentDisplay = state.fantasyPersistentDisplay === true;
+  const latestByFantasy = new Map<string, TeammateFantasyState>();
   for (const entry of monsterRuntime.fantasyEntries) {
-    if (entry.detectedAtMs + FANTASY_DISPLAY_TTL_MS <= now) continue;
-    const existing = latestBySummon.get(entry.summonUuid);
+    if (
+      !persistentDisplay &&
+      entry.detectedAtMs + FANTASY_DISPLAY_TTL_MS <= now
+    ) {
+      continue;
+    }
+    const key = fantasyEntryKey(entry);
+    const existing = latestByFantasy.get(key);
     if (!existing || entry.detectedAtMs >= existing.detectedAtMs) {
-      latestBySummon.set(entry.summonUuid, entry);
+      latestByFantasy.set(
+        key,
+        withPreservedFantasySummonerName(entry, existing),
+      );
+      continue;
+    }
+
+    if (!existing.summonerName && entry.summonerName) {
+      latestByFantasy.set(key, { ...existing, summonerName: entry.summonerName });
     }
   }
 
-  const activeEntries = [...latestBySummon.values()].sort(
-    (left, right) => right.detectedAtMs - left.detectedAtMs,
+  const activeEntries = sortFantasyEntries(
+    [...latestByFantasy.values()],
+    persistentDisplay,
   );
   monsterRuntime.fantasyEntries = activeEntries;
 
-  const state = SETTINGS.monsterMonitor.state;
   const whitelist = new Set(state.fantasyWhitelistMonsterIds ?? []);
   const fantasyEntries = activeEntries.filter((entry) =>
     isResonanceFantasyMonsterId(entry.monsterId),
@@ -528,14 +575,102 @@ function buildFantasyRows(now: number): MonsterFantasyRow[] {
       || (USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK
         ? `UID ${uidFromEntityKey(entry.summonerUuid) || entry.summonerUuid}`
         : unknownTeammateName());
+    const key = fantasyEntryKey(entry);
     return {
-      key: `fantasy_${entry.summonUuid}`,
+      key: `fantasy_${key}`,
       summonUuid: entry.summonUuid,
       summonerName,
       fantasyName: resolveFantasyName(entry.monsterId),
       levelText: `Lv${entry.remodelLevel}`,
     };
   });
+}
+
+function buildDbmRows(now: number): TextBuffDisplay[] {
+  const entries: { createTimeMs: number; row: TextBuffDisplay }[] = [];
+  for (const [baseSkillId, event] of monsterRuntime.bossDbmMap) {
+    const remainingMs = Math.max(
+      0,
+      event.createTimeMs + event.durationMs - now,
+    );
+    if (remainingMs <= 0) {
+      monsterRuntime.bossDbmMap.delete(baseSkillId);
+      continue;
+    }
+
+    entries.push({
+      createTimeMs: event.createTimeMs,
+      row: {
+        key: `monster_dbm_${event.baseSkillId}_${event.skillEffectId}`,
+        label: resolveDbmSkillName(event.skillEffectId, event.baseSkillId),
+        valueText: formatTimerText(remainingMs),
+        progressPercent: Math.min(
+          100,
+          Math.max(0, (remainingMs / event.durationMs) * 100),
+        ),
+        showProgress: true,
+      },
+    });
+  }
+  return entries
+    .sort((left, right) => left.createTimeMs - right.createTimeMs)
+    .map((entry) => entry.row);
+}
+
+function buildDbmPlaceholderRows(): TextBuffDisplay[] {
+  return [
+    {
+      key: "monster_dbm_preview",
+      label: tMonster("placeholder.bossDbm", "Boss DBM Preview"),
+      valueText: "12.0",
+      progressPercent: 60,
+      showProgress: true,
+      isPlaceholder: true,
+    },
+  ];
+}
+
+function buildStunRows(entry: StunEntry): TextBuffDisplay[] {
+  const { current, max } = entry;
+  if (max <= 0) return [];
+  const ratio = Math.min(1, Math.max(0, current / max));
+  const progressPercent = Math.round(ratio * 100);
+  const isBroken = current <= 0;
+  const alert: BuffAlertState | undefined = isBroken
+    ? {
+        highlightColor: STUN_BROKEN_HIGHLIGHT_COLOR,
+        flash: true,
+        flashIntervalMs: STUN_BROKEN_FLASH_INTERVAL_MS,
+        applyToProgress: true,
+      }
+    : undefined;
+  return [
+    {
+      key: `stun_${entry.bossEntityUuid}`,
+      label: isBroken
+        ? tMonster("stun.broken", "Staggered")
+        : tMonster("stun.label", "Stun"),
+      valueText: isBroken
+        ? tMonster("stun.brokenValue", "0 / {max}").replace("{max}", String(max))
+        : `${current} / ${max}`,
+      progressPercent,
+      showProgress: true,
+      alert,
+    },
+  ];
+}
+
+function buildStunPlaceholderRows(): TextBuffDisplay[] {
+  return [
+    {
+      key: "stun_preview",
+      label: tMonster("stun.label", "Stun"),
+      valueText: "1600 / 2000",
+      progressPercent: 80,
+      showProgress: true,
+      isPlaceholder: true,
+    },
+  ];
 }
 
 function buildHateRows(entries: HateEntry[], maxDisplay: number): TextBuffDisplay[] {
@@ -622,7 +757,9 @@ export function updateMonsterDisplay() {
   const nextSections: MonsterBossBuffSection[] = [];
   const nextTeammateRows: MonsterTeammateBuffRow[] = [];
   const nextHateSections: MonsterHateSection[] = [];
+  const nextStunSections: MonsterStunSection[] = [];
   let nextFantasyRows = buildFantasyRows(now);
+  let nextDbmRows = buildDbmRows(now);
 
   const sortedBossUids = Array.from(monsterRuntime.bossBuffMap.keys())
     .sort(compareEntityKeys);
@@ -810,8 +947,41 @@ export function updateMonsterDisplay() {
     });
   }
 
+  if (SETTINGS.monsterMonitor.state.stunListEnabled) {
+    const sortedStunBossUids = Array.from(monsterRuntime.bossStunMap.keys())
+      .sort(compareEntityKeys);
+    for (const bossUid of sortedStunBossUids) {
+      const entry = monsterRuntime.bossStunMap.get(bossUid);
+      if (!entry) continue;
+      const stunRows = buildStunRows(entry);
+      if (stunRows.length === 0) continue;
+      nextStunSections.push({
+        bossUid,
+        title: resolveMonsterSectionTitle(bossUid),
+        rows: stunRows,
+      });
+    }
+  }
+
+  if (
+    SETTINGS.monsterMonitor.state.stunListEnabled
+    && nextStunSections.length === 0
+    && monsterRuntime.isEditing
+  ) {
+    nextStunSections.push({
+      bossUid: "preview",
+      title: targetTitle(0),
+      rows: buildStunPlaceholderRows(),
+      isPlaceholder: true,
+    });
+  }
+
   if (nextFantasyRows.length === 0 && monsterRuntime.isEditing) {
     nextFantasyRows = buildFantasyPlaceholderRows();
+  }
+
+  if (nextDbmRows.length === 0 && monsterRuntime.isEditing) {
+    nextDbmRows = buildDbmPlaceholderRows();
   }
 
   monsterRuntime.bossSections = nextSections;
@@ -829,6 +999,8 @@ export function updateMonsterDisplay() {
       : [];
   }
   monsterRuntime.hateSections = nextHateSections;
+  monsterRuntime.stunSections = nextStunSections;
+  monsterRuntime.dbmRows = nextDbmRows;
   monsterRuntime.fantasyRows = nextFantasyRows;
   monsterRuntime.rafId = requestAnimationFrame(updateMonsterDisplay);
 }

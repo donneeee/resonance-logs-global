@@ -22,11 +22,6 @@ function cleanText(value) {
   return String(value ?? "").replace(/\s+/g, " ").trim();
 }
 
-function firstInt(value) {
-  const match = cleanText(value).match(/-?\d+(?:\.\d+)?/);
-  return match ? Number(match[0]) : null;
-}
-
 function extractEnergyThreshold(text) {
   const normalized = cleanText(text);
   const patterns = [

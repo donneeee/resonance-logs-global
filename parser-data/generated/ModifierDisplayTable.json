@@ -14237,11 +14237,12 @@
         "zh-TW": "避火型蜥脊藥丸·等級1",
         "ja": "避火型リザード脊椎の丸薬G1",
         "ko-KR": "화염 저항 도마뱀 등뼈 알약・Lv.1",
-        "fr": "Pilule de feu d'échine de lézard niv. 1",
+        "fr": "Potion",
         "de": "Echsenwirbel-Feuerpille St. 1",
-        "es": "Pastilla ígnea de espinagarto nv. 1",
-        "pt-BR": "Pílula de Fogo de Espinha de Lagarto Nv. 1",
-        "id": "Anti Fire Lizardback Pill - Lv. 1"
+        "es": "Poción",
+        "pt-BR": "Poção",
+        "id": "Anti Fire Lizardback Pill - Lv. 1",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -14254,11 +14255,12 @@
         "zh-TW": "避火型蜥脊藥丸·等級2",
         "ja": "避火型リザード脊椎の丸薬G2",
         "ko-KR": "화염 저항 도마뱀 등뼈 알약・Lv.2",
-        "fr": "Pilule de feu d'échine de lézard niv. 2",
+        "fr": "Potion",
         "de": "Echsenwirbel-Feuerpille St. 2",
-        "es": "Pastilla ígnea de espinagarto nv. 2",
-        "pt-BR": "Pílula de Fogo de Espinha de Lagarto Nv. 2",
-        "id": "Anti Fire Lizardback Pill - Lv. 2"
+        "es": "Poción",
+        "pt-BR": "Poção",
+        "id": "Anti Fire Lizardback Pill - Lv. 2",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -14271,11 +14273,12 @@
         "zh-TW": "避火型蜥脊藥丸·等級3",
         "ja": "避火型リザード脊椎の丸薬G3",
         "ko-KR": "화염 저항 도마뱀 등뼈 알약・Lv.3",
-        "fr": "Pilule de feu d'échine de lézard niv. 3",
+        "fr": "Potion",
         "de": "Echsenwirbel-Feuerpille St. 3",
-        "es": "Pastilla ígnea de espinagarto nv. 3",
-        "pt-BR": "Pílula de Fogo de Espinha de Lagarto Nv. 3",
-        "id": "Anti Fire Lizardback Pill - Lv. 3"
+        "es": "Poción",
+        "pt-BR": "Poção",
+        "id": "Anti Fire Lizardback Pill - Lv. 3",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -14558,11 +14561,12 @@
         "zh-TW": "避寒型蜥脊藥丸·等級1",
         "ja": "避寒型リザード脊椎の丸薬G1",
         "ko-KR": "얼음 저항 도마뱀 등뼈 알약・Lv.1",
-        "fr": "Pilule de glace d'échine de lézard niv. 1",
+        "fr": "Potion",
         "de": "Echsenwirbel-Eispille St. 1",
-        "es": "Pastilla gélida de espinagarto nv. 1",
-        "pt-BR": "Pílula de Gelo de Espinha de Lagarto Nv. 1",
-        "id": "Anti Ice Lizardback Pill - Lv. 1"
+        "es": "Poción",
+        "pt-BR": "Poção",
+        "id": "Anti Ice Lizardback Pill - Lv. 1",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -14575,11 +14579,12 @@
         "zh-TW": "避寒型蜥脊藥丸·等級2",
         "ja": "避寒型リザード脊椎の丸薬G2",
         "ko-KR": "얼음 저항 도마뱀 등뼈 알약・Lv.2",
-        "fr": "Pilule de glace d'échine de lézard niv. 2",
+        "fr": "Potion",
         "de": "Echsenwirbel-Eispille St. 2",
-        "es": "Pastilla gélida de espinagarto nv. 2",
-        "pt-BR": "Pílula de Gelo de Espinha de Lagarto Nv. 2",
-        "id": "Anti Ice Lizardback Pill - Lv. 2"
+        "es": "Poción",
+        "pt-BR": "Poção",
+        "id": "Anti Ice Lizardback Pill - Lv. 2",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -14592,11 +14597,12 @@
         "zh-TW": "避寒型蜥脊藥丸·等級3",
         "ja": "避寒型リザード脊椎の丸薬G3",
         "ko-KR": "얼음 저항 도마뱀 등뼈 알약・Lv.3",
-        "fr": "Pilule de glace d'échine de lézard niv. 3",
+        "fr": "Potion",
         "de": "Echsenwirbel-Eispille St. 3",
-        "es": "Pastilla gélida de espinagarto nv. 3",
-        "pt-BR": "Pílula de Gelo de Espinha de Lagarto Nv. 3",
-        "id": "Anti Ice Lizardback Pill - Lv. 3"
+        "es": "Poción",
+        "pt-BR": "Poção",
+        "id": "Anti Ice Lizardback Pill - Lv. 3",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -15527,11 +15533,12 @@
         "zh-TW": "避風型蜥脊藥丸·等級1",
         "ja": "避風型リザード脊椎の丸薬G1",
         "ko-KR": "바람 저항 도마뱀 등뼈 알약・Lv.1",
-        "fr": "Pilule de vent d'échine de lézard niv. 1",
+        "fr": "Potion",
         "de": "Echsenwirbel-Windpille St. 1",
         "es": "Pastilla eólica de espinagarto nv. 1",
-        "pt-BR": "Pílula de Vento de Espinha de Lagarto Nv. 1",
-        "id": "Anti Wind Lizardback Pill - Lv. 1"
+        "pt-BR": "Poção",
+        "id": "Anti Wind Lizardback Pill - Lv. 1",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -15544,11 +15551,12 @@
         "zh-TW": "避風型蜥脊藥丸·等級2",
         "ja": "避風型リザード脊椎の丸薬G2",
         "ko-KR": "바람 저항 도마뱀 등뼈 알약・Lv.2",
-        "fr": "Pilule de vent d'échine de lézard niv. 2",
+        "fr": "Potion",
         "de": "Echsenwirbel-Windpille St. 2",
         "es": "Pastilla eólica de espinagarto nv. 2",
-        "pt-BR": "Pílula de Vento de Espinha de Lagarto Nv. 2",
-        "id": "Anti Wind Lizardback Pill - Lv. 2"
+        "pt-BR": "Poção",
+        "id": "Anti Wind Lizardback Pill - Lv. 2",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -15561,11 +15569,12 @@
         "zh-TW": "避風型蜥脊藥丸·等級3",
         "ja": "避風型リザード脊椎の丸薬G3",
         "ko-KR": "바람 저항 도마뱀 등뼈 알약・Lv.3",
-        "fr": "Pilule de vent d'échine de lézard niv. 3",
+        "fr": "Potion",
         "de": "Echsenwirbel-Windpille St. 3",
         "es": "Pastilla eólica de espinagarto nv. 3",
-        "pt-BR": "Pílula de Vento de Espinha de Lagarto Nv. 3",
-        "id": "Anti Wind Lizardback Pill - Lv. 3"
+        "pt-BR": "Poção",
+        "id": "Anti Wind Lizardback Pill - Lv. 3",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -15848,11 +15857,12 @@
         "zh-TW": "避雷型蜥脊藥丸·等級1",
         "ja": "避雷型リザード脊椎の丸薬G1",
         "ko-KR": "번개 저항 도마뱀 등뼈 알약・Lv.1",
-        "fr": "Pilule de foudre d'échine de lézard niv. 1",
+        "fr": "Potion",
         "de": "Echsenwirbel-Donnerpille St. 1",
         "es": "Pastilla atronadora de espinagarto nv. 1",
-        "pt-BR": "Pílula de Trovão de Espinha de Lagarto Nv. 1",
-        "id": "Anti Thunder Lizardback Pill - Lv. 1"
+        "pt-BR": "Poção",
+        "id": "Anti Thunder Lizardback Pill - Lv. 1",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -15865,11 +15875,12 @@
         "zh-TW": "避雷型蜥脊藥丸·等級2",
         "ja": "避雷型リザード脊椎の丸薬G2",
         "ko-KR": "번개 저항 도마뱀 등뼈 알약・Lv.2",
-        "fr": "Pilule de foudre d'échine de lézard niv. 2",
+        "fr": "Potion",
         "de": "Echsenwirbel-Donnerpille St. 2",
         "es": "Pastilla atronadora de espinagarto nv. 2",
-        "pt-BR": "Pílula de Trovão de Espinha de Lagarto Nv. 2",
-        "id": "Anti Thunder Lizardback Pill - Lv. 2"
+        "pt-BR": "Poção",
+        "id": "Anti Thunder Lizardback Pill - Lv. 2",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -15882,11 +15893,12 @@
         "zh-TW": "避雷型蜥脊藥丸·等級3",
         "ja": "避雷型リザード脊椎の丸薬G3",
         "ko-KR": "번개 저항 도마뱀 등뼈 알약・Lv.3",
-        "fr": "Pilule de foudre d'échine de lézard niv. 3",
+        "fr": "Potion",
         "de": "Echsenwirbel-Donnerpille St. 3",
         "es": "Pastilla atronadora de espinagarto nv. 3",
-        "pt-BR": "Pílula de Trovão de Espinha de Lagarto Nv. 3",
-        "id": "Anti Thunder Lizardback Pill - Lv. 3"
+        "pt-BR": "Poção",
+        "id": "Anti Thunder Lizardback Pill - Lv. 3",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -16493,11 +16505,12 @@
         "zh-TW": "避夜型蜥脊藥丸·等級1",
         "ja": "避夜型リザード脊椎の丸薬G1",
         "ko-KR": "어둠 저항 도마뱀 등뼈 알약・Lv.1",
-        "fr": "Pilule des ténèbres d'échine de lézard niv. 1",
+        "fr": "Potion",
         "de": "Echsenwirbel-Dunkelpille St. 1",
         "es": "Pastilla oscura de espinagarto nv. 1",
-        "pt-BR": "Pílula de Trevas de Espinha de Lagarto Nv. 1",
-        "id": "Anti Night Lizardback Pill - Lv. 1"
+        "pt-BR": "Poção",
+        "id": "Anti Night Lizardback Pill - Lv. 1",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -16510,11 +16523,12 @@
         "zh-TW": "避夜型蜥脊藥丸·等級2",
         "ja": "避夜型リザード脊椎の丸薬G2",
         "ko-KR": "어둠 저항 도마뱀 등뼈 알약・Lv.2",
-        "fr": "Pilule des ténèbres d'échine de lézard niv. 2",
+        "fr": "Potion",
         "de": "Echsenwirbel-Dunkelpille St. 2",
         "es": "Pastilla oscura de espinagarto nv. 2",
-        "pt-BR": "Pílula de Trevas de Espinha de Lagarto Nv. 2",
-        "id": "Anti Night Lizardback Pill - Lv. 2"
+        "pt-BR": "Poção",
+        "id": "Anti Night Lizardback Pill - Lv. 2",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -16527,11 +16541,12 @@
         "zh-TW": "避夜型蜥脊藥丸·等級3",
         "ja": "避夜型リザード脊椎の丸薬G3",
         "ko-KR": "어둠 저항 도마뱀 등뼈 알약・Lv.3",
-        "fr": "Pilule des ténèbres d'échine de lézard niv. 3",
+        "fr": "Potion",
         "de": "Echsenwirbel-Dunkelpille St. 3",
         "es": "Pastilla oscura de espinagarto nv. 3",
-        "pt-BR": "Pílula de Trevas de Espinha de Lagarto Nv. 3",
-        "id": "Anti Night Lizardback Pill - Lv. 3"
+        "pt-BR": "Poção",
+        "id": "Anti Night Lizardback Pill - Lv. 3",
+        "th": "ยา"
       },
       "iconPath": "ui/atlas/buff/buff_agentia_up"
     },
@@ -18250,9 +18265,9 @@
         "en": "Lucy - Celestial Spirit Mage!",
         "zh-CN": "露西 - 星灵魔导士！参上",
         "zh-TW": "露西 - 星靈魔導士！參上",
-        "fr": "Lucy - Mage Céleste !",
+        "fr": "Mage Céleste !",
         "de": "Lucy - Stellargeist-Magierin!",
-        "es": "Lucy - Maga de Espíritus Celestiales!",
+        "es": "Maga de Espíritus Celestiales!",
         "pt-BR": "Lucy - Maga Celestial!",
         "design": "露西 - 变身"
       },
@@ -18267,7 +18282,7 @@
         "zh-TW": "納茲 - 火之滅龍魔導士！參上",
         "fr": "Natsu - Tueur de Dragon de Feu !",
         "de": "Natsu - Feuer-Dragonslayer!",
-        "es": "Natsu - Dragon slayer ígneo!",
+        "es": "Dragon slayer ígneo!",
         "pt-BR": "Natsu - Dragon Slayer do Fogo!",
         "design": "纳兹 - 变身"
       },
@@ -18313,7 +18328,7 @@
         "fr": "Natsu - Rugissement du dragon de feu",
         "de": "Natsu - Brüllen des Feuerdrachen",
         "es": "Natsu - Rugido del Dragón de Fuego",
-        "pt-BR": "Natsu - Rugido do Dragão de Fogo",
+        "pt-BR": "Rugido do Dragão de Fogo",
         "design": "纳兹 - 龙之力5层消耗后添加全冷却缩减"
       },
       "iconPath": "ui/atlas/buff/buff_icon70"
@@ -18325,10 +18340,10 @@
         "en": "Lucy - Morale Reduction",
         "zh-CN": "露西 - 斗志弱化",
         "zh-TW": "露西 - 鬥志弱化",
-        "fr": "Lucy - Réduction de moral",
+        "fr": "Réduction de moral",
         "de": "Lucy - Moralreduktion",
         "es": "Lucy - Reducción de moral",
-        "pt-BR": "Lucy - Redução de Moral"
+        "pt-BR": "Redução de Moral"
       },
       "iconPath": "ui/atlas/debuff/debuff_icon_83"
     },
@@ -38865,7 +38880,17 @@
       "sourceName": "Prayer Fountain - Twins (Nightmare)",
       "sourceNames": {
         "design": "祝祷之泉buff-双子-噩梦",
-        "en": "Prayer Fountain - Twins (Nightmare)"
+        "en": "Prayer Fountain - Twins (Nightmare)",
+        "zh-CN": "月影与阳炎弱点研究-噩梦",
+        "zh-TW": "月影與陽炎弱點研究-噩夢",
+        "ja": "月影/陽炎の弱点研究-ナイトメア",
+        "ko-KR": "월영과 양염 약점 연구-나이트메어",
+        "fr": "Recherche de faiblesse de Frappe lunaire et Feu solaire - Cauchemar",
+        "de": "Mondschlag- und Sonnenfeuer-Schwachstellenforschung – Albtraum",
+        "es": "Investigación de debilidad: Ataque Lunar y Fulgor (pesadilla)",
+        "pt-BR": "Pesquisa de Fraqueza a Golpe Lunar e Fogo Solar – Pesadelo",
+        "th": "วิจัยจุดอ่อน Moonstrike และ Sunfire - ฝันร้าย",
+        "id": "Riset Weakness Moonshade & Sunflare - Nightmare"
       }
     },
     "mrs:67a06098a1e4": {
@@ -38873,7 +38898,17 @@
       "sourceName": "Prayer Fountain - Armor (Nightmare)",
       "sourceNames": {
         "design": "祝祷之泉buff-铠甲-噩梦",
-        "en": "Prayer Fountain - Armor (Nightmare)"
+        "en": "Prayer Fountain - Armor (Nightmare)",
+        "zh-CN": "蚀花的残影弱点研究-噩梦",
+        "zh-TW": "蝕花的殘影弱點研究-噩夢",
+        "ja": "蝕花残影の弱点研究-ナイトメア",
+        "ko-KR": "잠식된 꽃의 잔상 약점 연구-나이트메어",
+        "fr": "Recherche de faiblesse de la Rémanence de la Fleur d'érosion - Cauchemar",
+        "de": "Erosionsblüten-Nachbild-Schwachstellenforschung – Albtraum",
+        "es": "Investigación de debilidad: Posimagen de brote erosivo (pesadilla)",
+        "pt-BR": "Pesquisa de Fraqueza a Rastro da Flor da Erosão – Pesadelo",
+        "th": "วิจัยจุดอ่อน Erosion Bloom Afterimage - ฝันร้าย",
+        "id": "Riset Weakness Blighted Blossom - Nightmare"
       }
     },
     "mrs:f1b36d93c6fb": {

@@ -3,8 +3,6 @@ import path from "node:path";
 
 const ROOT = process.cwd();
 const OUT_PATH = path.join(ROOT, "DEV_exports", "factor-validation-checklist.xlsx");
-const GENERATED_DIR = path.join(ROOT, "parser-data", "generated");
-const RULES_DIR = path.join(ROOT, "parser-data", "app-rules");
 
 const SHEET_NAMES = [
   "Stormblade",
@@ -94,14 +92,6 @@ function normalizeFactorName(value) {
     .replace(/\bFlame Berserker\b/g, "Twin Striker")
     .replace(/\bTwin Striker\b/g, "Twin Striker")
     .trim();
-}
-
-function factorSearchName(row) {
-  return [
-    row.familyName,
-    row.familyNames?.en,
-    ...Object.values(row.familyNames ?? {}),
-  ].filter(Boolean).join(" ");
 }
 
 function isExpiredSeasonFactor(row) {

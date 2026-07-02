@@ -31,7 +31,6 @@ pub struct NotifyKey {
 #[non_exhaustive]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Pkt {
-    ServerChangeInfo,
     // TODO: change all these names
     SyncSubSceneAttrs = 0x00000001,
     NotifySwitchSceneEnd = 0x00000002,

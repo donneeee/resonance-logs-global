@@ -1,4 +1,4 @@
-﻿<script lang="ts">
+<script lang="ts">
   /**
    * @file Fully customizable header component for the live meter.
    * Renders header elements based on user settings.

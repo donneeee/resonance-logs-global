@@ -47,11 +47,21 @@ pub struct Encounter {
     pub current_scene_id: Option<i32>,
     pub current_scene_name: Option<String>,
     pub current_dungeon_difficulty: Option<i32>,
+    #[serde(default)]
+    pub markers: HashMap<i32, MarkerFact>,
 }
 
 // Use an async-aware RwLock so readers don't block the tokio runtime threads.
 #[allow(dead_code)]
 pub type EncounterMutex = RwLock<Encounter>;
+
+#[derive(Debug, Clone, Copy, PartialEq, Serialize, Deserialize)]
+pub struct MarkerFact {
+    pub uuid: i32,
+    pub skill_id: i32,
+    pub x: Option<f32>,
+    pub z: Option<f32>,
+}
 
 /// Flexible attribute value storage supporting various data types from packet attributes.
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -80,6 +90,8 @@ pub enum AttrType {
     ActorState,
     TargetId,
     GuildId,
+    Facing,
+    /// Legacy name kept so older serialized attr maps can still deserialize.
     AttackPower,
     DefensePower,
     Position,
@@ -123,6 +135,8 @@ pub enum AttrType {
     Lucky,
     CurrentHp,
     MaxHp,
+    MaxStunned,
+    CurrentStunned,
     MaxMp,
     Stamina,
     CurrentShield,
@@ -154,7 +168,7 @@ impl AttrType {
             attr_type::ATTR_ID => Some(AttrType::MonsterId),
             attr_type::ATTR_ACTOR_STATE => Some(AttrType::ActorState),
             attr_type::ATTR_TARGET_ID => Some(AttrType::TargetId),
-            attr_type::ATTR_ATTACK_POWER => Some(AttrType::AttackPower),
+            attr_type::ATTR_FACING => Some(AttrType::Facing),
             attr_type::ATTR_DEFENSE_POWER => Some(AttrType::DefensePower),
             attr_type::ATTR_POS => Some(AttrType::Position),
             attr_type::ATTR_GEAR_TIER => Some(AttrType::GearTier),
@@ -197,6 +211,8 @@ impl AttrType {
             attr_type::ATTR_LUCKY => Some(AttrType::Lucky),
             attr_type::ATTR_CURRENT_HP => Some(AttrType::CurrentHp),
             attr_type::ATTR_MAX_HP => Some(AttrType::MaxHp),
+            attr_type::ATTR_MAX_STUNNED => Some(AttrType::MaxStunned),
+            attr_type::ATTR_CURRENT_STUNNED => Some(AttrType::CurrentStunned),
             attr_type::ATTR_MAX_MP => Some(AttrType::MaxMp),
             attr_type::ATTR_STAMINA => Some(AttrType::Stamina),
             attr_type::ATTR_CURRENT_SHIELD => Some(AttrType::CurrentShield),
@@ -227,7 +243,7 @@ impl AttrType {
             AttrType::MonsterId => attr_type::ATTR_ID,
             AttrType::ActorState => attr_type::ATTR_ACTOR_STATE,
             AttrType::TargetId | AttrType::GuildId => attr_type::ATTR_TARGET_ID,
-            AttrType::AttackPower => attr_type::ATTR_ATTACK_POWER,
+            AttrType::Facing | AttrType::AttackPower => attr_type::ATTR_FACING,
             AttrType::DefensePower => attr_type::ATTR_DEFENSE_POWER,
             AttrType::Position => attr_type::ATTR_POS,
             AttrType::GearTier => attr_type::ATTR_GEAR_TIER,
@@ -270,6 +286,8 @@ impl AttrType {
             AttrType::Lucky => attr_type::ATTR_LUCKY,
             AttrType::CurrentHp => attr_type::ATTR_CURRENT_HP,
             AttrType::MaxHp => attr_type::ATTR_MAX_HP,
+            AttrType::MaxStunned => attr_type::ATTR_MAX_STUNNED,
+            AttrType::CurrentStunned => attr_type::ATTR_CURRENT_STUNNED,
             AttrType::MaxMp => attr_type::ATTR_MAX_MP,
             AttrType::Stamina => attr_type::ATTR_STAMINA,
             AttrType::CurrentShield => attr_type::ATTR_CURRENT_SHIELD,
@@ -1239,7 +1257,8 @@ pub mod attr_type {
     pub const ATTR_ACTOR_STATE: i32 = 0x0b; // Actor state, see EActorState
     pub const ATTR_TARGET_ID: i32 = 0x1e; // AttrTargetId: current attack target entity UUID
     pub const ATTR_GUILD_ID: i32 = ATTR_TARGET_ID; // Legacy alias kept for older callers.
-    pub const ATTR_ATTACK_POWER: i32 = 0x32; // Attack stat
+    pub const ATTR_FACING: i32 = 0x32; // Facing direction, scaled by 100.
+    pub const ATTR_ATTACK_POWER: i32 = ATTR_FACING; // Legacy alias for older callers.
     pub const ATTR_DEFENSE_POWER: i32 = 0x33; // Defense stat
     pub const ATTR_POS: i32 = 0x34; // Position vector
     pub const ATTR_GEAR_TIER: i32 = 0x35; // Gear tier/grade
@@ -1296,6 +1315,8 @@ pub mod attr_type {
     pub const ATTR_LUCKY: i32 = 0x2b7a;
     pub const ATTR_CURRENT_HP: i32 = 0x2c2e;
     pub const ATTR_MAX_HP: i32 = 0x2c38;
+    pub const ATTR_MAX_STUNNED: i32 = 0x1ba; // 442, max stamina/resilience.
+    pub const ATTR_CURRENT_STUNNED: i32 = 0x1bb; // 443, current stamina/resilience.
     pub const ATTR_MAX_MP: i32 = 0x2c39; // Maximum MP/energy
     pub const ATTR_STAMINA: i32 = 0x2c3c; // Current stamina/energy regen
     pub const ATTR_CURRENT_SHIELD: i32 = 0x2c3d; // Current shield/barrier value
@@ -1850,7 +1871,7 @@ mod tests {
     fn attr_type_id_conversion() {
         assert_eq!(AttrType::from_id(0x01), Some(AttrType::Name));
         assert_eq!(AttrType::from_id(0x0b), Some(AttrType::ActorState));
-        assert_eq!(AttrType::from_id(0x32), Some(AttrType::AttackPower));
+        assert_eq!(AttrType::from_id(0x32), Some(AttrType::Facing));
         assert_eq!(AttrType::from_id(0x33), Some(AttrType::DefensePower));
         assert_eq!(AttrType::from_id(0x34), Some(AttrType::Position));
         assert_eq!(AttrType::from_id(0x35), Some(AttrType::GearTier));
@@ -1863,6 +1884,8 @@ mod tests {
         assert_eq!(AttrType::from_id(0x274c), Some(AttrType::RankLevel));
         assert_eq!(AttrType::from_id(0x2c2e), Some(AttrType::CurrentHp));
         assert_eq!(AttrType::from_id(0x2c38), Some(AttrType::MaxHp));
+        assert_eq!(AttrType::from_id(0x1ba), Some(AttrType::MaxStunned));
+        assert_eq!(AttrType::from_id(0x1bb), Some(AttrType::CurrentStunned));
         assert_eq!(AttrType::from_id(0x999999), None);
     }
 
@@ -1870,6 +1893,7 @@ mod tests {
     fn attr_type_to_id_conversion() {
         assert_eq!(AttrType::Name.to_id(), 0x01);
         assert_eq!(AttrType::ActorState.to_id(), 0x0b);
+        assert_eq!(AttrType::Facing.to_id(), 0x32);
         assert_eq!(AttrType::AttackPower.to_id(), 0x32);
         assert_eq!(AttrType::DefensePower.to_id(), 0x33);
         assert_eq!(AttrType::Position.to_id(), 0x34);
@@ -1882,6 +1906,8 @@ mod tests {
         assert_eq!(AttrType::RankLevel.to_id(), 0x274c);
         assert_eq!(AttrType::CurrentHp.to_id(), 0x2c2e);
         assert_eq!(AttrType::MaxHp.to_id(), 0x2c38);
+        assert_eq!(AttrType::MaxStunned.to_id(), 0x1ba);
+        assert_eq!(AttrType::CurrentStunned.to_id(), 0x1bb);
     }
 
     #[test]

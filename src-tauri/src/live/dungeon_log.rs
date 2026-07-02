@@ -5,6 +5,8 @@ use std::sync::LazyLock;
 use std::time::Instant;
 
 const RESET_IGNORE_TARGETS_RELATIVE: &str = "logic/ResetIgnoreTargets.json";
+const DUNGEON_STATE_PLAYING: i32 =
+    blueprotobuf_lib::blueprotobuf::EDungeonState::DungeonStatePlaying as i32;
 
 /// Dungeon target IDs that should not trigger objective-based resets.
 pub static RESET_IGNORE_TARGETS: LazyLock<HashSet<i32>> = LazyLock::new(|| {
@@ -25,9 +27,25 @@ pub enum EncounterResetReason {
 pub struct BattleStateMachine {
     pub deferred_reset: Option<(Instant, EncounterResetReason)>,
     pub active_target_id: Option<i32>,
+    pub last_dungeon_flow_state: Option<i32>,
 }
 
 impl BattleStateMachine {
+    pub fn record_dungeon_flow_state(&mut self, state: i32) -> bool {
+        let previous = self.last_dungeon_flow_state.replace(state);
+        let entered_playing =
+            previous != Some(DUNGEON_STATE_PLAYING) && state == DUNGEON_STATE_PLAYING;
+        if entered_playing {
+            info!(
+                target: "app::live",
+                "Dungeon flow entered playing state previous={:?} current={}",
+                previous,
+                state
+            );
+        }
+        entered_playing
+    }
+
     pub fn record_dungeon_target(
         &mut self,
         target_id: i32,

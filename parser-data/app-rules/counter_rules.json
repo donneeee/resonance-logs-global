@@ -71,7 +71,7 @@
     "sources": [
       {
         "skillCastComplete": {
-          "skillBaseIds": [1520, 1519],
+          "skillBaseIds": [1520, 1519, 1210, 1246, 1240, 1215, 1238],
           "increment": 1
         }
       }
@@ -289,6 +289,25 @@
           "basisPointsPerUnit": 1,
           "maxReductionBasisPoints": 5000
         }
+      }
+    ]
+  },
+  {
+    "ruleId": 11,
+    "name": "Healing Robot Cooldown",
+    "sources": [],
+    "effectSlots": [
+      {
+        "slotId": 1,
+        "threshold": null,
+        "resetBuffId": 873615,
+        "resetBuffTarget": "anyTeam",
+        "onBuffAdd": "freeze",
+        "onBuffChange": "noOp",
+        "onBuffRemove": "noOp",
+        "freezeDurationMs": 45000,
+        "dungeonStartFreezeMs": 30000,
+        "onFreezeExpire": "noOp"
       }
     ]
   }

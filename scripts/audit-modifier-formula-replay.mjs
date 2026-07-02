@@ -246,19 +246,6 @@ function contributionKey(row) {
   ].join(":");
 }
 
-function proofRowKey(row) {
-  return [
-    row?.proofType ?? row?.proofCategory ?? "",
-    row?.ruleId ?? "",
-    row?.providerName ?? "",
-    row?.providerScope ?? "",
-    row?.componentKey ?? "",
-    row?.term ?? "",
-    finiteNumber(row?.amount) === null ? "" : finiteNumber(row.amount).toFixed(8),
-    row?.valueScope ?? "",
-  ].join(":");
-}
-
 function compactBlockers(blockers) {
   if (Array.isArray(blockers)) return blockers.join("; ");
   return Object.entries(blockers ?? {})

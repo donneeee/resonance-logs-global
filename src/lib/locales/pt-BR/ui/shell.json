@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "Start with App",
   "settings.overlay.startWithAppDescription": "Open the shared overlay automatically when the app starts and overlay publishing is enabled.",
+  "settings.overlay.skillAutoHideDaily": "Auto-hide Skill Monitor in Daily Scenes",
+  "settings.overlay.skillAutoHideDailyDescription": "When Skill Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
+  "settings.overlay.monsterAutoHideDaily": "Auto-hide Monster Monitor in Daily Scenes",
+  "settings.overlay.monsterAutoHideDailyDescription": "When Monster Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
   "settings.overlay.autoHideWithLiveWindow": "Ocultar com a janela ao vivo",
   "settings.overlay.autoHideWithLiveWindowDescription": "Quando a ocultação automática da janela ao vivo está ativa, overlays visíveis são ocultados com o medidor ao vivo e só retornam se estavam visíveis antes.",
   "settings.overlay.autoHideWithLiveWindowHelp": "Segue o ciclo de ocultar/mostrar do medidor ao vivo baseado em dano. Não liga overlays sozinho e fica inativo enquanto Auto-hide Live Window estiver desligado.",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "Controla o comportamento geral do aplicativo que não está ligado a uma sobreposição ou visualização de medidor.",
   "settings.hideMainWindowToTray": "Ocultar a janela principal na bandeja",
   "settings.hideMainWindowToTrayDescription": "Quando ativado, fechar a janela principal a oculta em vez de sair. Use o icone da bandeja para restaurar ou Sair para fechar completamente.",
-  "sidebar.openChangelog": "Ver alterações"
+  "sidebar.openChangelog": "Ver alterações",
+  "tool.minimap": "DBM"
 }

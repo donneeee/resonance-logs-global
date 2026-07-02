@@ -7,6 +7,7 @@ mod translation_runtime;
 
 use crate::build_app::build_and_run;
 use log::{info, warn};
+#[cfg(debug_assertions)]
 use specta_typescript::{BigIntExportBehavior, Typescript};
 use std::collections::HashSet;
 use std::io::Write;
@@ -648,7 +649,6 @@ pub fn run() {
             packet_settings_commands::save_packet_capture_settings,
             background_image_commands::clear_imported_background_image,
             background_image_commands::import_background_image,
-            background_image_commands::load_background_image_data_url,
             custom_data_commands::read_custom_definitions,
             custom_data_commands::write_custom_definitions,
             custom_data_commands::read_custom_triggers,
@@ -675,6 +675,10 @@ pub fn run() {
             debug_commands::open_log_dir,
             debug_commands::create_diagnostics_bundle,
             debug_commands::cleanup_diagnostics_files,
+            debug_commands::start_factor_trace_capture,
+            debug_commands::stop_factor_trace_capture,
+            debug_commands::get_factor_trace_capture_status,
+            debug_commands::export_factor_trace_capture,
             module_optimizer::commands::check_gpu_support,
             module_optimizer::commands::get_latest_modules,
             module_optimizer::commands::get_latest_module_status,
@@ -863,12 +867,25 @@ pub fn run() {
         })
         .on_window_event(on_window_event_fn)
         .plugin(tauri_plugin_clipboard_manager::init()) // used to read/write to the clipboard
-        .plugin(tauri_plugin_window_state::Builder::default().build()) // used to remember window size/position https://v2.tauri.app/plugin/window-state/
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                // Position tracking has repeatedly caused WebView2 drag jank.
+                .with_state_flags(persisted_window_state_flags())
+                .build(),
+        ) // used to remember window size/position https://v2.tauri.app/plugin/window-state/
         .plugin(tauri_plugin_single_instance::init(|_app, _argv, _cwd| {})) // used to enforce only 1 instance of the app https://v2.tauri.app/plugin/single-instance/
         .plugin(tauri_plugin_opener::init()) // used to open URLs in the default browser
         .plugin(tauri_plugin_dialog::init()) // used to show save/open dialogs
         .plugin(tauri_plugin_svelte::init()); // used for settings file
     build_and_run(tauri_builder);
+}
+
+fn persisted_window_state_flags() -> StateFlags {
+    StateFlags::SIZE
+        | StateFlags::MAXIMIZED
+        | StateFlags::VISIBLE
+        | StateFlags::DECORATIONS
+        | StateFlags::FULLSCREEN
 }
 
 mod custom_data_commands {
@@ -994,7 +1011,6 @@ mod custom_data_commands {
 
 mod background_image_commands {
     use super::*;
-    use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64_STANDARD};
 
     const MAX_BACKGROUND_IMAGE_BYTES: u64 = 30 * 1024 * 1024;
     const BACKGROUND_IMAGE_PREFIX: &str = "custom-background-";
@@ -1038,33 +1054,6 @@ mod background_image_commands {
                 let _ = std::fs::remove_file(path);
             }
         }
-    }
-
-    fn background_mime_for_extension(extension: &str) -> &'static str {
-        match extension {
-            "jpg" | "jpeg" => "image/jpeg",
-            "webp" => "image/webp",
-            "gif" => "image/gif",
-            "bmp" => "image/bmp",
-            _ => "image/png",
-        }
-    }
-
-    fn imported_background_path(
-        app_handle: &tauri::AppHandle,
-        image_path: &str,
-    ) -> Result<PathBuf, String> {
-        let source = PathBuf::from(image_path.trim());
-        let source = source
-            .canonicalize()
-            .map_err(|e| format!("Failed to resolve background image path: {}", e))?;
-        let dir = background_image_dir(app_handle)?
-            .canonicalize()
-            .map_err(|e| format!("Failed to resolve background image directory: {}", e))?;
-        if !source.starts_with(&dir) {
-            return Err("Background image is outside the imported background folder".to_string());
-        }
-        Ok(source)
     }
 
     #[tauri::command]
@@ -1115,32 +1104,6 @@ mod background_image_commands {
         let dir = background_image_dir(&app_handle)?;
         remove_imported_background_images(&dir);
         Ok(())
-    }
-
-    #[tauri::command]
-    #[specta::specta]
-    pub fn load_background_image_data_url(
-        app_handle: tauri::AppHandle,
-        image_path: String,
-    ) -> Result<String, String> {
-        let source = imported_background_path(&app_handle, &image_path)?;
-        let metadata = std::fs::metadata(&source)
-            .map_err(|e| format!("Failed to read {}: {}", source.display(), e))?;
-        if metadata.len() > MAX_BACKGROUND_IMAGE_BYTES {
-            return Err(
-                "Background image is too large; please choose a file under 30 MB".to_string(),
-            );
-        }
-
-        let extension = supported_background_extension(&source)?;
-        let bytes = std::fs::read(&source)
-            .map_err(|e| format!("Failed to read {}: {}", source.display(), e))?;
-        let encoded = BASE64_STANDARD.encode(bytes);
-        Ok(format!(
-            "data:{};base64,{}",
-            background_mime_for_extension(&extension),
-            encoded
-        ))
     }
 }
 
@@ -1589,6 +1552,33 @@ mod debug_commands {
         include_event_sessions: bool,
     ) -> Result<crate::DiagnosticsCleanupResult, String> {
         crate::cleanup_diagnostics_files(&app_handle, older_than_days, include_event_sessions)
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn start_factor_trace_capture()
+    -> Result<crate::live::factor_trace::FactorTraceStatus, String> {
+        Ok(crate::live::factor_trace::start())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn stop_factor_trace_capture()
+    -> Result<crate::live::factor_trace::FactorTraceStatus, String> {
+        Ok(crate::live::factor_trace::stop())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn get_factor_trace_capture_status()
+    -> Result<crate::live::factor_trace::FactorTraceStatus, String> {
+        Ok(crate::live::factor_trace::status())
+    }
+
+    #[tauri::command]
+    #[specta::specta]
+    pub fn export_factor_trace_capture(destination_path: String) -> Result<String, String> {
+        crate::live::factor_trace::export_to_path(&destination_path)
     }
 }
 
@@ -2225,12 +2215,233 @@ fn write_json_to_zip(
     Ok(())
 }
 
+fn write_bytes_to_zip(
+    zip: &mut zip::ZipWriter<std::fs::File>,
+    opts: zip::write::FileOptions,
+    name: &str,
+    bytes: &[u8],
+) -> Result<(), String> {
+    zip.start_file(name, opts)
+        .map_err(|e| format!("zip: start file {name}: {e}"))?;
+    zip.write_all(bytes)
+        .map_err(|e| format!("zip: write file {name}: {e}"))?;
+    Ok(())
+}
+
+fn collect_recent_application_logs(
+    log_dir: &Path,
+) -> Result<Vec<(std::time::SystemTime, PathBuf, u64)>, String> {
+    let mut files: Vec<(std::time::SystemTime, PathBuf, u64)> = Vec::new();
+    for entry in
+        std::fs::read_dir(log_dir).map_err(|e| format!("read_dir {}: {e}", log_dir.display()))?
+    {
+        let entry = entry.map_err(|e| format!("read_dir entry: {e}"))?;
+        let path = entry.path();
+        if !path.is_file() {
+            continue;
+        }
+        let name = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
+        if (!name.starts_with(LOG_FILE_PREFIX) && !name.starts_with(LEGACY_LOG_FILE_PREFIX))
+            || !name.ends_with(".log")
+        {
+            continue;
+        }
+        let meta =
+            std::fs::metadata(&path).map_err(|e| format!("metadata {}: {e}", path.display()))?;
+        let modified = meta.modified().unwrap_or(std::time::SystemTime::UNIX_EPOCH);
+        files.push((modified, path, meta.len()));
+    }
+    files.sort_by(|a, b| b.0.cmp(&a.0));
+    Ok(files)
+}
+
+fn write_application_logs_to_bundle(
+    zip: &mut zip::ZipWriter<std::fs::File>,
+    opts: zip::write::FileOptions,
+    log_dir: &Path,
+) -> Result<(), String> {
+    const MAX_LOG_FILES: usize = 6;
+    const MAX_LOG_FILE_BYTES: u64 = 25 * 1024 * 1024;
+    const MAX_LOG_TOTAL_BYTES: u64 = 60 * 1024 * 1024;
+
+    let files = collect_recent_application_logs(log_dir)?;
+    let mut manifest_entries = Vec::new();
+    let mut included_bytes = 0u64;
+
+    for (index, (_modified, path, bytes_len)) in files.into_iter().take(MAX_LOG_FILES).enumerate() {
+        let file_name = path
+            .file_name()
+            .and_then(|value| value.to_str())
+            .unwrap_or("resonance-logs-global.log")
+            .to_string();
+        let zip_name = if index == 0 {
+            file_name.clone()
+        } else {
+            format!("logs/{file_name}")
+        };
+
+        let mut entry = json!({
+            "zipPath": zip_name,
+            "sourcePath": path.display().to_string(),
+            "bytes": bytes_len,
+        });
+
+        if bytes_len > MAX_LOG_FILE_BYTES {
+            entry["included"] = json!(false);
+            entry["skipped"] = json!(format!("larger than {MAX_LOG_FILE_BYTES} bytes"));
+            manifest_entries.push(entry);
+            continue;
+        }
+        if included_bytes.saturating_add(bytes_len) > MAX_LOG_TOTAL_BYTES {
+            entry["included"] = json!(false);
+            entry["skipped"] = json!(format!(
+                "bundle log byte cap {MAX_LOG_TOTAL_BYTES} exceeded"
+            ));
+            manifest_entries.push(entry);
+            continue;
+        }
+
+        let bytes = match std::fs::read(&path) {
+            Ok(bytes) => bytes,
+            Err(error) => {
+                entry["included"] = json!(false);
+                entry["error"] = json!(format!("read: {error}"));
+                manifest_entries.push(entry);
+                continue;
+            }
+        };
+        write_bytes_to_zip(zip, opts, &zip_name, &bytes)?;
+        included_bytes = included_bytes.saturating_add(bytes_len);
+        entry["included"] = json!(true);
+        manifest_entries.push(entry);
+    }
+
+    write_json_to_zip(
+        zip,
+        opts,
+        "logs/log-manifest.json",
+        &json!({
+            "schemaVersion": 1,
+            "logDir": log_dir.display().to_string(),
+            "maxLogFiles": MAX_LOG_FILES,
+            "maxLogFileBytes": MAX_LOG_FILE_BYTES,
+            "maxLogTotalBytes": MAX_LOG_TOTAL_BYTES,
+            "includedBytes": included_bytes,
+            "entries": manifest_entries,
+        }),
+    )
+}
+
+fn frontend_packet_capture_settings(frontend_snapshot: Option<&Value>) -> Value {
+    frontend_snapshot
+        .and_then(|snapshot| snapshot.get("frontendStores"))
+        .and_then(|stores| stores.get("packetCapture"))
+        .cloned()
+        .unwrap_or(Value::Null)
+}
+
+fn collect_packet_capture_config_files(app_handle: &tauri::AppHandle) -> Value {
+    let mut seen = HashSet::new();
+    let mut entries = Vec::new();
+
+    let candidates = [
+        ("app_config_dir", app_handle.path().app_config_dir()),
+        ("app_data_dir", app_handle.path().app_data_dir()),
+        ("app_local_data_dir", app_handle.path().app_local_data_dir()),
+    ];
+
+    for (label, dir_result) in candidates {
+        let Ok(dir) = dir_result else {
+            continue;
+        };
+        let store_dir = dir.join("stores");
+        for file_name in ["packetCapture.json", "packetCapture.bin", "packetCapture"] {
+            let path = store_dir.join(file_name);
+            if !seen.insert(path.clone()) {
+                continue;
+            }
+
+            let exists = path.exists();
+            let mut entry = json!({
+                "label": label,
+                "path": path.display().to_string(),
+                "exists": exists,
+            });
+            if !exists {
+                entries.push(entry);
+                continue;
+            }
+
+            match std::fs::read(&path) {
+                Ok(bytes) => {
+                    entry["bytes"] = json!(bytes.len());
+                    if bytes.iter().take(1024).any(|byte| *byte == 0) {
+                        entry["contentSkipped"] = json!("binary");
+                    } else if let Ok(text) = std::str::from_utf8(&bytes) {
+                        match serde_json::from_str::<Value>(text) {
+                            Ok(mut value) => {
+                                redact_settings_json(&mut value);
+                                entry["json"] = value;
+                            }
+                            Err(error) => {
+                                entry["parseError"] = json!(error.to_string());
+                                entry["textPreview"] =
+                                    json!(text.chars().take(8192).collect::<String>());
+                            }
+                        }
+                    } else {
+                        entry["contentSkipped"] = json!("non-utf8");
+                    }
+                }
+                Err(error) => {
+                    entry["error"] = json!(format!("read: {error}"));
+                }
+            }
+
+            entries.push(entry);
+        }
+    }
+
+    json!(entries)
+}
+
+fn collect_capture_diagnostics(
+    app_handle: &tauri::AppHandle,
+    frontend_snapshot: Option<&Value>,
+) -> Value {
+    let npcap =
+        serde_json::to_value(packets::npcap::get_npcap_diagnostics()).unwrap_or_else(|error| {
+            json!({
+                "error": format!("serialize npcap diagnostics: {error}"),
+            })
+        });
+    let devices = match packets::npcap::get_network_devices() {
+        Ok(devices) => json!({
+            "ok": true,
+            "count": devices.len(),
+            "devices": devices,
+        }),
+        Err(error) => json!({
+            "ok": false,
+            "error": error,
+        }),
+    };
+
+    json!({
+        "schemaVersion": 1,
+        "generatedAt": chrono::Local::now().to_rfc3339(),
+        "frontendPacketCapture": frontend_packet_capture_settings(frontend_snapshot),
+        "configFiles": collect_packet_capture_config_files(app_handle),
+        "npcap": npcap,
+        "devices": devices,
+    })
+}
+
 fn create_diagnostics_bundle(
     app_handle: &tauri::AppHandle,
     destination_path: Option<String>,
     settings_snapshot: Option<String>,
 ) -> Result<String, String> {
-    use std::io::Write;
     use zip::write::FileOptions;
 
     let log_dir = app_handle
@@ -2259,54 +2470,28 @@ fn create_diagnostics_bundle(
     let mut zip = zip::ZipWriter::new(file);
     let opts = FileOptions::default().compression_method(zip::CompressionMethod::Deflated);
 
-    // Include only the most recent application log file.
-    let mut files: Vec<(std::time::SystemTime, PathBuf)> = Vec::new();
-    for entry in
-        std::fs::read_dir(&log_dir).map_err(|e| format!("read_dir {}: {e}", log_dir.display()))?
-    {
-        let entry = entry.map_err(|e| format!("read_dir entry: {e}"))?;
-        let path = entry.path();
-        if !path.is_file() {
-            continue;
-        }
-        let name = path.file_name().and_then(|s| s.to_str()).unwrap_or("");
-        if (!name.starts_with(LOG_FILE_PREFIX) && !name.starts_with(LEGACY_LOG_FILE_PREFIX))
-            || !name.ends_with(".log")
-        {
-            continue;
-        }
-        let meta =
-            std::fs::metadata(&path).map_err(|e| format!("metadata {}: {e}", path.display()))?;
-        let modified = meta.modified().unwrap_or(std::time::SystemTime::UNIX_EPOCH);
-        files.push((modified, path));
-    }
-    files.sort_by(|a, b| b.0.cmp(&a.0));
-
-    let Some((_, path)) = files.into_iter().next() else {
-        return Err("No application log file found in log directory".to_string());
-    };
-
-    let name = path
-        .file_name()
-        .and_then(|s| s.to_str())
-        .unwrap_or("resonance-logs-global.log");
-
-    // Avoid zipping extremely large files.
-    let meta = std::fs::metadata(&path).map_err(|e| format!("metadata {}: {e}", path.display()))?;
-    const MAX_BYTES: u64 = 25 * 1024 * 1024;
-    if meta.len() > MAX_BYTES {
-        return Err(format!(
-            "Log file too large to include in bundle ({} bytes; limit {} bytes)",
-            meta.len(),
-            MAX_BYTES
-        ));
+    let mut frontend_snapshot = settings_snapshot.as_deref().map(|snapshot| {
+        serde_json::from_str::<serde_json::Value>(snapshot).unwrap_or_else(|error| {
+            json!({
+                "schemaVersion": 1,
+                "parseError": error.to_string(),
+                "raw": snapshot,
+            })
+        })
+    });
+    if let Some(snapshot) = &mut frontend_snapshot {
+        redact_settings_json(snapshot);
     }
 
-    let bytes = std::fs::read(&path).map_err(|e| format!("read {}: {e}", path.display()))?;
-    zip.start_file(name, opts)
-        .map_err(|e| format!("zip: start file {name}: {e}"))?;
-    zip.write_all(&bytes)
-        .map_err(|e| format!("zip: write file {name}: {e}"))?;
+    write_application_logs_to_bundle(&mut zip, opts, &log_dir)?;
+
+    let capture_diagnostics = collect_capture_diagnostics(app_handle, frontend_snapshot.as_ref());
+    write_json_to_zip(
+        &mut zip,
+        opts,
+        "capture/capture-diagnostics.json",
+        &capture_diagnostics,
+    )?;
 
     let backend_settings_snapshot = collect_backend_settings_snapshot(app_handle);
     write_json_to_zip(
@@ -2316,16 +2501,7 @@ fn create_diagnostics_bundle(
         &backend_settings_snapshot,
     )?;
 
-    if let Some(settings_snapshot) = settings_snapshot {
-        let mut frontend_snapshot = serde_json::from_str::<serde_json::Value>(&settings_snapshot)
-            .unwrap_or_else(|error| {
-                json!({
-                    "schemaVersion": 1,
-                    "parseError": error.to_string(),
-                    "raw": settings_snapshot,
-                })
-            });
-        redact_settings_json(&mut frontend_snapshot);
+    if let Some(frontend_snapshot) = frontend_snapshot {
         write_json_to_zip(
             &mut zip,
             opts,
@@ -2493,6 +2669,17 @@ fn on_window_event_fn(window: &Window, event: &WindowEvent) {
     match event {
         // when you click the X button to close a window
         WindowEvent::CloseRequested { api, .. } => {
+            if let Err(e) = window
+                .app_handle()
+                .save_window_state(persisted_window_state_flags())
+            {
+                warn!(
+                    "failed to save window state before closing {}: {}",
+                    window.label(),
+                    e
+                );
+            }
+
             if window.label() == WINDOW_MAIN_LABEL {
                 if HIDE_MAIN_WINDOW_TO_TRAY.load(Ordering::Relaxed) {
                     api.prevent_close();
@@ -2512,29 +2699,30 @@ fn on_window_event_fn(window: &Window, event: &WindowEvent) {
             }
         }
         WindowEvent::Focused(focused) if !focused => {
-            if let Err(e) = window.app_handle().save_window_state(StateFlags::all()) {
+            if let Err(e) = window
+                .app_handle()
+                .save_window_state(persisted_window_state_flags())
+            {
                 warn!("failed to save window state for {}: {}", window.label(), e);
             }
         }
         WindowEvent::Moved(_) | WindowEvent::Resized(_) => {
             let source_label = window.label();
             let target_label = if source_label == WINDOW_GAME_OVERLAY_LABEL {
-                Some(WINDOW_MONSTER_OVERLAY_LABEL)
+                WINDOW_MONSTER_OVERLAY_LABEL
             } else if source_label == WINDOW_MONSTER_OVERLAY_LABEL {
-                Some(WINDOW_GAME_OVERLAY_LABEL)
+                WINDOW_GAME_OVERLAY_LABEL
             } else {
-                None
+                return;
             };
 
-            if let Some(target_label) = target_label {
-                if let Err(e) =
-                    mirror_overlay_window_bounds(&window.app_handle(), source_label, target_label)
-                {
-                    warn!(
-                        "failed to mirror overlay window bounds from {} to {}: {}",
-                        source_label, target_label, e
-                    );
-                }
+            if let Err(e) =
+                mirror_overlay_window_bounds(&window.app_handle(), source_label, target_label)
+            {
+                warn!(
+                    "failed to mirror overlay window bounds from {} to {}: {}",
+                    source_label, target_label, e
+                );
             }
         }
         _ => {}

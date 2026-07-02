@@ -19,6 +19,10 @@ import {
   ensureOverlayPositions,
   ensureOverlaySizes,
 } from "./overlay-utils";
+import {
+  forceLiveWindowCursorPassthrough,
+  requestLiveWindowInteractionRestore,
+} from "$lib/utils.svelte";
 
 type OverlayPositionKey = keyof Omit<
   typeof DEFAULT_OVERLAY_POSITIONS,
@@ -46,6 +50,56 @@ function clampIconSize(value: number) {
 
 function clampStackCounterSize(value: number) {
   return Math.max(6, Math.min(24, Math.round(value)));
+}
+
+function dragTargetsMatch(left: DragTarget, right: DragTarget): boolean {
+  if (left.kind !== right.kind) return false;
+  switch (left.kind) {
+    case "group":
+      return right.kind === "group" && left.key === right.key;
+    case "customPanelGroup":
+      return right.kind === "customPanelGroup" && left.groupId === right.groupId;
+    case "standaloneIcon":
+      return right.kind === "standaloneIcon" && left.layoutKey === right.layoutKey;
+    case "iconBuff":
+      return right.kind === "iconBuff" && left.baseId === right.baseId;
+    case "skillDuration":
+      return right.kind === "skillDuration" && left.skillId === right.skillId;
+    case "categoryIcon":
+      return right.kind === "categoryIcon" && left.categoryKey === right.categoryKey;
+    case "buffGroup":
+      return right.kind === "buffGroup" && left.groupId === right.groupId;
+    case "individualAllGroup":
+      return right.kind === "individualAllGroup";
+  }
+}
+
+function getDragPreviewPosition(
+  target: DragTarget,
+): { x: number; y: number } | null {
+  const dragState = overlayRuntime.dragState;
+  if (!dragState || !dragTargetsMatch(dragState.target, target)) return null;
+  return dragState.currentPos;
+}
+
+function applyDragPosition(target: DragTarget, nextPos: { x: number; y: number }) {
+  if (target.kind === "group") {
+    setGroupPosition(target.key, nextPos);
+  } else if (target.kind === "customPanelGroup") {
+    setCustomPanelGroupPosition(target.groupId, nextPos);
+  } else if (target.kind === "standaloneIcon") {
+    setStandaloneIconPosition(target.layoutKey, nextPos);
+  } else if (target.kind === "individualAllGroup") {
+    setIndividualAllGroupPosition(nextPos);
+  } else if (target.kind === "buffGroup") {
+    setBuffGroupPosition(target.groupId, nextPos);
+  } else if (target.kind === "categoryIcon") {
+    setCategoryIconPosition(target.categoryKey, nextPos);
+  } else if (target.kind === "skillDuration") {
+    setSkillDurationPosition(target.skillId, nextPos);
+  } else {
+    setIconBuffPosition(target.baseId, nextPos);
+  }
 }
 
 function getLegacyStandaloneIconPositionRecord() {
@@ -159,10 +213,14 @@ export function getOverlaySizes() {
 export function getGroupPosition(
   key: OverlayPositionKey,
 ) {
+  const preview = getDragPreviewPosition({ kind: "group", key });
+  if (preview) return preview;
   return getOverlayPositions()[key];
 }
 
 export function getIconBuffPosition(baseId: number) {
+  const preview = getDragPreviewPosition({ kind: "iconBuff", baseId });
+  if (preview) return preview;
   const positions = getOverlayPositions();
   const cached = positions.iconBuffPositions[baseId];
   if (cached) return cached;
@@ -174,6 +232,8 @@ export function getIconBuffPosition(baseId: number) {
 }
 
 export function getSkillDurationPosition(skillId: number, fallbackIndex = 0) {
+  const preview = getDragPreviewPosition({ kind: "skillDuration", skillId });
+  if (preview) return preview;
   const positions = getOverlayPositions();
   const cached = positions.skillDurationPositions[skillId];
   if (cached) return cached;
@@ -191,6 +251,8 @@ export function getCategoryIconPosition(
   categoryKey: BuffCategoryKey,
   fallbackIndex = 0,
 ) {
+  const preview = getDragPreviewPosition({ kind: "categoryIcon", categoryKey });
+  if (preview) return preview;
   const positions = getOverlayPositions();
   const cached = positions.categoryIconPositions?.[categoryKey];
   if (cached) return cached;
@@ -205,6 +267,8 @@ export function getDisplayIconPosition(
   fallbackIndex = 0,
 ) {
   if (buff.layoutKey) {
+    const preview = getDragPreviewPosition({ kind: "standaloneIcon", layoutKey: buff.layoutKey });
+    if (preview) return preview;
     const cached = getStandaloneIconPositionRecord()[buff.layoutKey];
     if (cached) return cached;
     const legacy = getLegacyStandaloneIconPositionRecord()[buff.layoutKey];
@@ -214,6 +278,24 @@ export function getDisplayIconPosition(
     return getCategoryIconPosition(buff.categoryKey, fallbackIndex);
   }
   return getIconBuffPosition(buff.baseId);
+}
+
+export function getCustomPanelGroupPosition(
+  groupId: string,
+  fallback: { x: number; y: number },
+) {
+  return getDragPreviewPosition({ kind: "customPanelGroup", groupId }) ?? fallback;
+}
+
+export function getBuffGroupPosition(
+  groupId: string,
+  fallback: { x: number; y: number },
+) {
+  return getDragPreviewPosition({ kind: "buffGroup", groupId }) ?? fallback;
+}
+
+export function getIndividualAllGroupPosition(fallback: { x: number; y: number }) {
+  return getDragPreviewPosition({ kind: "individualAllGroup" }) ?? fallback;
 }
 
 export function getGroupScale(
@@ -445,7 +527,8 @@ export function startDrag(
     target,
     startX: e.clientX,
     startY: e.clientY,
-    startPos,
+    startPos: { ...startPos },
+    currentPos: { ...startPos },
   };
 }
 
@@ -511,45 +594,34 @@ export function onGlobalPointerMove(e: PointerEvent) {
     return;
   }
 
-  if (!overlayRuntime.dragState) return;
+  const dragState = overlayRuntime.dragState;
+  if (!dragState) return;
   const nextPos = {
     x: Math.max(
       0,
       Math.min(
         window.innerWidth - 20,
-        overlayRuntime.dragState.startPos.x +
-          (e.clientX - overlayRuntime.dragState.startX),
+        dragState.startPos.x + (e.clientX - dragState.startX),
       ),
     ),
     y: Math.max(
       0,
       Math.min(
         window.innerHeight - 20,
-        overlayRuntime.dragState.startPos.y +
-          (e.clientY - overlayRuntime.dragState.startY),
+        dragState.startPos.y + (e.clientY - dragState.startY),
       ),
     ),
   };
-  if (overlayRuntime.dragState.target.kind === "group") {
-    setGroupPosition(overlayRuntime.dragState.target.key, nextPos);
-  } else if (overlayRuntime.dragState.target.kind === "customPanelGroup") {
-    setCustomPanelGroupPosition(overlayRuntime.dragState.target.groupId, nextPos);
-  } else if (overlayRuntime.dragState.target.kind === "standaloneIcon") {
-    setStandaloneIconPosition(overlayRuntime.dragState.target.layoutKey, nextPos);
-  } else if (overlayRuntime.dragState.target.kind === "individualAllGroup") {
-    setIndividualAllGroupPosition(nextPos);
-  } else if (overlayRuntime.dragState.target.kind === "buffGroup") {
-    setBuffGroupPosition(overlayRuntime.dragState.target.groupId, nextPos);
-  } else if (overlayRuntime.dragState.target.kind === "categoryIcon") {
-    setCategoryIconPosition(overlayRuntime.dragState.target.categoryKey, nextPos);
-  } else if (overlayRuntime.dragState.target.kind === "skillDuration") {
-    setSkillDurationPosition(overlayRuntime.dragState.target.skillId, nextPos);
-  } else {
-    setIconBuffPosition(overlayRuntime.dragState.target.baseId, nextPos);
-  }
+  overlayRuntime.dragState = {
+    ...dragState,
+    currentPos: nextPos,
+  };
 }
 
 export function onGlobalPointerUp() {
+  if (overlayRuntime.dragState) {
+    applyDragPosition(overlayRuntime.dragState.target, overlayRuntime.dragState.currentPos);
+  }
   overlayRuntime.dragState = null;
   overlayRuntime.resizeState = null;
 }
@@ -564,6 +636,15 @@ export async function setEditMode(editing: boolean) {
   }
 
   await overlayRuntime.currentWindow.setIgnoreCursorEvents(!editing);
+  if (editing) {
+    await forceLiveWindowCursorPassthrough().catch((error) => {
+      console.warn("Failed to make live window pass-through during overlay edit:", error);
+    });
+  } else {
+    await requestLiveWindowInteractionRestore().catch((error) => {
+      console.warn("Failed to request live window interaction restore after overlay edit:", error);
+    });
+  }
 
   if (!editing && overlayRuntime.restoreVisibilityAfterEditing) {
     overlayRuntime.restoreVisibilityAfterEditing = false;

@@ -507,14 +507,6 @@ function predicateTagsForRule(ruleId, indexes) {
   ]);
 }
 
-function targetWindowEntriesForHit(link, hit) {
-  const targetUid = positiveNumber(hit?.targetUid);
-  if (targetUid === null) return [];
-  return link.entries.filter((entry) =>
-    entry.modifierHostUid === targetUid || entry.modifierSourceUid === targetUid
-  );
-}
-
 function ruleIdsForBuffId(buffId, indexes) {
   if (buffId === null || buffId === undefined) return [];
   return indexes.ruleIdsByBuffId.get(String(buffId)) ?? [];
@@ -2316,7 +2308,7 @@ function targetWindowEvidenceKey(window) {
   ].join("|");
 }
 
-function createTargetWindowEvidenceSummary(window, indexes) {
+function createTargetWindowEvidenceSummary(window) {
   return {
     key: targetWindowEvidenceKey(window),
     modifierBaseIds: new Set(),
@@ -2347,7 +2339,7 @@ function updateTargetWindowEvidenceSummaries(global, targetWindowEvidence, hit, 
     const key = targetWindowEvidenceKey(window);
     let row = global.targetWindowEvidenceSummaries.get(key);
     if (!row) {
-      row = createTargetWindowEvidenceSummary(window, indexes);
+      row = createTargetWindowEvidenceSummary(window);
       global.targetWindowEvidenceSummaries.set(key, row);
     }
 

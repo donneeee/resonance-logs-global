@@ -144,10 +144,6 @@ function uniqueNumbers(values) {
   return [...new Set(asArray(values).map(finiteNumber).filter((value) => value !== null))];
 }
 
-function uniqueStrings(values) {
-  return [...new Set(asArray(values).map((value) => String(value)).filter(Boolean))];
-}
-
 function rawJson(entry) {
   if (!entry?.raw) return null;
   try {

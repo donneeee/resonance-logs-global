@@ -3,8 +3,13 @@
   import CustomPanelGroup from "./CustomPanelGroup.svelte";
   import EditBanner from "./EditBanner.svelte";
   import GroupedBuffDisplay from "./GroupedBuffDisplay.svelte";
+  import MonsterBossDbmPanel from "../monster-overlay/MonsterBossDbmPanel.svelte";
   import MonsterBuffPanel from "../monster-overlay/MonsterBuffPanel.svelte";
+  import MonsterFantasyPanel from "../monster-overlay/MonsterFantasyPanel.svelte";
   import MonsterHatePanel from "../monster-overlay/MonsterHatePanel.svelte";
+  import MonsterStunPanel from "../monster-overlay/MonsterStunPanel.svelte";
+  import MonsterTeammateBuffPanel from "../monster-overlay/MonsterTeammateBuffPanel.svelte";
+  import MinimapOverlayPanels from "../minimap-overlay/MinimapOverlayPanels.svelte";
   import IndividualBuffDisplay from "./IndividualBuffDisplay.svelte";
   import PanelAttrGroup from "./PanelAttrGroup.svelte";
   import BuffUptimeGroup from "./BuffUptimeGroup.svelte";
@@ -22,14 +27,18 @@
   } from "./overlay-state.svelte.js";
   import { SETTINGS } from "$lib/settings-store";
   import { initMonsterOverlay } from "../monster-overlay/monster-state.svelte.js";
+  import { initMinimapOverlay } from "../minimap-overlay/minimap-events.svelte.js";
 
   const editing = $derived(isEditing());
   const visibility = $derived(overlayVisibility());
   const displayMode = $derived(buffDisplayMode());
+  const monsterVisibility = $derived(SETTINGS.monsterMonitor.state.overlayVisibility);
   const hateEnabled = $derived(SETTINGS.monsterMonitor.state.hateListEnabled);
+  const stunEnabled = $derived(SETTINGS.monsterMonitor.state.stunListEnabled);
 
   onMount(initOverlay);
   onMount(initMonsterOverlay);
+  onMount(() => initMinimapOverlay({ manageClock: false, manageEditMode: false }));
 </script>
 
 <div class="overlay-root" class:editing={editing}>
@@ -65,10 +74,29 @@
     <ShieldDetailGroup />
   {/if}
 
-  <MonsterBuffPanel />
+  {#if (monsterVisibility?.showMonsterBuffPanel ?? true)}
+    <MonsterBuffPanel />
+  {/if}
+  {#if (monsterVisibility?.showTeammateBuffPanel ?? true)}
+    <MonsterTeammateBuffPanel />
+  {/if}
   {#if hateEnabled}
     <MonsterHatePanel />
   {/if}
+  {#if stunEnabled && (monsterVisibility?.showStunPanel ?? false)}
+    <MonsterStunPanel />
+  {/if}
+  {#if (monsterVisibility?.showFantasyPanel ?? false)}
+    <MonsterFantasyPanel />
+  {/if}
+  {#if (monsterVisibility?.showBossDbmPanel ?? false)}
+    <MonsterBossDbmPanel />
+  {/if}
+
+  <MinimapOverlayPanels
+    {editing}
+    hideWhenInactive
+  />
 
   <CustomTriggerGroups />
 
@@ -159,7 +187,12 @@
   }
 
   :global(.monster-buff-panel.editable),
-  :global(.monster-hate-panel.editable) {
+  :global(.teammate-buff-panel.editable),
+  :global(.monster-hate-panel.editable),
+  :global(.fantasy-panel.editable),
+  :global(.monster-boss-dbm-panel.editable),
+  :global(.map-panel.editable),
+  :global(.info-panel.editable) {
     outline: 2px dashed rgba(59, 130, 246, 0.95) !important;
     border: none !important;
     border-radius: 10px;
@@ -189,7 +222,12 @@
   }
 
   :global(.monster-buff-panel.editable .group-tag),
-  :global(.monster-hate-panel.editable .group-tag) {
+  :global(.teammate-buff-panel.editable .group-tag),
+  :global(.monster-hate-panel.editable .group-tag),
+  :global(.fantasy-panel.editable .group-tag),
+  :global(.monster-boss-dbm-panel.editable .group-tag),
+  :global(.map-panel.editable .group-tag),
+  :global(.info-panel.editable .group-tag) {
     background: rgba(30, 64, 175, 0.92) !important;
     border-color: rgba(191, 219, 254, 0.95) !important;
   }
@@ -215,8 +253,17 @@
   }
 
   :global(.monster-buff-panel.editable .resize-handle),
-  :global(.monster-hate-panel.editable .resize-handle) {
+  :global(.teammate-buff-panel.editable .resize-handle),
+  :global(.monster-hate-panel.editable .resize-handle),
+  :global(.fantasy-panel.editable .resize-handle),
+  :global(.monster-boss-dbm-panel.editable .resize-handle),
+  :global(.map-panel.editable .resize-handle),
+  :global(.info-panel.editable .resize-handle) {
     background: rgba(59, 130, 246, 0.95) !important;
+  }
+
+  :global(.info-panel) {
+    min-width: 220px;
   }
 
   :global(.resize-handle.icon) {

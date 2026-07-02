@@ -235,12 +235,6 @@ function formatNumber(value) {
   return Math.round(number).toLocaleString("en-US");
 }
 
-function formatDecimal(value, places = 2) {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return "n/a";
-  return number.toFixed(places);
-}
-
 function formatPercent(value) {
   const number = Number(value);
   if (!Number.isFinite(number)) return "n/a";

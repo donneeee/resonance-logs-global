@@ -1204,9 +1204,6 @@ function buildLabelMap(gameScan) {
 function labelsForId(labelMap, id) {
   return Number.isFinite(id) ? normalizeStatLabels(labelMap.get(id) ?? []) : [];
 }
-function firstFriendlyLabel(labelMap, id) {
-  return labelsForId(labelMap, id)[0] ?? null;
-}
 function findStructuredLabelsById(buffer, id, limit = 12) {
   if (!Number.isFinite(id)) return [];
   const labels = new Set();
@@ -2570,7 +2567,6 @@ function isProbablyStatLabel(label) {
   if (typeof label !== "string") return false;
   const value = label.trim();
   if (!value) return false;
-  const lower = value.toLowerCase();
   if (/\[(ultimate|dreambound|dream)\]/i.test(value)) return false;
   if (/bracelet/i.test(value)) return false;
   if (/set/i.test(value)) return false;

@@ -32,6 +32,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "Start with App",
   "settings.overlay.startWithAppDescription": "Open the shared overlay automatically when the app starts and overlay publishing is enabled.",
+  "settings.overlay.skillAutoHideDaily": "Auto-hide Skill Monitor in Daily Scenes",
+  "settings.overlay.skillAutoHideDailyDescription": "When Skill Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
+  "settings.overlay.monsterAutoHideDaily": "Auto-hide Monster Monitor in Daily Scenes",
+  "settings.overlay.monsterAutoHideDailyDescription": "When Monster Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
   "settings.overlay.autoHideWithLiveWindow": "Auto-hide with Live Window",
   "settings.overlay.autoHideWithLiveWindowDescription": "When Auto-hide Live Window is enabled, visible overlay windows hide with the live meter and return only if they were visible before auto-hide.",
   "settings.overlay.autoHideWithLiveWindowHelp": "This follows the live meter's damage-based hide/show cycle. It does not turn overlays on by itself, and it stays inactive while Auto-hide Live Window is off.",
@@ -83,5 +87,6 @@
   "update.emptyNotes": "No release notes are available for this version.",
   "update.title": "New Version Available",
   "update.versionLine": "Current version v{currentVersion}, latest version v{latestVersion}",
-  "sidebar.openChangelog": "View changelog"
+  "sidebar.openChangelog": "View changelog",
+  "tool.minimap": "DBM"
 }

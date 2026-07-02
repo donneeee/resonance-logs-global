@@ -654,7 +654,8 @@ function qualifyRuntimeImagineEntry(
 ): ModifierSourceCatalogEntry {
   const owner = sourceConfigSkillNames.get(sourceConfigId);
   if (!owner) return entry;
-  const { displayOwnerKind: _displayOwnerKind, ...entryWithoutGenericOwner } = entry;
+  const { displayOwnerKind, ...entryWithoutGenericOwner } = entry;
+  void displayOwnerKind;
   const sourceNames = qualifyLocalizedNames(owner.names, entry.sourceNames, owner.name, entry.sourceName ?? entry.sourceId);
   return {
     ...entryWithoutGenericOwner,

@@ -385,14 +385,6 @@ async importBackgroundImage(sourcePath: string) : Promise<Result<string, string>
     else return { status: "error", error: e  as any };
 }
 },
-async loadBackgroundImageDataUrl(imagePath: string) : Promise<Result<string, string>> {
-    try {
-    return { status: "ok", data: await TAURI_INVOKE("load_background_image_data_url", { imagePath }) };
-} catch (e) {
-    if(e instanceof Error) throw e;
-    else return { status: "error", error: e  as any };
-}
-},
 async readCustomDefinitions() : Promise<Result<CustomDefinitionsFile, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("read_custom_definitions") };
@@ -582,6 +574,38 @@ async createDiagnosticsBundle(destinationPath: string | null, settingsSnapshot: 
 async cleanupDiagnosticsFiles(olderThanDays: number | null, includeEventSessions: boolean) : Promise<Result<DiagnosticsCleanupResult, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("cleanup_diagnostics_files", { olderThanDays, includeEventSessions }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async startFactorTraceCapture() : Promise<Result<FactorTraceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("start_factor_trace_capture") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async stopFactorTraceCapture() : Promise<Result<FactorTraceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("stop_factor_trace_capture") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async getFactorTraceCaptureStatus() : Promise<Result<FactorTraceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_factor_trace_capture_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async exportFactorTraceCapture(destinationPath: string) : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("export_factor_trace_capture", { destinationPath }) };
 } catch (e) {
     if(e instanceof Error) throw e;
     else return { status: "error", error: e  as any };
@@ -846,7 +870,7 @@ deletedCount: number;
 preservedFavoriteCount: number }
 export type Device = { name: string; description: string | null }
 export type DiagnosticsCleanupResult = { deletedFiles: number; deletedBytes: number; scannedFiles: number; skippedFiles: number; errors: string[] }
-export type EffectSlotConfig = { slotId: number; threshold: number | null; resetBuffId: number; resetSourceConfigId?: number | null; onBuffAdd?: CounterAction; onBuffChange?: CounterAction; onBuffRemove?: CounterAction; freezeDurationMs?: number | null; onFreezeExpire?: CounterAction; altFreeze?: AltFreezeConfig | null; thresholdModifier?: AttrModifier | null; freezeDurationModifier?: AttrModifier | null; freezeOnThreshold?: boolean; countThresholdProcs?: boolean; countResetBuffProcs?: boolean; resetSkillKeys?: number[] | null; onResetSkill?: CounterAction }
+export type EffectSlotConfig = { slotId: number; threshold: number | null; resetBuffId: number; resetSourceConfigId?: number | null; resetBuffTarget?: ResetBuffTarget; onBuffAdd?: CounterAction; onBuffChange?: CounterAction; onBuffRemove?: CounterAction; freezeDurationMs?: number | null; onFreezeExpire?: CounterAction; altFreeze?: AltFreezeConfig | null; thresholdModifier?: AttrModifier | null; freezeDurationModifier?: AttrModifier | null; freezeOnThreshold?: boolean; countThresholdProcs?: boolean; countResetBuffProcs?: boolean; resetSkillKeys?: number[] | null; onResetSkill?: CounterAction; dungeonStartFreezeMs?: number | null }
 /**
  * Filters for querying encounters.
  */
@@ -949,6 +973,7 @@ export type EventLoggerEntry = { tsMs: number; category: string; action: string;
 export type EventLoggerFileStoragePayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean; enabled: boolean; storeLogFiles: boolean; includeRepeatedSnapshotRows: boolean; deleteOlderThanDays: number | null; captureCensusEnabled: boolean; attributionCensusEnabled: boolean }
 export type EventLoggerSessionDirectoryPayload = { configuredDirectory: string | null; resolvedDirectory: string; usingDefault: boolean }
 export type FactorCounterTemplate = { itemIds?: number[]; usesGlobalEnergy?: boolean; sources?: CounterSource[]; effectSlots?: EffectSlotConfig[] }
+export type FactorTraceStatus = { enabled: boolean; startedAtMs: number | null; entryCount: number; droppedEntries: number; entryLimit: number }
 export type GearSetAttrState = { attrId: number; value: number }
 export type GearSetState = { suitId: number; attrType: number | null; suitAttrs: GearSetAttrState[]; runtimeSource: string }
 export type GpuSupport = { cuda_available: boolean; opencl_available: boolean }
@@ -1020,6 +1045,7 @@ rows: EncounterSummaryDto[];
  * The total number of encounters.
  */
 totalCount: number }
+export type ResetBuffTarget = "selfPlayer" | "anyTeam"
 /**
  * The result of a query for scene names.
  */

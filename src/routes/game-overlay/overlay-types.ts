@@ -10,6 +10,9 @@ export type SkillDisplay = {
   percent: number;
   text: string;
   chargesText?: string;
+  usable: boolean;
+  chargesAvailable?: number;
+  maxCharges?: number;
   accelerationText?: string;
   debugTitle?: string;
 };
@@ -102,6 +105,7 @@ export type DragState = {
   startX: number;
   startY: number;
   startPos: { x: number; y: number };
+  currentPos: { x: number; y: number };
 };
 
 export type ResizeTarget =

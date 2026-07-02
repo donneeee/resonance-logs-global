@@ -4,6 +4,7 @@
   import BuffGroupGrid from "./BuffGroupGrid.svelte";
   import IconBuffCell from "./IconBuffCell.svelte";
   import {
+    getBuffGroupPosition,
     getIconBuffPosition,
     getIconBuffSize,
     getIconBuffStackCounterSize,
@@ -31,14 +32,16 @@
 
 {#each groups as group (group.id)}
   {@const groupBuffs = groupedBuffMap.get(group.id) ?? []}
+  {@const groupPosition = getBuffGroupPosition(group.id, group.position)}
   {#if groupBuffs.length > 0 || editing}
     <BuffGroupGrid
       {group}
+      position={groupPosition}
       buffs={groupBuffs}
       {stackCounterSize}
       editable={editing}
       tagText={`${group.name}${group.monitorAll ? ` (${t("allBuffs", "All Buffs")})` : ""}`}
-      onPointerDown={(e) => startDrag(e, { kind: "buffGroup", groupId: group.id }, group.position)}
+      onPointerDown={(e) => startDrag(e, { kind: "buffGroup", groupId: group.id }, groupPosition)}
       onResizePointerDown={(e) =>
         startResize(e, { kind: "buffGroup", groupId: group.id }, group.iconSize)}
     />

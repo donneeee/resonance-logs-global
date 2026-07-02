@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "Mulai bersama Aplikasi",
   "settings.overlay.startWithAppDescription": "Buka overlay bersama otomatis saat aplikasi mulai dan publikasi overlay diaktifkan.",
+  "settings.overlay.skillAutoHideDaily": "Auto-hide Skill Monitor in Daily Scenes",
+  "settings.overlay.skillAutoHideDailyDescription": "When Skill Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
+  "settings.overlay.monsterAutoHideDaily": "Auto-hide Monster Monitor in Daily Scenes",
+  "settings.overlay.monsterAutoHideDailyDescription": "When Monster Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
   "settings.overlay.autoHideWithLiveWindow": "Sembunyikan bersama jendela live",
   "settings.overlay.autoHideWithLiveWindowDescription": "Saat Sembunyikan otomatis jendela live aktif, jendela overlay yang terlihat ikut disembunyikan bersama meter live dan hanya kembali jika sebelumnya terlihat.",
   "settings.overlay.autoHideWithLiveWindowHelp": "Ini mengikuti siklus sembunyi/tampil meter live berdasarkan damage. Opsi ini tidak menyalakan overlay sendiri dan tidak aktif saat Auto-hide Live Window mati.",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "Mengatur perilaku aplikasi secara menyeluruh yang tidak terikat pada overlay atau tampilan meter tertentu.",
   "settings.hideMainWindowToTray": "Sembunyikan jendela utama ke tray",
   "settings.hideMainWindowToTrayDescription": "Jika aktif, menutup jendela utama akan menyembunyikannya, bukan keluar. Gunakan ikon tray untuk memulihkan, atau Keluar untuk menutup sepenuhnya.",
-  "sidebar.openChangelog": "Lihat changelog"
+  "sidebar.openChangelog": "Lihat changelog",
+  "tool.minimap": "DBM"
 }

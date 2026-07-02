@@ -7,9 +7,12 @@
   import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import { goto } from "$app/navigation";
+  import { onSceneChange } from "$lib/api";
+  import { isDailyScene } from "$lib/config/daily-scene-blacklist";
   import {
     getSettingsStoreReadFailures,
     hasRuntimeCriticalSettingsStoreReadFailure,
+    repairPersistedSettingsStores,
     SETTINGS,
   } from '$lib/settings-store';
   import { applyCustomFonts } from "$lib/font-loader";
@@ -33,6 +36,7 @@
   let overlayVisibilityOverride: boolean | null = null;
   let lastSharedOverlayEnabled: boolean | null = null;
   let runtimeSyncBlockedBySettingsFailure = false;
+  let currentSceneId = $state<number | null>(null);
 
   function queueRuntimeSnapshotSync(
     sync: RuntimeMonitorSyncModule,
@@ -80,16 +84,41 @@
       queueRuntimeSnapshotSync(sync, runtimeSnapshot, runtimeSnapshotKey);
     }
 
+    const dbmOverlayEnabled =
+      SETTINGS.minimap.state.showMapPanel ||
+      SETTINGS.minimap.state.showInfoPanel ||
+      (SETTINGS.monsterMonitor.state.overlayVisibility?.showBossDbmPanel ?? false);
     const sharedOverlayEnabled =
-      SETTINGS.skillMonitor.state.enabled || SETTINGS.monsterMonitor.state.enabled;
+      SETTINGS.skillMonitor.state.enabled ||
+      SETTINGS.monsterMonitor.state.enabled ||
+      dbmOverlayEnabled;
+    const autoHideSharedOverlayInDailyScene =
+      currentSceneId !== null &&
+      isDailyScene(currentSceneId) &&
+      (
+        (
+          SETTINGS.skillMonitor.state.enabled &&
+          (SETTINGS.skillMonitor.state.autoHideInDailyScenes ?? false)
+        ) ||
+        (
+          SETTINGS.monsterMonitor.state.enabled &&
+          (SETTINGS.monsterMonitor.state.autoHideInDailyScenes ?? false)
+        ) ||
+        (
+          dbmOverlayEnabled &&
+          (SETTINGS.minimap.state.autoHideInDailyScenes ?? false)
+        )
+      );
 
     if (lastSharedOverlayEnabled !== sharedOverlayEnabled) {
       lastSharedOverlayEnabled = sharedOverlayEnabled;
       overlayVisibilityOverride = null;
     }
 
-    const desiredOverlayVisible = overlayVisibilityOverride ?? (
-      SETTINGS.skillMonitor.state.overlayStartWithApp ? sharedOverlayEnabled : false
+    const desiredOverlayVisible = !autoHideSharedOverlayInDailyScene && (
+      overlayVisibilityOverride ?? (
+        SETTINGS.skillMonitor.state.overlayStartWithApp ? sharedOverlayEnabled : false
+      )
     );
 
     void (async () => {
@@ -161,9 +190,11 @@
   let updateUnlisten: UnlistenFn | null = null;
   let overlayToggleUnlisten: UnlistenFn | null = null;
   let overlayChangedUnlisten: UnlistenFn | null = null;
+  let sceneChangeUnlisten: UnlistenFn | null = null;
 
   onMount(() => {
-    void import("$lib/runtime-monitor-sync")
+    void repairPersistedSettingsStores()
+      .then(() => import("$lib/runtime-monitor-sync"))
       .then((module) => {
         runtimeMonitorSync = module;
       })
@@ -205,6 +236,14 @@
       overlayChangedUnlisten = unlisten;
     }).catch((err) => {
       console.error("Failed to subscribe game-overlay-visibility-changed event", err);
+    });
+
+    onSceneChange((event) => {
+      currentSceneId = event.payload.sceneId ?? null;
+    }).then((unlisten) => {
+      sceneChangeUnlisten = unlisten;
+    }).catch((err) => {
+      console.error("Failed to subscribe scene-change event", err);
     });
 
     listen<UpdateInfo>("update-available", (event) => {
@@ -251,6 +290,10 @@
       if (overlayChangedUnlisten) {
         overlayChangedUnlisten();
         overlayChangedUnlisten = null;
+      }
+      if (sceneChangeUnlisten) {
+        sceneChangeUnlisten();
+        sceneChangeUnlisten = null;
       }
     };
   });

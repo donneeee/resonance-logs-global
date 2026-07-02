@@ -500,6 +500,7 @@ export function computeDisplay(
       isActive: chargePercent < 1,
       percent: 1 - chargePercent,
       text: `${Math.round(chargePercent * 100)}%`,
+      usable: chargePercent >= 1,
       ...debugFields,
     };
   }
@@ -521,6 +522,9 @@ export function computeDisplay(
           percent: 0,
           text: "",
           chargesText: `${maxCharges}/${maxCharges}`,
+          usable: true,
+          chargesAvailable: maxCharges,
+          maxCharges,
           ...debugFields,
         };
       }
@@ -533,6 +537,9 @@ export function computeDisplay(
         percent: Math.min(1, timeToNextCharge / chargeDuration),
         text: formatTenthsDown(timeToNextCharge / 1000),
         chargesText: `${chargesAvailable}/${maxCharges}`,
+        usable: chargesAvailable >= 1,
+        chargesAvailable,
+        maxCharges,
         ...debugFields,
       };
     }
@@ -545,6 +552,7 @@ export function computeDisplay(
     isActive: remaining > 0,
     percent: remaining > 0 ? Math.min(1, remaining / duration) : 0,
     text: remaining > 0 ? formatTenthsDown(remaining / 1000) : "",
+    usable: remaining <= 0,
     ...debugFields,
   };
 }

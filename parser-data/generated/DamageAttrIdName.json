@@ -1564,6 +1564,26 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346117419
   },
+  "3354100": {
+    "Id": 3354100,
+    "Name": "冲榜词缀-暗水晶子弹",
+    "NameDesign": "冲榜词缀-暗水晶子弹",
+    "Names": {
+      "design": "冲榜词缀-暗水晶子弹",
+      "en": "冲榜词缀-暗水晶子弹",
+      "zh-CN": "冲榜词缀-暗水晶子弹",
+      "ja": "冲榜词缀-暗水晶子弹",
+      "de": "冲榜词缀-暗水晶子弹",
+      "es": "冲榜词缀-暗水晶子弹",
+      "fr": "冲榜词缀-暗水晶子弹",
+      "id": "冲榜词缀-暗水晶子弹",
+      "ko-KR": "冲榜词缀-暗水晶子弹",
+      "pt-BR": "冲榜词缀-暗水晶子弹",
+      "th": "冲榜词缀-暗水晶子弹",
+      "zh-TW": "冲榜词缀-暗水晶子弹"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "3360000": {
     "Id": 3360000,
     "Name": "Attack",
@@ -51425,6 +51445,46 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346175065
   },
+  "170220601": {
+    "Id": 170220601,
+    "Name": "冲榜词缀-沙尘漩涡",
+    "NameDesign": "冲榜词缀-沙尘漩涡",
+    "Names": {
+      "design": "冲榜词缀-沙尘漩涡",
+      "en": "冲榜词缀-沙尘漩涡",
+      "zh-CN": "冲榜词缀-沙尘漩涡",
+      "ja": "冲榜词缀-沙尘漩涡",
+      "de": "冲榜词缀-沙尘漩涡",
+      "es": "冲榜词缀-沙尘漩涡",
+      "fr": "冲榜词缀-沙尘漩涡",
+      "id": "冲榜词缀-沙尘漩涡",
+      "ko-KR": "冲榜词缀-沙尘漩涡",
+      "pt-BR": "冲榜词缀-沙尘漩涡",
+      "th": "冲榜词缀-沙尘漩涡",
+      "zh-TW": "冲榜词缀-沙尘漩涡"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "170220701": {
+    "Id": 170220701,
+    "Name": "冲榜词缀-光水晶爆炸",
+    "NameDesign": "冲榜词缀-光水晶爆炸",
+    "Names": {
+      "design": "冲榜词缀-光水晶爆炸",
+      "en": "冲榜词缀-光水晶爆炸",
+      "zh-CN": "冲榜词缀-光水晶爆炸",
+      "ja": "冲榜词缀-光水晶爆炸",
+      "de": "冲榜词缀-光水晶爆炸",
+      "es": "冲榜词缀-光水晶爆炸",
+      "fr": "冲榜词缀-光水晶爆炸",
+      "id": "冲榜词缀-光水晶爆炸",
+      "ko-KR": "冲榜词缀-光水晶爆炸",
+      "pt-BR": "冲榜词缀-光水晶爆炸",
+      "th": "冲榜词缀-光水晶爆炸",
+      "zh-TW": "冲榜词缀-光水晶爆炸"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "179970101": {
     "Id": 179970101,
     "Name": "Phantom Arrow",
@@ -55374,6 +55434,26 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346185203
   },
+  "282931601": {
+    "Id": 282931601,
+    "Name": "因果折跃弹射",
+    "NameDesign": "因果折跃弹射",
+    "Names": {
+      "design": "因果折跃弹射",
+      "en": "因果折跃弹射",
+      "zh-CN": "因果折跃弹射",
+      "ja": "因果折跃弹射",
+      "de": "因果折跃弹射",
+      "es": "因果折跃弹射",
+      "fr": "因果折跃弹射",
+      "id": "因果折跃弹射",
+      "ko-KR": "因果折跃弹射",
+      "pt-BR": "因果折跃弹射",
+      "th": "因果折跃弹射",
+      "zh-TW": "因果折跃弹射"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "282932303": {
     "Id": 282932303,
     "Name": "累刑宣告",
@@ -55399,6 +55479,26 @@
     "LinkedBuffIconFamilySourceName": "Cumulative Sentence",
     "Source": "DamageAttrTable",
     "SourceOffset": 346185277
+  },
+  "282932603": {
+    "Id": 282932603,
+    "Name": "神之规诫·累刑宣告·幻",
+    "NameDesign": "神之规诫·累刑宣告·幻",
+    "Names": {
+      "design": "神之规诫·累刑宣告·幻",
+      "en": "神之规诫·累刑宣告·幻",
+      "zh-CN": "神之规诫·累刑宣告·幻",
+      "ja": "神之规诫·累刑宣告·幻",
+      "de": "神之规诫·累刑宣告·幻",
+      "es": "神之规诫·累刑宣告·幻",
+      "fr": "神之规诫·累刑宣告·幻",
+      "id": "神之规诫·累刑宣告·幻",
+      "ko-KR": "神之规诫·累刑宣告·幻",
+      "pt-BR": "神之规诫·累刑宣告·幻",
+      "th": "神之规诫·累刑宣告·幻",
+      "zh-TW": "神之规诫·累刑宣告·幻"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
   },
   "283209301": {
     "Id": 283209301,
@@ -57954,6 +58054,66 @@
     },
     "Source": "DamageAttrTable",
     "SourceOffset": 346190827
+  },
+  "287360501": {
+    "Id": 287360501,
+    "Name": "恶作剧炸弹",
+    "NameDesign": "恶作剧炸弹",
+    "Names": {
+      "design": "恶作剧炸弹",
+      "en": "恶作剧炸弹",
+      "zh-CN": "恶作剧炸弹",
+      "ja": "恶作剧炸弹",
+      "de": "恶作剧炸弹",
+      "es": "恶作剧炸弹",
+      "fr": "恶作剧炸弹",
+      "id": "恶作剧炸弹",
+      "ko-KR": "恶作剧炸弹",
+      "pt-BR": "恶作剧炸弹",
+      "th": "恶作剧炸弹",
+      "zh-TW": "恶作剧炸弹"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "287360503": {
+    "Id": 287360503,
+    "Name": "恶作剧炸弹",
+    "NameDesign": "恶作剧炸弹",
+    "Names": {
+      "design": "恶作剧炸弹",
+      "en": "恶作剧炸弹",
+      "zh-CN": "恶作剧炸弹",
+      "ja": "恶作剧炸弹",
+      "de": "恶作剧炸弹",
+      "es": "恶作剧炸弹",
+      "fr": "恶作剧炸弹",
+      "id": "恶作剧炸弹",
+      "ko-KR": "恶作剧炸弹",
+      "pt-BR": "恶作剧炸弹",
+      "th": "恶作剧炸弹",
+      "zh-TW": "恶作剧炸弹"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "287361103": {
+    "Id": 287361103,
+    "Name": "冲榜词缀-hot治疗",
+    "NameDesign": "冲榜词缀-hot治疗",
+    "Names": {
+      "design": "冲榜词缀-hot治疗",
+      "en": "冲榜词缀-hot治疗",
+      "zh-CN": "冲榜词缀-hot治疗",
+      "ja": "冲榜词缀-hot治疗",
+      "de": "冲榜词缀-hot治疗",
+      "es": "冲榜词缀-hot治疗",
+      "fr": "冲榜词缀-hot治疗",
+      "id": "冲榜词缀-hot治疗",
+      "ko-KR": "冲榜词缀-hot治疗",
+      "pt-BR": "冲榜词缀-hot治疗",
+      "th": "冲榜词缀-hot治疗",
+      "zh-TW": "冲榜词缀-hot治疗"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
   },
   "288000602": {
     "Id": 288000602,
@@ -75806,6 +75966,66 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346231897
   },
+  "2211030203": {
+    "Id": 2211030203,
+    "Name": "火魔给自己加减伤以及吸血",
+    "NameDesign": "火魔给自己加减伤以及吸血",
+    "Names": {
+      "design": "火魔给自己加减伤以及吸血",
+      "en": "火魔给自己加减伤以及吸血",
+      "zh-CN": "火魔给自己加减伤以及吸血",
+      "ja": "火魔给自己加减伤以及吸血",
+      "de": "火魔给自己加减伤以及吸血",
+      "es": "火魔给自己加减伤以及吸血",
+      "fr": "火魔给自己加减伤以及吸血",
+      "id": "火魔给自己加减伤以及吸血",
+      "ko-KR": "火魔给自己加减伤以及吸血",
+      "pt-BR": "火魔给自己加减伤以及吸血",
+      "th": "火魔给自己加减伤以及吸血",
+      "zh-TW": "火魔给自己加减伤以及吸血"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "2211030403": {
+    "Id": 2211030403,
+    "Name": "姆克王回血",
+    "NameDesign": "姆克王回血",
+    "Names": {
+      "design": "姆克王回血",
+      "en": "姆克王回血",
+      "zh-CN": "姆克王回血",
+      "ja": "姆克王回血",
+      "de": "姆克王回血",
+      "es": "姆克王回血",
+      "fr": "姆克王回血",
+      "id": "姆克王回血",
+      "ko-KR": "姆克王回血",
+      "pt-BR": "姆克王回血",
+      "th": "姆克王回血",
+      "zh-TW": "姆克王回血"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "2211030601": {
+    "Id": 2211030601,
+    "Name": "雷球护体",
+    "NameDesign": "雷球护体",
+    "Names": {
+      "design": "雷球护体",
+      "en": "雷球护体",
+      "zh-CN": "雷球护体",
+      "ja": "雷球护体",
+      "de": "雷球护体",
+      "es": "雷球护体",
+      "fr": "雷球护体",
+      "id": "雷球护体",
+      "ko-KR": "雷球护体",
+      "pt-BR": "雷球护体",
+      "th": "雷球护体",
+      "zh-TW": "雷球护体"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "2220108003": {
     "Id": 2220108003,
     "Name": "Block Recovery",
@@ -91748,6 +91968,26 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346274965
   },
+  "11012270101": {
+    "Id": 11012270101,
+    "Name": "火焰兽人吐息",
+    "NameDesign": "火焰兽人吐息",
+    "Names": {
+      "design": "火焰兽人吐息",
+      "en": "火焰兽人吐息",
+      "zh-CN": "火焰兽人吐息",
+      "ja": "火焰兽人吐息",
+      "de": "火焰兽人吐息",
+      "es": "火焰兽人吐息",
+      "fr": "火焰兽人吐息",
+      "id": "火焰兽人吐息",
+      "ko-KR": "火焰兽人吐息",
+      "pt-BR": "火焰兽人吐息",
+      "th": "火焰兽人吐息",
+      "zh-TW": "火焰兽人吐息"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "11012300101": {
     "Id": 11012300101,
     "Name": "火焰兽人吐息",
@@ -97884,6 +98124,26 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346285991
   },
+  "11103240102": {
+    "Id": 11103240102,
+    "Name": "能量精魄-能量粒子",
+    "NameDesign": "能量精魄-能量粒子",
+    "Names": {
+      "design": "能量精魄-能量粒子",
+      "en": "能量精魄-能量粒子",
+      "zh-CN": "能量精魄-能量粒子",
+      "ja": "能量精魄-能量粒子",
+      "de": "能量精魄-能量粒子",
+      "es": "能量精魄-能量粒子",
+      "fr": "能量精魄-能量粒子",
+      "id": "能量精魄-能量粒子",
+      "ko-KR": "能量精魄-能量粒子",
+      "pt-BR": "能量精魄-能量粒子",
+      "th": "能量精魄-能量粒子",
+      "zh-TW": "能量精魄-能量粒子"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "11104060102": {
     "Id": 11104060102,
     "Name": "毁灭激光（幼儿版",
@@ -98579,6 +98839,26 @@
     ],
     "Source": "DamageAttrTable",
     "SourceOffset": 346287175
+  },
+  "11105140103": {
+    "Id": 11105140103,
+    "Name": "词缀定时炸弹伤害",
+    "NameDesign": "词缀定时炸弹伤害",
+    "Names": {
+      "design": "词缀定时炸弹伤害",
+      "en": "词缀定时炸弹伤害",
+      "zh-CN": "词缀定时炸弹伤害",
+      "ja": "词缀定时炸弹伤害",
+      "de": "词缀定时炸弹伤害",
+      "es": "词缀定时炸弹伤害",
+      "fr": "词缀定时炸弹伤害",
+      "id": "词缀定时炸弹伤害",
+      "ko-KR": "词缀定时炸弹伤害",
+      "pt-BR": "词缀定时炸弹伤害",
+      "th": "词缀定时炸弹伤害",
+      "zh-TW": "词缀定时炸弹伤害"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
   },
   "11106010101": {
     "Id": 11106010101,
@@ -132543,6 +132823,66 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346341861
   },
+  "17022040102": {
+    "Id": 17022040102,
+    "Name": "唤石术",
+    "NameDesign": "唤石术",
+    "Names": {
+      "design": "唤石术",
+      "en": "唤石术",
+      "zh-CN": "唤石术",
+      "ja": "唤石术",
+      "de": "唤石术",
+      "es": "唤石术",
+      "fr": "唤石术",
+      "id": "唤石术",
+      "ko-KR": "唤石术",
+      "pt-BR": "唤石术",
+      "th": "唤石术",
+      "zh-TW": "唤石术"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "17022050103": {
+    "Id": 17022050103,
+    "Name": "落石",
+    "NameDesign": "落石",
+    "Names": {
+      "design": "落石",
+      "en": "落石",
+      "zh-CN": "落石",
+      "ja": "落石",
+      "de": "落石",
+      "es": "落石",
+      "fr": "落石",
+      "id": "落石",
+      "ko-KR": "落石",
+      "pt-BR": "落石",
+      "th": "落石",
+      "zh-TW": "落石"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "17022050104": {
+    "Id": 17022050104,
+    "Name": "落石",
+    "NameDesign": "落石",
+    "Names": {
+      "design": "落石",
+      "en": "落石",
+      "zh-CN": "落石",
+      "ja": "落石",
+      "de": "落石",
+      "es": "落石",
+      "fr": "落石",
+      "id": "落石",
+      "ko-KR": "落石",
+      "pt-BR": "落石",
+      "th": "落石",
+      "zh-TW": "落石"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "17030010110": {
     "Id": 17030010110,
     "Name": "Phantom Arrow",
@@ -149491,6 +149831,26 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346374125
   },
+  "110081410101": {
+    "Id": 110081410101,
+    "Name": "铁牙-地狱突刺",
+    "NameDesign": "铁牙-地狱突刺",
+    "Names": {
+      "design": "铁牙-地狱突刺",
+      "en": "铁牙-地狱突刺",
+      "zh-CN": "铁牙-地狱突刺",
+      "ja": "铁牙-地狱突刺",
+      "de": "铁牙-地狱突刺",
+      "es": "铁牙-地狱突刺",
+      "fr": "铁牙-地狱突刺",
+      "id": "铁牙-地狱突刺",
+      "ko-KR": "铁牙-地狱突刺",
+      "pt-BR": "铁牙-地狱突刺",
+      "th": "铁牙-地狱突刺",
+      "zh-TW": "铁牙-地狱突刺"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "110082010101": {
     "Id": 110082010101,
     "Name": "普攻甩尾",
@@ -150419,6 +150779,26 @@
     "LinkedSkillTableIconPathOffset": 24289,
     "Source": "DamageAttrTable",
     "SourceOffset": 346375827
+  },
+  "110085410101": {
+    "Id": 110085410101,
+    "Name": "奥义！静默潮汐",
+    "NameDesign": "奥义！静默潮汐",
+    "Names": {
+      "design": "奥义！静默潮汐",
+      "en": "奥义！静默潮汐",
+      "zh-CN": "奥义！静默潮汐",
+      "ja": "奥义！静默潮汐",
+      "de": "奥义！静默潮汐",
+      "es": "奥义！静默潮汐",
+      "fr": "奥义！静默潮汐",
+      "id": "奥义！静默潮汐",
+      "ko-KR": "奥义！静默潮汐",
+      "pt-BR": "奥义！静默潮汐",
+      "th": "奥义！静默潮汐",
+      "zh-TW": "奥义！静默潮汐"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
   },
   "110085980101": {
     "Id": 110085980101,
@@ -183330,6 +183710,26 @@
     "LinkedSkillTableIconPathOffset": 21303,
     "Source": "DamageAttrTable",
     "SourceOffset": 346434731
+  },
+  "120024410102": {
+    "Id": 120024410102,
+    "Name": "共鸣-雷电食人魔",
+    "NameDesign": "共鸣-雷电食人魔",
+    "Names": {
+      "design": "共鸣-雷电食人魔",
+      "en": "共鸣-雷电食人魔",
+      "zh-CN": "共鸣-雷电食人魔",
+      "ja": "共鸣-雷电食人魔",
+      "de": "共鸣-雷电食人魔",
+      "es": "共鸣-雷电食人魔",
+      "fr": "共鸣-雷电食人魔",
+      "id": "共鸣-雷电食人魔",
+      "ko-KR": "共鸣-雷电食人魔",
+      "pt-BR": "共鸣-雷电食人魔",
+      "th": "共鸣-雷电食人魔",
+      "zh-TW": "共鸣-雷电食人魔"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
   },
   "120024500101": {
     "Id": 120024500101,
@@ -226452,6 +226852,46 @@
     "Source": "DamageAttrTable",
     "SourceOffset": 346516501
   },
+  "1103100650101": {
+    "Id": 1103100650101,
+    "Name": "连斩虚拟体-最小范围",
+    "NameDesign": "连斩虚拟体-最小范围",
+    "Names": {
+      "design": "连斩虚拟体-最小范围",
+      "en": "连斩虚拟体-最小范围",
+      "zh-CN": "连斩虚拟体-最小范围",
+      "ja": "连斩虚拟体-最小范围",
+      "de": "连斩虚拟体-最小范围",
+      "es": "连斩虚拟体-最小范围",
+      "fr": "连斩虚拟体-最小范围",
+      "id": "连斩虚拟体-最小范围",
+      "ko-KR": "连斩虚拟体-最小范围",
+      "pt-BR": "连斩虚拟体-最小范围",
+      "th": "连斩虚拟体-最小范围",
+      "zh-TW": "连斩虚拟体-最小范围"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "1103100650201": {
+    "Id": 1103100650201,
+    "Name": "连斩虚拟体-最小范围",
+    "NameDesign": "连斩虚拟体-最小范围",
+    "Names": {
+      "design": "连斩虚拟体-最小范围",
+      "en": "连斩虚拟体-最小范围",
+      "zh-CN": "连斩虚拟体-最小范围",
+      "ja": "连斩虚拟体-最小范围",
+      "de": "连斩虚拟体-最小范围",
+      "es": "连斩虚拟体-最小范围",
+      "fr": "连斩虚拟体-最小范围",
+      "id": "连斩虚拟体-最小范围",
+      "ko-KR": "连斩虚拟体-最小范围",
+      "pt-BR": "连斩虚拟体-最小范围",
+      "th": "连斩虚拟体-最小范围",
+      "zh-TW": "连斩虚拟体-最小范围"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
   "1103200050101": {
     "Id": 1103200050101,
     "Name": "史诗狂怒",
@@ -227693,6 +228133,106 @@
     ],
     "Source": "DamageAttrTable",
     "SourceOffset": 346518943
+  },
+  "1103200610101": {
+    "Id": 1103200610101,
+    "Name": "运动会地面dummy",
+    "NameDesign": "运动会地面dummy",
+    "Names": {
+      "design": "运动会地面dummy",
+      "en": "运动会地面dummy",
+      "zh-CN": "运动会地面dummy",
+      "ja": "运动会地面dummy",
+      "de": "运动会地面dummy",
+      "es": "运动会地面dummy",
+      "fr": "运动会地面dummy",
+      "id": "运动会地面dummy",
+      "ko-KR": "运动会地面dummy",
+      "pt-BR": "运动会地面dummy",
+      "th": "运动会地面dummy",
+      "zh-TW": "运动会地面dummy"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "1103200610103": {
+    "Id": 1103200610103,
+    "Name": "运动会地面dummy",
+    "NameDesign": "运动会地面dummy",
+    "Names": {
+      "design": "运动会地面dummy",
+      "en": "运动会地面dummy",
+      "zh-CN": "运动会地面dummy",
+      "ja": "运动会地面dummy",
+      "de": "运动会地面dummy",
+      "es": "运动会地面dummy",
+      "fr": "运动会地面dummy",
+      "id": "运动会地面dummy",
+      "ko-KR": "运动会地面dummy",
+      "pt-BR": "运动会地面dummy",
+      "th": "运动会地面dummy",
+      "zh-TW": "运动会地面dummy"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "1103200610104": {
+    "Id": 1103200610104,
+    "Name": "运动会地面dummy",
+    "NameDesign": "运动会地面dummy",
+    "Names": {
+      "design": "运动会地面dummy",
+      "en": "运动会地面dummy",
+      "zh-CN": "运动会地面dummy",
+      "ja": "运动会地面dummy",
+      "de": "运动会地面dummy",
+      "es": "运动会地面dummy",
+      "fr": "运动会地面dummy",
+      "id": "运动会地面dummy",
+      "ko-KR": "运动会地面dummy",
+      "pt-BR": "运动会地面dummy",
+      "th": "运动会地面dummy",
+      "zh-TW": "运动会地面dummy"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "1103200610105": {
+    "Id": 1103200610105,
+    "Name": "运动会地面dummy",
+    "NameDesign": "运动会地面dummy",
+    "Names": {
+      "design": "运动会地面dummy",
+      "en": "运动会地面dummy",
+      "zh-CN": "运动会地面dummy",
+      "ja": "运动会地面dummy",
+      "de": "运动会地面dummy",
+      "es": "运动会地面dummy",
+      "fr": "运动会地面dummy",
+      "id": "运动会地面dummy",
+      "ko-KR": "运动会地面dummy",
+      "pt-BR": "运动会地面dummy",
+      "th": "运动会地面dummy",
+      "zh-TW": "运动会地面dummy"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
+  },
+  "1103200610106": {
+    "Id": 1103200610106,
+    "Name": "运动会地面dummy",
+    "NameDesign": "运动会地面dummy",
+    "Names": {
+      "design": "运动会地面dummy",
+      "en": "运动会地面dummy",
+      "zh-CN": "运动会地面dummy",
+      "ja": "运动会地面dummy",
+      "de": "运动会地面dummy",
+      "es": "运动会地面dummy",
+      "fr": "运动会地面dummy",
+      "id": "运动会地面dummy",
+      "ko-KR": "运动会地面dummy",
+      "pt-BR": "运动会地面dummy",
+      "th": "运动会地面dummy",
+      "zh-TW": "运动会地面dummy"
+    },
+    "Source": "CN 0.1.7 DamageAttrIdName.json"
   },
   "1103300040103": {
     "Id": 1103300040103,

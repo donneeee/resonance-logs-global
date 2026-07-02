@@ -110,10 +110,6 @@ function asArray(value) {
   return Array.isArray(value) ? value : [];
 }
 
-function asObject(value) {
-  return value && typeof value === "object" && !Array.isArray(value) ? value : {};
-}
-
 function finiteNumber(value) {
   const number = Number(value);
   return Number.isFinite(number) ? number : null;

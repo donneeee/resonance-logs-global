@@ -32,7 +32,7 @@
   import { toast } from "svelte-sonner";
 
   type SearchTarget = "global" | "self";
-  type MonsterMonitorTab = "buff" | "teammate" | "hate" | "fantasy";
+  type MonsterMonitorTab = "buff" | "teammate" | "hate" | "stun" | "fantasy" | "dbm";
   type FantasyMonsterOption = {
     monsterId: number;
     label: string;
@@ -74,11 +74,17 @@
   const hatePanelStyle = $derived.by(() =>
     monsterMonitor.hatePanelStyle ?? monsterMonitor.panelStyle,
   );
+  const stunPanelStyle = $derived.by(() =>
+    monsterMonitor.stunPanelStyle ?? monsterMonitor.panelStyle,
+  );
   const teammatePanelStyle = $derived.by(() =>
     monsterMonitor.teammatePanelStyle ?? monsterMonitor.panelStyle,
   );
   const fantasyPanelStyle = $derived.by(() =>
     monsterMonitor.fantasyPanelStyle ?? monsterMonitor.panelStyle,
+  );
+  const bossDbmPanelStyle = $derived.by(() =>
+    monsterMonitor.bossDbmPanelStyle ?? monsterMonitor.panelStyle,
   );
   const globalBuffIds = $derived(monsterMonitor.monitoredBuffIds);
   const selfAppliedBuffIds = $derived(monsterMonitor.selfAppliedBuffIds);
@@ -329,6 +335,19 @@
     }));
   }
 
+  function updateStunPanelStyle<K extends keyof CustomPanelStyle>(
+    key: K,
+    value: CustomPanelStyle[K],
+  ) {
+    updateMonsterMonitor((state) => ({
+      ...state,
+      stunPanelStyle: {
+        ...(state.stunPanelStyle ?? state.panelStyle),
+        [key]: value,
+      },
+    }));
+  }
+
   function updateFantasyPanelStyle<K extends keyof CustomPanelStyle>(
     key: K,
     value: CustomPanelStyle[K],
@@ -337,6 +356,19 @@
       ...state,
       fantasyPanelStyle: {
         ...(state.fantasyPanelStyle ?? state.panelStyle),
+        [key]: value,
+      },
+    }));
+  }
+
+  function updateBossDbmPanelStyle<K extends keyof CustomPanelStyle>(
+    key: K,
+    value: CustomPanelStyle[K],
+  ) {
+    updateMonsterMonitor((state) => ({
+      ...state,
+      bossDbmPanelStyle: {
+        ...(state.bossDbmPanelStyle ?? state.panelStyle),
         [key]: value,
       },
     }));
@@ -479,7 +511,37 @@
         showMonsterBuffPanel: state.overlayVisibility?.showMonsterBuffPanel ?? true,
         showTeammateBuffPanel: state.overlayVisibility?.showTeammateBuffPanel ?? true,
         showHatePanel: state.overlayVisibility?.showHatePanel ?? true,
+        showStunPanel: state.overlayVisibility?.showStunPanel ?? false,
         showFantasyPanel: visible,
+        showBossDbmPanel: state.overlayVisibility?.showBossDbmPanel ?? false,
+      },
+    }));
+  }
+
+  function setStunPanelVisible(visible: boolean) {
+    updateMonsterMonitor((state) => ({
+      ...state,
+      overlayVisibility: {
+        showMonsterBuffPanel: state.overlayVisibility?.showMonsterBuffPanel ?? true,
+        showTeammateBuffPanel: state.overlayVisibility?.showTeammateBuffPanel ?? true,
+        showHatePanel: state.overlayVisibility?.showHatePanel ?? true,
+        showStunPanel: visible,
+        showFantasyPanel: state.overlayVisibility?.showFantasyPanel ?? false,
+        showBossDbmPanel: state.overlayVisibility?.showBossDbmPanel ?? false,
+      },
+    }));
+  }
+
+  function setBossDbmPanelVisible(visible: boolean) {
+    updateMonsterMonitor((state) => ({
+      ...state,
+      overlayVisibility: {
+        showMonsterBuffPanel: state.overlayVisibility?.showMonsterBuffPanel ?? true,
+        showTeammateBuffPanel: state.overlayVisibility?.showTeammateBuffPanel ?? true,
+        showHatePanel: state.overlayVisibility?.showHatePanel ?? true,
+        showStunPanel: state.overlayVisibility?.showStunPanel ?? false,
+        showFantasyPanel: state.overlayVisibility?.showFantasyPanel ?? false,
+        showBossDbmPanel: visible,
       },
     }));
   }
@@ -690,6 +752,28 @@
         }}
       >
         {t("tab.hate", "Hate List")}
+      </button>
+      <button
+        type="button"
+        class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors {activeTab === 'stun'
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/30 text-foreground border-border/60 hover:bg-muted/50'}"
+        onclick={() => {
+          activeTab = "stun";
+        }}
+      >
+        {t("tab.stun", "Toughness Bar")}
+      </button>
+      <button
+        type="button"
+        class="px-3 py-2 rounded-lg text-sm font-medium border transition-colors {activeTab === 'dbm'
+          ? 'bg-primary text-primary-foreground border-primary'
+          : 'bg-muted/30 text-foreground border-border/60 hover:bg-muted/50'}"
+        onclick={() => {
+          activeTab = "dbm";
+        }}
+      >
+        {t("tab.dbm", "Boss DBM")}
       </button>
       <button
         type="button"
@@ -1393,6 +1477,264 @@
         </div>
       </section>
     </section>
+  {:else if activeTab === "stun"}
+    <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">
+      <div class="space-y-1">
+        <h2 class="text-base font-semibold text-foreground">{t("stun.title", "Toughness Bar")}</h2>
+        <p class="text-sm text-muted-foreground">{t("stun.description", "Show the current target's toughness/stun gauge in the shared overlay.")}</p>
+      </div>
+
+      <div class="grid gap-3 md:grid-cols-2">
+        <SettingsSwitch
+          label={t("stun.enabled", "Enable toughness bar")}
+          bind:checked={SETTINGS.monsterMonitor.state.stunListEnabled}
+        />
+        <SettingsSwitch
+          label={t("stun.showPanel", "Show toughness panel")}
+          checked={monsterMonitor.overlayVisibility?.showStunPanel ?? false}
+          onchange={setStunPanelVisible}
+        />
+      </div>
+
+      <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-foreground">{t("stun.styleTitle", "Toughness Panel Style")}</h2>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-3">
+          <label class="style-field">
+            <span>{t("rowGap", "Row Gap")}</span>
+            <input
+              type="range"
+              min="0"
+              max="24"
+              value={stunPanelStyle.gap}
+              oninput={(event) =>
+                updateStunPanelStyle(
+                  "gap",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{stunPanelStyle.gap}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("columnGap", "Column Gap")}</span>
+            <input
+              type="range"
+              min="0"
+              max="40"
+              value={stunPanelStyle.columnGap}
+              oninput={(event) =>
+                updateStunPanelStyle(
+                  "columnGap",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{stunPanelStyle.columnGap}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("fontSize", "Font Size")}</span>
+            <input
+              type="range"
+              min="10"
+              max="28"
+              value={stunPanelStyle.fontSize}
+              oninput={(event) =>
+                updateStunPanelStyle(
+                  "fontSize",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{stunPanelStyle.fontSize}px</strong>
+          </label>
+        </div>
+
+        <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <label class="color-field">
+            <span>{t("nameColor", "Name Color")}</span>
+            <input
+              type="color"
+              value={stunPanelStyle.nameColor}
+              oninput={(event) =>
+                updateStunPanelStyle(
+                  "nameColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("valueColor", "Value Color")}</span>
+            <input
+              type="color"
+              value={stunPanelStyle.valueColor}
+              oninput={(event) =>
+                updateStunPanelStyle(
+                  "valueColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("progressColor", "Progress Bar Color")}</span>
+            <input
+              type="color"
+              value={stunPanelStyle.progressColor}
+              oninput={(event) =>
+                updateStunPanelStyle(
+                  "progressColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("progressOpacity", "Progress Bar Opacity")}</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={stunPanelStyle.progressOpacity ?? 0.4}
+              oninput={(event) =>
+                updateStunPanelStyle(
+                  "progressOpacity",
+                  Number((event.currentTarget as HTMLInputElement).value),
+                )}
+            />
+            <strong>{Math.round((stunPanelStyle.progressOpacity ?? 0.4) * 100)}%</strong>
+          </label>
+        </div>
+      </section>
+    </section>
+  {:else if activeTab === "dbm"}
+    <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">
+      <div class="space-y-1">
+        <h2 class="text-base font-semibold text-foreground">{t("dbm.title", "Boss DBM Monitor")}</h2>
+        <p class="text-sm text-muted-foreground">{t("dbm.description", "Show boss mechanic countdowns reported by scene event packets.")}</p>
+      </div>
+
+      <SettingsSwitch
+        label={t("dbm.showPanel", "Show boss DBM panel")}
+        checked={monsterMonitor.overlayVisibility?.showBossDbmPanel ?? false}
+        onchange={setBossDbmPanelVisible}
+      />
+
+      <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">
+        <div class="space-y-1">
+          <h2 class="text-base font-semibold text-foreground">{t("dbm.styleTitle", "Boss DBM Panel Style")}</h2>
+        </div>
+
+        <div class="grid gap-4 lg:grid-cols-3">
+          <label class="style-field">
+            <span>{t("rowGap", "Row Gap")}</span>
+            <input
+              type="range"
+              min="0"
+              max="24"
+              value={bossDbmPanelStyle.gap}
+              oninput={(event) =>
+                updateBossDbmPanelStyle(
+                  "gap",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{bossDbmPanelStyle.gap}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("columnGap", "Column Gap")}</span>
+            <input
+              type="range"
+              min="0"
+              max="40"
+              value={bossDbmPanelStyle.columnGap}
+              oninput={(event) =>
+                updateBossDbmPanelStyle(
+                  "columnGap",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{bossDbmPanelStyle.columnGap}px</strong>
+          </label>
+
+          <label class="style-field">
+            <span>{t("fontSize", "Font Size")}</span>
+            <input
+              type="range"
+              min="10"
+              max="28"
+              value={bossDbmPanelStyle.fontSize}
+              oninput={(event) =>
+                updateBossDbmPanelStyle(
+                  "fontSize",
+                  Number.parseInt((event.currentTarget as HTMLInputElement).value, 10),
+                )}
+            />
+            <strong>{bossDbmPanelStyle.fontSize}px</strong>
+          </label>
+
+          <label class="color-field">
+            <span>{t("nameColor", "Name Color")}</span>
+            <input
+              type="color"
+              value={bossDbmPanelStyle.nameColor}
+              oninput={(event) =>
+                updateBossDbmPanelStyle(
+                  "nameColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("valueColor", "Value Color")}</span>
+            <input
+              type="color"
+              value={bossDbmPanelStyle.valueColor}
+              oninput={(event) =>
+                updateBossDbmPanelStyle(
+                  "valueColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("progressColor", "Progress Bar Color")}</span>
+            <input
+              type="color"
+              value={bossDbmPanelStyle.progressColor}
+              oninput={(event) =>
+                updateBossDbmPanelStyle(
+                  "progressColor",
+                  (event.currentTarget as HTMLInputElement).value,
+                )}
+            />
+          </label>
+
+          <label class="color-field">
+            <span>{t("progressOpacity", "Progress Bar Opacity")}</span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.05"
+              value={bossDbmPanelStyle.progressOpacity ?? 0.4}
+              oninput={(event) =>
+                updateBossDbmPanelStyle(
+                  "progressOpacity",
+                  Number((event.currentTarget as HTMLInputElement).value),
+                )}
+            />
+            <strong>{Math.round((bossDbmPanelStyle.progressOpacity ?? 0.4) * 100)}%</strong>
+          </label>
+        </div>
+      </section>
+    </section>
   {:else if activeTab === "fantasy"}
     <section class="rounded-xl border border-border/60 bg-card/60 p-5 space-y-5">
       <div class="space-y-1">
@@ -1404,6 +1746,10 @@
         <SettingsSwitch
           label={t("fantasy.showAll", "Show all resonance fantasies")}
           bind:checked={SETTINGS.monsterMonitor.state.fantasyShowAll}
+        />
+        <SettingsSwitch
+          label={t("fantasy.persistentDisplay", "Keep fantasy rows visible")}
+          bind:checked={SETTINGS.monsterMonitor.state.fantasyPersistentDisplay}
         />
         <SettingsSwitch
           label={t("fantasy.showPanel", "Show fantasy panel")}

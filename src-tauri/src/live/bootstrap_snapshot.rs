@@ -7,6 +7,9 @@ use std::path::PathBuf;
 use tauri::AppHandle;
 use tauri::Manager;
 
+#[cfg(debug_assertions)]
+const SNAPSHOT_FILE_NAME: &str = "monitorRuntime.dev.json";
+#[cfg(not(debug_assertions))]
 const SNAPSHOT_FILE_NAME: &str = "monitorRuntime.json";
 const MODIFIER_REPORTS_RUNTIME_OPT_IN_VERSION: &str = "1.0.7-release-guard-2026-05-29";
 

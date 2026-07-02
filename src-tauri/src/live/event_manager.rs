@@ -1,9 +1,10 @@
 use crate::live::commands_models::{
-    BossHealth, BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceState, HateEntry,
-    HeaderInfo, LiveDataPayload, PanelAttrState, RawEntityData, ShieldDetailEntry, SkillCdState,
-    TeammateFantasyState, TrainingDummyState, build_taken_per_source, to_active_buff_state,
-    to_active_effect_buff_state, to_active_effect_source_state, to_active_factor_buff_state,
-    to_active_factor_item_state, to_active_passive_skill_state, to_active_profession_skill_state,
+    BossDbmEvent, BossHealth, BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceState,
+    HateEntry, HeaderInfo, LiveDataPayload, MinimapSkillCast, MinimapSnapshot, PanelAttrState,
+    RawEntityData, ShieldDetailEntry, SkillCdState, StunEntry, TeammateFantasyState,
+    TrainingDummyState, build_taken_per_source, to_active_buff_state, to_active_effect_buff_state,
+    to_active_effect_source_state, to_active_factor_buff_state, to_active_factor_item_state,
+    to_active_passive_skill_state, to_active_profession_skill_state,
     to_active_profession_talent_state, to_equipped_item_state, to_gear_set_state,
     to_modifier_window_state, to_raw_combat_stats, to_raw_skill_stats,
 };
@@ -14,7 +15,7 @@ use crate::live::season_cultivate::{
     SeasonCultivateActiveSnapshot, SeasonCultivateFactorSelection,
 };
 use blueprotobuf_lib::blueprotobuf::EEntityType;
-use log::{trace, warn};
+use log::{info, trace, warn};
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 use std::sync::{Mutex, OnceLock};
@@ -23,13 +24,56 @@ use tauri::{AppHandle, Emitter, Manager};
 use tokio::sync::RwLock;
 
 const WEBVIEW_EMIT_BACKOFF: Duration = Duration::from_secs(5);
+const WEBVIEW_EMIT_QUOTA_BACKOFF: Duration = Duration::from_secs(15);
 const WEBVIEW_EMIT_BUDGET_WINDOW: Duration = Duration::from_secs(1);
 const WEBVIEW_EMIT_MAX_PER_WINDOW: usize = 40;
+const WEBVIEW_EMIT_PRIORITY_MAX_PER_WINDOW: usize = 60;
+const EVENT_PRESSURE_FLUSH_INTERVAL: Duration = Duration::from_secs(10);
+const EVENT_PRESSURE_MAX_ROWS: usize = 12;
 
 #[derive(Debug, Clone, Copy)]
 struct WebviewEmitBudget {
     window_start: Instant,
     count: usize,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+struct EventPressureKey {
+    target_label: String,
+    event: String,
+}
+
+#[derive(Debug, Clone, Default)]
+struct EventPressureStats {
+    attempts: u64,
+    emitted: u64,
+    skipped_backoff: u64,
+    skipped_budget: u64,
+    missing_window: u64,
+    hidden_window: u64,
+    visibility_error: u64,
+    serialize_error: u64,
+    failed_emit: u64,
+    payload_bytes: u64,
+    serialize_ns: u128,
+}
+
+#[derive(Debug, Default)]
+struct EventPressureState {
+    stats: HashMap<EventPressureKey, EventPressureStats>,
+    next_flush_at: Option<Instant>,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum EventPressureOutcome {
+    Emitted,
+    SkippedBackoff,
+    SkippedBudget,
+    MissingWindow,
+    HiddenWindow,
+    VisibilityError,
+    SerializeError,
+    FailedEmit,
 }
 
 fn webview_emit_backoff_until() -> &'static Mutex<HashMap<String, Instant>> {
@@ -41,6 +85,156 @@ fn webview_emit_budget() -> &'static Mutex<HashMap<String, WebviewEmitBudget>> {
     static WEBVIEW_EMIT_BUDGET: OnceLock<Mutex<HashMap<String, WebviewEmitBudget>>> =
         OnceLock::new();
     WEBVIEW_EMIT_BUDGET.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn event_pressure_state() -> &'static Mutex<EventPressureState> {
+    static EVENT_PRESSURE_STATE: OnceLock<Mutex<EventPressureState>> = OnceLock::new();
+    EVENT_PRESSURE_STATE.get_or_init(|| Mutex::new(EventPressureState::default()))
+}
+
+fn record_event_pressure(
+    target_label: &str,
+    event: &str,
+    outcome: EventPressureOutcome,
+    payload_bytes: usize,
+    serialize_duration: Option<Duration>,
+) {
+    let now = Instant::now();
+    let rows_to_log = {
+        let Ok(mut state) = event_pressure_state().lock() else {
+            return;
+        };
+        let stats = state
+            .stats
+            .entry(EventPressureKey {
+                target_label: target_label.to_string(),
+                event: event.to_string(),
+            })
+            .or_default();
+
+        stats.attempts = stats.attempts.saturating_add(1);
+        match outcome {
+            EventPressureOutcome::Emitted => stats.emitted = stats.emitted.saturating_add(1),
+            EventPressureOutcome::SkippedBackoff => {
+                stats.skipped_backoff = stats.skipped_backoff.saturating_add(1)
+            }
+            EventPressureOutcome::SkippedBudget => {
+                stats.skipped_budget = stats.skipped_budget.saturating_add(1)
+            }
+            EventPressureOutcome::MissingWindow => {
+                stats.missing_window = stats.missing_window.saturating_add(1)
+            }
+            EventPressureOutcome::HiddenWindow => {
+                stats.hidden_window = stats.hidden_window.saturating_add(1)
+            }
+            EventPressureOutcome::VisibilityError => {
+                stats.visibility_error = stats.visibility_error.saturating_add(1)
+            }
+            EventPressureOutcome::SerializeError => {
+                stats.serialize_error = stats.serialize_error.saturating_add(1)
+            }
+            EventPressureOutcome::FailedEmit => {
+                stats.failed_emit = stats.failed_emit.saturating_add(1)
+            }
+        }
+        stats.payload_bytes = stats.payload_bytes.saturating_add(payload_bytes as u64);
+        if let Some(duration) = serialize_duration {
+            stats.serialize_ns = stats.serialize_ns.saturating_add(duration.as_nanos());
+        }
+
+        let next_flush_at = state
+            .next_flush_at
+            .get_or_insert(now + EVENT_PRESSURE_FLUSH_INTERVAL);
+        if now < *next_flush_at {
+            None
+        } else {
+            *next_flush_at = now + EVENT_PRESSURE_FLUSH_INTERVAL;
+            if state.stats.is_empty() {
+                None
+            } else {
+                Some(std::mem::take(&mut state.stats))
+            }
+        }
+    };
+
+    if let Some(rows) = rows_to_log {
+        log_event_pressure_rows(rows);
+    }
+}
+
+fn log_event_pressure_rows(rows: HashMap<EventPressureKey, EventPressureStats>) {
+    let mut rows: Vec<_> = rows
+        .into_iter()
+        .filter(|(_, stats)| stats.attempts > 0)
+        .collect();
+    if rows.is_empty() {
+        return;
+    }
+
+    rows.sort_by(|left, right| right.1.attempts.cmp(&left.1.attempts));
+
+    let total_attempts: u64 = rows.iter().map(|(_, stats)| stats.attempts).sum();
+    let total_emitted: u64 = rows.iter().map(|(_, stats)| stats.emitted).sum();
+    let total_failed: u64 = rows
+        .iter()
+        .map(|(_, stats)| stats.failed_emit + stats.visibility_error + stats.serialize_error)
+        .sum();
+    let total_skipped: u64 = rows
+        .iter()
+        .map(|(_, stats)| {
+            stats.skipped_backoff
+                + stats.skipped_budget
+                + stats.missing_window
+                + stats.hidden_window
+        })
+        .sum();
+    let total_payload_bytes: u64 = rows.iter().map(|(_, stats)| stats.payload_bytes).sum();
+    let total_serialize_ms: f64 = rows
+        .iter()
+        .map(|(_, stats)| stats.serialize_ns)
+        .sum::<u128>() as f64
+        / 1_000_000.0;
+
+    info!(
+        target: "app::event_pressure",
+        "event_pressure_summary window_ms={} rows={} attempts={} emitted={} skipped={} failed={} payload_bytes={} serialize_ms={:.3}",
+        EVENT_PRESSURE_FLUSH_INTERVAL.as_millis(),
+        rows.len(),
+        total_attempts,
+        total_emitted,
+        total_skipped,
+        total_failed,
+        total_payload_bytes,
+        total_serialize_ms,
+    );
+
+    for (key, stats) in rows.iter().take(EVENT_PRESSURE_MAX_ROWS) {
+        info!(
+            target: "app::event_pressure",
+            "event_pressure target={} event={} attempts={} emitted={} backoff={} budget={} unavailable={} hidden={} visibility_error={} serialize_error={} failed_emit={} payload_bytes={} serialize_ms={:.3}",
+            key.target_label,
+            key.event,
+            stats.attempts,
+            stats.emitted,
+            stats.skipped_backoff,
+            stats.skipped_budget,
+            stats.missing_window,
+            stats.hidden_window,
+            stats.visibility_error,
+            stats.serialize_error,
+            stats.failed_emit,
+            stats.payload_bytes,
+            stats.serialize_ns as f64 / 1_000_000.0,
+        );
+    }
+
+    if rows.len() > EVENT_PRESSURE_MAX_ROWS {
+        info!(
+            target: "app::event_pressure",
+            "event_pressure_omitted rows={}",
+            rows.len() - EVENT_PRESSURE_MAX_ROWS,
+        );
+    }
 }
 
 fn is_webview_state_error(error_msg: &str) -> bool {
@@ -68,7 +262,7 @@ fn should_skip_webview_emit(target_label: &str) -> bool {
     false
 }
 
-fn reserve_webview_emit_budget(target_label: &str) -> bool {
+fn reserve_webview_emit_budget(target_label: &str, max_per_window: usize) -> bool {
     let now = Instant::now();
     let mut budgets = webview_emit_budget().lock().unwrap();
     let budget = budgets
@@ -83,7 +277,7 @@ fn reserve_webview_emit_budget(target_label: &str) -> bool {
         budget.count = 0;
     }
 
-    if budget.count >= WEBVIEW_EMIT_MAX_PER_WINDOW {
+    if budget.count >= max_per_window {
         return false;
     }
 
@@ -91,11 +285,24 @@ fn reserve_webview_emit_budget(target_label: &str) -> bool {
     true
 }
 
-fn mark_webview_emit_backoff(target_label: &str) {
-    webview_emit_backoff_until().lock().unwrap().insert(
-        target_label.to_string(),
-        Instant::now() + WEBVIEW_EMIT_BACKOFF,
-    );
+fn webview_emit_backoff_duration(error_msg: &str) -> Duration {
+    let normalized = error_msg.to_ascii_lowercase();
+    if normalized.contains("0x80070718")
+        || normalized.contains("not enough quota")
+        || normalized.contains("postmessage failed")
+        || normalized.contains("message queue")
+    {
+        WEBVIEW_EMIT_QUOTA_BACKOFF
+    } else {
+        WEBVIEW_EMIT_BACKOFF
+    }
+}
+
+fn mark_webview_emit_backoff(target_label: &str, duration: Duration) {
+    webview_emit_backoff_until()
+        .lock()
+        .unwrap()
+        .insert(target_label.to_string(), Instant::now() + duration);
 }
 
 /// Safely emits an event to the frontend, handling WebView2 state errors gracefully.
@@ -147,17 +354,36 @@ fn safe_emit_to_internal<S: Serialize + Clone>(
     payload: S,
     priority: bool,
 ) -> bool {
-    if !priority && should_skip_webview_emit(target_label) {
+    if should_skip_webview_emit(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' is in WebView backoff",
             event, target_label
         );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::SkippedBackoff,
+            0,
+            None,
+        );
         return false;
     }
-    if !priority && !reserve_webview_emit_budget(target_label) {
+    let max_per_window = if priority {
+        WEBVIEW_EMIT_PRIORITY_MAX_PER_WINDOW
+    } else {
+        WEBVIEW_EMIT_MAX_PER_WINDOW
+    };
+    if !reserve_webview_emit_budget(target_label, max_per_window) {
         trace!(
             "Skipping emit for '{}': target window '{}' exceeded WebView emit budget",
             event, target_label
+        );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::SkippedBudget,
+            0,
+            None,
         );
         return false;
     }
@@ -166,6 +392,13 @@ fn safe_emit_to_internal<S: Serialize + Clone>(
         trace!(
             "Skipping emit for '{}': target window '{}' unavailable",
             event, target_label
+        );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::MissingWindow,
+            0,
+            None,
         );
         return false;
     };
@@ -177,11 +410,18 @@ fn safe_emit_to_internal<S: Serialize + Clone>(
                 "Skipping emit for '{}': target window '{}' is hidden",
                 event, target_label
             );
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::HiddenWindow,
+                0,
+                None,
+            );
             return false;
         }
         Err(e) => {
             let error_msg = e.to_string();
-            mark_webview_emit_backoff(target_label);
+            mark_webview_emit_backoff(target_label, webview_emit_backoff_duration(&error_msg));
             if is_webview_state_error(&error_msg) {
                 trace!(
                     "WebView2 not ready for visibility check on '{}' (window may be closing)",
@@ -193,15 +433,25 @@ fn safe_emit_to_internal<S: Serialize + Clone>(
                     event, target_label, e
                 );
             }
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::VisibilityError,
+                0,
+                None,
+            );
             return false;
         }
     }
 
     match window.emit(event, payload) {
-        Ok(_) => true,
+        Ok(_) => {
+            record_event_pressure(target_label, event, EventPressureOutcome::Emitted, 0, None);
+            true
+        }
         Err(e) => {
             let error_msg = e.to_string();
-            mark_webview_emit_backoff(target_label);
+            mark_webview_emit_backoff(target_label, webview_emit_backoff_duration(&error_msg));
             if is_webview_state_error(&error_msg) {
                 trace!(
                     "WebView2 not ready for '{}' on '{}' (window may be minimized/hidden)",
@@ -210,6 +460,13 @@ fn safe_emit_to_internal<S: Serialize + Clone>(
             } else {
                 warn!("Failed to emit '{}' to '{}': {}", event, target_label, e);
             }
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::FailedEmit,
+                0,
+                None,
+            );
             false
         }
     }
@@ -233,24 +490,46 @@ pub(crate) fn safe_emit_to_priority<S: Serialize + Clone>(
     safe_emit_to_internal(app_handle, target_label, event, payload, true)
 }
 
-fn safe_emit_json_to_internal(
+fn safe_emit_json_to_internal_lazy<F>(
     app_handle: &AppHandle,
     target_label: &str,
     event: &str,
-    payload_json: String,
+    build_payload_json: F,
     priority: bool,
-) -> bool {
-    if !priority && should_skip_webview_emit(target_label) {
+) -> bool
+where
+    F: FnOnce() -> Result<String, serde_json::Error>,
+{
+    if should_skip_webview_emit(target_label) {
         trace!(
             "Skipping emit for '{}': target window '{}' is in WebView backoff",
             event, target_label
         );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::SkippedBackoff,
+            0,
+            None,
+        );
         return false;
     }
-    if !priority && !reserve_webview_emit_budget(target_label) {
+    let max_per_window = if priority {
+        WEBVIEW_EMIT_PRIORITY_MAX_PER_WINDOW
+    } else {
+        WEBVIEW_EMIT_MAX_PER_WINDOW
+    };
+    if !reserve_webview_emit_budget(target_label, max_per_window) {
         trace!(
             "Skipping emit for '{}': target window '{}' exceeded WebView emit budget",
             event, target_label
+        );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::SkippedBudget,
+            0,
+            None,
         );
         return false;
     }
@@ -259,6 +538,13 @@ fn safe_emit_json_to_internal(
         trace!(
             "Skipping emit for '{}': target window '{}' unavailable",
             event, target_label
+        );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::MissingWindow,
+            0,
+            None,
         );
         return false;
     };
@@ -270,11 +556,18 @@ fn safe_emit_json_to_internal(
                 "Skipping emit for '{}': target window '{}' is hidden",
                 event, target_label
             );
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::HiddenWindow,
+                0,
+                None,
+            );
             return false;
         }
         Err(e) => {
             let error_msg = e.to_string();
-            mark_webview_emit_backoff(target_label);
+            mark_webview_emit_backoff(target_label, webview_emit_backoff_duration(&error_msg));
             if is_webview_state_error(&error_msg) {
                 trace!(
                     "WebView2 not ready for visibility check on '{}' (window may be closing)",
@@ -286,15 +579,53 @@ fn safe_emit_json_to_internal(
                     event, target_label, e
                 );
             }
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::VisibilityError,
+                0,
+                None,
+            );
             return false;
         }
     }
 
+    let serialize_started_at = Instant::now();
+    let payload_json = match build_payload_json() {
+        Ok(payload_json) => payload_json,
+        Err(error) => {
+            let serialize_duration = serialize_started_at.elapsed();
+            warn!(
+                "Failed to serialize payload for '{}' to '{}': {}",
+                event, target_label, error
+            );
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::SerializeError,
+                0,
+                Some(serialize_duration),
+            );
+            return false;
+        }
+    };
+    let serialize_duration = serialize_started_at.elapsed();
+    let payload_bytes = payload_json.len();
+
     match window.emit_str(event, payload_json) {
-        Ok(_) => true,
+        Ok(_) => {
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::Emitted,
+                payload_bytes,
+                Some(serialize_duration),
+            );
+            true
+        }
         Err(e) => {
             let error_msg = e.to_string();
-            mark_webview_emit_backoff(target_label);
+            mark_webview_emit_backoff(target_label, webview_emit_backoff_duration(&error_msg));
             if is_webview_state_error(&error_msg) {
                 trace!(
                     "WebView2 not ready for '{}' on '{}' (window may be minimized/hidden)",
@@ -303,27 +634,40 @@ fn safe_emit_json_to_internal(
             } else {
                 warn!("Failed to emit '{}' to '{}': {}", event, target_label, e);
             }
+            record_event_pressure(
+                target_label,
+                event,
+                EventPressureOutcome::FailedEmit,
+                payload_bytes,
+                Some(serialize_duration),
+            );
             false
         }
     }
 }
 
-pub(crate) fn safe_emit_json_to(
+pub(crate) fn safe_emit_json_to_lazy<F>(
     app_handle: &AppHandle,
     target_label: &str,
     event: &str,
-    payload_json: String,
-) -> bool {
-    safe_emit_json_to_internal(app_handle, target_label, event, payload_json, false)
+    build_payload_json: F,
+) -> bool
+where
+    F: FnOnce() -> Result<String, serde_json::Error>,
+{
+    safe_emit_json_to_internal_lazy(app_handle, target_label, event, build_payload_json, false)
 }
 
-pub(crate) fn safe_emit_json_to_priority(
+pub(crate) fn safe_emit_json_to_lazy_priority<F>(
     app_handle: &AppHandle,
     target_label: &str,
     event: &str,
-    payload_json: String,
-) -> bool {
-    safe_emit_json_to_internal(app_handle, target_label, event, payload_json, true)
+    build_payload_json: F,
+) -> bool
+where
+    F: FnOnce() -> Result<String, serde_json::Error>,
+{
+    safe_emit_json_to_internal_lazy(app_handle, target_label, event, build_payload_json, true)
 }
 
 /// Manages events and emits them to the frontend.
@@ -340,14 +684,20 @@ pub enum OutboundEvent {
     },
     EncounterReset,
     EncounterPause(bool),
-    SceneChange(String),
+    SceneChange {
+        scene_id: Option<i32>,
+        scene_name: String,
+        dungeon_difficulty: Option<i32>,
+    },
     TrainingDummyUpdate(TrainingDummyState),
     LiveData(LiveDataPayload),
     BuffUpdate(Vec<BuffUpdateState>),
     BossBuffUpdate(HashMap<String, Vec<BuffUpdateState>>),
     TeammateBuffUpdate(HashMap<String, Vec<BuffUpdateState>>),
     TeammateFantasyUpdate(Vec<TeammateFantasyState>),
+    TeammateFantasyClear,
     HateListUpdate(HashMap<String, Vec<HateEntry>>),
+    StunUpdate(Vec<StunEntry>),
     EntityNameMap {
         names: HashMap<i64, String>,
     },
@@ -368,6 +718,11 @@ pub enum OutboundEvent {
         current_hp: i64,
         max_hp: i64,
         entries: Vec<ShieldDetailEntry>,
+    },
+    BossDbmUpdate(Vec<BossDbmEvent>),
+    MinimapUpdate {
+        snapshot: Option<MinimapSnapshot>,
+        skill_casts: Vec<MinimapSkillCast>,
     },
     DeathReplay(Vec<DeathRecord>),
 }
@@ -416,6 +771,7 @@ impl EventManager {
                     | OutboundEvent::PanelAttrUpdate(_)
                     | OutboundEvent::FightResourceUpdate(_)
                     | OutboundEvent::ShieldDetailUpdate { .. }
+                    | OutboundEvent::MinimapUpdate { .. }
                     | OutboundEvent::DeathReplay(_)
             )
         });
@@ -464,9 +820,17 @@ impl EventManager {
     /// # Arguments
     ///
     /// * `scene_name` - The name of the new scene.
-    pub fn emit_scene_change(&mut self, scene_name: String) {
-        self.outbound_events
-            .push(OutboundEvent::SceneChange(scene_name));
+    pub fn emit_scene_change(
+        &mut self,
+        scene_id: Option<i32>,
+        scene_name: String,
+        dungeon_difficulty: Option<i32>,
+    ) {
+        self.outbound_events.push(OutboundEvent::SceneChange {
+            scene_id,
+            scene_name,
+            dungeon_difficulty,
+        });
     }
 
     pub fn emit_training_dummy_update(&mut self, training_dummy: TrainingDummyState) {
@@ -517,9 +881,21 @@ impl EventManager {
         });
     }
 
+    pub fn emit_teammate_fantasy_clear(&mut self) {
+        self.push_coalesced(OutboundEvent::TeammateFantasyClear, |event| {
+            matches!(event, OutboundEvent::TeammateFantasyClear)
+        });
+    }
+
     pub fn emit_hate_list_update(&mut self, hate_lists: HashMap<String, Vec<HateEntry>>) {
         self.push_coalesced(OutboundEvent::HateListUpdate(hate_lists), |event| {
             matches!(event, OutboundEvent::HateListUpdate(_))
+        });
+    }
+
+    pub fn emit_stun_update(&mut self, entries: Vec<StunEntry>) {
+        self.push_coalesced(OutboundEvent::StunUpdate(entries), |event| {
+            matches!(event, OutboundEvent::StunUpdate(_))
         });
     }
 
@@ -630,6 +1006,33 @@ impl EventManager {
         );
     }
 
+    pub fn emit_boss_dbm_update(&mut self, events: Vec<BossDbmEvent>) {
+        if events.is_empty() {
+            return;
+        }
+        if let Some(OutboundEvent::BossDbmUpdate(pending)) = self
+            .outbound_events
+            .iter_mut()
+            .find(|event| matches!(event, OutboundEvent::BossDbmUpdate(_)))
+        {
+            pending.extend(events);
+            return;
+        }
+        self.outbound_events
+            .push(OutboundEvent::BossDbmUpdate(events));
+    }
+
+    pub fn emit_minimap_update(
+        &mut self,
+        snapshot: Option<MinimapSnapshot>,
+        skill_casts: Vec<MinimapSkillCast>,
+    ) {
+        self.outbound_events.push(OutboundEvent::MinimapUpdate {
+            snapshot,
+            skill_casts,
+        });
+    }
+
     pub fn emit_death_replay(&mut self, records: Vec<DeathRecord>) {
         if records.is_empty() {
             return;
@@ -676,8 +1079,12 @@ pub struct EncounterUpdatePayload {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct SceneChangePayload {
+    /// The id of the new scene, if known.
+    pub scene_id: Option<i32>,
     /// The name of the new scene.
     pub scene_name: String,
+    /// The dungeon difficulty for the scene, if known.
+    pub dungeon_difficulty: Option<i32>,
 }
 
 impl Default for EventManager {

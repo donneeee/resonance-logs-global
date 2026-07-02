@@ -5,10 +5,11 @@ use crate::live::state::{AppState, AppStateManager, StateEvent, resolve_entity_d
 use crate::live::{
     attribution_census::flush_current_census_to_file,
     commands_models::{
-        BossBuffUpdatePayload, BuffCounterUpdatePayload, BuffUpdatePayload, DeathReplayPayload,
-        EntityIdentityMapPayload, EntityNameMapPayload, FightResourceUpdatePayload,
-        HateListUpdatePayload, LiveDataPayload, PanelAttrUpdatePayload,
-        SeasonCultivateFactorCounterUpdatePayload, ShieldDetailUpdatePayload, SkillCdUpdatePayload,
+        BossBuffUpdatePayload, BossDbmUpdatePayload, BuffCounterUpdatePayload, BuffUpdatePayload,
+        DeathReplayPayload, EntityIdentityMapPayload, EntityNameMapPayload,
+        FightResourceUpdatePayload, HateListUpdatePayload, LiveDataPayload, MinimapUpdatePayload,
+        PanelAttrUpdatePayload, SeasonCultivateFactorCounterUpdatePayload,
+        ShieldDetailUpdatePayload, SkillCdUpdatePayload, StunUpdatePayload,
         TeammateBuffUpdatePayload, TeammateFantasyUpdatePayload,
     },
     custom_trigger_events::emit_custom_trigger_entries,
@@ -18,7 +19,7 @@ use crate::live::{
     },
     event_manager::{EncounterUpdatePayload, SceneChangePayload},
     event_manager::{
-        OutboundEvent, safe_emit_json_to, safe_emit_json_to_priority, safe_emit_to,
+        OutboundEvent, safe_emit_json_to_lazy, safe_emit_json_to_lazy_priority, safe_emit_to,
         safe_emit_to_priority,
     },
     opcodes_models::{AttrType, attr_type},
@@ -43,6 +44,7 @@ const EQUIPMENT_PROBE_ATTR_ID: i32 = 200;
 const EQUIPMENT_PROBE_WEAPON_SLOT: u64 = 200;
 const CAPTURE_RESTART_MAX_ATTEMPTS: usize = 20;
 const CAPTURE_RESTART_MAX_DELAY_SECS: u64 = 10;
+const CAPTURE_RESTART_MAINTENANCE_DELAY_SECS: u64 = 30;
 const OCEAN_WEAPON_ITEM_ID_MIN: u64 = 2_000_617;
 const OCEAN_WEAPON_ITEM_ID_MAX: u64 = 2_000_634;
 const EMBER_OCEAN_WEAPON_ITEM_ID_MIN: u64 = 2_000_626;
@@ -188,7 +190,7 @@ fn handle_capture_event(
     app_handle: &AppHandle,
     capture_event: packets::packet_capture::CaptureEvent,
     batch_events: &mut Vec<StateEvent>,
-) -> bool {
+) {
     match capture_event {
         packets::packet_capture::CaptureEvent::Notify(notify) => {
             if is_event_logger_enabled(app_handle) {
@@ -203,10 +205,10 @@ fn handle_capture_event(
                 && notify.method_id == packets::opcodes::world_call_method::USE_SLOT
             {
                 let Some(event) = decode_use_slot_client_skill_cast(notify.payload.clone()) else {
-                    return false;
+                    return;
                 };
                 batch_events.push(event);
-                return false;
+                return;
             }
 
             if let Some(team_event) = crate::live::team::decode_team_event(
@@ -217,30 +219,19 @@ fn handle_capture_event(
                 notify.payload.clone(),
             ) {
                 batch_events.push(StateEvent::Team(team_event));
-                return false;
+                return;
             }
 
             let Some(op) = notify.recognized_pkt else {
-                return false;
+                return;
             };
             let Some(event) = decode_state_event(op, notify.payload.clone()) else {
-                return false;
+                return;
             };
-            let is_server_change = matches!(event, StateEvent::ServerChange);
             batch_events.push(event);
-            is_server_change
-        }
-        packets::packet_capture::CaptureEvent::Packet(op, payload) => {
-            let Some(event) = decode_state_event(op, payload) else {
-                return false;
-            };
-            let is_server_change = matches!(event, StateEvent::ServerChange);
-            batch_events.push(event);
-            is_server_change
         }
         packets::packet_capture::CaptureEvent::AuxiliaryEntries(entries) => {
             emit_auxiliary_entries(app_handle, entries);
-            false
         }
     }
 }
@@ -7001,7 +6992,7 @@ fn is_immediate_outbound_event(event: &OutboundEvent) -> bool {
         OutboundEvent::EncounterReset
             | OutboundEvent::EncounterUpdate { .. }
             | OutboundEvent::EncounterPause(_)
-            | OutboundEvent::SceneChange(_)
+            | OutboundEvent::SceneChange { .. }
             // Normal live snapshots are queued inside the throttled update block
             // and flushed immediately afterward. A LiveData event present before
             // that block is a lifecycle snapshot, such as the final held parse
@@ -7057,13 +7048,21 @@ fn log_queue_depth_if_needed(
 /// Decodes packet payload into a state event.
 fn decode_state_event(op: packets::opcodes::Pkt, data: Bytes) -> Option<StateEvent> {
     match op {
-        packets::opcodes::Pkt::ServerChangeInfo => Some(StateEvent::ServerChange),
         packets::opcodes::Pkt::EnterScene => {
             info!(target: "app::live", "Received EnterScene packet");
             match blueprotobuf::EnterScene::decode(data) {
                 Ok(v) => Some(StateEvent::EnterScene(v)),
                 Err(e) => {
                     warn!("Error decoding EnterScene.. ignoring: {e}");
+                    None
+                }
+            }
+        }
+        packets::opcodes::Pkt::SyncSceneEvents => {
+            match blueprotobuf::SyncSceneEvents::decode(data) {
+                Ok(v) => Some(StateEvent::SyncSceneEvents(v)),
+                Err(e) => {
+                    warn!("Error decoding SyncSceneEvents.. ignoring: {e}");
                     None
                 }
             }
@@ -7269,6 +7268,7 @@ pub async fn start(
     let mut queue_depth_last_log_at = Instant::now();
     let mut capture_restart_delay = Duration::from_secs(1);
     let mut capture_restart_attempts = 0usize;
+    let mut next_capture_maintenance_retry_at: Option<Instant> = None;
 
     // 2. Use channels to receive packets and control commands, and process whichever arrives first
     loop {
@@ -7277,9 +7277,13 @@ pub async fn start(
             &mut queue_depth_warn_counter,
             &mut queue_depth_last_log_at,
         );
-        let idle_sleep_duration =
-            Duration::from_millis(state.event_update_rate_ms.clamp(50, 2_000))
-                .min(heartbeat_duration);
+        let live_update_duration =
+            Duration::from_millis(state.event_update_rate_ms.clamp(50, 2_000));
+        let idle_sleep_duration = if state.training_dummy.is_active() {
+            live_update_duration.min(heartbeat_duration)
+        } else {
+            heartbeat_duration
+        };
 
         tokio::select! {
             biased;
@@ -7294,6 +7298,7 @@ pub async fn start(
             Some(notify) => {
                 capture_restart_delay = Duration::from_secs(1);
                 capture_restart_attempts = 0;
+                next_capture_maintenance_retry_at = None;
                 queue_depth
                     .fetch_update(Ordering::Relaxed, Ordering::Relaxed, |depth| {
                         Some(depth.saturating_sub(1))
@@ -7353,11 +7358,8 @@ pub async fn start(
                                     Some(depth.saturating_sub(1))
                                 })
                                 .ok();
-                            let is_server_change = handle_capture_event(&app_handle, notify, &mut batch_events);
+                            handle_capture_event(&app_handle, notify, &mut batch_events);
                             drained += 1;
-                            if is_server_change {
-                                break;
-                            }
                         }
                         Err(tokio::sync::mpsc::error::TryRecvError::Empty) => break,
                         Err(tokio::sync::mpsc::error::TryRecvError::Disconnected) => {
@@ -7404,16 +7406,24 @@ pub async fn start(
                 if should_emit {
                     last_emit_time = now;
                     state_manager.update_and_emit_events_with_state(&mut state);
+                    state_manager.emit_minimap_if_active(&mut state);
                     flush_outbound_events(&app_handle, &mut state, OutboundFlushMode::All);
                     emit_pending_background_logger_entries(&app_handle);
                 }
             }
             None => {
                 if capture_restart_attempts >= CAPTURE_RESTART_MAX_ATTEMPTS {
-                    warn!(
-                        target: "app::live",
-                        "Packet capture restart attempts exhausted after {} attempts; capture is disabled until app restart or repair",
-                        CAPTURE_RESTART_MAX_ATTEMPTS
+                    if next_capture_maintenance_retry_at.is_none() {
+                        warn!(
+                            target: "app::live",
+                            "Packet capture restart attempts exhausted after {} attempts; capture will retry every {}s",
+                            CAPTURE_RESTART_MAX_ATTEMPTS,
+                            CAPTURE_RESTART_MAINTENANCE_DELAY_SECS
+                        );
+                    }
+                    next_capture_maintenance_retry_at = Some(
+                        Instant::now()
+                            + Duration::from_secs(CAPTURE_RESTART_MAINTENANCE_DELAY_SECS),
                     );
                     rx = None;
                     queue_depth = Arc::new(AtomicUsize::new(0));
@@ -7446,11 +7456,33 @@ pub async fn start(
             _ = tokio::time::sleep(idle_sleep_duration) => {
                 // Timeout occurred - read rate dynamically
                 let emit_rate_ms = state.event_update_rate_ms;
-                let emit_throttle_duration = Duration::from_millis(emit_rate_ms);
+                let emit_throttle_duration = if state.training_dummy.is_active() {
+                    Duration::from_millis(emit_rate_ms)
+                } else {
+                    heartbeat_duration.max(Duration::from_millis(emit_rate_ms))
+                };
                 let now = Instant::now();
+                if rx.is_none()
+                    && next_capture_maintenance_retry_at
+                        .is_some_and(|retry_at| now >= retry_at)
+                {
+                    warn!(
+                        target: "app::live",
+                        "Retrying packet capture after maintenance delay"
+                    );
+                    let npcap_device = get_capture_device(&app_handle);
+                    let (next_rx, next_queue_depth) =
+                        packets::packet_capture::start_capture(npcap_device);
+                    rx = Some(next_rx);
+                    queue_depth = next_queue_depth;
+                    queue_depth_warn_counter = 0;
+                    queue_depth_last_log_at = Instant::now();
+                    next_capture_maintenance_retry_at = None;
+                }
                 if now.duration_since(last_emit_time) >= emit_throttle_duration {
                     last_emit_time = now;
                     state_manager.update_and_emit_events_with_state(&mut state);
+                    state_manager.emit_minimap_if_active(&mut state);
                 }
                 flush_outbound_events(&app_handle, &mut state, OutboundFlushMode::All);
                 emit_pending_background_logger_entries(&app_handle);
@@ -7578,7 +7610,11 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                     }]
                 });
             }
-            OutboundEvent::SceneChange(scene_name) => {
+            OutboundEvent::SceneChange {
+                scene_id,
+                scene_name,
+                dungeon_difficulty,
+            } => {
                 if let Err(error) = flush_current_session_to_file(
                     app_handle,
                     "scene_change",
@@ -7588,13 +7624,23 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 }
                 flush_attribution_census(app_handle, "scene_change", state);
 
+                let payload = SceneChangePayload {
+                    scene_id,
+                    scene_name: scene_name.clone(),
+                    dungeon_difficulty,
+                };
+
                 safe_emit_to_priority(
                     app_handle,
                     crate::WINDOW_LIVE_LABEL,
                     "scene-change",
-                    SceneChangePayload {
-                        scene_name: scene_name.clone(),
-                    },
+                    payload.clone(),
+                );
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_MAIN_LABEL,
+                    "scene-change",
+                    payload.clone(),
                 );
                 emit_auxiliary_entries_lazy(app_handle, || {
                     vec![EventLoggerEntry {
@@ -7612,7 +7658,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                         duration_ms: None,
                         remaining_ms: None,
                         value: None,
-                        raw: serde_json::to_string_pretty(&SceneChangePayload { scene_name })
+                        raw: serde_json::to_string_pretty(&payload)
                             .unwrap_or_else(|_| "null".to_string()),
                     }]
                 });
@@ -7649,27 +7695,20 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 emit_auxiliary_entries_lazy(app_handle, || {
                     build_live_snapshot_logger_entries(state, &payload, ts_ms)
                 });
-                match serde_json::to_string(&payload) {
-                    Ok(payload_json) => {
-                        if priority_live_data {
-                            safe_emit_json_to_priority(
-                                app_handle,
-                                crate::WINDOW_LIVE_LABEL,
-                                "live-data",
-                                payload_json,
-                            );
-                        } else {
-                            safe_emit_json_to(
-                                app_handle,
-                                crate::WINDOW_LIVE_LABEL,
-                                "live-data",
-                                payload_json,
-                            );
-                        }
-                    }
-                    Err(error) => {
-                        warn!(target: "app::live", "live_data_payload_serialize_failed error={}", error);
-                    }
+                if priority_live_data {
+                    safe_emit_json_to_lazy_priority(
+                        app_handle,
+                        crate::WINDOW_LIVE_LABEL,
+                        "live-data",
+                        || serde_json::to_string(&payload),
+                    );
+                } else {
+                    safe_emit_json_to_lazy(
+                        app_handle,
+                        crate::WINDOW_LIVE_LABEL,
+                        "live-data",
+                        || serde_json::to_string(&payload),
+                    );
                 }
             }
             OutboundEvent::BuffUpdate(buffs) => {
@@ -7753,19 +7792,47 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 });
             }
             OutboundEvent::TeammateBuffUpdate(teammate_buffs) => {
+                let payload = TeammateBuffUpdatePayload { teammate_buffs };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "teammate-buff-update",
+                    payload.clone(),
+                );
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "teammate-buff-update",
-                    TeammateBuffUpdatePayload { teammate_buffs },
+                    payload,
                 );
             }
             OutboundEvent::TeammateFantasyUpdate(fantasies) => {
+                let payload = TeammateFantasyUpdatePayload { fantasies };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "teammate-fantasy-update",
+                    payload.clone(),
+                );
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_MONSTER_OVERLAY_LABEL,
                     "teammate-fantasy-update",
-                    TeammateFantasyUpdatePayload { fantasies },
+                    payload,
+                );
+            }
+            OutboundEvent::TeammateFantasyClear => {
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "teammate-fantasy-clear",
+                    (),
+                );
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_MONSTER_OVERLAY_LABEL,
+                    "teammate-fantasy-clear",
+                    (),
                 );
             }
             OutboundEvent::HateListUpdate(hate_lists) => {
@@ -7811,6 +7878,21 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                     }
                     entries
                 });
+            }
+            OutboundEvent::StunUpdate(entries) => {
+                let payload = StunUpdatePayload { entries };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "stun-update",
+                    payload.clone(),
+                );
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_MONSTER_OVERLAY_LABEL,
+                    "stun-update",
+                    payload,
+                );
             }
             OutboundEvent::EntityNameMap { names } => {
                 let payload = EntityNameMapPayload {
@@ -8048,6 +8130,35 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                         current_hp,
                         max_hp,
                         entries,
+                    },
+                );
+            }
+            OutboundEvent::BossDbmUpdate(events) => {
+                let payload = BossDbmUpdatePayload { events };
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "boss-dbm-update",
+                    payload.clone(),
+                );
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_MONSTER_OVERLAY_LABEL,
+                    "boss-dbm-update",
+                    payload,
+                );
+            }
+            OutboundEvent::MinimapUpdate {
+                snapshot,
+                skill_casts,
+            } => {
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_GAME_OVERLAY_LABEL,
+                    "minimap-update",
+                    MinimapUpdatePayload {
+                        snapshot,
+                        skill_casts,
                     },
                 );
             }

@@ -421,7 +421,6 @@ function serializeRow(row) {
   const observedScopes = Object.keys(scopeSummary).filter((scope) => scope !== "unknown" && ((scopeSummary[scope]?.hits ?? 0) > 0 || (scopeSummary[scope]?.windows ?? 0) > 0));
   const matchedScopes = observedScopes.filter((scope) => row.candidateScopes.includes(scope) || (scope === "owner" && row.candidateScopes.includes("self")));
   const totalHits = observed.replayHits + observed.hitBucketHits;
-  const totalDamage = observed.replayDamage + observed.hitBucketDamage;
   const hasObserved = totalHits > 0 || observed.windows > 0 || observed.hitBucketRows > 0;
   const hasOnlyUnknown = hasObserved && observedScopes.length === 0;
   const status = !hasObserved

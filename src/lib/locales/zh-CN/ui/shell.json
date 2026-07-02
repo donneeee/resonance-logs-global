@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "控制当前方案在共享悬浮窗中显示的部分。",
   "settings.overlay.startWithApp": "随应用启动",
   "settings.overlay.startWithAppDescription": "当应用启动且已启用遮罩发布时，自动打开共享遮罩。",
+  "settings.overlay.skillAutoHideDaily": "日常场景自动隐藏技能监控",
+  "settings.overlay.skillAutoHideDailyDescription": "启用技能监控时，进入日常场景黑名单会隐藏共享遮罩，离开后恢复正常显示状态。",
+  "settings.overlay.monsterAutoHideDaily": "日常场景自动隐藏怪物监控",
+  "settings.overlay.monsterAutoHideDailyDescription": "启用怪物监控时，进入日常场景黑名单会隐藏共享遮罩，离开后恢复正常显示状态。",
   "settings.overlay.autoHideWithLiveWindow": "随实时窗口自动隐藏",
   "settings.overlay.autoHideWithLiveWindowDescription": "启用“自动隐藏实时窗口”后，可见的悬浮窗会随实时计量表一起隐藏，并只在自动隐藏前原本可见时恢复。",
   "settings.overlay.autoHideWithLiveWindowHelp": "此选项跟随实时计量表基于伤害的隐藏/显示流程，不会自行开启悬浮窗；关闭“自动隐藏实时窗口”时不会生效。",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "控制不绑定到单个悬浮窗或仪表视图的全局应用行为。",
   "settings.hideMainWindowToTray": "关闭时隐藏主窗口到托盘",
   "settings.hideMainWindowToTrayDescription": "启用后，关闭主窗口会将其隐藏而不是退出。使用托盘图标恢复，或选择退出以完全关闭。",
-  "sidebar.openChangelog": "查看更新日志"
+  "sidebar.openChangelog": "查看更新日志",
+  "tool.minimap": "DBM"
 }

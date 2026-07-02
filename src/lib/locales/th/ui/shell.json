@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "เริ่มพร้อมแอป",
   "settings.overlay.startWithAppDescription": "เปิดโอเวอร์เลย์ร่วมโดยอัตโนมัติเมื่อแอปเริ่มทำงานและเปิดใช้การเผยแพร่โอเวอร์เลย์",
+  "settings.overlay.skillAutoHideDaily": "Auto-hide Skill Monitor in Daily Scenes",
+  "settings.overlay.skillAutoHideDailyDescription": "When Skill Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
+  "settings.overlay.monsterAutoHideDaily": "Auto-hide Monster Monitor in Daily Scenes",
+  "settings.overlay.monsterAutoHideDailyDescription": "When Monster Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
   "settings.overlay.autoHideWithLiveWindow": "ซ่อนพร้อมหน้าต่างสด",
   "settings.overlay.autoHideWithLiveWindowDescription": "เมื่อเปิดซ่อนหน้าต่างสดอัตโนมัติ หน้าต่างโอเวอร์เลย์ที่มองเห็นอยู่จะถูกซ่อนไปพร้อมมิเตอร์สด และจะกลับมาเฉพาะเมื่อเคยมองเห็นก่อนถูกซ่อน",
   "settings.overlay.autoHideWithLiveWindowHelp": "ตัวเลือกนี้ทำตามรอบซ่อน/แสดงของมิเตอร์สดตามดาเมจ ไม่ได้เปิดโอเวอร์เลย์เอง และจะไม่ทำงานเมื่อปิด Auto-hide Live Window",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "ควบคุมพฤติกรรมโดยรวมของแอปที่ไม่ได้ผูกกับโอเวอร์เลย์หรือหน้ามิเตอร์ใดหน้าหนึ่ง",
   "settings.hideMainWindowToTray": "ซ่อนหน้าต่างหลักไปยังถาดระบบเมื่อปิด",
   "settings.hideMainWindowToTrayDescription": "เมื่อเปิดใช้ การปิดหน้าต่างหลักจะซ่อนไว้แทนการออกจากแอป ใช้ไอคอนถาดระบบเพื่อกู้คืน หรือเลือกออกเพื่อปิดทั้งหมด",
-  "sidebar.openChangelog": "ดูบันทึกการเปลี่ยนแปลง"
+  "sidebar.openChangelog": "ดูบันทึกการเปลี่ยนแปลง",
+  "tool.minimap": "DBM"
 }

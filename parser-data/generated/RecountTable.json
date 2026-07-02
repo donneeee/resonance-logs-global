@@ -11948,5 +11948,102 @@
     "DamageListOffset": 7066,
     "Source": "RecountTable",
     "SourceOffset": 1116618294
+  },
+  "345": {
+    "Id": 345,
+    "RecountName": "琉火咆哮",
+    "DamageId": [
+      11012270101,
+      2211030203
+    ],
+    "Name": "琉火咆哮",
+    "NameDesign": "琉火咆哮",
+    "Names": {
+      "design": "琉火咆哮",
+      "en": "琉火咆哮",
+      "zh-CN": "琉火咆哮",
+      "ja": "琉火咆哮",
+      "de": "琉火咆哮",
+      "es": "琉火咆哮",
+      "fr": "琉火咆哮",
+      "id": "琉火咆哮",
+      "ko-KR": "琉火咆哮",
+      "pt-BR": "琉火咆哮",
+      "th": "琉火咆哮",
+      "zh-TW": "琉火咆哮"
+    },
+    "Source": "CN 0.1.7 RecountTable.json"
+  },
+  "346": {
+    "Id": 346,
+    "RecountName": "脉冲祝祷",
+    "DamageId": [
+      2211030403
+    ],
+    "Name": "脉冲祝祷",
+    "NameDesign": "脉冲祝祷",
+    "Names": {
+      "design": "脉冲祝祷",
+      "en": "脉冲祝祷",
+      "zh-CN": "脉冲祝祷",
+      "ja": "脉冲祝祷",
+      "de": "脉冲祝祷",
+      "es": "脉冲祝祷",
+      "fr": "脉冲祝祷",
+      "id": "脉冲祝祷",
+      "ko-KR": "脉冲祝祷",
+      "pt-BR": "脉冲祝祷",
+      "th": "脉冲祝祷",
+      "zh-TW": "脉冲祝祷"
+    },
+    "Source": "CN 0.1.7 RecountTable.json"
+  },
+  "347": {
+    "Id": 347,
+    "RecountName": "地狱突刺",
+    "DamageId": [
+      110081410101
+    ],
+    "Name": "地狱突刺",
+    "NameDesign": "地狱突刺",
+    "Names": {
+      "design": "地狱突刺",
+      "en": "地狱突刺",
+      "zh-CN": "地狱突刺",
+      "ja": "地狱突刺",
+      "de": "地狱突刺",
+      "es": "地狱突刺",
+      "fr": "地狱突刺",
+      "id": "地狱突刺",
+      "ko-KR": "地狱突刺",
+      "pt-BR": "地狱突刺",
+      "th": "地狱突刺",
+      "zh-TW": "地狱突刺"
+    },
+    "Source": "CN 0.1.7 RecountTable.json"
+  },
+  "348": {
+    "Id": 348,
+    "RecountName": "静默潮汐",
+    "DamageId": [
+      110085410101
+    ],
+    "Name": "静默潮汐",
+    "NameDesign": "静默潮汐",
+    "Names": {
+      "design": "静默潮汐",
+      "en": "静默潮汐",
+      "zh-CN": "静默潮汐",
+      "ja": "静默潮汐",
+      "de": "静默潮汐",
+      "es": "静默潮汐",
+      "fr": "静默潮汐",
+      "id": "静默潮汐",
+      "ko-KR": "静默潮汐",
+      "pt-BR": "静默潮汐",
+      "th": "静默潮汐",
+      "zh-TW": "静默潮汐"
+    },
+    "Source": "CN 0.1.7 RecountTable.json"
   }
 }

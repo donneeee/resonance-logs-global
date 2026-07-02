@@ -2,7 +2,9 @@ use crate::live::chat_feed;
 use crate::live::event_logger::{EventLoggerEntry, now_ms};
 use crate::packets::game_connections::{GameConnectionFilter, Verdict};
 use crate::packets::npcap::NpcapCapture;
-use crate::packets::opcodes::{FragmentType, Pkt};
+use crate::packets::opcodes::FragmentType;
+#[cfg(debug_assertions)]
+use crate::packets::opcodes::Pkt;
 use crate::packets::packet_process::{process_packet, try_send_capture_event};
 use crate::packets::parser::ParsedNotifyFragment;
 use crate::packets::reassembler::Reassembler;
@@ -15,10 +17,8 @@ use log::{debug, error, info, warn};
 use once_cell::sync::OnceCell;
 #[cfg(debug_assertions)]
 use serde::Serialize;
-#[cfg(debug_assertions)]
 use std::collections::hash_map::DefaultHasher;
 use std::collections::{HashMap, HashSet};
-#[cfg(debug_assertions)]
 use std::hash::{Hash, Hasher};
 use std::sync::atomic::AtomicUsize;
 #[cfg(debug_assertions)]
@@ -90,6 +90,14 @@ fn capture_payload_probes_enabled() -> bool {
 const MAX_BACKTRACK_BYTES: u32 = 2 * 1024 * 1024; // 2 MiB safety window before considering a reset
 const SESSION_IDLE_TIMEOUT: Duration = Duration::from_secs(90);
 const CAPTURE_CHANNEL_CAP: usize = 4096;
+const CAPTURE_EMPTY_DISPATCH_FAST_SPINS: u32 = 20;
+const CAPTURE_EMPTY_DISPATCH_BASE_SLEEP: Duration = Duration::from_millis(2);
+const CAPTURE_EMPTY_DISPATCH_IDLE_SLEEP: Duration = Duration::from_millis(16);
+const CAPTURE_EMPTY_DISPATCH_DEEP_IDLE_SLEEP: Duration = Duration::from_millis(33);
+const SCENE_FRAME_DEDUPE_TTL: Duration = Duration::from_secs(3);
+const SCENE_FRAME_DEDUPE_CLEANUP_INTERVAL: Duration = Duration::from_millis(500);
+const SCENE_FRAME_DEDUPE_LIMIT: usize = 8192;
+const SCENE_FRAME_DEDUPE_STATS_INTERVAL: Duration = Duration::from_secs(30);
 
 // Common libpcap datalink constants we care about.
 const DLT_NULL: i32 = 0;
@@ -106,7 +114,6 @@ enum PacketFormat {
 
 #[derive(Debug)]
 pub enum CaptureEvent {
-    Packet(Pkt, Bytes),
     Notify(ParsedNotifyFragment),
     AuxiliaryEntries(Vec<EventLoggerEntry>),
 }
@@ -125,6 +132,96 @@ impl NonSceneStreamState {
             last_seen: Instant::now(),
         }
     }
+}
+
+struct SceneFrameDeduper {
+    fingerprints: HashMap<u64, Instant>,
+    last_cleanup: Instant,
+    last_stats_log: Instant,
+    processed_frames: u64,
+    skipped_duplicates: u64,
+    last_logged_processed_frames: u64,
+    last_logged_skipped_duplicates: u64,
+}
+
+impl SceneFrameDeduper {
+    fn new() -> Self {
+        let now = Instant::now();
+        Self {
+            fingerprints: HashMap::new(),
+            last_cleanup: now,
+            last_stats_log: now,
+            processed_frames: 0,
+            skipped_duplicates: 0,
+            last_logged_processed_frames: 0,
+            last_logged_skipped_duplicates: 0,
+        }
+    }
+
+    fn should_process(&mut self, frame: &Bytes) -> bool {
+        let now = Instant::now();
+        if now.duration_since(self.last_cleanup) >= SCENE_FRAME_DEDUPE_CLEANUP_INTERVAL
+            || self.fingerprints.len() > SCENE_FRAME_DEDUPE_LIMIT
+        {
+            self.cleanup(now);
+        }
+
+        let fingerprint = frame_fingerprint(frame);
+        if self
+            .fingerprints
+            .get(&fingerprint)
+            .is_some_and(|seen_at| now.duration_since(*seen_at) <= SCENE_FRAME_DEDUPE_TTL)
+        {
+            self.skipped_duplicates = self.skipped_duplicates.saturating_add(1);
+            self.log_stats_if_due(now);
+            return false;
+        }
+
+        self.fingerprints.insert(fingerprint, now);
+        self.processed_frames = self.processed_frames.saturating_add(1);
+        self.log_stats_if_due(now);
+        true
+    }
+
+    fn cleanup(&mut self, now: Instant) {
+        self.fingerprints
+            .retain(|_, seen_at| now.duration_since(*seen_at) <= SCENE_FRAME_DEDUPE_TTL);
+        if self.fingerprints.len() > SCENE_FRAME_DEDUPE_LIMIT {
+            self.fingerprints.clear();
+        }
+        self.last_cleanup = now;
+    }
+
+    fn log_stats_if_due(&mut self, now: Instant) {
+        if now.duration_since(self.last_stats_log) < SCENE_FRAME_DEDUPE_STATS_INTERVAL {
+            return;
+        }
+
+        if self.processed_frames == self.last_logged_processed_frames
+            && self.skipped_duplicates == self.last_logged_skipped_duplicates
+        {
+            self.last_stats_log = now;
+            return;
+        }
+
+        info!(
+            target: "app::capture",
+            "scene_frame_dedupe_stats processed={} skipped_duplicates={} cache_size={}",
+            self.processed_frames,
+            self.skipped_duplicates,
+            self.fingerprints.len()
+        );
+        self.last_logged_processed_frames = self.processed_frames;
+        self.last_logged_skipped_duplicates = self.skipped_duplicates;
+        self.last_stats_log = now;
+    }
+}
+
+fn frame_fingerprint(frame: &Bytes) -> u64 {
+    let mut hasher = DefaultHasher::new();
+    frame.len().hash(&mut hasher);
+    frame.as_ref().hash(&mut hasher);
+    hasher.finish()
 }
 
 const NON_SCENE_STREAM_LIMIT: usize = 32;
@@ -1212,8 +1309,10 @@ fn read_packets(
     let mut known_servers: HashSet<Server> = HashSet::new();
     let mut scene_streams: HashMap<Server, NonSceneStreamState> = HashMap::new();
     let mut non_scene_streams: HashMap<String, NonSceneStreamState> = HashMap::new();
+    let mut scene_frame_deduper = SceneFrameDeduper::new();
     let mut game_connections = GameConnectionFilter::new();
     let mut cleanup_last_run = Instant::now();
+    let mut empty_dispatches = 0u32;
     #[cfg(debug_assertions)]
     let mut capture_census_runtime = CaptureCensusRuntime::default();
 
@@ -1270,6 +1369,7 @@ fn read_packets(
                     packet_sender,
                     queue_depth,
                     dropped_total,
+                    &mut scene_frame_deduper,
                     &mut game_connections,
                     #[cfg(debug_assertions)]
                     &mut capture_census_runtime,
@@ -1375,9 +1475,19 @@ fn read_packets(
 
         match dispatch_result {
             Ok(0) => {
-                std::thread::sleep(Duration::from_millis(1));
+                empty_dispatches = empty_dispatches.saturating_add(1);
+                let sleep_duration = if empty_dispatches < CAPTURE_EMPTY_DISPATCH_FAST_SPINS {
+                    CAPTURE_EMPTY_DISPATCH_BASE_SLEEP
+                } else if scene_streams.is_empty() && non_scene_streams.is_empty() {
+                    CAPTURE_EMPTY_DISPATCH_DEEP_IDLE_SLEEP
+                } else {
+                    CAPTURE_EMPTY_DISPATCH_IDLE_SLEEP
+                };
+                std::thread::sleep(sleep_duration);
             }
-            Ok(_) => {}
+            Ok(_) => {
+                empty_dispatches = 0;
+            }
             Err(e) => {
                 error!(target: "app::capture", "capture_error err={}", e);
                 break;
@@ -1453,6 +1563,7 @@ fn process_scene_stream_packet(
     packet_sender: &tokio::sync::mpsc::Sender<CaptureEvent>,
     queue_depth: &AtomicUsize,
     dropped_total: &AtomicUsize,
+    scene_frame_deduper: &mut SceneFrameDeduper,
     game_connections: &mut GameConnectionFilter,
     #[cfg(debug_assertions)] capture_census_runtime: &mut CaptureCensusRuntime,
 ) {
@@ -1532,6 +1643,10 @@ fn process_scene_stream_packet(
     }
 
     while let Some(packet) = stream.reassembler.try_next() {
+        if !scene_frame_deduper.should_process(&packet) {
+            continue;
+        }
+
         #[cfg(debug_assertions)]
         if capture_census_enabled() {
             let mut entries = Vec::new();

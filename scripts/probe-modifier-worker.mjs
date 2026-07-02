@@ -578,7 +578,8 @@ function buildProbeModifierSourceCatalog(entity) {
         sourceNames[locale] = `${ownerName} - ${childName}`;
       }
       const rows = byBuffId[String(sourceConfigId)] ?? [];
-      const { displayOwnerKind: _displayOwnerKind, ...entryWithoutGenericOwner } = entry;
+      const { displayOwnerKind, ...entryWithoutGenericOwner } = entry;
+      void displayOwnerKind;
       rows.push({
         ...entryWithoutGenericOwner,
         sourceId: `${entry.sourceId}|source-config:${sourceConfigId}`,

@@ -5484,6 +5484,7 @@
                   settings.state.history.general.showOthersName,
                 isLocalPlayer: p.isLocalPlayer,
               })}
+              {@const effectiveIconSpecName = iconSpecName || (!p.className ? p.classSpecName : "")}
               <tr
                 class="relative border-t border-border/40 hover:bg-muted/60 transition-colors cursor-pointer"
                 onclick={() =>
@@ -5507,7 +5508,7 @@
                       class="shrink-0 object-contain"
                       style="width: {historyTableSettings.playerIconSize}px; height: {historyTableSettings.playerIconSize}px;"
                       className={p.className}
-                      classSpecName={iconSpecName}
+                      classSpecName={effectiveIconSpecName}
                       alt={t("detail.classIcon", "职业图标")}
                       tooltipText={p.classDisplay || t("detail.unknownClass", "Unknown Class")}
                     />

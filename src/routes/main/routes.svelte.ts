@@ -8,6 +8,7 @@ import GlobeIcon from "virtual:icons/lucide/globe";
 import HourglassIcon from "virtual:icons/lucide/hourglass";
 import KeyboardIcon from "virtual:icons/lucide/keyboard";
 import LanguagesIcon from "virtual:icons/lucide/languages";
+import MapIcon from "virtual:icons/lucide/map";
 import MonitorUpIcon from "virtual:icons/lucide/monitor-up";
 import PaletteIcon from "virtual:icons/lucide/palette";
 import UsersIcon from "virtual:icons/lucide/users";
@@ -36,6 +37,7 @@ export const DPS_SUB_ROUTES = {
 export const OVERLAY_SUB_ROUTES = {
   "/main/overlay/skill-monitor": { label: "Skill Monitor", icon: SwordsIcon },
   "/main/overlay/monster-monitor": { label: "Monster Monitor", icon: ShieldAlertIcon },
+  "/main/overlay/dbm": { label: "DBM", icon: MapIcon },
 };
 
 // Sub-routes for global settings

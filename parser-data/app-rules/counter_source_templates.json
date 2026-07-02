@@ -1516,8 +1516,10 @@
     "name": "神射S3 X10, 释放爆炸射击获得 92 点能量",
     "description": "释放爆炸射击获得 92 点能量",
     "source": {
-      "buffUpserted": {
-        "buffId": 3053101,
+      "skillCast": {
+        "skillBaseIds": [
+          2238
+        ],
         "increment": 92
       }
     },

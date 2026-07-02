@@ -162,10 +162,6 @@ function ensureParentDir(filePath) {
   }
 }
 
-function readU32(buffer, offset) {
-  return offset >= 0 && offset + 4 <= buffer.length ? buffer.readUInt32LE(offset) : null;
-}
-
 function normalizeLabel(value) {
   return String(value ?? "")
     .replace(/\s+/g, " ")

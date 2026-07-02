@@ -4,7 +4,6 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.resolve(__dirname, "..");
-const generatedDir = path.join(root, "parser-data", "generated");
 const outDir = path.join(root, "DEV_exports");
 
 const locales = [

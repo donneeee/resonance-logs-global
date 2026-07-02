@@ -3,6 +3,7 @@
   import {
     customPanelGroups,
     customPanelRowsByGroup,
+    getCustomPanelGroupPosition,
     isEditing,
     startDrag,
     startResize,
@@ -20,17 +21,18 @@
 {#each groups as group, groupIndex (group.id)}
   {@const rows = rowsByGroup.get(group.id) ?? []}
   {@const styleConfig = group.style}
+  {@const groupPosition = getCustomPanelGroupPosition(group.id, group.position)}
   {#if rows.length > 0 || editing}
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="overlay-group custom-panel-group"
       class:editable={editing}
-      style:left={`${group.position.x}px`}
-      style:top={`${group.position.y}px`}
+      style:left={`${groupPosition.x}px`}
+      style:top={`${groupPosition.y}px`}
       style:transform={`scale(${group.scale})`}
       style:transform-origin="top left"
       onpointerdown={(e) =>
-        startDrag(e, { kind: "customPanelGroup", groupId: group.id }, group.position)}
+        startDrag(e, { kind: "customPanelGroup", groupId: group.id }, groupPosition)}
     >
       {#if editing}
         <div class="group-tag">{getGroupName(group, groupIndex)}</div>

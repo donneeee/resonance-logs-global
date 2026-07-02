@@ -73,6 +73,22 @@ export function getFantasyPanelScale() {
   return getMonsterOverlaySizes().fantasyPanelScale;
 }
 
+export function getDbmPanelPosition() {
+  return getMonsterOverlayPositions().bossDbmPanel;
+}
+
+export function getDbmPanelScale() {
+  return getMonsterOverlaySizes().bossDbmPanelScale;
+}
+
+export function getStunPanelPosition() {
+  return getMonsterOverlayPositions().stunPanel;
+}
+
+export function getStunPanelScale() {
+  return getMonsterOverlaySizes().stunPanelScale;
+}
+
 export function monsterPanelStyle() {
   return SETTINGS.monsterMonitor.state.panelStyle;
 }
@@ -91,6 +107,16 @@ export function hatePanelStyle() {
 
 export function fantasyPanelStyle() {
   return SETTINGS.monsterMonitor.state.fantasyPanelStyle
+    ?? SETTINGS.monsterMonitor.state.panelStyle;
+}
+
+export function dbmPanelStyle() {
+  return SETTINGS.monsterMonitor.state.bossDbmPanelStyle
+    ?? SETTINGS.monsterMonitor.state.panelStyle;
+}
+
+export function stunPanelStyle() {
+  return SETTINGS.monsterMonitor.state.stunPanelStyle
     ?? SETTINGS.monsterMonitor.state.panelStyle;
 }
 
@@ -166,6 +192,42 @@ export function setFantasyPanelScale(value: number) {
   }));
 }
 
+export function setDbmPanelPosition(nextPos: { x: number; y: number }) {
+  patchMonsterMonitor(() => ({
+    overlayPositions: {
+      ...getMonsterOverlayPositions(),
+      bossDbmPanel: nextPos,
+    },
+  }));
+}
+
+export function setDbmPanelScale(value: number) {
+  patchMonsterMonitor(() => ({
+    overlaySizes: {
+      ...getMonsterOverlaySizes(),
+      bossDbmPanelScale: clampPanelScale(value),
+    },
+  }));
+}
+
+export function setStunPanelPosition(nextPos: { x: number; y: number }) {
+  patchMonsterMonitor(() => ({
+    overlayPositions: {
+      ...getMonsterOverlayPositions(),
+      stunPanel: nextPos,
+    },
+  }));
+}
+
+export function setStunPanelScale(value: number) {
+  patchMonsterMonitor(() => ({
+    overlaySizes: {
+      ...getMonsterOverlaySizes(),
+      stunPanelScale: clampPanelScale(value),
+    },
+  }));
+}
+
 export async function setMonsterEditMode(editing: boolean) {
   monsterRuntime.isEditing = editing;
   if (monsterRuntime.currentWindow) {
@@ -219,8 +281,12 @@ export function onGlobalPointerMove(event: PointerEvent) {
       setTeammatePanelPosition(nextPos);
     } else if (monsterRuntime.dragState.target.kind === "hatePanel") {
       setHatePanelPosition(nextPos);
-    } else {
+    } else if (monsterRuntime.dragState.target.kind === "fantasyPanel") {
       setFantasyPanelPosition(nextPos);
+    } else if (monsterRuntime.dragState.target.kind === "stunPanel") {
+      setStunPanelPosition(nextPos);
+    } else {
+      setDbmPanelPosition(nextPos);
     }
   }
 
@@ -234,8 +300,12 @@ export function onGlobalPointerMove(event: PointerEvent) {
       setTeammatePanelScale(monsterRuntime.resizeState.startValue + delta);
     } else if (monsterRuntime.resizeState.target.kind === "hatePanel") {
       setHatePanelScale(monsterRuntime.resizeState.startValue + delta);
-    } else {
+    } else if (monsterRuntime.resizeState.target.kind === "fantasyPanel") {
       setFantasyPanelScale(monsterRuntime.resizeState.startValue + delta);
+    } else if (monsterRuntime.resizeState.target.kind === "stunPanel") {
+      setStunPanelScale(monsterRuntime.resizeState.startValue + delta);
+    } else {
+      setDbmPanelScale(monsterRuntime.resizeState.startValue + delta);
     }
   }
 }

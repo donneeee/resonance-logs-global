@@ -6,6 +6,14 @@
   import LiveAppearanceSettings from "./live-appearance-settings.svelte";
   import { notifySettingsChanged, SETTINGS } from "$lib/settings-store";
   import ChevronDown from "virtual:icons/lucide/chevron-down";
+  import Plus from "virtual:icons/lucide/plus";
+  import X from "virtual:icons/lucide/x";
+  import { CHALLENGE_PRESETS } from "$lib/challenge-presets";
+  import {
+    searchForbiddenDamage,
+    type DamageSearchResult,
+  } from "$lib/challenge-damage-search";
+  import { lookupLocalizedDamageIdName } from "$lib/config/recount-table";
   import {
     columnAliasKey,
     columnAliasValue,
@@ -23,6 +31,7 @@
   // Keep General open so live-window visibility controls are immediately visible.
   let expandedSections = $state({
     general: true,
+    challengeWatch: false,
     trainingDummy: false,
     dpsPlayers: false,
     dpsSkills: false,
@@ -54,6 +63,64 @@
   function setLiveColumnAlias(col: ColumnDefinition, value: string): void {
     SETTINGS.live.columnAliases.state[columnAliasKey(col)] = value;
     notifySettingsChanged();
+  }
+
+  function text(
+    key: string,
+    fallback: string,
+    params: Record<string, string | number> = {},
+  ): string {
+    let value = t(key, fallback);
+    for (const [paramKey, paramValue] of Object.entries(params)) {
+      value = value.replaceAll(`{${paramKey}}`, String(paramValue));
+    }
+    return value;
+  }
+
+  let challengeSearch = $state("");
+  let challengeLocale = $derived(SETTINGS.live.general.state.language);
+  let forbiddenDamageIds = $derived(
+    SETTINGS.challengeWatch.state.forbiddenDamageIds,
+  );
+  let challengeSearchResult = $derived(
+    searchForbiddenDamage(challengeSearch, challengeLocale, 80),
+  );
+  let configuredDamageItems = $derived(
+    forbiddenDamageIds.map((id) => ({
+      id,
+      name: lookupLocalizedDamageIdName(id, challengeLocale),
+    })),
+  );
+
+  function setForbiddenDamageIds(ids: number[]): void {
+    SETTINGS.challengeWatch.state.forbiddenDamageIds = [
+      ...new Set(ids.filter((id) => Number.isFinite(id) && id > 0)),
+    ];
+    notifySettingsChanged();
+  }
+
+  function addForbiddenIds(ids: number[]): void {
+    setForbiddenDamageIds([...forbiddenDamageIds, ...ids]);
+  }
+
+  function removeForbiddenId(id: number): void {
+    setForbiddenDamageIds(forbiddenDamageIds.filter((current) => current !== id));
+  }
+
+  function isResultAdded(ids: number[]): boolean {
+    const configured = new Set(forbiddenDamageIds);
+    return ids.every((id) => configured.has(id));
+  }
+
+  function toggleResult(result: DamageSearchResult): void {
+    if (isResultAdded(result.ids)) {
+      const removeIds = new Set(result.ids);
+      setForbiddenDamageIds(
+        forbiddenDamageIds.filter((id) => !removeIds.has(id)),
+      );
+      return;
+    }
+    addForbiddenIds(result.ids);
   }
   // Drag state for column reordering (unused - keeping for potential future use)
 </script>
@@ -259,6 +326,150 @@
     </div>
 
     <LiveAppearanceSettings />
+
+    <div
+      class="rounded-lg border bg-card/40 border-border/60 overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]"
+    >
+      <button
+        type="button"
+        class="w-full flex items-center justify-between px-4 py-3 hover:bg-muted/30 transition-colors"
+        onclick={() => toggleSection("challengeWatch")}
+      >
+        <h2 class="text-base font-semibold text-foreground">
+          {t("challengeWatch.title", "Challenge Damage Alerts")}
+        </h2>
+        <ChevronDown
+          class="w-5 h-5 text-muted-foreground transition-transform duration-200 {expandedSections.challengeWatch
+            ? 'rotate-180'
+            : ''}"
+        />
+      </button>
+      {#if expandedSections.challengeWatch}
+        <div class="px-4 pb-4 space-y-4">
+          <p class="text-xs text-muted-foreground">
+            {t("challengeWatch.description", "Mark live rows with a red warning triangle when a player is hit by configured challenge damage IDs.")}
+          </p>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-foreground">
+              {t("challengeWatch.presets.title", "Presets")}
+            </h3>
+            <div class="flex flex-wrap gap-2">
+              {#each CHALLENGE_PRESETS as preset (preset.id)}
+                {@const added = isResultAdded(preset.damageIds)}
+                <button
+                  type="button"
+                  class="inline-flex items-center gap-1.5 rounded border border-border/60 px-3 py-1.5 text-sm transition-colors {added ? 'bg-primary/20 text-primary border-primary/50' : 'bg-muted/30 text-foreground hover:bg-muted/60'}"
+                  onclick={() => toggleResult({
+                    key: `preset:${preset.id}`,
+                    name: t(preset.labelKey, "N17 - Cursed Tomb Floating Cannon"),
+                    ids: preset.damageIds,
+                    isGroup: true,
+                  })}
+                >
+                  <Plus class="h-3.5 w-3.5" />
+                  {t(preset.labelKey, "N17 - Cursed Tomb Floating Cannon")}
+                </button>
+              {/each}
+            </div>
+          </div>
+
+          <div class="space-y-2">
+            <input
+              type="search"
+              bind:value={challengeSearch}
+              class="h-10 w-full rounded-md border border-border/60 bg-background/80 px-3 text-sm text-foreground outline-none transition-colors placeholder:text-muted-foreground/70 focus:border-primary/70 focus:ring-2 focus:ring-primary/30"
+              placeholder={t("challengeWatch.searchPlaceholder", "Search damage or mechanic names")}
+              aria-label={t("challengeWatch.searchPlaceholder", "Search damage or mechanic names")}
+            />
+
+            {#if challengeSearch.trim()}
+              <div class="rounded-md border border-border/40 bg-muted/10">
+                {#if challengeSearchResult.results.length > 0}
+                  <div class="flex items-center justify-between border-b border-border/40 px-3 py-2 text-xs text-muted-foreground">
+                    <span>
+                      {text("challengeWatch.searchCount", "{count} matches", {
+                        count: challengeSearchResult.total,
+                      })}
+                    </span>
+                    {#if challengeSearchResult.total > challengeSearchResult.results.length}
+                      <span>
+                        {text("challengeWatch.searchMore", "Showing first {shown} of {count} matches; refine your search for more.", {
+                          shown: challengeSearchResult.results.length,
+                          count: challengeSearchResult.total,
+                        })}
+                      </span>
+                    {/if}
+                  </div>
+                  <div class="max-h-64 overflow-y-auto p-2 space-y-1">
+                    {#each challengeSearchResult.results as result (result.key)}
+                      {@const added = isResultAdded(result.ids)}
+                      <button
+                        type="button"
+                        class="flex w-full items-center justify-between gap-3 rounded px-3 py-2 text-left text-sm transition-colors {added ? 'bg-primary/15 text-primary' : 'hover:bg-muted/50'}"
+                        onclick={() => toggleResult(result)}
+                      >
+                        <span class="min-w-0">
+                          <span class="block truncate font-medium">{result.name}</span>
+                          {#if result.isGroup}
+                            <span class="block text-xs text-muted-foreground">
+                              {text("challengeWatch.groupCount", "{count} IDs", {
+                                count: result.ids.length,
+                              })}
+                            </span>
+                          {:else}
+                            <span class="block text-xs text-muted-foreground">
+                              #{result.ids[0]}
+                            </span>
+                          {/if}
+                        </span>
+                        <span class="shrink-0 text-xs">
+                          {added ? t("challengeWatch.added", "Added") : t("challengeWatch.add", "Add")}
+                        </span>
+                      </button>
+                    {/each}
+                  </div>
+                {:else}
+                  <div class="px-3 py-4 text-sm text-muted-foreground">
+                    {t("challengeWatch.searchNoResults", "No matching damage names found")}
+                  </div>
+                {/if}
+              </div>
+            {/if}
+          </div>
+
+          <div class="space-y-2">
+            <h3 class="text-sm font-semibold text-foreground">
+              {t("challengeWatch.configuredTitle", "Configured damage alerts")}
+            </h3>
+            {#if configuredDamageItems.length > 0}
+              <div class="flex flex-wrap gap-2">
+                {#each configuredDamageItems as item (item.id)}
+                  <span
+                    class="inline-flex items-center gap-2 rounded border border-border/60 bg-muted/30 px-2.5 py-1 text-sm"
+                  >
+                    <span>{item.name}</span>
+                    <span class="text-xs text-muted-foreground">#{item.id}</span>
+                    <button
+                      type="button"
+                      class="rounded p-0.5 text-muted-foreground hover:bg-muted hover:text-foreground"
+                      aria-label={t("challengeWatch.remove", "Remove damage alert")}
+                      onclick={() => removeForbiddenId(item.id)}
+                    >
+                      <X class="h-3.5 w-3.5" />
+                    </button>
+                  </span>
+                {/each}
+              </div>
+            {:else}
+              <p class="text-sm text-muted-foreground">
+                {t("challengeWatch.empty", "No damage alerts configured.")}
+              </p>
+            {/if}
+          </div>
+        </div>
+      {/if}
+    </div>
 
     <div
       class="rounded-lg border bg-card/40 border-border/60 overflow-hidden shadow-[inset_0_1px_0_0_rgba(255,255,255,0.02)]"

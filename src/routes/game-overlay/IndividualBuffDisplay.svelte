@@ -5,6 +5,7 @@
     getDisplayIconPosition,
     getDisplayIconSize,
     getIconBuffStackCounterSize,
+    getIndividualAllGroupPosition,
     hasStandaloneIconPosition,
     hasStandaloneIconSize,
     individualAllGroupBuffs,
@@ -75,14 +76,16 @@
 
 {#if allGroup && (allGroupBuffs.length > 0 || editing)}
   {@const group = allGroup}
+  {@const groupPosition = getIndividualAllGroupPosition(group.position)}
   {@const maxVisible = Math.max(1, group.columns * group.rows)}
   <BuffGroupGrid
     {group}
+    position={groupPosition}
     buffs={allGroupBuffs.slice(0, maxVisible)}
     {stackCounterSize}
     editable={editing}
     tagText={`${group.name} (All)`}
-    onPointerDown={(e) => startDrag(e, { kind: "individualAllGroup" }, group.position)}
+    onPointerDown={(e) => startDrag(e, { kind: "individualAllGroup" }, groupPosition)}
     onResizePointerDown={(e) =>
       startResize(e, { kind: "individualAllGroup" }, group.iconSize)}
   />

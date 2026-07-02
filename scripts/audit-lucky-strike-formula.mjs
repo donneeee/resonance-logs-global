@@ -323,10 +323,6 @@ function luckySourcesForHit(sample, indexes) {
   }));
 }
 
-function isLuckyDamageRow(sample, indexes) {
-  return Boolean(sample?.isLucky) || indexes.luckyDamageIds.has(String(sample?.damageId ?? sample?.skillKey));
-}
-
 function isLuckyEmittedDamageRow(sample, indexes) {
   return indexes.luckyDamageIds.has(String(sample?.damageId ?? sample?.skillKey));
 }

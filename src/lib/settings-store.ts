@@ -471,6 +471,51 @@ export type Point = {
   y: number;
 };
 
+export type MinimapPanelRect = Point & {
+  width: number;
+  scale: number;
+};
+
+export type MinimapEntityColors = {
+  local: string;
+  teammate: string;
+  boss: string;
+};
+
+export type MinimapLocalRing = {
+  enabled: boolean;
+  color: string;
+  width: number;
+};
+
+export type MinimapLocalFacing = {
+  enabled: boolean;
+};
+
+export type MinimapMarkerColors = {
+  m1: string;
+  m2: string;
+  m3: string;
+  m4: string;
+  m5: string;
+  m6: string;
+};
+
+export type MinimapConfig = {
+  autoHideInDailyScenes: boolean;
+  hideNormalTeammates: boolean;
+  showBoss: boolean;
+  showMarkers: boolean;
+  showMapPanel: boolean;
+  showInfoPanel: boolean;
+  mapPanel: MinimapPanelRect;
+  infoPanel: MinimapPanelRect;
+  entityColors: MinimapEntityColors;
+  markerColors: MinimapMarkerColors;
+  localRing: MinimapLocalRing;
+  localFacing: MinimapLocalFacing;
+};
+
 export type PanelAttrConfig = {
   attrId: number;
   label: string;
@@ -706,6 +751,8 @@ export type MonsterOverlayPositions = {
   teammateBuffPanel: Point;
   hatePanel: Point;
   fantasyPanel: Point;
+  bossDbmPanel: Point;
+  stunPanel: Point;
 };
 
 export type MonsterOverlaySizes = {
@@ -713,6 +760,8 @@ export type MonsterOverlaySizes = {
   teammateBuffPanelScale: number;
   hatePanelScale: number;
   fantasyPanelScale: number;
+  bossDbmPanelScale: number;
+  stunPanelScale: number;
 };
 
 export type MonsterOverlayVisibility = {
@@ -720,6 +769,8 @@ export type MonsterOverlayVisibility = {
   showTeammateBuffPanel: boolean;
   showHatePanel: boolean;
   showFantasyPanel: boolean;
+  showBossDbmPanel: boolean;
+  showStunPanel: boolean;
 };
 
 export type BuffAlertRule = {
@@ -734,8 +785,10 @@ export type BuffAlertMap = Record<string, BuffAlertRule>;
 
 export type MonsterMonitorConfig = {
   enabled: boolean;
+  autoHideInDailyScenes: boolean;
   hateListEnabled: boolean;
   hateListMaxDisplay: number;
+  stunListEnabled: boolean;
   monitoredBuffIds: number[];
   selfAppliedBuffIds: number[];
   selfAppliedMonitorAll: boolean;
@@ -745,6 +798,7 @@ export type MonsterMonitorConfig = {
   fantasyWhitelistMonsterIds: number[];
   fantasyMonsterAliases: Record<string, string>;
   fantasyShowAll: boolean;
+  fantasyPersistentDisplay: boolean;
   buffPriorityIds: number[];
   buffAliases: BuffAliasMap;
   buffAlerts: BuffAlertMap;
@@ -755,6 +809,8 @@ export type MonsterMonitorConfig = {
   teammatePanelStyle: TeammatePanelStyle;
   hatePanelStyle: CustomPanelStyle;
   fantasyPanelStyle: CustomPanelStyle;
+  bossDbmPanelStyle: CustomPanelStyle;
+  stunPanelStyle: CustomPanelStyle;
 };
 
 export type TextBuffPanelDisplayMode = "modern" | "classic";
@@ -1037,12 +1093,24 @@ export function createDefaultCustomPanelStyle(): CustomPanelStyle {
   };
 }
 
+export function createDefaultStunPanelStyle(): CustomPanelStyle {
+  return {
+    ...createDefaultCustomPanelStyle(),
+    columnGap: 8,
+    fontSize: 13,
+    progressColor: "#60a5fa",
+    progressOpacity: 0.45,
+  };
+}
+
 function createDefaultMonsterOverlayPositions(): MonsterOverlayPositions {
   return {
     monsterBuffPanel: { x: 40, y: 40 },
     teammateBuffPanel: { x: 420, y: 40 },
     hatePanel: { x: 40, y: 300 },
     fantasyPanel: { x: 420, y: 300 },
+    bossDbmPanel: { x: 800, y: 40 },
+    stunPanel: { x: 40, y: 460 },
   };
 }
 
@@ -1052,6 +1120,8 @@ function createDefaultMonsterOverlaySizes(): MonsterOverlaySizes {
     teammateBuffPanelScale: 1,
     hatePanelScale: 1,
     fantasyPanelScale: 1,
+    bossDbmPanelScale: 1,
+    stunPanelScale: 1,
   };
 }
 
@@ -1061,6 +1131,42 @@ function createDefaultMonsterOverlayVisibility(): MonsterOverlayVisibility {
     showTeammateBuffPanel: true,
     showHatePanel: true,
     showFantasyPanel: false,
+    showBossDbmPanel: false,
+    showStunPanel: false,
+  };
+}
+
+export function createDefaultMinimapConfig(): MinimapConfig {
+  return {
+    autoHideInDailyScenes: false,
+    hideNormalTeammates: true,
+    showBoss: false,
+    showMarkers: false,
+    showMapPanel: false,
+    showInfoPanel: false,
+    mapPanel: { x: 24, y: 24, width: 340, scale: 1 },
+    infoPanel: { x: 384, y: 24, width: 300, scale: 1 },
+    entityColors: {
+      local: "#f8fafc",
+      teammate: "#38bdf8",
+      boss: "#ef4444",
+    },
+    markerColors: {
+      m1: "#facc15",
+      m2: "#fb923c",
+      m3: "#4ade80",
+      m4: "#67e8f9",
+      m5: "#c084fc",
+      m6: "#2563eb",
+    },
+    localRing: {
+      enabled: true,
+      color: "#ffffff",
+      width: 2,
+    },
+    localFacing: {
+      enabled: false,
+    },
   };
 }
 
@@ -1403,8 +1509,10 @@ export function ensureBuffUptimeTextStyle(
 export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
   return {
     enabled: false,
+    autoHideInDailyScenes: false,
     hateListEnabled: false,
     hateListMaxDisplay: 5,
+    stunListEnabled: false,
     monitoredBuffIds: [],
     selfAppliedBuffIds: [],
     selfAppliedMonitorAll: false,
@@ -1414,6 +1522,7 @@ export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
     fantasyWhitelistMonsterIds: [],
     fantasyMonsterAliases: {},
     fantasyShowAll: false,
+    fantasyPersistentDisplay: false,
     buffPriorityIds: [],
     buffAliases: {},
     buffAlerts: {},
@@ -1424,6 +1533,8 @@ export function createDefaultMonsterMonitorConfig(): MonsterMonitorConfig {
     teammatePanelStyle: createDefaultTeammatePanelStyle(),
     hatePanelStyle: createDefaultCustomPanelStyle(),
     fantasyPanelStyle: createDefaultCustomPanelStyle(),
+    bossDbmPanelStyle: createDefaultCustomPanelStyle(),
+    stunPanelStyle: createDefaultStunPanelStyle(),
   };
 }
 
@@ -1882,6 +1993,7 @@ const DEFAULT_SETTINGS = {
   },
   skillMonitor: {
     enabled: false,
+    autoHideInDailyScenes: false,
     overlayStartWithApp: false,
     activeProfileIndex: 0,
     buffAliases: {} as BuffAliasMap,
@@ -1927,6 +2039,10 @@ const DEFAULT_SETTINGS = {
     },
   },
   monsterMonitor: createDefaultMonsterMonitorConfig(),
+  minimap: createDefaultMinimapConfig(),
+  challengeWatch: {
+    forbiddenDamageIds: [] as number[],
+  },
   trainingDummy: {
     showHeaderControl: true,
     timerLimitEnabled: true,
@@ -2190,6 +2306,10 @@ function normalizeSkillMonitorSettingsState(
   value: unknown,
 ): typeof DEFAULT_SETTINGS.skillMonitor {
   const next = normalizeObjectWithDefaults(value, DEFAULT_SETTINGS.skillMonitor);
+  next.autoHideInDailyScenes = normalizeBooleanValue(
+    next.autoHideInDailyScenes,
+    DEFAULT_SETTINGS.skillMonitor.autoHideInDailyScenes,
+  );
   const profiles = Array.isArray(next.profiles)
     ? next.profiles.map((profile, index) =>
         normalizeSkillMonitorProfileForPersistence(profile, index),
@@ -2233,13 +2353,152 @@ function normalizeMonsterMonitorSettingsState(
     value,
     DEFAULT_SETTINGS.monsterMonitor,
   ) as MonsterMonitorConfig;
+  next.autoHideInDailyScenes = normalizeBooleanValue(
+    next.autoHideInDailyScenes,
+    DEFAULT_SETTINGS.monsterMonitor.autoHideInDailyScenes,
+  );
   next.selfAppliedMonitorAll = next.selfAppliedMonitorAll === true;
+  next.stunListEnabled = next.stunListEnabled === true;
+  next.fantasyShowAll = next.fantasyShowAll === true;
+  next.fantasyPersistentDisplay = next.fantasyPersistentDisplay === true;
   next.teammateBuffColumnOrder = Array.isArray(next.teammateBuffColumnOrder)
     ? next.teammateBuffColumnOrder.filter(
         (key): key is TeammateBuffColumnKey => typeof key === "string",
       )
     : [];
+  next.overlayPositions = {
+    ...createDefaultMonsterOverlayPositions(),
+    ...(next.overlayPositions ?? {}),
+  };
+  next.overlaySizes = {
+    ...createDefaultMonsterOverlaySizes(),
+    ...(next.overlaySizes ?? {}),
+  };
+  next.overlayVisibility = {
+    ...createDefaultMonsterOverlayVisibility(),
+    ...(next.overlayVisibility ?? {}),
+  };
   next.teammatePanelStyle = ensureTeammatePanelStyle(next.teammatePanelStyle);
+  next.hatePanelStyle = normalizeObjectWithDefaults(
+    next.hatePanelStyle,
+    createDefaultCustomPanelStyle(),
+  ) as CustomPanelStyle;
+  next.fantasyPanelStyle = normalizeObjectWithDefaults(
+    next.fantasyPanelStyle,
+    createDefaultCustomPanelStyle(),
+  ) as CustomPanelStyle;
+  next.bossDbmPanelStyle = normalizeObjectWithDefaults(
+    next.bossDbmPanelStyle,
+    createDefaultCustomPanelStyle(),
+  ) as CustomPanelStyle;
+  next.stunPanelStyle = normalizeObjectWithDefaults(
+    next.stunPanelStyle,
+    createDefaultStunPanelStyle(),
+  ) as CustomPanelStyle;
+  return next;
+}
+
+function normalizeMinimapPanelRect(
+  value: unknown,
+  defaults: MinimapPanelRect,
+): MinimapPanelRect {
+  const next = normalizeObjectWithDefaults(
+    value,
+    defaults as unknown as MutableRecord,
+  ) as unknown as MinimapPanelRect;
+  next.x = clampNumericSetting(next.x, defaults.x, -5000, 5000);
+  next.y = clampNumericSetting(next.y, defaults.y, -5000, 5000);
+  next.width = clampNumericSetting(next.width, defaults.width, 120, 1200);
+  const scale = typeof next.scale === "number" ? next.scale : Number(next.scale);
+  next.scale = Number.isFinite(scale)
+    ? Math.max(0.25, Math.min(4, scale))
+    : defaults.scale;
+  return next;
+}
+
+function normalizeMinimapSettingsState(value: unknown): MinimapConfig {
+  const defaults = createDefaultMinimapConfig();
+  const next = normalizeObjectWithDefaults(
+    value,
+    defaults as unknown as MutableRecord,
+  ) as unknown as MinimapConfig;
+  next.autoHideInDailyScenes = normalizeBooleanValue(
+    next.autoHideInDailyScenes,
+    defaults.autoHideInDailyScenes,
+  );
+  next.hideNormalTeammates = normalizeBooleanValue(
+    next.hideNormalTeammates,
+    defaults.hideNormalTeammates,
+  );
+  next.showBoss = normalizeBooleanValue(next.showBoss, defaults.showBoss);
+  next.showMarkers = normalizeBooleanValue(
+    next.showMarkers,
+    defaults.showMarkers,
+  );
+  next.showMapPanel = normalizeBooleanValue(
+    next.showMapPanel,
+    defaults.showMapPanel,
+  );
+  next.showInfoPanel = normalizeBooleanValue(
+    next.showInfoPanel,
+    defaults.showInfoPanel,
+  );
+  next.mapPanel = normalizeMinimapPanelRect(next.mapPanel, defaults.mapPanel);
+  next.infoPanel = normalizeMinimapPanelRect(next.infoPanel, defaults.infoPanel);
+  next.entityColors = {
+    ...defaults.entityColors,
+    ...normalizeStringRecord(next.entityColors),
+  };
+  next.markerColors = {
+    ...defaults.markerColors,
+    ...normalizeStringRecord(next.markerColors),
+  };
+  next.localRing = normalizeObjectWithDefaults(
+    next.localRing,
+    defaults.localRing as unknown as MutableRecord,
+  ) as unknown as MinimapLocalRing;
+  next.localRing.enabled = normalizeBooleanValue(
+    next.localRing.enabled,
+    defaults.localRing.enabled,
+  );
+  next.localRing.color = next.localRing.color || defaults.localRing.color;
+  next.localRing.width = clampNumericSetting(
+    next.localRing.width,
+    defaults.localRing.width,
+    1,
+    6,
+  );
+  next.localFacing = normalizeObjectWithDefaults(
+    next.localFacing,
+    defaults.localFacing as unknown as MutableRecord,
+  ) as unknown as MinimapLocalFacing;
+  next.localFacing.enabled = normalizeBooleanValue(
+    next.localFacing.enabled,
+    defaults.localFacing.enabled,
+  );
+  return next;
+}
+
+function normalizeDamageIdList(value: unknown): number[] {
+  if (!Array.isArray(value)) return [];
+
+  const ids = new Set<number>();
+  for (const item of value) {
+    const id = Number(item);
+    if (!Number.isFinite(id) || id <= 0) continue;
+    ids.add(Math.trunc(id));
+  }
+  return [...ids];
+}
+
+function normalizeChallengeWatchSettingsState(
+  value: unknown,
+): typeof DEFAULT_SETTINGS.challengeWatch {
+  const next = normalizeObjectWithDefaults(
+    value,
+    DEFAULT_SETTINGS.challengeWatch,
+  );
+  next.forbiddenDamageIds = normalizeDamageIdList(next.forbiddenDamageIds);
   return next;
 }
 
@@ -2343,6 +2602,16 @@ export const SETTINGS = {
     "monsterMonitor",
     DEFAULT_SETTINGS.monsterMonitor,
     normalizeMonsterMonitorSettingsState,
+  ),
+  minimap: createSettingsStore(
+    "minimap",
+    DEFAULT_SETTINGS.minimap,
+    normalizeMinimapSettingsState,
+  ),
+  challengeWatch: createSettingsStore(
+    "challengeWatch",
+    DEFAULT_SETTINGS.challengeWatch,
+    normalizeChallengeWatchSettingsState,
   ),
   trainingDummy: createSettingsStore(
     "trainingDummy",
@@ -2692,6 +2961,11 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
       DEFAULT_SETTINGS.trainingDummy,
     ),
     persistSettingsStoreState(
+      SETTINGS.challengeWatch,
+      DEFAULT_SETTINGS.challengeWatch,
+      normalizeChallengeWatchSettingsState,
+    ),
+    persistSettingsStoreState(
       SETTINGS.live.general,
       DEFAULT_SETTINGS.live.general,
     ),
@@ -2909,6 +3183,11 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
       DEFAULT_SETTINGS.trainingDummy,
     ),
     repairSettingsStoreFromBackend(
+      SETTINGS.challengeWatch,
+      DEFAULT_SETTINGS.challengeWatch,
+      normalizeChallengeWatchSettingsState,
+    ),
+    repairSettingsStoreFromBackend(
       SETTINGS.live.general,
       DEFAULT_SETTINGS.live.general,
     ),
@@ -3094,6 +3373,7 @@ export const settings = {
       profileLibrary: SETTINGS.profileLibrary.state,
       customTriggers: SETTINGS.customTriggers.state,
       monsterMonitor: SETTINGS.monsterMonitor.state,
+      challengeWatch: SETTINGS.challengeWatch.state,
       trainingDummy: SETTINGS.trainingDummy.state,
       appBehavior: SETTINGS.appBehavior.state,
       live: {
@@ -3181,6 +3461,14 @@ export function normalizePersistedSettings(): void {
   Object.assign(
     SETTINGS.monsterMonitor.state,
     normalizeMonsterMonitorSettingsState(SETTINGS.monsterMonitor.state),
+  );
+  Object.assign(
+    SETTINGS.minimap.state,
+    normalizeMinimapSettingsState(SETTINGS.minimap.state),
+  );
+  Object.assign(
+    SETTINGS.challengeWatch.state,
+    normalizeChallengeWatchSettingsState(SETTINGS.challengeWatch.state),
   );
   Object.assign(
     SETTINGS.trainingDummy.state,

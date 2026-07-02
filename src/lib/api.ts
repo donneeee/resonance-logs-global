@@ -85,6 +85,8 @@ export type PlayerRow = {
   equippedItems: EquippedItem[];
   oceanWeapon: OceanWeaponInfo | null;
   playerImagines: PlayerImagineInfo[];
+  forbiddenHit: boolean;
+  forbiddenHitIds: number[];
 };
 
 export type PlayersWindow = {
@@ -145,6 +147,115 @@ export type SkillCdUpdatePayload = {
   skillCds: SkillCdState[];
 };
 
+export type BossDbmEvent = {
+  skillEffectId: number;
+  baseSkillId: number;
+  durationMs: number;
+  createTimeMs: number;
+  insertion: number;
+  serverTimestampMs?: number | null;
+};
+
+export type BossDbmUpdatePayload = {
+  events: BossDbmEvent[];
+};
+
+export type StunEntry = {
+  bossEntityUuid: string;
+  monsterId: number;
+  current: number;
+  max: number;
+};
+
+export type StunUpdatePayload = {
+  entries: StunEntry[];
+};
+
+export type MinimapEntityKind =
+  | "local"
+  | "teammate"
+  | "boss"
+  | "monster"
+  | "dummy"
+  | "other";
+
+export type MinimapEntityType =
+  | "unknown"
+  | "monster"
+  | "npc"
+  | "sceneObject"
+  | "zone"
+  | "bullet"
+  | "clientBullet"
+  | "pet"
+  | "char"
+  | "dummy"
+  | "drop"
+  | "field"
+  | "trap"
+  | "collection"
+  | "staticObject"
+  | "vehicle"
+  | "toy"
+  | "communityHouse"
+  | "houseItem"
+  | "other";
+
+export type MinimapBuffFact = {
+  targetEntityUuid: string;
+  buffUuid: number;
+  baseId: number;
+  layer: number;
+  createTimeMs: number;
+  durationMs: number;
+  fireUuid?: string | null;
+  sourceConfigId?: number | null;
+  effectIds: number[];
+};
+
+export type MinimapEntity = {
+  entityUuid: string;
+  entityType: MinimapEntityType;
+  kind: MinimapEntityKind;
+  x: number;
+  y: number;
+  z: number;
+  name?: string | null;
+  monsterId?: number | null;
+  facing?: number | null;
+  isDead: boolean;
+  topSummonerId?: string | null;
+};
+
+export type MinimapSkillCast = {
+  entityUuid: string;
+  skillId: number;
+  timeMs: number;
+  x?: number | null;
+  z?: number | null;
+  facing?: number | null;
+};
+
+export type MinimapMarker = {
+  marker: number;
+  skillId: number;
+  x?: number | null;
+  z?: number | null;
+};
+
+export type MinimapSnapshot = {
+  sceneId: number;
+  localPlayerUuid: string;
+  entities: MinimapEntity[];
+  buffs: MinimapBuffFact[];
+  markers: MinimapMarker[];
+};
+
+export type MinimapUpdatePayload = {
+  snapshot: MinimapSnapshot | null;
+  skillCasts: MinimapSkillCast[];
+};
+
 export type FightResourceEntry = {
   id: number;
   value: number;
@@ -195,6 +306,8 @@ export type TeammateFantasyState = {
 export type TeammateFantasyUpdatePayload = {
   fantasies: TeammateFantasyState[];
 };
+
+export type TeammateFantasyClearPayload = null;
 
 export type HateEntry = {
   entityUuid?: string | null;
@@ -307,7 +420,9 @@ export type LiveDataPayload = {
 };
 
 export type SceneChangePayload = {
+  sceneId?: number | null;
   sceneName: string;
+  dungeonDifficulty?: number | null;
 };
 
 export type DamageSnapshot = BindingDamageSnapshot & {
@@ -369,10 +484,30 @@ export const onTeammateFantasyUpdate = (
 ): Promise<UnlistenFn> =>
   listen<TeammateFantasyUpdatePayload>("teammate-fantasy-update", handler);
 
+export const onTeammateFantasyClear = (
+  handler: (event: Event<TeammateFantasyClearPayload>) => void
+): Promise<UnlistenFn> =>
+  listen<TeammateFantasyClearPayload>("teammate-fantasy-clear", handler);
+
 export const onHateListUpdate = (
   handler: (event: Event<HateListUpdatePayload>) => void
 ): Promise<UnlistenFn> =>
   listen<HateListUpdatePayload>("hate-list-update", handler);
+
+export const onBossDbmUpdate = (
+  handler: (event: Event<BossDbmUpdatePayload>) => void
+): Promise<UnlistenFn> =>
+  listen<BossDbmUpdatePayload>("boss-dbm-update", handler);
+
+export const onStunUpdate = (
+  handler: (event: Event<StunUpdatePayload>) => void
+): Promise<UnlistenFn> =>
+  listen<StunUpdatePayload>("stun-update", handler);
+
+export const onMinimapUpdate = (
+  handler: (event: Event<MinimapUpdatePayload>) => void,
+): Promise<UnlistenFn> =>
+  listen<MinimapUpdatePayload>("minimap-update", handler);
 
 export const onEntityNames = (
   handler: (event: Event<EntityNameMapPayload>) => void

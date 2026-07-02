@@ -234,13 +234,6 @@ function formatSignedPercent(value, digits = 1) {
   return `${sign}${(number * 100).toFixed(digits)}%`;
 }
 
-function formatSignedDecimal(value, digits = 4) {
-  const number = finiteNumber(value);
-  if (number === null) return "-";
-  const sign = number > 0 ? "+" : "";
-  return `${sign}${number.toFixed(digits)}`;
-}
-
 function attrLabel(attrId) {
   return ATTR_LABELS.get(Number(attrId)) ?? `attr:${attrId}`;
 }
@@ -253,14 +246,6 @@ function entriesFromValueProof(valueProof) {
   const entriesByKey = asObject(valueProof.entriesByKey);
   if (Object.keys(entriesByKey).length > 0) return Object.values(entriesByKey);
   return asArray(valueProof.entries);
-}
-
-function addToSetMap(map, key, value) {
-  if (value === null || value === undefined || value === "") return;
-  const stringKey = String(key);
-  const set = map.get(stringKey) ?? new Set();
-  set.add(String(value));
-  map.set(stringKey, set);
 }
 
 function addEntryMetadata(metadataById, id, entry) {

@@ -52,7 +52,7 @@
   {/if}
 
   <div class="skill-cd-grid" class:no-slot-outline={!showSlotOutline}>
-    {#each Array(10) as _, idx (idx)}
+    {#each [...Array(10).keys()] as idx (idx)}
       {@const skillId = skillIds[idx]}
       {@const display = skillId ? displays.get(skillId) : undefined}
       {@const skill = skillId ? findAnySkillByBaseId(classKey, skillId) : undefined}
@@ -73,10 +73,15 @@
           skill.resourceRequirement.amount
         : false}
       {@const isOnCd = effectiveDisplay?.isActive ?? false}
-      {@const isUnavailable = isOnCd || resourceBlocked}
+      {@const isUsable = effectiveDisplay?.usable ?? true}
+      {@const isUnavailable = !isUsable || resourceBlocked}
+      {@const isRechargingUsable = isOnCd && isUsable}
       {@const percent = isOnCd ? effectiveDisplay?.percent ?? 0 : 0}
       {@const cooldownAngle = `${Math.max(0, Math.min(1, percent)) * 360}deg`}
       {@const displayText = effectiveDisplay?.text ?? ""}
+      {@const chargesAvailable = effectiveDisplay?.chargesAvailable}
+      {@const maxCharges = effectiveDisplay?.maxCharges}
+      {@const chargesText = effectiveDisplay?.chargesText}
       {@const hoverTitle =
         showAcceleration && effectiveDisplay?.debugTitle
           ? effectiveDisplay.debugTitle
@@ -87,6 +92,7 @@
         class:empty={!skillId}
         class:on-cd={isOnCd}
         class:derived-active={isDerivedActive}
+        class:usable-recharging={isRechargingUsable}
         class:enhanced-glow={isDerivedActive && showEnhancedGlow}
         title={hoverTitle}
       >
@@ -101,20 +107,44 @@
           <div class="skill-fallback">#{skillId}</div>
         {/if}
 
-        {#if effectiveDisplay?.chargesText}
-          <div class="charges-badge">{effectiveDisplay.chargesText}</div>
+        {#if chargesText}
+          {@const isFull =
+            chargesAvailable !== undefined &&
+            maxCharges !== undefined &&
+            chargesAvailable >= maxCharges}
+          {@const hasCharges =
+            chargesAvailable !== undefined && chargesAvailable > 0}
+          <div
+            class="charges-badge"
+            class:charges-full={isFull}
+            class:charges-partial={hasCharges && !isFull}
+            class:charges-empty={chargesAvailable !== undefined &&
+              chargesAvailable === 0}
+          >
+            {chargesText}
+          </div>
         {/if}
 
         {#if showAcceleration && effectiveDisplay?.accelerationText}
           <div class="cd-accel-badge">{effectiveDisplay.accelerationText}</div>
         {/if}
 
-        {#if isOnCd}
+        {#if isUnavailable && isOnCd}
           <div class="cd-overlay" style={`--cd-angle: ${cooldownAngle}`}>
             {#if displayText}
               <span class="cd-text">{displayText}</span>
             {/if}
           </div>
+        {:else if isRechargingUsable}
+          <div class="recharge-bar-wrap">
+            <div
+              class="recharge-bar"
+              style={`--recharge-pct: ${(1 - percent) * 100}%`}
+            ></div>
+          </div>
+          {#if displayText}
+            <span class="recharge-text">{displayText}</span>
+          {/if}
         {/if}
       </div>
     {/each}
@@ -233,11 +263,48 @@
     text-shadow: 0 0 3px rgba(0, 0, 0, 0.9);
   }
 
+  .recharge-bar-wrap {
+    position: absolute;
+    z-index: 3;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 4px;
+    overflow: hidden;
+    border-radius: 0 0 5px 5px;
+    background: rgba(0, 0, 0, 0.45);
+  }
+
+  .recharge-bar {
+    height: 100%;
+    width: var(--recharge-pct);
+    border-radius: 0 0 5px 5px;
+    background: linear-gradient(90deg, #60a5fa, #93c5fd);
+    transition: width 200ms linear;
+  }
+
+  .recharge-text {
+    position: absolute;
+    bottom: 6px;
+    left: 50%;
+    z-index: 4;
+    transform: translateX(-50%);
+    padding: 1px 4px;
+    border-radius: 3px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 1);
+    white-space: nowrap;
+  }
+
   .charges-badge {
     position: absolute;
     z-index: 4;
     right: 3px;
-    bottom: 3px;
+    top: 3px;
     padding: 1px 4px;
     border-radius: 6px;
     background: rgba(0, 0, 0, 0.65);
@@ -245,6 +312,18 @@
     font-size: 9px;
     font-weight: 600;
     line-height: 1;
+  }
+
+  .charges-badge.charges-full {
+    color: #34d399;
+  }
+
+  .charges-badge.charges-partial {
+    color: #fbbf24;
+  }
+
+  .charges-badge.charges-empty {
+    color: #94a3b8;
   }
 
   .cd-accel-badge {

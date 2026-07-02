@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "Start with App",
   "settings.overlay.startWithAppDescription": "Open the shared overlay automatically when the app starts and overlay publishing is enabled.",
+  "settings.overlay.skillAutoHideDaily": "Auto-hide Skill Monitor in Daily Scenes",
+  "settings.overlay.skillAutoHideDailyDescription": "When Skill Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
+  "settings.overlay.monsterAutoHideDaily": "Auto-hide Monster Monitor in Daily Scenes",
+  "settings.overlay.monsterAutoHideDailyDescription": "When Monster Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
   "settings.overlay.autoHideWithLiveWindow": "라이브 창과 함께 자동 숨기기",
   "settings.overlay.autoHideWithLiveWindowDescription": "라이브 창 자동 숨기기가 켜져 있으면 표시 중인 오버레이 창이 라이브 미터와 함께 숨겨지고, 자동 숨기기 전에 표시 중이던 창만 복원됩니다.",
   "settings.overlay.autoHideWithLiveWindowHelp": "라이브 미터의 피해 기반 숨김/표시 흐름을 따릅니다. 오버레이를 자동으로 켜지 않으며, 라이브 창 자동 숨기기가 꺼져 있으면 동작하지 않습니다.",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "단일 오버레이나 미터 화면에 연결되지 않는 앱 전체 동작을 제어합니다.",
   "settings.hideMainWindowToTray": "닫을 때 메인 창을 트레이로 숨기기",
   "settings.hideMainWindowToTrayDescription": "활성화하면 메인 창을 닫아도 종료하지 않고 트레이로 숨깁니다. 복원하려면 트레이 아이콘을 사용하고 완전히 종료하려면 종료를 선택하세요.",
-  "sidebar.openChangelog": "변경 내역 보기"
+  "sidebar.openChangelog": "변경 내역 보기",
+  "tool.minimap": "DBM"
 }

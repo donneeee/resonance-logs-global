@@ -155,19 +155,6 @@ function addMapCount(map, key, amount = 1) {
   map.set(String(key), (map.get(String(key)) ?? 0) + amount);
 }
 
-function addToSetMap(map, key, value) {
-  if (!key || value === null || value === undefined || value === "") return;
-  const stringKey = String(key);
-  if (!map.has(stringKey)) map.set(stringKey, new Set());
-  map.get(stringKey).add(String(value));
-}
-
-function setMapToObject(map, limit = 12) {
-  return Object.fromEntries(
-    [...map.entries()].map(([key, set]) => [key, [...set].sort((left, right) => left.localeCompare(right)).slice(0, limit)]),
-  );
-}
-
 function countMapToObject(map, limit = 12) {
   return Object.fromEntries(
     [...map.entries()]

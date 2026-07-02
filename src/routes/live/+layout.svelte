@@ -19,7 +19,9 @@
   } from "$lib/settings-store";
   import { activeProfileOrDefault } from "$lib/skill-monitor-profile.svelte";
   import {
+    LIVE_WINDOW_INTERACTION_RESTORE_REQUEST_EVENT,
     LIVE_WINDOW_MANUAL_SHOW_EVENT,
+    forceLiveWindowCursorPassthrough,
     hideVisiblePassiveOverlayWindows,
     restoreLiveWindowInteractivity,
     restorePassiveOverlayWindows,
@@ -119,6 +121,7 @@
   let gameBlurOperation: Promise<void> = Promise.resolve();
   let gameBlurPollInterval: ReturnType<typeof setInterval> | null = null;
   let manualShowUnlisten: UnlistenFn | null = null;
+  let interactionRestoreUnlisten: UnlistenFn | null = null;
   let settingsChangedUnlisten: UnlistenFn | null = null;
   let settingsRefreshInterval: ReturnType<typeof setInterval> | null = null;
   let latestLivePayload: LiveDataPayload | null = null;
@@ -293,12 +296,9 @@
     payload: LiveDataPayload,
     nowMs = Date.now(),
   ): void {
-    if (
-      payload.dpsDisplayPaused !== true ||
-      SETTINGS.live.general.state.autoClearOnSceneChange !== false
-    ) {
-      suppressEmptyClearAfterSceneChange = false;
-    }
+    suppressEmptyClearAfterSceneChange =
+      payload.dpsDisplayPaused === true &&
+      SETTINGS.live.general.state.autoClearOnSceneChange === false;
     updateLiveActivityFromPayload(payload, nowMs);
   }
 
@@ -412,6 +412,14 @@
     liveWindow = getCurrentWindow(),
   ): Promise<void> {
     try {
+      if (
+        autoHideHiddenByFeature ||
+        gameBlurHiddenLiveWindow ||
+        (autoHideOnGameBlurEnabled && gameBlurLastForeground === false)
+      ) {
+        await forceLiveWindowCursorPassthrough(liveWindow);
+        return;
+      }
       await restoreLiveWindowInteractivity(liveWindow);
     } catch (error) {
       console.warn("Failed to restore live window clickthrough state:", error);
@@ -494,7 +502,7 @@
         SETTINGS.live.general.state.autoHideLiveWindow === true && !autoHideRecentlyDamaged;
 
       if (!keepHiddenForDamageAutoHide) {
-        await showLiveWindowWithoutFocus(liveWindow);
+        await showLiveWindowWithoutFocus(liveWindow, { emitManualShow: false });
       }
 
       await restoreLiveWindowCursorMode(liveWindow);
@@ -606,7 +614,7 @@
         if (autoHideHiddenByFeature) {
           autoHideHiddenByFeature = false;
           if (!(autoHideOnGameBlurEnabled && gameBlurLastForeground === false)) {
-            await showLiveWindowWithoutFocus(liveWindow);
+            await showLiveWindowWithoutFocus(liveWindow, { emitManualShow: false });
           }
         }
         await restoreAutoHiddenOverlays();
@@ -616,12 +624,17 @@
 
       if (hasDamage) {
         clearAutoHideTimer();
-        if (autoHideOnGameBlurEnabled && gameBlurLastForeground === false) {
-          return;
+        if (autoHideOnGameBlurEnabled) {
+          const gameOrParserIsForeground = await queryGameOrParserWindowForeground();
+          gameBlurLastForeground = gameOrParserIsForeground;
+          if (!gameOrParserIsForeground) {
+            await hideWindowsForGameBlur();
+            return;
+          }
         }
         if (autoHideHiddenByFeature) {
           autoHideHiddenByFeature = false;
-          await showLiveWindowWithoutFocus(liveWindow);
+          await showLiveWindowWithoutFocus(liveWindow, { emitManualShow: false });
         }
         await restoreAutoHiddenOverlays();
         await restoreLiveWindowCursorMode(liveWindow);
@@ -840,25 +853,39 @@ t("live.resumeToast", "战斗已继续"),
       unlisten = () => {
         try {
           playersUnlisten();
-        } catch {}
+        } catch {
+          // Best-effort cleanup.
+        }
         try {
           resetUnlisten();
-        } catch {}
+        } catch {
+          // Best-effort cleanup.
+        }
         try {
           encounterUnlisten();
-        } catch {}
+        } catch {
+          // Best-effort cleanup.
+        }
         try {
           sceneChangeUnlisten();
-        } catch {}
+        } catch {
+          // Best-effort cleanup.
+        }
         try {
           trainingDummyUnlisten();
-        } catch {}
+        } catch {
+          // Best-effort cleanup.
+        }
         try {
           deathReplayUnlisten();
-        } catch {}
+        } catch {
+          // Best-effort cleanup.
+        }
         try {
           pauseUnlisten();
-        } catch {}
+        } catch {
+          // Best-effort cleanup.
+        }
       };
 
       listenersSetupInProgress = false;
@@ -1047,6 +1074,19 @@ t("live.resumeToast", "战斗已继续"),
       .catch((error) => {
         console.warn("Failed to listen for live window manual show:", error);
       });
+    void listen(LIVE_WINDOW_INTERACTION_RESTORE_REQUEST_EVENT, () => {
+      void restoreLiveWindowCursorMode();
+    })
+      .then((unlistenInteractionRestore) => {
+        if (isDestroyed) {
+          unlistenInteractionRestore();
+          return;
+        }
+        interactionRestoreUnlisten = unlistenInteractionRestore;
+      })
+      .catch((error) => {
+        console.warn("Failed to listen for live window interaction restore:", error);
+      });
     setupEventListeners();
     startReconnectCheck();
     resizeObserver = new ResizeObserver(() => scheduleDynamicResize());
@@ -1065,6 +1105,7 @@ t("live.resumeToast", "战斗已继续"),
       if (settingsRefreshInterval) clearInterval(settingsRefreshInterval);
       settingsChangedUnlisten?.();
       manualShowUnlisten?.();
+      interactionRestoreUnlisten?.();
       if (unlisten) unlisten();
       cleanupStores();
     };

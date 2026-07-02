@@ -2,6 +2,7 @@
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
   import MonitorUpIcon from "virtual:icons/lucide/monitor-up";
+  import { t } from "$lib/i18n/index.svelte";
   import { resolveMonsterMonitorTranslation, uiT } from "$lib/i18n";
   import { SETTINGS } from "$lib/settings-store";
   import { OVERLAY_SUB_ROUTES } from "../routes.svelte";
@@ -23,6 +24,11 @@
 
     if (href === "/main/overlay/monster-monitor") {
       return resolveMonsterMonitorTranslation("title", SETTINGS.live.general.state.language, fallback);
+    }
+
+    if (href === "/main/overlay/dbm") {
+      const label = t("minimap.tab.dbm");
+      return label === "minimap.tab.dbm" ? fallback : label;
     }
 
     return fallback;

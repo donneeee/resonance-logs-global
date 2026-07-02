@@ -9,6 +9,7 @@ const GENERATED_RUNTIME_FILES: &[&str] = &[
     "BuffName.json",
     "class-labels.json",
     "DamageAttrIdName.json",
+    "DbmTable.json",
     "EffectSources.json",
     "itemnames.json",
     "monsternames.json",

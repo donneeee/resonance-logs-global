@@ -345,7 +345,7 @@ function uniqueEntityUidByName(entityIndex, name) {
   return uids.length === 1 ? uids[0] : null;
 }
 
-function resolveSkillContext({ entity, entityIndex, skillIndex, currentVdata, ownerUid, providerName, skillId }) {
+function resolveSkillContext({ entity, entityIndex, skillIndex, ownerUid, providerName, skillId }) {
   const ownUid = positiveNumber(entity.uid);
   const candidates = [];
   if (ownerUid !== null) candidates.push(ownerUid);
@@ -523,7 +523,7 @@ function observedRuleProviders(entity, rule) {
   }));
 }
 
-function auditEntity({ filePath, entity, entities, rules, skillIndex, currentVdata, aoyiNames }) {
+function auditEntity({ filePath, entity, entities, rules, skillIndex, aoyiNames }) {
   const actorIndex = buildActorIndex(entity);
   const entityIndex = buildEntityIndex(entities);
   const tierRows = [];
@@ -538,7 +538,6 @@ function auditEntity({ filePath, entity, entities, rules, skillIndex, currentVda
           entity,
           entityIndex,
           skillIndex,
-          currentVdata,
           ownerUid,
           providerName: provider?.ownerName ?? provider?.sourceName,
           skillId,
@@ -826,7 +825,6 @@ function main() {
     entities,
     rules,
     skillIndex,
-    currentVdata,
     aoyiNames,
   }));
   const tierRows = files.flatMap((file) => file.tierRows)

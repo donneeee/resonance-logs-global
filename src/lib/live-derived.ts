@@ -66,6 +66,7 @@ export function liveDisplayElapsedMs(
 export function computePlayerRowsFromEntities(
   source: PlayerRowsSource,
   metric: Metric,
+  forbiddenIds?: Set<number>,
 ): PlayerRow[] {
   const elapsedSecs = source.elapsedMs > 0 ? source.elapsedMs / 1000 : 0;
   const effectiveActiveCombatMs = Math.min(source.activeCombatTimeMs, source.elapsedMs);
@@ -92,6 +93,12 @@ export function computePlayerRowsFromEntities(
       const triggerHits = Number(stats.triggerHits || stats.hits || 0);
       const bossDmg = metric === "dps" ? Number(entity.damageBossOnly?.total || 0) : 0;
       const bossTotal = Number(source.totalDmgBossOnly || 0);
+      const forbiddenHitIds =
+        forbiddenIds && forbiddenIds.size > 0
+          ? [...forbiddenIds].filter(
+              (id) => Number(entity.takenSkills?.[id]?.hits ?? 0) > 0,
+            )
+          : [];
 
       const effectiveTotal = Number(stats.effectiveTotal || 0);
 
@@ -130,6 +137,8 @@ export function computePlayerRowsFromEntities(
         equippedItems,
         oceanWeapon: classifyOceanWeapon(equippedItems),
         playerImagines,
+        forbiddenHit: forbiddenHitIds.length > 0,
+        forbiddenHitIds,
       };
 
       return row;
@@ -141,6 +150,7 @@ export function computePlayerRows(
   data: LiveDataPayload,
   metric: Metric,
   displayNowMs = Date.now(),
+  forbiddenIds?: Set<number>,
 ): PlayerRow[] {
   return computePlayerRowsFromEntities(
     {
@@ -152,6 +162,7 @@ export function computePlayerRows(
       totalDmgBossOnly: data.totalDmgBossOnly,
     },
     metric,
+    forbiddenIds,
   );
 }
 

@@ -2,13 +2,17 @@ import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow } from "@tauri-apps/api/window";
 import {
   onBossBuffUpdate,
+  onBossDbmUpdate,
   onEntityIdentities,
   onEntityNames,
   onHateListUpdate,
+  onStunUpdate,
   onTeammateBuffUpdate,
+  onTeammateFantasyClear,
   onTeammateFantasyUpdate,
   type BuffUpdateState,
   type HateEntry,
+  type StunEntry,
   type TeammateFantasyState,
 } from "$lib/api";
 import {
@@ -17,6 +21,10 @@ import {
   setMonsterEditMode,
   setMonsterOverlayWindow,
 } from "./monster-layout.svelte.js";
+import {
+  fantasyEntryKey,
+  withPreservedFantasySummonerName,
+} from "./monster-fantasy";
 import { updateMonsterDisplay } from "./monster-display.svelte.js";
 import { monsterRuntime } from "./monster-runtime.svelte.js";
 
@@ -44,15 +52,34 @@ function mapTeammateBuffs(buffs: BuffUpdateState[]) {
 
 function mergeFantasyEntries(entries: TeammateFantasyState[]) {
   const next = new Map(
-    monsterRuntime.fantasyEntries.map((entry) => [entry.summonUuid, entry]),
+    monsterRuntime.fantasyEntries.map((entry) => [
+      fantasyEntryKey(entry),
+      entry,
+    ]),
   );
   for (const entry of entries) {
-    const existing = next.get(entry.summonUuid);
+    const key = fantasyEntryKey(entry);
+    const existing = next.get(key);
+    if (!existing) {
+      next.set(key, entry);
+      continue;
+    }
+
     if (!existing || entry.detectedAtMs >= existing.detectedAtMs) {
-      next.set(entry.summonUuid, entry);
+      next.set(key, withPreservedFantasySummonerName(entry, existing));
+      continue;
+    }
+
+    if (!existing.summonerName && entry.summonerName) {
+      next.set(key, { ...existing, summonerName: entry.summonerName });
     }
   }
   monsterRuntime.fantasyEntries = [...next.values()];
+}
+
+function clearFantasyEntries() {
+  monsterRuntime.fantasyEntries = [];
+  monsterRuntime.fantasyRows = [];
 }
 
 export function initMonsterOverlay() {
@@ -97,12 +124,29 @@ export function initMonsterOverlay() {
   const unlistenTeammateFantasy = onTeammateFantasyUpdate((event) => {
     mergeFantasyEntries(event.payload.fantasies);
   });
+  const unlistenTeammateFantasyClear = onTeammateFantasyClear(() => {
+    clearFantasyEntries();
+  });
   const unlistenHateList = onHateListUpdate((event) => {
     const next = new Map<string, HateEntry[]>();
     for (const [entityKey, entries] of Object.entries(event.payload.hateLists)) {
       next.set(entityKey, entries);
     }
     monsterRuntime.bossHateMap = next;
+  });
+  const unlistenBossDbm = onBossDbmUpdate((event) => {
+    const next = new Map(monsterRuntime.bossDbmMap);
+    for (const dbmEvent of event.payload.events) {
+      next.set(dbmEvent.baseSkillId, dbmEvent);
+    }
+    monsterRuntime.bossDbmMap = next;
+  });
+  const unlistenStun = onStunUpdate((event) => {
+    const next = new Map<string, StunEntry>();
+    for (const entry of event.payload.entries) {
+      next.set(entry.bossEntityUuid, entry);
+    }
+    monsterRuntime.bossStunMap = next;
   });
   const unlistenNames = onEntityNames((event) => {
     const next = new Map(monsterRuntime.nameCache);
@@ -155,18 +199,25 @@ export function initMonsterOverlay() {
     monsterRuntime.bossBuffMap = new Map();
     monsterRuntime.teammateBuffMap = new Map();
     monsterRuntime.bossHateMap = new Map();
+    monsterRuntime.bossStunMap = new Map();
+    monsterRuntime.bossDbmMap = new Map();
     monsterRuntime.fantasyEntries = [];
     monsterRuntime.bossSections = [];
     monsterRuntime.teammateColumns = [];
     monsterRuntime.teammateRows = [];
     monsterRuntime.hateSections = [];
+    monsterRuntime.stunSections = [];
+    monsterRuntime.dbmRows = [];
     monsterRuntime.fantasyRows = [];
     unlistenEditToggle.then((fn) => fn());
     unlistenSharedEditToggle.then((fn) => fn());
     unlistenBossBuff.then((fn) => fn());
     unlistenTeammateBuff.then((fn) => fn());
     unlistenTeammateFantasy.then((fn) => fn());
+    unlistenTeammateFantasyClear.then((fn) => fn());
     unlistenHateList.then((fn) => fn());
+    unlistenBossDbm.then((fn) => fn());
+    unlistenStun.then((fn) => fn());
     unlistenNames.then((fn) => fn());
     unlistenIdentities.then((fn) => fn());
     window.removeEventListener("pointermove", onGlobalPointerMove);

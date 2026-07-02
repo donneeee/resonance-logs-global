@@ -14,9 +14,9 @@
   // Only allow warnings and errors to be printed to console in production builds
   if (typeof window !== "undefined" && import.meta.env.PROD) {
     // Keep warn and error; disable verbose logging
-    console.log = (..._args: any[]) => {};
-    console.debug = (..._args: any[]) => {};
-    console.info = (..._args: any[]) => {};
+    console.log = () => {};
+    console.debug = () => {};
+    console.info = () => {};
   }
 
   let { children } = $props();

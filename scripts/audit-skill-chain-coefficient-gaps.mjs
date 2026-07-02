@@ -89,10 +89,6 @@ function finiteNumber(value) {
   return Number.isFinite(number) ? number : null;
 }
 
-function unique(values) {
-  return [...new Set(values.filter((value) => value !== null && value !== undefined && value !== ""))];
-}
-
 function formatNumber(value, digits = 0) {
   const number = finiteNumber(value);
   if (number === null) return "";

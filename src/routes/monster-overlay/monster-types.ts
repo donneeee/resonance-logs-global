@@ -18,6 +18,13 @@ export type MonsterHateSection = {
   isPlaceholder?: boolean;
 };
 
+export type MonsterStunSection = {
+  bossUid: EntityId;
+  title: string;
+  rows: TextBuffDisplay[];
+  isPlaceholder?: boolean;
+};
+
 export type MonsterTeammateBuffCell = {
   key: string;
   buffId: number;
@@ -58,13 +65,17 @@ export type MonsterDragTarget =
   | { kind: "buffPanel" }
   | { kind: "teammatePanel" }
   | { kind: "hatePanel" }
-  | { kind: "fantasyPanel" };
+  | { kind: "fantasyPanel" }
+  | { kind: "dbmPanel" }
+  | { kind: "stunPanel" };
 
 export type MonsterResizeTarget =
   | { kind: "buffPanel" }
   | { kind: "teammatePanel" }
   | { kind: "hatePanel" }
-  | { kind: "fantasyPanel" };
+  | { kind: "fantasyPanel" }
+  | { kind: "dbmPanel" }
+  | { kind: "stunPanel" };
 
 export type MonsterDragState = {
   target: MonsterDragTarget;

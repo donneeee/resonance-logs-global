@@ -1,16 +1,20 @@
 <script lang="ts">
   import { onMount } from "svelte";
   import { SETTINGS } from "$lib/settings-store";
+  import "../overlay-edit-theme.css";
   import EditBanner from "./EditBanner.svelte";
   import GhostOverlay from "./GhostOverlay.svelte";
+  import MonsterBossDbmPanel from "./MonsterBossDbmPanel.svelte";
   import MonsterBuffPanel from "./MonsterBuffPanel.svelte";
   import MonsterFantasyPanel from "./MonsterFantasyPanel.svelte";
   import MonsterHatePanel from "./MonsterHatePanel.svelte";
+  import MonsterStunPanel from "./MonsterStunPanel.svelte";
   import MonsterTeammateBuffPanel from "./MonsterTeammateBuffPanel.svelte";
   import { initMonsterOverlay, isMonsterEditing } from "./monster-state.svelte.js";
 
   const editing = $derived(isMonsterEditing());
   const hateEnabled = $derived(SETTINGS.monsterMonitor.state.hateListEnabled);
+  const stunEnabled = $derived(SETTINGS.monsterMonitor.state.stunListEnabled);
 
   onMount(initMonsterOverlay);
 </script>
@@ -28,8 +32,14 @@
   {#if hateEnabled}
     <MonsterHatePanel />
   {/if}
+  {#if stunEnabled && (SETTINGS.monsterMonitor.state.overlayVisibility?.showStunPanel ?? false)}
+    <MonsterStunPanel />
+  {/if}
   {#if (SETTINGS.monsterMonitor.state.overlayVisibility?.showFantasyPanel ?? false)}
     <MonsterFantasyPanel />
+  {/if}
+  {#if (SETTINGS.monsterMonitor.state.overlayVisibility?.showBossDbmPanel ?? false)}
+    <MonsterBossDbmPanel />
   {/if}
 </div>
 

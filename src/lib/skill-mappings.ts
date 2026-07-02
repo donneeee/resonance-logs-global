@@ -345,6 +345,7 @@ export type CounterEffectSlotPreset = {
   threshold: number | null;
   resetBuffId: number;
   resetSourceConfigId?: number;
+  resetBuffTarget?: "selfPlayer" | "anyTeam";
   onBuffAdd: CounterAction;
   onBuffChange: CounterAction;
   onBuffRemove: CounterAction;
@@ -356,6 +357,7 @@ export type CounterEffectSlotPreset = {
   countResetBuffProcs?: boolean;
   resetSkillKeys?: number[];
   onResetSkill?: CounterAction;
+  dungeonStartFreezeMs?: number | null;
 };
 
 export type SourceTemplate = {

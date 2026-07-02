@@ -21,6 +21,9 @@
     onRestored?: (imagePath: string) => void;
   } = $props();
 
+  let renderedImage = $state("");
+  let loadToken = 0;
+
   function fileUrlToPath(source: string): string {
     const url = new URL(source);
     let pathname = decodeURIComponent(url.pathname);
@@ -33,31 +36,54 @@
     return pathname.replace(/\//g, "\\");
   }
 
-  let renderedImage = $state("");
-  let loadToken = 0;
-
   function isDirectImageSource(source: string): boolean {
     return /^(data:|blob:|https?:|asset:|tauri:)/i.test(source);
   }
 
-  function convertLocalFileSource(source: string): string {
-    return convertFileSrc(/^file:/i.test(source) ? fileUrlToPath(source) : source);
-  }
-
-  function setConvertedLocalSource(source: string): boolean {
-    if (!source.trim()) return false;
-    try {
-      renderedImage = convertLocalFileSource(source);
-      return true;
-    } catch (error) {
-      console.warn("Failed to convert background image path", error);
-      renderedImage = "";
-      return false;
-    }
-  }
-
   function cssUrlValue(source: string): string {
-    return source.replace(/\\/g, "\\\\").replace(/"/g, "%22").replace(/[\r\n]/g, "");
+    return source
+      .replace(/\\/g, "\\\\")
+      .replace(/"/g, "%22")
+      .replace(/[\r\n]/g, "");
+  }
+
+  function localImageUrl(localPath: string): string {
+    return convertFileSrc(localPath);
+  }
+
+  function restoreFallbackBackground(
+    token: number,
+    originalSource: string,
+    fallbackSource: string,
+  ) {
+    if (!fallbackSource || fallbackSource === originalSource) {
+      return;
+    }
+    invoke<string>("import_background_image", { sourcePath: fallbackSource })
+      .then((restoredPath) => {
+        if (token !== loadToken) return;
+        onRestored?.(restoredPath);
+        renderedImage = localImageUrl(restoredPath);
+      })
+      .catch((restoreError) => {
+        if (token !== loadToken) return;
+        console.warn("Failed to restore imported background image", restoreError);
+      });
+  }
+
+  function loadLocalBackground(
+    localPath: string,
+    token: number,
+    originalSource: string,
+    fallbackSource: string,
+  ) {
+    try {
+      renderedImage = localImageUrl(localPath);
+    } catch (error) {
+      if (token !== loadToken) return;
+      console.warn("Failed to convert background image path", error);
+      restoreFallbackBackground(token, originalSource, fallbackSource);
+    }
   }
 
   $effect(() => {
@@ -74,48 +100,10 @@
     }
 
     const localPath = /^file:/i.test(source) ? fileUrlToPath(source) : source;
-    let cancelled = false;
-
     renderedImage = "";
-
-    invoke<string>("load_background_image_data_url", { imagePath: localPath })
-      .then((dataUrl) => {
-        if (!cancelled && token === loadToken) {
-          renderedImage = dataUrl;
-        }
-      })
-      .catch((error) => {
-        if (!cancelled && token === loadToken) {
-          console.warn("Failed to load background image data", error);
-          if (fallbackSource && fallbackSource !== source) {
-            invoke<string>("import_background_image", { sourcePath: fallbackSource })
-              .then((restoredPath) => {
-                if (cancelled || token !== loadToken) return null;
-                onRestored?.(restoredPath);
-                return invoke<string>("load_background_image_data_url", {
-                  imagePath: restoredPath,
-                });
-              })
-              .then((dataUrl) => {
-                if (!dataUrl || cancelled || token !== loadToken) return;
-                renderedImage = dataUrl;
-              })
-              .catch((restoreError) => {
-                if (cancelled || token !== loadToken) return;
-                console.warn("Failed to restore imported background image", restoreError);
-                if (setConvertedLocalSource(fallbackSource)) return;
-                setConvertedLocalSource(source);
-              });
-            return;
-          }
-          setConvertedLocalSource(source);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-    };
+    loadLocalBackground(localPath, token, source, fallbackSource);
   });
+
   const visible = $derived(enabled && renderedImage.length > 0);
   const normalizedOpacity = $derived(Math.max(0, Math.min(100, opacity)) / 100);
   const layerStyle = $derived.by(() => {
@@ -130,7 +118,7 @@
       `background-position: ${position}`,
       "background-repeat: no-repeat",
       `background-color: ${mode === "cover" ? "transparent" : containColor}`,
-    ].join("; ");
+    ].filter(Boolean).join("; ");
   });
 </script>
 
@@ -146,6 +134,7 @@
     backface-visibility: hidden;
     contain: paint;
     transform: translateZ(0);
+    overflow: hidden;
     will-change: opacity, transform;
   }
 </style>

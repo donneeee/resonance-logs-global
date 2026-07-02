@@ -169,6 +169,14 @@ pub struct AttrModifier {
     pub max_reduction_basis_points: u32,
 }
 
+#[derive(Debug, Clone, Copy, Serialize, Deserialize, specta::Type, PartialEq, Eq, Default)]
+#[serde(rename_all = "camelCase")]
+pub enum ResetBuffTarget {
+    #[default]
+    SelfPlayer,
+    AnyTeam,
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct EffectSlotConfig {
@@ -177,6 +185,8 @@ pub struct EffectSlotConfig {
     pub reset_buff_id: i32,
     #[serde(default)]
     pub reset_source_config_id: Option<i32>,
+    #[serde(default)]
+    pub reset_buff_target: ResetBuffTarget,
     #[serde(default)]
     pub on_buff_add: CounterAction,
     #[serde(default)]
@@ -203,6 +213,8 @@ pub struct EffectSlotConfig {
     pub reset_skill_keys: Option<Vec<i64>>,
     #[serde(default)]
     pub on_reset_skill: CounterAction,
+    #[serde(default)]
+    pub dungeon_start_freeze_ms: Option<u64>,
 }
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, specta::Type, Default)]
@@ -333,6 +345,7 @@ impl<'de> Deserialize<'de> for CounterRule {
                     threshold: rule.threshold,
                     reset_buff_id: rule.linked_buff_id,
                     reset_source_config_id: None,
+                    reset_buff_target: ResetBuffTarget::SelfPlayer,
                     on_buff_add: rule.on_buff_add,
                     on_buff_change: CounterAction::NoOp,
                     on_buff_remove: rule.on_buff_remove,
@@ -346,6 +359,7 @@ impl<'de> Deserialize<'de> for CounterRule {
                     count_reset_buff_procs: false,
                     reset_skill_keys: None,
                     on_reset_skill: CounterAction::NoOp,
+                    dungeon_start_freeze_ms: None,
                 }],
             })
         } else {
@@ -908,6 +922,9 @@ impl BuffCounterTracker {
                 for (slot_config, slot_state) in
                     rule.effect_slots.iter().zip(&mut state.slot_states)
                 {
+                    if slot_config.reset_buff_target == ResetBuffTarget::AnyTeam {
+                        continue;
+                    }
                     if !slot_matches_buff_change(slot_config, change) {
                         continue;
                     }
@@ -998,6 +1015,9 @@ impl BuffCounterTracker {
                             }
                         }
                     }
+                    if slot_config.reset_buff_target == ResetBuffTarget::AnyTeam {
+                        continue;
+                    }
                     if !slot_matches_buff_change(slot_config, change) {
                         continue;
                     }
@@ -1041,6 +1061,93 @@ impl BuffCounterTracker {
                         local_player_uuid,
                     );
                 }
+            }
+        }
+        changed
+    }
+
+    pub fn on_external_team_buff_changes(
+        &mut self,
+        changes: &[BuffChangeEvent],
+        attr_store: &EntityAttrStore,
+        local_player_uuid: i64,
+    ) -> bool {
+        if changes.is_empty() {
+            return false;
+        }
+
+        let mut changed = false;
+        let (rules, states) = (&self.rules, &mut self.states);
+        for change in changes {
+            for rule in rules {
+                let Some(state) = states.get_mut(&rule.rule_id) else {
+                    continue;
+                };
+                for (slot_config, slot_state) in
+                    rule.effect_slots.iter().zip(&mut state.slot_states)
+                {
+                    if slot_config.reset_buff_target != ResetBuffTarget::AnyTeam {
+                        continue;
+                    }
+                    if !slot_matches_buff_change(slot_config, change) {
+                        continue;
+                    }
+                    let action = action_for_buff_change(slot_config, &change.change_type);
+                    if should_count_reset_buff_proc(
+                        rule.sources.is_empty(),
+                        slot_config,
+                        slot_state,
+                        change,
+                        action,
+                    ) {
+                        changed |= add_slot_proc_count(slot_state, 1);
+                    }
+                    match change.change_type {
+                        BuffChangeType::Added => {
+                            if !slot_state.reset_buff_active {
+                                slot_state.reset_buff_active = true;
+                                changed = true;
+                            }
+                        }
+                        BuffChangeType::Changed => {}
+                        BuffChangeType::Removed => {
+                            if slot_state.reset_buff_active {
+                                slot_state.reset_buff_active = false;
+                                changed = true;
+                            }
+                        }
+                    }
+                    changed |= apply_action(slot_state, action);
+                    changed |= start_freeze_with_resolved_duration(
+                        slot_config,
+                        slot_state,
+                        action,
+                        change.create_time_ms,
+                        Some(attr_store),
+                        local_player_uuid,
+                    );
+                }
+            }
+        }
+        changed
+    }
+
+    pub fn on_mechanic_dungeon_started(&mut self, now_ms: i64) -> bool {
+        let mut changed = false;
+        let (rules, states) = (&self.rules, &mut self.states);
+        for rule in rules {
+            let Some(state) = states.get_mut(&rule.rule_id) else {
+                continue;
+            };
+            for (slot_config, slot_state) in rule.effect_slots.iter().zip(&mut state.slot_states) {
+                let Some(duration_ms) = slot_config.dungeon_start_freeze_ms else {
+                    continue;
+                };
+                if duration_ms == 0 {
+                    continue;
+                }
+                changed |= apply_action(slot_state, CounterAction::Freeze);
+                changed |= start_freeze_with_fixed_duration(slot_state, now_ms, duration_ms);
             }
         }
         changed
@@ -1851,6 +1958,25 @@ fn start_freeze_with_resolved_duration(
     true
 }
 
+fn start_freeze_with_fixed_duration(
+    slot_state: &mut SlotState,
+    start_time_ms: i64,
+    duration_ms: u64,
+) -> bool {
+    let freeze_until_ms =
+        start_time_ms.saturating_add(i64::try_from(duration_ms).unwrap_or(i64::MAX));
+    let mut changed = false;
+    if slot_state.freeze_until_ms != Some(freeze_until_ms) {
+        slot_state.freeze_until_ms = Some(freeze_until_ms);
+        changed = true;
+    }
+    if slot_state.freeze_duration_ms != Some(duration_ms) {
+        slot_state.freeze_duration_ms = Some(duration_ms);
+        changed = true;
+    }
+    changed
+}
+
 fn apply_tick_change(tick_state: &mut BuffTickState, change: &BuffChangeEvent) -> bool {
     let mut changed = false;
     match change.change_type {
@@ -1993,6 +2119,7 @@ mod tests {
             threshold: Some(100),
             reset_buff_id,
             reset_source_config_id: None,
+            reset_buff_target: ResetBuffTarget::SelfPlayer,
             on_buff_add: CounterAction::Freeze,
             on_buff_change: CounterAction::NoOp,
             on_buff_remove: CounterAction::NoOp,
@@ -2006,6 +2133,7 @@ mod tests {
             count_reset_buff_procs: false,
             reset_skill_keys: None,
             on_reset_skill: CounterAction::NoOp,
+            dungeon_start_freeze_ms: None,
         }
     }
 

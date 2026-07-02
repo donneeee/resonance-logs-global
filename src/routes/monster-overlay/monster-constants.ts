@@ -8,6 +8,8 @@ export const DEFAULT_MONSTER_OVERLAY_POSITIONS: MonsterOverlayPositions = {
   teammateBuffPanel: { x: 420, y: 40 },
   hatePanel: { x: 40, y: 300 },
   fantasyPanel: { x: 420, y: 300 },
+  bossDbmPanel: { x: 800, y: 40 },
+  stunPanel: { x: 40, y: 460 },
 };
 
 export const DEFAULT_MONSTER_OVERLAY_SIZES: MonsterOverlaySizes = {
@@ -15,6 +17,8 @@ export const DEFAULT_MONSTER_OVERLAY_SIZES: MonsterOverlaySizes = {
   teammateBuffPanelScale: 1,
   hatePanelScale: 1,
   fantasyPanelScale: 1,
+  bossDbmPanelScale: 1,
+  stunPanelScale: 1,
 };
 
 export const MIN_MONSTER_PANEL_SCALE = 0.5;

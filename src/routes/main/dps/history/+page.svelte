@@ -784,10 +784,12 @@
 												SETTINGS.history.general.state.showOthersName,
 											isLocalPlayer,
 										})}
+										{@const className = CLASS_MAP[player.classId] ?? ""}
+										{@const effectiveIconSpecName = iconSpecName || (!className ? player.classSpecName : "")}
 										<ClassSpecIcon
 											class="size-5 object-contain flex-shrink-0"
-											className={CLASS_MAP[player.classId] ?? ""}
-											classSpecName={iconSpecName}
+											className={className}
+											classSpecName={effectiveIconSpecName}
 											alt="Class icon"
 											tooltipText={player.name}
 										/>

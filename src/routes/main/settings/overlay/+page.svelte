@@ -110,6 +110,22 @@
         />
       </div>
 
+      <div class="rounded-lg border border-border/60 bg-background/30 p-3">
+        <SettingsSwitch
+          bind:checked={SETTINGS.skillMonitor.state.autoHideInDailyScenes}
+          label={tShell("settings.overlay.skillAutoHideDaily", "Auto-hide Skill Monitor in Daily Scenes")}
+          description={tShell("settings.overlay.skillAutoHideDailyDescription", "When Skill Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.")}
+        />
+      </div>
+
+      <div class="rounded-lg border border-border/60 bg-background/30 p-3">
+        <SettingsSwitch
+          bind:checked={SETTINGS.monsterMonitor.state.autoHideInDailyScenes}
+          label={tShell("settings.overlay.monsterAutoHideDaily", "Auto-hide Monster Monitor in Daily Scenes")}
+          description={tShell("settings.overlay.monsterAutoHideDailyDescription", "When Monster Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.")}
+        />
+      </div>
+
     </div>
   </section>
 

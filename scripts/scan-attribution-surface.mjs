@@ -101,24 +101,11 @@ function toNumber(value) {
   return Number.isFinite(numberValue) ? numberValue : null;
 }
 
-function uniqueNumbers(values) {
-  return [...new Set((values ?? []).map(toNumber).filter((value) => value !== null))].sort(
-    (left, right) => left - right,
-  );
-}
-
 function addMapArray(map, key, value) {
   const textKey = String(key);
   const rows = map.get(textKey) ?? [];
   rows.push(value);
   map.set(textKey, rows);
-}
-
-function incNested(out, first, second, count = 1) {
-  const firstKey = String(first || "unknown");
-  const secondKey = String(second || "unknown");
-  out[firstKey] = out[firstKey] ?? {};
-  out[firstKey][secondKey] = (out[firstKey][secondKey] ?? 0) + count;
 }
 
 function preferredName(row) {

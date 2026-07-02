@@ -73,7 +73,10 @@ function stripUiOnlyCounterRuleFields(rule: {
   return {
     ruleId: rule.ruleId,
     sources: rule.sources,
-    effectSlots: rule.effectSlots.map(({ displayMode: _displayMode, ...slot }) => slot),
+    effectSlots: rule.effectSlots.map(({ displayMode, ...slot }) => {
+      void displayMode;
+      return slot;
+    }),
   };
 }
 
@@ -139,7 +142,10 @@ function buildSkillRuntimeSnapshot(): MonitorRuntimeSnapshot["skill"] {
     (profile?.userCounterRules ?? []).filter((rule) =>
       activeCounterRuleIds.includes(rule.ruleId),
     ),
-  ).map(({ name: _name, ...rule }) => stripUiOnlyCounterRuleFields(rule));
+  ).map(({ name, ...rule }) => {
+    void name;
+    return stripUiOnlyCounterRuleFields(rule);
+  });
   const enabledCounterRules = normalizeCounterRules([
     ...enabledPresetCounterRules,
     ...enabledUserCounterRules,

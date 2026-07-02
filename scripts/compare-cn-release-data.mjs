@@ -8,15 +8,17 @@ const projectRoot = path.resolve(__dirname, "..");
 const betaRoot = path.resolve(projectRoot, "..");
 
 const currentCnRoot = resolveReleaseRoot(
-  path.resolve(process.argv[2] ?? path.join(betaRoot, "resonance-logs-cn-main_0.1.5")),
+  path.resolve(process.argv[2] ?? path.join(betaRoot, "resonance-logs-cn-main_0.1.7")),
 );
 const previousCnRoot = resolveReleaseRoot(
-  path.resolve(process.argv[3] ?? path.join(betaRoot, "resonance-logs-cn-main_0.1.4")),
+  path.resolve(process.argv[3] ?? path.join(betaRoot, "resonance-logs-cn-main_0.1.6")),
 );
+const currentCnLabel = inferCnReleaseLabel(currentCnRoot);
+const previousCnLabel = inferCnReleaseLabel(previousCnRoot);
 
 const outputDir = path.join(projectRoot, "DEV_exports");
-const markdownPath = path.join(outputDir, "cn-0.1.5-data-diff.md");
-const jsonPath = path.join(outputDir, "cn-0.1.5-data-diff.json");
+const markdownPath = path.join(outputDir, `cn-${currentCnLabel}-data-diff.md`);
+const jsonPath = path.join(outputDir, `cn-${currentCnLabel}-data-diff.json`);
 
 const DATASETS = [
   {
@@ -51,6 +53,28 @@ const DATASETS = [
       "ja-JP": "src/lib/config/ja-JP/RecountTable.json",
     },
     keyFields: ["Id", "id", "Uid", "uid"],
+  },
+  {
+    name: "DBM table",
+    category: "labels",
+    globalPath: "parser-data/generated/DbmTable.json",
+    cnPath: "src/lib/config/DbmTable.json",
+    cnLocalePaths: {
+      "en-US": "src/lib/config/en-US/DbmTable.json",
+      "ja-JP": "src/lib/config/ja-JP/DbmTable.json",
+    },
+    keyFields: ["Id", "id"],
+  },
+  {
+    name: "Monster names",
+    category: "labels",
+    globalPath: "parser-data/generated/monsternames.json",
+    cnPath: "src/lib/config/MonsterIdNameType.json",
+    cnLocalePaths: {
+      "en-US": "src/lib/config/en-US/MonsterIdNameType.json",
+      "ja-JP": "src/lib/config/ja-JP/MonsterIdNameType.json",
+    },
+    keyFields: ["Id", "id", "MonsterId", "monsterId"],
   },
   {
     name: "Damage attribute names",
@@ -263,6 +287,19 @@ function resolveReleaseRoot(candidate) {
   return nested ?? candidate;
 }
 
+function inferCnReleaseLabel(root) {
+  const normalized = path.resolve(root);
+  const candidates = [
+    path.basename(normalized),
+    path.basename(path.dirname(normalized)),
+  ];
+  for (const candidate of candidates) {
+    const match = candidate.match(/(\d+\.\d+\.\d+)/);
+    if (match) return match[1];
+  }
+  return path.basename(normalized).replace(/^resonance-logs-cn-main_?/, "") || "unknown";
+}
+
 function readJson(root, relPath) {
   const absPath = path.join(root, relPath);
   if (!fs.existsSync(absPath)) return null;
@@ -430,6 +467,8 @@ function getDisplayText(record) {
     "name",
     "NameDesign",
     "DesignName",
+    "RecountName",
+    "Content",
     "Description",
     "description",
     "className",
@@ -507,11 +546,11 @@ function analyzeDataset(dataset) {
   const globalVsCurrent =
     globalRecords && cnRecords ? compareMaps(globalRecords.map, cnRecords.map) : null;
 
-  const cnAdded = previousVsCurrent?.onlyRight ?? [];
+  const cnAdded = previousVsCurrent?.onlyRight ?? (previousCnRecords ? [] : [...(cnRecords?.map.keys() ?? [])].sort(sortKeys));
   const cnChanged = previousVsCurrent?.changed ?? [];
   const globalMissingCnAdded =
-    globalRecords && cnRecords
-      ? cnAdded.filter((key) => !globalRecords.map.has(key)).sort(sortKeys)
+    cnRecords
+      ? cnAdded.filter((key) => !globalRecords?.map.has(key)).sort(sortKeys)
       : [];
   const globalDifferentCnChanged =
     globalRecords && cnRecords
@@ -879,7 +918,7 @@ function buildMarkdown(report) {
   ]);
 
   const sections = [
-    "# CN 0.1.5 Data Diff",
+    `# CN ${currentCnLabel} Data Diff`,
     "",
     `Generated: ${report.generatedAt}`,
     "",
@@ -893,9 +932,9 @@ function buildMarkdown(report) {
       [
         "Dataset",
         "Global keys",
-        "CN 0.1.5 keys",
-        "CN added vs 0.1.4",
-        "CN changed vs 0.1.4",
+        `CN ${currentCnLabel} keys`,
+        `CN added vs ${previousCnLabel}`,
+        `CN changed vs ${previousCnLabel}`,
         "CN-added missing in Global",
         "CN-changed different in Global",
         "CN-only vs Global",
@@ -905,11 +944,11 @@ function buildMarkdown(report) {
     "",
     "## Static Asset Summary",
     "",
-    table(["Asset dir", "Global files", "CN 0.1.5 files", "CN added vs 0.1.4", "CN-only vs Global"], assetRows),
+    table(["Asset dir", "Global files", `CN ${currentCnLabel} files`, `CN added vs ${previousCnLabel}`, "CN-only vs Global"], assetRows),
     "",
     "## Global-Only Generated Data",
     "",
-    "These Global generator outputs do not have a same-shaped CN 0.1.5 config file. Treat CN changes in these areas as source hints, not copyable replacements.",
+    `These Global generator outputs do not have a same-shaped CN ${currentCnLabel} config file. Treat CN changes in these areas as source hints, not copyable replacements.`,
     "",
     table(
       ["Path", "Exists", "Rows", "Keys"],
@@ -930,7 +969,7 @@ function buildMarkdown(report) {
       "",
       formatSamples(dataset.samples.globalMissingCnAdded),
       "",
-      "### CN Changes Since 0.1.4 That Differ From Global",
+      `### CN Changes Since ${previousCnLabel} That Differ From Global`,
       "",
       formatSamples(dataset.samples.globalDifferentCnChanged),
       "",
@@ -949,7 +988,7 @@ function buildMarkdown(report) {
       `Global: \`${asset.paths.global}\``,
       `CN: \`${asset.paths.cn}\``,
       "",
-      "### CN Assets Added Since 0.1.4",
+      `### CN Assets Added Since ${previousCnLabel}`,
       "",
       formatSamples(asset.samples.cnAddedSincePrevious),
       "",

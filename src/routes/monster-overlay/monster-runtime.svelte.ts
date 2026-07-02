@@ -1,10 +1,18 @@
 import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { BuffUpdateState, HateEntry, TeammateFantasyState } from "$lib/api";
+import type {
+  BossDbmEvent,
+  BuffUpdateState,
+  HateEntry,
+  StunEntry,
+  TeammateFantasyState,
+} from "$lib/api";
+import type { TextBuffDisplay } from "../game-overlay/overlay-types";
 import type {
   MonsterBossBuffSection,
   MonsterDragState,
   MonsterFantasyRow,
   MonsterHateSection,
+  MonsterStunSection,
   MonsterTeammateBuffColumn,
   MonsterTeammateBuffRow,
   MonsterResizeState,
@@ -24,11 +32,15 @@ export const monsterRuntime = $state({
   bossBuffMap: new Map<string, Map<number, BuffUpdateState>>(),
   teammateBuffMap: new Map<string, Map<number, BuffUpdateState>>(),
   bossHateMap: new Map<string, HateEntry[]>(),
+  bossStunMap: new Map<string, StunEntry>(),
+  bossDbmMap: new Map<number, BossDbmEvent>(),
   fantasyEntries: [] as TeammateFantasyState[],
   bossSections: [] as MonsterBossBuffSection[],
   teammateColumns: [] as MonsterTeammateBuffColumn[],
   teammateRows: [] as MonsterTeammateBuffRow[],
   hateSections: [] as MonsterHateSection[],
+  stunSections: [] as MonsterStunSection[],
+  dbmRows: [] as TextBuffDisplay[],
   fantasyRows: [] as MonsterFantasyRow[],
   isEditing: false,
   dragState: null as MonsterDragState | null,
@@ -53,6 +65,14 @@ export function monsterTeammateRows() {
 
 export function monsterFantasyRows() {
   return monsterRuntime.fantasyRows;
+}
+
+export function monsterDbmRows() {
+  return monsterRuntime.dbmRows;
+}
+
+export function monsterStunSections() {
+  return monsterRuntime.stunSections;
 }
 
 export function isMonsterEditing() {

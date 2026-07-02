@@ -1,12 +1,13 @@
 use crate::database::{EncounterMetadata, PlayerNameEntry, now_ms, save_encounter};
 use crate::live::bootstrap_snapshot::MonitorRuntimeSnapshot;
 use crate::live::buff_monitor::{
-    ActiveBuff, BossBuffMonitors, BuffChangeEvent, BuffChangeType, BuffMonitor,
+    ActiveBuff, BuffChangeEvent, BuffChangeType, BuffMonitor, BuffTargetKind, BuffWatchProfile,
+    EntityBuffMonitorConfig, EntityBuffMonitors,
 };
 use crate::live::commands_models::{
-    BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceEntry, FightResourceState,
-    HateEntry, PanelAttrState, ShieldDetailEntry, SkillCdState, TeammateFantasyState,
-    TrainingDummyState,
+    BossDbmEvent, BuffUpdateState, CounterUpdateState, DeathRecord, FightResourceEntry,
+    FightResourceState, HateEntry, MinimapSkillCast, PanelAttrState, ShieldDetailEntry,
+    SkillCdState, StunEntry, TeammateFantasyState, TrainingDummyState,
 };
 use crate::live::counter_tracker::{BuffCounterTracker, CounterRule};
 use crate::live::dungeon_log::{BattleStateMachine, EncounterResetReason};
@@ -15,12 +16,13 @@ use crate::live::entity_id::{
     canonical_player_uuid, entity_key_from_uuid_or_uid, entity_uuid_string, uid_from_uuid,
 };
 use crate::live::event_manager::EventManager;
+use crate::live::factor_trace;
 use crate::live::opcodes_models::{
     AttrType, AttrValue, Encounter, Entity, ObservedActiveBuff, ObservedCombatTimelineBucket,
     ObservedDamageHit, ObservedEffectBuff, ObservedEffectSource, ObservedEquippedItem,
     ObservedFactorBuff, ObservedFactorItem, ObservedModifierHitBucket, ObservedModifierReplayHit,
     ObservedModifierReplaySource, ObservedModifierWindow, ObservedProfessionSkill,
-    ObservedSkillCastEvent, ObservedSkillCooldownEvent,
+    ObservedSkillCastEvent, ObservedSkillCooldownEvent, attr_type,
 };
 use crate::live::opcodes_process::ParsedSkillCd;
 use crate::live::season_cultivate::{FactorCounterTemplate, SeasonCultivateRuntimeState};
@@ -39,6 +41,7 @@ use blueprotobuf_lib::blueprotobuf;
 use blueprotobuf_lib::blueprotobuf::AoiSyncDelta;
 use blueprotobuf_lib::blueprotobuf::EEntityType;
 use log::{debug, info, warn};
+use serde_json::json;
 use std::collections::{HashMap, HashSet};
 use std::fmt::Write as _;
 use std::time::{Duration, Instant};
@@ -53,14 +56,15 @@ const EQUIPPED_FACTOR_RUNTIME_PREFIX: &str = "selfItemInstance:CharSerialize.equ
 const MAX_FACTOR_SELECTOR_ZERO_SLOTS: usize = 128;
 const FACTOR_SELECTOR_ZERO_SLOT_TTL: Duration = Duration::from_secs(120);
 const OVERLAY_IDENTITY_RESEND_INTERVAL: Duration = Duration::from_secs(1);
+const WORLD_EVENT_TYPE_BOSS_DBM: i32 = 29;
 
 /// Represents the possible events that can be handled by the state manager.
 #[derive(Debug, Clone)]
 pub enum StateEvent {
-    /// A server change event.
-    ServerChange,
     /// An enter scene event.
     EnterScene(blueprotobuf::EnterScene),
+    /// A sync scene events packet.
+    SyncSceneEvents(blueprotobuf::SyncSceneEvents),
     /// A sync near entities event.
     SyncNearEntities(blueprotobuf::SyncNearEntities),
     /// A sync container data event.
@@ -104,10 +108,10 @@ pub struct AppState {
     pub modifier_buff_monitor: BuffMonitor,
     /// Whether WIP modifier evidence capture is enabled for live/history reports.
     pub modifier_capture_enabled: bool,
-    /// Boss buff monitoring state and configuration.
-    pub boss_buff_monitors: BossBuffMonitors,
-    /// Teammate buff monitoring state keyed by canonical entity UUID.
-    pub teammate_buff_monitors: BossBuffMonitors,
+    /// Raw all-entity buff state used by DBM and teammate overlay views.
+    pub entity_buff_monitors: EntityBuffMonitors,
+    /// Buff watch lists split by target kind.
+    pub entity_buff_config: EntityBuffMonitorConfig,
     /// Non-player/proxy source UIDs observed acting on behalf of the local player.
     pub local_owned_source_uids: HashSet<i64>,
     /// Non-player/proxy source UUIDs observed acting on behalf of the local player.
@@ -159,10 +163,16 @@ pub struct AppState {
     pub last_overlay_boss_buffs_signature: Option<String>,
     /// Last monster-overlay teammate buff snapshot signature emitted to the frontend.
     pub last_overlay_teammate_buffs_signature: Option<String>,
+    /// Last monster-overlay stun snapshot signature emitted to the frontend.
+    pub last_overlay_stun_signature: Option<String>,
     /// Set after a new death replay record is appended and cleared after the next frontend emit.
     pub death_snapshot_dirty: bool,
     /// Runtime state from GrpcTeamNtf packets, keyed by canonical player UUID.
     pub team: TeamRuntimeState,
+    /// One-shot skill casts waiting for the minimap overlay emit cycle.
+    pub pending_minimap_skill_casts: Vec<MinimapSkillCast>,
+    /// Whether the minimap overlay currently has a live scene snapshot.
+    pub minimap_snapshot_active: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -255,8 +265,8 @@ impl AppState {
             local_monitor: EntityMonitor::new(0),
             modifier_buff_monitor: BuffMonitor::new(),
             modifier_capture_enabled: false,
-            boss_buff_monitors: BossBuffMonitors::new(),
-            teammate_buff_monitors: BossBuffMonitors::new(),
+            entity_buff_monitors: EntityBuffMonitors::new(),
+            entity_buff_config: EntityBuffMonitorConfig::default(),
             local_owned_source_uids: HashSet::new(),
             local_owned_source_uuids: HashSet::new(),
             local_owned_source_config_ids: HashSet::new(),
@@ -282,8 +292,11 @@ impl AppState {
             last_overlay_hate_lists_signature: None,
             last_overlay_boss_buffs_signature: None,
             last_overlay_teammate_buffs_signature: None,
+            last_overlay_stun_signature: None,
             death_snapshot_dirty: false,
             team: TeamRuntimeState::default(),
+            pending_minimap_skill_casts: Vec::new(),
+            minimap_snapshot_active: false,
         }
     }
 
@@ -472,9 +485,28 @@ fn emit_season_cultivate_factor_counter_update(state: &mut AppState) {
         &state.attr_store,
         current_local_player_uuid(&state.encounter),
     );
+    factor_trace::record(
+        "factor-counter",
+        "counter-update",
+        json!({
+            "selectedItemIds": selected_item_ids,
+            "selection": &selection,
+            "snapshot": &snapshot,
+            "counters": &counters,
+        }),
+    );
     state
         .event_manager
         .emit_season_cultivate_factor_counter_update(selection, snapshot, counters);
+}
+
+fn skill_lifecycle_output_trace(output: SkillLifecycleOutput) -> (&'static str, i32) {
+    match output {
+        SkillLifecycleOutput::CastStarted(skill_id) => ("castStarted", skill_id.get()),
+        SkillLifecycleOutput::DurationStarted(skill_id) => ("durationStarted", skill_id.get()),
+        SkillLifecycleOutput::DurationEnded(skill_id) => ("durationEnded", skill_id.get()),
+        SkillLifecycleOutput::CastCompleted(skill_id) => ("castCompleted", skill_id.get()),
+    }
 }
 
 fn apply_skill_lifecycle_outputs(
@@ -484,14 +516,27 @@ fn apply_skill_lifecycle_outputs(
     let mut counter_dirty = false;
     let mut factor_counter_dirty = false;
     for output in outputs {
-        counter_dirty |= state
+        let (output_kind, skill_id) = skill_lifecycle_output_trace(output);
+        let counter_changed = state
             .local_monitor
             .counter_tracker
             .on_skill_lifecycle_output(output);
-        factor_counter_dirty |= state
+        let factor_counter_changed = state
             .local_monitor
             .factor_counter_tracker
             .on_skill_lifecycle_output(output);
+        counter_dirty |= counter_changed;
+        factor_counter_dirty |= factor_counter_changed;
+        factor_trace::record(
+            "factor-input",
+            "skill-lifecycle-output",
+            json!({
+                "output": output_kind,
+                "skillId": skill_id,
+                "counterChanged": counter_changed,
+                "factorCounterChanged": factor_counter_changed,
+            }),
+        );
     }
     (counter_dirty, factor_counter_dirty)
 }
@@ -522,6 +567,74 @@ fn tick_counter_trackers(state: &mut AppState) -> (bool, bool) {
         local_player_uuid,
     );
     (counter_dirty, factor_counter_dirty)
+}
+
+fn minimap_monster_id_of(state: &AppState, entity_uuid: i64) -> Option<i32> {
+    state
+        .attr_store
+        .attr(entity_uuid, AttrType::MonsterId)
+        .and_then(AttrValue::as_int)
+        .or_else(|| {
+            state
+                .encounter
+                .entity_uuid_to_entity
+                .get(&entity_uuid)
+                .and_then(|entity| entity.monster_type_id.map(i64::from))
+        })
+        .and_then(|id| i32::try_from(id).ok())
+        .filter(|id| *id > 0)
+}
+
+fn entity_has_minimap_mechanic_buff(
+    state: &AppState,
+    entity_uuid: i64,
+    config: &crate::live::minimap::scene::SceneConfig,
+) -> bool {
+    state
+        .entity_buff_monitors
+        .monitors
+        .get(&entity_uuid)
+        .is_some_and(|monitor| {
+            monitor
+                .active_buffs
+                .values()
+                .any(|buff| config.mechanic_buff_ids.contains(&buff.base_id))
+        })
+}
+
+fn is_minimap_relevant_entity(state: &AppState, entity_uuid: i64, scene_id: i32) -> bool {
+    if entity_uuid == state.encounter.local_player_uuid || state.team.members.contains(&entity_uuid)
+    {
+        return true;
+    }
+
+    let Some(config) = crate::live::minimap::scene::scene_config_for(scene_id) else {
+        return false;
+    };
+    if entity_has_minimap_mechanic_buff(state, entity_uuid, config) {
+        return true;
+    }
+    minimap_monster_id_of(state, entity_uuid)
+        .is_some_and(|monster_id| config.relevant_monster_ids.contains(&monster_id))
+}
+
+fn process_entity_buff_effect_bytes(
+    state: &mut AppState,
+    target_uuid: i64,
+    raw_bytes: &[u8],
+) -> Option<(BuffTargetKind, crate::live::buff_monitor::BuffProcessResult)> {
+    // Match CN's ownership model: classify the target first, then let the
+    // per-entity monitor ingest the server-issued buff packet.
+    let kind = classify_buff_effect_target(state, target_uuid).or_else(|| {
+        let scene_id = state.encounter.current_scene_id.unwrap_or_default();
+        (crate::live::minimap::scene::is_minimap_scene(scene_id)).then_some(BuffTargetKind::Monster)
+    })?;
+    let result = state.entity_buff_monitors.process_buff_effect_bytes(
+        target_uuid,
+        raw_bytes,
+        &mut state.server_clock_offset,
+    );
+    Some((kind, result))
 }
 
 fn sample_actor_state_for_lifecycle(state: &mut AppState) -> (bool, bool) {
@@ -640,11 +753,29 @@ fn refresh_season_cultivate_factor_rules(state: &mut AppState) {
             .active_item_ids,
         rules.len()
     );
+    factor_trace::record(
+        "factor-counter",
+        "rules-refreshed",
+        json!({
+            "selectedObserved": state.selected_factor_selection_observed,
+            "selectedItemIds": selected_item_ids,
+            "activeSnapshot": state.local_monitor.season_cultivate.active_snapshot(),
+            "rules": &rules,
+        }),
+    );
     state.local_monitor.factor_counter_tracker.set_rules(rules);
 }
 
 fn reset_season_cultivate_factor_counters(state: &mut AppState) {
     state.local_monitor.factor_counter_tracker.reset_counts();
+    factor_trace::record(
+        "factor-counter",
+        "counters-reset",
+        json!({
+            "selectedItemIds": season_cultivate_factor_counter_item_ids(state),
+            "activeSnapshot": state.local_monitor.season_cultivate.active_snapshot(),
+        }),
+    );
     emit_season_cultivate_factor_counter_update(state);
 }
 
@@ -1004,6 +1135,27 @@ fn hate_snapshot_signature(snapshot: &HashMap<String, Vec<HateEntry>>) -> String
     signature
 }
 
+fn stun_snapshot_signature(snapshot: &[StunEntry]) -> String {
+    let mut entries = snapshot.to_vec();
+    entries.sort_by(|left, right| {
+        left.boss_entity_uuid
+            .cmp(&right.boss_entity_uuid)
+            .then_with(|| left.monster_id.cmp(&right.monster_id))
+            .then_with(|| left.current.cmp(&right.current))
+            .then_with(|| left.max.cmp(&right.max))
+    });
+
+    let mut signature = String::new();
+    for entry in entries {
+        let _ = write!(
+            signature,
+            "{}:{}:{}:{}|",
+            entry.boss_entity_uuid, entry.monster_id, entry.current, entry.max
+        );
+    }
+    signature
+}
+
 fn should_emit_overlay_signature(
     last_signature: &mut Option<String>,
     next_signature: String,
@@ -1020,6 +1172,7 @@ fn clear_overlay_snapshot_signatures(state: &mut AppState) {
     state.last_overlay_hate_lists_signature = None;
     state.last_overlay_boss_buffs_signature = None;
     state.last_overlay_teammate_buffs_signature = None;
+    state.last_overlay_stun_signature = None;
 }
 
 fn resolve_player_display_name(
@@ -1097,6 +1250,47 @@ fn entity_has_player_identity_surface(
             || entity.taken.hits > 0)
 }
 
+fn is_known_character_entity(state: &AppState, entity_uuid: i64) -> bool {
+    state
+        .encounter
+        .entity_uuid_to_entity
+        .get(&entity_uuid)
+        .is_some_and(|entity| entity.entity_type == EEntityType::EntChar)
+}
+
+fn is_known_monster_entity(state: &AppState, entity_uuid: i64) -> bool {
+    let entity = state.encounter.entity_uuid_to_entity.get(&entity_uuid);
+    entity.is_some_and(|entity| entity.entity_type == EEntityType::EntMonster)
+        || monster_id_for_uuid(state, entity_uuid, entity).is_some()
+        || EEntityType::from(entity_uuid) == EEntityType::EntMonster
+}
+
+fn classify_buff_effect_target(state: &AppState, target_uuid: i64) -> Option<BuffTargetKind> {
+    if target_uuid == current_local_player_uuid(&state.encounter) && target_uuid != 0 {
+        return Some(BuffTargetKind::LocalPlayer);
+    }
+    if is_known_monster_entity(state, target_uuid) {
+        return Some(BuffTargetKind::Monster);
+    }
+    if is_known_character_entity(state, target_uuid) {
+        return Some(BuffTargetKind::Teammate);
+    }
+    None
+}
+
+fn classify_buff_snapshot_target(state: &AppState, target_uuid: i64) -> Option<BuffTargetKind> {
+    if target_uuid == current_local_player_uuid(&state.encounter) && target_uuid != 0 {
+        return Some(BuffTargetKind::LocalPlayer);
+    }
+    if current_attack_target_uuid(state) == Some(target_uuid) {
+        return Some(BuffTargetKind::Monster);
+    }
+    if state.team.members.contains(&target_uuid) || is_known_character_entity(state, target_uuid) {
+        return Some(BuffTargetKind::Teammate);
+    }
+    None
+}
+
 fn current_local_player_uuid(encounter: &Encounter) -> i64 {
     encounter.local_player_uuid
 }
@@ -1121,11 +1315,7 @@ fn current_attack_target_uuid(state: &AppState) -> Option<i64> {
         .and_then(AttrValue::as_int)
         .filter(|uuid| *uuid > 0)?;
 
-    let is_monster = state
-        .encounter
-        .entity_by_uuid(target_uuid)
-        .map(|entity| entity.entity_type == EEntityType::EntMonster)
-        .unwrap_or_else(|| EEntityType::from(target_uuid) == EEntityType::EntMonster);
+    let is_monster = is_known_monster_entity(state, target_uuid);
     if !is_monster || state.attr_store.is_dead(target_uuid) {
         return None;
     }
@@ -1412,9 +1602,13 @@ fn build_monster_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdate
     let local_owned_source_config_ids = state.local_owned_source_config_ids.clone();
     let (known_other_source_uids, known_other_source_uuids) = known_other_player_sources(state);
 
-    state
-        .boss_buff_monitors
-        .build_all_buff_snapshots_with_self_source_filter(state.server_clock_offset, |_, buff| {
+    state.entity_buff_monitors.build_snapshots_for_kind(
+        BuffTargetKind::Monster,
+        &state.entity_buff_config,
+        local_player_uuid,
+        state.server_clock_offset,
+        |entity_uuid| classify_buff_snapshot_target(state, entity_uuid),
+        |_, buff| {
             monster_buff_source_allowed_for_self_monitor(
                 buff.source_uuid,
                 buff.source_config_id,
@@ -1425,7 +1619,25 @@ fn build_monster_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdate
                 &known_other_source_uids,
                 &known_other_source_uuids,
             )
-        })
+        },
+    )
+}
+
+fn build_teammate_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdateState>> {
+    let local_player_uuid = current_local_player_uuid(&state.encounter);
+    state.entity_buff_monitors.build_snapshots_for_kind(
+        BuffTargetKind::Teammate,
+        &state.entity_buff_config,
+        local_player_uuid,
+        state.server_clock_offset,
+        |entity_uuid| {
+            if entity_uuid == local_player_uuid {
+                return None;
+            }
+            classify_buff_snapshot_target(state, entity_uuid)
+        },
+        |_, _| true,
+    )
 }
 
 fn emit_training_dummy_update_if_changed(state: &mut AppState, previous: TrainingDummyState) {
@@ -1469,7 +1681,11 @@ fn emit_current_scene_change_boundary(state: &mut AppState, fallback_scene_name:
         .current_scene_name
         .clone()
         .unwrap_or_else(|| fallback_scene_name.to_string());
-    state.event_manager.emit_scene_change(scene_name);
+    state.event_manager.emit_scene_change(
+        state.encounter.current_scene_id,
+        scene_name,
+        state.encounter.current_dungeon_difficulty,
+    );
 }
 
 fn clear_combat_runtime_silently(state: &mut AppState) {
@@ -1477,8 +1693,7 @@ fn clear_combat_runtime_silently(state: &mut AppState) {
     sync_selected_factor_items_to_local_entity(state);
     reset_season_cultivate_factor_counters(state);
     state.modifier_buff_monitor.active_buffs.clear();
-    state.boss_buff_monitors.clear();
-    state.teammate_buff_monitors.clear();
+    state.entity_buff_monitors.clear();
     state.local_owned_source_uids.clear();
     state.local_owned_source_uuids.clear();
     state.local_owned_source_config_ids.clear();
@@ -3341,36 +3556,93 @@ fn local_active_profession_skills(
 }
 
 fn observed_profession_skill_matches_id(skill: &ObservedProfessionSkill, skill_id: i32) -> bool {
+    let normalized_skill_id = crate::live::skill_ids::normalize_skill_id(skill_id);
     skill.skill_id == skill_id
+        || skill.skill_id == normalized_skill_id
         || skill.skill_level_id == Some(skill_id)
+        || skill.skill_level_id == Some(normalized_skill_id)
         || skill.base_skill_id == Some(skill_id)
+        || skill.base_skill_id == Some(normalized_skill_id)
         || skill.replace_skill_ids.contains(&skill_id)
+        || skill.replace_skill_ids.contains(&normalized_skill_id)
 }
 
-fn normalize_skill_lifecycle_id(state: &AppState, skill_id: SkillId) -> SkillId {
-    let raw_id = skill_id.get();
-    let normalized_from_table =
-        || SkillId::new(crate::live::skill_ids::normalize_skill_id(raw_id)).unwrap_or(skill_id);
-    let Some(entity) = local_player_entity(&state.encounter) else {
-        return normalized_from_table();
-    };
+fn canonical_profession_skill_id(skill: &ObservedProfessionSkill) -> Option<SkillId> {
+    skill
+        .base_skill_id
+        .or_else(|| (skill.skill_id > 0).then_some(skill.skill_id))
+        .map(crate::live::skill_ids::normalize_skill_id)
+        .and_then(SkillId::new)
+}
 
-    let Some(active_skill) = entity
+fn observed_profession_skill_slot_score(skill: &ObservedProfessionSkill) -> i32 {
+    let mut score = 0;
+    if skill.equipped == Some(true) {
+        score += 40;
+    }
+    if skill.source_kind == "profession-skill" {
+        score += 30;
+    }
+    if skill.base_skill_id.is_some() {
+        score += 20;
+    }
+    if skill.skill_level_id.is_some() {
+        score += 10;
+    }
+    if skill.skill_id >= 1000 {
+        score += 5;
+    }
+    score
+}
+
+fn normalize_skill_id_from_table(skill_id: SkillId) -> SkillId {
+    SkillId::new(crate::live::skill_ids::normalize_skill_id(skill_id.get())).unwrap_or(skill_id)
+}
+
+fn normalize_skill_lifecycle_id_from_active_skill(
+    state: &AppState,
+    skill_id: SkillId,
+) -> Option<SkillId> {
+    let raw_id = skill_id.get();
+    let entity = local_player_entity(&state.encounter)?;
+
+    entity
         .active_profession_skills
         .iter()
         .find(|skill| observed_profession_skill_matches_id(skill, raw_id))
-    else {
-        return normalized_from_table();
-    };
+        .and_then(canonical_profession_skill_id)
+}
 
-    let active_skill_id = active_skill
-        .base_skill_id
-        .or_else(|| (active_skill.skill_id > 0).then_some(active_skill.skill_id))
-        .map(crate::live::skill_ids::normalize_skill_id);
+fn normalize_skill_lifecycle_id(state: &AppState, skill_id: SkillId) -> SkillId {
+    normalize_skill_lifecycle_id_from_active_skill(state, skill_id)
+        .unwrap_or_else(|| normalize_skill_id_from_table(skill_id))
+}
 
-    active_skill_id
-        .and_then(SkillId::new)
-        .unwrap_or_else(normalized_from_table)
+fn normalize_client_skill_lifecycle_id(state: &AppState, event: &ClientSkillCast) -> SkillId {
+    let table_skill_id = normalize_skill_id_from_table(event.skill_id);
+    let direct_skill_id = normalize_skill_lifecycle_id_from_active_skill(state, event.skill_id);
+    if let Some(skill_id) = direct_skill_id.filter(|skill_id| *skill_id != table_skill_id) {
+        return skill_id;
+    }
+
+    if let (Some(entity), Some(slot_id)) = (local_player_entity(&state.encounter), event.slot_id) {
+        let slot_skill_id = entity
+            .active_profession_skills
+            .iter()
+            .filter(|skill| {
+                skill.slot == Some(slot_id)
+                    && skill.source_kind == "profession-skill"
+                    && skill.equipped != Some(false)
+            })
+            .max_by_key(|skill| observed_profession_skill_slot_score(skill))
+            .and_then(canonical_profession_skill_id);
+
+        if let Some(skill_id) = slot_skill_id.filter(|skill_id| *skill_id != table_skill_id) {
+            return skill_id;
+        }
+    }
+
+    direct_skill_id.unwrap_or(table_skill_id)
 }
 
 fn local_active_effect_sources(
@@ -3494,6 +3766,26 @@ impl AppStateManager {
         self.apply_attr_store_changes(state);
     }
 
+    pub fn emit_minimap_if_active(&self, state: &mut AppState) {
+        let scene_id = state.encounter.current_scene_id.unwrap_or_default();
+        if !crate::live::minimap::scene::is_minimap_scene(scene_id) {
+            state.pending_minimap_skill_casts.clear();
+            state.attr_store.set_skill_cast_recording(false);
+            if state.minimap_snapshot_active {
+                state.event_manager.emit_minimap_update(None, Vec::new());
+                state.minimap_snapshot_active = false;
+            }
+            return;
+        }
+
+        let skill_casts = std::mem::take(&mut state.pending_minimap_skill_casts);
+        let snapshot = Some(crate::live::minimap::build_minimap_snapshot(state));
+        state
+            .event_manager
+            .emit_minimap_update(snapshot, skill_casts);
+        state.minimap_snapshot_active = true;
+    }
+
     pub fn drain_control_commands(
         &self,
         state: &mut AppState,
@@ -3549,11 +3841,11 @@ impl AppStateManager {
         let mut counter_dirty = false;
         let mut factor_counter_dirty = false;
         match event {
-            StateEvent::ServerChange => {
-                self.on_server_change(state);
-            }
             StateEvent::EnterScene(data) => {
                 self.process_enter_scene(state, data);
+            }
+            StateEvent::SyncSceneEvents(data) => {
+                self.process_scene_events(state, data);
             }
             StateEvent::SyncNearEntities(data) => {
                 self.process_sync_near_entities(state, data);
@@ -3612,10 +3904,8 @@ impl AppStateManager {
                 self.reset_encounter(state, is_manual);
             }
             StateEvent::ClientSkillCast(event) => {
-                let event = ClientSkillCast {
-                    skill_id: normalize_skill_lifecycle_id(state, event.skill_id),
-                    ..event
-                };
+                let skill_id = normalize_client_skill_lifecycle_id(state, &event);
+                let event = ClientSkillCast { skill_id, ..event };
                 let outputs = state
                     .local_monitor
                     .skill_lifecycle
@@ -3763,6 +4053,10 @@ impl AppStateManager {
                 }
             }
             LiveControlCommand::SetMonitoredBuffs(buff_base_ids) => {
+                state.entity_buff_config.local_player = BuffWatchProfile::from_any_source_ids(
+                    buff_base_ids.clone(),
+                    state.entity_buff_config.local_player.monitor_all,
+                );
                 state.local_monitor.buff_monitor.monitored_buff_ids =
                     buff_base_ids.into_iter().collect();
                 emit_local_buff_update_snapshot(state);
@@ -3772,11 +4066,12 @@ impl AppStateManager {
                 self_applied_ids,
                 monitor_all_self_applied,
             } => {
-                state.boss_buff_monitors.set_config_with_monitor_all(
-                    global_ids,
-                    self_applied_ids,
-                    monitor_all_self_applied,
-                );
+                state.entity_buff_config.monster =
+                    BuffWatchProfile::from_any_and_local_player_source_ids(
+                        global_ids,
+                        self_applied_ids,
+                        monitor_all_self_applied,
+                    );
                 emit_boss_buff_update_snapshot(state);
             }
             LiveControlCommand::SetTeammateMonitoredBuffs {
@@ -3785,12 +4080,10 @@ impl AppStateManager {
                 target_self_source_ids,
                 monitor_all,
             } => {
-                let mut monitored_ids = any_source_ids;
-                monitored_ids.extend(local_player_source_ids);
-                monitored_ids.extend(target_self_source_ids);
-                state.teammate_buff_monitors.set_config_with_monitor_all(
-                    monitored_ids,
-                    Vec::new(),
+                state.entity_buff_config.teammate = BuffWatchProfile::from_all_sources(
+                    any_source_ids,
+                    local_player_source_ids,
+                    target_self_source_ids,
                     monitor_all,
                 );
             }
@@ -3827,6 +4120,23 @@ impl AppStateManager {
                     .collect();
             }
             LiveControlCommand::SetMonitorAllBuff(monitor_all_buff) => {
+                state.entity_buff_config.local_player.monitor_all = monitor_all_buff;
+                state.entity_buff_config.local_player.enabled = monitor_all_buff
+                    || !state
+                        .entity_buff_config
+                        .local_player
+                        .any_source_ids
+                        .is_empty()
+                    || !state
+                        .entity_buff_config
+                        .local_player
+                        .local_player_source_ids
+                        .is_empty()
+                    || !state
+                        .entity_buff_config
+                        .local_player
+                        .target_self_source_ids
+                        .is_empty();
                 state.local_monitor.buff_monitor.monitor_all_buff = monitor_all_buff;
                 emit_local_buff_update_snapshot(state);
             }
@@ -3976,37 +4286,6 @@ impl AppStateManager {
         );
     }
 
-    fn on_server_change(&self, state: &mut AppState) {
-        use crate::live::opcodes_process::on_server_change;
-        state.pending_auto_reset = None;
-
-        if !state.auto_clear_on_scene_change {
-            if hold_active_encounter_for_scene_change(state, "server_change") {
-                emit_current_scene_change_boundary(state, "Server changed");
-            }
-            return;
-        }
-
-        let segment_saved = state.training_dummy.segment_saved;
-        let previous = build_training_dummy_state(&state.training_dummy);
-        state.training_dummy.clear();
-        emit_training_dummy_update_if_changed(state, previous);
-        state.modifier_buff_monitor.active_buffs.clear();
-        state.boss_buff_monitors.clear();
-        state.teammate_buff_monitors.clear();
-        state.local_owned_source_uids.clear();
-        state.local_owned_source_uuids.clear();
-        state.local_owned_source_config_ids.clear();
-        state.local_factor_selector_zero_slots.clear();
-
-        if !segment_saved {
-            persist_and_save_encounter(state, false, "server_change");
-        }
-        on_server_change(&mut state.encounter);
-        reset_season_cultivate_factor_counters(state);
-        state.battle_state = BattleStateMachine::default();
-    }
-
     // all scene id extraction logic is here (its pretty rough)
     fn process_enter_scene(&self, state: &mut AppState, enter_scene: blueprotobuf::EnterScene) {
         use crate::live::opcodes_process::process_enter_scene as parse_enter_scene;
@@ -4042,18 +4321,27 @@ impl AppStateManager {
 
         if let Some(scene_id) = parsed.scene_id {
             let scene_name = scene_names::lookup(scene_id);
+            let previous_scene_id = state.encounter.current_scene_id;
 
             // Update encounter with scene info
             state.encounter.current_scene_id = Some(scene_id);
             state.encounter.current_scene_name = Some(scene_name.clone());
             state.encounter.current_dungeon_difficulty = None;
+            if previous_scene_id != Some(scene_id) {
+                state.encounter.markers.clear();
+            }
+            state
+                .attr_store
+                .set_skill_cast_recording(crate::live::minimap::scene::is_minimap_scene(scene_id));
 
             info!("Scene changed to: {} (ID: {})", scene_name, scene_id);
 
             // Emit scene change event
             if state.event_manager.should_emit_events() {
                 info!("Emitting scene change event for: {}", scene_name);
-                state.event_manager.emit_scene_change(scene_name);
+                state
+                    .event_manager
+                    .emit_scene_change(Some(scene_id), scene_name, None);
             } else {
                 warn!("Event manager not ready, skipping scene change emit");
             }
@@ -4107,6 +4395,64 @@ impl AppStateManager {
         state
             .event_manager
             .emit_teammate_fantasy_update(teammate_fantasies);
+
+        for (target_uuid, buff_infos) in result.initial_buff_snapshots {
+            state
+                .entity_buff_monitors
+                .monitor_for(target_uuid)
+                .apply_buff_info_snapshot(&buff_infos);
+        }
+
+        for target_uuid in result.disappeared {
+            state.entity_buff_monitors.remove(target_uuid);
+        }
+    }
+
+    fn process_scene_events(
+        &self,
+        state: &mut AppState,
+        sync_scene_events: blueprotobuf::SyncSceneEvents,
+    ) {
+        let Some(event_data_list) = sync_scene_events.evt else {
+            return;
+        };
+
+        let received_at_ms = now_ms();
+        let mut dbm_events = Vec::new();
+        for event in event_data_list.events {
+            if event.event_type != Some(WORLD_EVENT_TYPE_BOSS_DBM) {
+                continue;
+            }
+
+            let Some(skill_effect_id) = event.int_params.first().copied() else {
+                warn!("BossDbm event missing skill effect id");
+                continue;
+            };
+            let Some(duration_sec) = event.int_params.get(1).copied() else {
+                warn!("BossDbm event missing duration");
+                continue;
+            };
+
+            let duration_ms = duration_sec.saturating_mul(1000);
+            if duration_ms <= 0 {
+                warn!(
+                    "BossDbm event has non-positive duration: skill_effect_id={}, duration_sec={}",
+                    skill_effect_id, duration_sec
+                );
+                continue;
+            }
+
+            dbm_events.push(BossDbmEvent {
+                skill_effect_id,
+                base_skill_id: skill_effect_id / 100,
+                duration_ms,
+                create_time_ms: received_at_ms,
+                insertion: event.int_params.get(2).copied().unwrap_or_default(),
+                server_timestamp_ms: event.long_params.first().copied(),
+            });
+        }
+
+        state.event_manager.emit_boss_dbm_update(dbm_events);
     }
 
     fn process_sync_container_data(
@@ -4128,8 +4474,11 @@ impl AppStateManager {
         state.attr_store.clear_all_entities();
         state.local_monitor.clear_runtime_state();
         state.modifier_buff_monitor.active_buffs.clear();
-        state.boss_buff_monitors.clear();
-        state.teammate_buff_monitors.clear();
+        state.entity_buff_monitors.clear();
+        state.event_manager.emit_teammate_fantasy_clear();
+        state.encounter.markers.clear();
+        state.pending_minimap_skill_casts.clear();
+        state.minimap_snapshot_active = false;
         state.local_owned_source_uids.clear();
         state.local_owned_source_uuids.clear();
         state.local_owned_source_config_ids.clear();
@@ -4313,7 +4662,11 @@ impl AppStateManager {
             }
 
             if should_emit && state.event_manager.should_emit_events() {
-                state.event_manager.emit_scene_change(scene_name.clone());
+                state.event_manager.emit_scene_change(
+                    Some(scene_id),
+                    scene_name.clone(),
+                    state.encounter.current_dungeon_difficulty,
+                );
             }
         } else if let Some(scene_uuid) = scene_uuid {
             info!(
@@ -4325,11 +4678,25 @@ impl AppStateManager {
 
         let encounter_has_stats = encounter_has_stats(&state.encounter);
 
-        if let Some(reason) = process_sync_dungeon_data(
+        let result = process_sync_dungeon_data(
             &mut state.battle_state,
             sync_dungeon_data,
             encounter_has_stats,
-        ) {
+        );
+
+        if result.entered_playing {
+            let now = now_ms();
+            state
+                .local_monitor
+                .counter_tracker
+                .on_mechanic_dungeon_started(now);
+            state
+                .local_monitor
+                .factor_counter_tracker
+                .on_mechanic_dungeon_started(now);
+        }
+
+        if let Some(reason) = result.reset_reason {
             info!(
                 target: "app::live",
                 "State layer applying reset from SyncDungeonData: {:?}",
@@ -4348,11 +4715,25 @@ impl AppStateManager {
 
         let encounter_has_stats = encounter_has_stats(&state.encounter);
 
-        if let Some(reason) = process_sync_dungeon_dirty_data(
+        let result = process_sync_dungeon_dirty_data(
             &mut state.battle_state,
             sync_dungeon_dirty_data,
             encounter_has_stats,
-        ) {
+        );
+
+        if result.entered_playing {
+            let now = now_ms();
+            state
+                .local_monitor
+                .counter_tracker
+                .on_mechanic_dungeon_started(now);
+            state
+                .local_monitor
+                .factor_counter_tracker
+                .on_mechanic_dungeon_started(now);
+        }
+
+        if let Some(reason) = result.reset_reason {
             info!(
                 target: "app::live",
                 "State layer applying reset from SyncDungeonDirtyData: {:?}",
@@ -4450,14 +4831,25 @@ impl AppStateManager {
                         entries,
                         received_at: crate::database::now_ms(),
                     };
-                    counter_dirty |= state
+                    let counter_changed = state
                         .local_monitor
                         .counter_tracker
                         .on_fight_resource_update(&new_state.entries);
-                    factor_counter_dirty |= state
+                    let factor_counter_changed = state
                         .local_monitor
                         .factor_counter_tracker
                         .on_fight_resource_update(&new_state.entries);
+                    counter_dirty |= counter_changed;
+                    factor_counter_dirty |= factor_counter_changed;
+                    factor_trace::record(
+                        "factor-input",
+                        "fight-resource-update",
+                        json!({
+                            "entries": &new_state.entries,
+                            "counterChanged": counter_changed,
+                            "factorCounterChanged": factor_counter_changed,
+                        }),
+                    );
                     state.local_monitor.fight_res_state = Some(new_state.clone());
                     state.event_manager.emit_fight_resource_update(new_state);
                 }
@@ -4465,34 +4857,68 @@ impl AppStateManager {
         }
 
         if !result.local_damage_events.is_empty() {
+            let local_player_uuid = current_local_player_uuid(&state.encounter);
             remember_local_owned_sources_from_damage_events(state, &result.local_damage_events);
-            counter_dirty |= state.local_monitor.counter_tracker.on_damage_events(
+            let counter_changed = state.local_monitor.counter_tracker.on_damage_events(
                 &result.local_damage_events,
-                current_local_player_uuid(&state.encounter),
+                local_player_uuid,
                 &state.attr_store,
             );
-            factor_counter_dirty |= state.local_monitor.factor_counter_tracker.on_damage_events(
-                &result.local_damage_events,
-                current_local_player_uuid(&state.encounter),
-                &state.attr_store,
+            let factor_counter_changed =
+                state.local_monitor.factor_counter_tracker.on_damage_events(
+                    &result.local_damage_events,
+                    local_player_uuid,
+                    &state.attr_store,
+                );
+            counter_dirty |= counter_changed;
+            factor_counter_dirty |= factor_counter_changed;
+            factor_trace::record(
+                "factor-input",
+                "local-damage-events",
+                json!({
+                    "localPlayerUuid": local_player_uuid,
+                    "eventCount": result.local_damage_events.len(),
+                    "events": &result.local_damage_events,
+                    "counterChanged": counter_changed,
+                    "factorCounterChanged": factor_counter_changed,
+                }),
             );
         }
 
         if !result.local_damage_taken_events.is_empty() {
-            counter_dirty |= state.local_monitor.counter_tracker.on_damage_taken_events(
-                &result.local_damage_taken_events,
-                current_local_player_uuid(&state.encounter),
-            );
-            factor_counter_dirty |= state
+            let local_player_uuid = current_local_player_uuid(&state.encounter);
+            let counter_changed = state
+                .local_monitor
+                .counter_tracker
+                .on_damage_taken_events(&result.local_damage_taken_events, local_player_uuid);
+            let factor_counter_changed = state
                 .local_monitor
                 .factor_counter_tracker
-                .on_damage_taken_events(
-                    &result.local_damage_taken_events,
-                    current_local_player_uuid(&state.encounter),
-                );
+                .on_damage_taken_events(&result.local_damage_taken_events, local_player_uuid);
+            counter_dirty |= counter_changed;
+            factor_counter_dirty |= factor_counter_changed;
+            factor_trace::record(
+                "factor-input",
+                "local-damage-taken-events",
+                json!({
+                    "localPlayerUuid": local_player_uuid,
+                    "eventCount": result.local_damage_taken_events.len(),
+                    "events": &result.local_damage_taken_events,
+                    "counterChanged": counter_changed,
+                    "factorCounterChanged": factor_counter_changed,
+                }),
+            );
         }
 
         if let Some(skill_base_id) = result.attr_skill_id {
+            factor_trace::record(
+                "factor-input",
+                "attr-skill-id",
+                json!({
+                    "skillBaseId": skill_base_id,
+                    "modifierCaptureEnabled": state.modifier_capture_enabled,
+                }),
+            );
             if state.modifier_capture_enabled {
                 record_local_skill_cast_event(state, skill_base_id);
             }
@@ -4522,10 +4948,14 @@ impl AppStateManager {
         }
 
         if let Some(raw_bytes) = result.buff_effect_bytes {
+            let local_player_uuid = current_local_player_uuid(&state.encounter);
+            if local_player_uuid != 0 {
+                let _ = process_entity_buff_effect_bytes(state, local_player_uuid, &raw_bytes);
+            }
             let buff_process_result = state.local_monitor.buff_monitor.process_buff_effect_bytes(
                 &raw_bytes,
                 &mut state.server_clock_offset,
-                current_local_player_uuid(&state.encounter),
+                local_player_uuid,
             );
             remember_local_owned_sources_from_buff_changes(state, &buff_process_result.changes);
             if buff_changes_affect_skill_cd(&buff_process_result.changes) {
@@ -4538,32 +4968,76 @@ impl AppStateManager {
                 apply_modifier_buff_changes(
                     state,
                     &buff_process_result.changes,
-                    Some(current_local_player_uuid(&state.encounter)),
+                    Some(local_player_uuid),
                 );
             }
-            counter_dirty |= state.local_monitor.counter_tracker.on_buff_changes(
+            let counter_buff_changed = state.local_monitor.counter_tracker.on_buff_changes(
                 &buff_process_result.changes,
                 &state.attr_store,
-                current_local_player_uuid(&state.encounter),
+                local_player_uuid,
             );
-            factor_counter_dirty |= state.local_monitor.factor_counter_tracker.on_buff_changes(
+            let counter_external_changed = state
+                .local_monitor
+                .counter_tracker
+                .on_external_team_buff_changes(
+                    &buff_process_result.changes,
+                    &state.attr_store,
+                    local_player_uuid,
+                );
+            let factor_buff_changed = state.local_monitor.factor_counter_tracker.on_buff_changes(
                 &buff_process_result.changes,
                 &state.attr_store,
-                current_local_player_uuid(&state.encounter),
+                local_player_uuid,
             );
+            let factor_external_changed = state
+                .local_monitor
+                .factor_counter_tracker
+                .on_external_team_buff_changes(
+                    &buff_process_result.changes,
+                    &state.attr_store,
+                    local_player_uuid,
+                );
+            counter_dirty |= counter_buff_changed || counter_external_changed;
+            factor_counter_dirty |= factor_buff_changed || factor_external_changed;
+            if !buff_process_result.changes.is_empty() {
+                factor_trace::record(
+                    "factor-input",
+                    "buff-changes",
+                    json!({
+                        "localPlayerUuid": local_player_uuid,
+                        "changeCount": buff_process_result.changes.len(),
+                        "changes": &buff_process_result.changes,
+                        "counterBuffChanged": counter_buff_changed,
+                        "counterExternalChanged": counter_external_changed,
+                        "factorBuffChanged": factor_buff_changed,
+                        "factorExternalChanged": factor_external_changed,
+                    }),
+                );
+            }
         }
 
-        counter_dirty |= state.local_monitor.counter_tracker.on_movement_sample(
-            &state.attr_store,
-            current_local_player_uuid(&state.encounter),
-        );
-        factor_counter_dirty |= state
+        let local_player_uuid = current_local_player_uuid(&state.encounter);
+        let counter_movement_changed = state
+            .local_monitor
+            .counter_tracker
+            .on_movement_sample(&state.attr_store, local_player_uuid);
+        let factor_movement_changed = state
             .local_monitor
             .factor_counter_tracker
-            .on_movement_sample(
-                &state.attr_store,
-                current_local_player_uuid(&state.encounter),
+            .on_movement_sample(&state.attr_store, local_player_uuid);
+        counter_dirty |= counter_movement_changed;
+        factor_counter_dirty |= factor_movement_changed;
+        if counter_movement_changed || factor_movement_changed {
+            factor_trace::record(
+                "factor-input",
+                "movement-sample",
+                json!({
+                    "localPlayerUuid": local_player_uuid,
+                    "counterChanged": counter_movement_changed,
+                    "factorCounterChanged": factor_movement_changed,
+                }),
             );
+        }
 
         (counter_dirty, factor_counter_dirty)
     }
@@ -4615,9 +5089,14 @@ impl AppStateManager {
                 let target_display_uid =
                     target_display_uid.unwrap_or_else(|| uid_from_uuid(target_uuid));
                 let is_local_target = local_player_uuid != 0 && target_uuid == local_player_uuid;
+                let entity_buff_process_result =
+                    process_entity_buff_effect_bytes(state, target_uuid, &raw_bytes);
                 if state.modifier_capture_enabled
                     && is_local_target
-                    && matches!(target_entity_type, Some(EEntityType::EntChar))
+                    && matches!(
+                        entity_buff_process_result.as_ref().map(|(kind, _)| *kind),
+                        Some(BuffTargetKind::LocalPlayer)
+                    )
                 {
                     let buff_process_result =
                         state.modifier_buff_monitor.process_buff_effect_bytes(
@@ -4631,49 +5110,38 @@ impl AppStateManager {
                         Some(target_uuid),
                     );
                 }
-                if matches!(target_entity_type, Some(EEntityType::EntChar))
-                    && local_player_uuid != target_uuid
-                {
-                    let monitor = state.teammate_buff_monitors.monitor_for(target_uuid);
-                    let _ = monitor.process_buff_effect_bytes_with_self_source_filter(
-                        &raw_bytes,
-                        &mut state.server_clock_offset,
-                        |_, _, _, _| true,
-                    );
+                if let Some((kind, buff_process_result)) = entity_buff_process_result.as_ref() {
+                    if matches!(kind, BuffTargetKind::LocalPlayer | BuffTargetKind::Teammate) {
+                        counter_dirty |= state
+                            .local_monitor
+                            .counter_tracker
+                            .on_external_team_buff_changes(
+                                &buff_process_result.changes,
+                                &state.attr_store,
+                                local_player_uuid,
+                            );
+                        factor_counter_dirty |= state
+                            .local_monitor
+                            .factor_counter_tracker
+                            .on_external_team_buff_changes(
+                                &buff_process_result.changes,
+                                &state.attr_store,
+                                local_player_uuid,
+                            );
+                    }
                 }
-                if matches!(target_entity_type, Some(EEntityType::EntMonster)) {
-                    let local_player_uuid = current_local_player_uuid(&state.encounter);
-                    let local_owned_source_uids = state.local_owned_source_uids.clone();
-                    let local_owned_source_uuids = state.local_owned_source_uuids.clone();
-                    let local_owned_source_config_ids = state.local_owned_source_config_ids.clone();
-                    let (known_other_source_uids, known_other_source_uuids) =
-                        known_other_player_sources(state);
-                    let monitor = state.boss_buff_monitors.monitor_for(target_uuid);
-                    let buff_process_result = monitor
-                        .process_buff_effect_bytes_with_self_source_filter(
-                            &raw_bytes,
-                            &mut state.server_clock_offset,
-                            |_, source_uuid, source_config_id, _| {
-                                monster_buff_source_allowed_for_self_monitor(
-                                    source_uuid,
-                                    source_config_id,
-                                    local_player_uuid,
-                                    &local_owned_source_uids,
-                                    &local_owned_source_uuids,
-                                    &local_owned_source_config_ids,
-                                    &known_other_source_uids,
-                                    &known_other_source_uuids,
-                                )
-                            },
-                        );
+                if let Some((BuffTargetKind::Monster, buff_process_result)) =
+                    entity_buff_process_result.as_ref()
+                {
                     if !buff_process_result.changes.is_empty() {
                         debug!(
                             target: "app::live",
-                            "[boss-buff] processed target_uid={} target_uuid={} changes={} entity_type={:?}",
+                            "[boss-buff] processed target_uid={} target_uuid={} changes={} entity_type={:?} kind={:?}",
                             target_display_uid,
                             target_uuid,
                             buff_process_result.changes.len(),
-                            target_entity_type
+                            target_entity_type,
+                            BuffTargetKind::Monster,
                         );
                     }
                 }
@@ -4681,29 +5149,55 @@ impl AppStateManager {
         }
 
         if !aggregated_damage_events.is_empty() {
-            counter_dirty |= state.local_monitor.counter_tracker.on_damage_events(
+            let local_player_uuid = current_local_player_uuid(&state.encounter);
+            let counter_changed = state.local_monitor.counter_tracker.on_damage_events(
                 &aggregated_damage_events,
-                current_local_player_uuid(&state.encounter),
+                local_player_uuid,
                 &state.attr_store,
             );
-            factor_counter_dirty |= state.local_monitor.factor_counter_tracker.on_damage_events(
-                &aggregated_damage_events,
-                current_local_player_uuid(&state.encounter),
-                &state.attr_store,
+            let factor_counter_changed =
+                state.local_monitor.factor_counter_tracker.on_damage_events(
+                    &aggregated_damage_events,
+                    local_player_uuid,
+                    &state.attr_store,
+                );
+            counter_dirty |= counter_changed;
+            factor_counter_dirty |= factor_counter_changed;
+            factor_trace::record(
+                "factor-input",
+                "aggregated-damage-events",
+                json!({
+                    "localPlayerUuid": local_player_uuid,
+                    "eventCount": aggregated_damage_events.len(),
+                    "events": &aggregated_damage_events,
+                    "counterChanged": counter_changed,
+                    "factorCounterChanged": factor_counter_changed,
+                }),
             );
         }
 
-        counter_dirty |= state.local_monitor.counter_tracker.on_movement_sample(
-            &state.attr_store,
-            current_local_player_uuid(&state.encounter),
-        );
-        factor_counter_dirty |= state
+        let local_player_uuid = current_local_player_uuid(&state.encounter);
+        let counter_movement_changed = state
+            .local_monitor
+            .counter_tracker
+            .on_movement_sample(&state.attr_store, local_player_uuid);
+        let factor_movement_changed = state
             .local_monitor
             .factor_counter_tracker
-            .on_movement_sample(
-                &state.attr_store,
-                current_local_player_uuid(&state.encounter),
+            .on_movement_sample(&state.attr_store, local_player_uuid);
+        counter_dirty |= counter_movement_changed;
+        factor_counter_dirty |= factor_movement_changed;
+        if counter_movement_changed || factor_movement_changed {
+            factor_trace::record(
+                "factor-input",
+                "movement-sample",
+                json!({
+                    "localPlayerUuid": local_player_uuid,
+                    "counterChanged": counter_movement_changed,
+                    "factorCounterChanged": factor_movement_changed,
+                }),
             );
+        }
 
         (counter_dirty, factor_counter_dirty)
     }
@@ -4798,6 +5292,31 @@ impl AppStateManager {
             emit_shield_detail_update_if_needed(state, changes.shield_detail_entries);
         }
 
+        let scene_id = state.encounter.current_scene_id.unwrap_or_default();
+        if crate::live::minimap::scene::is_minimap_scene(scene_id) {
+            for cast in changes.skill_cast_events {
+                if !is_minimap_relevant_entity(state, cast.entity_uuid, scene_id) {
+                    continue;
+                }
+                let position = state
+                    .attr_store
+                    .attr_position_by_id(cast.entity_uuid, attr_type::ATTR_POS);
+                let facing = state
+                    .attr_store
+                    .attr(cast.entity_uuid, AttrType::Facing)
+                    .and_then(AttrValue::as_int)
+                    .map(|value| value as f32 / 100.0);
+                state.pending_minimap_skill_casts.push(MinimapSkillCast {
+                    entity_uuid: entity_uuid_string(cast.entity_uuid),
+                    skill_id: cast.skill_id,
+                    time_ms: cast.timestamp_ms,
+                    x: position.as_ref().map(|position| position.x),
+                    z: position.as_ref().map(|position| position.z),
+                    facing,
+                });
+            }
+        }
+
         for death in changes.death_events {
             if let Some(entity) = state.encounter.entity_mut_by_uuid(death.entity_uuid) {
                 let recent_damages: Vec<_> = entity.recent_taken_events.drain(..).collect();
@@ -4846,7 +5365,10 @@ impl AppStateManager {
             state.event_manager.emit_encounter_pause(false);
         }
         state.modifier_buff_monitor.active_buffs.clear();
-        state.teammate_buff_monitors.clear();
+        state.entity_buff_monitors.clear();
+        state.event_manager.emit_teammate_fantasy_clear();
+        state.pending_minimap_skill_casts.clear();
+        state.minimap_snapshot_active = false;
         state.local_owned_source_uids.clear();
         state.local_owned_source_uuids.clear();
         state.local_owned_source_config_ids.clear();
@@ -5006,16 +5528,76 @@ impl AppStateManager {
         }
         let current_target_uuid = current_attack_target_uuid(state);
         let raw_boss_buff_snapshot = build_monster_buff_snapshots(state);
-        let raw_teammate_buff_snapshot = state
-            .teammate_buff_monitors
-            .build_all_buff_snapshots(state.server_clock_offset);
+        let raw_teammate_buff_snapshot = build_teammate_buff_snapshots(state);
 
         let mut boss_buff_snapshot = HashMap::new();
         let mut teammate_buff_snapshot = HashMap::new();
         let mut all_hate_lists = HashMap::new();
+        let mut stun_entries = Vec::new();
         let mut new_names = HashMap::new();
         let mut player_names = HashMap::new();
         let mut monster_ids = HashMap::new();
+        let force_identity_resend = should_resend_overlay_identity_names(state);
+
+        for (&entity_uuid, buffs) in &raw_boss_buff_snapshot {
+            if entity_uuid == 0 || buffs.is_empty() || state.attr_store.is_dead(entity_uuid) {
+                continue;
+            }
+
+            let entity_key = entity_uuid_string(entity_uuid);
+            boss_buff_snapshot.insert(entity_key.clone(), buffs.clone());
+
+            let entity = state.encounter.entity_by_uuid(entity_uuid);
+            let display_uid = entity
+                .map(|entity| state.encounter.display_uid_for_entity(entity_uuid, entity))
+                .unwrap_or_else(|| uid_from_uuid(entity_uuid));
+            if let Some(name) =
+                known_entity_display_name(display_uid, Some(entity_uuid), entity, &state.attr_store)
+            {
+                queue_overlay_identity_name(
+                    &mut state.sent_overlay_identity_names,
+                    &mut player_names,
+                    entity_key.clone(),
+                    name.clone(),
+                    force_identity_resend,
+                );
+                if display_uid > 0 {
+                    queue_overlay_uid_name(
+                        &mut state.sent_overlay_uid_names,
+                        &mut new_names,
+                        display_uid,
+                        name,
+                    );
+                }
+            } else if let Some(entity) = entity {
+                let name = resolve_entity_display_name(display_uid, entity, &state.attr_store);
+                state.sent_overlay_uids.insert(display_uid);
+                queue_overlay_uid_name(
+                    &mut state.sent_overlay_uid_names,
+                    &mut new_names,
+                    display_uid,
+                    name,
+                );
+            }
+            if let Some(monster_id) = monster_id_for_uuid(state, entity_uuid, entity) {
+                queue_overlay_monster_id(
+                    &mut state.sent_overlay_monster_ids,
+                    &mut monster_ids,
+                    entity_key,
+                    monster_id,
+                    force_identity_resend,
+                );
+                if display_uid > 0 {
+                    queue_overlay_monster_id(
+                        &mut state.sent_overlay_monster_ids,
+                        &mut monster_ids,
+                        display_uid.to_string(),
+                        monster_id,
+                        force_identity_resend,
+                    );
+                }
+            }
+        }
 
         if let Some(target_uuid) = current_target_uuid {
             let target_display_uid = state
@@ -5024,13 +5606,7 @@ impl AppStateManager {
                 .map(|entity| state.encounter.display_uid_for_entity(target_uuid, entity))
                 .unwrap_or_else(|| uid_from_uuid(target_uuid));
             let target_key = entity_uuid_string(target_uuid);
-            if let Some(buffs) = raw_boss_buff_snapshot.get(&target_uuid) {
-                if !buffs.is_empty() {
-                    boss_buff_snapshot.insert(target_key.clone(), buffs.clone());
-                }
-            }
 
-            let force_identity_resend = should_resend_overlay_identity_names(state);
             let target_entity = state.encounter.entity_by_uuid(target_uuid);
             if let Some(name) = known_entity_display_name(
                 target_display_uid,
@@ -5130,7 +5706,26 @@ impl AppStateManager {
             }
 
             if !entries.is_empty() {
-                all_hate_lists.insert(target_key, entries);
+                all_hate_lists.insert(target_key.clone(), entries);
+            }
+
+            let max_stun = state
+                .attr_store
+                .attr(target_uuid, AttrType::MaxStunned)
+                .and_then(AttrValue::as_int)
+                .unwrap_or(0);
+            let current_stun = state
+                .attr_store
+                .attr(target_uuid, AttrType::CurrentStunned)
+                .and_then(AttrValue::as_int)
+                .unwrap_or(0);
+            if max_stun > 0 {
+                stun_entries.push(StunEntry {
+                    boss_entity_uuid: target_key,
+                    monster_id: minimap_monster_id_of(state, target_uuid).unwrap_or(0),
+                    current: current_stun,
+                    max: max_stun,
+                });
             }
         }
 
@@ -5165,6 +5760,12 @@ impl AppStateManager {
             hate_snapshot_signature(&all_hate_lists),
         ) {
             state.event_manager.emit_hate_list_update(all_hate_lists);
+        }
+        if should_emit_overlay_signature(
+            &mut state.last_overlay_stun_signature,
+            stun_snapshot_signature(&stun_entries),
+        ) {
+            state.event_manager.emit_stun_update(stun_entries);
         }
 
         if !new_names.is_empty() {
@@ -5244,7 +5845,9 @@ impl AppStateManager {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::live::counter_tracker::{CounterAction, CounterSource, EffectSlotConfig};
+    use crate::live::counter_tracker::{
+        CounterAction, CounterSource, EffectSlotConfig, ResetBuffTarget,
+    };
     use crate::live::entity_id::entity_id_to_uuid;
 
     fn factor_item(item_config_id: i32) -> ObservedFactorItem {
@@ -5293,6 +5896,72 @@ mod tests {
         data
     }
 
+    fn set_local_active_profession_skills(
+        state: &mut AppState,
+        skills: Vec<ObservedProfessionSkill>,
+    ) {
+        let local_uuid = entity_id_to_uuid(3296036, EEntityType::EntChar, false, false);
+        state.encounter.local_player_uuid = local_uuid;
+        let entity = state
+            .encounter
+            .entity_by_uuid_or_insert_with(local_uuid, || Entity {
+                uuid: Some(local_uuid),
+                entity_type: EEntityType::EntChar,
+                ..Default::default()
+            });
+        entity.active_profession_skills = skills;
+    }
+
+    #[test]
+    fn client_skill_cast_normalizes_by_equipped_profession_slot() {
+        let mut state = AppState::new();
+        set_local_active_profession_skills(
+            &mut state,
+            vec![
+                ObservedProfessionSkill {
+                    skill_id: 35,
+                    slot: Some(7),
+                    equipped: Some(true),
+                    source_kind: "profession-skill".to_string(),
+                    runtime_source: "test.raw-active-skill".to_string(),
+                    ..Default::default()
+                },
+                ObservedProfessionSkill {
+                    skill_id: 1243,
+                    base_skill_id: Some(1243),
+                    skill_level_id: Some(124301),
+                    slot: Some(7),
+                    equipped: Some(true),
+                    source_kind: "profession-skill".to_string(),
+                    runtime_source: "test.profession-skill-map".to_string(),
+                    ..Default::default()
+                },
+            ],
+        );
+
+        let event = ClientSkillCast {
+            skill_id: SkillId::new(35).unwrap(),
+            slot_id: Some(7),
+            begin_time_ms: None,
+            target_uuid: None,
+        };
+
+        assert_eq!(
+            normalize_client_skill_lifecycle_id(&state, &event).get(),
+            1243
+        );
+    }
+
+    #[test]
+    fn skill_lifecycle_normalization_keeps_level_table_fallback() {
+        let state = AppState::new();
+
+        assert_eq!(
+            normalize_skill_lifecycle_id(&state, SkillId::new(124301).unwrap()).get(),
+            1243
+        );
+    }
+
     #[test]
     fn selected_factor_slot_suppression_filters_cached_item() {
         let mut state = AppState::new();
@@ -5331,6 +6000,7 @@ mod tests {
                     threshold: Some(1),
                     reset_buff_id: 7001,
                     reset_source_config_id: None,
+                    reset_buff_target: ResetBuffTarget::SelfPlayer,
                     on_buff_add: CounterAction::NoOp,
                     on_buff_change: CounterAction::NoOp,
                     on_buff_remove: CounterAction::NoOp,
@@ -5344,6 +6014,7 @@ mod tests {
                     count_reset_buff_procs: false,
                     reset_skill_keys: None,
                     on_reset_skill: CounterAction::NoOp,
+                    dungeon_start_freeze_ms: None,
                 }],
             },
         ]);
@@ -5386,6 +6057,7 @@ mod tests {
                     threshold: Some(1),
                     reset_buff_id: 7001,
                     reset_source_config_id: None,
+                    reset_buff_target: ResetBuffTarget::SelfPlayer,
                     on_buff_add: CounterAction::NoOp,
                     on_buff_change: CounterAction::NoOp,
                     on_buff_remove: CounterAction::NoOp,
@@ -5399,6 +6071,7 @@ mod tests {
                     count_reset_buff_procs: false,
                     reset_skill_keys: None,
                     on_reset_skill: CounterAction::NoOp,
+                    dungeon_start_freeze_ms: None,
                 }],
             },
         ]);
@@ -5454,6 +6127,7 @@ mod tests {
                     threshold: None,
                     reset_buff_id: 8001,
                     reset_source_config_id: None,
+                    reset_buff_target: ResetBuffTarget::SelfPlayer,
                     on_buff_add: CounterAction::NoOp,
                     on_buff_change: CounterAction::NoOp,
                     on_buff_remove: CounterAction::NoOp,
@@ -5467,6 +6141,7 @@ mod tests {
                     count_reset_buff_procs: false,
                     reset_skill_keys: None,
                     on_reset_skill: CounterAction::NoOp,
+                    dungeon_start_freeze_ms: None,
                 }],
             },
             FactorCounterTemplate {
@@ -5478,6 +6153,7 @@ mod tests {
                     threshold: Some(1),
                     reset_buff_id: 7001,
                     reset_source_config_id: None,
+                    reset_buff_target: ResetBuffTarget::SelfPlayer,
                     on_buff_add: CounterAction::NoOp,
                     on_buff_change: CounterAction::NoOp,
                     on_buff_remove: CounterAction::NoOp,
@@ -5491,6 +6167,7 @@ mod tests {
                     count_reset_buff_procs: false,
                     reset_skill_keys: None,
                     on_reset_skill: CounterAction::NoOp,
+                    dungeon_start_freeze_ms: None,
                 }],
             },
         ]);

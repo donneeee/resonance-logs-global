@@ -12721,7 +12721,7 @@
     "NameDesign": "Unknown Monster 8130",
     "NameId": 1195981984,
     "Names": {
-      "en": "Unknown Monster 8130",
+      "en": "???",
       "zh-CN": "未知怪物 8130",
       "zh-TW": "未知怪物 8130",
       "ja": "不明モンスター 8130",
@@ -13250,7 +13250,7 @@
     "NameDesign": "Unknown Monster 8315",
     "NameId": 1195984101,
     "Names": {
-      "en": "Unknown Monster 8315",
+      "en": "???",
       "zh-CN": "未知怪物 8315",
       "zh-TW": "未知怪物 8315",
       "ja": "不明モンスター 8315",
@@ -14241,7 +14241,7 @@
     "NameDesign": "Unknown Monster 8626",
     "NameId": 1195987402,
     "Names": {
-      "en": "Unknown Monster 8626",
+      "en": "???",
       "zh-CN": "未知怪物 8626",
       "zh-TW": "未知怪物 8626",
       "ja": "不明モンスター 8626",
@@ -14286,7 +14286,7 @@
     "NameDesign": "Unknown Monster 8628",
     "NameId": 1195987404,
     "Names": {
-      "en": "Unknown Monster 8628",
+      "en": "???",
       "zh-CN": "未知怪物 8628",
       "zh-TW": "未知怪物 8628",
       "ja": "不明モンスター 8628",
@@ -15277,7 +15277,7 @@
     "NameDesign": "Unknown Monster 8803",
     "NameId": 1195989511,
     "Names": {
-      "en": "Unknown Monster 8803",
+      "en": "??????",
       "zh-CN": "未知怪物 8803",
       "zh-TW": "未知怪物 8803",
       "ja": "不明モンスター 8803",
@@ -25091,6 +25091,132 @@
     "MonsterType": 0,
     "Source": "MonsterTable",
     "SourceOffset": 1132822614
+  },
+  "21001": {
+    "Id": 21001,
+    "Name": "自爆兵03型",
+    "NameDesign": "自爆兵03型",
+    "Names": {
+      "design": "自爆兵03型",
+      "en": "自爆兵03型",
+      "zh-CN": "自爆兵03型",
+      "ja": "自爆兵03型",
+      "de": "自爆兵03型",
+      "es": "自爆兵03型",
+      "fr": "自爆兵03型",
+      "id": "自爆兵03型",
+      "ko-KR": "自爆兵03型",
+      "pt-BR": "自爆兵03型",
+      "th": "自爆兵03型",
+      "zh-TW": "自爆兵03型"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "21002": {
+    "Id": 21002,
+    "Name": "恶作剧炸弹",
+    "NameDesign": "恶作剧炸弹",
+    "Names": {
+      "design": "恶作剧炸弹",
+      "en": "恶作剧炸弹",
+      "zh-CN": "恶作剧炸弹",
+      "ja": "恶作剧炸弹",
+      "de": "恶作剧炸弹",
+      "es": "恶作剧炸弹",
+      "fr": "恶作剧炸弹",
+      "id": "恶作剧炸弹",
+      "ko-KR": "恶作剧炸弹",
+      "pt-BR": "恶作剧炸弹",
+      "th": "恶作剧炸弹",
+      "zh-TW": "恶作剧炸弹"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "21003": {
+    "Id": 21003,
+    "Name": "虚蚀精魄",
+    "NameDesign": "虚蚀精魄",
+    "Names": {
+      "design": "虚蚀精魄",
+      "en": "虚蚀精魄",
+      "zh-CN": "虚蚀精魄",
+      "ja": "虚蚀精魄",
+      "de": "虚蚀精魄",
+      "es": "虚蚀精魄",
+      "fr": "虚蚀精魄",
+      "id": "虚蚀精魄",
+      "ko-KR": "虚蚀精魄",
+      "pt-BR": "虚蚀精魄",
+      "th": "虚蚀精魄",
+      "zh-TW": "虚蚀精魄"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "21004": {
+    "Id": 21004,
+    "Name": "捍卫者05型",
+    "NameDesign": "捍卫者05型",
+    "Names": {
+      "design": "捍卫者05型",
+      "en": "捍卫者05型",
+      "zh-CN": "捍卫者05型",
+      "ja": "捍卫者05型",
+      "de": "捍卫者05型",
+      "es": "捍卫者05型",
+      "fr": "捍卫者05型",
+      "id": "捍卫者05型",
+      "ko-KR": "捍卫者05型",
+      "pt-BR": "捍卫者05型",
+      "th": "捍卫者05型",
+      "zh-TW": "捍卫者05型"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "21005": {
+    "Id": 21005,
+    "Name": "神秘幻象",
+    "NameDesign": "神秘幻象",
+    "Names": {
+      "design": "神秘幻象",
+      "en": "神秘幻象",
+      "zh-CN": "神秘幻象",
+      "ja": "神秘幻象",
+      "de": "神秘幻象",
+      "es": "神秘幻象",
+      "fr": "神秘幻象",
+      "id": "神秘幻象",
+      "ko-KR": "神秘幻象",
+      "pt-BR": "神秘幻象",
+      "th": "神秘幻象",
+      "zh-TW": "神秘幻象"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "21006": {
+    "Id": 21006,
+    "Name": "暗之水晶",
+    "NameDesign": "暗之水晶",
+    "Names": {
+      "design": "暗之水晶",
+      "en": "暗之水晶",
+      "zh-CN": "暗之水晶",
+      "ja": "暗之水晶",
+      "de": "暗之水晶",
+      "es": "暗之水晶",
+      "fr": "暗之水晶",
+      "id": "暗之水晶",
+      "ko-KR": "暗之水晶",
+      "pt-BR": "暗之水晶",
+      "th": "暗之水晶",
+      "zh-TW": "暗之水晶"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
   },
   "28001": {
     "Id": 28001,
@@ -51414,6 +51540,48 @@
     "Source": "MonsterTable",
     "SourceOffset": 1133110854
   },
+  "103310": {
+    "Id": 103310,
+    "Name": "悖与灾的机骸·终幻象",
+    "NameDesign": "悖与灾的机骸·终幻象",
+    "Names": {
+      "design": "悖与灾的机骸·终幻象",
+      "en": "悖与灾的机骸·终幻象",
+      "zh-CN": "悖与灾的机骸·终幻象",
+      "ja": "悖与灾的机骸·终幻象",
+      "de": "悖与灾的机骸·终幻象",
+      "es": "悖与灾的机骸·终幻象",
+      "fr": "悖与灾的机骸·终幻象",
+      "id": "悖与灾的机骸·终幻象",
+      "ko-KR": "悖与灾的机骸·终幻象",
+      "pt-BR": "悖与灾的机骸·终幻象",
+      "th": "悖与灾的机骸·终幻象",
+      "zh-TW": "悖与灾的机骸·终幻象"
+    },
+    "MonsterType": 2,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "103311": {
+    "Id": 103311,
+    "Name": "悖与灾的机骸·终幻象",
+    "NameDesign": "悖与灾的机骸·终幻象",
+    "Names": {
+      "design": "悖与灾的机骸·终幻象",
+      "en": "悖与灾的机骸·终幻象",
+      "zh-CN": "悖与灾的机骸·终幻象",
+      "ja": "悖与灾的机骸·终幻象",
+      "de": "悖与灾的机骸·终幻象",
+      "es": "悖与灾的机骸·终幻象",
+      "fr": "悖与灾的机骸·终幻象",
+      "id": "悖与灾的机骸·终幻象",
+      "ko-KR": "悖与灾的机骸·终幻象",
+      "pt-BR": "悖与灾的机骸·终幻象",
+      "th": "悖与灾的机骸·终幻象",
+      "zh-TW": "悖与灾的机骸·终幻象"
+    },
+    "MonsterType": 2,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
   "110001": {
     "Id": 110001,
     "Name": "Byrnhald Swordsman Phantom",
@@ -52491,6 +52659,258 @@
     "MonsterType": 0,
     "Source": "MonsterTable",
     "SourceOffset": 1133122614
+  },
+  "511031": {
+    "Id": 511031,
+    "Name": "幻祸精英哥布林",
+    "NameDesign": "幻祸精英哥布林",
+    "Names": {
+      "design": "幻祸精英哥布林",
+      "en": "幻祸精英哥布林",
+      "zh-CN": "幻祸精英哥布林",
+      "ja": "幻祸精英哥布林",
+      "de": "幻祸精英哥布林",
+      "es": "幻祸精英哥布林",
+      "fr": "幻祸精英哥布林",
+      "id": "幻祸精英哥布林",
+      "ko-KR": "幻祸精英哥布林",
+      "pt-BR": "幻祸精英哥布林",
+      "th": "幻祸精英哥布林",
+      "zh-TW": "幻祸精英哥布林"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512011": {
+    "Id": 512011,
+    "Name": "哥布林战士",
+    "NameDesign": "哥布林战士",
+    "Names": {
+      "design": "哥布林战士",
+      "en": "哥布林战士",
+      "zh-CN": "哥布林战士",
+      "ja": "哥布林战士",
+      "de": "哥布林战士",
+      "es": "哥布林战士",
+      "fr": "哥布林战士",
+      "id": "哥布林战士",
+      "ko-KR": "哥布林战士",
+      "pt-BR": "哥布林战士",
+      "th": "哥布林战士",
+      "zh-TW": "哥布林战士"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512012": {
+    "Id": 512012,
+    "Name": "哥布林祭祀",
+    "NameDesign": "哥布林祭祀",
+    "Names": {
+      "design": "哥布林祭祀",
+      "en": "哥布林祭祀",
+      "zh-CN": "哥布林祭祀",
+      "ja": "哥布林祭祀",
+      "de": "哥布林祭祀",
+      "es": "哥布林祭祀",
+      "fr": "哥布林祭祀",
+      "id": "哥布林祭祀",
+      "ko-KR": "哥布林祭祀",
+      "pt-BR": "哥布林祭祀",
+      "th": "哥布林祭祀",
+      "zh-TW": "哥布林祭祀"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512013": {
+    "Id": 512013,
+    "Name": "哥布林巫医",
+    "NameDesign": "哥布林巫医",
+    "Names": {
+      "design": "哥布林巫医",
+      "en": "哥布林巫医",
+      "zh-CN": "哥布林巫医",
+      "ja": "哥布林巫医",
+      "de": "哥布林巫医",
+      "es": "哥布林巫医",
+      "fr": "哥布林巫医",
+      "id": "哥布林巫医",
+      "ko-KR": "哥布林巫医",
+      "pt-BR": "哥布林巫医",
+      "th": "哥布林巫医",
+      "zh-TW": "哥布林巫医"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512014": {
+    "Id": 512014,
+    "Name": "艾露娜",
+    "NameDesign": "艾露娜",
+    "Names": {
+      "design": "艾露娜",
+      "en": "艾露娜",
+      "zh-CN": "艾露娜",
+      "ja": "艾露娜",
+      "de": "艾露娜",
+      "es": "艾露娜",
+      "fr": "艾露娜",
+      "id": "艾露娜",
+      "ko-KR": "艾露娜",
+      "pt-BR": "艾露娜",
+      "th": "艾露娜",
+      "zh-TW": "艾露娜"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512015": {
+    "Id": 512015,
+    "Name": "法法菈",
+    "NameDesign": "法法菈",
+    "Names": {
+      "design": "法法菈",
+      "en": "法法菈",
+      "zh-CN": "法法菈",
+      "ja": "法法菈",
+      "de": "法法菈",
+      "es": "法法菈",
+      "fr": "法法菈",
+      "id": "法法菈",
+      "ko-KR": "法法菈",
+      "pt-BR": "法法菈",
+      "th": "法法菈",
+      "zh-TW": "法法菈"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512021": {
+    "Id": 512021,
+    "Name": "暴烈野猪",
+    "NameDesign": "暴烈野猪",
+    "Names": {
+      "design": "暴烈野猪",
+      "en": "暴烈野猪",
+      "zh-CN": "暴烈野猪",
+      "ja": "暴烈野猪",
+      "de": "暴烈野猪",
+      "es": "暴烈野猪",
+      "fr": "暴烈野猪",
+      "id": "暴烈野猪",
+      "ko-KR": "暴烈野猪",
+      "pt-BR": "暴烈野猪",
+      "th": "暴烈野猪",
+      "zh-TW": "暴烈野猪"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512022": {
+    "Id": 512022,
+    "Name": "烈风野猪",
+    "NameDesign": "烈风野猪",
+    "Names": {
+      "design": "烈风野猪",
+      "en": "烈风野猪",
+      "zh-CN": "烈风野猪",
+      "ja": "烈风野猪",
+      "de": "烈风野猪",
+      "es": "烈风野猪",
+      "fr": "烈风野猪",
+      "id": "烈风野猪",
+      "ko-KR": "烈风野猪",
+      "pt-BR": "烈风野猪",
+      "th": "烈风野猪",
+      "zh-TW": "烈风野猪"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512023": {
+    "Id": 512023,
+    "Name": "艾露娜",
+    "NameDesign": "艾露娜",
+    "Names": {
+      "design": "艾露娜",
+      "en": "艾露娜",
+      "zh-CN": "艾露娜",
+      "ja": "艾露娜",
+      "de": "艾露娜",
+      "es": "艾露娜",
+      "fr": "艾露娜",
+      "id": "艾露娜",
+      "ko-KR": "艾露娜",
+      "pt-BR": "艾露娜",
+      "th": "艾露娜",
+      "zh-TW": "艾露娜"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512031": {
+    "Id": 512031,
+    "Name": "地狐",
+    "NameDesign": "地狐",
+    "Names": {
+      "design": "地狐",
+      "en": "地狐",
+      "zh-CN": "地狐",
+      "ja": "地狐",
+      "de": "地狐",
+      "es": "地狐",
+      "fr": "地狐",
+      "id": "地狐",
+      "ko-KR": "地狐",
+      "pt-BR": "地狐",
+      "th": "地狐",
+      "zh-TW": "地狐"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512032": {
+    "Id": 512032,
+    "Name": "荒地狐",
+    "NameDesign": "荒地狐",
+    "Names": {
+      "design": "荒地狐",
+      "en": "荒地狐",
+      "zh-CN": "荒地狐",
+      "ja": "荒地狐",
+      "de": "荒地狐",
+      "es": "荒地狐",
+      "fr": "荒地狐",
+      "id": "荒地狐",
+      "ko-KR": "荒地狐",
+      "pt-BR": "荒地狐",
+      "th": "荒地狐",
+      "zh-TW": "荒地狐"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "512033": {
+    "Id": 512033,
+    "Name": "艾露娜",
+    "NameDesign": "艾露娜",
+    "Names": {
+      "design": "艾露娜",
+      "en": "艾露娜",
+      "zh-CN": "艾露娜",
+      "ja": "艾露娜",
+      "de": "艾露娜",
+      "es": "艾露娜",
+      "fr": "艾露娜",
+      "id": "艾露娜",
+      "ko-KR": "艾露娜",
+      "pt-BR": "艾露娜",
+      "th": "艾露娜",
+      "zh-TW": "艾露娜"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
   },
   "530101": {
     "Id": 530101,
@@ -56935,6 +57355,195 @@
     "MonsterType": 0,
     "Source": "MonsterTable",
     "SourceOffset": 1133170134
+  },
+  "660304": {
+    "Id": 660304,
+    "Name": "艾露娜",
+    "NameDesign": "艾露娜",
+    "Names": {
+      "design": "艾露娜",
+      "en": "艾露娜",
+      "zh-CN": "艾露娜",
+      "ja": "艾露娜",
+      "de": "艾露娜",
+      "es": "艾露娜",
+      "fr": "艾露娜",
+      "id": "艾露娜",
+      "ko-KR": "艾露娜",
+      "pt-BR": "艾露娜",
+      "th": "艾露娜",
+      "zh-TW": "艾露娜"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660305": {
+    "Id": 660305,
+    "Name": "斯莱特",
+    "NameDesign": "斯莱特",
+    "Names": {
+      "design": "斯莱特",
+      "en": "斯莱特",
+      "zh-CN": "斯莱特",
+      "ja": "斯莱特",
+      "de": "斯莱特",
+      "es": "斯莱特",
+      "fr": "斯莱特",
+      "id": "斯莱特",
+      "ko-KR": "斯莱特",
+      "pt-BR": "斯莱特",
+      "th": "斯莱特",
+      "zh-TW": "斯莱特"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660306": {
+    "Id": 660306,
+    "Name": "崔班",
+    "NameDesign": "崔班",
+    "Names": {
+      "design": "崔班",
+      "en": "崔班",
+      "zh-CN": "崔班",
+      "ja": "崔班",
+      "de": "崔班",
+      "es": "崔班",
+      "fr": "崔班",
+      "id": "崔班",
+      "ko-KR": "崔班",
+      "pt-BR": "崔班",
+      "th": "崔班",
+      "zh-TW": "崔班"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660307": {
+    "Id": 660307,
+    "Name": "莱拉亚",
+    "NameDesign": "莱拉亚",
+    "Names": {
+      "design": "莱拉亚",
+      "en": "莱拉亚",
+      "zh-CN": "莱拉亚",
+      "ja": "莱拉亚",
+      "de": "莱拉亚",
+      "es": "莱拉亚",
+      "fr": "莱拉亚",
+      "id": "莱拉亚",
+      "ko-KR": "莱拉亚",
+      "pt-BR": "莱拉亚",
+      "th": "莱拉亚",
+      "zh-TW": "莱拉亚"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660308": {
+    "Id": 660308,
+    "Name": "阿斯特里斯士兵",
+    "NameDesign": "阿斯特里斯士兵",
+    "Names": {
+      "design": "阿斯特里斯士兵",
+      "en": "阿斯特里斯士兵",
+      "zh-CN": "阿斯特里斯士兵",
+      "ja": "阿斯特里斯士兵",
+      "de": "阿斯特里斯士兵",
+      "es": "阿斯特里斯士兵",
+      "fr": "阿斯特里斯士兵",
+      "id": "阿斯特里斯士兵",
+      "ko-KR": "阿斯特里斯士兵",
+      "pt-BR": "阿斯特里斯士兵",
+      "th": "阿斯特里斯士兵",
+      "zh-TW": "阿斯特里斯士兵"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660309": {
+    "Id": 660309,
+    "Name": "青沫哥布林",
+    "NameDesign": "青沫哥布林",
+    "Names": {
+      "design": "青沫哥布林",
+      "en": "青沫哥布林",
+      "zh-CN": "青沫哥布林",
+      "ja": "青沫哥布林",
+      "de": "青沫哥布林",
+      "es": "青沫哥布林",
+      "fr": "青沫哥布林",
+      "id": "青沫哥布林",
+      "ko-KR": "青沫哥布林",
+      "pt-BR": "青沫哥布林",
+      "th": "青沫哥布林",
+      "zh-TW": "青沫哥布林"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660310": {
+    "Id": 660310,
+    "Name": "雷沫哥布林",
+    "NameDesign": "雷沫哥布林",
+    "Names": {
+      "design": "雷沫哥布林",
+      "en": "雷沫哥布林",
+      "zh-CN": "雷沫哥布林",
+      "ja": "雷沫哥布林",
+      "de": "雷沫哥布林",
+      "es": "雷沫哥布林",
+      "fr": "雷沫哥布林",
+      "id": "雷沫哥布林",
+      "ko-KR": "雷沫哥布林",
+      "pt-BR": "雷沫哥布林",
+      "th": "雷沫哥布林",
+      "zh-TW": "雷沫哥布林"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660311": {
+    "Id": 660311,
+    "Name": "哥布林贤者",
+    "NameDesign": "哥布林贤者",
+    "Names": {
+      "design": "哥布林贤者",
+      "en": "哥布林贤者",
+      "zh-CN": "哥布林贤者",
+      "ja": "哥布林贤者",
+      "de": "哥布林贤者",
+      "es": "哥布林贤者",
+      "fr": "哥布林贤者",
+      "id": "哥布林贤者",
+      "ko-KR": "哥布林贤者",
+      "pt-BR": "哥布林贤者",
+      "th": "哥布林贤者",
+      "zh-TW": "哥布林贤者"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "660312": {
+    "Id": 660312,
+    "Name": "幻幻花",
+    "NameDesign": "幻幻花",
+    "Names": {
+      "design": "幻幻花",
+      "en": "幻幻花",
+      "zh-CN": "幻幻花",
+      "ja": "幻幻花",
+      "de": "幻幻花",
+      "es": "幻幻花",
+      "fr": "幻幻花",
+      "id": "幻幻花",
+      "ko-KR": "幻幻花",
+      "pt-BR": "幻幻花",
+      "th": "幻幻花",
+      "zh-TW": "幻幻花"
+    },
+    "MonsterType": 1,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
   },
   "660401": {
     "Id": 660401,
@@ -66454,6 +67063,174 @@
     "Source": "MonsterTable",
     "SourceOffset": 1133274054
   },
+  "3110001": {
+    "Id": 3110001,
+    "Name": "雷电食人魔-职责",
+    "NameDesign": "雷电食人魔-职责",
+    "Names": {
+      "design": "雷电食人魔-职责",
+      "en": "雷电食人魔-职责",
+      "zh-CN": "雷电食人魔-职责",
+      "ja": "雷电食人魔-职责",
+      "de": "雷电食人魔-职责",
+      "es": "雷电食人魔-职责",
+      "fr": "雷电食人魔-职责",
+      "id": "雷电食人魔-职责",
+      "ko-KR": "雷电食人魔-职责",
+      "pt-BR": "雷电食人魔-职责",
+      "th": "雷电食人魔-职责",
+      "zh-TW": "雷电食人魔-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "3110002": {
+    "Id": 3110002,
+    "Name": "火焰兽人-职责",
+    "NameDesign": "火焰兽人-职责",
+    "Names": {
+      "design": "火焰兽人-职责",
+      "en": "火焰兽人-职责",
+      "zh-CN": "火焰兽人-职责",
+      "ja": "火焰兽人-职责",
+      "de": "火焰兽人-职责",
+      "es": "火焰兽人-职责",
+      "fr": "火焰兽人-职责",
+      "id": "火焰兽人-职责",
+      "ko-KR": "火焰兽人-职责",
+      "pt-BR": "火焰兽人-职责",
+      "th": "火焰兽人-职责",
+      "zh-TW": "火焰兽人-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "3110003": {
+    "Id": 3110003,
+    "Name": "姆克王-职责",
+    "NameDesign": "姆克王-职责",
+    "Names": {
+      "design": "姆克王-职责",
+      "en": "姆克王-职责",
+      "zh-CN": "姆克王-职责",
+      "ja": "姆克王-职责",
+      "de": "姆克王-职责",
+      "es": "姆克王-职责",
+      "fr": "姆克王-职责",
+      "id": "姆克王-职责",
+      "ko-KR": "姆克王-职责",
+      "pt-BR": "姆克王-职责",
+      "th": "姆克王-职责",
+      "zh-TW": "姆克王-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "3110004": {
+    "Id": 3110004,
+    "Name": "铁牙-职责",
+    "NameDesign": "铁牙-职责",
+    "Names": {
+      "design": "铁牙-职责",
+      "en": "铁牙-职责",
+      "zh-CN": "铁牙-职责",
+      "ja": "铁牙-职责",
+      "de": "铁牙-职责",
+      "es": "铁牙-职责",
+      "fr": "铁牙-职责",
+      "id": "铁牙-职责",
+      "ko-KR": "铁牙-职责",
+      "pt-BR": "铁牙-职责",
+      "th": "铁牙-职责",
+      "zh-TW": "铁牙-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "3110005": {
+    "Id": 3110005,
+    "Name": "金牙-职责",
+    "NameDesign": "金牙-职责",
+    "Names": {
+      "design": "金牙-职责",
+      "en": "金牙-职责",
+      "zh-CN": "金牙-职责",
+      "ja": "金牙-职责",
+      "de": "金牙-职责",
+      "es": "金牙-职责",
+      "fr": "金牙-职责",
+      "id": "金牙-职责",
+      "ko-KR": "金牙-职责",
+      "pt-BR": "金牙-职责",
+      "th": "金牙-职责",
+      "zh-TW": "金牙-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "3110006": {
+    "Id": 3110006,
+    "Name": "蜥蜴人王-职责",
+    "NameDesign": "蜥蜴人王-职责",
+    "Names": {
+      "design": "蜥蜴人王-职责",
+      "en": "蜥蜴人王-职责",
+      "zh-CN": "蜥蜴人王-职责",
+      "ja": "蜥蜴人王-职责",
+      "de": "蜥蜴人王-职责",
+      "es": "蜥蜴人王-职责",
+      "fr": "蜥蜴人王-职责",
+      "id": "蜥蜴人王-职责",
+      "ko-KR": "蜥蜴人王-职责",
+      "pt-BR": "蜥蜴人王-职责",
+      "th": "蜥蜴人王-职责",
+      "zh-TW": "蜥蜴人王-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "3110007": {
+    "Id": 3110007,
+    "Name": "艾露娜-职责",
+    "NameDesign": "艾露娜-职责",
+    "Names": {
+      "design": "艾露娜-职责",
+      "en": "艾露娜-职责",
+      "zh-CN": "艾露娜-职责",
+      "ja": "艾露娜-职责",
+      "de": "艾露娜-职责",
+      "es": "艾露娜-职责",
+      "fr": "艾露娜-职责",
+      "id": "艾露娜-职责",
+      "ko-KR": "艾露娜-职责",
+      "pt-BR": "艾露娜-职责",
+      "th": "艾露娜-职责",
+      "zh-TW": "艾露娜-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "3110008": {
+    "Id": 3110008,
+    "Name": "法法菈-职责",
+    "NameDesign": "法法菈-职责",
+    "Names": {
+      "design": "法法菈-职责",
+      "en": "法法菈-职责",
+      "zh-CN": "法法菈-职责",
+      "ja": "法法菈-职责",
+      "de": "法法菈-职责",
+      "es": "法法菈-职责",
+      "fr": "法法菈-职责",
+      "id": "法法菈-职责",
+      "ko-KR": "法法菈-职责",
+      "pt-BR": "法法菈-职责",
+      "th": "法法菈-职责",
+      "zh-TW": "法法菈-职责"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
   "4000001": {
     "Id": 4000001,
     "Name": "Deadly Bzzar",
@@ -66541,6 +67318,195 @@
     "MonsterType": 2,
     "Source": "MonsterTable",
     "SourceOffset": 1133275014
+  },
+  "5100301": {
+    "Id": 5100301,
+    "Name": "法法菈",
+    "NameDesign": "法法菈",
+    "Names": {
+      "design": "法法菈",
+      "en": "法法菈",
+      "zh-CN": "法法菈",
+      "ja": "法法菈",
+      "de": "法法菈",
+      "es": "法法菈",
+      "fr": "法法菈",
+      "id": "法法菈",
+      "ko-KR": "法法菈",
+      "pt-BR": "法法菈",
+      "th": "法法菈",
+      "zh-TW": "法法菈"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100302": {
+    "Id": 5100302,
+    "Name": "博伊斯",
+    "NameDesign": "博伊斯",
+    "Names": {
+      "design": "博伊斯",
+      "en": "博伊斯",
+      "zh-CN": "博伊斯",
+      "ja": "博伊斯",
+      "de": "博伊斯",
+      "es": "博伊斯",
+      "fr": "博伊斯",
+      "id": "博伊斯",
+      "ko-KR": "博伊斯",
+      "pt-BR": "博伊斯",
+      "th": "博伊斯",
+      "zh-TW": "博伊斯"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100303": {
+    "Id": 5100303,
+    "Name": "被侵蚀的大鹫",
+    "NameDesign": "被侵蚀的大鹫",
+    "Names": {
+      "design": "被侵蚀的大鹫",
+      "en": "被侵蚀的大鹫",
+      "zh-CN": "被侵蚀的大鹫",
+      "ja": "被侵蚀的大鹫",
+      "de": "被侵蚀的大鹫",
+      "es": "被侵蚀的大鹫",
+      "fr": "被侵蚀的大鹫",
+      "id": "被侵蚀的大鹫",
+      "ko-KR": "被侵蚀的大鹫",
+      "pt-BR": "被侵蚀的大鹫",
+      "th": "被侵蚀的大鹫",
+      "zh-TW": "被侵蚀的大鹫"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100304": {
+    "Id": 5100304,
+    "Name": "法法菈",
+    "NameDesign": "法法菈",
+    "Names": {
+      "design": "法法菈",
+      "en": "法法菈",
+      "zh-CN": "法法菈",
+      "ja": "法法菈",
+      "de": "法法菈",
+      "es": "法法菈",
+      "fr": "法法菈",
+      "id": "法法菈",
+      "ko-KR": "法法菈",
+      "pt-BR": "法法菈",
+      "th": "法法菈",
+      "zh-TW": "法法菈"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100501": {
+    "Id": 5100501,
+    "Name": "拦路的村民",
+    "NameDesign": "拦路的村民",
+    "Names": {
+      "design": "拦路的村民",
+      "en": "拦路的村民",
+      "zh-CN": "拦路的村民",
+      "ja": "拦路的村民",
+      "de": "拦路的村民",
+      "es": "拦路的村民",
+      "fr": "拦路的村民",
+      "id": "拦路的村民",
+      "ko-KR": "拦路的村民",
+      "pt-BR": "拦路的村民",
+      "th": "拦路的村民",
+      "zh-TW": "拦路的村民"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100502": {
+    "Id": 5100502,
+    "Name": "拦路的村民",
+    "NameDesign": "拦路的村民",
+    "Names": {
+      "design": "拦路的村民",
+      "en": "拦路的村民",
+      "zh-CN": "拦路的村民",
+      "ja": "拦路的村民",
+      "de": "拦路的村民",
+      "es": "拦路的村民",
+      "fr": "拦路的村民",
+      "id": "拦路的村民",
+      "ko-KR": "拦路的村民",
+      "pt-BR": "拦路的村民",
+      "th": "拦路的村民",
+      "zh-TW": "拦路的村民"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100503": {
+    "Id": 5100503,
+    "Name": "拦路的村民",
+    "NameDesign": "拦路的村民",
+    "Names": {
+      "design": "拦路的村民",
+      "en": "拦路的村民",
+      "zh-CN": "拦路的村民",
+      "ja": "拦路的村民",
+      "de": "拦路的村民",
+      "es": "拦路的村民",
+      "fr": "拦路的村民",
+      "id": "拦路的村民",
+      "ko-KR": "拦路的村民",
+      "pt-BR": "拦路的村民",
+      "th": "拦路的村民",
+      "zh-TW": "拦路的村民"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100601": {
+    "Id": 5100601,
+    "Name": "青沫哥布林",
+    "NameDesign": "青沫哥布林",
+    "Names": {
+      "design": "青沫哥布林",
+      "en": "青沫哥布林",
+      "zh-CN": "青沫哥布林",
+      "ja": "青沫哥布林",
+      "de": "青沫哥布林",
+      "es": "青沫哥布林",
+      "fr": "青沫哥布林",
+      "id": "青沫哥布林",
+      "ko-KR": "青沫哥布林",
+      "pt-BR": "青沫哥布林",
+      "th": "青沫哥布林",
+      "zh-TW": "青沫哥布林"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
+  },
+  "5100602": {
+    "Id": 5100602,
+    "Name": "雷沫哥布林",
+    "NameDesign": "雷沫哥布林",
+    "Names": {
+      "design": "雷沫哥布林",
+      "en": "雷沫哥布林",
+      "zh-CN": "雷沫哥布林",
+      "ja": "雷沫哥布林",
+      "de": "雷沫哥布林",
+      "es": "雷沫哥布林",
+      "fr": "雷沫哥布林",
+      "id": "雷沫哥布林",
+      "ko-KR": "雷沫哥布林",
+      "pt-BR": "雷沫哥布林",
+      "th": "雷沫哥布林",
+      "zh-TW": "雷沫哥布林"
+    },
+    "MonsterType": 0,
+    "Source": "CN 0.1.7 MonsterIdNameType.json"
   },
   "6116001": {
     "Id": 6116001,

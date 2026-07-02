@@ -113,20 +113,66 @@ type ClassSpecIconTable = {
 
 const CLASS_SPEC_ICONS = classSpecIconsData as ClassSpecIconTable;
 
+const CLASS_ICON_ALIASES: Record<string, string[]> = {
+  "Twin Striker": ["Flame Berserker", "Flame Vanguard"],
+  "Flame Vanguard": ["Flame Berserker", "Twin Striker"],
+  "Flame Berserker": ["Twin Striker", "Flame Vanguard"],
+};
+
+const SPEC_ICON_ALIASES: Record<string, string[]> = {
+  Formless: ["Voidflame"],
+  Crimson: ["Blazecrimson"],
+  Voidflame: ["Formless"],
+  Blazecrimson: ["Crimson"],
+};
+
+const SPEC_CLASS_ALIASES: Record<string, string> = {
+  Formless: "Flame Berserker",
+  Crimson: "Flame Berserker",
+  Voidflame: "Flame Berserker",
+  Blazecrimson: "Flame Berserker",
+};
+
+function lookupWithAliases<T>(
+  table: Record<string, T> | undefined,
+  key: string,
+  aliases: Record<string, string[]>,
+): T | undefined {
+  if (!table || !key) return undefined;
+  const direct = table[key];
+  if (direct) return direct;
+
+  for (const alias of aliases[key] ?? []) {
+    const match = table[alias];
+    if (match) return match;
+  }
+
+  return undefined;
+}
+
 export function getClassOrSpecIcon(class_name: string, class_spec_name = ""): string {
-  if (class_name === "" || class_name === "blank") {
+  const className = class_name.trim();
+  const classSpecName = class_spec_name.trim();
+
+  if ((className === "" || className === "blank") && classSpecName === "") {
     return "/images/classes/blank.png";
   }
 
-  const specIcon = class_spec_name
-    ? CLASS_SPEC_ICONS.specs?.[class_spec_name]
+  const specIcon = classSpecName
+    ? lookupWithAliases(CLASS_SPEC_ICONS.specs, classSpecName, SPEC_ICON_ALIASES)
     : undefined;
-  const classIcon = CLASS_SPEC_ICONS.classes?.[class_name];
+  const classIcon =
+    lookupWithAliases(CLASS_SPEC_ICONS.classes, className, CLASS_ICON_ALIASES)
+    ?? lookupWithAliases(
+      CLASS_SPEC_ICONS.classes,
+      CLASS_SPEC_MAP[classSpecName] ?? SPEC_CLASS_ALIASES[classSpecName] ?? "",
+      CLASS_ICON_ALIASES,
+    );
 
   return (
     resolveStaticIconUrl(specIcon?.iconPath, specIcon?.weaponStyleIconPath)
     ?? resolveStaticIconUrl(classIcon?.professionIconPath, classIcon?.staticIconPath)
-    ?? `/images/classes/${class_name}.png`
+    ?? (className ? `/images/classes/${className}.png` : "/images/classes/blank.png")
   );
 }
 
@@ -247,7 +293,12 @@ export async function copyToClipboard(error: MouseEvent & { currentTarget: Event
 let isClickthrough = false;
 const LIVE_WINDOW_FOCUS_RESTORE_DELAY_MS = 80;
 export const LIVE_WINDOW_MANUAL_SHOW_EVENT = "live-window-manual-show";
-const PASSIVE_OVERLAY_WINDOW_LABELS = ["game-overlay", "monster-overlay"] as const;
+export const LIVE_WINDOW_INTERACTION_RESTORE_REQUEST_EVENT =
+  "live-window-interaction-restore-request";
+const PASSIVE_OVERLAY_WINDOW_LABELS = [
+  "game-overlay",
+  "monster-overlay",
+] as const;
 
 type LiveWindowHandle = {
   setFocusable(focusable: boolean): Promise<void>;
@@ -276,10 +327,28 @@ export async function restoreLiveWindowInteractivity(liveWindow?: LiveWindowHand
   await windowHandle.setIgnoreCursorEvents(shouldIgnoreLiveWindowCursorEvents());
 }
 
-export async function showLiveWindowWithoutFocus(liveWindow?: LiveWindowHandle | null): Promise<void> {
+export async function forceLiveWindowCursorPassthrough(liveWindow?: LiveWindowHandle | null): Promise<void> {
   const windowHandle = liveWindow ?? await WebviewWindow.getByLabel("live");
   if (!windowHandle) return;
 
+  await windowHandle.setFocusable(false);
+  await windowHandle.setIgnoreCursorEvents(true);
+}
+
+export async function requestLiveWindowInteractionRestore(): Promise<void> {
+  await emit(LIVE_WINDOW_INTERACTION_RESTORE_REQUEST_EVENT).catch((error) => {
+    console.warn("Failed to request live window interaction restore:", error);
+  });
+}
+
+export async function showLiveWindowWithoutFocus(
+  liveWindow?: LiveWindowHandle | null,
+  options: { emitManualShow?: boolean } = {},
+): Promise<void> {
+  const windowHandle = liveWindow ?? await WebviewWindow.getByLabel("live");
+  if (!windowHandle) return;
+
+  const emitManualShow = options.emitManualShow ?? true;
   const ignoreCursorEvents = shouldIgnoreLiveWindowCursorEvents();
   await windowHandle.setFocusable(false);
   await windowHandle.setIgnoreCursorEvents(ignoreCursorEvents);
@@ -288,9 +357,11 @@ export async function showLiveWindowWithoutFocus(liveWindow?: LiveWindowHandle |
   await wait(LIVE_WINDOW_FOCUS_RESTORE_DELAY_MS);
   await windowHandle.setFocusable(true);
   await windowHandle.setIgnoreCursorEvents(ignoreCursorEvents);
-  await emit(LIVE_WINDOW_MANUAL_SHOW_EVENT).catch((error) => {
-    console.warn("Failed to notify live window manual show:", error);
-  });
+  if (emitManualShow) {
+    await emit(LIVE_WINDOW_MANUAL_SHOW_EVENT).catch((error) => {
+      console.warn("Failed to notify live window manual show:", error);
+    });
+  }
 }
 
 export async function hideVisiblePassiveOverlayWindows(): Promise<Set<string>> {

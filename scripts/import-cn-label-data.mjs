@@ -9,11 +9,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const GLOBAL_ROOT = path.resolve(__dirname, "..");
 const BETA_ROOT = path.resolve(GLOBAL_ROOT, "..");
-const DEFAULT_CN_ROOT = path.join(BETA_ROOT, "resonance-logs-cn-main_0.1.5");
-const DEFAULT_PREVIOUS_CN_ROOT = path.join(BETA_ROOT, "resonance-logs-cn-main_0.1.4");
+const DEFAULT_CN_ROOT = path.join(BETA_ROOT, "resonance-logs-cn-main_0.1.7");
+const DEFAULT_PREVIOUS_CN_ROOT = path.join(BETA_ROOT, "resonance-logs-cn-main_0.1.6");
 const OUTPUT_DIR = path.join(GLOBAL_ROOT, "DEV_exports");
-const REPORT_JSON = path.join(OUTPUT_DIR, "cn-0.1.5-label-import-analysis.json");
-const REPORT_MD = path.join(OUTPUT_DIR, "cn-0.1.5-label-import-analysis.md");
 
 const LOCALES = [
   "de",
@@ -53,6 +51,42 @@ const DATASETS = [
     },
     outputShape: "object",
     importKind: "scene",
+  },
+  {
+    name: "Monster names",
+    keyField: "Id",
+    globalPath: "parser-data/generated/monsternames.json",
+    cnPath: "src/lib/config/MonsterIdNameType.json",
+    cnLocalePaths: {
+      en: "src/lib/config/en-US/MonsterIdNameType.json",
+      ja: "src/lib/config/ja-JP/MonsterIdNameType.json",
+    },
+    outputShape: "object",
+    importKind: "monster",
+  },
+  {
+    name: "Recount table",
+    keyField: "Id",
+    globalPath: "parser-data/generated/RecountTable.json",
+    cnPath: "src/lib/config/RecountTable.json",
+    cnLocalePaths: {
+      en: "src/lib/config/en-US/RecountTable.json",
+      ja: "src/lib/config/ja-JP/RecountTable.json",
+    },
+    outputShape: "object",
+    importKind: "recount",
+  },
+  {
+    name: "DBM table",
+    keyField: "Id",
+    globalPath: "parser-data/generated/DbmTable.json",
+    cnPath: "src/lib/config/DbmTable.json",
+    cnLocalePaths: {
+      en: "src/lib/config/en-US/DbmTable.json",
+      ja: "src/lib/config/ja-JP/DbmTable.json",
+    },
+    outputShape: "object",
+    importKind: "dbm",
   },
   {
     name: "Damage attribute names",
@@ -114,6 +148,26 @@ function resolveReleaseRoot(candidate) {
   return candidate;
 }
 
+function inferCnReleaseLabel(root) {
+  const normalized = path.resolve(root);
+  const candidates = [
+    path.basename(normalized),
+    path.basename(path.dirname(normalized)),
+  ];
+  for (const candidate of candidates) {
+    const match = candidate.match(/(\d+\.\d+\.\d+)/);
+    if (match) return match[1];
+  }
+  return path.basename(normalized).replace(/^resonance-logs-cn-main_?/, "") || "unknown";
+}
+
+function reportPaths(releaseLabel) {
+  return {
+    json: path.join(OUTPUT_DIR, `cn-${releaseLabel}-label-import-analysis.json`),
+    markdown: path.join(OUTPUT_DIR, `cn-${releaseLabel}-label-import-analysis.md`),
+  };
+}
+
 function readJson(filePath) {
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
@@ -151,7 +205,7 @@ function hasText(value) {
 
 function pickName(entry) {
   if (typeof entry === "string") return entry;
-  return entry?.Name ?? entry?.NameDesign ?? entry?.DesignName ?? entry?.name ?? null;
+  return entry?.Name ?? entry?.NameDesign ?? entry?.DesignName ?? entry?.RecountName ?? entry?.Content ?? entry?.name ?? null;
 }
 
 function getKey(entry, keyField, fallbackKey) {
@@ -207,7 +261,7 @@ function canonical(value) {
 
 function collectTexts(entry) {
   const out = [];
-  for (const value of [entry?.Name, entry?.NameDesign, entry?.DesignName, entry?.name]) {
+  for (const value of [entry?.Name, entry?.NameDesign, entry?.DesignName, entry?.RecountName, entry?.Content, entry?.name]) {
     if (hasText(value)) out.push(value.trim());
   }
   for (const record of [entry?.Names, entry?.MonsterNames, entry?.QuoteTexts]) {
@@ -289,7 +343,7 @@ function sameNameMatches(entry, localeMaps, key, nameIndex) {
     }));
 }
 
-function createImportedEntry(dataset, key, cnEntry, names) {
+function createImportedEntry(dataset, key, cnEntry, names, sourceLabel) {
   const numericId = numericKey(key);
   const idValue = numericId ?? key;
   const baseName = names["zh-CN"] ?? names.en ?? names.design ?? `#${key}`;
@@ -303,7 +357,7 @@ function createImportedEntry(dataset, key, cnEntry, names) {
       Names: names,
       ...(hasText(cnEntry.Icon) ? { Icon: cnEntry.Icon.trim() } : {}),
       ...(hasText(cnEntry.SpriteFile) ? { SpriteFile: cnEntry.SpriteFile.trim() } : {}),
-      Source: "CN 0.1.5 BuffName.json",
+      Source: `CN ${sourceLabel} BuffName.json`,
     };
   }
 
@@ -314,7 +368,42 @@ function createImportedEntry(dataset, key, cnEntry, names) {
       NameDesign: baseName,
       NameId: null,
       Names: names,
-      Source: "CN 0.1.5 SceneName.json",
+      Source: `CN ${sourceLabel} SceneName.json`,
+    };
+  }
+
+  if (dataset.importKind === "monster") {
+    return {
+      Id: idValue,
+      Name: names.en,
+      NameDesign: baseName,
+      Names: names,
+      MonsterType: Number(cnEntry.MonsterType ?? 0),
+      Source: `CN ${sourceLabel} MonsterIdNameType.json`,
+    };
+  }
+
+  if (dataset.importKind === "recount") {
+    return {
+      ...cnEntry,
+      Id: idValue,
+      Name: names.en,
+      RecountName: names.en,
+      NameDesign: baseName,
+      Names: names,
+      Source: `CN ${sourceLabel} RecountTable.json`,
+    };
+  }
+
+  if (dataset.importKind === "dbm") {
+    return {
+      Id: idValue,
+      CountCDTime: Number(cnEntry.CountCDTime ?? 0),
+      Content: names.en,
+      ContentDesign: baseName,
+      Contents: names,
+      Names: names,
+      Source: `CN ${sourceLabel} DbmTable.json`,
     };
   }
 
@@ -324,7 +413,7 @@ function createImportedEntry(dataset, key, cnEntry, names) {
       Name: names.en,
       NameDesign: baseName,
       Names: names,
-      Source: "CN 0.1.5 DamageAttrIdName.json",
+      Source: `CN ${sourceLabel} DamageAttrIdName.json`,
     };
   }
 
@@ -334,7 +423,7 @@ function createImportedEntry(dataset, key, cnEntry, names) {
     NameDesign: baseName,
     Names: names,
     Icon: cnEntry.Icon ?? cnEntry.icon ?? "",
-    Source: "CN 0.1.5 skill_aoyi_icons.json",
+    Source: `CN ${sourceLabel} skill_aoyi_icons.json`,
   };
 }
 
@@ -357,7 +446,11 @@ function analyzeDataset(dataset, roots) {
   const cnPath = path.join(roots.cnRoot, dataset.cnPath);
   const previousPath = path.join(roots.previousCnRoot, dataset.cnPath);
 
-  const globalRaw = readJson(globalPath);
+  const globalRaw = fs.existsSync(globalPath)
+    ? readJson(globalPath)
+    : dataset.outputShape === "array"
+      ? []
+      : {};
   const cnRaw = readJson(cnPath);
   const previousRaw = fs.existsSync(previousPath) ? readJson(previousPath) : null;
   const localeMaps = loadLocaleMaps(roots.cnRoot, dataset);
@@ -395,7 +488,7 @@ function analyzeDataset(dataset, roots) {
       sameNameMatches: matches,
     });
     if (isCnReleaseAdded) {
-      importedEntries.push(createImportedEntry(dataset, key, entry, names));
+      importedEntries.push(createImportedEntry(dataset, key, entry, names, roots.sourceLabel));
     } else {
       olderCnOnlyMissing.push({
         key,
@@ -467,10 +560,11 @@ function markdownCell(value) {
     .replace(/\r?\n/g, "<br>");
 }
 
-function writeReport(results, dryRun) {
+function writeReport(results, dryRun, releaseLabel, paths) {
   fs.mkdirSync(OUTPUT_DIR, { recursive: true });
   const json = {
     dryRun,
+    releaseLabel,
     generatedAt: new Date().toISOString(),
     datasets: results.map((result) => ({
       name: result.dataset.name,
@@ -482,10 +576,10 @@ function writeReport(results, dryRun) {
       possibleAliases: result.possibleAliases,
     })),
   };
-  fs.writeFileSync(REPORT_JSON, `${JSON.stringify(json, null, 2)}\n`, "utf8");
+  fs.writeFileSync(paths.json, `${JSON.stringify(json, null, 2)}\n`, "utf8");
 
   const lines = [
-    "# CN 0.1.5 Label Import Analysis",
+    `# CN ${releaseLabel} Label Import Analysis`,
     "",
     `Mode: ${dryRun ? "dry-run" : "write"}`,
     "",
@@ -524,7 +618,7 @@ function writeReport(results, dryRun) {
     lines.push("");
   }
 
-  fs.writeFileSync(REPORT_MD, `${lines.join("\n")}\n`, "utf8");
+  fs.writeFileSync(paths.markdown, `${lines.join("\n")}\n`, "utf8");
 }
 
 function main() {
@@ -533,12 +627,14 @@ function main() {
     cnRoot: resolveReleaseRoot(path.resolve(args.cnRoot)),
     previousCnRoot: resolveReleaseRoot(path.resolve(args.previousCnRoot)),
   };
+  roots.sourceLabel = inferCnReleaseLabel(roots.cnRoot);
+  const paths = reportPaths(roots.sourceLabel);
 
   const results = DATASETS.map((dataset) => analyzeDataset(dataset, roots));
   for (const result of results) {
     applyImports(result, args.dryRun);
   }
-  writeReport(results, args.dryRun);
+  writeReport(results, args.dryRun, roots.sourceLabel, paths);
 
   console.log(args.dryRun ? "Dry run complete." : "Imported CN label/icon additions.");
   for (const result of results) {
@@ -546,8 +642,8 @@ function main() {
       `${result.dataset.name}: release-new=${result.counts.releaseMissing}, older-cn-only=${result.counts.olderCnOnlyMissing}, release-same-name=${result.counts.releaseSameNameMissing}, changed-vs-previous=${result.counts.changedSincePrevious}`,
     );
   }
-  console.log(`Wrote ${path.relative(GLOBAL_ROOT, REPORT_MD)}`);
-  console.log(`Wrote ${path.relative(GLOBAL_ROOT, REPORT_JSON)}`);
+  console.log(`Wrote ${path.relative(GLOBAL_ROOT, paths.markdown)}`);
+  console.log(`Wrote ${path.relative(GLOBAL_ROOT, paths.json)}`);
 }
 
 main();

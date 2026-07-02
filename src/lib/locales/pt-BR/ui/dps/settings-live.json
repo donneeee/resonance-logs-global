@@ -97,5 +97,21 @@
   "oceanWeaponBadgeScaleDescription": "Escala os distintivos de arma oceanica sem mudar o tamanho dos icones de classe.",
   "modifierReportsEnabled": "Enable Modifier (WIP) Analysis",
   "modifierReportsEnabledDescription": "Captures and calculates WIP modifier evidence for history reports. Leave this off for lower CPU usage and normal DPS/monitor behavior.",
-  "columnAliasPlaceholder": "Apelido"
+  "columnAliasPlaceholder": "Apelido",
+  "challengeWatch.title": "Challenge Damage Alerts",
+  "challengeWatch.description": "Mark live rows with a red warning triangle when a player is hit by configured challenge damage IDs.",
+  "challengeWatch.presets.title": "Presets",
+  "challengeWatch.preset.n17Fuyoupao": "N17 - Cursed Tomb Floating Cannon",
+  "challengeWatch.searchPlaceholder": "Search damage or mechanic names",
+  "challengeWatch.searchNoResults": "No matching damage names found",
+  "challengeWatch.searchCount": "{count} matches",
+  "challengeWatch.groupCount": "{count} IDs",
+  "challengeWatch.searchMore": "Showing first {shown} of {count} matches; refine your search for more.",
+  "challengeWatch.configuredTitle": "Configured damage alerts",
+  "challengeWatch.empty": "No damage alerts configured.",
+  "challengeWatch.remove": "Remove damage alert",
+  "challengeWatch.warningAria": "Challenge damage warning",
+  "challengeWatch.warningTooltip": "Forbidden damage detected: {ids}",
+  "challengeWatch.add": "Add",
+  "challengeWatch.added": "Added"
 }

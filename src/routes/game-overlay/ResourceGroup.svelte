@@ -84,7 +84,7 @@
         {@const cur = getResourceValue(currentResourceId(res))}
         {@const max = Math.max(1, getResourceValue(maxResourceId(res)))}
         <div class="res-charges-container">
-          {#each Array(max) as _, i}
+          {#each [...Array(max).keys()] as i}
             <img src={i < cur ? res.imageOn : res.imageOff} alt={res.label} class="res-charge-icon" />
           {/each}
         </div>

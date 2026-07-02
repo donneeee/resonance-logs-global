@@ -1,5 +1,23 @@
 # Changelog
 
+## v1.1.1 - Global
+
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `v1.1.1` release build.
+- Condensed the full beta and release-candidate changelog line into this mainline release entry, covering the Global work since the previous main release.
+- Merged and adapted the CN 0.1.7 / 0.1.8 dungeon/minimap/DBM work into Global while keeping Global's Npcap-only capture path, shared overlay placement, and existing overlay toggle/edit behavior.
+- Moved Dungeon Boss Mechanics into the Overlay tool as the `DBM` tab, routed it through the shared overlay window, and expanded the minimap/mechanic pipeline with boss buff, teammate, mechanic, fantasy, stun/toughness, and minimap snapshots.
+- Narrowed Monster Monitor boss-buff snapshots back to the current attack target to match CN's target-scoped behavior and prevent repeated debuffs from every visible monster from flooding the Monster Buff Area.
+- Expanded saved-history views with redesigned summary panels, solid sticky table headers, scene details in Skill Details, graph timelines with horizontal guide lines, interactive legends, guide-line style controls, and better small-window scrolling behavior.
+- Added live-window behavior and display controls including header/column aliases, summary-field aliases, suffix sizing, decimal/format controls, no-boss color controls, dynamic row behavior, always-show-self DPS row placement, and single-key hotkey opt-in warnings.
+- Improved live and history player identity visuals with configurable imagine/ocean badge sizing, missing-imagine placeholders, ocean weapon Lv.200+ glow/tooltip behavior, local/remote equipment evidence, and restored Lucy/Natsu/Season 3 imagine skill labels.
+- Reworked Phantom Factor tracking with generated factor data, grade-aware descriptions, community validation workbooks, equipped-factor gating, stale-source pruning, Reality lockout/duration separation, local active-effect buff candidates, and corrected Inspiration/Reality source behavior.
+- Replaced grouped Food/Alchemy UUID clutter with category quick-listen controls and expanded localization coverage for overlay, DBM/minimap, buff monitoring, module calculator, settings, shell strings, and generated parser data across supported languages.
+- Hardened packet capture and first-run reliability with Npcap DLL diagnostics/loading fixes, capture-settings repair, VPN/ExitLag diagnostic bundle data, scene-frame dedupe telemetry, capped retries, and cleaner release warnings.
+- Reduced WebView2 `PostMessage` pressure and combat-time UI/FPS lag by coalescing noisy live/overlay emits, limiting packet backlog catch-up, deduping unchanged snapshots, reducing background/GIF repaint churn, and preserving high-priority lifecycle/reset updates.
+- Added and refined overlay tools for Skill CD acceleration diagnostics, duration/resource/custom panels, HP/shield area settings, monster monitor teammate buffs/fantasy/stun/DBM panels, runtime debug capture, and shared overlay layout editing.
+- Hardened settings/profile/local-file storage with corrupt-store preservation, selected save-location support for profiles/debug bundles/Event Logger files, settings repair/migration fixes, and installer AppData cleanup behavior that honors the uninstall checkbox directly.
+- Fixed training-dummy mode, scene-change hold/clear behavior, live reset/timer stability, graph guide-line styling, custom GIF/image background persistence, and assorted parser/history/localization regressions found during the beta and RC test builds.
+
 ## v1.1.0_RC2 - Global Release Candidate
 
 - Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `v1.1.0_RC2` release-candidate build.
@@ -24,15 +42,6 @@
 - Reduced live-window drag/repaint lag, especially with GIF backgrounds, by removing a duplicate always-running header animation-frame timer and isolating the custom background layer's paint/compositing work.
 - Added focused backend tests for the stale-factor gate: hidden source rows are ignored, visible matching rows still feed energy, cleared selector slots suppress active-source fallback, and selected-factor mode does not borrow unrelated active-source IDs.
 - Promoted local active effect/factor buff rows into buff-monitor display candidates when explicitly selected, restoring Photon Energy Enhancement and similar threshold/effect buffs without exposing those internal aliases in generic monitor-all views.
-
-### RC2 restart handoff
-
-- Latest pushed commit before restart: `05e7943 Fix factor gating and live event pressure` on branch `beta`.
-- Last built installer: `src-tauri/target/release/bundle/nsis/Resonance Logs - Global_1.1.0-rc.2_x64-setup.exe`.
-- Last verification run: `npm.cmd run check` passed with 0 errors / 0 warnings; `cargo check --no-default-features` passed; focused factor-gating tests passed.
-- Build note: `npm.cmd run tauri -- build` produced the NSIS installer, then exited nonzero only because updater signing has a public key configured but no `TAURI_SIGNING_PRIVATE_KEY` in the environment.
-- Open retest target after restart: unequip an Inspiration factor such as Marksman X7, confirm it disappears from the factor overlay, and confirm Reality rows no longer gain that stale `51` energy from the removed source.
-- Local untracked items intentionally left out of the commit before restart: `--help` and `.debug/`.
 
 ## v1.1.0_RC1 - Global Release Candidate
 

@@ -102,6 +102,31 @@
         monsterOverlaySizes.fantasyPanelScale,
       );
     }
+    if (monsterMonitor.overlayVisibility?.showBossDbmPanel ?? false) {
+      pushArea(
+        "monsterBossDbmPanel",
+        tMonster("overlay.bossDbmPanel", "Boss DBM Area"),
+        monsterOverlayPositions.bossDbmPanel.x,
+        monsterOverlayPositions.bossDbmPanel.y,
+        260,
+        96,
+        monsterOverlaySizes.bossDbmPanelScale,
+      );
+    }
+    if (
+      monsterMonitor.stunListEnabled
+      && (monsterMonitor.overlayVisibility?.showStunPanel ?? false)
+    ) {
+      pushArea(
+        "monsterStunPanel",
+        tMonster("overlay.stunPanel", "Stun Area"),
+        monsterOverlayPositions.stunPanel.x,
+        monsterOverlayPositions.stunPanel.y,
+        260,
+        96,
+        monsterOverlaySizes.stunPanelScale,
+      );
+    }
 
     if (profile.buffDisplayMode === "grouped") {
       for (const group of profile.buffGroups) {

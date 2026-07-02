@@ -150,6 +150,8 @@ const AUXILIARY_LOCALES = new Set(["design", "und"]);
 const NAME_FIELD_PATTERN = /(^|\.)(Names|names|sourceNames|familyNames|DisplayNames|DamageNames|LinkedNames|LinkedBuffNames|ParentRecountNames|MonsterOwnerNames|OwnerNames)$/;
 const PLACEHOLDER_PATTERN = /\b(?:Unmapped|Unknown|Active)\s+(?:Buff|Skill|Source|Item|Monster|Scene)\s+\d+\b/i;
 const MARKUP_PATTERN = /<[^>]+>|\{\*[^}]+\*\}/;
+const UNEXPECTED_ENGLISH_SCRIPT_PATTERN = /[\u3400-\u9FFF\u3040-\u30FF\uAC00-\uD7AF\u0E00-\u0E7F]/;
+const MOJIBAKE_PATTERN = /(?:Ã|Â|�|å|æ|ç|è|é|ã|ì|ë|í)[^\s]*/;
 const MiB = 1024 * 1024;
 
 function parseArgs(argv) {
@@ -161,6 +163,10 @@ function parseArgs(argv) {
     maxCandidatesPerId: 8,
     maxTargets: 0,
     focusIds: DEFAULT_FOCUS_IDS,
+    apply: false,
+    dryRun: false,
+    minApplyScore: 140,
+    maxApplyChanges: 0,
     help: false,
   };
 
@@ -197,6 +203,18 @@ function parseArgs(argv) {
           .map((value) => Number(value.trim()))
           .filter((value) => Number.isFinite(value) && value > 0);
         break;
+      case "--apply":
+        options.apply = true;
+        break;
+      case "--dry-run":
+        options.dryRun = true;
+        break;
+      case "--min-apply-score":
+        options.minApplyScore = Math.max(0, Number(next()) || 0);
+        break;
+      case "--max-apply-changes":
+        options.maxApplyChanges = Math.max(0, Number(next()) || 0);
+        break;
       case "--help":
       case "-h":
         options.help = true;
@@ -223,6 +241,10 @@ Options:
   --max-candidates-per-id <n>      Stored candidates per UID. Default: 8.
   --max-targets <n>                Limit target IDs for quick probes. Default: all.
   --focus-ids <ids>                Comma-separated UIDs to highlight.
+  --apply                          Fill generated locale maps from strong game-file name bridges.
+  --dry-run                        Report apply results without writing generated files.
+  --min-apply-score <n>             Minimum bridge score to apply. Default: 140.
+  --max-apply-changes <n>           Stop after n locale writes. Default: no limit.
   --help                           Show this help.
 `);
 }
@@ -285,12 +307,18 @@ function hasRealEnglish(map) {
 }
 
 function shouldScanGap(map, localeKeys) {
-  if (hasRealEnglish(map)) return false;
-  return Boolean(
-    cleanText(map?.["zh-CN"])
-    || cleanText(map?.["zh-TW"])
-    || cleanText(map?.design)
+  const hasAnyText = Boolean(
+    cleanText(map?.design)
+    || cleanText(map?.und)
     || localeKeys.some((locale) => cleanText(map?.[locale])),
+  );
+  if (!hasAnyText) return false;
+
+  return Boolean(
+    !hasRealEnglish(map)
+    || localeKeys.some((locale) => !cleanText(map?.[locale]))
+    || localeKeys.some((locale) => PLACEHOLDER_PATTERN.test(cleanText(map?.[locale])))
+    || UNEXPECTED_ENGLISH_SCRIPT_PATTERN.test(cleanText(map?.en)),
   );
 }
 
@@ -413,7 +441,7 @@ function buildLocalizationTextIndex(localizationTables) {
   const out = new Map();
   for (const [textId, entries] of entriesByTextId.entries()) {
     const names = common.buildLocaleTextObject(entries, { includeDesign: false });
-    if (!hasRealEnglish(names)) continue;
+    if (!Object.keys(names).length) continue;
     out.set(textId, {
       textId,
       names,
@@ -573,6 +601,7 @@ function scanCtbTable({
           score,
           kind: rule.kind,
           source: rule.source,
+          files: rule.files ?? [],
           preferredName: textHit.text.preferredName,
           names: textHit.text.names,
           localeCount: textHit.text.localeCount,
@@ -604,6 +633,198 @@ function namesSummary(names) {
   return zh && zh !== en ? `${en} / ${zh}` : en;
 }
 
+function isGeneratedLocaleTextBad(locale, text) {
+  const value = cleanText(text);
+  if (!value) return true;
+  if (PLACEHOLDER_PATTERN.test(value)) return true;
+  if (MOJIBAKE_PATTERN.test(value)) return true;
+  if (locale === "en" && UNEXPECTED_ENGLISH_SCRIPT_PATTERN.test(value)) return true;
+  return false;
+}
+
+function parseSourceNumericId(value) {
+  const text = cleanText(value);
+  const match = /(?:buff-source|observed-buff):(\d+)/.exec(text);
+  return match ? Number(match[1]) : null;
+}
+
+function addNumericId(out, value) {
+  const number = Number(value);
+  if (Number.isFinite(number) && number > 0) out.add(number);
+}
+
+function numericIdsForField(entry, entryKey, fieldPath) {
+  const ids = new Set();
+  const field = String(fieldPath ?? "");
+
+  if (/LinkedBuffNames|LinkedNames/.test(field)) {
+    addNumericId(ids, entry?.LinkedId);
+    addNumericId(ids, entry?.LinkedBuffId);
+    addNumericId(ids, entry?.BuffSourceId);
+    addNumericId(ids, entry?.buffId);
+    addNumericId(ids, entry?.observedBuffId);
+    return [...ids];
+  }
+
+  if (/ParentRecountNames/.test(field)) {
+    addNumericId(ids, entry?.ParentRecountId);
+    return [...ids];
+  }
+
+  if (/DamageNames/.test(field)) {
+    addNumericId(ids, entry?.ParentRecountId);
+    addNumericId(ids, entry?.Id);
+    addNumericId(ids, entry?.id);
+    addNumericId(ids, entryKey);
+    return [...ids];
+  }
+
+  if (/sourceNames/.test(field)) {
+    addNumericId(ids, entry?.sourceEntityId);
+    addNumericId(ids, entry?.buffId);
+    addNumericId(ids, entry?.observedBuffId);
+    addNumericId(ids, parseSourceNumericId(entry?.sourceId));
+    addNumericId(ids, entryKey);
+    return [...ids];
+  }
+
+  addNumericId(ids, entry?.Id);
+  addNumericId(ids, entry?.id);
+  addNumericId(ids, entry?.sourceEntityId);
+  addNumericId(ids, entry?.buffId);
+  addNumericId(ids, entry?.observedBuffId);
+  addNumericId(ids, parseSourceNumericId(entry?.sourceId));
+  addNumericId(ids, entryKey);
+  return [...ids];
+}
+
+function sourcePriority(fileName, fieldPath, source) {
+  const field = String(fieldPath ?? "");
+  const sourceText = String(source ?? "");
+  const priorities = [];
+
+  if (fileName === "skillnames.json") {
+    priorities.push("SkillTable.NameId", "TalentTable.NameId", "RecountTable.NameId");
+  } else if (fileName === "SkillBreakdownDetails.json" || fileName === "DamageAttrIdName.json") {
+    if (/LinkedBuffNames|LinkedNames/.test(field)) {
+      priorities.push("BuffTable.NameId", "TalentTable.NameId", "SeasonEffectDescription.DescriptionId", "RecountTable.NameId", "SkillTable.NameId");
+    } else if (/DamageNames|ParentRecountNames/.test(field)) {
+      priorities.push("RecountTable.NameId", "SkillTable.NameId", "TalentTable.NameId", "BuffTable.NameId");
+    } else {
+      priorities.push("SkillTable.NameId", "RecountTable.NameId", "TalentTable.NameId", "BuffTable.NameId");
+    }
+  } else if (fileName === "BuffName.json") {
+    priorities.push("BuffTable.NameId", "TalentTable.NameId", "CTB:983121143.NameId", "CTB:4038258408.NameId");
+  } else if (fileName === "itemnames.json") {
+    priorities.push("ItemTable.NameId");
+  } else if (fileName === "monsternames.json") {
+    priorities.push("MonsterTable.NameId");
+  } else if (fileName === "scenenames.json") {
+    priorities.push("SceneTable.NameId");
+  } else if (fileName === "EffectSources.json" || fileName === "ModifierDisplayTable.json" || fileName === "ModifierClassificationTable.json") {
+    priorities.push("BuffTable.NameId", "TalentTable.NameId", "CTB:983121143.NameId", "CTB:4038258408.NameId", "SeasonEffectDescription.DescriptionId", "RecountTable.NameId");
+  } else {
+    priorities.push("BuffTable.NameId", "SkillTable.NameId", "RecountTable.NameId", "TalentTable.NameId");
+  }
+
+  const index = priorities.indexOf(sourceText);
+  return index >= 0 ? index : priorities.length + 10;
+}
+
+function bestCandidateForField(candidates, fileName, fieldPath, minApplyScore) {
+  return candidates
+    .filter((candidate) =>
+      candidate.kind === "name"
+      && candidate.score >= minApplyScore
+      && (!candidate.files?.length || candidate.files.includes(fileName)))
+    .sort((left, right) =>
+      sourcePriority(fileName, fieldPath, left.source) - sourcePriority(fileName, fieldPath, right.source)
+      || right.score - left.score
+      || left.tableLabel.localeCompare(right.tableLabel)
+      || left.rowIndex - right.rowIndex)
+    [0] ?? null;
+}
+
+function applyBridgeCandidates({ rowsWithCandidates, locales, minApplyScore, maxApplyChanges, dryRun }) {
+  const candidatesById = new Map(rowsWithCandidates.map((row) => [row.id, row.candidates ?? []]));
+  const files = [];
+  let totalLocaleWrites = 0;
+  let totalMapsTouched = 0;
+  const examples = [];
+
+  for (const fileName of GENERATED_FILES) {
+    const filePath = path.join(generatedRoot, fileName);
+    const data = readJson(filePath, null);
+    if (!data) continue;
+
+    let fileLocaleWrites = 0;
+    let fileMapsTouched = 0;
+    for (const [entryKey, entry] of generatedEntries(data, fileName)) {
+      if (!isRecord(entry)) continue;
+      const maps = [];
+      collectLocaleMaps(entry, locales, maps);
+
+      for (const { fieldPath, map } of maps) {
+        if (!nameField(fieldPath) || !shouldScanGap(map, locales)) continue;
+        const ids = numericIdsForField(entry, entryKey, fieldPath);
+        const candidate = ids
+          .map((id) => bestCandidateForField(candidatesById.get(id) ?? [], fileName, fieldPath, minApplyScore))
+          .find(Boolean);
+        if (!candidate) continue;
+
+        const localeWrites = [];
+        for (const locale of locales) {
+          const nextText = cleanText(candidate.names?.[locale]);
+          if (!nextText) continue;
+          if (!isGeneratedLocaleTextBad(locale, map[locale])) continue;
+          if (map[locale] === nextText) continue;
+          map[locale] = nextText;
+          localeWrites.push(locale);
+        }
+        if (!localeWrites.length) continue;
+
+        fileLocaleWrites += localeWrites.length;
+        fileMapsTouched += 1;
+        totalLocaleWrites += localeWrites.length;
+        totalMapsTouched += 1;
+        if (examples.length < 50) {
+          examples.push({
+            fileName,
+            entryKey,
+            fieldPath,
+            locales: localeWrites,
+            source: candidate.source,
+            tableLabel: candidate.tableLabel,
+            rowIndex: candidate.rowIndex,
+            score: candidate.score,
+            name: candidate.names?.en ?? candidate.preferredName,
+          });
+        }
+
+        if (maxApplyChanges > 0 && totalLocaleWrites >= maxApplyChanges) break;
+      }
+      if (maxApplyChanges > 0 && totalLocaleWrites >= maxApplyChanges) break;
+    }
+
+    if (fileLocaleWrites > 0 && !dryRun) {
+      fs.writeFileSync(filePath, `${JSON.stringify(data, null, 2)}\n`, "utf8");
+    }
+    files.push({ fileName, localeWrites: fileLocaleWrites, mapsTouched: fileMapsTouched });
+    if (maxApplyChanges > 0 && totalLocaleWrites >= maxApplyChanges) break;
+  }
+
+  return {
+    enabled: true,
+    dryRun,
+    minApplyScore,
+    maxApplyChanges,
+    totalLocaleWrites,
+    totalMapsTouched,
+    files,
+    examples,
+  };
+}
+
 function makeMarkdown(report) {
   const lines = [];
   lines.push("# Game Localization UID Bridge Scan");
@@ -616,7 +837,7 @@ function makeMarkdown(report) {
   lines.push("| Metric | Value |");
   lines.push("| --- | ---: |");
   lines.push(`| Target IDs from generated gaps | ${formatCount(report.summary.targetIds)} |`);
-  lines.push(`| Localization text IDs with English | ${formatCount(report.summary.localizedTextIds)} |`);
+  lines.push(`| Localization text IDs indexed | ${formatCount(report.summary.localizedTextIds)} |`);
   lines.push(`| Package entries checked | ${formatCount(report.summary.packageEntriesChecked)} |`);
   lines.push(`| CTB-like tables scanned | ${formatCount(report.summary.ctbTablesScanned)} |`);
   lines.push(`| CTB-like tables skipped by size | ${formatCount(report.summary.entriesSkippedBySize)} |`);
@@ -760,6 +981,16 @@ function main() {
     rowsWithCandidates: withCandidates,
   };
 
+  if (options.apply) {
+    report.apply = applyBridgeCandidates({
+      rowsWithCandidates: withCandidates,
+      locales,
+      minApplyScore: options.minApplyScore,
+      maxApplyChanges: options.maxApplyChanges,
+      dryRun: options.dryRun,
+    });
+  }
+
   fs.mkdirSync(path.dirname(options.outJson), { recursive: true });
   fs.writeFileSync(options.outJson, `${JSON.stringify(report, null, 2)}\n`, "utf8");
   fs.writeFileSync(options.outMd, makeMarkdown(report), "utf8");
@@ -769,6 +1000,9 @@ function main() {
   console.log(`Target IDs scanned: ${formatCount(targetSet.size)}`);
   console.log(`Target IDs with candidates: ${formatCount(withCandidates.length)}`);
   console.log(`CTB-like tables scanned: ${formatCount(stats.ctbTablesScanned)}`);
+  if (report.apply?.enabled) {
+    console.log(`${report.apply.dryRun ? "Locale entries that would be filled" : "Locale entries filled"}: ${formatCount(report.apply.totalLocaleWrites)} across ${formatCount(report.apply.totalMapsTouched)} maps`);
+  }
 }
 
 main();

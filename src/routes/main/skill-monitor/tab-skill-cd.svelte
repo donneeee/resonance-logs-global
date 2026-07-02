@@ -639,7 +639,7 @@
       <p class="text-xs text-muted-foreground">{t("monitorPreviewDescription", "按选择顺序排列")}</p>
     </div>
     <div class="grid grid-cols-5 gap-2">
-      {#each Array(10) as _, idx (idx)}
+      {#each [...Array(10).keys()] as idx (idx)}
         {@const skillId = monitoredSkillIds[idx]}
         {@const skill = skillId ? findAnySkillByBaseId(selectedClassKey, skillId) : undefined}
         <button

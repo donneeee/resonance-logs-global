@@ -567,10 +567,6 @@ function fileSignature(filePath, bytes, sampleBytes) {
   };
 }
 
-function isAsciiTerm(term) {
-  return /^[\x00-\x7f]+$/.test(term);
-}
-
 function compileTerms() {
   const compiled = [];
   const seen = new Set();

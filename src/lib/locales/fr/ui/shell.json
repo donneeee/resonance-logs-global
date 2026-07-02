@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "Start with App",
   "settings.overlay.startWithAppDescription": "Open the shared overlay automatically when the app starts and overlay publishing is enabled.",
+  "settings.overlay.skillAutoHideDaily": "Auto-hide Skill Monitor in Daily Scenes",
+  "settings.overlay.skillAutoHideDailyDescription": "When Skill Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
+  "settings.overlay.monsterAutoHideDaily": "Auto-hide Monster Monitor in Daily Scenes",
+  "settings.overlay.monsterAutoHideDailyDescription": "When Monster Monitor is enabled, hide the shared overlay in daily-scene blacklist entries and restore normal visibility after leaving.",
   "settings.overlay.autoHideWithLiveWindow": "Masquer avec la fenêtre live",
   "settings.overlay.autoHideWithLiveWindowDescription": "Quand le masquage automatique de la fenêtre live est activé, les overlays visibles se masquent avec le compteur live et reviennent seulement s'ils étaient visibles avant le masquage.",
   "settings.overlay.autoHideWithLiveWindowHelp": "Cette option suit le cycle d'affichage/masquage du compteur live basé sur les dégâts. Elle n'active pas les overlays toute seule et reste inactive tant que le masquage automatique de la fenêtre live est désactivé.",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "Contrôle le comportement global de l'application qui n'est pas lié à une fenêtre superposée ou à une vue de compteur.",
   "settings.hideMainWindowToTray": "Masquer la fenêtre principale dans la zone de notification",
   "settings.hideMainWindowToTrayDescription": "Lorsque cette option est activée, fermer la fenêtre principale la masque au lieu de quitter. Utilisez l'icône de la zone de notification pour la restaurer, ou Quitter pour fermer complètement.",
-  "sidebar.openChangelog": "Voir les changements"
+  "sidebar.openChangelog": "Voir les changements",
+  "tool.minimap": "DBM"
 }

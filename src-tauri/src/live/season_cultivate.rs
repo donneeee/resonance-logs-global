@@ -777,7 +777,7 @@ fn parse_repeated_i32(reader: &mut DirtyReader<'_>) -> DirtyResult<Vec<i32>> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::live::counter_tracker::CounterAction;
+    use crate::live::counter_tracker::{CounterAction, ResetBuffTarget};
 
     #[test]
     fn active_snapshot_uses_explicit_active_area_list() {
@@ -1512,6 +1512,7 @@ mod tests {
             threshold,
             reset_buff_id,
             reset_source_config_id: None,
+            reset_buff_target: ResetBuffTarget::SelfPlayer,
             on_buff_add: CounterAction::NoOp,
             on_buff_change: CounterAction::NoOp,
             on_buff_remove: CounterAction::NoOp,
@@ -1525,6 +1526,7 @@ mod tests {
             count_reset_buff_procs: false,
             reset_skill_keys: None,
             on_reset_skill: CounterAction::NoOp,
+            dungeon_start_freeze_ms: None,
         }
     }
 

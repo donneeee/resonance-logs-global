@@ -1323,6 +1323,147 @@ pub struct BossBuffUpdatePayload {
     pub boss_buffs: HashMap<String, Vec<BuffUpdateState>>,
 }
 
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct BossDbmEvent {
+    pub skill_effect_id: i32,
+    pub base_skill_id: i32,
+    pub duration_ms: i32,
+    pub create_time_ms: i64,
+    pub insertion: i32,
+    pub server_timestamp_ms: Option<i64>,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct BossDbmUpdatePayload {
+    pub events: Vec<BossDbmEvent>,
+}
+
+/// Stamina/resilience snapshot for the current monster target.
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct StunEntry {
+    pub boss_entity_uuid: String,
+    pub monster_id: i32,
+    pub current: i64,
+    pub max: i64,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct StunUpdatePayload {
+    pub entries: Vec<StunEntry>,
+}
+
+/// Classification of an entity rendered on the minimap.
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, Copy, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum MinimapEntityKind {
+    Local,
+    Teammate,
+    Boss,
+    Monster,
+    Dummy,
+    Other,
+}
+
+/// Raw entity type exposed to the minimap as a reusable fact.
+#[derive(
+    specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, Copy, PartialEq, Eq, Default,
+)]
+#[serde(rename_all = "camelCase")]
+pub enum MinimapEntityType {
+    #[default]
+    Unknown,
+    Monster,
+    Npc,
+    SceneObject,
+    Zone,
+    Bullet,
+    ClientBullet,
+    Pet,
+    Char,
+    Dummy,
+    Drop,
+    Field,
+    Trap,
+    Collection,
+    StaticObject,
+    Vehicle,
+    Toy,
+    CommunityHouse,
+    HouseItem,
+    Other,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct MinimapBuffFact {
+    pub target_entity_uuid: String,
+    pub buff_uuid: i32,
+    pub base_id: i32,
+    pub layer: i32,
+    pub create_time_ms: i64,
+    pub duration_ms: i32,
+    pub fire_uuid: Option<String>,
+    pub source_config_id: Option<i32>,
+    pub effect_ids: Vec<i32>,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct MinimapEntity {
+    pub entity_uuid: String,
+    pub entity_type: MinimapEntityType,
+    pub kind: MinimapEntityKind,
+    pub x: f32,
+    pub y: f32,
+    pub z: f32,
+    pub name: Option<String>,
+    pub monster_id: Option<i32>,
+    pub facing: Option<f32>,
+    pub is_dead: bool,
+    pub top_summoner_id: Option<String>,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct MinimapSkillCast {
+    pub entity_uuid: String,
+    pub skill_id: i32,
+    pub time_ms: i64,
+    pub x: Option<f32>,
+    pub z: Option<f32>,
+    pub facing: Option<f32>,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct MinimapMarker {
+    pub marker: i32,
+    pub skill_id: i32,
+    pub x: Option<f32>,
+    pub z: Option<f32>,
+}
+
+#[derive(specta::Type, serde::Serialize, serde::Deserialize, Debug, Clone, Default, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct MinimapSnapshot {
+    pub scene_id: i32,
+    pub local_player_uuid: String,
+    pub entities: Vec<MinimapEntity>,
+    pub buffs: Vec<MinimapBuffFact>,
+    pub markers: Vec<MinimapMarker>,
+}
+
+#[derive(serde::Serialize, Debug, Clone)]
+#[serde(rename_all = "camelCase")]
+pub struct MinimapUpdatePayload {
+    pub snapshot: Option<MinimapSnapshot>,
+    pub skill_casts: Vec<MinimapSkillCast>,
+}
+
 #[derive(serde::Serialize, Debug, Clone)]
 #[serde(rename_all = "camelCase")]
 pub struct TeammateBuffUpdatePayload {

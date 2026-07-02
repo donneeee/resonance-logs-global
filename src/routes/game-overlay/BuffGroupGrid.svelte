@@ -9,6 +9,7 @@
     group,
     buffs,
     editable = false,
+    position = group.position,
     tagText = "",
     stackCounterSize = 9,
     onPointerDown = undefined,
@@ -17,6 +18,7 @@
     group: BuffGroup;
     buffs: IconBuffDisplay[];
     editable?: boolean;
+    position?: { x: number; y: number };
     tagText?: string;
     stackCounterSize?: number;
     onPointerDown?: PointerHandler;
@@ -28,8 +30,8 @@
 <div
   class="overlay-group buff-group-container"
   class:editable={editable}
-  style:left={`${group.position.x}px`}
-  style:top={`${group.position.y}px`}
+  style:left={`${position.x}px`}
+  style:top={`${position.y}px`}
   onpointerdown={onPointerDown}
 >
   {#if editable}

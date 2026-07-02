@@ -5,6 +5,7 @@
   import type { ColumnDefinition } from "$lib/column-data";
   import { livePlayerRoute } from "$lib/live-entity-route";
   import ClassSpecIcon from "$lib/components/class-spec-icon.svelte";
+  import ChallengeWarningIcon from "$lib/components/ChallengeWarningIcon.svelte";
   import OceanWeaponBadge from "$lib/components/ocean-weapon-badge.svelte";
   import TableRowGlow from "$lib/components/table-row-glow.svelte";
   import AbbreviatedNumber from "$lib/components/abbreviated-number.svelte";
@@ -186,6 +187,9 @@
             />
           {/if}
           <span class="truncate font-medium">{displayName || `#${player.uid}`}</span>
+          {#if player.forbiddenHit}
+            <ChallengeWarningIcon ids={player.forbiddenHitIds} />
+          {/if}
           {#if player.classSpecName || player.className}
             <span class="text-muted-foreground truncate">
               {formatClassSpecLabel(player.className, player.classSpecName)}
@@ -298,6 +302,9 @@
           style="color: {customThemeColors.tableTextColor};"
           >{displayName || `#${player.uid}`}</span
         >
+        {#if player.forbiddenHit}
+          <ChallengeWarningIcon ids={player.forbiddenHitIds} />
+        {/if}
       </div>
     </td>
     {#each visiblePlayerColumns as col (col.key)}

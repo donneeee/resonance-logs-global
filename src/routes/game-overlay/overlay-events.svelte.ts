@@ -196,21 +196,45 @@ function buildTrackedUptimeRows(localPlayerUid: number, now: number) {
   const trackingModes = buffUptimeTrackingModes();
   const minStacksEnabled = buffUptimeMinStacksEnabled();
   const minStacks = buffUptimeMinStacks();
-  const allBuffs: BuffUpdateState[] = [
-    ...overlayRuntime.localBuffs,
-    ...Array.from(overlayRuntime.bossBuffLists.values()).flat(),
-  ];
+  const localBuffsByBaseId = new Map<number, BuffUpdateState[]>();
+  const allBuffsByBaseId = new Map<number, BuffUpdateState[]>();
   const next = new Map<string, TrackedUptimeRow>();
+
+  const indexBuff = (
+    map: Map<number, BuffUpdateState[]>,
+    buff: BuffUpdateState,
+  ) => {
+    const bucket = map.get(buff.baseId);
+    if (bucket) {
+      bucket.push(buff);
+    } else {
+      map.set(buff.baseId, [buff]);
+    }
+  };
+
+  for (const buff of overlayRuntime.localBuffs) {
+    indexBuff(localBuffsByBaseId, buff);
+    indexBuff(allBuffsByBaseId, buff);
+  }
+  for (const buffs of overlayRuntime.bossBuffLists.values()) {
+    for (const buff of buffs) {
+      indexBuff(allBuffsByBaseId, buff);
+    }
+  }
 
   for (const baseId of trackedIds) {
     const trackingMode = trackingModes[String(baseId)] ?? "self";
     const minStack = minStacksEnabled[String(baseId)]
       ? Math.max(1, minStacks[String(baseId)] ?? 1)
       : 1;
-    const matches = allBuffs.filter((buff) => buff.baseId === baseId && buff.layer >= minStack);
+    const matches = (allBuffsByBaseId.get(baseId) ?? []).filter(
+      (buff) => buff.layer >= minStack,
+    );
 
     if (trackingMode === "self") {
-      const ownMatches = overlayRuntime.localBuffs.filter((buff) => buff.baseId === baseId && buff.layer >= minStack);
+      const ownMatches = (localBuffsByBaseId.get(baseId) ?? []).filter(
+        (buff) => buff.layer >= minStack,
+      );
       if (ownMatches.length === 0) continue;
       next.set(`uptime:${baseId}:self`, {
         key: `uptime:${baseId}:self`,
@@ -441,11 +465,13 @@ export function initOverlay() {
     const deltaActiveCombatMs = Math.max(0, data.activeCombatTimeMs - prevActiveCombatMs);
     const now = Date.now();
     const trackedRows = buildTrackedUptimeRows(data.localPlayerUid, now);
-    overlayRuntime.activeUptimeRowKeys = new Set(
-      Array.from(trackedRows.entries())
-        .filter(([, row]) => row.isActive)
-        .map(([key]) => key),
-    );
+    const nextActiveUptimeRowKeys = new Set<string>();
+    for (const [key, row] of trackedRows) {
+      if (row.isActive) {
+        nextActiveUptimeRowKeys.add(key);
+      }
+    }
+    overlayRuntime.activeUptimeRowKeys = nextActiveUptimeRowKeys;
 
     const nextTotals = new Map(overlayRuntime.uptimeTotals);
     for (const [key, row] of trackedRows) {

@@ -105,18 +105,9 @@ function uniqueNumbers(values) {
   return [...new Set(values.map(Number).filter(Number.isFinite))].sort((left, right) => left - right);
 }
 
-function uniqueStrings(values) {
-  return [...new Set(values.map((value) => String(value ?? "")).filter(Boolean))].sort();
-}
-
 function whole(value) {
   if (!Number.isFinite(value)) return "";
   return Math.round(value).toLocaleString("en-US");
-}
-
-function decimal(value, digits = 1) {
-  if (!Number.isFinite(value)) return "";
-  return value.toFixed(digits);
 }
 
 function markdownCell(value) {

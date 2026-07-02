@@ -27,6 +27,7 @@
       "dps/settings-hotkeys.json",
       "dps/settings-debug.json",
       "equipment.json",
+      "minimap.json",
       "module-calc.json",
       "overlay/monster-monitor.json",
       "overlay/skill-monitor/general.json",

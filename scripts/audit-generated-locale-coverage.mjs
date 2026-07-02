@@ -18,6 +18,7 @@ const GENERATED_FILES = [
   "scenenames.json",
   "DamageAttrIdName.json",
   "RecountTable.json",
+  "DbmTable.json",
   "EffectSources.json",
   "SeasonPhantomFactors.json",
   "class-labels.json",
@@ -130,12 +131,6 @@ function formatCount(value) {
 function percent(part, total) {
   if (!total) return "0.0%";
   return `${((part / total) * 100).toFixed(1)}%`;
-}
-
-function sortedObject(value) {
-  return Object.fromEntries(
-    Object.entries(value).sort(([left], [right]) => left.localeCompare(right)),
-  );
 }
 
 function looksLikeLocaleMap(value, localeKeys) {

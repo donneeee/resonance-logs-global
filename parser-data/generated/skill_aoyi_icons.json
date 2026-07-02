@@ -25,6 +25,174 @@
     "SourceOffset": 877433897
   },
   {
+    "id": 3021,
+    "Name": "雷霆天引",
+    "NameDesign": "雷霆天引",
+    "Names": {
+      "design": "雷霆天引",
+      "en": "雷霆天引",
+      "zh-CN": "雷霆天引",
+      "ja": "雷霆天引",
+      "de": "雷霆天引",
+      "es": "雷霆天引",
+      "fr": "雷霆天引",
+      "id": "雷霆天引",
+      "ko-KR": "雷霆天引",
+      "pt-BR": "雷霆天引",
+      "th": "雷霆天引",
+      "zh-TW": "雷霆天引"
+    },
+    "Icon": "skill_aoyi_skill_icon_014.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3022,
+    "Name": "琉火咆哮",
+    "NameDesign": "琉火咆哮",
+    "Names": {
+      "design": "琉火咆哮",
+      "en": "琉火咆哮",
+      "zh-CN": "琉火咆哮",
+      "ja": "琉火咆哮",
+      "de": "琉火咆哮",
+      "es": "琉火咆哮",
+      "fr": "琉火咆哮",
+      "id": "琉火咆哮",
+      "ko-KR": "琉火咆哮",
+      "pt-BR": "琉火咆哮",
+      "th": "琉火咆哮",
+      "zh-TW": "琉火咆哮"
+    },
+    "Icon": "skill_aoyi_skill_icon_017.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3023,
+    "Name": "脉冲祝祷",
+    "NameDesign": "脉冲祝祷",
+    "Names": {
+      "design": "脉冲祝祷",
+      "en": "脉冲祝祷",
+      "zh-CN": "脉冲祝祷",
+      "ja": "脉冲祝祷",
+      "de": "脉冲祝祷",
+      "es": "脉冲祝祷",
+      "fr": "脉冲祝祷",
+      "id": "脉冲祝祷",
+      "ko-KR": "脉冲祝祷",
+      "pt-BR": "脉冲祝祷",
+      "th": "脉冲祝祷",
+      "zh-TW": "脉冲祝祷"
+    },
+    "Icon": "skill_aoyi_skill_icon_012.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3024,
+    "Name": "地狱突刺",
+    "NameDesign": "地狱突刺",
+    "Names": {
+      "design": "地狱突刺",
+      "en": "地狱突刺",
+      "zh-CN": "地狱突刺",
+      "ja": "地狱突刺",
+      "de": "地狱突刺",
+      "es": "地狱突刺",
+      "fr": "地狱突刺",
+      "id": "地狱突刺",
+      "ko-KR": "地狱突刺",
+      "pt-BR": "地狱突刺",
+      "th": "地狱突刺",
+      "zh-TW": "地狱突刺"
+    },
+    "Icon": "skill_aoyi_skill_icon_047.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3025,
+    "Name": "雷霆咆哮",
+    "NameDesign": "雷霆咆哮",
+    "Names": {
+      "design": "雷霆咆哮",
+      "en": "雷霆咆哮",
+      "zh-CN": "雷霆咆哮",
+      "ja": "雷霆咆哮",
+      "de": "雷霆咆哮",
+      "es": "雷霆咆哮",
+      "fr": "雷霆咆哮",
+      "id": "雷霆咆哮",
+      "ko-KR": "雷霆咆哮",
+      "pt-BR": "雷霆咆哮",
+      "th": "雷霆咆哮",
+      "zh-TW": "雷霆咆哮"
+    },
+    "Icon": "skill_aoyi_skill_icon_038.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3026,
+    "Name": "静默潮汐",
+    "NameDesign": "静默潮汐",
+    "Names": {
+      "design": "静默潮汐",
+      "en": "静默潮汐",
+      "zh-CN": "静默潮汐",
+      "ja": "静默潮汐",
+      "de": "静默潮汐",
+      "es": "静默潮汐",
+      "fr": "静默潮汐",
+      "id": "静默潮汐",
+      "ko-KR": "静默潮汐",
+      "pt-BR": "静默潮汐",
+      "th": "静默潮汐",
+      "zh-TW": "静默潮汐"
+    },
+    "Icon": "skill_aoyi_skill_icon_049.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3027,
+    "Name": "生命祈愿",
+    "NameDesign": "生命祈愿",
+    "Names": {
+      "design": "生命祈愿",
+      "en": "生命祈愿",
+      "zh-CN": "生命祈愿",
+      "ja": "生命祈愿",
+      "de": "生命祈愿",
+      "es": "生命祈愿",
+      "fr": "生命祈愿",
+      "id": "生命祈愿",
+      "ko-KR": "生命祈愿",
+      "pt-BR": "生命祈愿",
+      "th": "生命祈愿",
+      "zh-TW": "生命祈愿"
+    },
+    "Icon": "skill_aoyi_skill_icon_013.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
+    "id": 3028,
+    "Name": "佑世边界",
+    "NameDesign": "佑世边界",
+    "Names": {
+      "design": "佑世边界",
+      "en": "佑世边界",
+      "zh-CN": "佑世边界",
+      "ja": "佑世边界",
+      "de": "佑世边界",
+      "es": "佑世边界",
+      "fr": "佑世边界",
+      "id": "佑世边界",
+      "ko-KR": "佑世边界",
+      "pt-BR": "佑世边界",
+      "th": "佑世边界",
+      "zh-TW": "佑世边界"
+    },
+    "Icon": "skill_aoyi_skill_icon_054.png",
+    "Source": "CN 0.1.7 skill_aoyi_icons.json"
+  },
+  {
     "id": 3901,
     "Id": 3901,
     "Name": "Arcane! Flame Roar",

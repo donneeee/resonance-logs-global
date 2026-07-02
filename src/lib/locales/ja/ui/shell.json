@@ -28,6 +28,10 @@
   "settings.overlay.sectionVisibilities.subtitle": "Control which parts of the shared overlay are shown for the active profile.",
   "settings.overlay.startWithApp": "Start with App",
   "settings.overlay.startWithAppDescription": "Open the shared overlay automatically when the app starts and overlay publishing is enabled.",
+  "settings.overlay.skillAutoHideDaily": "日常シーンでスキルモニターを自動非表示",
+  "settings.overlay.skillAutoHideDailyDescription": "スキルモニターが有効な場合、日常シーンのブラックリストでは共有オーバーレイを非表示にし、離れると通常の表示状態に戻します。",
+  "settings.overlay.monsterAutoHideDaily": "日常シーンでモンスターモニターを自動非表示",
+  "settings.overlay.monsterAutoHideDailyDescription": "モンスターモニターが有効な場合、日常シーンのブラックリストでは共有オーバーレイを非表示にし、離れると通常の表示状態に戻します。",
   "settings.overlay.autoHideWithLiveWindow": "ライブウィンドウと一緒に自動非表示",
   "settings.overlay.autoHideWithLiveWindowDescription": "「ライブウィンドウを自動非表示」が有効な場合、表示中のオーバーレイはライブメーターと一緒に非表示になり、自動非表示前に表示されていたものだけ復元されます。",
   "settings.overlay.autoHideWithLiveWindowHelp": "ライブメーターのダメージ検出による非表示/表示サイクルに従います。オーバーレイを自動でオンにはせず、「ライブウィンドウを自動非表示」がオフの間は動作しません。",
@@ -83,5 +87,6 @@
   "settings.appBehavior.subtitle": "個別のオーバーレイやメーター表示に紐づかない、アプリ全体の動作を制御します。",
   "settings.hideMainWindowToTray": "メインウィンドウをトレイに隠す",
   "settings.hideMainWindowToTrayDescription": "有効にすると、メインウィンドウを閉じても終了せずトレイに隠します。復元するにはトレイアイコンを使用し、完全に終了するには終了を選択します。",
-  "sidebar.openChangelog": "変更履歴を表示"
+  "sidebar.openChangelog": "変更履歴を表示",
+  "tool.minimap": "DBM"
 }
