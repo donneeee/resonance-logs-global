@@ -372,8 +372,11 @@ fn emit_local_buff_update_snapshot(state: &mut AppState) {
 }
 
 fn emit_boss_buff_update_snapshot(state: &mut AppState) {
+    let current_target_uuid = current_attack_target_uuid(state);
     let mut payload = build_monster_buff_snapshots(state);
-    payload.retain(|&entity_uuid, _| !state.attr_store.is_dead(entity_uuid));
+    payload.retain(|&entity_uuid, _| {
+        current_target_uuid == Some(entity_uuid) && !state.attr_store.is_dead(entity_uuid)
+    });
     let mut identity_names = HashMap::new();
     let mut monster_ids = HashMap::new();
     for &entity_uuid in payload.keys() {
@@ -5540,7 +5543,11 @@ impl AppStateManager {
         let force_identity_resend = should_resend_overlay_identity_names(state);
 
         for (&entity_uuid, buffs) in &raw_boss_buff_snapshot {
-            if entity_uuid == 0 || buffs.is_empty() || state.attr_store.is_dead(entity_uuid) {
+            if entity_uuid == 0
+                || current_target_uuid != Some(entity_uuid)
+                || buffs.is_empty()
+                || state.attr_store.is_dead(entity_uuid)
+            {
                 continue;
             }
 

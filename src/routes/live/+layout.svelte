@@ -40,6 +40,11 @@
   import type { LiveDataPayload, RawCombatStats, RawSkillStats } from "$lib/api";
   import { applyCustomFonts } from "$lib/font-loader";
   import AppBackgroundLayer from "$lib/components/app-background-layer.svelte";
+  import {
+    clearDiscordPresence,
+    syncDiscordPresenceConfig,
+    updateDiscordPresenceFromLiveData,
+  } from "$lib/discord-presence";
   import { writable } from "svelte/store";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
   import { liveEntityRenderKey } from "$lib/live-entity-route";
@@ -679,6 +684,7 @@
         lastEventTime = Date.now();
         hadAnyEvent = true;
         void syncAutoHideLiveWindow(livePayloadHasDamageEvent(event.payload));
+        void updateDiscordPresenceFromLiveData(event.payload, lastEventTime);
         if (event.payload.fightStartTimestampMs > 0) {
           ingestLiveDataPayload(event.payload, lastEventTime);
         } else if (event.payload.totalDmg === 0 && event.payload.totalHeal === 0) {
@@ -701,6 +707,7 @@
         autoHideLastObservedDamageTotal = 0;
         resetLiveActivityTracking(lastEventTime);
         void syncAutoHideLiveWindow(false);
+        void clearDiscordPresence(true);
         clearMeterData();
         notificationToast?.showToast(
           "notice",
@@ -1046,6 +1053,7 @@ t("live.resumeToast", "战斗已继续"),
     isDestroyed = false;
     autoHideLastObservedDamageTotal = 0;
     void refreshLiveWindowSettingsFromBackend();
+    void syncDiscordPresenceConfig();
     settingsRefreshInterval = setInterval(() => {
       void refreshLiveWindowSettingsFromBackend();
     }, LIVE_SETTINGS_REFRESH_FALLBACK_MS);
@@ -1107,8 +1115,14 @@ t("live.resumeToast", "战斗已继续"),
       manualShowUnlisten?.();
       interactionRestoreUnlisten?.();
       if (unlisten) unlisten();
+      void clearDiscordPresence(true);
       cleanupStores();
     };
+  });
+
+  $effect(() => {
+    SETTINGS.discordPresence.state.enabled;
+    void syncDiscordPresenceConfig();
   });
 
   $effect(() => {

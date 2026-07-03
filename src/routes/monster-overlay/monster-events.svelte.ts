@@ -184,7 +184,7 @@ export function initMonsterOverlay() {
 
   window.addEventListener("pointermove", onGlobalPointerMove);
   window.addEventListener("pointerup", onGlobalPointerUp);
-  monsterRuntime.rafId = requestAnimationFrame(updateMonsterDisplay);
+  updateMonsterDisplay();
 
   monsterRuntime.cleanup = () => {
     monsterRuntime.isMounted = false;
@@ -223,7 +223,7 @@ export function initMonsterOverlay() {
     window.removeEventListener("pointermove", onGlobalPointerMove);
     window.removeEventListener("pointerup", onGlobalPointerUp);
     if (monsterRuntime.rafId) {
-      cancelAnimationFrame(monsterRuntime.rafId);
+      window.clearTimeout(monsterRuntime.rafId);
       monsterRuntime.rafId = null;
     }
     setMonsterOverlayWindow(null);

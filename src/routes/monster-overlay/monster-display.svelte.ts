@@ -44,6 +44,7 @@ import type {
 const FANTASY_DISPLAY_TTL_MS = 5000;
 const STUN_BROKEN_HIGHLIGHT_COLOR = "#ff4d4f";
 const STUN_BROKEN_FLASH_INTERVAL_MS = 600;
+const MONSTER_DISPLAY_REFRESH_MS = 100;
 const USE_LEGACY_MONSTER_TARGET_UID_TITLE_FALLBACK = false;
 const USE_LEGACY_MONSTER_ENTITY_UID_NAME_FALLBACK = false;
 const MAX_DIRECT_ENTITY_UID = 0xFFFF_FFFF;
@@ -732,6 +733,7 @@ function buildHateRows(entries: HateEntry[], maxDisplay: number): TextBuffDispla
 }
 
 export function updateMonsterDisplay() {
+  if (!monsterRuntime.isMounted) return;
   const now = Date.now();
   const aliases = ensureBuffAliases(SETTINGS.monsterMonitor.state.buffAliases);
   const alertMap = ensureBuffAlerts(SETTINGS.monsterMonitor.state.buffAlerts);
@@ -1002,5 +1004,8 @@ export function updateMonsterDisplay() {
   monsterRuntime.stunSections = nextStunSections;
   monsterRuntime.dbmRows = nextDbmRows;
   monsterRuntime.fantasyRows = nextFantasyRows;
-  monsterRuntime.rafId = requestAnimationFrame(updateMonsterDisplay);
+  monsterRuntime.rafId = window.setTimeout(
+    updateMonsterDisplay,
+    MONSTER_DISPLAY_REFRESH_MS,
+  );
 }

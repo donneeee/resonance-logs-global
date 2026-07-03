@@ -40,15 +40,17 @@
       };
 
   let dragState: DragState | null = $state(null);
+  let previewRect: MinimapPanelRect | null = $state(null);
 
-  const panelScale = $derived(rect.scale ?? 1);
+  const activeRect = $derived(previewRect ?? rect);
+  const panelScale = $derived(activeRect.scale ?? 1);
   const panelWidth = $derived(
-    scaleMode === "width" ? rect.width * panelScale : rect.width,
+    scaleMode === "width" ? activeRect.width * panelScale : activeRect.width,
   );
   const panelStyle = $derived(
     [
-      `left: ${rect.x}px`,
-      `top: ${rect.y}px`,
+      `left: ${activeRect.x}px`,
+      `top: ${activeRect.y}px`,
       `width: ${panelWidth}px`,
       scaleMode === "transform"
         ? `transform: scale(${panelScale}); transform-origin: top left`
@@ -79,6 +81,7 @@
       startY: e.clientY,
       startRect: { ...rect },
     };
+    previewRect = { ...rect };
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", stopDrag, { once: true });
   }
@@ -93,6 +96,7 @@
       startY: e.clientY,
       startScale: panelScale,
     };
+    previewRect = { ...rect };
     window.addEventListener("pointermove", onPointerMove);
     window.addEventListener("pointerup", stopDrag, { once: true });
   }
@@ -102,10 +106,11 @@
     if (dragState.kind === "resize") {
       const delta =
         (e.clientX - dragState.startX + e.clientY - dragState.startY) / 300;
-      rect.scale = Math.max(
+      const nextScale = Math.max(
         MIN_SCALE,
         Math.min(MAX_SCALE, dragState.startScale + delta),
       );
+      previewRect = { ...(previewRect ?? rect), scale: nextScale };
       return;
     }
 
@@ -113,11 +118,14 @@
       dragState.startRect.x + e.clientX - dragState.startX,
       dragState.startRect.y + e.clientY - dragState.startY,
     );
-    rect.x = next.x;
-    rect.y = next.y;
+    previewRect = { ...(previewRect ?? rect), x: next.x, y: next.y };
   }
 
   function stopDrag() {
+    if (previewRect) {
+      Object.assign(rect, previewRect);
+      previewRect = null;
+    }
     dragState = null;
     window.removeEventListener("pointermove", onPointerMove);
   }

@@ -2005,6 +2005,14 @@ const DEFAULT_SETTINGS = {
     lastSelectedProfileFile: "",
     profileFiles: {} as Record<string, string>,
   } satisfies ProfileLibrarySettings,
+  discordPresence: {
+    enabled: false,
+    showScene: true,
+    showBoss: true,
+    showTimer: true,
+    showDps: true,
+    showDeaths: true,
+  },
   customTriggers: {
     enabled: true,
     loggerAlwaysOnTop: false,
@@ -2346,6 +2354,23 @@ function normalizeProfileLibrarySettingsState(
   return next as ProfileLibrarySettings;
 }
 
+function normalizeDiscordPresenceSettingsState(
+  value: unknown,
+): typeof DEFAULT_SETTINGS.discordPresence {
+  const next = normalizeObjectWithDefaults(
+    value,
+    DEFAULT_SETTINGS.discordPresence,
+  );
+  next.enabled = next.enabled === true;
+  delete (next as MutableRecord)["clientId"];
+  next.showScene = next.showScene !== false;
+  next.showBoss = next.showBoss !== false;
+  next.showTimer = next.showTimer !== false;
+  next.showDps = next.showDps !== false;
+  next.showDeaths = next.showDeaths !== false;
+  return next as typeof DEFAULT_SETTINGS.discordPresence;
+}
+
 function normalizeMonsterMonitorSettingsState(
   value: unknown,
 ): MonsterMonitorConfig {
@@ -2593,6 +2618,11 @@ export const SETTINGS = {
     "profileLibrary",
     DEFAULT_SETTINGS.profileLibrary,
     normalizeProfileLibrarySettingsState,
+  ),
+  discordPresence: createSettingsStore(
+    "discordPresence",
+    DEFAULT_SETTINGS.discordPresence,
+    normalizeDiscordPresenceSettingsState,
   ),
   customTriggers: createSettingsStore(
     "customTriggers",
@@ -2966,6 +2996,11 @@ function persistCurrentLiveSettingsStores(): Promise<void> {
       normalizeChallengeWatchSettingsState,
     ),
     persistSettingsStoreState(
+      SETTINGS.discordPresence,
+      DEFAULT_SETTINGS.discordPresence,
+      normalizeDiscordPresenceSettingsState,
+    ),
+    persistSettingsStoreState(
       SETTINGS.live.general,
       DEFAULT_SETTINGS.live.general,
     ),
@@ -3179,6 +3214,11 @@ export function refreshLiveWindowSettingsFromBackend(): Promise<void> {
       normalizeProfileLibrarySettingsState,
     ),
     repairSettingsStoreFromBackend(
+      SETTINGS.discordPresence,
+      DEFAULT_SETTINGS.discordPresence,
+      normalizeDiscordPresenceSettingsState,
+    ),
+    repairSettingsStoreFromBackend(
       SETTINGS.trainingDummy,
       DEFAULT_SETTINGS.trainingDummy,
     ),
@@ -3371,6 +3411,7 @@ export const settings = {
       moduleCalc: SETTINGS.moduleCalc.state,
       skillMonitor: SETTINGS.skillMonitor.state,
       profileLibrary: SETTINGS.profileLibrary.state,
+      discordPresence: SETTINGS.discordPresence.state,
       customTriggers: SETTINGS.customTriggers.state,
       monsterMonitor: SETTINGS.monsterMonitor.state,
       challengeWatch: SETTINGS.challengeWatch.state,
@@ -3457,6 +3498,10 @@ export function normalizePersistedSettings(): void {
   Object.assign(
     SETTINGS.profileLibrary.state,
     normalizeProfileLibrarySettingsState(SETTINGS.profileLibrary.state),
+  );
+  Object.assign(
+    SETTINGS.discordPresence.state,
+    normalizeDiscordPresenceSettingsState(SETTINGS.discordPresence.state),
   );
   Object.assign(
     SETTINGS.monsterMonitor.state,

@@ -88,5 +88,14 @@
   "settings.hideMainWindowToTray": "닫을 때 메인 창을 트레이로 숨기기",
   "settings.hideMainWindowToTrayDescription": "활성화하면 메인 창을 닫아도 종료하지 않고 트레이로 숨깁니다. 복원하려면 트레이 아이콘을 사용하고 완전히 종료하려면 종료를 선택하세요.",
   "sidebar.openChangelog": "변경 내역 보기",
-  "tool.minimap": "DBM"
+  "tool.minimap": "DBM",
+  "settings.discordPresence.title": "Discord Rich Presence",
+  "settings.discordPresence.description": "Publish your current scene, boss, true DPS timer, personal DPS, and deaths to Discord when Discord is running.",
+  "settings.discordPresence.enabled": "Enable Discord Rich Presence",
+  "settings.discordPresence.enabledDescription": "Shows Resonance Logs activity in Discord while Discord is running. Presence is cleared when this is disabled.",
+  "settings.discordPresence.showScene": "Show scene",
+  "settings.discordPresence.showBoss": "Show boss",
+  "settings.discordPresence.showTimer": "Show timer",
+  "settings.discordPresence.showDps": "Show DPS",
+  "settings.discordPresence.showDeaths": "Show deaths"
 }

@@ -82,6 +82,7 @@ export type MonsterDragState = {
   startX: number;
   startY: number;
   startPos: { x: number; y: number };
+  currentPos: { x: number; y: number };
 };
 
 export type MonsterResizeState = {
@@ -89,6 +90,7 @@ export type MonsterResizeState = {
   startX: number;
   startY: number;
   startValue: number;
+  currentValue: number;
 };
 
 export type GhostArea = {

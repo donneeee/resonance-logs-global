@@ -94,6 +94,7 @@ const CAPTURE_EMPTY_DISPATCH_FAST_SPINS: u32 = 20;
 const CAPTURE_EMPTY_DISPATCH_BASE_SLEEP: Duration = Duration::from_millis(2);
 const CAPTURE_EMPTY_DISPATCH_IDLE_SLEEP: Duration = Duration::from_millis(16);
 const CAPTURE_EMPTY_DISPATCH_DEEP_IDLE_SLEEP: Duration = Duration::from_millis(33);
+const CAPTURE_STARTUP_SILENCE_RESTART_AFTER: Duration = Duration::from_secs(12);
 const SCENE_FRAME_DEDUPE_TTL: Duration = Duration::from_secs(3);
 const SCENE_FRAME_DEDUPE_CLEANUP_INTERVAL: Duration = Duration::from_millis(500);
 const SCENE_FRAME_DEDUPE_LIMIT: usize = 8192;
@@ -1311,6 +1312,8 @@ fn read_packets(
     let mut non_scene_streams: HashMap<String, NonSceneStreamState> = HashMap::new();
     let mut scene_frame_deduper = SceneFrameDeduper::new();
     let mut game_connections = GameConnectionFilter::new();
+    let source_started_at = Instant::now();
+    let mut saw_raw_packet = false;
     let mut cleanup_last_run = Instant::now();
     let mut empty_dispatches = 0u32;
     #[cfg(debug_assertions)]
@@ -1485,13 +1488,26 @@ fn read_packets(
                 };
                 std::thread::sleep(sleep_duration);
             }
-            Ok(_) => {
+            Ok(count) => {
+                if count > 0 {
+                    saw_raw_packet = true;
+                }
                 empty_dispatches = 0;
             }
             Err(e) => {
                 error!(target: "app::capture", "capture_error err={}", e);
                 break;
             }
+        }
+
+        if !saw_raw_packet && source_started_at.elapsed() >= CAPTURE_STARTUP_SILENCE_RESTART_AFTER {
+            warn!(
+                target: "app::capture",
+                "capture_startup_silent method=Npcap device={} elapsed_ms={}; restarting capture handle",
+                npcap_device,
+                source_started_at.elapsed().as_millis()
+            );
+            break;
         }
 
         if needs_cleanup {

@@ -112,6 +112,8 @@ pub struct RawEntityData {
     pub class_spec: i32,
     pub class_name: String,
     pub class_spec_name: String,
+    #[serde(default)]
+    pub is_dead: bool,
     pub ability_score: i32,
     pub season_strength: i32,
     pub damage: RawCombatStats,

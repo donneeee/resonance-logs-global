@@ -4,6 +4,7 @@
   import { toast } from "svelte-sonner";
   import { Button } from "$lib/components/ui/button/index.js";
   import { commands, type EventLoggerSessionDirectoryPayload } from "$lib/bindings";
+  import { syncDiscordPresenceConfig } from "$lib/discord-presence";
   import { setEventLoggerAlwaysOnTop, showEventLoggerWindow } from "$lib/event-logger-window";
   import { uiT } from "$lib/i18n";
   import {
@@ -13,6 +14,7 @@
     saveActiveProfileToLibrary,
   } from "$lib/profile-library.svelte";
   import {
+    notifySettingsChanged,
     persistProfileLibrarySettings,
     SETTINGS,
   } from "$lib/settings-store";
@@ -29,6 +31,7 @@
   let loadingLoggerSessionDir = $state(false);
   let loggerSessionDirectory = $state<EventLoggerSessionDirectoryPayload | null>(null);
   let restoreRoseOrbsMeme = $state(false);
+  let discordPresenceSettingsTimer: ReturnType<typeof setTimeout> | null = null;
   const activeProfile = $derived.by(() => activeProfileOrDefault());
 
   function ensureLoggerSettingsShape() {
@@ -37,6 +40,25 @@
   }
 
   ensureLoggerSettingsShape();
+
+  function scheduleDiscordPresenceSettingsSync() {
+    if (discordPresenceSettingsTimer) clearTimeout(discordPresenceSettingsTimer);
+    discordPresenceSettingsTimer = setTimeout(() => {
+      discordPresenceSettingsTimer = null;
+      notifySettingsChanged();
+      void syncDiscordPresenceConfig();
+    }, 75);
+  }
+
+  $effect(() => {
+    SETTINGS.discordPresence.state.enabled;
+    SETTINGS.discordPresence.state.showScene;
+    SETTINGS.discordPresence.state.showBoss;
+    SETTINGS.discordPresence.state.showTimer;
+    SETTINGS.discordPresence.state.showDps;
+    SETTINGS.discordPresence.state.showDeaths;
+    scheduleDiscordPresenceSettingsSync();
+  });
 
   onMount(() => {
     void refreshEventLoggerSessionDirectory();
@@ -269,6 +291,52 @@
           </div>
         </div>
       </label>
+
+      <div class="space-y-3 rounded-lg border border-border/60 bg-background/40 p-4 text-sm">
+        <div>
+          <div class="font-medium">
+            {tShell("settings.discordPresence.title", "Discord Rich Presence")}
+          </div>
+          <p class="mt-1 text-xs text-muted-foreground">
+            {tShell(
+              "settings.discordPresence.description",
+              "Publish your current scene, boss, true DPS timer, personal DPS, and deaths to Discord when Discord is running.",
+            )}
+          </p>
+        </div>
+
+        <SettingsSwitch
+          bind:checked={SETTINGS.discordPresence.state.enabled}
+          label={tShell("settings.discordPresence.enabled", "Enable Discord Rich Presence")}
+          description={tShell(
+            "settings.discordPresence.enabledDescription",
+            "Shows Resonance Logs activity in Discord while Discord is running. Presence is cleared when this is disabled.",
+          )}
+        />
+
+        <div class="grid gap-2 md:grid-cols-2">
+          <SettingsSwitch
+            bind:checked={SETTINGS.discordPresence.state.showScene}
+            label={tShell("settings.discordPresence.showScene", "Show scene")}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.discordPresence.state.showBoss}
+            label={tShell("settings.discordPresence.showBoss", "Show boss")}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.discordPresence.state.showTimer}
+            label={tShell("settings.discordPresence.showTimer", "Show timer")}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.discordPresence.state.showDps}
+            label={tShell("settings.discordPresence.showDps", "Show DPS")}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.discordPresence.state.showDeaths}
+            label={tShell("settings.discordPresence.showDeaths", "Show deaths")}
+          />
+        </div>
+      </div>
 
       <div class="space-y-3 rounded-lg border border-border/60 bg-background/40 p-4 text-sm">
         <div class="flex flex-wrap items-start justify-between gap-3">

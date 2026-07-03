@@ -80,7 +80,7 @@ export function getClassIconTintColor(class_name: string, class_spec_name = ""):
   if (!class_spec_name) return "";
   const roleTint = getClassSpecRoleTintColor(class_spec_name);
   if (roleTint) return roleTint;
-  if (CLASS_SPEC_MAP[class_spec_name] || class_name) return SPEC_ICON_ROLE_COLORS.dps;
+  if (CLASS_SPEC_MAP[class_spec_name] || SPEC_CLASS_ALIASES[class_spec_name] || class_name) return SPEC_ICON_ROLE_COLORS.dps;
   return "";
 }
 
@@ -133,6 +133,13 @@ const SPEC_CLASS_ALIASES: Record<string, string> = {
   Blazecrimson: "Flame Berserker",
 };
 
+const SPEC_ICON_PATH_OVERRIDES: Record<string, string> = {
+  Formless: "/images/class_specs/Formless.png",
+  Voidflame: "/images/class_specs/Formless.png",
+  Crimson: "/images/class_specs/Crimson.png",
+  Blazecrimson: "/images/class_specs/Crimson.png",
+};
+
 function lookupWithAliases<T>(
   table: Record<string, T> | undefined,
   key: string,
@@ -157,6 +164,9 @@ export function getClassOrSpecIcon(class_name: string, class_spec_name = ""): st
   if ((className === "" || className === "blank") && classSpecName === "") {
     return "/images/classes/blank.png";
   }
+
+  const overrideIcon = SPEC_ICON_PATH_OVERRIDES[classSpecName];
+  if (overrideIcon) return overrideIcon;
 
   const specIcon = classSpecName
     ? lookupWithAliases(CLASS_SPEC_ICONS.specs, classSpecName, SPEC_ICON_ALIASES)

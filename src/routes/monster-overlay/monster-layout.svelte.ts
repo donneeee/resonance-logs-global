@@ -21,6 +21,24 @@ function clampPanelScale(value: number) {
   return Math.max(MIN_MONSTER_PANEL_SCALE, Math.min(MAX_MONSTER_PANEL_SCALE, value));
 }
 
+function dragTargetsMatch(left: MonsterDragTarget, right: MonsterDragTarget) {
+  return left.kind === right.kind;
+}
+
+function resizeTargetsMatch(left: MonsterResizeTarget, right: MonsterResizeTarget) {
+  return left.kind === right.kind;
+}
+
+function getDragPreviewPosition(target: MonsterDragTarget) {
+  const state = monsterRuntime.dragState;
+  return state && dragTargetsMatch(state.target, target) ? state.currentPos : null;
+}
+
+function getResizePreviewScale(target: MonsterResizeTarget) {
+  const state = monsterRuntime.resizeState;
+  return state && resizeTargetsMatch(state.target, target) ? state.currentValue : null;
+}
+
 export function setMonsterOverlayWindow(
   currentWindow: typeof monsterRuntime.currentWindow,
 ) {
@@ -42,51 +60,63 @@ export function getMonsterOverlaySizes() {
 }
 
 export function getMonsterPanelPosition() {
-  return getMonsterOverlayPositions().monsterBuffPanel;
+  return getDragPreviewPosition({ kind: "buffPanel" })
+    ?? getMonsterOverlayPositions().monsterBuffPanel;
 }
 
 export function getMonsterPanelScale() {
-  return getMonsterOverlaySizes().monsterBuffPanelScale;
+  return getResizePreviewScale({ kind: "buffPanel" })
+    ?? getMonsterOverlaySizes().monsterBuffPanelScale;
 }
 
 export function getTeammatePanelPosition() {
-  return getMonsterOverlayPositions().teammateBuffPanel;
+  return getDragPreviewPosition({ kind: "teammatePanel" })
+    ?? getMonsterOverlayPositions().teammateBuffPanel;
 }
 
 export function getTeammatePanelScale() {
-  return getMonsterOverlaySizes().teammateBuffPanelScale;
+  return getResizePreviewScale({ kind: "teammatePanel" })
+    ?? getMonsterOverlaySizes().teammateBuffPanelScale;
 }
 
 export function getHatePanelPosition() {
-  return getMonsterOverlayPositions().hatePanel;
+  return getDragPreviewPosition({ kind: "hatePanel" })
+    ?? getMonsterOverlayPositions().hatePanel;
 }
 
 export function getHatePanelScale() {
-  return getMonsterOverlaySizes().hatePanelScale;
+  return getResizePreviewScale({ kind: "hatePanel" })
+    ?? getMonsterOverlaySizes().hatePanelScale;
 }
 
 export function getFantasyPanelPosition() {
-  return getMonsterOverlayPositions().fantasyPanel;
+  return getDragPreviewPosition({ kind: "fantasyPanel" })
+    ?? getMonsterOverlayPositions().fantasyPanel;
 }
 
 export function getFantasyPanelScale() {
-  return getMonsterOverlaySizes().fantasyPanelScale;
+  return getResizePreviewScale({ kind: "fantasyPanel" })
+    ?? getMonsterOverlaySizes().fantasyPanelScale;
 }
 
 export function getDbmPanelPosition() {
-  return getMonsterOverlayPositions().bossDbmPanel;
+  return getDragPreviewPosition({ kind: "dbmPanel" })
+    ?? getMonsterOverlayPositions().bossDbmPanel;
 }
 
 export function getDbmPanelScale() {
-  return getMonsterOverlaySizes().bossDbmPanelScale;
+  return getResizePreviewScale({ kind: "dbmPanel" })
+    ?? getMonsterOverlaySizes().bossDbmPanelScale;
 }
 
 export function getStunPanelPosition() {
-  return getMonsterOverlayPositions().stunPanel;
+  return getDragPreviewPosition({ kind: "stunPanel" })
+    ?? getMonsterOverlayPositions().stunPanel;
 }
 
 export function getStunPanelScale() {
-  return getMonsterOverlaySizes().stunPanelScale;
+  return getResizePreviewScale({ kind: "stunPanel" })
+    ?? getMonsterOverlaySizes().stunPanelScale;
 }
 
 export function monsterPanelStyle() {
@@ -248,6 +278,7 @@ export function startMonsterDrag(
     startX: event.clientX,
     startY: event.clientY,
     startPos,
+    currentPos: { ...startPos },
   };
 }
 
@@ -264,61 +295,78 @@ export function startMonsterResize(
     startX: event.clientX,
     startY: event.clientY,
     startValue,
+    currentValue: startValue,
   };
 }
 
 export function onGlobalPointerMove(event: PointerEvent) {
   if (monsterRuntime.dragState) {
-    const deltaX = event.clientX - monsterRuntime.dragState.startX;
-    const deltaY = event.clientY - monsterRuntime.dragState.startY;
+    const state = monsterRuntime.dragState;
+    const deltaX = event.clientX - state.startX;
+    const deltaY = event.clientY - state.startY;
     const nextPos = {
-      x: Math.max(0, Math.round(monsterRuntime.dragState.startPos.x + deltaX)),
-      y: Math.max(0, Math.round(monsterRuntime.dragState.startPos.y + deltaY)),
+      x: Math.max(0, Math.round(state.startPos.x + deltaX)),
+      y: Math.max(0, Math.round(state.startPos.y + deltaY)),
     };
-    if (monsterRuntime.dragState.target.kind === "buffPanel") {
-      setMonsterPanelPosition(nextPos);
-    } else if (monsterRuntime.dragState.target.kind === "teammatePanel") {
-      setTeammatePanelPosition(nextPos);
-    } else if (monsterRuntime.dragState.target.kind === "hatePanel") {
-      setHatePanelPosition(nextPos);
-    } else if (monsterRuntime.dragState.target.kind === "fantasyPanel") {
-      setFantasyPanelPosition(nextPos);
-    } else if (monsterRuntime.dragState.target.kind === "stunPanel") {
-      setStunPanelPosition(nextPos);
-    } else {
-      setDbmPanelPosition(nextPos);
-    }
+    monsterRuntime.dragState = { ...state, currentPos: nextPos };
   }
 
   if (monsterRuntime.resizeState) {
-    const deltaX = event.clientX - monsterRuntime.resizeState.startX;
-    const deltaY = event.clientY - monsterRuntime.resizeState.startY;
+    const state = monsterRuntime.resizeState;
+    const deltaX = event.clientX - state.startX;
+    const deltaY = event.clientY - state.startY;
     const delta = (deltaX + deltaY) / 300;
-    if (monsterRuntime.resizeState.target.kind === "buffPanel") {
-      setMonsterPanelScale(monsterRuntime.resizeState.startValue + delta);
-    } else if (monsterRuntime.resizeState.target.kind === "teammatePanel") {
-      setTeammatePanelScale(monsterRuntime.resizeState.startValue + delta);
-    } else if (monsterRuntime.resizeState.target.kind === "hatePanel") {
-      setHatePanelScale(monsterRuntime.resizeState.startValue + delta);
-    } else if (monsterRuntime.resizeState.target.kind === "fantasyPanel") {
-      setFantasyPanelScale(monsterRuntime.resizeState.startValue + delta);
-    } else if (monsterRuntime.resizeState.target.kind === "stunPanel") {
-      setStunPanelScale(monsterRuntime.resizeState.startValue + delta);
-    } else {
-      setDbmPanelScale(monsterRuntime.resizeState.startValue + delta);
-    }
+    monsterRuntime.resizeState = {
+      ...state,
+      currentValue: clampPanelScale(state.startValue + delta),
+    };
   }
 }
 
 export function onGlobalPointerUp() {
-  monsterRuntime.dragState = null;
-  monsterRuntime.resizeState = null;
+  const dragState = monsterRuntime.dragState;
+  if (dragState) {
+    if (dragState.target.kind === "buffPanel") {
+      setMonsterPanelPosition(dragState.currentPos);
+    } else if (dragState.target.kind === "teammatePanel") {
+      setTeammatePanelPosition(dragState.currentPos);
+    } else if (dragState.target.kind === "hatePanel") {
+      setHatePanelPosition(dragState.currentPos);
+    } else if (dragState.target.kind === "fantasyPanel") {
+      setFantasyPanelPosition(dragState.currentPos);
+    } else if (dragState.target.kind === "stunPanel") {
+      setStunPanelPosition(dragState.currentPos);
+    } else {
+      setDbmPanelPosition(dragState.currentPos);
+    }
+    monsterRuntime.dragState = null;
+  }
+
+  const resizeState = monsterRuntime.resizeState;
+  if (resizeState) {
+    if (resizeState.target.kind === "buffPanel") {
+      setMonsterPanelScale(resizeState.currentValue);
+    } else if (resizeState.target.kind === "teammatePanel") {
+      setTeammatePanelScale(resizeState.currentValue);
+    } else if (resizeState.target.kind === "hatePanel") {
+      setHatePanelScale(resizeState.currentValue);
+    } else if (resizeState.target.kind === "fantasyPanel") {
+      setFantasyPanelScale(resizeState.currentValue);
+    } else if (resizeState.target.kind === "stunPanel") {
+      setStunPanelScale(resizeState.currentValue);
+    } else {
+      setDbmPanelScale(resizeState.currentValue);
+    }
+    monsterRuntime.resizeState = null;
+  }
 }
 
-export async function onWindowDragPointerDown(event: PointerEvent) {
+export function onWindowDragPointerDown(event: PointerEvent) {
   if (!monsterRuntime.currentWindow) return;
+  const target = event.target as HTMLElement | null;
+  if (target?.closest("button,a,input,textarea,select")) return;
   event.preventDefault();
-  await monsterRuntime.currentWindow.startDragging();
+  void monsterRuntime.currentWindow.startDragging();
 }
 
 export function resetMonsterOverlayPositions() {

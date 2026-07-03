@@ -88,5 +88,14 @@
   "settings.hideMainWindowToTray": "ซ่อนหน้าต่างหลักไปยังถาดระบบเมื่อปิด",
   "settings.hideMainWindowToTrayDescription": "เมื่อเปิดใช้ การปิดหน้าต่างหลักจะซ่อนไว้แทนการออกจากแอป ใช้ไอคอนถาดระบบเพื่อกู้คืน หรือเลือกออกเพื่อปิดทั้งหมด",
   "sidebar.openChangelog": "ดูบันทึกการเปลี่ยนแปลง",
-  "tool.minimap": "DBM"
+  "tool.minimap": "DBM",
+  "settings.discordPresence.title": "Discord Rich Presence",
+  "settings.discordPresence.description": "Publish your current scene, boss, true DPS timer, personal DPS, and deaths to Discord when Discord is running.",
+  "settings.discordPresence.enabled": "Enable Discord Rich Presence",
+  "settings.discordPresence.enabledDescription": "Shows Resonance Logs activity in Discord while Discord is running. Presence is cleared when this is disabled.",
+  "settings.discordPresence.showScene": "Show scene",
+  "settings.discordPresence.showBoss": "Show boss",
+  "settings.discordPresence.showTimer": "Show timer",
+  "settings.discordPresence.showDps": "Show DPS",
+  "settings.discordPresence.showDeaths": "Show deaths"
 }

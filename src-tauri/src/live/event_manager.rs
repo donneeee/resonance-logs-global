@@ -1253,6 +1253,7 @@ pub fn generate_live_data_payload(
                     .map_or(entity.class_id, |value| value as i32),
             ),
             class_spec_name: class::get_class_spec(entity.class_spec),
+            is_dead: attr_store.is_dead(attr_key) || attr_store.is_dead(uid),
             ability_score: attr_store
                 .attr(attr_key, AttrType::FightPoint)
                 .or_else(|| attr_store.attr(uid, AttrType::FightPoint))

@@ -611,6 +611,38 @@ async exportFactorTraceCapture(destinationPath: string) : Promise<Result<string,
     else return { status: "error", error: e  as any };
 }
 },
+async discordPresenceClear() : Promise<Result<DiscordPresenceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("discord_presence_clear") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async discordPresenceSetConfig(enabled: boolean, clientId: string) : Promise<Result<DiscordPresenceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("discord_presence_set_config", { enabled, clientId }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async discordPresenceStatus() : Promise<Result<DiscordPresenceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("discord_presence_status") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
+async discordPresenceUpdate(activity: DiscordPresenceActivity) : Promise<Result<DiscordPresenceStatus, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("discord_presence_update", { activity }) };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async checkGpuSupport() : Promise<GpuSupport> {
     return await TAURI_INVOKE("check_gpu_support");
 },
@@ -870,6 +902,8 @@ deletedCount: number;
 preservedFavoriteCount: number }
 export type Device = { name: string; description: string | null }
 export type DiagnosticsCleanupResult = { deletedFiles: number; deletedBytes: number; scannedFiles: number; skippedFiles: number; errors: string[] }
+export type DiscordPresenceActivity = { details: string; state: string; startTimestamp?: number | null; largeImage?: string | null; largeText?: string | null; smallImage?: string | null; smallText?: string | null }
+export type DiscordPresenceStatus = { enabled: boolean; connected: boolean; clientId: string; lastError: string | null }
 export type EffectSlotConfig = { slotId: number; threshold: number | null; resetBuffId: number; resetSourceConfigId?: number | null; resetBuffTarget?: ResetBuffTarget; onBuffAdd?: CounterAction; onBuffChange?: CounterAction; onBuffRemove?: CounterAction; freezeDurationMs?: number | null; onFreezeExpire?: CounterAction; altFreeze?: AltFreezeConfig | null; thresholdModifier?: AttrModifier | null; freezeDurationModifier?: AttrModifier | null; freezeOnThreshold?: boolean; countThresholdProcs?: boolean; countResetBuffProcs?: boolean; resetSkillKeys?: number[] | null; onResetSkill?: CounterAction; dungeonStartFreezeMs?: number | null }
 /**
  * Filters for querying encounters.

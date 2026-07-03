@@ -1,4 +1,5 @@
 mod build_app;
+mod discord_presence;
 pub mod live;
 pub mod module_optimizer;
 mod packets;
@@ -679,6 +680,10 @@ pub fn run() {
             debug_commands::stop_factor_trace_capture,
             debug_commands::get_factor_trace_capture_status,
             debug_commands::export_factor_trace_capture,
+            discord_presence::discord_presence_clear,
+            discord_presence::discord_presence_set_config,
+            discord_presence::discord_presence_status,
+            discord_presence::discord_presence_update,
             module_optimizer::commands::check_gpu_support,
             module_optimizer::commands::get_latest_modules,
             module_optimizer::commands::get_latest_module_status,
