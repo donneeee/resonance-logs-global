@@ -2008,6 +2008,7 @@ const DEFAULT_SETTINGS = {
   discordPresence: {
     enabled: false,
     showScene: true,
+    showLine: true,
     showBoss: true,
     showTimer: true,
     showDps: true,
@@ -2364,6 +2365,7 @@ function normalizeDiscordPresenceSettingsState(
   next.enabled = next.enabled === true;
   delete (next as MutableRecord)["clientId"];
   next.showScene = next.showScene !== false;
+  next.showLine = next.showLine !== false;
   next.showBoss = next.showBoss !== false;
   next.showTimer = next.showTimer !== false;
   next.showDps = next.showDps !== false;

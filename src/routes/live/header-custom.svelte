@@ -124,6 +124,7 @@
     bosses: [],
     sceneId: null,
     sceneName: null,
+    sceneLineId: null,
     trainingDummy: emptyTrainingDummy,
   };
   const trainingDummyState = $derived.by(
@@ -132,7 +133,7 @@
   const isEncounterPaused = $derived(!!liveData?.isPaused);
   const headerInfo = $derived.by((): HeaderInfo => {
     const data = liveData;
-    if (!data || data.fightStartTimestampMs <= 0) {
+    if (!data) {
       return {
         ...emptyHeaderInfo,
         trainingDummy: trainingDummyState,

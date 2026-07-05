@@ -16,6 +16,7 @@ use crate::live::opcodes_models::{
     ObservedPassiveSkill, ObservedProfessionSkill, ObservedProfessionTalent, PositionAttr, Skill,
     attr_type, damage_type_flag,
 };
+use crate::live::scene_names;
 use crate::live::training_dummy::CombatGate;
 use blueprotobuf_lib::blueprotobuf;
 use blueprotobuf_lib::blueprotobuf::{Attr, EDamageType, EEntityType};
@@ -637,6 +638,7 @@ pub struct ParsedSkillCd {
 #[derive(Debug, Default)]
 pub(crate) struct EnterSceneResult {
     pub scene_id: Option<i32>,
+    pub scene_display_line_id: Option<i32>,
 }
 use std::time::{SystemTime, UNIX_EPOCH};
 
@@ -854,6 +856,59 @@ pub fn process_sync_container_data(
 ) -> Option<SyncContainerProcessResult> {
     let v_data = sync_container_data.v_data?;
     let season_cultivate_line_data = v_data.season_cultivate_line_data.clone();
+    let current_user_scene_info = current_user_scene_info(&v_data);
+    let mut scene_context_observed = false;
+    let mut current_scene_display_line_id = None;
+    if v_data.scene_data.is_some() || current_user_scene_info.is_some() {
+        scene_context_observed = true;
+        let user_scene_id = current_user_scene_info.and_then(user_scene_info_scene_id);
+        let user_scene_guid = current_user_scene_info
+            .and_then(user_scene_info_scene_guid)
+            .map(str::to_string);
+        let user_display_line_id =
+            current_user_scene_info.and_then(user_scene_info_display_line_id);
+        let scene_data = v_data.scene_data.as_ref();
+        let data_scene_id = scene_data.and_then(scene_data_scene_id);
+        let data_scene_guid = scene_data
+            .and_then(scene_data_scene_guid)
+            .map(str::to_string);
+        let data_display_line_id = scene_data.and_then(scene_data_display_line_id);
+        let data_channel_id = scene_data
+            .and_then(|scene_data| scene_data.channel_id)
+            .and_then(|line_id| i32::try_from(line_id).ok())
+            .filter(|line_id| *line_id > 0);
+        let data_raw_line_id = scene_data
+            .and_then(|scene_data| scene_data.line_id)
+            .and_then(|line_id| i32::try_from(line_id).ok())
+            .filter(|line_id| *line_id > 0);
+
+        info!(
+            target: "app::live",
+            "SyncContainerData scene fields user_scene_id={:?} user_line={:?} user_guid={:?} data_scene_id={:?} data_channel={:?} data_line={:?} data_guid={:?}",
+            user_scene_id,
+            user_display_line_id,
+            user_scene_guid.as_deref(),
+            data_scene_id,
+            data_channel_id,
+            data_raw_line_id,
+            data_scene_guid.as_deref(),
+        );
+
+        if let Some(scene_guid) = user_scene_guid
+            .as_deref()
+            .or_else(|| data_scene_guid.as_deref())
+        {
+            encounter.current_scene_guid = Some(scene_guid.to_string());
+        }
+
+        current_scene_display_line_id = data_display_line_id.or(user_display_line_id);
+
+        let scene_id = data_scene_id.or(user_scene_id);
+
+        if let Some(scene_id) = scene_id {
+            update_encounter_scene(encounter, scene_id);
+        }
+    }
     let player_uid = v_data.char_id?;
     let player_uuid = canonical_player_uuid(player_uid);
     encounter.local_player_uid = player_uid;
@@ -944,13 +999,88 @@ pub fn process_sync_container_data(
     Some(SyncContainerProcessResult {
         season_cultivate_line_data,
         active_factor_items_authoritative,
+        scene_context_observed,
+        current_scene_display_line_id,
     })
+}
+
+fn scene_data_display_line_id(_scene_data: &blueprotobuf::SceneData) -> Option<i32> {
+    None
+}
+
+fn scene_data_scene_guid(scene_data: &blueprotobuf::SceneData) -> Option<&str> {
+    scene_data
+        .scene_guid
+        .as_deref()
+        .map(str::trim)
+        .filter(|scene_guid| !scene_guid.is_empty())
+}
+
+fn current_user_scene_info(
+    v_data: &blueprotobuf::CharSerialize,
+) -> Option<&blueprotobuf::UserSceneInfo> {
+    let char_id = v_data.char_id.or_else(|| {
+        v_data
+            .char_base
+            .as_ref()
+            .and_then(|char_base| char_base.char_id)
+    })?;
+    v_data
+        .char_base
+        .as_ref()?
+        .team_info
+        .as_ref()?
+        .team_member_data
+        .get(&char_id)?
+        .social_data
+        .as_ref()?
+        .user_scene_info
+        .as_ref()
+}
+
+fn user_scene_info_display_line_id(_user_scene_info: &blueprotobuf::UserSceneInfo) -> Option<i32> {
+    None
+}
+
+fn user_scene_info_scene_guid(user_scene_info: &blueprotobuf::UserSceneInfo) -> Option<&str> {
+    user_scene_info
+        .scene_guid
+        .as_deref()
+        .map(str::trim)
+        .filter(|scene_guid| !scene_guid.is_empty())
+}
+
+fn scene_data_scene_id(scene_data: &blueprotobuf::SceneData) -> Option<i32> {
+    [scene_data.map_id, scene_data.level_map_id]
+        .into_iter()
+        .flatten()
+        .find_map(|scene_id| {
+            i32::try_from(scene_id)
+                .ok()
+                .filter(|scene_id| *scene_id > 0 && scene_names::contains(*scene_id))
+        })
+}
+
+fn user_scene_info_scene_id(user_scene_info: &blueprotobuf::UserSceneInfo) -> Option<i32> {
+    user_scene_info
+        .scene_id
+        .filter(|scene_id| *scene_id > 0 && scene_names::contains(*scene_id))
+}
+
+fn update_encounter_scene(encounter: &mut Encounter, scene_id: i32) {
+    if encounter.current_scene_id != Some(scene_id) {
+        encounter.current_dungeon_difficulty = None;
+    }
+    encounter.current_scene_id = Some(scene_id);
+    encounter.current_scene_name = Some(scene_names::lookup(scene_id));
 }
 
 #[derive(Debug, Clone, Default)]
 pub struct SyncContainerProcessResult {
     pub season_cultivate_line_data: Option<blueprotobuf::SeasonCultivateLineData>,
     pub active_factor_items_authoritative: bool,
+    pub scene_context_observed: bool,
+    pub current_scene_display_line_id: Option<i32>,
 }
 
 fn push_profession_skill_spec(specs: &mut Vec<ClassSpec>, class_id: i32, skill_id: i32) {
@@ -1812,6 +1942,33 @@ pub(crate) fn extract_scene_id_from_attr_collection(
     None
 }
 
+pub(crate) fn extract_scene_display_line_from_attr_collection(
+    attrs: &blueprotobuf::AttrCollection,
+) -> Option<i32> {
+    for attr in &attrs.attrs {
+        if attr.id == Some(attr_type::ATTR_SCENE_CHANNEL) {
+            if let Some(raw) = &attr.raw_data {
+                let mut buf = raw.as_slice();
+                if let Ok(v) = prost::encoding::decode_varint(&mut buf) {
+                    if v <= i32::MAX as u64 {
+                        let line_id = v as i32;
+                        if line_id > 1 {
+                            info!(
+                                "Found scene display line {} from AttrSceneChannel({})",
+                                line_id,
+                                attr_type::ATTR_SCENE_CHANNEL
+                            );
+                            return Some(line_id);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
+
 pub(crate) fn process_enter_scene(
     encounter: &mut Encounter,
     attr_store: &mut EntityAttrStore,
@@ -1858,13 +2015,18 @@ pub(crate) fn process_enter_scene(
         }
     }
 
-    let scene_id = enter_scene
+    let scene_attrs = enter_scene
         .enter_scene_info
         .as_ref()
-        .and_then(|info| info.scene_attrs.as_ref())
-        .and_then(extract_scene_id_from_attr_collection);
+        .and_then(|info| info.scene_attrs.as_ref());
+    let scene_id = scene_attrs.and_then(extract_scene_id_from_attr_collection);
+    let scene_display_line_id =
+        scene_attrs.and_then(extract_scene_display_line_from_attr_collection);
 
-    EnterSceneResult { scene_id }
+    EnterSceneResult {
+        scene_id,
+        scene_display_line_id,
+    }
 }
 
 fn observe_passive_skill_infos(

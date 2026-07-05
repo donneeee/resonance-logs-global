@@ -40,6 +40,7 @@ pub fn method_name(service_id: u64, method_id: u32) -> Option<&'static str> {
         WORLD_NTF_SERVICE_ID => world_method_name(method_id),
         CHIT_CHAT_NTF_SERVICE_ID => chat_method_name(method_id),
         GRPC_TEAM_NTF_SERVICE_ID => team_method_name(method_id),
+        SOCIAL_NTF_SERVICE_ID => social_method_name(method_id),
         MATCH_NTF_SERVICE_ID if MATCH_NTF_SERVICE_ID != 0 => match_method_name(method_id),
         _ => None,
     }
@@ -63,7 +64,10 @@ pub fn should_emit_shadow_probe(
 
     matches!(
         service_id,
-        CHIT_CHAT_NTF_SERVICE_ID | GRPC_TEAM_NTF_SERVICE_ID | WORLD_NTF_SERVICE_ID
+        CHIT_CHAT_NTF_SERVICE_ID
+            | GRPC_TEAM_NTF_SERVICE_ID
+            | SOCIAL_NTF_SERVICE_ID
+            | WORLD_NTF_SERVICE_ID
     )
 }
 
@@ -145,6 +149,7 @@ fn world_method_name(method_id: u32) -> Option<&'static str> {
         Pkt::SyncAllServerStateObject => Some("SyncAllServerStateObject"),
         Pkt::NotifyTimerList => Some("NotifyTimerList"),
         Pkt::NotifyTimerUpdate => Some("NotifyTimerUpdate"),
+        Pkt::NotifySceneLineInfo => Some("NotifySceneLineInfo"),
         Pkt::SyncServerSkillEnd => Some("SyncServerSkillEnd"),
     }
 }
@@ -168,6 +173,13 @@ fn team_method_name(method_id: u32) -> Option<&'static str> {
         0x16 => Some("TeamMemberCall"),
         0x17 => Some("TeamMemberCallResult"),
         0x1E => Some("DungeonInvite"),
+        _ => None,
+    }
+}
+
+fn social_method_name(method_id: u32) -> Option<&'static str> {
+    match method_id {
+        0x01 => Some("NotifySocialData"),
         _ => None,
     }
 }

@@ -4,7 +4,11 @@
 
 - Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `v1.1.2` test build.
 - Added Discord Rich Presence support with configurable presence text for idle, mobbing, boss combat, and floor-tanking states, plus Discord asset key support for scene/spec artwork.
+- Expanded Discord Rich Presence scene handling so the main card image/title now follows the detected scene, difficulty, Stimen Vault floor, floor-tanking timer, compact DPS/death totals, and retained encounter state until a scene change.
+- Added scene-change driven live/parser updates so towns, overworld areas, dungeons, raids, and line/instance transitions can update immediately without waiting for combat damage.
+- Added Discord scene mappings for current overworld areas, Stimen Vaults, Guild Center/Hunt, World Boss Crusade, Illusion-Shroud Woods, seasonal raid difficulties, Wondrous Tag, City Rally, and Ee-chan, Don't Stare at Me!.
 - Added generated Discord-ready scene and spec assets, including corrected DPS/healer/tank spec coloring and dedicated Twin Striker Crimson/Formless icons.
+- Fixed live/main/overlay window placement persistence so saved window positions load correctly on app start again.
 - Fixed Twin Striker spec icon routing in the parser so Crimson/Formless and their legacy aliases use distinct class-spec artwork instead of the old Vanguard fallback.
 - Continued CN 0.1.8 DBM parity work by wiring richer boss/mechanic snapshots through Global's shared overlay placement while keeping monster monitor output scoped to the current target.
 - Refined overlay/window responsiveness and event pressure handling around DBM, monster monitor, background images, and live/main window dragging without reintroducing the WebView message flood path.

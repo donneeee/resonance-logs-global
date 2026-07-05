@@ -35,7 +35,9 @@ use crate::live::skill_cd_monitor::{
 use crate::live::skill_lifecycle::{
     ClientSkillCast, ServerSkillEnd, SkillId, SkillLifecycleOutput, SkillLifecycleRuntime,
 };
-use crate::live::team::{TeamEquipmentItem, TeamEvent, TeamMemberEquipment, TeamRuntimeState};
+use crate::live::team::{
+    TeamEquipmentItem, TeamEvent, TeamMemberEquipment, TeamMemberSceneInfo, TeamRuntimeState,
+};
 use crate::live::training_dummy::{CombatGate, TrainingDummyRuntime, inspect_aoi_delta};
 use blueprotobuf_lib::blueprotobuf;
 use blueprotobuf_lib::blueprotobuf::AoiSyncDelta;
@@ -73,6 +75,12 @@ pub enum StateEvent {
     SyncContainerDirtyData(blueprotobuf::SyncContainerDirtyData),
     /// A sync server time event.
     SyncServerTime(blueprotobuf::SyncServerTime),
+    /// Scene-load completion metadata.
+    NotifyLoadSceneEnd(blueprotobuf::NotifyLoadSceneEnd),
+    /// Scene line list / line metadata notification.
+    SceneLineInfo(SceneLineInfoSnapshot),
+    /// Direct current scene line metadata.
+    SceneLineUpdate(SceneLineUpdate),
     /// A sync dungeon data event.
     SyncDungeonData(blueprotobuf::SyncDungeonData),
     /// A sync dungeon dirty data event.
@@ -93,6 +101,27 @@ pub enum StateEvent {
     ClientSkillCast(ClientSkillCast),
     /// A server skill end notification.
     ServerSkillEnd(ServerSkillEnd),
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SceneLineInfoSnapshot {
+    pub scene_id: Option<i32>,
+    pub lines: Vec<SceneLineInfoLine>,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SceneLineUpdate {
+    pub scene_id: Option<i32>,
+    pub scene_guid: Option<String>,
+    pub line_id: Option<i32>,
+    pub display_line_id: Option<i32>,
+    pub runtime_source: &'static str,
+}
+
+#[derive(Debug, Clone, Default)]
+pub struct SceneLineInfoLine {
+    pub line_id: i32,
+    pub scene_guid: Option<String>,
 }
 
 /// Represents the state of the application.
@@ -130,6 +159,14 @@ pub struct AppState {
     suppressed_factor_item_ids: HashSet<i32>,
     /// Factor selector slots explicitly cleared during this session.
     suppressed_factor_selector_slot_keys: HashSet<String>,
+    /// Scene GUID to line id mapping observed from scene-line notifications.
+    pub scene_line_by_guid: HashMap<String, i32>,
+    /// Internal server line id to display line number mapping from scene-line notifications.
+    pub scene_display_line_by_id: HashMap<i32, i32>,
+    /// Raw/internal current scene line id before display-number translation.
+    pub current_scene_internal_line_id: Option<i32>,
+    /// Whether the current line came from a packet that already reports the display number.
+    pub current_scene_line_is_direct_display: bool,
     /// Whether we've already handled the first scene change after startup.
     pub initial_scene_change_handled: bool,
     /// Event update rate in milliseconds (default: 200ms). Controls how often events are emitted to frontend.
@@ -276,6 +313,10 @@ impl AppState {
             local_factor_selector_zero_slots: Vec::new(),
             suppressed_factor_item_ids: HashSet::new(),
             suppressed_factor_selector_slot_keys: HashSet::new(),
+            scene_line_by_guid: HashMap::new(),
+            scene_display_line_by_id: HashMap::new(),
+            current_scene_internal_line_id: None,
+            current_scene_line_is_direct_display: false,
             initial_scene_change_handled: false,
             event_update_rate_ms: 200,
             auto_clear_on_scene_change: true,
@@ -1687,8 +1728,216 @@ fn emit_current_scene_change_boundary(state: &mut AppState, fallback_scene_name:
     state.event_manager.emit_scene_change(
         state.encounter.current_scene_id,
         scene_name,
+        state.encounter.current_scene_line_id,
         state.encounter.current_dungeon_difficulty,
     );
+}
+
+fn normalize_scene_guid(scene_guid: &str) -> Option<String> {
+    let scene_guid = scene_guid.trim();
+    if scene_guid.is_empty() {
+        None
+    } else {
+        Some(scene_guid.to_ascii_lowercase())
+    }
+}
+
+fn set_current_scene_guid(state: &mut AppState, scene_guid: Option<&str>, source: &str) -> bool {
+    let next_scene_guid = scene_guid.and_then(normalize_scene_guid);
+    if next_scene_guid.is_none() {
+        return false;
+    }
+    if state.encounter.current_scene_guid == next_scene_guid {
+        return false;
+    }
+
+    info!(
+        target: "app::live",
+        "Scene GUID updated from {:?} to {:?} source={}",
+        state.encounter.current_scene_guid,
+        next_scene_guid,
+        source
+    );
+    state.encounter.current_scene_guid = next_scene_guid;
+    true
+}
+
+fn clear_scene_line_tracking(state: &mut AppState, clear_guid: bool, source: &str) {
+    let had_line_context = state.encounter.current_scene_line_id.is_some()
+        || state.current_scene_internal_line_id.is_some()
+        || !state.scene_line_by_guid.is_empty()
+        || !state.scene_display_line_by_id.is_empty()
+        || (clear_guid && state.encounter.current_scene_guid.is_some());
+
+    state.encounter.current_scene_line_id = None;
+    state.current_scene_internal_line_id = None;
+    state.current_scene_line_is_direct_display = false;
+    state.scene_line_by_guid.clear();
+    state.scene_display_line_by_id.clear();
+    if clear_guid {
+        state.encounter.current_scene_guid = None;
+    }
+
+    if had_line_context {
+        info!(
+            target: "app::live",
+            "Scene line tracking cleared source={} clear_guid={}",
+            source,
+            clear_guid
+        );
+    }
+}
+
+fn display_line_for_internal_id(state: &AppState, internal_line_id: i32) -> Option<i32> {
+    state
+        .scene_display_line_by_id
+        .get(&internal_line_id)
+        .copied()
+        .filter(|display_line_id| *display_line_id > 0)
+}
+
+fn internal_line_for_display_id(state: &AppState, display_line_id: i32) -> Option<i32> {
+    state
+        .scene_display_line_by_id
+        .iter()
+        .find_map(|(internal_line_id, mapped_display_line_id)| {
+            (*mapped_display_line_id == display_line_id && *internal_line_id > 0)
+                .then_some(*internal_line_id)
+        })
+}
+
+fn set_current_scene_line_from_internal_id(
+    state: &mut AppState,
+    internal_line_id: Option<i32>,
+    source: &str,
+) -> bool {
+    let next_internal_line_id = internal_line_id.filter(|line_id| *line_id > 0);
+    let previous_internal_line_id = state.current_scene_internal_line_id;
+    let previous_display_line_id = state.encounter.current_scene_line_id;
+    let next_display_line_id =
+        next_internal_line_id.and_then(|line_id| display_line_for_internal_id(state, line_id));
+
+    state.current_scene_internal_line_id = next_internal_line_id;
+    state.encounter.current_scene_line_id = next_display_line_id;
+    state.current_scene_line_is_direct_display = false;
+
+    if let Some(internal_line_id) = next_internal_line_id {
+        if next_display_line_id.is_none() {
+            info!(
+                target: "app::live",
+                "Scene internal line observed without display mapping internal_line={} known_lines={} source={}",
+                internal_line_id,
+                state.scene_display_line_by_id.len(),
+                source
+            );
+        }
+    }
+
+    if previous_internal_line_id != state.current_scene_internal_line_id
+        || previous_display_line_id != state.encounter.current_scene_line_id
+    {
+        info!(
+            target: "app::live",
+            "Scene line candidate internal={:?}->{:?} display={:?}->{:?} source={}",
+            previous_internal_line_id,
+            state.current_scene_internal_line_id,
+            previous_display_line_id,
+            state.encounter.current_scene_line_id,
+            source
+        );
+    }
+
+    previous_display_line_id != state.encounter.current_scene_line_id
+}
+
+fn set_current_scene_line_from_display_id(
+    state: &mut AppState,
+    display_line_id: Option<i32>,
+    source: &str,
+) -> bool {
+    let next_display_line_id = display_line_id.filter(|line_id| (1..=256).contains(line_id));
+    let previous_internal_line_id = state.current_scene_internal_line_id;
+    let previous_display_line_id = state.encounter.current_scene_line_id;
+    let previous_direct_display = state.current_scene_line_is_direct_display;
+    let next_internal_line_id =
+        next_display_line_id.and_then(|line_id| internal_line_for_display_id(state, line_id));
+
+    state.encounter.current_scene_line_id = next_display_line_id;
+    state.current_scene_internal_line_id = next_internal_line_id;
+    state.current_scene_line_is_direct_display = next_display_line_id.is_some();
+
+    if previous_internal_line_id != state.current_scene_internal_line_id
+        || previous_display_line_id != state.encounter.current_scene_line_id
+        || previous_direct_display != state.current_scene_line_is_direct_display
+    {
+        info!(
+            target: "app::live",
+            "Scene display line candidate internal={:?}->{:?} display={:?}->{:?} direct={}->{} source={}",
+            previous_internal_line_id,
+            state.current_scene_internal_line_id,
+            previous_display_line_id,
+            state.encounter.current_scene_line_id,
+            previous_direct_display,
+            state.current_scene_line_is_direct_display,
+            source
+        );
+    }
+
+    previous_display_line_id != state.encounter.current_scene_line_id
+}
+
+fn refresh_current_scene_line_display_from_internal_id(state: &mut AppState, source: &str) -> bool {
+    if state.current_scene_line_is_direct_display {
+        let display_line_id = state.encounter.current_scene_line_id;
+        let previous_internal_line_id = state.current_scene_internal_line_id;
+        state.current_scene_internal_line_id =
+            display_line_id.and_then(|line_id| internal_line_for_display_id(state, line_id));
+        if previous_internal_line_id != state.current_scene_internal_line_id {
+            info!(
+                target: "app::live",
+                "Scene direct display line remapped internal={:?}->{:?} display={:?} source={}",
+                previous_internal_line_id,
+                state.current_scene_internal_line_id,
+                display_line_id,
+                source
+            );
+        }
+        return false;
+    }
+
+    let internal_line_id = state.current_scene_internal_line_id;
+    set_current_scene_line_from_internal_id(state, internal_line_id, source)
+}
+
+fn resolve_current_scene_line_from_guid(state: &mut AppState, source: &str) -> bool {
+    let Some(scene_guid) = state.encounter.current_scene_guid.as_deref() else {
+        return false;
+    };
+    let Some(internal_line_id) = state.scene_line_by_guid.get(scene_guid).copied() else {
+        return false;
+    };
+    if internal_line_id <= 0 {
+        return false;
+    }
+
+    info!(
+        target: "app::live",
+        "Scene internal line resolved from scene_guid={} internal_line={} source={}",
+        scene_guid,
+        internal_line_id,
+        source
+    );
+    set_current_scene_line_from_internal_id(state, Some(internal_line_id), source)
+}
+
+fn emit_scene_context_live_update(state: &mut AppState, reason: &str) {
+    emit_current_scene_change_boundary(state, reason);
+    let live_data = crate::live::event_manager::generate_live_data_payload(
+        &state.encounter,
+        &state.attr_store,
+        build_training_dummy_state(&state.training_dummy),
+    );
+    state.event_manager.emit_live_data(live_data);
 }
 
 fn clear_combat_runtime_silently(state: &mut AppState) {
@@ -3869,6 +4118,15 @@ impl AppStateManager {
             StateEvent::SyncServerTime(_data) => {
                 // todo: this is skipped, not sure what info it has
             }
+            StateEvent::NotifyLoadSceneEnd(data) => {
+                self.process_notify_load_scene_end(state, data);
+            }
+            StateEvent::SceneLineInfo(snapshot) => {
+                self.process_scene_line_info(state, snapshot);
+            }
+            StateEvent::SceneLineUpdate(update) => {
+                self.process_scene_line_update(state, update);
+            }
             StateEvent::SyncDungeonData(data) => {
                 self.process_sync_dungeon_data(state, data);
                 self.apply_battle_state_resets_if_needed(state);
@@ -3937,14 +4195,23 @@ impl AppStateManager {
 
     fn process_team_event(&self, state: &mut AppState, event: TeamEvent) {
         let local_player_uuid = current_local_player_uuid(&state.encounter);
-        let equipment = match &event {
-            TeamEvent::MemberInfoUpdated { equipment, .. }
-            | TeamEvent::Joined { equipment, .. } => equipment.clone(),
-            _ => Vec::new(),
+        let (equipment, scene_infos) = match &event {
+            TeamEvent::MemberInfoUpdated {
+                equipment,
+                scene_infos,
+                ..
+            }
+            | TeamEvent::Joined {
+                equipment,
+                scene_infos,
+                ..
+            } => (equipment.clone(), scene_infos.clone()),
+            _ => (Vec::new(), Vec::new()),
         };
         info!(target: "app::live", "team event: {:?}", event);
         state.team.apply_event(event, local_player_uuid);
         self.merge_remote_player_equipment(state, equipment);
+        self.apply_team_scene_info(state, scene_infos);
         info!(
             target: "app::live",
             "team state team_id={} leader_uuid={} members={:?}",
@@ -3952,6 +4219,70 @@ impl AppStateManager {
             state.team.leader_uuid,
             state.team.members
         );
+    }
+
+    fn apply_team_scene_info(&self, state: &mut AppState, scene_infos: Vec<TeamMemberSceneInfo>) {
+        let local_player_uuid = current_local_player_uuid(&state.encounter);
+        if local_player_uuid <= 0 {
+            return;
+        }
+
+        let Some(scene_info) = scene_infos
+            .into_iter()
+            .find(|scene_info| scene_info.member_uuid == local_player_uuid)
+        else {
+            return;
+        };
+
+        let previous_scene_id = state.encounter.current_scene_id;
+        let previous_scene_name = state.encounter.current_scene_name.clone();
+        let previous_scene_line_id = state.encounter.current_scene_line_id;
+        let previous_scene_guid = state.encounter.current_scene_guid.clone();
+
+        if let Some(scene_id) = scene_info.scene_id {
+            if previous_scene_id != Some(scene_id) {
+                clear_scene_line_tracking(state, true, scene_info.runtime_source);
+                state.encounter.current_dungeon_difficulty = None;
+                state.encounter.markers.clear();
+            }
+            state.encounter.current_scene_id = Some(scene_id);
+            state.encounter.current_scene_name = Some(crate::live::scene_names::lookup(scene_id));
+        }
+        set_current_scene_guid(
+            state,
+            scene_info.scene_guid.as_deref(),
+            scene_info.runtime_source,
+        );
+        if let Some(line_id) = scene_info.line_id.filter(|line_id| *line_id > 0) {
+            info!(
+                target: "app::live",
+                "Team scene info raw line ignored for display raw_line={} source={}",
+                line_id,
+                scene_info.runtime_source,
+            );
+        }
+        resolve_current_scene_line_from_guid(state, scene_info.runtime_source);
+
+        let scene_context_changed = previous_scene_id != state.encounter.current_scene_id
+            || previous_scene_name != state.encounter.current_scene_name
+            || previous_scene_line_id != state.encounter.current_scene_line_id;
+
+        if scene_context_changed {
+            info!(
+                target: "app::live",
+                "Team scene info updated local scene id={:?}->{:?} name={:?}->{:?} line={:?}->{:?} guid={:?}->{:?} source={}",
+                previous_scene_id,
+                state.encounter.current_scene_id,
+                previous_scene_name,
+                state.encounter.current_scene_name.as_deref(),
+                previous_scene_line_id,
+                state.encounter.current_scene_line_id,
+                previous_scene_guid,
+                state.encounter.current_scene_guid,
+                scene_info.runtime_source,
+            );
+            emit_scene_context_live_update(state, "Team scene info line update");
+        }
     }
 
     fn merge_remote_player_equipment(
@@ -4289,6 +4620,200 @@ impl AppStateManager {
         );
     }
 
+    fn process_notify_load_scene_end(
+        &self,
+        state: &mut AppState,
+        notify: blueprotobuf::NotifyLoadSceneEnd,
+    ) {
+        use crate::live::scene_names;
+
+        let Some(resp) = notify.resp else {
+            debug!(target: "app::live", "NotifyLoadSceneEnd missing response");
+            return;
+        };
+
+        let previous_scene_id = state.encounter.current_scene_id;
+        let previous_scene_name = state.encounter.current_scene_name.clone();
+        let previous_scene_line_id = state.encounter.current_scene_line_id;
+        let previous_scene_guid = state.encounter.current_scene_guid.clone();
+
+        if let Some(scene_id) = resp
+            .scene_id
+            .filter(|scene_id| scene_names::contains(*scene_id))
+        {
+            if previous_scene_id != Some(scene_id) {
+                clear_scene_line_tracking(state, true, "NotifyLoadSceneEnd.scene_id");
+                state.encounter.current_dungeon_difficulty = None;
+                state.encounter.markers.clear();
+            }
+            state.encounter.current_scene_id = Some(scene_id);
+            state.encounter.current_scene_name = Some(scene_names::lookup(scene_id));
+        }
+
+        if set_current_scene_guid(
+            state,
+            resp.scene_guid.as_deref(),
+            "NotifyLoadSceneEnd.scene_guid",
+        ) {
+            resolve_current_scene_line_from_guid(state, "NotifyLoadSceneEnd.scene_guid");
+        }
+
+        let scene_context_changed = previous_scene_id != state.encounter.current_scene_id
+            || previous_scene_name != state.encounter.current_scene_name
+            || previous_scene_line_id != state.encounter.current_scene_line_id;
+        if scene_context_changed {
+            info!(
+                target: "app::live",
+                "NotifyLoadSceneEnd updated scene context id={:?}->{:?} name={:?}->{:?} line={:?}->{:?} guid={:?}->{:?}",
+                previous_scene_id,
+                state.encounter.current_scene_id,
+                previous_scene_name,
+                state.encounter.current_scene_name.as_deref(),
+                previous_scene_line_id,
+                state.encounter.current_scene_line_id,
+                previous_scene_guid,
+                state.encounter.current_scene_guid,
+            );
+            emit_scene_context_live_update(state, "NotifyLoadSceneEnd scene update");
+        }
+    }
+
+    fn process_scene_line_info(&self, state: &mut AppState, snapshot: SceneLineInfoSnapshot) {
+        let mut guid_line_count = 0usize;
+        let line_count = snapshot.lines.len();
+        let first_line_id = snapshot
+            .lines
+            .iter()
+            .find_map(|line| (line.line_id > 0).then_some(line.line_id));
+        let line_preview = snapshot
+            .lines
+            .iter()
+            .take(8)
+            .map(|line| match line.scene_guid.as_deref() {
+                Some(scene_guid) if !scene_guid.is_empty() => {
+                    format!("{}:{}", line.line_id, scene_guid)
+                }
+                _ => line.line_id.to_string(),
+            })
+            .collect::<Vec<_>>()
+            .join(",");
+
+        let previous_scene_id = state.encounter.current_scene_id;
+        let previous_scene_name = state.encounter.current_scene_name.clone();
+
+        if let Some(scene_id) = snapshot
+            .scene_id
+            .filter(|scene_id| crate::live::scene_names::contains(*scene_id))
+        {
+            if previous_scene_id != Some(scene_id) {
+                clear_scene_line_tracking(state, true, "NotifySceneLineInfo.scene_id");
+            }
+            state.encounter.current_scene_id = Some(scene_id);
+            state.encounter.current_scene_name = Some(crate::live::scene_names::lookup(scene_id));
+        }
+
+        state.scene_line_by_guid.clear();
+        state.scene_display_line_by_id.clear();
+        let mut display_line_id = 0i32;
+        for line in snapshot.lines.iter() {
+            if line.line_id <= 0 {
+                continue;
+            }
+            display_line_id += 1;
+            state
+                .scene_display_line_by_id
+                .insert(line.line_id, display_line_id);
+            let Some(scene_guid) = line.scene_guid.as_deref().and_then(normalize_scene_guid) else {
+                continue;
+            };
+            state.scene_line_by_guid.insert(scene_guid, line.line_id);
+            guid_line_count += 1;
+        }
+
+        let previous_scene_line_id = state.encounter.current_scene_line_id;
+        let refreshed =
+            refresh_current_scene_line_display_from_internal_id(state, "NotifySceneLineInfo");
+        let resolved = if refreshed {
+            true
+        } else {
+            resolve_current_scene_line_from_guid(state, "NotifySceneLineInfo")
+        };
+        info!(
+            target: "app::live",
+            "NotifySceneLineInfo scene_id={:?} lines={} guid_lines={} first_internal_line={:?} display_lines={} preview=[{}] current_guid={:?} current_internal_line={:?} resolved_display_line={:?}",
+            snapshot.scene_id,
+            line_count,
+            guid_line_count,
+            first_line_id,
+            state.scene_display_line_by_id.len(),
+            line_preview,
+            state.encounter.current_scene_guid,
+            state.current_scene_internal_line_id,
+            state.encounter.current_scene_line_id,
+        );
+
+        let scene_context_changed = previous_scene_id != state.encounter.current_scene_id
+            || previous_scene_name != state.encounter.current_scene_name
+            || previous_scene_line_id != state.encounter.current_scene_line_id;
+        if scene_context_changed
+            || (resolved && previous_scene_line_id != state.encounter.current_scene_line_id)
+        {
+            emit_scene_context_live_update(state, "NotifySceneLineInfo line update");
+        }
+    }
+
+    fn process_scene_line_update(&self, state: &mut AppState, update: SceneLineUpdate) {
+        let previous_scene_id = state.encounter.current_scene_id;
+        let previous_scene_name = state.encounter.current_scene_name.clone();
+        let previous_scene_line_id = state.encounter.current_scene_line_id;
+        let previous_scene_guid = state.encounter.current_scene_guid.clone();
+
+        if let Some(scene_id) = update
+            .scene_id
+            .filter(|scene_id| crate::live::scene_names::contains(*scene_id))
+        {
+            if previous_scene_id != Some(scene_id) {
+                clear_scene_line_tracking(state, true, update.runtime_source);
+                state.encounter.current_dungeon_difficulty = None;
+                state.encounter.markers.clear();
+            }
+            state.encounter.current_scene_id = Some(scene_id);
+            state.encounter.current_scene_name = Some(crate::live::scene_names::lookup(scene_id));
+        }
+        set_current_scene_guid(state, update.scene_guid.as_deref(), update.runtime_source);
+        if let Some(display_line_id) = update.display_line_id.filter(|line_id| *line_id > 0) {
+            set_current_scene_line_from_display_id(
+                state,
+                Some(display_line_id),
+                update.runtime_source,
+            );
+        } else if let Some(line_id) = update.line_id.filter(|line_id| *line_id > 0) {
+            set_current_scene_line_from_internal_id(state, Some(line_id), update.runtime_source);
+        } else {
+            resolve_current_scene_line_from_guid(state, update.runtime_source);
+        }
+
+        let scene_context_changed = previous_scene_id != state.encounter.current_scene_id
+            || previous_scene_name != state.encounter.current_scene_name
+            || previous_scene_line_id != state.encounter.current_scene_line_id;
+        if scene_context_changed {
+            info!(
+                target: "app::live",
+                "Scene line update id={:?}->{:?} name={:?}->{:?} line={:?}->{:?} guid={:?}->{:?} source={}",
+                previous_scene_id,
+                state.encounter.current_scene_id,
+                previous_scene_name,
+                state.encounter.current_scene_name.as_deref(),
+                previous_scene_line_id,
+                state.encounter.current_scene_line_id,
+                previous_scene_guid,
+                state.encounter.current_scene_guid,
+                update.runtime_source,
+            );
+            emit_scene_context_live_update(state, "Scene line direct update");
+        }
+    }
+
     // all scene id extraction logic is here (its pretty rough)
     fn process_enter_scene(&self, state: &mut AppState, enter_scene: blueprotobuf::EnterScene) {
         use crate::live::opcodes_process::process_enter_scene as parse_enter_scene;
@@ -4325,10 +4850,33 @@ impl AppStateManager {
         if let Some(scene_id) = parsed.scene_id {
             let scene_name = scene_names::lookup(scene_id);
             let previous_scene_id = state.encounter.current_scene_id;
+            let previous_scene_line_id = state.encounter.current_scene_line_id;
+            let enter_scene_guid = enter_scene
+                .enter_scene_info
+                .as_ref()
+                .and_then(|info| info.scene_guid.as_deref())
+                .and_then(normalize_scene_guid);
 
             // Update encounter with scene info
             state.encounter.current_scene_id = Some(scene_id);
             state.encounter.current_scene_name = Some(scene_name.clone());
+            if previous_scene_id.is_some() && previous_scene_id != Some(scene_id) {
+                clear_scene_line_tracking(state, true, "EnterScene.scene_id");
+            } else {
+                state.encounter.current_scene_line_id = previous_scene_line_id;
+            }
+            if let Some(scene_guid) = enter_scene_guid {
+                if set_current_scene_guid(state, Some(&scene_guid), "EnterScene.scene_guid") {
+                    resolve_current_scene_line_from_guid(state, "EnterScene.scene_guid");
+                }
+            }
+            if let Some(scene_display_line_id) = parsed.scene_display_line_id {
+                set_current_scene_line_from_display_id(
+                    state,
+                    Some(scene_display_line_id),
+                    "EnterScene.AttrSceneChannel",
+                );
+            }
             state.encounter.current_dungeon_difficulty = None;
             if previous_scene_id != Some(scene_id) {
                 state.encounter.markers.clear();
@@ -4342,9 +4890,12 @@ impl AppStateManager {
             // Emit scene change event
             if state.event_manager.should_emit_events() {
                 info!("Emitting scene change event for: {}", scene_name);
-                state
-                    .event_manager
-                    .emit_scene_change(Some(scene_id), scene_name, None);
+                state.event_manager.emit_scene_change(
+                    Some(scene_id),
+                    scene_name,
+                    state.encounter.current_scene_line_id,
+                    None,
+                );
             } else {
                 warn!("Event manager not ready, skipping scene change emit");
             }
@@ -4500,13 +5051,75 @@ impl AppStateManager {
             emit_training_dummy_update_if_changed(state, previous);
         }
 
-        let Some(result) = process_sync_container_data(
+        let previous_scene_id = state.encounter.current_scene_id;
+        let previous_scene_name = state.encounter.current_scene_name.clone();
+        let previous_scene_line_id = state.encounter.current_scene_line_id;
+        let previous_scene_guid = state.encounter.current_scene_guid.clone();
+        let result = process_sync_container_data(
             &mut state.encounter,
             &mut state.attr_store,
             sync_container_data,
             state.modifier_capture_enabled,
-        ) else {
-            warn!("Error processing SyncContainerData.. ignoring.");
+        );
+        let parsed_scene_guid = state.encounter.current_scene_guid.clone();
+        if previous_scene_id != state.encounter.current_scene_id {
+            clear_scene_line_tracking(state, true, "SyncContainerData.scene_id");
+            state.encounter.current_scene_guid = parsed_scene_guid;
+        }
+        if let Some(result) = result.as_ref() {
+            if result.scene_context_observed {
+                if result.current_scene_display_line_id.is_some() {
+                    set_current_scene_line_from_display_id(
+                        state,
+                        result.current_scene_display_line_id,
+                        "SyncContainerData.scene_line",
+                    );
+                } else {
+                    resolve_current_scene_line_from_guid(state, "SyncContainerData.scene_guid");
+                }
+            } else {
+                resolve_current_scene_line_from_guid(state, "SyncContainerData.scene_guid");
+            }
+        } else {
+            resolve_current_scene_line_from_guid(state, "SyncContainerData.scene_guid");
+        }
+        let scene_context_changed = previous_scene_id != state.encounter.current_scene_id
+            || previous_scene_name != state.encounter.current_scene_name
+            || previous_scene_line_id != state.encounter.current_scene_line_id;
+        if scene_context_changed
+            && (state.encounter.current_scene_id.is_some()
+                || state.encounter.current_scene_name.is_some())
+        {
+            info!(
+                target: "app::live",
+                "Scene context updated from id={:?} name={:?} line={:?} to id={:?} name={:?} line={:?}",
+                previous_scene_id,
+                previous_scene_name,
+                previous_scene_line_id,
+                state.encounter.current_scene_id,
+                state.encounter.current_scene_name.as_deref(),
+                state.encounter.current_scene_line_id
+            );
+            if previous_scene_guid != state.encounter.current_scene_guid {
+                info!(
+                    target: "app::live",
+                    "Scene GUID updated from {:?} to {:?} during SyncContainerData",
+                    previous_scene_guid,
+                    state.encounter.current_scene_guid,
+                );
+            }
+            emit_scene_context_live_update(state, "Container data scene line update");
+        } else if previous_scene_guid != state.encounter.current_scene_guid {
+            info!(
+                target: "app::live",
+                "Scene GUID updated from {:?} to {:?} during SyncContainerData without display context change",
+                previous_scene_guid,
+                state.encounter.current_scene_guid,
+            );
+        }
+
+        let Some(result) = result else {
+            warn!("Error processing SyncContainerData.. ignoring non-scene data.");
             return false;
         };
 
@@ -4653,6 +5266,9 @@ impl AppStateManager {
 
             state.encounter.current_scene_id = Some(scene_id);
             state.encounter.current_scene_name = Some(scene_name.clone());
+            if inferred_scene_id.is_some() {
+                clear_scene_line_tracking(state, true, "SyncDungeonData.scene_uuid");
+            }
 
             if inferred_scene_id.is_some() {
                 info!(
@@ -4668,6 +5284,7 @@ impl AppStateManager {
                 state.event_manager.emit_scene_change(
                     Some(scene_id),
                     scene_name.clone(),
+                    state.encounter.current_scene_line_id,
                     state.encounter.current_dungeon_difficulty,
                 );
             }
@@ -5398,6 +6015,7 @@ impl AppStateManager {
             bosses: vec![],
             scene_id: state.encounter.current_scene_id,
             scene_name: state.encounter.current_scene_name.clone(),
+            scene_line_id: state.encounter.current_scene_line_id,
             training_dummy: build_training_dummy_state(&state.training_dummy),
         };
         state

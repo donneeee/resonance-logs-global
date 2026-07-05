@@ -94,6 +94,7 @@
   "settings.discordPresence.enabled": "Enable Discord Rich Presence",
   "settings.discordPresence.enabledDescription": "Shows Resonance Logs activity in Discord while Discord is running. Presence is cleared when this is disabled.",
   "settings.discordPresence.showScene": "Show scene",
+  "settings.discordPresence.showLine": "Show line",
   "settings.discordPresence.showBoss": "Show boss",
   "settings.discordPresence.showTimer": "Show timer",
   "settings.discordPresence.showDps": "Show DPS",

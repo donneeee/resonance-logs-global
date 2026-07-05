@@ -1,7 +1,10 @@
 use crate::live::chat_feed;
 use crate::live::entity_id::uid_from_uuid;
 use crate::live::skill_lifecycle::{ClientSkillCast, ServerSkillEnd, SkillId};
-use crate::live::state::{AppState, AppStateManager, StateEvent, resolve_entity_display_name};
+use crate::live::state::{
+    AppState, AppStateManager, SceneLineInfoLine, SceneLineInfoSnapshot, SceneLineUpdate,
+    StateEvent, resolve_entity_display_name,
+};
 use crate::live::{
     attribution_census::flush_current_census_to_file,
     commands_models::{
@@ -40,6 +43,9 @@ use tokio::sync::mpsc::{Receiver, UnboundedReceiver};
 
 static RAW_SERVICE_PROBE_ALL_COUNT: AtomicUsize = AtomicUsize::new(0);
 static RAW_SERVICE_PROBE_NEAR_DELTA_COUNT: AtomicUsize = AtomicUsize::new(0);
+static SCENE_LINE_PROBE_PACKET_COUNT: AtomicUsize = AtomicUsize::new(0);
+static SCENE_LINE_PROBE_HIT_COUNT: AtomicUsize = AtomicUsize::new(0);
+static LINE_SWITCH_PROBE_PACKET_COUNT: AtomicUsize = AtomicUsize::new(0);
 const EQUIPMENT_PROBE_ATTR_ID: i32 = 200;
 const EQUIPMENT_PROBE_WEAPON_SLOT: u64 = 200;
 const CAPTURE_RESTART_MAX_ATTEMPTS: usize = 20;
@@ -186,6 +192,460 @@ fn decode_use_slot_client_skill_cast(data: Bytes) -> Option<StateEvent> {
         .map(StateEvent::ClientSkillCast)
 }
 
+#[derive(Clone, PartialEq, Message)]
+struct NotifySceneLineInfo {
+    #[prost(message, optional, tag = "1")]
+    envelope: Option<NotifySceneLineInfoEnvelope>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct NotifySceneLineInfoEnvelope {
+    #[prost(message, optional, tag = "1")]
+    payload: Option<NotifySceneLineInfoPayload>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct NotifySceneLineInfoPayload {
+    #[prost(uint32, optional, tag = "1")]
+    scene_id: Option<u32>,
+    #[prost(message, optional, tag = "2")]
+    data: Option<NotifySceneLineInfoData>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct NotifySceneLineInfoData {
+    #[prost(uint32, optional, tag = "1")]
+    scene_id: Option<u32>,
+    #[prost(uint32, optional, tag = "2")]
+    line_count_hint: Option<u32>,
+    #[prost(message, repeated, tag = "9")]
+    lines: Vec<NotifySceneLineInfoLine>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct NotifySceneLineInfoLine {
+    #[prost(uint32, optional, tag = "1")]
+    line_id: Option<u32>,
+    #[prost(message, optional, tag = "2")]
+    status: Option<NotifySceneLineInfoLineStatus>,
+    #[prost(string, optional, tag = "3")]
+    scene_guid: Option<String>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct NotifySceneLineInfoLineStatus {
+    #[prost(uint32, optional, tag = "1")]
+    value: Option<u32>,
+    #[prost(int32, optional, tag = "2")]
+    status: Option<i32>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct ReqSceneLineInfoRet {
+    #[prost(message, optional, tag = "1")]
+    ret: Option<ReqSceneLineInfoReply>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct ReqSceneLineInfoReply {
+    #[prost(message, repeated, tag = "1")]
+    line_infos: Vec<ReqSceneLineInfoLine>,
+    #[prost(int32, optional, tag = "2")]
+    err_code: Option<i32>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct ReqSceneLineInfoLine {
+    #[prost(uint32, optional, tag = "1")]
+    line_id: Option<u32>,
+    #[prost(int32, optional, tag = "2")]
+    status: Option<i32>,
+    #[prost(string, optional, tag = "3")]
+    scene_guid: Option<String>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct NotifySocialData {
+    #[prost(message, optional, tag = "1")]
+    v_request: Option<NotifySocialDataRequest>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct NotifySocialDataRequest {
+    #[prost(message, optional, tag = "1")]
+    data: Option<blueprotobuf::SocialData>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct ReqSwitchSceneLine {
+    #[prost(message, optional, tag = "1")]
+    v_request: Option<ReqSwitchSceneLineRequest>,
+}
+
+#[derive(Clone, PartialEq, Message)]
+struct ReqSwitchSceneLineRequest {
+    #[prost(uint32, optional, tag = "2")]
+    line_id: Option<u32>,
+    #[prost(int64, optional, tag = "3")]
+    target_char_id: Option<i64>,
+}
+
+fn decode_scene_line_info(data: Bytes) -> Option<StateEvent> {
+    let message = match NotifySceneLineInfo::decode(data) {
+        Ok(message) => message,
+        Err(error) => {
+            warn!("Error decoding NotifySceneLineInfo.. ignoring: {error}");
+            return None;
+        }
+    };
+    let payload = message.envelope.and_then(|envelope| envelope.payload)?;
+    let data = payload.data?;
+    let payload_scene_id = payload.scene_id;
+    let data_scene_id = data.scene_id;
+    let line_count_hint = data.line_count_hint;
+    let scene_id = data
+        .scene_id
+        .or(payload_scene_id)
+        .and_then(|scene_id| i32::try_from(scene_id).ok())
+        .filter(|scene_id| *scene_id > 0);
+    let line_preview = data
+        .lines
+        .iter()
+        .take(8)
+        .map(|line| {
+            let status = line
+                .status
+                .as_ref()
+                .map(|status| format!("{:?}/{:?}", status.value, status.status,))
+                .unwrap_or_else(|| "-".to_string());
+            let guid = line
+                .scene_guid
+                .as_deref()
+                .map(str::trim)
+                .filter(|scene_guid| !scene_guid.is_empty())
+                .unwrap_or("-");
+            format!("{:?}:{}:{}", line.line_id, status, guid)
+        })
+        .collect::<Vec<_>>()
+        .join(",");
+    let lines: Vec<_> = data
+        .lines
+        .into_iter()
+        .filter_map(|line| {
+            let line_id = line
+                .line_id
+                .and_then(|line_id| i32::try_from(line_id).ok())
+                .filter(|line_id| *line_id > 0)?;
+            let scene_guid = line
+                .scene_guid
+                .as_deref()
+                .map(str::trim)
+                .filter(|scene_guid| !scene_guid.is_empty())
+                .map(str::to_string);
+            Some(SceneLineInfoLine {
+                line_id,
+                scene_guid,
+            })
+        })
+        .collect();
+
+    if lines.is_empty() {
+        debug!(
+            target: "app::live",
+            "NotifySceneLineInfo decoded without usable lines scene_id={:?} payload_scene_id={:?} data_scene_id={:?} line_count_hint={:?}",
+            scene_id,
+            payload_scene_id,
+            data_scene_id,
+            line_count_hint,
+        );
+        return None;
+    }
+
+    let line_slots = [1usize, 2, 3, 4, 5, 10, 20, 30, 39, 40, 41, 60, 80, 100]
+        .into_iter()
+        .filter_map(|display_line| {
+            lines
+                .get(display_line.saturating_sub(1))
+                .map(|line| format!("{display_line}=>{}", line.line_id))
+        })
+        .collect::<Vec<_>>()
+        .join(",");
+
+    info!(
+        target: "app::live",
+        "NotifySceneLineInfo decoded scene_id={:?} payload_scene_id={:?} data_scene_id={:?} line_count_hint={:?} preview=[{}] slots=[{}]",
+        scene_id,
+        payload_scene_id,
+        data_scene_id,
+        line_count_hint,
+        line_preview,
+        line_slots,
+    );
+
+    Some(StateEvent::SceneLineInfo(SceneLineInfoSnapshot {
+        scene_id,
+        lines,
+    }))
+}
+
+fn decode_req_scene_line_info_reply(
+    notify: &packets::parser::ParsedNotifyFragment,
+) -> Option<StateEvent> {
+    if notify.recognized_pkt.is_some()
+        || !matches!(
+            notify.service_id,
+            packets::opcodes::WORLD_CALL_SERVICE_ID | packets::opcodes::WORLD_NTF_SERVICE_ID
+        )
+        || !matches!(
+            notify.fragment_type,
+            packets::opcodes::FragmentType::Return | packets::opcodes::FragmentType::Echo
+        )
+    {
+        return None;
+    }
+
+    let message = ReqSceneLineInfoRet::decode(notify.payload.clone()).ok()?;
+    let reply = message.ret?;
+    let line_count = reply.line_infos.len();
+    if line_count == 0 || line_count > 256 {
+        return None;
+    }
+
+    let line_preview = reply
+        .line_infos
+        .iter()
+        .take(8)
+        .map(|line| {
+            let guid = line
+                .scene_guid
+                .as_deref()
+                .map(str::trim)
+                .filter(|scene_guid| !scene_guid.is_empty())
+                .unwrap_or("-");
+            format!("{:?}:{:?}:{}", line.line_id, line.status, guid)
+        })
+        .collect::<Vec<_>>()
+        .join(",");
+
+    let lines: Vec<_> = reply
+        .line_infos
+        .into_iter()
+        .filter_map(|line| {
+            let line_id = line
+                .line_id
+                .and_then(|line_id| i32::try_from(line_id).ok())
+                .filter(|line_id| *line_id > 0)?;
+            let scene_guid = line
+                .scene_guid
+                .as_deref()
+                .map(str::trim)
+                .filter(|scene_guid| !scene_guid.is_empty())
+                .map(str::to_string);
+            Some(SceneLineInfoLine {
+                line_id,
+                scene_guid,
+            })
+        })
+        .collect();
+    if lines.is_empty() || lines.len() > 256 {
+        return None;
+    }
+
+    let guid_line_count = lines
+        .iter()
+        .filter(|line| {
+            line.scene_guid
+                .as_deref()
+                .is_some_and(|scene_guid| !scene_guid.is_empty())
+        })
+        .count();
+    if guid_line_count == 0 {
+        debug!(
+            target: "app::live",
+            "ReqSceneLineInfo reply-like payload without GUIDs service=0x{:X} method=0x{:X} fragment={:?} lines={} err={:?} preview=[{}]",
+            notify.service_id,
+            notify.method_id,
+            notify.fragment_type,
+            lines.len(),
+            reply.err_code,
+            line_preview,
+        );
+        return None;
+    }
+
+    info!(
+        target: "app::live",
+        "ReqSceneLineInfo reply decoded service=0x{:X} method=0x{:X} fragment={:?} lines={} guid_lines={} err={:?} preview=[{}]",
+        notify.service_id,
+        notify.method_id,
+        notify.fragment_type,
+        lines.len(),
+        guid_line_count,
+        reply.err_code,
+        line_preview,
+    );
+
+    Some(StateEvent::SceneLineInfo(SceneLineInfoSnapshot {
+        scene_id: None,
+        lines,
+    }))
+}
+
+fn decode_notify_enter_world_scene_line(
+    notify: &packets::parser::ParsedNotifyFragment,
+) -> Option<StateEvent> {
+    if notify.recognized_pkt.is_some()
+        || !matches!(
+            notify.fragment_type,
+            packets::opcodes::FragmentType::Notify
+                | packets::opcodes::FragmentType::Return
+                | packets::opcodes::FragmentType::Echo
+        )
+    {
+        return None;
+    }
+
+    let message = blueprotobuf::NotifyEnterWorld::decode(notify.payload.clone()).ok()?;
+    let request = message.v_request?;
+    let line_data = request.scene_line_data?;
+    let line_id = line_data
+        .line_id
+        .and_then(|line_id| i32::try_from(line_id).ok())
+        .filter(|line_id| *line_id > 0);
+    let transfer = request.transform.as_ref();
+    let scene_id = transfer
+        .and_then(|transfer| transfer.scene_id)
+        .filter(|scene_id| *scene_id > 0);
+    let scene_guid = line_data
+        .scene_guid
+        .as_deref()
+        .or_else(|| transfer.and_then(|transfer| transfer.scene_guid.as_deref()))
+        .map(str::trim)
+        .filter(|scene_guid| !scene_guid.is_empty())
+        .map(str::to_string);
+
+    if line_id.is_none() && scene_guid.is_none() {
+        return None;
+    }
+
+    info!(
+        target: "app::live",
+        "NotifyEnterWorld scene line decoded service=0x{:X} method=0x{:X} fragment={:?} scene_id={:?} line={:?} guid={:?} status={:?}",
+        notify.service_id,
+        notify.method_id,
+        notify.fragment_type,
+        scene_id,
+        line_id,
+        scene_guid,
+        line_data.status,
+    );
+
+    Some(StateEvent::SceneLineUpdate(SceneLineUpdate {
+        scene_id,
+        scene_guid,
+        line_id,
+        display_line_id: None,
+        runtime_source: "NotifyEnterWorld.scene_line_data",
+    }))
+}
+
+fn decode_notify_social_data_scene_line(
+    notify: &packets::parser::ParsedNotifyFragment,
+) -> Option<StateEvent> {
+    if notify.service_id != packets::opcodes::SOCIAL_NTF_SERVICE_ID
+        || notify.method_id != 0x1
+        || !matches!(
+            notify.fragment_type,
+            packets::opcodes::FragmentType::Notify
+                | packets::opcodes::FragmentType::Return
+                | packets::opcodes::FragmentType::Echo
+        )
+    {
+        return None;
+    }
+
+    let message = match NotifySocialData::decode(notify.payload.clone()) {
+        Ok(message) => message,
+        Err(error) => {
+            warn!("Error decoding SocialNtf.NotifySocialData.. ignoring: {error}");
+            return None;
+        }
+    };
+    let scene_data = message.v_request?.data?.scene_data?;
+    let scene_id = scene_data
+        .level_map_id
+        .or(scene_data.map_id)
+        .and_then(|scene_id| i32::try_from(scene_id).ok())
+        .filter(|scene_id| *scene_id > 0);
+    let raw_scene_line_id = scene_data
+        .line_id
+        .and_then(|line_id| i32::try_from(line_id).ok())
+        .filter(|line_id| *line_id > 0);
+    let scene_guid = scene_data
+        .scene_guid
+        .as_deref()
+        .map(str::trim)
+        .filter(|scene_guid| !scene_guid.is_empty())
+        .map(str::to_string);
+
+    if scene_id.is_none() && scene_guid.is_none() {
+        return None;
+    }
+
+    info!(
+        target: "app::live",
+        "SocialNtf.NotifySocialData scene data decoded scene_id={:?} raw_line={:?} guid={:?} channel_id={:?} map_id={:?} level_map_id={:?}",
+        scene_id,
+        raw_scene_line_id,
+        scene_guid,
+        scene_data.channel_id,
+        scene_data.map_id,
+        scene_data.level_map_id,
+    );
+
+    Some(StateEvent::SceneLineUpdate(SceneLineUpdate {
+        scene_id,
+        scene_guid,
+        line_id: None,
+        display_line_id: raw_scene_line_id,
+        runtime_source: "SocialNtf.NotifySocialData.scene_data",
+    }))
+}
+
+fn decode_req_switch_scene_line_call(
+    notify: &packets::parser::ParsedNotifyFragment,
+) -> Option<StateEvent> {
+    if notify.service_id != packets::opcodes::WORLD_CALL_SERVICE_ID
+        || !matches!(notify.fragment_type, packets::opcodes::FragmentType::Call)
+    {
+        return None;
+    }
+
+    let message = ReqSwitchSceneLine::decode(notify.payload.clone()).ok()?;
+    let request = message.v_request?;
+    let line_id = request
+        .line_id
+        .and_then(|line_id| i32::try_from(line_id).ok())
+        .filter(|line_id| (1..=512).contains(line_id))?;
+
+    info!(
+        target: "app::live",
+        "ReqSwitchSceneLine call decoded method=0x{:X} internal_line={} target_char_id={:?} payload={}B",
+        notify.method_id,
+        line_id,
+        request.target_char_id,
+        notify.payload.len(),
+    );
+
+    Some(StateEvent::SceneLineUpdate(SceneLineUpdate {
+        scene_id: None,
+        scene_guid: None,
+        line_id: Some(line_id),
+        display_line_id: None,
+        runtime_source: "World.ReqSwitchSceneLine",
+    }))
+}
+
 fn handle_capture_event(
     app_handle: &AppHandle,
     capture_event: packets::packet_capture::CaptureEvent,
@@ -193,6 +653,9 @@ fn handle_capture_event(
 ) {
     match capture_event {
         packets::packet_capture::CaptureEvent::Notify(notify) => {
+            emit_line_switch_packet_probe(&notify);
+            emit_scene_line_packet_probe(&notify);
+
             if is_event_logger_enabled(app_handle) {
                 let auxiliary_entries = decode_auxiliary_logger_entries(&notify);
                 if !auxiliary_entries.is_empty() {
@@ -211,6 +674,11 @@ fn handle_capture_event(
                 return;
             }
 
+            if let Some(event) = decode_req_switch_scene_line_call(&notify) {
+                batch_events.push(event);
+                return;
+            }
+
             if let Some(team_event) = crate::live::team::decode_team_event(
                 packets::opcodes::NotifyKey {
                     service_id: notify.service_id,
@@ -219,6 +687,21 @@ fn handle_capture_event(
                 notify.payload.clone(),
             ) {
                 batch_events.push(StateEvent::Team(team_event));
+                return;
+            }
+
+            if let Some(event) = decode_notify_social_data_scene_line(&notify) {
+                batch_events.push(event);
+                return;
+            }
+
+            if let Some(event) = decode_notify_enter_world_scene_line(&notify) {
+                batch_events.push(event);
+                return;
+            }
+
+            if let Some(event) = decode_req_scene_line_info_reply(&notify) {
+                batch_events.push(event);
                 return;
             }
 
@@ -1851,6 +2334,340 @@ fn looks_like_uuidish(value: &str) -> bool {
             .chars()
             .all(|ch| ch.is_ascii_hexdigit() || ch == '-')
         && trimmed.matches('-').count() >= 3
+}
+
+const SCENE_LINE_PROBE_DEPTH_LIMIT: usize = 3;
+const SCENE_LINE_PROBE_FIELD_LIMIT: usize = 96;
+const SCENE_LINE_PROBE_VALUE_LIMIT: usize = 40;
+const SCENE_LINE_PROBE_UUID_LIMIT: usize = 10;
+const SCENE_LINE_PROBE_LEN_LIMIT: usize = 18;
+
+#[derive(Default)]
+struct SceneLineProbeScan {
+    line_values: Vec<String>,
+    uuid_strings: Vec<String>,
+    len_fields: Vec<String>,
+    has_display_line_40: bool,
+    has_line_value: bool,
+}
+
+fn scene_line_probes_enabled() -> bool {
+    static ENABLED: OnceLock<bool> = OnceLock::new();
+
+    *ENABLED.get_or_init(|| {
+        cfg!(debug_assertions) && !debug_env_flag_enabled("RESONANCE_DISABLE_SCENE_LINE_PROBES")
+    })
+}
+
+fn scene_line_probe_packet_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_SCENE_LINE_PROBE_LIMIT", 220))
+}
+
+fn scene_line_probe_hit_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_SCENE_LINE_PROBE_HIT_LIMIT", 140))
+}
+
+fn scene_line_probe_hex_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_SCENE_LINE_PROBE_HEX_LIMIT", 160))
+}
+
+fn push_scene_line_probe_value(values: &mut Vec<String>, limit: usize, value: String) {
+    if values.len() < limit {
+        values.push(value);
+    }
+}
+
+fn scene_line_probe_is_textual(slice: &[u8]) -> bool {
+    let Ok(value) = std::str::from_utf8(slice) else {
+        return false;
+    };
+    let trimmed = value.trim();
+    !trimmed.is_empty()
+        && trimmed
+            .chars()
+            .all(|ch| !ch.is_control() || ch == '\r' || ch == '\n' || ch == '\t')
+}
+
+fn scan_scene_line_proto_payload(
+    buf: &[u8],
+    path: &str,
+    depth: usize,
+    scan: &mut SceneLineProbeScan,
+) {
+    if depth > SCENE_LINE_PROBE_DEPTH_LIMIT || buf.is_empty() {
+        return;
+    }
+
+    let mut visited_fields = 0usize;
+    proto_visit_fields(buf, |field_number, value| {
+        if field_number == 0 {
+            return true;
+        }
+        visited_fields += 1;
+        if visited_fields > SCENE_LINE_PROBE_FIELD_LIMIT {
+            return false;
+        }
+
+        let field_path = if path.is_empty() {
+            field_number.to_string()
+        } else {
+            format!("{path}.{field_number}")
+        };
+
+        match value {
+            ProtoFieldValue::Varint(varint) => {
+                if (1..=150).contains(&varint) {
+                    scan.has_line_value = true;
+                    if varint == 40 {
+                        scan.has_display_line_40 = true;
+                    }
+                    push_scene_line_probe_value(
+                        &mut scan.line_values,
+                        SCENE_LINE_PROBE_VALUE_LIMIT,
+                        format!("{field_path}={varint}"),
+                    );
+                }
+            }
+            ProtoFieldValue::Len(slice) => {
+                push_scene_line_probe_value(
+                    &mut scan.len_fields,
+                    SCENE_LINE_PROBE_LEN_LIMIT,
+                    format!("{field_path}:{}B", slice.len()),
+                );
+
+                if let Ok(value) = std::str::from_utf8(slice) {
+                    let value = value.trim_matches(|ch: char| ch.is_control()).trim();
+                    if looks_like_uuidish(value) {
+                        push_scene_line_probe_value(
+                            &mut scan.uuid_strings,
+                            SCENE_LINE_PROBE_UUID_LIMIT,
+                            format!("{field_path}={value}"),
+                        );
+                    }
+                }
+
+                if depth < SCENE_LINE_PROBE_DEPTH_LIMIT
+                    && slice.len() >= 2
+                    && slice.len() <= 4096
+                    && !scene_line_probe_is_textual(slice)
+                {
+                    scan_scene_line_proto_payload(slice, &field_path, depth + 1, scan);
+                }
+            }
+            ProtoFieldValue::Fixed32 | ProtoFieldValue::Fixed64 => {}
+        }
+
+        true
+    });
+}
+
+fn scan_scene_line_probe_payload(buf: &[u8]) -> SceneLineProbeScan {
+    let mut scan = SceneLineProbeScan::default();
+    scan_scene_line_proto_payload(buf, "", 0, &mut scan);
+    scan
+}
+
+fn line_switch_probes_enabled() -> bool {
+    static ENABLED: OnceLock<bool> = OnceLock::new();
+
+    *ENABLED.get_or_init(|| {
+        cfg!(debug_assertions) && !debug_env_flag_enabled("RESONANCE_DISABLE_LINE_SWITCH_PROBES")
+    })
+}
+
+fn line_switch_probe_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_LINE_SWITCH_PROBE_LIMIT", 180))
+}
+
+fn line_switch_probe_hex_limit() -> usize {
+    static LIMIT: OnceLock<usize> = OnceLock::new();
+
+    *LIMIT.get_or_init(|| debug_env_usize("RESONANCE_LINE_SWITCH_PROBE_HEX_LIMIT", 512))
+}
+
+fn should_probe_line_switch_flow(notify: &packets::parser::ParsedNotifyFragment) -> bool {
+    if !line_switch_probes_enabled() {
+        return false;
+    }
+
+    if !matches!(
+        notify.service_id,
+        packets::opcodes::WORLD_NTF_SERVICE_ID
+            | packets::opcodes::WORLD_CALL_SERVICE_ID
+            | packets::opcodes::GRPC_TEAM_NTF_SERVICE_ID
+            | packets::opcodes::SOCIAL_NTF_SERVICE_ID
+            | packets::opcodes::MATCH_NTF_SERVICE_ID
+    ) {
+        return false;
+    }
+
+    if matches!(notify.fragment_type, packets::opcodes::FragmentType::Notify) {
+        return notify.service_id == packets::opcodes::SOCIAL_NTF_SERVICE_ID
+            && notify.method_id == 0x1
+            && notify.payload.len() <= 8192;
+    }
+
+    if !matches!(
+        notify.fragment_type,
+        packets::opcodes::FragmentType::Call
+            | packets::opcodes::FragmentType::Return
+            | packets::opcodes::FragmentType::Echo
+    ) {
+        return false;
+    }
+
+    notify.payload.len() <= 8192
+}
+
+fn emit_line_switch_packet_probe(notify: &packets::parser::ParsedNotifyFragment) {
+    if !should_probe_line_switch_flow(notify) {
+        return;
+    }
+
+    if LINE_SWITCH_PROBE_PACKET_COUNT.fetch_add(1, Ordering::Relaxed) >= line_switch_probe_limit() {
+        return;
+    }
+
+    let scan = scan_scene_line_probe_payload(notify.payload.as_ref());
+    let dispatch_label =
+        crate::packets::dispatch::label(notify.fragment_type, notify.service_id, notify.method_id);
+    let method_label = dispatch_label.method_name.unwrap_or("UnknownMethod");
+    let hex_limit = line_switch_probe_hex_limit();
+    let payload_hex_len = notify.payload.len().min(hex_limit);
+    let payload_hex = hex::encode(&notify.payload[..payload_hex_len]);
+    let payload_hex_suffix = if notify.payload.len() > payload_hex_len {
+        "..."
+    } else {
+        ""
+    };
+
+    info!(
+        target: "app::live",
+        "line_switch_probe fragment={} service=0x{:016X} service_name={} method=0x{:X} method_name={} recognized={:?} payload={}B values=[{}] uuids=[{}] len_fields=[{}] raw_hex_prefix={}{}",
+        dispatch_label.fragment_label,
+        notify.service_id,
+        dispatch_label.service_name,
+        notify.method_id,
+        method_label,
+        notify.recognized_pkt,
+        notify.payload.len(),
+        scan.line_values.join(","),
+        scan.uuid_strings.join(","),
+        scan.len_fields.join(","),
+        payload_hex,
+        payload_hex_suffix,
+    );
+}
+
+fn should_probe_scene_line_service(notify: &packets::parser::ParsedNotifyFragment) -> bool {
+    matches!(
+        notify.service_id,
+        packets::opcodes::WORLD_NTF_SERVICE_ID
+            | packets::opcodes::WORLD_CALL_SERVICE_ID
+            | packets::opcodes::GRPC_TEAM_NTF_SERVICE_ID
+    ) && matches!(
+        notify.fragment_type,
+        packets::opcodes::FragmentType::Notify
+            | packets::opcodes::FragmentType::Call
+            | packets::opcodes::FragmentType::Return
+            | packets::opcodes::FragmentType::Echo
+    )
+}
+
+fn emit_scene_line_packet_probe(notify: &packets::parser::ParsedNotifyFragment) {
+    if !scene_line_probes_enabled() || !should_probe_scene_line_service(notify) {
+        return;
+    }
+
+    let scan = scan_scene_line_probe_payload(notify.payload.as_ref());
+    let has_uuid = !scan.uuid_strings.is_empty();
+    if !scan.has_line_value && !has_uuid {
+        return;
+    }
+
+    let is_scene_line_value = scan
+        .line_values
+        .iter()
+        .any(|value| value.ends_with("=39") || value.ends_with("=40"));
+    let is_scene_packet = matches!(
+        notify.recognized_pkt,
+        Some(
+            packets::opcodes::Pkt::EnterScene
+                | packets::opcodes::Pkt::NotifyLoadSceneEnd
+                | packets::opcodes::Pkt::NotifySceneLineInfo
+        )
+    );
+    let is_request_or_reply = matches!(
+        notify.fragment_type,
+        packets::opcodes::FragmentType::Call
+            | packets::opcodes::FragmentType::Return
+            | packets::opcodes::FragmentType::Echo
+    );
+    let is_known_noisy_world_notify = matches!(
+        notify.recognized_pkt,
+        Some(
+            packets::opcodes::Pkt::SyncNearDeltaInfo
+                | packets::opcodes::Pkt::SyncNearEntities
+                | packets::opcodes::Pkt::SyncContainerData
+                | packets::opcodes::Pkt::SyncContainerDirtyData
+        )
+    );
+    if is_known_noisy_world_notify && !has_uuid && !is_scene_line_value && !is_scene_packet {
+        return;
+    }
+
+    let is_high_signal = scan.has_display_line_40
+        || is_scene_line_value
+        || has_uuid
+        || is_scene_packet
+        || is_request_or_reply;
+    let emitted = if is_high_signal {
+        SCENE_LINE_PROBE_HIT_COUNT.fetch_add(1, Ordering::Relaxed) < scene_line_probe_hit_limit()
+    } else {
+        SCENE_LINE_PROBE_PACKET_COUNT.fetch_add(1, Ordering::Relaxed)
+            < scene_line_probe_packet_limit()
+    };
+    if !emitted {
+        return;
+    }
+
+    let dispatch_label =
+        crate::packets::dispatch::label(notify.fragment_type, notify.service_id, notify.method_id);
+    let method_label = dispatch_label.method_name.unwrap_or("UnknownMethod");
+    let hex_limit = scene_line_probe_hex_limit();
+    let payload_hex_len = notify.payload.len().min(hex_limit);
+    let payload_hex = hex::encode(&notify.payload[..payload_hex_len]);
+    let payload_hex_suffix = if notify.payload.len() > payload_hex_len {
+        "..."
+    } else {
+        ""
+    };
+
+    info!(
+        target: "app::live",
+        "scene_line_probe high_signal={} fragment={} service=0x{:016X} service_name={} method=0x{:X} method_name={} recognized={:?} payload={}B values=[{}] uuids=[{}] len_fields=[{}] raw_hex_prefix={}{}",
+        is_high_signal,
+        dispatch_label.fragment_label,
+        notify.service_id,
+        dispatch_label.service_name,
+        notify.method_id,
+        method_label,
+        notify.recognized_pkt,
+        notify.payload.len(),
+        scan.line_values.join(","),
+        scan.uuid_strings.join(","),
+        scan.len_fields.join(","),
+        payload_hex,
+        payload_hex_suffix,
+    );
 }
 
 fn chat_channel_label(channel_type: u64) -> &'static str {
@@ -7058,6 +7875,15 @@ fn decode_state_event(op: packets::opcodes::Pkt, data: Bytes) -> Option<StateEve
                 }
             }
         }
+        packets::opcodes::Pkt::NotifyLoadSceneEnd => {
+            match blueprotobuf::NotifyLoadSceneEnd::decode(data) {
+                Ok(v) => Some(StateEvent::NotifyLoadSceneEnd(v)),
+                Err(e) => {
+                    warn!("Error decoding NotifyLoadSceneEnd.. ignoring: {e}");
+                    None
+                }
+            }
+        }
         packets::opcodes::Pkt::SyncSceneEvents => {
             match blueprotobuf::SyncSceneEvents::decode(data) {
                 Ok(v) => Some(StateEvent::SyncSceneEvents(v)),
@@ -7193,6 +8019,7 @@ fn decode_state_event(op: packets::opcodes::Pkt, data: Bytes) -> Option<StateEve
                 None
             }
         },
+        packets::opcodes::Pkt::NotifySceneLineInfo => decode_scene_line_info(data),
         packets::opcodes::Pkt::SyncServerSkillEnd => {
             match blueprotobuf::SyncServerSkillEnd::decode(data) {
                 Ok(value) => value
@@ -7613,6 +8440,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
             OutboundEvent::SceneChange {
                 scene_id,
                 scene_name,
+                scene_line_id,
                 dungeon_difficulty,
             } => {
                 if let Err(error) = flush_current_session_to_file(
@@ -7627,6 +8455,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 let payload = SceneChangePayload {
                     scene_id,
                     scene_name: scene_name.clone(),
+                    scene_line_id,
                     dungeon_difficulty,
                 };
 

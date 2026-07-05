@@ -6,6 +6,10 @@ use std::collections::HashMap;
 use std::sync::LazyLock;
 
 const SCENE_NAME_RELATIVE: &str = "generated/scenenames.json";
+const SCENE_NAME_OVERRIDES: &[(i32, &str)] = &[
+    (12030, "Ee-chan, Don't Stare at Me!"),
+    (12040, "Ee-chan, Don't Stare at Me!"),
+];
 
 /// Stores cached scene names to minimize JSON reloads.
 #[derive(Default)]
@@ -20,12 +24,22 @@ static SCENE_NAME_CACHE: LazyLock<RwLock<SceneNameCache>> = LazyLock::new(|| {
 
 /// Returns the name for the given scene id, or a default string if not found.
 pub fn lookup(scene_id: i32) -> String {
+    if let Some(name) = scene_name_override(scene_id) {
+        return name.to_string();
+    }
+
     let cache = SCENE_NAME_CACHE.read();
     cache
         .names
         .get(&scene_id)
         .cloned()
         .unwrap_or_else(|| format!("Unknown Scene {}", scene_id))
+}
+
+fn scene_name_override(scene_id: i32) -> Option<&'static str> {
+    SCENE_NAME_OVERRIDES
+        .iter()
+        .find_map(|(id, name)| (*id == scene_id).then_some(*name))
 }
 
 /// Returns the scene name with optional dungeon difficulty suffix.

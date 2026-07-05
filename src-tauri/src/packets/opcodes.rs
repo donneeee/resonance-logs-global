@@ -5,9 +5,9 @@ pub const WORLD_NTF_SERVICE_ID: u64 = 0x0000000063335342;
 pub const WORLD_CALL_SERVICE_ID: u64 = 103_198_054;
 pub const CHIT_CHAT_NTF_SERVICE_ID: u64 = 164931432;
 pub const GRPC_TEAM_NTF_SERVICE_ID: u64 = 0x00000000399fca69;
-pub const SOCIAL_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff01;
-pub const UNION_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff02;
-pub const MATCH_NTF_SERVICE_ID: u64 = 0xffff_ffff_ffff_ff03;
+pub const SOCIAL_NTF_SERVICE_ID: u64 = 625_772_963;
+pub const UNION_NTF_SERVICE_ID: u64 = 504_281_929;
+pub const MATCH_NTF_SERVICE_ID: u64 = 822_849_903;
 
 pub mod world_call_method {
     pub const USE_SLOT: u32 = 0x3d002;
@@ -80,6 +80,7 @@ pub enum Pkt {
     // 0x45-0x47 skipped
     NotifyTimerList = 0x00000048,
     NotifyTimerUpdate = 0x00000049,
+    NotifySceneLineInfo = 0x0000004f,
     SyncServerSkillEnd = 0x00003005,
 }
 
@@ -125,6 +126,7 @@ impl TryFrom<u32> for Pkt {
             0x00000044 => Ok(Pkt::SyncAllServerStateObject),
             0x00000048 => Ok(Pkt::NotifyTimerList),
             0x00000049 => Ok(Pkt::NotifyTimerUpdate),
+            0x0000004f => Ok(Pkt::NotifySceneLineInfo),
             0x00003005 => Ok(Pkt::SyncServerSkillEnd),
             _ => Err(ParseError),
         }

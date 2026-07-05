@@ -61,6 +61,26 @@ function buildGeneratedSceneTranslations(source: unknown): Record<string, SceneT
 const SCENE_NAME_TRANSLATIONS: Record<string, SceneTranslationEntry> = cloneJson(
     buildGeneratedSceneTranslations(sceneNamesData),
 );
+const SCENE_NAME_DISPLAY_OVERRIDES: Record<string, string> = {
+    "12030": "Ee-chan, Don't Stare at Me!",
+    "12040": "Ee-chan, Don't Stare at Me!",
+};
+const RAW_SCENE_NAME_DISPLAY_OVERRIDES: Record<string, string> = {
+    "Ee-chan's Story": "Ee-chan, Don't Stare at Me!",
+    "Guild Party": "Ee-chan, Don't Stare at Me!",
+};
+
+function fixedSceneTranslation(name: string): SceneTranslationEntry {
+    const entry: SceneTranslationEntry = {};
+    for (const locale of SUPPORTED_LOCALES) {
+        entry[locale] = name;
+    }
+    return entry;
+}
+
+for (const [id, name] of Object.entries(SCENE_NAME_DISPLAY_OVERRIDES)) {
+    SCENE_NAME_TRANSLATIONS[id] = fixedSceneTranslation(name);
+}
 
 export async function initializeSceneNameRuntimeData(): Promise<void> {
     return;
@@ -221,6 +241,13 @@ export function localizeRawSceneName(
     localeOverride?: LocaleCode,
 ): string {
     const fallback = fallbackRawName?.trim() || rawSceneName?.trim() || "Unknown Scene";
+    const rawOverride = rawSceneName?.trim()
+        ? RAW_SCENE_NAME_DISPLAY_OVERRIDES[rawSceneName.trim()]
+        : undefined;
+    if (rawOverride) {
+        return rawOverride;
+    }
+
     const entry = findSceneEntryByRawName(rawSceneName);
     if (!entry) {
         return fallback;

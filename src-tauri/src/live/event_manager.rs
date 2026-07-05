@@ -25,6 +25,7 @@ use tokio::sync::RwLock;
 
 const WEBVIEW_EMIT_BACKOFF: Duration = Duration::from_secs(5);
 const WEBVIEW_EMIT_QUOTA_BACKOFF: Duration = Duration::from_secs(15);
+const WEBVIEW_EMIT_MOTION_BACKOFF: Duration = Duration::from_millis(350);
 const WEBVIEW_EMIT_BUDGET_WINDOW: Duration = Duration::from_secs(1);
 const WEBVIEW_EMIT_MAX_PER_WINDOW: usize = 40;
 const WEBVIEW_EMIT_PRIORITY_MAX_PER_WINDOW: usize = 60;
@@ -48,6 +49,7 @@ struct EventPressureStats {
     attempts: u64,
     emitted: u64,
     skipped_backoff: u64,
+    skipped_motion: u64,
     skipped_budget: u64,
     missing_window: u64,
     hidden_window: u64,
@@ -68,6 +70,7 @@ struct EventPressureState {
 enum EventPressureOutcome {
     Emitted,
     SkippedBackoff,
+    SkippedMotion,
     SkippedBudget,
     MissingWindow,
     HiddenWindow,
@@ -79,6 +82,11 @@ enum EventPressureOutcome {
 fn webview_emit_backoff_until() -> &'static Mutex<HashMap<String, Instant>> {
     static WEBVIEW_EMIT_BACKOFF_UNTIL: OnceLock<Mutex<HashMap<String, Instant>>> = OnceLock::new();
     WEBVIEW_EMIT_BACKOFF_UNTIL.get_or_init(|| Mutex::new(HashMap::new()))
+}
+
+fn webview_emit_motion_until() -> &'static Mutex<HashMap<String, Instant>> {
+    static WEBVIEW_EMIT_MOTION_UNTIL: OnceLock<Mutex<HashMap<String, Instant>>> = OnceLock::new();
+    WEBVIEW_EMIT_MOTION_UNTIL.get_or_init(|| Mutex::new(HashMap::new()))
 }
 
 fn webview_emit_budget() -> &'static Mutex<HashMap<String, WebviewEmitBudget>> {
@@ -117,6 +125,9 @@ fn record_event_pressure(
             EventPressureOutcome::Emitted => stats.emitted = stats.emitted.saturating_add(1),
             EventPressureOutcome::SkippedBackoff => {
                 stats.skipped_backoff = stats.skipped_backoff.saturating_add(1)
+            }
+            EventPressureOutcome::SkippedMotion => {
+                stats.skipped_motion = stats.skipped_motion.saturating_add(1)
             }
             EventPressureOutcome::SkippedBudget => {
                 stats.skipped_budget = stats.skipped_budget.saturating_add(1)
@@ -183,6 +194,7 @@ fn log_event_pressure_rows(rows: HashMap<EventPressureKey, EventPressureStats>) 
         .iter()
         .map(|(_, stats)| {
             stats.skipped_backoff
+                + stats.skipped_motion
                 + stats.skipped_budget
                 + stats.missing_window
                 + stats.hidden_window
@@ -211,12 +223,13 @@ fn log_event_pressure_rows(rows: HashMap<EventPressureKey, EventPressureStats>) 
     for (key, stats) in rows.iter().take(EVENT_PRESSURE_MAX_ROWS) {
         info!(
             target: "app::event_pressure",
-            "event_pressure target={} event={} attempts={} emitted={} backoff={} budget={} unavailable={} hidden={} visibility_error={} serialize_error={} failed_emit={} payload_bytes={} serialize_ms={:.3}",
+            "event_pressure target={} event={} attempts={} emitted={} backoff={} motion={} budget={} unavailable={} hidden={} visibility_error={} serialize_error={} failed_emit={} payload_bytes={} serialize_ms={:.3}",
             key.target_label,
             key.event,
             stats.attempts,
             stats.emitted,
             stats.skipped_backoff,
+            stats.skipped_motion,
             stats.skipped_budget,
             stats.missing_window,
             stats.hidden_window,
@@ -262,6 +275,24 @@ fn should_skip_webview_emit(target_label: &str) -> bool {
     false
 }
 
+fn should_skip_webview_motion_emit(target_label: &str, event: &str) -> bool {
+    if event != "live-data" {
+        return false;
+    }
+
+    let now = Instant::now();
+    let mut motion = webview_emit_motion_until().lock().unwrap();
+    let Some(until) = motion.get(target_label).copied() else {
+        return false;
+    };
+    if until > now {
+        return true;
+    }
+
+    motion.remove(target_label);
+    false
+}
+
 fn reserve_webview_emit_budget(target_label: &str, max_per_window: usize) -> bool {
     let now = Instant::now();
     let mut budgets = webview_emit_budget().lock().unwrap();
@@ -303,6 +334,13 @@ fn mark_webview_emit_backoff(target_label: &str, duration: Duration) {
         .lock()
         .unwrap()
         .insert(target_label.to_string(), Instant::now() + duration);
+}
+
+pub(crate) fn mark_webview_motion(target_label: &str) {
+    webview_emit_motion_until().lock().unwrap().insert(
+        target_label.to_string(),
+        Instant::now() + WEBVIEW_EMIT_MOTION_BACKOFF,
+    );
 }
 
 /// Safely emits an event to the frontend, handling WebView2 state errors gracefully.
@@ -363,6 +401,20 @@ fn safe_emit_to_internal<S: Serialize + Clone>(
             target_label,
             event,
             EventPressureOutcome::SkippedBackoff,
+            0,
+            None,
+        );
+        return false;
+    }
+    if should_skip_webview_motion_emit(target_label, event) {
+        trace!(
+            "Skipping emit for '{}': target window '{}' is moving/resizing",
+            event, target_label
+        );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::SkippedMotion,
             0,
             None,
         );
@@ -509,6 +561,20 @@ where
             target_label,
             event,
             EventPressureOutcome::SkippedBackoff,
+            0,
+            None,
+        );
+        return false;
+    }
+    if should_skip_webview_motion_emit(target_label, event) {
+        trace!(
+            "Skipping emit for '{}': target window '{}' is moving/resizing",
+            event, target_label
+        );
+        record_event_pressure(
+            target_label,
+            event,
+            EventPressureOutcome::SkippedMotion,
             0,
             None,
         );
@@ -687,6 +753,7 @@ pub enum OutboundEvent {
     SceneChange {
         scene_id: Option<i32>,
         scene_name: String,
+        scene_line_id: Option<i32>,
         dungeon_difficulty: Option<i32>,
     },
     TrainingDummyUpdate(TrainingDummyState),
@@ -824,11 +891,13 @@ impl EventManager {
         &mut self,
         scene_id: Option<i32>,
         scene_name: String,
+        scene_line_id: Option<i32>,
         dungeon_difficulty: Option<i32>,
     ) {
         self.outbound_events.push(OutboundEvent::SceneChange {
             scene_id,
             scene_name,
+            scene_line_id,
             dungeon_difficulty,
         });
     }
@@ -1083,6 +1152,8 @@ pub struct SceneChangePayload {
     pub scene_id: Option<i32>,
     /// The name of the new scene.
     pub scene_name: String,
+    /// The overworld line/channel for the new scene, if known.
+    pub scene_line_id: Option<i32>,
     /// The dungeon difficulty for the scene, if known.
     pub dungeon_difficulty: Option<i32>,
 }
@@ -1463,6 +1534,7 @@ pub fn generate_live_data_payload(
         local_player_key,
         scene_id: encounter.current_scene_id,
         scene_name: encounter.current_scene_name.clone(),
+        scene_line_id: encounter.current_scene_line_id,
         is_paused: encounter.is_encounter_paused,
         bosses,
         entities,

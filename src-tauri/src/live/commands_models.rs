@@ -60,6 +60,9 @@ pub struct HeaderInfo {
     pub scene_id: Option<i32>,
     /// The name of the scene where the encounter took place.
     pub scene_name: Option<String>,
+    /// The overworld line/channel for the current scene, if known.
+    #[serde(default)]
+    pub scene_line_id: Option<i32>,
     /// Current training dummy runtime state for the live window.
     pub training_dummy: TrainingDummyState,
 }
@@ -84,6 +87,8 @@ pub struct LiveDataPayload {
     pub local_player_key: Option<String>,
     pub scene_id: Option<i32>,
     pub scene_name: Option<String>,
+    #[serde(default)]
+    pub scene_line_id: Option<i32>,
     pub is_paused: bool,
     pub bosses: Vec<BossHealth>,
     pub entities: Vec<RawEntityData>,

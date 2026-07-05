@@ -41,6 +41,7 @@ export type HeaderInfo = {
   bosses: BossHealth[];
   sceneId: number | null;
   sceneName: string | null;
+  sceneLineId: number | null;
   trainingDummy: TrainingDummyState;
 };
 
@@ -396,6 +397,7 @@ export type RawEntityData = BindingRawEntityData & {
   displayUid?: number | null;
   entityUuid?: string | null;
   entityKey?: string | null;
+  isDead?: boolean | null;
 };
 export type PerSourceStats = BindingPerSourceStats;
 
@@ -413,6 +415,7 @@ export type LiveDataPayload = {
   localPlayerKey?: string | null;
   sceneId: number | null;
   sceneName: string | null;
+  sceneLineId: number | null;
   trainingDummy: TrainingDummyState;
   isPaused: boolean;
   bosses: BossHealth[];
@@ -422,6 +425,7 @@ export type LiveDataPayload = {
 export type SceneChangePayload = {
   sceneId?: number | null;
   sceneName: string;
+  sceneLineId?: number | null;
   dungeonDifficulty?: number | null;
 };
 

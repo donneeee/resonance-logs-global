@@ -8,8 +8,9 @@ pub fn build_and_run(builder: TauriBuilder<tauri::Wry>) {
     builder
         .build(generate_context!())
         .expect("error while running tauri application")
-        .run(|_app_handle, event| {
+        .run(|app_handle, event| {
             if let tauri::RunEvent::ExitRequested { .. } = event {
+                crate::save_all_window_states(app_handle, "exit_requested");
                 info!(target: "app::startup", "App is closing! Cleaning up resources...");
             }
         });

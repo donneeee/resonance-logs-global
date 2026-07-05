@@ -157,12 +157,14 @@ pub enum TeamEvent {
     MemberInfoUpdated {
         members: Vec<EntityUuid>,
         equipment: Vec<TeamMemberEquipment>,
+        scene_infos: Vec<TeamMemberSceneInfo>,
     },
     Joined {
         team_id: i64,
         leader_uuid: EntityUuid,
         members: Vec<EntityUuid>,
         equipment: Vec<TeamMemberEquipment>,
+        scene_infos: Vec<TeamMemberSceneInfo>,
     },
     Left {
         member_uuid: EntityUuid,
@@ -175,6 +177,15 @@ pub struct TeamMemberEquipment {
     pub member_uuid: EntityUuid,
     pub runtime_source: &'static str,
     pub items: Vec<TeamEquipmentItem>,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TeamMemberSceneInfo {
+    pub member_uuid: EntityUuid,
+    pub scene_id: Option<i32>,
+    pub scene_guid: Option<String>,
+    pub line_id: Option<i32>,
+    pub runtime_source: &'static str,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -209,6 +220,7 @@ pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
                 Ok(message) => message.v_request.map(|request| {
                     let mut members = Vec::new();
                     let mut equipment = Vec::new();
+                    let mut scene_infos = Vec::new();
                     for member in request.team_member_social_datas {
                         push_member_id(&mut members, member.char_id);
                         push_member_equipment(
@@ -216,11 +228,20 @@ pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
                             &member,
                             "GrpcTeamNtf.NoticeUpdateTeamMemberInfo.social_data.equip_data",
                         );
+                        push_member_scene_info(
+                            &mut scene_infos,
+                            &member,
+                            "GrpcTeamNtf.NoticeUpdateTeamMemberInfo.social_data.scene_info",
+                        );
                     }
                     for member in request.team_member_sync_datas {
                         push_member_id(&mut members, member.char_id);
                     }
-                    TeamEvent::MemberInfoUpdated { members, equipment }
+                    TeamEvent::MemberInfoUpdated {
+                        members,
+                        equipment,
+                        scene_infos,
+                    }
                 }),
                 Err(err) => {
                     log::warn!("Error decoding NoticeUpdateTeamMemberInfo.. ignoring: {err}");
@@ -233,12 +254,18 @@ pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
                 let base_info = request.base_info?;
                 let mut members = Vec::new();
                 let mut equipment = Vec::new();
+                let mut scene_infos = Vec::new();
                 for member in request.member_data {
                     push_member_id(&mut members, member.char_id);
                     push_member_equipment(
                         &mut equipment,
                         &member,
                         "GrpcTeamNtf.NotifyJoinTeam.member_data.social_data.equip_data",
+                    );
+                    push_member_scene_info(
+                        &mut scene_infos,
+                        &member,
+                        "GrpcTeamNtf.NotifyJoinTeam.member_data.social_data.scene_info",
                     );
                 }
                 let mut sync_members: Vec<_> = request.member_sync_datas.into_iter().collect();
@@ -252,6 +279,7 @@ pub fn decode_team_event(key: NotifyKey, data: Bytes) -> Option<TeamEvent> {
                     leader_uuid: canonical_player_uuid(base_info.leader_id.unwrap_or_default()),
                     members,
                     equipment,
+                    scene_infos,
                 })
             }),
             Err(err) => {
@@ -345,6 +373,59 @@ fn push_member_equipment(
     }
 }
 
+fn push_member_scene_info(
+    scene_infos: &mut Vec<TeamMemberSceneInfo>,
+    member: &blueprotobuf::TeamMemData,
+    runtime_source: &'static str,
+) {
+    let member_uuid = canonical_player_uuid(member.char_id.unwrap_or_default());
+    if member_uuid == 0 {
+        return;
+    }
+
+    let Some(social_data) = member.social_data.as_ref() else {
+        return;
+    };
+
+    let user_scene_info = social_data.user_scene_info.as_ref();
+    let basic_data = social_data.basic_data.as_ref();
+    let scene_id = user_scene_info
+        .and_then(|info| info.scene_id)
+        .or_else(|| basic_data.and_then(|data| data.scene_id))
+        .filter(|scene_id| *scene_id > 0);
+    let line_id = user_scene_info
+        .and_then(|info| info.line_id)
+        .filter(|line_id| *line_id > 0);
+    let scene_guid = user_scene_info
+        .and_then(|info| info.scene_guid.as_deref())
+        .or_else(|| basic_data.and_then(|data| data.scene_guid.as_deref()))
+        .map(str::trim)
+        .filter(|scene_guid| !scene_guid.is_empty())
+        .map(str::to_string);
+
+    if scene_id.is_none() && scene_guid.is_none() && line_id.is_none() {
+        return;
+    }
+
+    if let Some(existing) = scene_infos
+        .iter_mut()
+        .find(|existing| existing.member_uuid == member_uuid)
+    {
+        existing.scene_id = scene_id;
+        existing.scene_guid = scene_guid;
+        existing.line_id = line_id;
+        existing.runtime_source = runtime_source;
+    } else {
+        scene_infos.push(TeamMemberSceneInfo {
+            member_uuid,
+            scene_id,
+            scene_guid,
+            line_id,
+            runtime_source,
+        });
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -363,6 +444,7 @@ mod tests {
                 leader_uuid: c(2),
                 members: vec![c(1), 0, c(1)],
                 equipment: Vec::new(),
+                scene_infos: Vec::new(),
             },
             c(1),
         );
@@ -384,6 +466,7 @@ mod tests {
             TeamEvent::MemberInfoUpdated {
                 members: vec![c(2), c(3), 0, c(3)],
                 equipment: Vec::new(),
+                scene_infos: Vec::new(),
             },
             c(1),
         );
@@ -461,6 +544,7 @@ mod tests {
             Some(TeamEvent::MemberInfoUpdated {
                 members: vec![c(10), c(20)],
                 equipment: Vec::new(),
+                scene_infos: Vec::new(),
             })
         );
     }
@@ -505,6 +589,95 @@ mod tests {
                         slot: 200,
                         item_config_id: 2000626,
                     }],
+                }],
+                scene_infos: Vec::new(),
+            })
+        );
+    }
+
+    #[test]
+    fn decode_member_update_extracts_social_scene_info() {
+        let message = NoticeUpdateTeamMemberInfo {
+            v_request: Some(NoticeUpdateTeamMemberInfoRequest {
+                team_member_social_datas: vec![blueprotobuf::TeamMemData {
+                    char_id: Some(10),
+                    social_data: Some(blueprotobuf::TeamMemberSocialData {
+                        user_scene_info: Some(blueprotobuf::UserSceneInfo {
+                            scene_id: Some(8),
+                            scene_guid: Some("asterleed-guid-9".to_string()),
+                            line_id: Some(9),
+                        }),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }),
+        };
+
+        let event = decode_team_event(
+            NotifyKey {
+                service_id: GRPC_TEAM_NTF_SERVICE_ID,
+                method_id: grpc_team_method::NOTICE_UPDATE_TEAM_MEMBER_INFO,
+            },
+            Bytes::from(message.encode_to_vec()),
+        );
+
+        assert_eq!(
+            event,
+            Some(TeamEvent::MemberInfoUpdated {
+                members: vec![c(10)],
+                equipment: Vec::new(),
+                scene_infos: vec![TeamMemberSceneInfo {
+                    member_uuid: c(10),
+                    scene_id: Some(8),
+                    scene_guid: Some("asterleed-guid-9".to_string()),
+                    line_id: Some(9),
+                    runtime_source: "GrpcTeamNtf.NoticeUpdateTeamMemberInfo.social_data.scene_info",
+                }],
+            })
+        );
+    }
+
+    #[test]
+    fn decode_member_update_uses_basic_data_scene_guid_fallback() {
+        let message = NoticeUpdateTeamMemberInfo {
+            v_request: Some(NoticeUpdateTeamMemberInfoRequest {
+                team_member_social_datas: vec![blueprotobuf::TeamMemData {
+                    char_id: Some(10),
+                    social_data: Some(blueprotobuf::TeamMemberSocialData {
+                        basic_data: Some(blueprotobuf::BasicData {
+                            scene_id: Some(9),
+                            scene_guid: Some("bahamar-guid-2".to_string()),
+                            ..Default::default()
+                        }),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }),
+        };
+
+        let event = decode_team_event(
+            NotifyKey {
+                service_id: GRPC_TEAM_NTF_SERVICE_ID,
+                method_id: grpc_team_method::NOTICE_UPDATE_TEAM_MEMBER_INFO,
+            },
+            Bytes::from(message.encode_to_vec()),
+        );
+
+        assert_eq!(
+            event,
+            Some(TeamEvent::MemberInfoUpdated {
+                members: vec![c(10)],
+                equipment: Vec::new(),
+                scene_infos: vec![TeamMemberSceneInfo {
+                    member_uuid: c(10),
+                    scene_id: Some(9),
+                    scene_guid: Some("bahamar-guid-2".to_string()),
+                    line_id: None,
+                    runtime_source: "GrpcTeamNtf.NoticeUpdateTeamMemberInfo.social_data.scene_info",
                 }],
             })
         );
@@ -558,6 +731,7 @@ mod tests {
                 leader_uuid: c(10),
                 members: vec![c(10), c(20), c(25), c(30)],
                 equipment: Vec::new(),
+                scene_infos: Vec::new(),
             })
         );
     }

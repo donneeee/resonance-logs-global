@@ -46,6 +46,9 @@ pub struct Encounter {
     pub local_player: SyncContainerData,
     pub current_scene_id: Option<i32>,
     pub current_scene_name: Option<String>,
+    pub current_scene_line_id: Option<i32>,
+    #[serde(default)]
+    pub current_scene_guid: Option<String>,
     pub current_dungeon_difficulty: Option<i32>,
     #[serde(default)]
     pub markers: HashMap<i32, MarkerFact>,
@@ -1254,6 +1257,7 @@ pub mod attr_type {
     pub const ATTR_NAME: i32 = 0x01;
     pub const ATTR_ID: i32 = 0x0a;
     pub const ATTR_SCENE_BASIC_ID: i32 = 0x155; // Scene basic ID (341)
+    pub const ATTR_SCENE_CHANNEL: i32 = 0x157; // Scene channel / display line number (343)
     pub const ATTR_ACTOR_STATE: i32 = 0x0b; // Actor state, see EActorState
     pub const ATTR_TARGET_ID: i32 = 0x1e; // AttrTargetId: current attack target entity UUID
     pub const ATTR_GUILD_ID: i32 = ATTR_TARGET_ID; // Legacy alias kept for older callers.

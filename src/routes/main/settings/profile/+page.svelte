@@ -53,6 +53,7 @@
   $effect(() => {
     SETTINGS.discordPresence.state.enabled;
     SETTINGS.discordPresence.state.showScene;
+    SETTINGS.discordPresence.state.showLine;
     SETTINGS.discordPresence.state.showBoss;
     SETTINGS.discordPresence.state.showTimer;
     SETTINGS.discordPresence.state.showDps;
@@ -318,6 +319,10 @@
           <SettingsSwitch
             bind:checked={SETTINGS.discordPresence.state.showScene}
             label={tShell("settings.discordPresence.showScene", "Show scene")}
+          />
+          <SettingsSwitch
+            bind:checked={SETTINGS.discordPresence.state.showLine}
+            label={tShell("settings.discordPresence.showLine", "Show line")}
           />
           <SettingsSwitch
             bind:checked={SETTINGS.discordPresence.state.showBoss}

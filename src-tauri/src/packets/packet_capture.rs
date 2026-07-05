@@ -231,6 +231,12 @@ const WORLD_NTF_SERVICE_ID: u64 = 0x0000000063335342;
 const CHIT_CHAT_NTF_SERVICE_ID: u64 = 164931432;
 #[cfg(debug_assertions)]
 const GRPC_TEAM_NTF_SERVICE_ID: u64 = 0x00000000399fca69;
+#[cfg(debug_assertions)]
+const SOCIAL_NTF_SERVICE_ID: u64 = 625_772_963;
+#[cfg(debug_assertions)]
+const UNION_NTF_SERVICE_ID: u64 = 504_281_929;
+#[cfg(debug_assertions)]
+const MATCH_NTF_SERVICE_ID: u64 = 822_849_903;
 const NOTIFY_NEWEST_CHIT_CHAT_MSGS_METHOD_ID: u32 = 0x1;
 #[cfg(debug_assertions)]
 const SYNC_CONTAINER_DIRTY_DATA_METHOD_ID: u32 = 0x16;
@@ -634,6 +640,9 @@ fn service_name_for_census(service_id: u64) -> &'static str {
         WORLD_NTF_SERVICE_ID => "WorldNtf",
         CHIT_CHAT_NTF_SERVICE_ID => "ChitChatNtf",
         GRPC_TEAM_NTF_SERVICE_ID => "GrpcTeamNtf",
+        SOCIAL_NTF_SERVICE_ID => "SocialNtf",
+        UNION_NTF_SERVICE_ID => "UnionNtf",
+        MATCH_NTF_SERVICE_ID => "MatchNtf",
         _ => "UnknownService",
     }
 }
@@ -651,6 +660,9 @@ fn method_name_for_census(service_id: u64, method_id: u32) -> Option<String> {
     }
     if service_id == GRPC_TEAM_NTF_SERVICE_ID && method_id == 0x2 {
         return Some("NoticeUpdateTeamMemberInfo".into());
+    }
+    if service_id == SOCIAL_NTF_SERVICE_ID && method_id == 0x1 {
+        return Some("NotifySocialData".into());
     }
     None
 }
@@ -992,6 +1004,99 @@ fn collect_chat_logger_entries_from_frame(
     }
 }
 
+fn should_forward_non_scene_service_fragment(notify: &ParsedNotifyFragment) -> bool {
+    matches!(notify.fragment_type, FragmentType::Notify)
+        && notify.service_id == crate::packets::opcodes::SOCIAL_NTF_SERVICE_ID
+        && notify.method_id == 0x1
+}
+
+fn forward_non_scene_service_fragments_from_frame(
+    frame: &Bytes,
+    packet_sender: &tokio::sync::mpsc::Sender<CaptureEvent>,
+    queue_depth: &AtomicUsize,
+    dropped_total: &AtomicUsize,
+) {
+    let mut offset = 0usize;
+    let buf = frame.as_ref();
+
+    while offset + 6 <= buf.len() {
+        let Some(size_bytes) = buf.get(offset..offset + 4) else {
+            break;
+        };
+        let Ok(size_bytes) = size_bytes.try_into() else {
+            break;
+        };
+        let packet_size = u32::from_be_bytes(size_bytes) as usize;
+        if packet_size < 6 {
+            break;
+        }
+        let Some(end) = offset.checked_add(packet_size) else {
+            break;
+        };
+        if end > buf.len() {
+            break;
+        }
+
+        let Ok(packet_type) = buf[offset + 4..offset + 6].try_into() else {
+            break;
+        };
+        let packet_type = u16::from_be_bytes(packet_type);
+        let is_zstd_compressed = (packet_type & 0x8000) != 0;
+        let msg_type_id = packet_type & 0x7fff;
+        let payload_start = offset + 6;
+        let payload_end = end;
+
+        match FragmentType::from(msg_type_id) {
+            FragmentType::Notify => {
+                if let Some(notify) = crate::packets::parser::parse_service_fragment(
+                    frame,
+                    payload_start,
+                    payload_end,
+                    is_zstd_compressed,
+                    FragmentType::Notify,
+                ) {
+                    if should_forward_non_scene_service_fragment(&notify) {
+                        try_send_capture_event(
+                            packet_sender,
+                            queue_depth,
+                            dropped_total,
+                            CaptureEvent::Notify(notify),
+                        );
+                    }
+                }
+            }
+            FragmentType::FrameDown => {
+                if payload_end.saturating_sub(payload_start) >= 4 {
+                    let nested_start = payload_start + 4;
+                    let nested_packet = &buf[nested_start..payload_end];
+                    if is_zstd_compressed {
+                        if let Ok(decompressed) = zstd::decode_all(nested_packet) {
+                            let nested_bytes = Bytes::from(decompressed);
+                            forward_non_scene_service_fragments_from_frame(
+                                &nested_bytes,
+                                packet_sender,
+                                queue_depth,
+                                dropped_total,
+                            );
+                        }
+                    } else {
+                        let nested_bytes = frame.slice(nested_start..payload_end);
+                        forward_non_scene_service_fragments_from_frame(
+                            &nested_bytes,
+                            packet_sender,
+                            queue_depth,
+                            dropped_total,
+                        );
+                    }
+                }
+            }
+            _ => {}
+        }
+
+        offset = end;
+    }
+}
+
 fn process_non_scene_chat_packet(
     endpoint: &str,
     tcp_packet: &etherparse::TcpSlice<'_>,
@@ -1101,6 +1206,12 @@ fn process_non_scene_chat_packet(
                 &mut entries,
             );
         }
+        forward_non_scene_service_fragments_from_frame(
+            &packet,
+            packet_sender,
+            queue_depth,
+            dropped_total,
+        );
         collect_chat_logger_entries_from_frame(&packet, ts_ms, &mut entries);
         if !entries.is_empty() {
             try_send_capture_event(

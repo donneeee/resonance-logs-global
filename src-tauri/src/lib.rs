@@ -887,10 +887,17 @@ pub fn run() {
 
 fn persisted_window_state_flags() -> StateFlags {
     StateFlags::SIZE
+        | StateFlags::POSITION
         | StateFlags::MAXIMIZED
         | StateFlags::VISIBLE
         | StateFlags::DECORATIONS
         | StateFlags::FULLSCREEN
+}
+
+pub(crate) fn save_all_window_states(app: &tauri::AppHandle, reason: &str) {
+    if let Err(e) = app.save_window_state(persisted_window_state_flags()) {
+        warn!("failed to save window state reason={} error={}", reason, e);
+    }
 }
 
 mod custom_data_commands {
@@ -1673,7 +1680,7 @@ fn init_logging(app: &tauri::AppHandle) -> Result<(), String> {
         "info"
     } else {
         // Release: warn+error globally, but keep key lifecycle info for diagnostics.
-        "warn,app::startup=info,app::logging=info,app::db=info,app::capture=info,app::live=info,app::sync=info"
+        "warn,app::startup=info,app::logging=info,app::db=info,app::capture=info,app::live=info,app::sync=info,app::discord=info"
     };
 
     let filter = tracing_subscriber::EnvFilter::try_from_env("RES_LOG")
@@ -2639,6 +2646,7 @@ fn setup_tray(app: &tauri::AppHandle) -> tauri::Result<()> {
                 }
             }
             "quit" => {
+                save_all_window_states(tray_app.app_handle(), "tray_quit");
                 tray_app.exit(0);
             }
             _ => {}
@@ -2693,6 +2701,7 @@ fn on_window_event_fn(window: &Window, event: &WindowEvent) {
                     }
                 } else {
                     // Main window close = exit entire app
+                    save_all_window_states(window.app_handle(), "main_close_exit");
                     window.app_handle().exit(0);
                 }
             } else {
@@ -2712,6 +2721,9 @@ fn on_window_event_fn(window: &Window, event: &WindowEvent) {
             }
         }
         WindowEvent::Moved(_) | WindowEvent::Resized(_) => {
+            crate::live::event_manager::mark_webview_motion(window.label());
+            crate::live::event_manager::mark_webview_motion(WINDOW_LIVE_LABEL);
+
             let source_label = window.label();
             let target_label = if source_label == WINDOW_GAME_OVERLAY_LABEL {
                 WINDOW_MONSTER_OVERLAY_LABEL

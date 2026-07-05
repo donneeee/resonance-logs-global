@@ -228,6 +228,7 @@ export function computeHeaderInfo(
     bosses: data.bosses,
     sceneId: data.sceneId,
     sceneName: data.sceneName,
+    sceneLineId: data.sceneLineId,
     trainingDummy: data.trainingDummy,
   };
 }

@@ -37,13 +37,15 @@
     onTrainingDummyUpdate,
     onDeathReplay,
   } from "$lib/api";
-  import type { LiveDataPayload, RawCombatStats, RawSkillStats } from "$lib/api";
+  import type { LiveDataPayload, RawCombatStats, RawSkillStats, SceneChangePayload } from "$lib/api";
   import { applyCustomFonts } from "$lib/font-loader";
   import AppBackgroundLayer from "$lib/components/app-background-layer.svelte";
   import {
     clearDiscordPresence,
+    shouldRefreshDiscordPresenceOnTimer,
     syncDiscordPresenceConfig,
     updateDiscordPresenceFromLiveData,
+    updateDiscordPresenceFromSceneChange,
   } from "$lib/discord-presence";
   import { writable } from "svelte/store";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
@@ -67,9 +69,11 @@
 
   import {
     setLiveData,
+    getLiveData,
     setLiveDisplayNowMs,
     isCrowdedLiveSession,
     setDeathRecords,
+    getDeathRecords,
     setTrainingDummyState,
     clearMeterData,
     cleanupStores,
@@ -203,6 +207,60 @@
       .join(",");
   }
 
+  function livePayloadHasSceneContext(payload: LiveDataPayload | null | undefined): payload is LiveDataPayload {
+    if (!payload) return false;
+    const sceneId = Number(payload.sceneId ?? 0);
+    return (Number.isFinite(sceneId) && sceneId > 0) || !!payload.sceneName?.trim();
+  }
+
+  function shouldDisplayLivePayload(payload: LiveDataPayload | null | undefined): payload is LiveDataPayload {
+    if (!payload) return false;
+    return payload.fightStartTimestampMs > 0 || livePayloadHasSceneContext(payload);
+  }
+
+  function blankLivePayloadForScene(scene: SceneChangePayload): LiveDataPayload {
+    return {
+      elapsedMs: 0,
+      activeCombatTimeMs: 0,
+      fightStartTimestampMs: 0,
+      dpsDisplayPaused: false,
+      totalDmg: 0,
+      totalDmgBossOnly: 0,
+      totalHeal: 0,
+      totalEffectiveHeal: 0,
+      localPlayerUid: 0,
+      localPlayerUuid: null,
+      localPlayerKey: null,
+      sceneId: scene.sceneId ?? null,
+      sceneName: scene.sceneName,
+      sceneLineId: scene.sceneLineId ?? null,
+      trainingDummy: {
+        phase: "idle",
+        durationMs: 0,
+        remainingMs: 0,
+      },
+      isPaused: false,
+      bosses: [],
+      entities: [],
+    };
+  }
+
+  function blankLivePayloadFromSceneContext(
+    payload: LiveDataPayload | null | undefined,
+  ): LiveDataPayload | null {
+    if (!livePayloadHasSceneContext(payload)) return null;
+    return {
+      ...blankLivePayloadForScene({
+        sceneId: payload.sceneId,
+        sceneName: payload.sceneName?.trim() || "Unknown Scene",
+        sceneLineId: payload.sceneLineId ?? null,
+      }),
+      localPlayerUid: payload.localPlayerUid ?? 0,
+      localPlayerUuid: payload.localPlayerUuid ?? null,
+      localPlayerKey: payload.localPlayerKey ?? null,
+    };
+  }
+
   function liveActivitySignature(payload: LiveDataPayload): string {
     const bosses = payload.bosses
       .map((boss) => [
@@ -234,6 +292,7 @@
     return [
       payload.sceneId ?? "",
       payload.sceneName ?? "",
+      payload.sceneLineId ?? "",
       payload.fightStartTimestampMs,
       payload.dpsDisplayPaused ? 1 : 0,
       payload.isPaused ? 1 : 0,
@@ -269,6 +328,28 @@
       lastLiveActivitySignature = signature;
       markLiveActivity(nowMs);
     }
+  }
+
+  function applySceneChangeToLatestPayload(
+    scene: SceneChangePayload,
+    nowMs = Date.now(),
+    preserveExistingPayload = true,
+  ): void {
+    const basePayload = preserveExistingPayload && latestLivePayload
+      ? latestLivePayload
+      : blankLivePayloadForScene(scene);
+    const sceneId = scene.sceneId ?? null;
+    const sameScene =
+      (sceneId !== null && basePayload.sceneId === sceneId) ||
+      (!!basePayload.sceneName && basePayload.sceneName === scene.sceneName);
+    const nextPayload = {
+      ...basePayload,
+      sceneId,
+      sceneName: scene.sceneName,
+      sceneLineId: scene.sceneLineId ?? (sameScene ? basePayload.sceneLineId : null),
+    };
+    updateLiveActivityFromPayload(nextPayload, nowMs);
+    setLiveData(nextPayload);
   }
 
   function currentLiveDisplayNowMs(nowMs = Date.now()): number {
@@ -324,7 +405,17 @@
       && SETTINGS.live.general.state.autoClearOnSceneChange === false;
   }
 
-  function clearEmptyLivePayload(nowMs = Date.now()): void {
+  function clearEmptyLivePayload(nowMs = Date.now(), payload?: LiveDataPayload): void {
+    const scenePayload = livePayloadHasSceneContext(payload) ? payload : latestLivePayload;
+    if (
+      livePayloadHasSceneContext(scenePayload) &&
+      Number(scenePayload?.fightStartTimestampMs ?? 0) <= 0
+    ) {
+      updateLiveActivityFromPayload(scenePayload, nowMs);
+      setLiveData(scenePayload);
+      setLiveDisplayNowMs(nowMs);
+      return;
+    }
     if (shouldSuppressEmptyLiveClear()) {
       setLiveDisplayNowMs(nowMs);
       return;
@@ -335,10 +426,17 @@
 
   function refreshLiveDisplay(nowMs = Date.now()): void {
     const payload = latestLivePayload;
-    if (payload && payload.fightStartTimestampMs > 0) {
+    if (shouldDisplayLivePayload(payload)) {
       setLiveData(payload);
     }
     setLiveDisplayNowMs(currentLiveDisplayNowMs(nowMs));
+  }
+
+  function refreshDiscordPresence(nowMs = Date.now()): void {
+    const payload = latestLivePayload;
+    if (payload && shouldRefreshDiscordPresenceOnTimer(payload)) {
+      void updateDiscordPresenceFromLiveData(payload, nowMs, getDeathRecords());
+    }
   }
 
   $effect(() => {
@@ -348,6 +446,15 @@
     const timer = setInterval(() => {
       refreshLiveDisplay(Date.now());
     }, refreshRateMs);
+    return () => clearInterval(timer);
+  });
+
+  $effect(() => {
+    if (typeof window === "undefined") return;
+    refreshDiscordPresence(Date.now());
+    const timer = setInterval(() => {
+      refreshDiscordPresence(Date.now());
+    }, 1000);
     return () => clearInterval(timer);
   });
 
@@ -684,11 +791,11 @@
         lastEventTime = Date.now();
         hadAnyEvent = true;
         void syncAutoHideLiveWindow(livePayloadHasDamageEvent(event.payload));
-        void updateDiscordPresenceFromLiveData(event.payload, lastEventTime);
+        void updateDiscordPresenceFromLiveData(event.payload, lastEventTime, getDeathRecords());
         if (event.payload.fightStartTimestampMs > 0) {
           ingestLiveDataPayload(event.payload, lastEventTime);
         } else if (event.payload.totalDmg === 0 && event.payload.totalHeal === 0) {
-          clearEmptyLivePayload(lastEventTime);
+          clearEmptyLivePayload(lastEventTime, event.payload);
         }
       });
 
@@ -703,12 +810,17 @@
         if (isDestroyed) return;
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        const scenePayload = blankLivePayloadFromSceneContext(latestLivePayload);
         suppressEmptyClearAfterSceneChange = false;
         autoHideLastObservedDamageTotal = 0;
         resetLiveActivityTracking(lastEventTime);
         void syncAutoHideLiveWindow(false);
-        void clearDiscordPresence(true);
         clearMeterData();
+        if (scenePayload) {
+          updateLiveActivityFromPayload(scenePayload, lastEventTime);
+          setLiveData(scenePayload);
+          setLiveDisplayNowMs(lastEventTime);
+        }
         notificationToast?.showToast(
           "notice",
 t("live.resetToast", "Encounter reset"),
@@ -772,17 +884,20 @@ t("live.resumeToast", "战斗已继续"),
       }
 
       // Set up scene change listener
-      const sceneChangeUnlisten = await onSceneChange(() => {
+      const sceneChangeUnlisten = await onSceneChange((event) => {
         if (isDestroyed) return;
         // Treat scene change as a keep-alive
         lastEventTime = Date.now();
         hadAnyEvent = true;
+        void updateDiscordPresenceFromSceneChange(event.payload, lastEventTime);
         if (SETTINGS.live.general.state.autoClearOnSceneChange !== false) {
           suppressEmptyClearAfterSceneChange = false;
           resetLiveActivityTracking(lastEventTime);
           autoHideLastObservedDamageTotal = 0;
           void syncAutoHideLiveWindow(false);
+          applySceneChangeToLatestPayload(event.payload, lastEventTime, false);
         } else {
+          applySceneChangeToLatestPayload(event.payload, lastEventTime, true);
           suppressEmptyClearAfterSceneChange = true;
           setLiveDisplayNowMs(lastEventTime);
         }
@@ -822,6 +937,10 @@ t("live.resumeToast", "战斗已继续"),
         hadAnyEvent = true;
         markLiveActivity(lastEventTime);
         setDeathRecords(event.payload.records);
+        const latestLiveData = getLiveData();
+        if (latestLiveData) {
+          void updateDiscordPresenceFromLiveData(latestLiveData, lastEventTime, event.payload.records);
+        }
       });
 
       if (isDestroyed) {
@@ -1122,7 +1241,17 @@ t("live.resumeToast", "战斗已继续"),
 
   $effect(() => {
     SETTINGS.discordPresence.state.enabled;
+    SETTINGS.discordPresence.state.showScene;
+    SETTINGS.discordPresence.state.showLine;
+    SETTINGS.discordPresence.state.showBoss;
+    SETTINGS.discordPresence.state.showTimer;
+    SETTINGS.discordPresence.state.showDps;
+    SETTINGS.discordPresence.state.showDeaths;
     void syncDiscordPresenceConfig();
+    const payload = latestLivePayload;
+    if (payload) {
+      void updateDiscordPresenceFromLiveData(payload, Date.now(), getDeathRecords());
+    }
   });
 
   $effect(() => {
