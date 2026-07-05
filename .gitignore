@@ -41,9 +41,13 @@ src-tauri/DEV_probes/
 # Local scratch/debug artifacts. These can contain machine-specific paths,
 # browser profile cache data, or temporary run logs.
 /TODO.md
+/--help
+/.debug/
 /recovery_snapshots/
 /svelte-check-report*.txt
 /tmp-*/
+/tmp_debug_*/
+/debug_*.zip
 /tmp-*.log
 tmp-edge-profile*/
 *.log
