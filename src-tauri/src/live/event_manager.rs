@@ -31,6 +31,25 @@ const WEBVIEW_EMIT_MAX_PER_WINDOW: usize = 40;
 const WEBVIEW_EMIT_PRIORITY_MAX_PER_WINDOW: usize = 60;
 const EVENT_PRESSURE_FLUSH_INTERVAL: Duration = Duration::from_secs(10);
 const EVENT_PRESSURE_MAX_ROWS: usize = 12;
+const DISCORD_PRESENCE_LIVE_SNAPSHOT_MIN_INTERVAL: Duration = Duration::from_millis(250);
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub struct DiscordPresenceSceneSnapshot {
+    pub scene_id: Option<i32>,
+    pub scene_name: String,
+    pub scene_line_id: Option<i32>,
+    pub dungeon_difficulty: Option<i32>,
+}
+
+#[derive(Debug, Clone, Default, Serialize, Deserialize, specta::Type)]
+#[serde(rename_all = "camelCase")]
+pub struct DiscordPresenceLiveSnapshot {
+    pub sequence: u64,
+    pub live_data: Option<LiveDataPayload>,
+    pub death_records: Vec<DeathRecord>,
+    pub scene: Option<DiscordPresenceSceneSnapshot>,
+}
 
 #[derive(Debug, Clone, Copy)]
 struct WebviewEmitBudget {
@@ -66,6 +85,12 @@ struct EventPressureState {
     next_flush_at: Option<Instant>,
 }
 
+#[derive(Debug, Default)]
+struct DiscordPresenceSnapshotState {
+    snapshot: DiscordPresenceLiveSnapshot,
+    last_live_data_at: Option<Instant>,
+}
+
 #[derive(Debug, Clone, Copy)]
 enum EventPressureOutcome {
     Emitted,
@@ -98,6 +123,125 @@ fn webview_emit_budget() -> &'static Mutex<HashMap<String, WebviewEmitBudget>> {
 fn event_pressure_state() -> &'static Mutex<EventPressureState> {
     static EVENT_PRESSURE_STATE: OnceLock<Mutex<EventPressureState>> = OnceLock::new();
     EVENT_PRESSURE_STATE.get_or_init(|| Mutex::new(EventPressureState::default()))
+}
+
+fn discord_presence_snapshot_state() -> &'static Mutex<DiscordPresenceSnapshotState> {
+    static DISCORD_PRESENCE_SNAPSHOT: OnceLock<Mutex<DiscordPresenceSnapshotState>> =
+        OnceLock::new();
+    DISCORD_PRESENCE_SNAPSHOT.get_or_init(|| Mutex::new(DiscordPresenceSnapshotState::default()))
+}
+
+fn next_discord_presence_snapshot_sequence(snapshot: &mut DiscordPresenceLiveSnapshot) {
+    snapshot.sequence = snapshot.sequence.saturating_add(1);
+}
+
+fn scene_name_has_difficulty_suffix(scene_name: &str) -> bool {
+    scene_name
+        .rsplit_once('-')
+        .is_some_and(|(_, suffix)| !suffix.is_empty() && suffix.chars().all(|c| c.is_ascii_digit()))
+}
+
+fn scene_name_with_difficulty(scene_name: &str, dungeon_difficulty: Option<i32>) -> String {
+    let scene_name = scene_name.trim();
+    let scene_name = if scene_name.is_empty() {
+        "Unknown Scene"
+    } else {
+        scene_name
+    };
+    let difficulty = dungeon_difficulty.unwrap_or_default();
+    if difficulty > 0 && !scene_name_has_difficulty_suffix(scene_name) {
+        format!("{scene_name}-{difficulty}")
+    } else {
+        scene_name.to_string()
+    }
+}
+
+fn live_payload_from_scene_snapshot(scene: &DiscordPresenceSceneSnapshot) -> LiveDataPayload {
+    LiveDataPayload {
+        elapsed_ms: 0,
+        active_combat_time_ms: 0,
+        fight_start_timestamp_ms: 0,
+        dps_display_paused: false,
+        training_dummy: TrainingDummyState::default(),
+        total_dmg: 0,
+        total_dmg_boss_only: 0,
+        total_heal: 0,
+        total_effective_heal: 0,
+        local_player_uid: 0,
+        local_player_uuid: None,
+        local_player_key: None,
+        scene_id: scene.scene_id,
+        scene_name: Some(scene.scene_name.clone()),
+        scene_line_id: scene.scene_line_id,
+        is_paused: false,
+        bosses: Vec::new(),
+        entities: Vec::new(),
+    }
+}
+
+pub(crate) fn remember_discord_presence_scene(scene: &SceneChangePayload) {
+    let scene_snapshot = DiscordPresenceSceneSnapshot {
+        scene_id: scene.scene_id,
+        scene_name: scene_name_with_difficulty(&scene.scene_name, scene.dungeon_difficulty),
+        scene_line_id: scene.scene_line_id,
+        dungeon_difficulty: scene.dungeon_difficulty,
+    };
+    let live_data = live_payload_from_scene_snapshot(&scene_snapshot);
+    if let Ok(mut state) = discord_presence_snapshot_state().lock() {
+        next_discord_presence_snapshot_sequence(&mut state.snapshot);
+        state.snapshot.scene = Some(scene_snapshot);
+        state.snapshot.live_data = Some(live_data);
+        state.snapshot.death_records.clear();
+        state.last_live_data_at = None;
+    }
+}
+
+pub(crate) fn remember_discord_presence_live_data(payload: &LiveDataPayload) {
+    if let Ok(mut state) = discord_presence_snapshot_state().lock() {
+        let now = Instant::now();
+        if state.last_live_data_at.is_some_and(|last| {
+            now.duration_since(last) < DISCORD_PRESENCE_LIVE_SNAPSHOT_MIN_INTERVAL
+        }) {
+            return;
+        }
+
+        next_discord_presence_snapshot_sequence(&mut state.snapshot);
+        if payload.scene_id.is_some()
+            || payload
+                .scene_name
+                .as_deref()
+                .is_some_and(|name| !name.trim().is_empty())
+        {
+            state.snapshot.scene = Some(DiscordPresenceSceneSnapshot {
+                scene_id: payload.scene_id,
+                scene_name: payload
+                    .scene_name
+                    .as_deref()
+                    .map(str::trim)
+                    .filter(|name| !name.is_empty())
+                    .unwrap_or("Unknown Scene")
+                    .to_string(),
+                scene_line_id: payload.scene_line_id,
+                dungeon_difficulty: None,
+            });
+        }
+        state.snapshot.live_data = Some(payload.clone());
+        state.last_live_data_at = Some(now);
+    }
+}
+
+pub(crate) fn remember_discord_presence_death_records(records: &[DeathRecord]) {
+    if let Ok(mut state) = discord_presence_snapshot_state().lock() {
+        next_discord_presence_snapshot_sequence(&mut state.snapshot);
+        state.snapshot.death_records = records.to_vec();
+    }
+}
+
+pub(crate) fn discord_presence_live_snapshot() -> DiscordPresenceLiveSnapshot {
+    discord_presence_snapshot_state()
+        .lock()
+        .map(|state| state.snapshot.clone())
+        .unwrap_or_default()
 }
 
 fn record_event_pressure(
@@ -1283,15 +1427,17 @@ pub fn generate_live_data_payload(
             continue;
         }
 
-        let has_combat = entity.damage.hits > 0 || entity.healing.hits > 0 || entity.taken.hits > 0;
-        if !has_combat {
-            continue;
-        }
-
         let uid = uid_from_uuid(entity_uuid);
         let is_local_player =
             encounter.local_player_uuid != 0 && entity_uuid == encounter.local_player_uuid;
         let attr_key = entity_uuid;
+        let is_dead = attr_store.is_dead(attr_key) || attr_store.is_dead(uid);
+        let has_combat = entity.damage.hits > 0 || entity.healing.hits > 0 || entity.taken.hits > 0;
+        let has_death_context = is_dead || !entity.deaths.is_empty();
+        if !has_combat && !has_death_context {
+            continue;
+        }
+
         let row_uuid = Some(entity_uuid);
         let row_entity_uuid = entity_uuid_string(entity_uuid);
         let display_uid = uid;
@@ -1324,7 +1470,7 @@ pub fn generate_live_data_payload(
                     .map_or(entity.class_id, |value| value as i32),
             ),
             class_spec_name: class::get_class_spec(entity.class_spec),
-            is_dead: attr_store.is_dead(attr_key) || attr_store.is_dead(uid),
+            is_dead,
             ability_score: attr_store
                 .attr(attr_key, AttrType::FightPoint)
                 .or_else(|| attr_store.attr(uid, AttrType::FightPoint))

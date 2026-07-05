@@ -1,5 +1,5 @@
-import buffNameData from "$parserData/generated/BuffName.json";
-import modifierDisplayTableData from "$parserData/generated/ModifierDisplayTable.json";
+import buffNameData from "$parserData/generated/BuffNameRuntime.json";
+import modifierDisplayTableData from "$parserData/generated/ModifierDisplayRuntime.json";
 import monsterNameData from "$parserData/generated/monsternames.json";
 import {
   DEFAULT_LOCALE,

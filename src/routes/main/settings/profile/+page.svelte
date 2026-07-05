@@ -7,6 +7,8 @@
   import { syncDiscordPresenceConfig } from "$lib/discord-presence";
   import { setEventLoggerAlwaysOnTop, showEventLoggerWindow } from "$lib/event-logger-window";
   import { uiT } from "$lib/i18n";
+  import { tooltip } from "$lib/utils.svelte";
+  import CircleHelp from "virtual:icons/lucide/circle-help";
   import {
     loadProfileLibraryFromSettings,
     openProfileLibraryFolder,
@@ -22,6 +24,7 @@
     activeProfileOrDefault,
     updateActiveProfile,
   } from "$lib/skill-monitor-profile.svelte";
+  import SettingsSelect from "../../dps/settings/settings-select.svelte";
   import SettingsSwitch from "../../dps/settings/settings-switch.svelte";
   import ProfileSwitcher from "../../skill-monitor/profile-switcher.svelte";
 
@@ -50,6 +53,13 @@
     }, 75);
   }
 
+  function discordPresenceRateLimitTooltip(): string {
+    return tShell(
+      "settings.discordPresence.rateLimitTooltip",
+      "Discord rate-limits Rich Presence updates, so Resonance Logs sends meaningful changes at a paced interval instead of every DPS tick. Combat and death updates are limited to about every 5 seconds, idle updates are slower, and duplicate states are skipped so Discord is less likely to ignore bursts.",
+    );
+  }
+
   $effect(() => {
     SETTINGS.discordPresence.state.enabled;
     SETTINGS.discordPresence.state.showScene;
@@ -57,6 +67,7 @@
     SETTINGS.discordPresence.state.showBoss;
     SETTINGS.discordPresence.state.showTimer;
     SETTINGS.discordPresence.state.showDps;
+    SETTINGS.discordPresence.state.dpsMetric;
     SETTINGS.discordPresence.state.showDeaths;
     scheduleDiscordPresenceSettingsSync();
   });
@@ -295,8 +306,18 @@
 
       <div class="space-y-3 rounded-lg border border-border/60 bg-background/40 p-4 text-sm">
         <div>
-          <div class="font-medium">
-            {tShell("settings.discordPresence.title", "Discord Rich Presence")}
+          <div class="flex items-center gap-2">
+            <div class="font-medium">
+              {tShell("settings.discordPresence.title", "Discord Rich Presence")}
+            </div>
+            <button
+              type="button"
+              class="inline-flex h-5 w-5 items-center justify-center rounded text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:text-foreground focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label={discordPresenceRateLimitTooltip()}
+              {@attach tooltip(discordPresenceRateLimitTooltip)}
+            >
+              <CircleHelp class="h-4 w-4" />
+            </button>
           </div>
           <p class="mt-1 text-xs text-muted-foreground">
             {tShell(
@@ -336,6 +357,20 @@
             bind:checked={SETTINGS.discordPresence.state.showDps}
             label={tShell("settings.discordPresence.showDps", "Show DPS")}
           />
+          {#if SETTINGS.discordPresence.state.showDps}
+            <SettingsSelect
+              bind:selected={SETTINGS.discordPresence.state.dpsMetric}
+              label={tShell("settings.discordPresence.dpsMetric", "DPS metric")}
+              description={tShell(
+                "settings.discordPresence.dpsMetricDescription",
+                "Choose whether Discord shows your DPS or true DPS.",
+              )}
+              values={[
+                { label: "DPS", value: "dps" },
+                { label: "T.DPS", value: "tdps" },
+              ]}
+            />
+          {/if}
           <SettingsSwitch
             bind:checked={SETTINGS.discordPresence.state.showDeaths}
             label={tShell("settings.discordPresence.showDeaths", "Show deaths")}

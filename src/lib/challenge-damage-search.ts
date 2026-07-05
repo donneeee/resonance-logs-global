@@ -1,4 +1,4 @@
-import damageAttrIdNamesData from "$parserData/generated/DamageAttrIdName.json";
+import damageAttrIdNamesData from "$parserData/generated/DamageAttrIdNameRuntime.json";
 import recountTableData from "$parserData/generated/RecountTable.json";
 import { DEFAULT_LOCALE, type LocaleCode } from "$lib/i18n";
 import {

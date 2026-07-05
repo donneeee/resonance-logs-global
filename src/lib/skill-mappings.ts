@@ -6,7 +6,7 @@ import seasonCultivateFactorSkillLabelsRaw from "$parserData/app-rules/season_cu
 import seasonCultivateFactorCostsRaw from "$parserData/app-rules/season_cultivate_factor_costs.json";
 import counterSlotTemplatesRaw from "$parserData/app-rules/counter_slot_templates.json";
 import counterSourceTemplatesRaw from "$parserData/app-rules/counter_source_templates.json";
-import seasonPhantomFactorsRaw from "$parserData/generated/SeasonPhantomFactors.json";
+import seasonPhantomFactorsRaw from "$parserData/generated/SeasonPhantomFactorsRuntime.json";
 import resonanceSkillIcons from "$parserData/generated/skill_aoyi_icons.json";
 import {
   DEFAULT_LOCALE,

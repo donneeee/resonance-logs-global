@@ -215,7 +215,16 @@ pub fn parse_modules_from_vdata(v_data: &blueprotobuf::CharSerialize) -> Vec<Mod
                         .get(&attr_id)
                         .unwrap_or(&"未知属性")
                         .to_string();
-                    let attr_value = init_link_nums[i];
+                    let raw_attr_value = init_link_nums[i];
+                    let attr_value = raw_attr_value.max(0);
+                    if raw_attr_value < 0 {
+                        log::warn!(
+                            "clamped negative module attribute value key={} attr_id={} value={}",
+                            key,
+                            attr_id,
+                            raw_attr_value
+                        );
+                    }
 
                     parts.push(ModulePart {
                         id: attr_id,
@@ -658,7 +667,7 @@ pub fn calculate_combat_power(modules: &[ModuleInfo]) -> i32 {
         }
     }
 
-    let idx = (total_attr_value as usize).min(120);
+    let idx = total_attr_value.clamp(0, 120) as usize;
     let total_attr_power = TOTAL_ATTR_POWER_VALUES[idx];
 
     threshold_power + total_attr_power

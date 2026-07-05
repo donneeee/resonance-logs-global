@@ -65,11 +65,12 @@ std::vector<DenseModuleData> BuildDenseModuleData(
     for (size_t module_idx = 0; module_idx < modules.size(); ++module_idx) {
         auto& dense = dense_modules[module_idx];
         for (const auto& part : modules[module_idx].parts) {
+            const int part_value = std::max(0, part.value);
             auto slot_it = Constants::CUDA_ATTR_SLOT_MAP.find(part.id);
             if (slot_it != Constants::CUDA_ATTR_SLOT_MAP.end()) {
-                dense.slot_values[slot_it->second] += part.value;
+                dense.slot_values[slot_it->second] += part_value;
             }
-            dense.total_attr_value += part.value;
+            dense.total_attr_value += part_value;
         }
     }
     return dense_modules;

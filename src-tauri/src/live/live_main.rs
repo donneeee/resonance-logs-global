@@ -20,10 +20,11 @@ use crate::live::{
         EventLoggerEntry, EventLoggerSessionContext, drain_background_logger_entries,
         emit_logger_entries, flush_current_session_to_file, is_event_logger_enabled, now_ms,
     },
-    event_manager::{EncounterUpdatePayload, SceneChangePayload},
     event_manager::{
-        OutboundEvent, safe_emit_json_to_lazy, safe_emit_json_to_lazy_priority, safe_emit_to,
-        safe_emit_to_priority,
+        EncounterUpdatePayload, OutboundEvent, SceneChangePayload,
+        remember_discord_presence_death_records, remember_discord_presence_live_data,
+        remember_discord_presence_scene, safe_emit_json_to_lazy, safe_emit_json_to_lazy_priority,
+        safe_emit_to, safe_emit_to_priority,
     },
     opcodes_models::{AttrType, attr_type},
     opcodes_process::parse_fight_resources,
@@ -8458,6 +8459,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                     scene_line_id,
                     dungeon_difficulty,
                 };
+                remember_discord_presence_scene(&payload);
 
                 safe_emit_to_priority(
                     app_handle,
@@ -8521,6 +8523,7 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 });
             }
             OutboundEvent::LiveData(payload) => {
+                remember_discord_presence_live_data(&payload);
                 emit_auxiliary_entries_lazy(app_handle, || {
                     build_live_snapshot_logger_entries(state, &payload, ts_ms)
                 });
@@ -8992,11 +8995,19 @@ fn flush_outbound_events(app_handle: &AppHandle, state: &mut AppState, mode: Out
                 );
             }
             OutboundEvent::DeathReplay(records) => {
+                let payload = DeathReplayPayload { records };
+                remember_discord_presence_death_records(&payload.records);
                 safe_emit_to(
                     app_handle,
                     crate::WINDOW_LIVE_LABEL,
                     "death-replay",
-                    DeathReplayPayload { records },
+                    payload.clone(),
+                );
+                safe_emit_to(
+                    app_handle,
+                    crate::WINDOW_MAIN_LABEL,
+                    "death-replay",
+                    payload,
                 );
             }
         }

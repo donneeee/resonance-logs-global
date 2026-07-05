@@ -2012,6 +2012,7 @@ const DEFAULT_SETTINGS = {
     showBoss: true,
     showTimer: true,
     showDps: true,
+    dpsMetric: "tdps" as "dps" | "tdps",
     showDeaths: true,
   },
   customTriggers: {
@@ -2369,6 +2370,7 @@ function normalizeDiscordPresenceSettingsState(
   next.showBoss = next.showBoss !== false;
   next.showTimer = next.showTimer !== false;
   next.showDps = next.showDps !== false;
+  next.dpsMetric = next.dpsMetric === "dps" ? "dps" : "tdps";
   next.showDeaths = next.showDeaths !== false;
   return next as typeof DEFAULT_SETTINGS.discordPresence;
 }

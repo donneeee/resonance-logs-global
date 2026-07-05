@@ -1,6 +1,6 @@
-import effectSourcesData from "$parserData/generated/EffectSources.json";
-import seasonPhantomFactorsData from "$parserData/generated/SeasonPhantomFactors.json";
-import skillCooldownsData from "$parserData/generated/SkillCooldowns.json";
+import effectSourcesData from "$parserData/generated/EffectSourcesRuntime.json";
+import seasonPhantomFactorsData from "$parserData/generated/SeasonPhantomFactorsRuntime.json";
+import skillCooldownsData from "$parserData/generated/SkillCooldownsRuntime.json";
 import type {
   ActiveBuffState,
   ActiveEffectBuffState,

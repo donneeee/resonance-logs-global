@@ -5,11 +5,15 @@
 - Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `v1.1.2` test build.
 - Added Discord Rich Presence support with configurable presence text for idle, mobbing, boss combat, and floor-tanking states, plus Discord asset key support for scene/spec artwork.
 - Expanded Discord Rich Presence scene handling so the main card image/title now follows the detected scene, difficulty, Stimen Vault floor, floor-tanking timer, compact DPS/death totals, and retained encounter state until a scene change.
+- Reworked Discord Rich Presence updates to keep running from the main window even when the live meter is hidden, pace combat/death updates around Discord's rate limits, skip duplicate states, and explain that throttling in the settings hover text.
+- Added a Discord Rich Presence DPS metric setting so users can choose DPS or true DPS, while keeping the separate encounter timer and wipe-persistent total death counter behavior.
 - Added scene-change driven live/parser updates so towns, overworld areas, dungeons, raids, and line/instance transitions can update immediately without waiting for combat damage.
 - Added Discord scene mappings for current overworld areas, Stimen Vaults, Guild Center/Hunt, World Boss Crusade, Illusion-Shroud Woods, seasonal raid difficulties, Wondrous Tag, City Rally, and Ee-chan, Don't Stare at Me!.
 - Added generated Discord-ready scene and spec assets, including corrected DPS/healer/tank spec coloring and dedicated Twin Striker Crimson/Formless icons.
 - Fixed live/main/overlay window placement persistence so saved window positions load correctly on app start again.
 - Fixed Twin Striker spec icon routing in the parser so Crimson/Formless and their legacy aliases use distinct class-spec artwork instead of the old Vanguard fallback.
+- Hardened Module Calculator parsing and native scoring against malformed module attribute values so unusual synced module rows cannot crash the app during optimization.
+- Reduced frontend bundle pressure by moving bulky generated lookup data to compact runtime JSON tables and restoring production minification for the app build.
 - Continued CN 0.1.8 DBM parity work by wiring richer boss/mechanic snapshots through Global's shared overlay placement while keeping monster monitor output scoped to the current target.
 - Refined overlay/window responsiveness and event pressure handling around DBM, monster monitor, background images, and live/main window dragging without reintroducing the WebView message flood path.
 

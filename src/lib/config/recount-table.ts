@@ -1,10 +1,10 @@
-import damageAttrIdNamesData from "$parserData/generated/DamageAttrIdName.json";
-import buffNamesData from "$parserData/generated/BuffName.json";
-import effectSourcesData from "$parserData/generated/EffectSources.json";
+import damageAttrIdNamesData from "$parserData/generated/DamageAttrIdNameRuntime.json";
+import buffNamesData from "$parserData/generated/BuffNameRuntime.json";
+import effectSourcesData from "$parserData/generated/EffectSourcesRuntime.json";
 import recountTableData from "$parserData/generated/RecountTable.json";
-import seasonPhantomFactorsData from "$parserData/generated/SeasonPhantomFactors.json";
+import seasonPhantomFactorsData from "$parserData/generated/SeasonPhantomFactorsRuntime.json";
 import skillAoyiIconsData from "$parserData/generated/skill_aoyi_icons.json";
-import skillBreakdownDetailsData from "$parserData/generated/SkillBreakdownDetails.json";
+import skillBreakdownDetailsData from "$parserData/generated/SkillBreakdownDetailsRuntime.json";
 import { lookupFirstSkillIconPath } from "$lib/skill-mappings";
 import { resolveStaticIconUrl } from "$lib/config/static-icon-resolver";
 import {

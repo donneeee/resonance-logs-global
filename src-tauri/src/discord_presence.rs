@@ -35,7 +35,7 @@ static NEXT_WORKER_SEQUENCE: AtomicU64 = AtomicU64::new(1);
 static RUNTIME: Lazy<Mutex<DiscordPresenceRuntime>> =
     Lazy::new(|| Mutex::new(DiscordPresenceRuntime::default()));
 
-#[derive(Debug, Clone, serde::Serialize, serde::Deserialize, specta::Type)]
+#[derive(Debug, Clone, PartialEq, Eq, serde::Serialize, serde::Deserialize, specta::Type)]
 #[serde(rename_all = "camelCase")]
 pub struct DiscordPresenceActivity {
     pub details: String,
@@ -155,6 +155,23 @@ pub fn discord_presence_update(
     let mut runtime = RUNTIME
         .lock()
         .map_err(|_| "Discord presence runtime lock poisoned".to_string())?;
+    if runtime.enabled
+        && runtime.current_status().connected
+        && runtime.last_activity.as_ref() == Some(&activity)
+    {
+        let summary = activity_trace_summary(&activity);
+        tracing::debug!(
+            target: "app::discord",
+            details = %summary.details,
+            state = %summary.state,
+            large_image = %summary.large_image,
+            large_text = %summary.large_text,
+            small_image = %summary.small_image,
+            small_text = %summary.small_text,
+            "discord_presence_update_ignored_duplicate"
+        );
+        return Ok(runtime.current_status());
+    }
     runtime.last_activity = Some(activity.clone());
     if !runtime.enabled {
         let summary = activity_trace_summary(&activity);

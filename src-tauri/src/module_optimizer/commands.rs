@@ -222,6 +222,15 @@ pub async fn optimize_latest_modules(
         min_attr_requirements,
         use_gpu
     );
+    log::info!(
+        "module_optimize_request_start target={:?} exclude={:?} min_total={:?} min_req={:?} gpu={:?} combination_size={:?}",
+        target_attributes,
+        exclude_attributes,
+        min_total_value,
+        min_attr_requirements,
+        use_gpu,
+        combination_size
+    );
 
     let combination_size = combination_size.unwrap_or(4);
     if !matches!(combination_size, 4 | 5) {
@@ -259,6 +268,15 @@ pub async fn optimize_latest_modules(
 
     log::info!(
         "模组预筛: 原始={} 单属性过滤后={} 总值过滤后={} 目标属性过滤后={} (min_total={:?}, target_attrs={:?})",
+        original_count,
+        after_part_count,
+        after_total_value_count,
+        modules.len(),
+        min_total_value,
+        target_attributes
+    );
+    log::info!(
+        "module_optimize_prefilter_counts original={} after_multi_part={} after_min_total={} after_target_attr={} min_total={:?} target_attrs={:?}",
         original_count,
         after_part_count,
         after_total_value_count,

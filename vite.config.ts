@@ -180,8 +180,8 @@ export default defineConfig(async () => ({
     ],
   },
   build: {
-    minify: false,
-    cssMinify: false,
+    minify: "esbuild",
+    cssMinify: true,
     reportCompressedSize: false,
   },
 }));

@@ -1,5 +1,5 @@
 import { GEAR_STAT_DECODER_SEED, GEAR_STAT_DECODER_SOURCE } from "./gear-stat-decoder.generated";
-import itemNamesData from "$parserData/generated/itemnames.json";
+import itemNamesData from "$parserData/generated/ItemNamesRuntime.json";
 
 export type GearStatLane = "legendary-affix" | "advanced-attribute" | "locked";
 

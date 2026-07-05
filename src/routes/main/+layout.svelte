@@ -7,7 +7,18 @@
   import { getCurrentWebviewWindow, WebviewWindow } from "@tauri-apps/api/webviewWindow";
   import { listen, type UnlistenFn } from "@tauri-apps/api/event";
   import { goto } from "$app/navigation";
-  import { onSceneChange } from "$lib/api";
+  import {
+    onDeathReplay,
+    onSceneChange,
+    type DeathRecord,
+    type LiveDataPayload,
+    type SceneChangePayload,
+  } from "$lib/api";
+  import {
+    shouldRefreshDiscordPresenceOnTimer,
+    syncDiscordPresenceConfig,
+    updateDiscordPresenceFromLiveData,
+  } from "$lib/discord-presence";
   import { isDailyScene } from "$lib/config/daily-scene-blacklist";
   import {
     getSettingsStoreReadFailures,
@@ -25,6 +36,13 @@
   import { getVersion } from "@tauri-apps/api/app";
 
   type RuntimeMonitorSyncModule = typeof import("$lib/runtime-monitor-sync");
+  type DiscordPresenceLiveSnapshot = {
+    sequence: number;
+    liveData: LiveDataPayload | null;
+    deathRecords: DeathRecord[];
+    scene: SceneChangePayload | null;
+  };
+  const DISCORD_PRESENCE_REFRESH_MS = 500;
 
   let { children } = $props();
 
@@ -37,6 +55,11 @@
   let lastSharedOverlayEnabled: boolean | null = null;
   let runtimeSyncBlockedBySettingsFailure = false;
   let currentSceneId = $state<number | null>(null);
+  let lastDiscordPresenceSettingsKey = "";
+  let latestDiscordLivePayload: LiveDataPayload | null = null;
+  let latestDiscordDeathRecords: DeathRecord[] = [];
+  let latestDiscordSnapshotSequence = 0;
+  let discordPresenceSnapshotRequestInFlight = false;
 
   function queueRuntimeSnapshotSync(
     sync: RuntimeMonitorSyncModule,
@@ -160,6 +183,32 @@
   });
 
   $effect(() => {
+    const settingsKey = [
+      SETTINGS.discordPresence.state.enabled === true ? 1 : 0,
+      SETTINGS.discordPresence.state.showLine !== false ? 1 : 0,
+      SETTINGS.discordPresence.state.showBoss !== false ? 1 : 0,
+      SETTINGS.discordPresence.state.showTimer !== false ? 1 : 0,
+      SETTINGS.discordPresence.state.showDps !== false ? 1 : 0,
+      SETTINGS.discordPresence.state.dpsMetric === "dps" ? "dps" : "tdps",
+      SETTINGS.discordPresence.state.showDeaths !== false ? 1 : 0,
+    ].join(":");
+    if (settingsKey === lastDiscordPresenceSettingsKey) return;
+
+    lastDiscordPresenceSettingsKey = settingsKey;
+    const nowMs = Date.now();
+    void syncDiscordPresenceConfig().catch((error) => {
+      console.warn("Failed to sync Discord Rich Presence config:", error);
+    });
+    if (latestDiscordLivePayload) {
+      void updateDiscordPresenceFromLiveData(
+        latestDiscordLivePayload,
+        nowMs,
+        latestDiscordDeathRecords,
+      );
+    }
+  });
+
+  $effect(() => {
     applyCustomFonts({
       sansEnabled: SETTINGS.accessibility.state.customFontSansEnabled,
       sansName: SETTINGS.accessibility.state.customFontSansName,
@@ -191,6 +240,116 @@
   let overlayToggleUnlisten: UnlistenFn | null = null;
   let overlayChangedUnlisten: UnlistenFn | null = null;
   let sceneChangeUnlisten: UnlistenFn | null = null;
+  let discordDeathReplayUnlisten: UnlistenFn | null = null;
+  let discordPresenceRefreshTimer: ReturnType<typeof setInterval> | null = null;
+
+  function refreshDiscordPresenceFromMain(nowMs = Date.now()) {
+    const payload = latestDiscordLivePayload;
+    if (!payload) return;
+    if (!shouldRefreshDiscordPresenceOnTimer(payload, latestDiscordDeathRecords, nowMs)) return;
+    void updateDiscordPresenceFromLiveData(payload, nowMs, latestDiscordDeathRecords);
+  }
+
+  function applyDiscordPresenceSnapshot(snapshot: DiscordPresenceLiveSnapshot, nowMs = Date.now()) {
+    const sequence = Number(snapshot.sequence || 0);
+    if (sequence <= 0) {
+      refreshDiscordPresenceFromMain(nowMs);
+      return;
+    }
+    if (sequence === latestDiscordSnapshotSequence) {
+      refreshDiscordPresenceFromMain(nowMs);
+      return;
+    }
+
+    latestDiscordSnapshotSequence = sequence;
+    latestDiscordDeathRecords = snapshot.deathRecords ?? [];
+
+    const payload = snapshot.liveData;
+    if (payload) {
+      latestDiscordLivePayload = payload;
+      void updateDiscordPresenceFromLiveData(payload, nowMs, latestDiscordDeathRecords);
+      return;
+    }
+
+    if (snapshot.scene) {
+      const scenePayload = discordSceneOnlyPayload(snapshot.scene);
+      latestDiscordLivePayload = scenePayload;
+      void updateDiscordPresenceFromLiveData(scenePayload, nowMs, latestDiscordDeathRecords);
+      return;
+    }
+
+    refreshDiscordPresenceFromMain(nowMs);
+  }
+
+  function pollDiscordPresenceSnapshot(nowMs = Date.now()) {
+    if (discordPresenceSnapshotRequestInFlight) {
+      refreshDiscordPresenceFromMain(nowMs);
+      return;
+    }
+
+    discordPresenceSnapshotRequestInFlight = true;
+    void commands.getDiscordPresenceLiveSnapshot()
+      .then((result) => {
+        if (result.status === "error") {
+          console.warn("Failed to poll Discord Rich Presence live snapshot:", result.error);
+          refreshDiscordPresenceFromMain(Date.now());
+          return;
+        }
+        const snapshotJson = result.data;
+        let snapshot: DiscordPresenceLiveSnapshot;
+        try {
+          snapshot = JSON.parse(snapshotJson) as DiscordPresenceLiveSnapshot;
+        } catch (error) {
+          console.warn("Failed to parse Discord Rich Presence live snapshot:", error);
+          refreshDiscordPresenceFromMain(Date.now());
+          return;
+        }
+        applyDiscordPresenceSnapshot(snapshot, Date.now());
+      })
+      .catch((error) => {
+        console.warn("Failed to poll Discord Rich Presence live snapshot:", error);
+        refreshDiscordPresenceFromMain(Date.now());
+      })
+      .finally(() => {
+        discordPresenceSnapshotRequestInFlight = false;
+      });
+  }
+
+  function sceneNameWithDifficulty(scene: SceneChangePayload): string {
+    const sceneName = scene.sceneName?.trim() || "Unknown Scene";
+    const difficulty = Number(scene.dungeonDifficulty ?? 0);
+    if (!Number.isFinite(difficulty) || difficulty <= 0 || /-\d+$/.test(sceneName)) {
+      return sceneName;
+    }
+    return `${sceneName}-${difficulty}`;
+  }
+
+  function discordSceneOnlyPayload(scene: SceneChangePayload): LiveDataPayload {
+    return {
+      elapsedMs: 0,
+      activeCombatTimeMs: 0,
+      fightStartTimestampMs: 0,
+      dpsDisplayPaused: false,
+      totalDmg: 0,
+      totalDmgBossOnly: 0,
+      totalHeal: 0,
+      totalEffectiveHeal: 0,
+      localPlayerUid: 0,
+      localPlayerUuid: null,
+      localPlayerKey: null,
+      sceneId: scene.sceneId ?? null,
+      sceneName: sceneNameWithDifficulty(scene),
+      sceneLineId: scene.sceneLineId ?? null,
+      trainingDummy: {
+        phase: "idle",
+        durationMs: 0,
+        remainingMs: 0,
+      },
+      isPaused: false,
+      bosses: [],
+      entities: [],
+    };
+  }
 
   onMount(() => {
     void repairPersistedSettingsStores()
@@ -238,8 +397,34 @@
       console.error("Failed to subscribe game-overlay-visibility-changed event", err);
     });
 
+    onDeathReplay((event) => {
+      const nowMs = Date.now();
+      latestDiscordDeathRecords = event.payload.records;
+      if (latestDiscordLivePayload) {
+        void updateDiscordPresenceFromLiveData(
+          latestDiscordLivePayload,
+          nowMs,
+          latestDiscordDeathRecords,
+        );
+      }
+    }).then((unlisten) => {
+      discordDeathReplayUnlisten = unlisten;
+    }).catch((err) => {
+      console.error("Failed to subscribe death-replay event for Discord Rich Presence", err);
+    });
+
+    discordPresenceRefreshTimer = setInterval(() => {
+      pollDiscordPresenceSnapshot(Date.now());
+    }, DISCORD_PRESENCE_REFRESH_MS);
+    pollDiscordPresenceSnapshot(Date.now());
+
     onSceneChange((event) => {
+      const nowMs = Date.now();
       currentSceneId = event.payload.sceneId ?? null;
+      const scenePayload = discordSceneOnlyPayload(event.payload);
+      latestDiscordLivePayload = scenePayload;
+      latestDiscordDeathRecords = [];
+      void updateDiscordPresenceFromLiveData(scenePayload, nowMs, latestDiscordDeathRecords);
     }).then((unlisten) => {
       sceneChangeUnlisten = unlisten;
     }).catch((err) => {
@@ -294,6 +479,14 @@
       if (sceneChangeUnlisten) {
         sceneChangeUnlisten();
         sceneChangeUnlisten = null;
+      }
+      if (discordDeathReplayUnlisten) {
+        discordDeathReplayUnlisten();
+        discordDeathReplayUnlisten = null;
+      }
+      if (discordPresenceRefreshTimer) {
+        clearInterval(discordPresenceRefreshTimer);
+        discordPresenceRefreshTimer = null;
       }
     };
   });

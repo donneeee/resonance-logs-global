@@ -1,5 +1,6 @@
 use crate::WINDOW_LIVE_LABEL;
 use crate::live::bootstrap_snapshot::{MonitorRuntimeSnapshot, save_monitor_runtime_snapshot};
+use crate::live::event_manager::discord_presence_live_snapshot;
 use crate::live::state::{AppStateManager, StateEvent};
 use log::info;
 use tauri::Manager;
@@ -30,6 +31,13 @@ pub fn disable_blur(app: tauri::AppHandle) {
     if let Some(meter_window) = app.get_webview_window(WINDOW_LIVE_LABEL) {
         clear_blur(&meter_window).ok();
     }
+}
+
+#[tauri::command]
+#[specta::specta]
+pub fn get_discord_presence_live_snapshot() -> Result<String, String> {
+    serde_json::to_string(&discord_presence_live_snapshot())
+        .map_err(|error| format!("Failed to serialize Discord presence live snapshot: {error}"))
 }
 
 // #[tauri::command]

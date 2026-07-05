@@ -159,9 +159,9 @@ int CalculateDenseScore(
 
     int threshold_power = 0;
     for (int slot = 0; slot < Constants::CUDA_ATTR_DIM; ++slot) {
-        threshold_power += slot_value_power[slot * 21 + std::min(slot_sums[slot], kMaxSlotValue)];
+        threshold_power += slot_value_power[slot * 21 + std::clamp(slot_sums[slot], 0, kMaxSlotValue)];
     }
-    return threshold_power + Constants::TOTAL_ATTR_POWER_VALUES[std::min(total_attr_value, kMaxTotalAttrValue)];
+    return threshold_power + Constants::TOTAL_ATTR_POWER_VALUES[std::clamp(total_attr_value, 0, kMaxTotalAttrValue)];
 }
 
 inline int CalculateDenseScoreWithDelta(
@@ -172,10 +172,10 @@ inline int CalculateDenseScoreWithDelta(
 
     int threshold_power = 0;
     for (int slot = 0; slot < Constants::CUDA_ATTR_DIM; ++slot) {
-        const int combined = std::min(base_slots[slot] + delta_slots[slot], kMaxSlotValue);
+        const int combined = std::clamp(base_slots[slot] + delta_slots[slot], 0, kMaxSlotValue);
         threshold_power += slot_value_power[slot * 21 + combined];
     }
-    return threshold_power + Constants::TOTAL_ATTR_POWER_VALUES[std::min(total_attr_value, kMaxTotalAttrValue)];
+    return threshold_power + Constants::TOTAL_ATTR_POWER_VALUES[std::clamp(total_attr_value, 0, kMaxTotalAttrValue)];
 }
 
 inline bool NextCombination(uint16_t* comb, size_t r, size_t n) {
@@ -933,7 +933,7 @@ std::pair<int, std::map<std::string, int>> ModuleOptimizerCpp::CalculateCombatPo
             }
         }
         
-        int total_attr_power = total_attr_power = Constants::TOTAL_ATTR_POWER_VALUES[std::min(total_attr_value, 120)];
+        int total_attr_power = Constants::TOTAL_ATTR_POWER_VALUES[std::clamp(total_attr_value, 0, 120)];
         
         int total_power = threshold_power + total_attr_power;
         

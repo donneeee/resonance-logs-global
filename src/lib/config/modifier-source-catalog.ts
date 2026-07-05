@@ -1,8 +1,8 @@
-import modifierRecountTableData from "$parserData/generated/ModifierRecountTable.json";
+import modifierRecountTableData from "$parserData/generated/ModifierRecountRuntime.json";
 import modifierClassificationTableUrl from "$parserData/generated/ModifierClassificationRuntime.json?url";
 import modifierContributionTableUrl from "$parserData/generated/ModifierContributionRuntime.json?url";
 import modifierDescriptionsTableUrl from "$parserData/generated/ModifierDescriptions.json?url";
-import modifierDisplayTableData from "$parserData/generated/ModifierDisplayTable.json";
+import modifierDisplayTableData from "$parserData/generated/ModifierDisplayRuntime.json";
 import skillAoyiIconsData from "$parserData/generated/skill_aoyi_icons.json";
 import type { HistoryEntityData } from "$lib/bindings";
 import { lookupBuffLocalizedNames, lookupDefaultBuffName } from "$lib/config/buff-name-table";

@@ -40,13 +40,6 @@
   import type { LiveDataPayload, RawCombatStats, RawSkillStats, SceneChangePayload } from "$lib/api";
   import { applyCustomFonts } from "$lib/font-loader";
   import AppBackgroundLayer from "$lib/components/app-background-layer.svelte";
-  import {
-    clearDiscordPresence,
-    shouldRefreshDiscordPresenceOnTimer,
-    syncDiscordPresenceConfig,
-    updateDiscordPresenceFromLiveData,
-    updateDiscordPresenceFromSceneChange,
-  } from "$lib/discord-presence";
   import { writable } from "svelte/store";
   import { beforeNavigate, afterNavigate } from "$app/navigation";
   import { liveEntityRenderKey } from "$lib/live-entity-route";
@@ -69,11 +62,9 @@
 
   import {
     setLiveData,
-    getLiveData,
     setLiveDisplayNowMs,
     isCrowdedLiveSession,
     setDeathRecords,
-    getDeathRecords,
     setTrainingDummyState,
     clearMeterData,
     cleanupStores,
@@ -432,13 +423,6 @@
     setLiveDisplayNowMs(currentLiveDisplayNowMs(nowMs));
   }
 
-  function refreshDiscordPresence(nowMs = Date.now()): void {
-    const payload = latestLivePayload;
-    if (payload && shouldRefreshDiscordPresenceOnTimer(payload)) {
-      void updateDiscordPresenceFromLiveData(payload, nowMs, getDeathRecords());
-    }
-  }
-
   $effect(() => {
     if (typeof window === "undefined") return;
     const refreshRateMs = liveDisplayRefreshRateMs();
@@ -446,15 +430,6 @@
     const timer = setInterval(() => {
       refreshLiveDisplay(Date.now());
     }, refreshRateMs);
-    return () => clearInterval(timer);
-  });
-
-  $effect(() => {
-    if (typeof window === "undefined") return;
-    refreshDiscordPresence(Date.now());
-    const timer = setInterval(() => {
-      refreshDiscordPresence(Date.now());
-    }, 1000);
     return () => clearInterval(timer);
   });
 
@@ -791,7 +766,6 @@
         lastEventTime = Date.now();
         hadAnyEvent = true;
         void syncAutoHideLiveWindow(livePayloadHasDamageEvent(event.payload));
-        void updateDiscordPresenceFromLiveData(event.payload, lastEventTime, getDeathRecords());
         if (event.payload.fightStartTimestampMs > 0) {
           ingestLiveDataPayload(event.payload, lastEventTime);
         } else if (event.payload.totalDmg === 0 && event.payload.totalHeal === 0) {
@@ -889,7 +863,6 @@ t("live.resumeToast", "战斗已继续"),
         // Treat scene change as a keep-alive
         lastEventTime = Date.now();
         hadAnyEvent = true;
-        void updateDiscordPresenceFromSceneChange(event.payload, lastEventTime);
         if (SETTINGS.live.general.state.autoClearOnSceneChange !== false) {
           suppressEmptyClearAfterSceneChange = false;
           resetLiveActivityTracking(lastEventTime);
@@ -937,10 +910,6 @@ t("live.resumeToast", "战斗已继续"),
         hadAnyEvent = true;
         markLiveActivity(lastEventTime);
         setDeathRecords(event.payload.records);
-        const latestLiveData = getLiveData();
-        if (latestLiveData) {
-          void updateDiscordPresenceFromLiveData(latestLiveData, lastEventTime, event.payload.records);
-        }
       });
 
       if (isDestroyed) {
@@ -1172,7 +1141,6 @@ t("live.resumeToast", "战斗已继续"),
     isDestroyed = false;
     autoHideLastObservedDamageTotal = 0;
     void refreshLiveWindowSettingsFromBackend();
-    void syncDiscordPresenceConfig();
     settingsRefreshInterval = setInterval(() => {
       void refreshLiveWindowSettingsFromBackend();
     }, LIVE_SETTINGS_REFRESH_FALLBACK_MS);
@@ -1234,24 +1202,8 @@ t("live.resumeToast", "战斗已继续"),
       manualShowUnlisten?.();
       interactionRestoreUnlisten?.();
       if (unlisten) unlisten();
-      void clearDiscordPresence(true);
       cleanupStores();
     };
-  });
-
-  $effect(() => {
-    SETTINGS.discordPresence.state.enabled;
-    SETTINGS.discordPresence.state.showScene;
-    SETTINGS.discordPresence.state.showLine;
-    SETTINGS.discordPresence.state.showBoss;
-    SETTINGS.discordPresence.state.showTimer;
-    SETTINGS.discordPresence.state.showDps;
-    SETTINGS.discordPresence.state.showDeaths;
-    void syncDiscordPresenceConfig();
-    const payload = latestLivePayload;
-    if (payload) {
-      void updateDiscordPresenceFromLiveData(payload, Date.now(), getDeathRecords());
-    }
   });
 
   $effect(() => {

@@ -18,6 +18,7 @@ type DiscordPresenceActivity = {
 
 type DiscordPresenceSettings = typeof SETTINGS.discordPresence.state;
 type DiscordPresenceAssets = Pick<DiscordPresenceActivity, "largeImage" | "largeText" | "smallImage" | "smallText">;
+type DiscordPresenceDpsMetric = "dps" | "tdps";
 
 type DiscordDeathState = {
   isDead: boolean;
@@ -48,10 +49,12 @@ type DiscordSceneAssetGroup = {
 };
 
 const DISCORD_CLIENT_ID = "1522412559221915668";
-const PRESENCE_COMBAT_UPDATE_MS = 1_000;
+const PRESENCE_COMBAT_UPDATE_MS = 5_000;
 const PRESENCE_IDLE_UPDATE_MS = 15_000;
-const PRESENCE_DEAD_UPDATE_MS = 1_000;
+const PRESENCE_DEAD_UPDATE_MS = 5_000;
 const PRESENCE_LARPING_UPDATE_MS = 60_000;
+const PRESENCE_DEATH_RECORD_ACTIVE_MS = 5 * 60_000;
+const PRESENCE_DEATH_RECORD_CLOCK_SKEW_MS = 10_000;
 const DISCORD_TEXT_LIMIT = 128;
 const STIMEN_VAULTS_ASSET_KEY = "scene_stimen_vaults";
 const sceneIdRange = (start: number, end: number): number[] =>
@@ -389,6 +392,11 @@ const DISCORD_LINE_TOOLTIP_SCENE_KEYS = new Set([
   "scene_sunken_corridor",
   "scene_gloomy_depths",
 ]);
+const DISCORD_IDLE_ONLY_SCENE_KEYS = new Set([
+  "scene_asterleeds",
+  "scene_starland",
+  "scene_homestead",
+]);
 
 let lastConfigKey = "";
 let lastActivityKey = "";
@@ -403,6 +411,8 @@ let currentEncounterKey = "";
 let deadStartedAtMs: number | null = null;
 let deadAccumulatedMs = 0;
 let localWasDead = false;
+let deathContextStartedAtMs = 0;
+let observedLocalDeathRecordKeys = new Set<string>();
 
 export async function syncDiscordPresenceConfig(): Promise<void> {
   const config = SETTINGS.discordPresence.state;
@@ -498,33 +508,35 @@ export async function updateDiscordPresenceFromLiveData(
   });
 
   const localEntity = findLocalEntity(payload);
-  const hasCombat = hasActiveDiscordCombat(payload, localEntity, nowMs);
+  const idleOnlyScene = isDiscordIdleOnlyScene(payload);
+  if (idleOnlyScene) {
+    resetRetainedCombatPresence();
+    resetLiveActivityTracking();
+  }
+  const deathState = idleOnlyScene
+    ? resetDeathTrackingForIdleScene(payload, nowMs)
+    : updateDeathTracking(payload, localEntity, nowMs, deathRecords);
+  const hasCombatEvidence = !idleOnlyScene && hasDiscordCombatEvidence(payload, localEntity);
+  const hasCombat =
+    !idleOnlyScene &&
+    (deathState.isDead || hasActiveDiscordCombat(payload, localEntity, nowMs, hasCombatEvidence));
 
   if (!hasCombat) {
     const retainedActivity = retainedCombatPresenceForPayload(payload);
     if (retainedActivity) {
-      const activityKey = activityIdentityKey(retainedActivity);
-      const signatureKey = activitySignatureKey(retainedActivity);
-      if (activityKey === lastActivityKey) {
-        return;
-      }
-      if (
-        signatureKey === lastActivitySignatureKey &&
-        nowMs - lastActivityAtMs < PRESENCE_COMBAT_UPDATE_MS
-      ) {
-        return;
-      }
-
-      lastActivityKey = activityKey;
-      lastActivitySignatureKey = signatureKey;
-      lastActivityAtMs = nowMs;
-      await invoke("discord_presence_update", { activity: retainedActivity }).catch((error) => {
-        console.warn("Failed to update Discord Rich Presence:", error);
-      });
+      await updateDiscordPresenceActivity(retainedActivity, nowMs, PRESENCE_COMBAT_UPDATE_MS);
       return;
     }
 
-    resetDeathTracking();
+    if (hasCombatEvidence) {
+      const activity = buildDiscordPresenceActivity(payload, localEntity, deathState, config, nowMs);
+      if (activity) {
+        retainCombatPresence(payload, activity);
+        await updateDiscordPresenceActivity(activity, nowMs, deathState.isDead ? PRESENCE_DEAD_UPDATE_MS : PRESENCE_COMBAT_UPDATE_MS);
+        return;
+      }
+    }
+
     const sceneName = displaySceneName(payload);
     const sceneHoverText = displaySceneHoverText(payload, sceneName, config.showLine !== false);
     const activity = {
@@ -533,24 +545,10 @@ export async function updateDiscordPresenceFromLiveData(
       startTimestamp: null,
       ...discordActivityAssets(payload, "idle", localEntity, sceneHoverText),
     };
-    const activityKey = activityIdentityKey(activity);
-    const signatureKey = activitySignatureKey(activity);
-    if (
-      signatureKey === lastActivitySignatureKey &&
-      nowMs - lastActivityAtMs < PRESENCE_LARPING_UPDATE_MS
-    ) {
-      return;
-    }
-    lastActivityKey = activityKey;
-    lastActivitySignatureKey = signatureKey;
-    lastActivityAtMs = nowMs;
-    await invoke("discord_presence_update", { activity }).catch((error) => {
-      console.warn("Failed to update Discord Rich Presence:", error);
-    });
+    await updateDiscordPresenceActivity(activity, nowMs, PRESENCE_LARPING_UPDATE_MS);
     return;
   }
 
-  const deathState = updateDeathTracking(payload, localEntity, nowMs, deathRecords);
   const activity = buildDiscordPresenceActivity(payload, localEntity, deathState, config, nowMs);
   if (!activity) {
     await clearDiscordPresence().catch((error) => {
@@ -558,47 +556,34 @@ export async function updateDiscordPresenceFromLiveData(
     });
     return;
   }
-  retainCombatPresence(payload, activity);
-
-  const activityKey = activityIdentityKey(activity);
-  const signatureKey = activitySignatureKey(activity);
-  const minUpdateMs = deathState.isDead ? PRESENCE_DEAD_UPDATE_MS : PRESENCE_COMBAT_UPDATE_MS;
-  if (activityKey === lastActivityKey) {
-    return;
-  }
-  if (signatureKey === lastActivitySignatureKey && nowMs - lastActivityAtMs < minUpdateMs) {
-    return;
+  if (deathState.isDead) {
+    resetRetainedCombatPresence();
+  } else {
+    retainCombatPresence(payload, activity);
   }
 
-  lastActivityKey = activityKey;
-  lastActivitySignatureKey = signatureKey;
-  lastActivityAtMs = nowMs;
-  await invoke("discord_presence_update", { activity }).catch((error) => {
-    console.warn("Failed to update Discord Rich Presence:", error);
-  });
+  await updateDiscordPresenceActivity(activity, nowMs, deathState.isDead ? PRESENCE_DEAD_UPDATE_MS : PRESENCE_COMBAT_UPDATE_MS);
 }
 
-export function shouldRefreshDiscordPresenceOnTimer(payload: LiveDataPayload): boolean {
+export function shouldRefreshDiscordPresenceOnTimer(
+  payload: LiveDataPayload,
+  deathRecords: readonly DeathRecord[] = [],
+  nowMs = Date.now(),
+): boolean {
   const localEntity = findLocalEntity(payload);
   if (localEntityIsDead(localEntity)) return true;
+  if (localDeathRecordIsActive(latestLocalDeathRecord(payload, localEntity, deathRecords), nowMs)) return true;
 
-  const hasCombatTotals =
-    payload.fightStartTimestampMs > 0 ||
-    Number(payload.totalDmg || 0) > 0 ||
-    Number(payload.totalHeal || 0) > 0;
-  return hasCombatTotals;
+  return hasDiscordCombatEvidence(payload, localEntity);
 }
 
 function hasActiveDiscordCombat(
   payload: LiveDataPayload,
   localEntity: RawEntityData | null,
   nowMs: number,
+  hasCombatEvidence = hasDiscordCombatEvidence(payload, localEntity),
 ): boolean {
-  const hasCombatTotals =
-    payload.fightStartTimestampMs > 0 ||
-    Number(payload.totalDmg || 0) > 0 ||
-    Number(payload.totalHeal || 0) > 0;
-  if (!hasCombatTotals) {
+  if (!hasCombatEvidence) {
     resetLiveActivityTracking();
     return false;
   }
@@ -620,6 +605,94 @@ function hasActiveDiscordCombat(
   }
 
   return !liveActivityIsIdle(payload, nowMs);
+}
+
+async function updateDiscordPresenceActivity(
+  activity: DiscordPresenceActivity,
+  nowMs: number,
+  minUpdateMs: number,
+): Promise<void> {
+  const activityKey = activityIdentityKey(activity);
+  const signatureKey = activitySignatureKey(activity);
+  if (activityKey === lastActivityKey) {
+    return;
+  }
+  if (signatureKey === lastActivitySignatureKey && nowMs - lastActivityAtMs < minUpdateMs) {
+    return;
+  }
+
+  lastActivityKey = activityKey;
+  lastActivitySignatureKey = signatureKey;
+  lastActivityAtMs = nowMs;
+  await invoke("discord_presence_update", { activity }).catch((error) => {
+    console.warn("Failed to update Discord Rich Presence:", error);
+  });
+}
+
+function hasDiscordCombatEvidence(
+  payload: LiveDataPayload,
+  localEntity: RawEntityData | null,
+): boolean {
+  if (
+    Number(payload.fightStartTimestampMs || 0) > 0 ||
+    Number(payload.totalDmg || 0) > 0 ||
+    Number(payload.totalDmgBossOnly || 0) > 0 ||
+    Number(payload.totalHeal || 0) > 0 ||
+    Number(payload.totalEffectiveHeal || 0) > 0
+  ) {
+    return true;
+  }
+
+  if (entityHasCombatEvidence(localEntity)) return true;
+  return payload.entities.some(entityHasCombatEvidence);
+}
+
+function entityHasCombatEvidence(entity: RawEntityData | null | undefined): boolean {
+  if (!entity) return false;
+  return combatStatsHasActivity(entity.damage) ||
+    combatStatsHasActivity(entity.damageBossOnly) ||
+    combatStatsHasActivity(entity.healing) ||
+    combatStatsHasActivity(entity.taken) ||
+    skillStatsHaveActivity(entity.dmgSkills) ||
+    skillStatsHaveActivity(entity.healSkills) ||
+    skillStatsHaveActivity(entity.takenSkills);
+}
+
+function combatStatsHasActivity(stats: RawEntityData["damage"] | null | undefined): boolean {
+  if (!stats) return false;
+  return [
+    stats.total,
+    stats.effectiveTotal,
+    stats.hits,
+    stats.critHits,
+    stats.critTotal,
+    stats.luckyHits,
+    stats.luckyTotal,
+    stats.triggerHits,
+    stats.blockHits,
+    stats.luckyBlockHits,
+  ].some((value) => Number(value || 0) > 0);
+}
+
+function skillStatsHaveActivity(
+  skills: RawEntityData["dmgSkills"] | null | undefined,
+): boolean {
+  if (!skills) return false;
+  return Object.values(skills).some((stats) => {
+    if (!stats) return false;
+    return [
+      stats.totalValue,
+      stats.effectiveTotalValue,
+      stats.hits,
+      stats.critHits,
+      stats.critTotalValue,
+      stats.luckyHits,
+      stats.luckyTotalValue,
+      stats.triggerHits,
+      stats.blockHits,
+      stats.luckyBlockHits,
+    ].some((value) => Number(value || 0) > 0);
+  });
 }
 
 function liveActivityIsIdle(payload: LiveDataPayload, nowMs: number): boolean {
@@ -698,6 +771,9 @@ function liveActivitySignature(payload: LiveDataPayload): string {
       combatStatsSignature(entity.damageBossOnly),
       combatStatsSignature(entity.healing),
       combatStatsSignature(entity.taken),
+      skillStatsSignature(entity.dmgSkills),
+      skillStatsSignature(entity.healSkills),
+      skillStatsSignature(entity.takenSkills),
       entity.isDead === true ? 1 : 0,
       entity.deaths?.length ?? 0,
     ].join(":"))
@@ -721,13 +797,44 @@ function liveActivitySignature(payload: LiveDataPayload): string {
 }
 
 function combatStatsSignature(stats: RawEntityData["damage"] | null | undefined): string {
-  if (!stats) return "0:0:0:0";
+  if (!stats) return "0:0:0:0:0:0:0:0:0:0";
   return [
     stats.total,
     stats.effectiveTotal,
     stats.hits,
+    stats.critHits,
+    stats.critTotal,
+    stats.luckyHits,
+    stats.luckyTotal,
     stats.triggerHits,
+    stats.blockHits,
+    stats.luckyBlockHits,
   ].join(":");
+}
+
+function skillStatsSignature(
+  skills: RawEntityData["dmgSkills"] | null | undefined,
+): string {
+  if (!skills) return "";
+  return Object.entries(skills)
+    .sort(([left], [right]) => Number(left) - Number(right))
+    .map(([skillId, stats]) => {
+      if (!stats) return `${skillId}=0`;
+      return [
+        skillId,
+        stats.totalValue,
+        stats.effectiveTotalValue,
+        stats.hits,
+        stats.critHits,
+        stats.critTotalValue,
+        stats.luckyHits,
+        stats.luckyTotalValue,
+        stats.triggerHits,
+        stats.blockHits,
+        stats.luckyBlockHits,
+      ].join(":");
+    })
+    .join(",");
 }
 
 function sceneNameWithDifficulty(scene: SceneChangePayload): string {
@@ -749,21 +856,24 @@ function buildDiscordPresenceActivity(
   const sceneName = displaySceneName(payload);
   const sceneHoverText = displaySceneHoverText(payload, sceneName, config.showLine !== false);
   const bossName = displayBossName(payload);
-  const dpsText = formatDps(localTrueDps(payload, localEntity, nowMs));
-  const deathCount = Math.max(deathState.deathCount, localDeathCount(localEntity));
+  const dpsMetric = discordPresenceDpsMetric(config);
+  const dpsText = formatDps(localPersonalPresenceDps(payload, localEntity, nowMs, dpsMetric));
+  const dpsLabel = dpsMetric === "dps" ? "DPS" : "TDPS";
+  const deathCount = deathState.deathCount;
   const presenceStatus = deathState.isDead ? "dead" : "combat";
+  const timerStartMs = discordCombatTimerStartMs(payload, nowMs);
   const startTimestamp = config.showTimer !== false
-    ? discordTimestampSeconds(payload.fightStartTimestampMs)
+    ? discordTimestampSeconds(timerStartMs)
     : null;
 
   const stateParts: string[] = [];
-  if (config.showDps !== false) stateParts.push(`DPS: ${dpsText}`);
+  if (config.showDps !== false) stateParts.push(`${dpsLabel}: ${dpsText}`);
   if (config.showDeaths !== false) stateParts.push(`Deaths: ${deathCount}`);
 
   let details: string;
   if (deathState.isDead) {
     const deadDuration = formatPresenceDuration(deathState.currentDeadMs);
-    details = `Floor tanking for ${deadDuration}`;
+    details = `Floor Tanking for ${deadDuration}`;
   } else if (bossName && config.showBoss !== false) {
     details = `Fighting ${bossName}`;
   } else {
@@ -792,10 +902,15 @@ function findLocalEntity(payload: LiveDataPayload): RawEntityData | null {
   }) ?? null;
 }
 
-function localTrueDps(
+function discordPresenceDpsMetric(config: DiscordPresenceSettings): DiscordPresenceDpsMetric {
+  return config.dpsMetric === "dps" ? "dps" : "tdps";
+}
+
+function localPersonalPresenceDps(
   payload: LiveDataPayload,
   localEntity: RawEntityData | null,
   nowMs: number,
+  metric: DiscordPresenceDpsMetric,
 ): number {
   const rows = computePlayerRows(payload, "dps", nowMs);
   const localKey = payload.localPlayerKey?.trim();
@@ -806,11 +921,21 @@ function localTrueDps(
     if (localUuid && (candidate.entityUuid === localUuid || String(candidate.uuid ?? "") === localUuid)) return true;
     return localUid > 0 && Number(candidate.uid || 0) === localUid;
   });
-  if (row) return Number(row.dps || row.tdps || 0);
+  if (row) return Number((metric === "dps" ? row.dps : row.tdps) || 0);
 
-  const activeMs = liveDisplayElapsedMs(payload, nowMs);
+  const activeMs = metric === "dps"
+    ? liveDisplayElapsedMs(payload, nowMs)
+    : localTrueDpsElapsedMs(payload, nowMs);
   const total = Number(localEntity?.damage?.total ?? 0);
   return activeMs > 0 ? total / (activeMs / 1000) : 0;
+}
+
+function localTrueDpsElapsedMs(payload: LiveDataPayload, nowMs: number): number {
+  const activeCombatMs = Number(payload.activeCombatTimeMs || 0);
+  if (Number.isFinite(activeCombatMs) && activeCombatMs > 0) {
+    return Math.min(activeCombatMs, liveDisplayElapsedMs(payload, nowMs));
+  }
+  return 0;
 }
 
 function updateDeathTracking(
@@ -825,12 +950,18 @@ function updateDeathTracking(
   ].join(":");
   if (nextEncounterKey !== currentEncounterKey) {
     currentEncounterKey = nextEncounterKey;
-    resetDeathTracking(false);
+    resetDeathTrackingForCurrentContext(nowMs);
   }
 
-  const isDead = localEntityIsDead(localEntity);
+  updateObservedLocalDeaths(payload, localEntity, deathRecords);
+  const deathRecord = latestLocalDeathRecord(payload, localEntity, deathRecords);
+  const deathRecordStartedAtMs = deathRecordStartTimestampMs(deathRecord, nowMs);
+  const hasAuthoritativeLiveDeathState = localEntityHasDeathState(localEntity);
+  const isDead =
+    localEntityIsDead(localEntity) ||
+    (!hasAuthoritativeLiveDeathState && deathRecordStartedAtMs !== null);
   if (isDead && !localWasDead) {
-    deadStartedAtMs = nowMs;
+    deadStartedAtMs = deathRecordStartedAtMs ?? nowMs;
   } else if (!isDead && localWasDead && deadStartedAtMs !== null) {
     deadAccumulatedMs += Math.max(0, nowMs - deadStartedAtMs);
     deadStartedAtMs = null;
@@ -840,11 +971,7 @@ function updateDeathTracking(
   const activeDeadMs = isDead && deadStartedAtMs !== null
     ? Math.max(0, nowMs - deadStartedAtMs)
     : 0;
-  const deathCount = Math.max(
-    localDeathCount(localEntity),
-    localDeathRecordCount(payload, deathRecords),
-    deadAccumulatedMs > 0 || isDead ? 1 : 0,
-  );
+  const deathCount = observedLocalDeathRecordKeys.size;
   return {
     isDead,
     currentDeadMs: activeDeadMs,
@@ -864,14 +991,40 @@ function localPlayerIdentityKey(payload: Pick<LiveDataPayload, "localPlayerKey" 
 
 function resetDeathTracking(resetEncounter = true): void {
   if (resetEncounter) currentEncounterKey = "";
+  deathContextStartedAtMs = 0;
+  observedLocalDeathRecordKeys = new Set();
+  resetDeathTrackingForCurrentContext(Date.now());
+}
+
+function resetDeathTrackingForCurrentContext(nowMs: number): void {
+  deathContextStartedAtMs = nowMs;
+  observedLocalDeathRecordKeys = new Set();
   deadStartedAtMs = null;
   deadAccumulatedMs = 0;
   localWasDead = false;
 }
 
-function localDeathCount(entity: RawEntityData | null): number {
+function resetDeathTrackingForIdleScene(payload: LiveDataPayload, nowMs: number): DiscordDeathState {
+  const nextEncounterKey = [
+    deathTrackingSceneKeyForPayload(payload),
+    localPlayerIdentityKey(payload),
+  ].join(":");
+  if (nextEncounterKey !== currentEncounterKey) {
+    currentEncounterKey = nextEncounterKey;
+  }
+  resetDeathTrackingForCurrentContext(nowMs);
+  return {
+    isDead: false,
+    currentDeadMs: 0,
+    totalDeadMs: 0,
+    deathCount: 0,
+    deathStartedAtMs: null,
+  };
+}
+
+function localDeathRecordsFromEntity(entity: RawEntityData | null): DeathRecord[] {
   const deaths = (entity as (RawEntityData & { deaths?: unknown[] }) | null)?.deaths;
-  return Array.isArray(deaths) ? deaths.length : 0;
+  return Array.isArray(deaths) ? deaths as DeathRecord[] : [];
 }
 
 function localEntityIsDead(entity: RawEntityData | null): boolean {
@@ -880,12 +1033,84 @@ function localEntityIsDead(entity: RawEntityData | null): boolean {
   return entity.isDead === true || maybeSnakeCase.is_dead === true;
 }
 
-function localDeathRecordCount(
+function localEntityHasDeathState(entity: RawEntityData | null): boolean {
+  if (!entity) return false;
+  const maybeSnakeCase = entity as RawEntityData & { is_dead?: boolean | null };
+  return typeof entity.isDead === "boolean" || typeof maybeSnakeCase.is_dead === "boolean";
+}
+
+function updateObservedLocalDeaths(
   payload: LiveDataPayload,
+  localEntity: RawEntityData | null,
   deathRecords: readonly DeathRecord[],
-): number {
-  if (deathRecords.length === 0) return 0;
-  return deathRecords.filter((record) => deathRecordMatchesLocalPlayer(payload, record)).length;
+): void {
+  for (const record of deathRecords) {
+    if (!deathRecordMatchesLocalPlayer(payload, record)) continue;
+    if (!deathRecordBelongsToCurrentContext(record)) continue;
+    observedLocalDeathRecordKeys.add(localDeathRecordKey(record));
+  }
+  for (const record of localDeathRecordsFromEntity(localEntity)) {
+    if (!deathRecordBelongsToCurrentContext(record)) continue;
+    observedLocalDeathRecordKeys.add(localDeathRecordKey(record));
+  }
+}
+
+function latestLocalDeathRecord(
+  payload: LiveDataPayload,
+  localEntity: RawEntityData | null,
+  deathRecords: readonly DeathRecord[],
+): DeathRecord | null {
+  let latest: DeathRecord | null = null;
+  for (const record of deathRecords) {
+    if (!deathRecordMatchesLocalPlayer(payload, record)) continue;
+    if (!deathRecordBelongsToCurrentContext(record)) continue;
+    if (!latest || deathRecordTimestampMs(record) > deathRecordTimestampMs(latest)) {
+      latest = record;
+    }
+  }
+  for (const record of localDeathRecordsFromEntity(localEntity)) {
+    if (!deathRecordBelongsToCurrentContext(record)) continue;
+    if (!latest || deathRecordTimestampMs(record) > deathRecordTimestampMs(latest)) {
+      latest = record;
+    }
+  }
+  return latest;
+}
+
+function deathRecordStartTimestampMs(record: DeathRecord | null, nowMs: number): number | null {
+  if (!localDeathRecordIsActive(record, nowMs)) return null;
+  const timestampMs = deathRecordTimestampMs(record);
+  return timestampMs > nowMs ? nowMs : timestampMs;
+}
+
+function localDeathRecordIsActive(record: DeathRecord | null, nowMs: number): boolean {
+  const timestampMs = deathRecordTimestampMs(record);
+  if (timestampMs <= 0) return false;
+  const ageMs = nowMs - timestampMs;
+  return (
+    ageMs >= -PRESENCE_DEATH_RECORD_CLOCK_SKEW_MS &&
+    ageMs <= PRESENCE_DEATH_RECORD_ACTIVE_MS
+  );
+}
+
+function deathRecordTimestampMs(record: DeathRecord | null): number {
+  const timestampMs = Number(record?.deathTimestampMs ?? 0);
+  return Number.isFinite(timestampMs) ? timestampMs : 0;
+}
+
+function deathRecordBelongsToCurrentContext(record: DeathRecord): boolean {
+  const timestampMs = deathRecordTimestampMs(record);
+  if (deathContextStartedAtMs <= 0 || timestampMs <= 0) return true;
+  return timestampMs >= deathContextStartedAtMs - PRESENCE_DEATH_RECORD_CLOCK_SKEW_MS;
+}
+
+function localDeathRecordKey(record: DeathRecord): string {
+  const victimKey =
+    normalizeEntityUuid(record.victimEntityUuid) ??
+    normalizeEntityUuid(record.victimKey) ??
+    normalizeEntityUuid(record.victimUuid == null ? null : String(record.victimUuid)) ??
+    String(record.victimUid || "");
+  return `${victimKey}:${deathRecordTimestampMs(record)}`;
 }
 
 function deathRecordMatchesLocalPlayer(payload: LiveDataPayload, record: DeathRecord): boolean {
@@ -932,6 +1157,11 @@ function overworldSceneLineLabel(payload: LiveDataPayload): string | null {
 function isDiscordOverworldScene(payload: Pick<LiveDataPayload, "sceneId" | "sceneName">): boolean {
   const group = discordSceneAssetGroup(payload);
   return group !== null && DISCORD_LINE_TOOLTIP_SCENE_KEYS.has(group.key);
+}
+
+function isDiscordIdleOnlyScene(payload: Pick<LiveDataPayload, "sceneId" | "sceneName">): boolean {
+  const group = discordSceneAssetGroup(payload);
+  return group !== null && DISCORD_IDLE_ONLY_SCENE_KEYS.has(group.key);
 }
 
 function discordSceneAssetGroup(payload: Pick<LiveDataPayload, "sceneId" | "sceneName">): DiscordSceneAssetGroup | null {
@@ -1026,17 +1256,29 @@ function formatDps(value: number): string {
   return Math.round(safeValue).toLocaleString("en-US");
 }
 
-function formatPresenceDuration(ms: number): string {
-  const totalSeconds = Math.max(0, Math.floor(ms / 1000));
+function formatPresenceDuration(durationMs: number): string {
+  const totalSeconds = Math.max(0, Math.floor(durationMs / 1000));
   const seconds = totalSeconds % 60;
   const totalMinutes = Math.floor(totalSeconds / 60);
-  if (totalMinutes < 60) {
-    return `${totalMinutes}:${seconds.toString().padStart(2, "0")}`;
-  }
-
   const minutes = totalMinutes % 60;
   const hours = Math.floor(totalMinutes / 60);
-  return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+  const paddedSeconds = String(seconds).padStart(2, "0");
+  if (hours > 0) {
+    return `${hours}:${String(minutes).padStart(2, "0")}:${paddedSeconds}`;
+  }
+  return `${minutes}:${paddedSeconds}`;
+}
+
+function discordCombatTimerStartMs(payload: LiveDataPayload, nowMs: number): number | null {
+  const activeCombatMs = Number(payload.activeCombatTimeMs || 0);
+  if (Number.isFinite(activeCombatMs) && activeCombatMs > 0) {
+    return Math.max(0, nowMs - activeCombatMs);
+  }
+
+  const fightStartTimestampMs = Number(payload.fightStartTimestampMs || 0);
+  return Number.isFinite(fightStartTimestampMs) && fightStartTimestampMs > 0
+    ? fightStartTimestampMs
+    : null;
 }
 
 function truncateDiscordText(text: string): string {
@@ -1146,12 +1388,20 @@ function activityIdentityKey(activity: DiscordPresenceActivity): string {
 
 function activitySignatureKey(activity: DiscordPresenceActivity): string {
   return [
-    activity.details,
-    activity.state,
+    stablePresenceDetailsSignature(activity.details),
+    stablePresenceStateSignature(activity.state),
     activity.startTimestamp ?? "",
     activity.largeImage ?? "",
     activity.largeText ?? "",
     activity.smallImage ?? "",
     activity.smallText ?? "",
   ].join("\n");
+}
+
+function stablePresenceDetailsSignature(details: string): string {
+  return details.replace(/\bFloor Tanking for \d+:\d{2}(?::\d{2})?\b/, "Floor Tanking for <duration>");
+}
+
+function stablePresenceStateSignature(state: string): string {
+  return state.replace(/\b(TDPS|DPS):\s*[^|]+/g, "$1:<rate>");
 }

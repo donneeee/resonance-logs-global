@@ -629,6 +629,7 @@ pub fn run() {
             live::commands::toggle_pause_encounter,
             live::commands::start_training_dummy,
             live::commands::stop_training_dummy,
+            live::commands::get_discord_presence_live_snapshot,
             live::commands::save_and_apply_monitor_runtime_snapshot,
             detect_corrupt_settings_json_stores,
             database::commands::get_recent_encounters,

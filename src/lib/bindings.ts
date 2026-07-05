@@ -79,6 +79,14 @@ async stopTrainingDummy() : Promise<Result<null, string>> {
     else return { status: "error", error: e  as any };
 }
 },
+async getDiscordPresenceLiveSnapshot() : Promise<Result<string, string>> {
+    try {
+    return { status: "ok", data: await TAURI_INVOKE("get_discord_presence_live_snapshot") };
+} catch (e) {
+    if(e instanceof Error) throw e;
+    else return { status: "error", error: e  as any };
+}
+},
 async saveAndApplyMonitorRuntimeSnapshot(snapshot: MonitorRuntimeSnapshot) : Promise<Result<null, string>> {
     try {
     return { status: "ok", data: await TAURI_INVOKE("save_and_apply_monitor_runtime_snapshot", { snapshot }) };

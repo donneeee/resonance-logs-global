@@ -5940,9 +5940,6 @@ impl AppStateManager {
         for death in changes.death_events {
             if let Some(entity) = state.encounter.entity_mut_by_uuid(death.entity_uuid) {
                 let recent_damages: Vec<_> = entity.recent_taken_events.drain(..).collect();
-                if recent_damages.is_empty() {
-                    continue;
-                }
                 let victim_uid = uid_from_uuid(death.entity_uuid);
                 entity.deaths.push(DeathRecord {
                     victim_entity_uuid: Some(entity_uuid_string(death.entity_uuid)),
