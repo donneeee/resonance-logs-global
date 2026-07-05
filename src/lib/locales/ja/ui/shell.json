@@ -76,6 +76,8 @@
   "tool.moduleOptimizer": "モジュール計算機",
   "tool.monsterTracker": "モンスターモニター",
   "tool.overlay": "オーバーレイ",
+  "tool.overlayEnableNotice": "オーバーレイパネルを使う前に、設定でスキルモニターとモンスターモニターを有効にしてください。",
+  "tool.overlayEnableNoticeLink": "オーバーレイ設定を開く",
   "tool.overlaySubtitle": "Configure skill and monster monitors for the shared overlay",
   "tool.settings": "設定",
   "tool.skillMonitor": "スキルモニター",

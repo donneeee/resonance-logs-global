@@ -7,6 +7,7 @@
 - Fixed saved-history scene labels so dungeon and raid difficulty display follows the Rich Presence scene mapping, including Master dungeon labels such as `M1`.
 - Tightened Twin Striker spec detection so the common `1605` skill can no longer classify Crimson players as Formless without stronger Formless-only evidence.
 - Added a Network settings restart notice across supported locales for settings that only take effect after restarting the app.
+- Added an Overlay tool notice with a direct link to Overlay settings so users know Skill Monitor and Monster Monitor must be enabled before overlay panels publish data.
 
 ## v1.1.2 - Global
 

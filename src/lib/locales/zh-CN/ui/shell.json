@@ -76,6 +76,8 @@
   "tool.moduleOptimizer": "模组计算",
   "tool.monsterTracker": "怪物监控",
   "tool.overlay": "悬浮窗",
+  "tool.overlayEnableNotice": "使用悬浮窗面板前，请先在设置中启用技能监控和怪物监控。",
+  "tool.overlayEnableNoticeLink": "打开悬浮窗设置",
   "tool.overlaySubtitle": "配置共享悬浮窗的技能和怪物监控",
   "tool.settings": "设置",
   "tool.skillMonitor": "实时监控",

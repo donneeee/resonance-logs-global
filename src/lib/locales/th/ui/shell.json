@@ -76,6 +76,8 @@
   "tool.moduleOptimizer": "เครื่องคำนวณโมดูล",
   "tool.monsterTracker": "ตัวติดตามมอนสเตอร์",
   "tool.overlay": "Overlay",
+  "tool.overlayEnableNotice": "เปิดใช้ Skill Monitor และ Monster Monitor ในการตั้งค่าก่อนใช้พาเนล overlay",
+  "tool.overlayEnableNoticeLink": "เปิดการตั้งค่า Overlay",
   "tool.overlaySubtitle": "Configure skill and monster monitors for the shared overlay",
   "tool.settings": "การตั้งค่า",
   "tool.skillMonitor": "ตัวติดตามสกิล",

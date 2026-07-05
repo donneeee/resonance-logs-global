@@ -76,6 +76,8 @@
   "tool.moduleOptimizer": "모듈 계산기",
   "tool.monsterTracker": "몬스터 모니터",
   "tool.overlay": "오버레이",
+  "tool.overlayEnableNotice": "오버레이 패널을 사용하기 전에 설정에서 스킬 모니터와 몬스터 모니터를 활성화하세요.",
+  "tool.overlayEnableNoticeLink": "오버레이 설정 열기",
   "tool.overlaySubtitle": "Configure skill and monster monitors for the shared overlay",
   "tool.settings": "설정",
   "tool.skillMonitor": "스킬 모니터",

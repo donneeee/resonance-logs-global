@@ -76,6 +76,8 @@
   "tool.moduleOptimizer": "Kalkulator Modul",
   "tool.monsterTracker": "Monitor Monster",
   "tool.overlay": "Overlay",
+  "tool.overlayEnableNotice": "Aktifkan Skill Monitor dan Monster Monitor di Pengaturan sebelum memakai panel overlay.",
+  "tool.overlayEnableNoticeLink": "Buka Pengaturan Overlay",
   "tool.overlaySubtitle": "Configure skill and monster monitors for the shared overlay",
   "tool.settings": "Pengaturan",
   "tool.skillMonitor": "Monitor Skill",

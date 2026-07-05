@@ -76,6 +76,8 @@
   "tool.moduleOptimizer": "Modulrechner",
   "tool.monsterTracker": "Monstermonitor",
   "tool.overlay": "Overlay",
+  "tool.overlayEnableNotice": "Aktiviere Skill Monitor und Monster Monitor in den Einstellungen, bevor du Overlay-Bereiche verwendest.",
+  "tool.overlayEnableNoticeLink": "Overlay-Einstellungen öffnen",
   "tool.overlaySubtitle": "Configure skill and monster monitors for the shared overlay",
   "tool.settings": "Einstellungen",
   "tool.skillMonitor": "Skill-Monitor",

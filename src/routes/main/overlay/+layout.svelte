@@ -1,7 +1,9 @@
 <script lang="ts">
   import { goto } from "$app/navigation";
   import { page } from "$app/state";
+  import InfoIcon from "virtual:icons/lucide/info";
   import MonitorUpIcon from "virtual:icons/lucide/monitor-up";
+  import * as Alert from "$lib/components/ui/alert/index.js";
   import { t } from "$lib/i18n/index.svelte";
   import { resolveMonsterMonitorTranslation, uiT } from "$lib/i18n";
   import { SETTINGS } from "$lib/settings-store";
@@ -55,6 +57,23 @@
       </p>
     </div>
   </div>
+
+  <Alert.Root class="border-primary/30 bg-primary/5 text-foreground">
+    <InfoIcon />
+    <Alert.Description class="text-xs text-muted-foreground">
+      {tShell(
+        "tool.overlayEnableNotice",
+        "Enable Skill Monitor and Monster Monitor in Settings before using overlay panels.",
+      )}
+      <a
+        href="/main/settings/overlay"
+        onclick={(event) => navigate(event, "/main/settings/overlay")}
+        class="ml-1 font-medium text-primary underline-offset-4 hover:underline"
+      >
+        {tShell("tool.overlayEnableNoticeLink", "Open Overlay Settings")}
+      </a>
+    </Alert.Description>
+  </Alert.Root>
 
   <div class="border-b border-border/60">
     <nav class="flex gap-1 -mb-px">

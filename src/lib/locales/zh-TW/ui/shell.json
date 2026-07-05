@@ -76,6 +76,8 @@
   "tool.moduleOptimizer": "模組計算",
   "tool.monsterTracker": "怪物監控",
   "tool.overlay": "覆蓋層",
+  "tool.overlayEnableNotice": "使用覆蓋層面板前，請先在設定中啟用技能監控和怪物監控。",
+  "tool.overlayEnableNoticeLink": "開啟覆蓋層設定",
   "tool.overlaySubtitle": "Configure skill and monster monitors for the shared overlay",
   "tool.settings": "設定",
   "tool.skillMonitor": "實時監控",
