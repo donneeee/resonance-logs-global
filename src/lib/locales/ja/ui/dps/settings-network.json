@@ -9,6 +9,7 @@
   "npcapDll": "Npcap DLL",
   "npcapDllUnavailable": "Unavailable",
   "npcapLoadError": "Load error",
+  "restartRequiredNotice": "パケットキャプチャ設定の変更を反映するには、アプリの再起動が必要です。",
   "selectDevice": "ネットワークデバイスを選択",
   "title": "パケットキャプチャ"
 }

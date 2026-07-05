@@ -26,7 +26,7 @@
     type ColumnDefinition,
   } from "$lib/column-data";
   import { settings, SETTINGS, DEFAULT_HISTORY_STATS, DEFAULT_HISTORY_SUMMARY_FIELDS } from "$lib/settings-store";
-  import { localizeSceneName } from "$lib/scene-mappings";
+  import { formatHistorySceneName } from "$lib/scene-display";
   import { localizeRawMonsterName } from "$lib/monster-mappings";
   import getDisplayName, { getDisplayIconSpecName } from "$lib/name-display";
   import { openUrl } from "@tauri-apps/plugin-opener";
@@ -973,9 +973,10 @@
   }
 
   function encounterSceneDisplayName(currentEncounter: EncounterSummaryDto) {
-    return localizeSceneName(
+    return formatHistorySceneName(
       currentEncounter.sceneId ?? null,
       currentEncounter.sceneName || t("detail.unknownScene", "Unknown Scene"),
+      SETTINGS.live.general.state.language,
     );
   }
 
@@ -4449,7 +4450,7 @@
                   </svg>
                 </button>
                 <h2 class="text-lg font-semibold text-foreground leading-tight">
-                  {localizeSceneName((encounter as { sceneId?: number | string | null }).sceneId ?? null, encounter.sceneName || t("detail.unknownScene", "未知场景"))}
+                  {encounterSceneDisplayName(encounter)}
                 </h2>
               </div>
               {#if encounter.bosses.length > 0}

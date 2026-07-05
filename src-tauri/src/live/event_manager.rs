@@ -135,27 +135,6 @@ fn next_discord_presence_snapshot_sequence(snapshot: &mut DiscordPresenceLiveSna
     snapshot.sequence = snapshot.sequence.saturating_add(1);
 }
 
-fn scene_name_has_difficulty_suffix(scene_name: &str) -> bool {
-    scene_name
-        .rsplit_once('-')
-        .is_some_and(|(_, suffix)| !suffix.is_empty() && suffix.chars().all(|c| c.is_ascii_digit()))
-}
-
-fn scene_name_with_difficulty(scene_name: &str, dungeon_difficulty: Option<i32>) -> String {
-    let scene_name = scene_name.trim();
-    let scene_name = if scene_name.is_empty() {
-        "Unknown Scene"
-    } else {
-        scene_name
-    };
-    let difficulty = dungeon_difficulty.unwrap_or_default();
-    if difficulty > 0 && !scene_name_has_difficulty_suffix(scene_name) {
-        format!("{scene_name}-{difficulty}")
-    } else {
-        scene_name.to_string()
-    }
-}
-
 fn live_payload_from_scene_snapshot(scene: &DiscordPresenceSceneSnapshot) -> LiveDataPayload {
     LiveDataPayload {
         elapsed_ms: 0,
@@ -182,7 +161,10 @@ fn live_payload_from_scene_snapshot(scene: &DiscordPresenceSceneSnapshot) -> Liv
 pub(crate) fn remember_discord_presence_scene(scene: &SceneChangePayload) {
     let scene_snapshot = DiscordPresenceSceneSnapshot {
         scene_id: scene.scene_id,
-        scene_name: scene_name_with_difficulty(&scene.scene_name, scene.dungeon_difficulty),
+        scene_name: crate::live::scene_names::with_difficulty(
+            &scene.scene_name,
+            scene.dungeon_difficulty,
+        ),
         scene_line_id: scene.scene_line_id,
         dungeon_difficulty: scene.dungeon_difficulty,
     };

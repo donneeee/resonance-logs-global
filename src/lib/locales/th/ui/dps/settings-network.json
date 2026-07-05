@@ -9,6 +9,7 @@
   "npcapDll": "Npcap DLL",
   "npcapDllUnavailable": "Unavailable",
   "npcapLoadError": "Load error",
+  "restartRequiredNotice": "การเปลี่ยนแปลงการตั้งค่าการจับแพ็กเก็ตจะมีผลหลังจากรีสตาร์ทแอป",
   "selectDevice": "เลือกอุปกรณ์เครือข่าย",
   "title": "การจับแพ็กเก็ต"
 }

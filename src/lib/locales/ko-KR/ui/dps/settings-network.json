@@ -9,6 +9,7 @@
   "npcapDll": "Npcap DLL",
   "npcapDllUnavailable": "Unavailable",
   "npcapLoadError": "Load error",
+  "restartRequiredNotice": "패킷 캡처 설정 변경 사항을 적용하려면 앱을 다시 시작해야 합니다.",
   "selectDevice": "네트워크 장치 선택",
   "title": "패킷 캡처"
 }

@@ -9,6 +9,7 @@
   "npcapDll": "Npcap DLL",
   "npcapDllUnavailable": "Unavailable",
   "npcapLoadError": "Load error",
+  "restartRequiredNotice": "更改数据包捕获设置后，需要重启应用才会生效。",
   "selectDevice": "选择网络设备",
   "title": "抓包"
 }

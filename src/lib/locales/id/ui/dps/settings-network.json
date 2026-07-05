@@ -9,6 +9,7 @@
   "npcapDll": "Npcap DLL",
   "npcapDllUnavailable": "Unavailable",
   "npcapLoadError": "Load error",
+  "restartRequiredNotice": "Perubahan pada pengaturan capture paket memerlukan restart aplikasi sebelum berlaku.",
   "selectDevice": "Pilih Perangkat Jaringan",
   "title": "Packet Capture"
 }

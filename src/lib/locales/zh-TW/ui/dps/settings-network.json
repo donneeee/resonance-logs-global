@@ -9,6 +9,7 @@
   "npcapDll": "Npcap DLL",
   "npcapDllUnavailable": "Unavailable",
   "npcapLoadError": "Load error",
+  "restartRequiredNotice": "更改封包擷取設定後，需要重新啟動應用程式才會生效。",
   "selectDevice": "選擇網路設備",
   "title": "抓包"
 }

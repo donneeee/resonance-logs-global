@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.1.3 - Global
+
+- Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `v1.1.3` test build.
+- Fixed Season Cultivate SkillCast factor counters so Blast Shot and other cast-based factors can count deduped local cooldown-start packets when the client cast packet is missed, while preserving duplicate-count protection.
+- Fixed saved-history scene labels so dungeon and raid difficulty display follows the Rich Presence scene mapping, including Master dungeon labels such as `M1`.
+- Tightened Twin Striker spec detection so the common `1605` skill can no longer classify Crimson players as Formless without stronger Formless-only evidence.
+- Added a Network settings restart notice across supported locales for settings that only take effect after restarting the app.
+
 ## v1.1.2 - Global
 
 - Updated package, Tauri, Rust crate, lockfile, and window-title metadata for the `v1.1.2` test build.

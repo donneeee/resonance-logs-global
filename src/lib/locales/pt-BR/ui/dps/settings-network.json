@@ -9,6 +9,7 @@
   "npcapDll": "Npcap DLL",
   "npcapDllUnavailable": "Unavailable",
   "npcapLoadError": "Load error",
+  "restartRequiredNotice": "As alteracoes nas configuracoes de captura de pacotes exigem reiniciar o aplicativo antes de entrarem em vigor.",
   "selectDevice": "Select Network Device",
   "title": "Packet Capture"
 }

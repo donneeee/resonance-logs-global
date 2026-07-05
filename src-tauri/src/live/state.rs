@@ -59,6 +59,8 @@ const MAX_FACTOR_SELECTOR_ZERO_SLOTS: usize = 128;
 const FACTOR_SELECTOR_ZERO_SLOT_TTL: Duration = Duration::from_secs(120);
 const OVERLAY_IDENTITY_RESEND_INTERVAL: Duration = Duration::from_secs(1);
 const WORLD_EVENT_TYPE_BOSS_DBM: i32 = 29;
+const SKILL_CAST_COUNTER_DEDUPE_MS: i64 = 2_500;
+const SKILL_CAST_COUNTER_COOLDOWN_EDGE_MAX_PROGRESS_MS: i32 = 1_500;
 
 /// Represents the possible events that can be handled by the state manager.
 #[derive(Debug, Clone)]
@@ -220,6 +222,18 @@ struct FactorSelectorZeroSlot {
     observed_at: Instant,
 }
 
+#[derive(Debug, Clone, Copy)]
+struct RecentSkillCastCounterSignal {
+    skill_id: i32,
+    observed_at_ms: i64,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct SkillCastCooldownCounterSnapshot {
+    begin_time: i64,
+    valid_cd_time: i32,
+}
+
 #[derive(Debug)]
 pub struct EntityMonitor {
     pub uid: i64,
@@ -231,6 +245,8 @@ pub struct EntityMonitor {
     pub counter_tracker: BuffCounterTracker,
     pub factor_counter_tracker: BuffCounterTracker,
     pub season_cultivate: SeasonCultivateRuntimeState,
+    recent_skill_cast_counter_signal: Option<RecentSkillCastCounterSignal>,
+    skill_cast_cooldown_counter_snapshots: HashMap<i32, SkillCastCooldownCounterSnapshot>,
 }
 
 impl EntityMonitor {
@@ -245,6 +261,8 @@ impl EntityMonitor {
             counter_tracker: BuffCounterTracker::default(),
             factor_counter_tracker: BuffCounterTracker::default(),
             season_cultivate: SeasonCultivateRuntimeState::default(),
+            recent_skill_cast_counter_signal: None,
+            skill_cast_cooldown_counter_snapshots: HashMap::new(),
         }
     }
 
@@ -256,6 +274,8 @@ impl EntityMonitor {
         self.counter_tracker.reset_counts();
         self.factor_counter_tracker.reset_counts();
         self.season_cultivate.clear_data();
+        self.recent_skill_cast_counter_signal = None;
+        self.skill_cast_cooldown_counter_snapshots.clear();
     }
 }
 
@@ -561,6 +581,7 @@ fn apply_skill_lifecycle_outputs(
     let mut factor_counter_dirty = false;
     for output in outputs {
         let (output_kind, skill_id) = skill_lifecycle_output_trace(output);
+        let is_cast_started = matches!(output, SkillLifecycleOutput::CastStarted(_));
         let counter_changed = state
             .local_monitor
             .counter_tracker
@@ -569,6 +590,13 @@ fn apply_skill_lifecycle_outputs(
             .local_monitor
             .factor_counter_tracker
             .on_skill_lifecycle_output(output);
+        if is_cast_started && (counter_changed || factor_counter_changed) {
+            state.local_monitor.recent_skill_cast_counter_signal =
+                Some(RecentSkillCastCounterSignal {
+                    skill_id,
+                    observed_at_ms: now_ms(),
+                });
+        }
         counter_dirty |= counter_changed;
         factor_counter_dirty |= factor_counter_changed;
         factor_trace::record(
@@ -582,6 +610,164 @@ fn apply_skill_lifecycle_outputs(
             }),
         );
     }
+    (counter_dirty, factor_counter_dirty)
+}
+
+fn is_recent_skill_cast_counter_signal(state: &AppState, skill_id: SkillId, now: i64) -> bool {
+    state
+        .local_monitor
+        .recent_skill_cast_counter_signal
+        .is_some_and(|signal| {
+            signal.skill_id == skill_id.get()
+                && now.saturating_sub(signal.observed_at_ms) <= SKILL_CAST_COUNTER_DEDUPE_MS
+        })
+}
+
+fn is_skill_cast_counter_cooldown_edge(
+    previous: Option<SkillCastCooldownCounterSnapshot>,
+    begin_time: i64,
+    duration: i32,
+    valid_cd_time: i32,
+    allow_initial_edge: bool,
+) -> bool {
+    if duration <= 0
+        || valid_cd_time < 0
+        || valid_cd_time > SKILL_CAST_COUNTER_COOLDOWN_EDGE_MAX_PROGRESS_MS
+    {
+        return false;
+    }
+
+    match previous {
+        None => allow_initial_edge,
+        Some(previous) => {
+            begin_time > previous.begin_time
+                || (begin_time <= 0
+                    && previous.valid_cd_time > SKILL_CAST_COUNTER_COOLDOWN_EDGE_MAX_PROGRESS_MS)
+        }
+    }
+}
+
+fn apply_skill_cast_counter_signal(
+    state: &mut AppState,
+    skill_id: SkillId,
+    source: &'static str,
+) -> (bool, bool) {
+    let output = SkillLifecycleOutput::CastStarted(skill_id);
+    let counter_changed = state
+        .local_monitor
+        .counter_tracker
+        .on_skill_lifecycle_output(output);
+    let factor_counter_changed = state
+        .local_monitor
+        .factor_counter_tracker
+        .on_skill_lifecycle_output(output);
+    factor_trace::record(
+        "factor-input",
+        source,
+        json!({
+            "skillId": skill_id.get(),
+            "counterChanged": counter_changed,
+            "factorCounterChanged": factor_counter_changed,
+        }),
+    );
+    (counter_changed, factor_counter_changed)
+}
+
+fn apply_skill_cd_counter_edges(
+    state: &mut AppState,
+    skill_cds: &[ParsedSkillCd],
+    attr_skill_id: Option<i32>,
+) -> (bool, bool) {
+    if skill_cds.is_empty() {
+        return (false, false);
+    }
+
+    let attr_skill_id = attr_skill_id
+        .and_then(SkillId::new)
+        .map(|skill_id| normalize_skill_lifecycle_id(state, skill_id).get());
+    let now = now_ms();
+    let mut emitted_skill_ids = HashSet::new();
+    let mut counter_dirty = false;
+    let mut factor_counter_dirty = false;
+
+    for cd in skill_cds {
+        let Some(raw_skill_id) = cd.skill_level_id else {
+            continue;
+        };
+        let Some(skill_id) = SkillId::new(raw_skill_id)
+            .map(|skill_id| normalize_skill_lifecycle_id(state, skill_id))
+        else {
+            continue;
+        };
+
+        let begin_time = cd.begin_time.unwrap_or(0);
+        let duration = cd.duration.unwrap_or(0);
+        let valid_cd_time = cd.valid_cd_time.unwrap_or(0);
+        let previous = state
+            .local_monitor
+            .skill_cast_cooldown_counter_snapshots
+            .get(&raw_skill_id)
+            .copied();
+        let allow_initial_edge = attr_skill_id == Some(skill_id.get());
+        let is_edge = is_skill_cast_counter_cooldown_edge(
+            previous,
+            begin_time,
+            duration,
+            valid_cd_time,
+            allow_initial_edge,
+        );
+
+        state
+            .local_monitor
+            .skill_cast_cooldown_counter_snapshots
+            .insert(
+                raw_skill_id,
+                SkillCastCooldownCounterSnapshot {
+                    begin_time,
+                    valid_cd_time,
+                },
+            );
+
+        if !is_edge {
+            continue;
+        }
+
+        if !emitted_skill_ids.insert(skill_id.get()) {
+            factor_trace::record(
+                "factor-input",
+                "skill-cd-counter-edge-skipped",
+                json!({
+                    "reason": "duplicate-skill-in-packet",
+                    "rawSkillId": raw_skill_id,
+                    "skillId": skill_id.get(),
+                    "beginTime": begin_time,
+                    "validCdTime": valid_cd_time,
+                }),
+            );
+            continue;
+        }
+
+        if is_recent_skill_cast_counter_signal(state, skill_id, now) {
+            factor_trace::record(
+                "factor-input",
+                "skill-cd-counter-edge-skipped",
+                json!({
+                    "reason": "recent-client-cast",
+                    "rawSkillId": raw_skill_id,
+                    "skillId": skill_id.get(),
+                    "beginTime": begin_time,
+                    "validCdTime": valid_cd_time,
+                }),
+            );
+            continue;
+        }
+
+        let (next_counter_dirty, next_factor_counter_dirty) =
+            apply_skill_cast_counter_signal(state, skill_id, "skill-cd-counter-edge");
+        counter_dirty |= next_counter_dirty;
+        factor_counter_dirty |= next_factor_counter_dirty;
+    }
+
     (counter_dirty, factor_counter_dirty)
 }
 
@@ -2007,7 +2193,9 @@ fn build_encounter_metadata(
         total_dmg: encounter.total_dmg.min(i64::MAX as u128) as i64,
         total_heal: encounter.total_heal.min(i64::MAX as u128) as i64,
         scene_id: encounter.current_scene_id,
-        scene_name: encounter.current_scene_name.clone(),
+        scene_name: encounter.current_scene_name.as_deref().map(|name| {
+            crate::live::scene_names::with_difficulty(name, encounter.current_dungeon_difficulty)
+        }),
         duration: (elapsed_ms as f64) / 1000.0,
         active_combat_duration: Some(active_combat_time_ms as f64 / 1000.0),
         is_manually_reset: is_manual,
@@ -5548,6 +5736,11 @@ impl AppStateManager {
             if state.modifier_capture_enabled {
                 record_local_skill_cooldown_events(state, &result.skill_cds);
             }
+            let (next_counter_dirty, next_factor_counter_dirty) =
+                apply_skill_cd_counter_edges(state, &result.skill_cds, result.attr_skill_id);
+            counter_dirty |= next_counter_dirty;
+            factor_counter_dirty |= next_factor_counter_dirty;
+
             let active_talent_node_ids = local_active_profession_talent_node_ids(state);
             let active_profession_skills = local_active_profession_skills(state);
             let active_effect_sources = local_active_effect_sources(state);
@@ -6534,6 +6727,44 @@ mod tests {
         entity.active_profession_skills = skills;
     }
 
+    fn test_effect_slot_config(threshold: Option<u32>) -> EffectSlotConfig {
+        EffectSlotConfig {
+            slot_id: 1,
+            threshold,
+            reset_buff_id: 7001,
+            reset_source_config_id: None,
+            reset_buff_target: ResetBuffTarget::SelfPlayer,
+            on_buff_add: CounterAction::NoOp,
+            on_buff_change: CounterAction::NoOp,
+            on_buff_remove: CounterAction::NoOp,
+            freeze_duration_ms: None,
+            on_freeze_expire: CounterAction::NoOp,
+            alt_freeze: None,
+            threshold_modifier: None,
+            freeze_duration_modifier: None,
+            freeze_on_threshold: false,
+            count_threshold_procs: true,
+            count_reset_buff_procs: false,
+            reset_skill_keys: None,
+            on_reset_skill: CounterAction::NoOp,
+            dungeon_start_freeze_ms: None,
+        }
+    }
+
+    fn install_blast_shot_factor_counter(state: &mut AppState) {
+        state
+            .local_monitor
+            .factor_counter_tracker
+            .set_rules(vec![CounterRule {
+                rule_id: crate::live::season_cultivate::factor_rule_id(20020421),
+                sources: vec![CounterSource::SkillCast {
+                    skill_base_ids: vec![2238],
+                    increment: 92,
+                }],
+                effect_slots: vec![test_effect_slot_config(Some(100))],
+            }]);
+    }
+
     #[test]
     fn client_skill_cast_normalizes_by_equipped_profession_slot() {
         let mut state = AppState::new();
@@ -6572,6 +6803,110 @@ mod tests {
             normalize_client_skill_lifecycle_id(&state, &event).get(),
             1243
         );
+    }
+
+    #[test]
+    fn skill_cd_counter_edge_counts_blast_shot_factor_when_client_cast_packet_is_missing() {
+        let mut state = AppState::new();
+        install_blast_shot_factor_counter(&mut state);
+        let first_cast = ParsedSkillCd {
+            skill_level_id: Some(223801),
+            begin_time: Some(10_000),
+            duration: Some(8_000),
+            valid_cd_time: Some(0),
+            ..Default::default()
+        };
+
+        let (counter_dirty, factor_counter_dirty) =
+            apply_skill_cd_counter_edges(&mut state, &[first_cast.clone()], Some(223801));
+
+        assert!(!counter_dirty);
+        assert!(factor_counter_dirty);
+        let payload = state.local_monitor.factor_counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        assert_eq!(payload[0].slots[0].current_count, 92);
+        assert_eq!(payload[0].slots[0].proc_count, 0);
+
+        let repeated_packet = ParsedSkillCd {
+            valid_cd_time: Some(300),
+            ..first_cast.clone()
+        };
+        let (_, repeated_factor_dirty) =
+            apply_skill_cd_counter_edges(&mut state, &[repeated_packet], Some(223801));
+
+        assert!(!repeated_factor_dirty);
+
+        let next_cast = ParsedSkillCd {
+            begin_time: Some(18_000),
+            valid_cd_time: Some(0),
+            ..first_cast
+        };
+        let (_, next_factor_dirty) = apply_skill_cd_counter_edges(&mut state, &[next_cast], None);
+
+        assert!(next_factor_dirty);
+        let payload = state.local_monitor.factor_counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        assert_eq!(payload[0].slots[0].current_count, 184);
+        assert_eq!(payload[0].slots[0].proc_count, 1);
+    }
+
+    #[test]
+    fn skill_cd_counter_edge_skips_recent_client_cast_for_same_skill() {
+        let mut state = AppState::new();
+        install_blast_shot_factor_counter(&mut state);
+        let skill_id = SkillId::new(2238).unwrap();
+
+        let (_, lifecycle_factor_dirty) = apply_skill_lifecycle_outputs(
+            &mut state,
+            vec![SkillLifecycleOutput::CastStarted(skill_id)],
+        );
+
+        assert!(lifecycle_factor_dirty);
+        let cooldown_packet = ParsedSkillCd {
+            skill_level_id: Some(223801),
+            begin_time: Some(10_000),
+            duration: Some(8_000),
+            valid_cd_time: Some(0),
+            ..Default::default()
+        };
+        let (_, cooldown_factor_dirty) =
+            apply_skill_cd_counter_edges(&mut state, &[cooldown_packet], Some(223801));
+
+        assert!(!cooldown_factor_dirty);
+        let payload = state.local_monitor.factor_counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        assert_eq!(payload[0].slots[0].current_count, 92);
+        assert_eq!(payload[0].slots[0].proc_count, 0);
+    }
+
+    #[test]
+    fn skill_cd_counter_edge_ignores_initial_stale_cooldown_snapshot() {
+        let mut state = AppState::new();
+        install_blast_shot_factor_counter(&mut state);
+        let stale_cooldown = ParsedSkillCd {
+            skill_level_id: Some(223801),
+            begin_time: Some(10_000),
+            duration: Some(8_000),
+            valid_cd_time: Some(3_000),
+            ..Default::default()
+        };
+
+        let (_, factor_counter_dirty) =
+            apply_skill_cd_counter_edges(&mut state, &[stale_cooldown], None);
+
+        assert!(!factor_counter_dirty);
+        let payload = state.local_monitor.factor_counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        assert_eq!(payload[0].slots[0].current_count, 0);
+        assert_eq!(payload[0].slots[0].proc_count, 0);
     }
 
     #[test]

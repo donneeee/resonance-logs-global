@@ -45,9 +45,27 @@ fn scene_name_override(scene_id: i32) -> Option<&'static str> {
 /// Returns the scene name with optional dungeon difficulty suffix.
 pub fn lookup_with_difficulty(scene_id: i32, difficulty: Option<i32>) -> String {
     let base_name = lookup(scene_id);
-    match difficulty {
-        Some(v) => format!("{}-{}", base_name, v),
-        None => base_name,
+    with_difficulty(&base_name, difficulty)
+}
+
+pub fn has_difficulty_suffix(scene_name: &str) -> bool {
+    scene_name
+        .rsplit_once('-')
+        .is_some_and(|(_, suffix)| !suffix.is_empty() && suffix.chars().all(|c| c.is_ascii_digit()))
+}
+
+pub fn with_difficulty(scene_name: &str, dungeon_difficulty: Option<i32>) -> String {
+    let scene_name = scene_name.trim();
+    let scene_name = if scene_name.is_empty() {
+        "Unknown Scene"
+    } else {
+        scene_name
+    };
+    let difficulty = dungeon_difficulty.unwrap_or_default();
+    if difficulty > 0 && !has_difficulty_suffix(scene_name) {
+        format!("{scene_name}-{difficulty}")
+    } else {
+        scene_name.to_string()
     }
 }
 
@@ -101,4 +119,38 @@ fn load_scene_names() -> SceneNameCache {
     }
 
     SceneNameCache { names }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn appends_positive_difficulty_once() {
+        assert_eq!(
+            with_difficulty("Cursed Radiant Tomb", Some(1)),
+            "Cursed Radiant Tomb-1"
+        );
+        assert_eq!(
+            with_difficulty("Cursed Radiant Tomb-1", Some(2)),
+            "Cursed Radiant Tomb-1"
+        );
+    }
+
+    #[test]
+    fn ignores_missing_or_non_positive_difficulty() {
+        assert_eq!(
+            with_difficulty("Cursed Radiant Tomb", None),
+            "Cursed Radiant Tomb"
+        );
+        assert_eq!(
+            with_difficulty("Cursed Radiant Tomb", Some(0)),
+            "Cursed Radiant Tomb"
+        );
+    }
+
+    #[test]
+    fn normalizes_blank_scene_names() {
+        assert_eq!(with_difficulty("   ", Some(1)), "Unknown Scene-1");
+    }
 }

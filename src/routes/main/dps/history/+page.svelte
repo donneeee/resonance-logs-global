@@ -13,7 +13,8 @@
 	import { SETTINGS } from "$lib/settings-store";
 	import { getDisplayIconSpecName } from "$lib/name-display";
 	import { localizeRawSceneName } from "$lib/scene-mappings";
-  import { localizeRawMonsterName } from "$lib/monster-mappings";
+	import { formatHistorySceneName } from "$lib/scene-display";
+	import { localizeRawMonsterName } from "$lib/monster-mappings";
 
 	let encounters = $state<EncounterSummaryDto[]>([]);
 	let errorMsg = $state<string | null>(null);
@@ -747,7 +748,13 @@
 							<div class="space-y-1">
 								<div>
 									{#if enc.sceneName}
-										<span class="text-xs bg-muted px-1.5 py-0.5 rounded text-foreground">{localizeRawSceneName(enc.sceneName, enc.sceneName)}</span>
+										<span class="text-xs bg-muted px-1.5 py-0.5 rounded text-foreground">
+											{formatHistorySceneName(
+												enc.sceneId,
+												enc.sceneName,
+												SETTINGS.live.general.state.language,
+											)}
+										</span>
 									{:else}
 										<span class="text-muted-foreground text-xs opacity-70">{t("list.openSceneNone", "无场景")}</span>
 									{/if}

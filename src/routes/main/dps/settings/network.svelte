@@ -4,6 +4,8 @@
     import { invoke } from "@tauri-apps/api/core";
     import { onMount } from "svelte";
     import { untrack } from "svelte";
+    import InfoIcon from "virtual:icons/lucide/info";
+    import * as Alert from "$lib/components/ui/alert/index.js";
     import { uiT } from "$lib/i18n";
 
     type Device = {
@@ -83,6 +85,16 @@
             <h2 class="text-base font-semibold text-foreground mb-2">
                 {t("title", "Packet Capture")}
             </h2>
+
+            <Alert.Root class="mb-3 border-primary/30 bg-primary/5 text-foreground">
+                <InfoIcon />
+                <Alert.Description class="text-xs text-muted-foreground">
+                    {t(
+                        "restartRequiredNotice",
+                        "Changes to packet capture settings require restarting the application before they take effect.",
+                    )}
+                </Alert.Description>
+            </Alert.Root>
 
             <div
                 class="mb-3 rounded-md border border-border/60 bg-muted/20 px-3 py-2 text-xs text-muted-foreground"

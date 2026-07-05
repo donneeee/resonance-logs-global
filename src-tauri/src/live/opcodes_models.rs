@@ -1416,7 +1416,8 @@ pub mod class {
             1242 | 120902 => ClassSpec::Icicle,
             1241 => ClassSpec::Frostbeam,
 
-            1605 => ClassSpec::Voidflame,
+            // 1605 is a common Twin Striker skill observed on Crimson players too, so it is
+            // not strong enough to classify Formless by itself.
             1606 => ClassSpec::Blazecrimson,
 
             1405 | 1418 => ClassSpec::Vanguard,
@@ -1800,6 +1801,14 @@ mod tests {
             class::get_class_spec_from_skill_id(2301),
             class::ClassSpec::Concerto
         );
+        assert_eq!(
+            class::get_class_spec_from_skill_id(1605),
+            class::ClassSpec::Unknown
+        );
+        assert_eq!(
+            class::get_class_spec_from_skill_id(1606),
+            class::ClassSpec::Blazecrimson
+        );
     }
 
     #[test]
@@ -1843,6 +1852,14 @@ mod tests {
         assert_eq!(
             class::get_class_spec_from_runtime_id(2_203_200),
             class::ClassSpec::Falconry
+        );
+        assert_eq!(
+            class::get_class_spec_from_runtime_id(1605),
+            class::ClassSpec::Unknown
+        );
+        assert_eq!(
+            class::get_class_spec_from_runtime_id(2_208_130),
+            class::ClassSpec::Voidflame
         );
         assert_eq!(
             class::get_class_spec_from_runtime_id(999_999),
