@@ -8,6 +8,10 @@
 - Tightened Twin Striker spec detection so the common `1605` skill can no longer classify Crimson players as Formless without stronger Formless-only evidence.
 - Added a Network settings restart notice across supported locales for settings that only take effect after restarting the app.
 - Added an Overlay tool notice with a direct link to Overlay settings so users know Skill Monitor and Monster Monitor must be enabled before overlay panels publish data.
+- Finished the remaining DBM mechanic translations in the generated mechanic table and added a sync/check script to keep those manual translations reproducible.
+- Added DBM map controls for north-fixed vs player-facing orientation and configurable map refresh rate.
+- Added DBM player visibility controls, including always-show players, UID allowlist entries, quick-add from recent players, and per-player minimap colors.
+- Added a configurable DBM mechanic-call self highlight so your name flashes and uses a chosen color when a mechanic targets you.
 
 ## v1.1.2 - Global
 

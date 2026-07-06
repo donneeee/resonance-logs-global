@@ -71,6 +71,7 @@
     "sync:season-cultivate:slots": "node scripts/sync-missing-factor-slot-templates.mjs",
     "sync:season-cultivate:locales": "node scripts/sync-counter-template-factor-locales.mjs",
     "sync:season-cultivate:labels": "node scripts/sync-season-cultivate-factor-skill-labels.mjs",
+    "sync:dbm:locales": "node scripts/sync-dbm-table-locales.mjs",
     "audit:container-probes": "node scripts/audit-container-probes.mjs",
     "audit:container-probes:path-diff": "node scripts/audit-container-probe-path-differential.mjs",
     "probe:seasonal-factor:selector": "node scripts/probe-seasonal-factor-selector.mjs",

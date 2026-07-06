@@ -591,11 +591,9 @@ fn apply_skill_lifecycle_outputs(
             .factor_counter_tracker
             .on_skill_lifecycle_output(output);
         if is_cast_started && (counter_changed || factor_counter_changed) {
-            state.local_monitor.recent_skill_cast_counter_signal =
-                Some(RecentSkillCastCounterSignal {
-                    skill_id,
-                    observed_at_ms: now_ms(),
-                });
+            if let Some(skill_id) = SkillId::new(skill_id) {
+                remember_skill_cast_counter_signal(state, skill_id);
+            }
         }
         counter_dirty |= counter_changed;
         factor_counter_dirty |= factor_counter_changed;
@@ -621,6 +619,13 @@ fn is_recent_skill_cast_counter_signal(state: &AppState, skill_id: SkillId, now:
             signal.skill_id == skill_id.get()
                 && now.saturating_sub(signal.observed_at_ms) <= SKILL_CAST_COUNTER_DEDUPE_MS
         })
+}
+
+fn remember_skill_cast_counter_signal(state: &mut AppState, skill_id: SkillId) {
+    state.local_monitor.recent_skill_cast_counter_signal = Some(RecentSkillCastCounterSignal {
+        skill_id: skill_id.get(),
+        observed_at_ms: now_ms(),
+    });
 }
 
 fn is_skill_cast_counter_cooldown_edge(
@@ -671,6 +676,45 @@ fn apply_skill_cast_counter_signal(
         }),
     );
     (counter_changed, factor_counter_changed)
+}
+
+fn apply_attr_skill_id_counter_signal(state: &mut AppState, attr_skill_id: i32) -> (bool, bool) {
+    let Some(skill_id) =
+        SkillId::new(attr_skill_id).map(|skill_id| normalize_skill_lifecycle_id(state, skill_id))
+    else {
+        return (false, false);
+    };
+    let now = now_ms();
+    if !is_equipped_profession_skill(state, skill_id) {
+        factor_trace::record(
+            "factor-input",
+            "attr-skill-id-counter-signal-skipped",
+            json!({
+                "reason": "skill-not-equipped",
+                "rawSkillId": attr_skill_id,
+                "skillId": skill_id.get(),
+            }),
+        );
+        return (false, false);
+    }
+    if is_recent_skill_cast_counter_signal(state, skill_id, now) {
+        factor_trace::record(
+            "factor-input",
+            "attr-skill-id-counter-signal-skipped",
+            json!({
+                "reason": "recent-skill-cast",
+                "rawSkillId": attr_skill_id,
+                "skillId": skill_id.get(),
+            }),
+        );
+        return (false, false);
+    }
+
+    let result = apply_skill_cast_counter_signal(state, skill_id, "attr-skill-id-counter-signal");
+    if result.0 || result.1 {
+        remember_skill_cast_counter_signal(state, skill_id);
+    }
+    result
 }
 
 fn apply_skill_cd_counter_edges(
@@ -753,6 +797,21 @@ fn apply_skill_cd_counter_edges(
                 "skill-cd-counter-edge-skipped",
                 json!({
                     "reason": "recent-client-cast",
+                    "rawSkillId": raw_skill_id,
+                    "skillId": skill_id.get(),
+                    "beginTime": begin_time,
+                    "validCdTime": valid_cd_time,
+                }),
+            );
+            continue;
+        }
+
+        if !is_equipped_profession_skill(state, skill_id) {
+            factor_trace::record(
+                "factor-input",
+                "skill-cd-counter-edge-skipped",
+                json!({
+                    "reason": "skill-not-equipped",
                     "rawSkillId": raw_skill_id,
                     "skillId": skill_id.get(),
                     "beginTime": begin_time,
@@ -4058,6 +4117,18 @@ fn normalize_skill_lifecycle_id(state: &AppState, skill_id: SkillId) -> SkillId 
         .unwrap_or_else(|| normalize_skill_id_from_table(skill_id))
 }
 
+fn is_equipped_profession_skill(state: &AppState, skill_id: SkillId) -> bool {
+    let skill_id = normalize_skill_id_from_table(skill_id).get();
+    local_player_entity(&state.encounter).is_some_and(|entity| {
+        entity.active_profession_skills.iter().any(|skill| {
+            skill.source_kind == "profession-skill"
+                && skill.equipped == Some(true)
+                && (observed_profession_skill_matches_id(skill, skill_id)
+                    || canonical_profession_skill_id(skill).is_some_and(|id| id.get() == skill_id))
+        })
+    })
+}
+
 fn normalize_client_skill_lifecycle_id(state: &AppState, event: &ClientSkillCast) -> SkillId {
     let table_skill_id = normalize_skill_id_from_table(event.skill_id);
     let direct_skill_id = normalize_skill_lifecycle_id_from_active_skill(state, event.skill_id);
@@ -5730,6 +5801,10 @@ impl AppStateManager {
             if state.modifier_capture_enabled {
                 record_local_skill_cast_event(state, skill_base_id);
             }
+            let (next_counter_dirty, next_factor_counter_dirty) =
+                apply_attr_skill_id_counter_signal(state, skill_base_id);
+            counter_dirty |= next_counter_dirty;
+            factor_counter_dirty |= next_factor_counter_dirty;
         }
 
         if !result.skill_cds.is_empty() {
@@ -6727,6 +6802,23 @@ mod tests {
         entity.active_profession_skills = skills;
     }
 
+    fn equipped_profession_skill(
+        skill_id: i32,
+        skill_level_id: i32,
+        slot: i32,
+    ) -> ObservedProfessionSkill {
+        ObservedProfessionSkill {
+            skill_id,
+            base_skill_id: Some(skill_id),
+            skill_level_id: Some(skill_level_id),
+            slot: Some(slot),
+            equipped: Some(true),
+            source_kind: "profession-skill".to_string(),
+            runtime_source: "test.active-skill".to_string(),
+            ..Default::default()
+        }
+    }
+
     fn test_effect_slot_config(threshold: Option<u32>) -> EffectSlotConfig {
         EffectSlotConfig {
             slot_id: 1,
@@ -6751,18 +6843,28 @@ mod tests {
         }
     }
 
-    fn install_blast_shot_factor_counter(state: &mut AppState) {
+    fn install_skill_cast_factor_counter(
+        state: &mut AppState,
+        item_id: i32,
+        skill_base_id: i32,
+        increment: u32,
+    ) {
         state
             .local_monitor
             .factor_counter_tracker
             .set_rules(vec![CounterRule {
-                rule_id: crate::live::season_cultivate::factor_rule_id(20020421),
+                rule_id: crate::live::season_cultivate::factor_rule_id(item_id),
                 sources: vec![CounterSource::SkillCast {
-                    skill_base_ids: vec![2238],
-                    increment: 92,
+                    skill_base_ids: vec![skill_base_id],
+                    increment,
                 }],
                 effect_slots: vec![test_effect_slot_config(Some(100))],
             }]);
+    }
+
+    fn install_blast_shot_factor_counter(state: &mut AppState) {
+        install_skill_cast_factor_counter(state, 20020421, 2238, 92);
+        set_local_active_profession_skills(state, vec![equipped_profession_skill(2238, 223801, 5)]);
     }
 
     #[test]
@@ -6906,6 +7008,51 @@ mod tests {
             current_local_player_uuid(&state.encounter),
         );
         assert_eq!(payload[0].slots[0].current_count, 0);
+        assert_eq!(payload[0].slots[0].proc_count, 0);
+    }
+
+    #[test]
+    fn attr_skill_id_counter_signal_counts_powerdraw_factor_without_cooldown_packet() {
+        let mut state = AppState::new();
+        install_skill_cast_factor_counter(&mut state, 20010431, 2233, 40);
+
+        let (counter_dirty, factor_counter_dirty) =
+            apply_attr_skill_id_counter_signal(&mut state, 223301);
+
+        assert!(!counter_dirty);
+        assert!(!factor_counter_dirty);
+        let payload = state.local_monitor.factor_counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        assert_eq!(payload[0].slots[0].current_count, 0);
+        assert_eq!(payload[0].slots[0].proc_count, 0);
+
+        set_local_active_profession_skills(
+            &mut state,
+            vec![equipped_profession_skill(2233, 223301, 4)],
+        );
+
+        let (counter_dirty, factor_counter_dirty) =
+            apply_attr_skill_id_counter_signal(&mut state, 223301);
+
+        assert!(!counter_dirty);
+        assert!(factor_counter_dirty);
+        let payload = state.local_monitor.factor_counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        assert_eq!(payload[0].slots[0].current_count, 40);
+        assert_eq!(payload[0].slots[0].proc_count, 0);
+
+        let (_, repeated_factor_dirty) = apply_attr_skill_id_counter_signal(&mut state, 223301);
+
+        assert!(!repeated_factor_dirty);
+        let payload = state.local_monitor.factor_counter_tracker.build_payload(
+            &state.attr_store,
+            current_local_player_uuid(&state.encounter),
+        );
+        assert_eq!(payload[0].slots[0].current_count, 40);
         assert_eq!(payload[0].slots[0].proc_count, 0);
     }
 

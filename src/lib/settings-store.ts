@@ -492,6 +492,15 @@ export type MinimapLocalFacing = {
   enabled: boolean;
 };
 
+export type MinimapMapOrientation = "north-up" | "player-facing";
+
+export type MinimapPlayerWhitelistEntry = {
+  uid: string;
+  name: string;
+  color: string;
+  enabled: boolean;
+};
+
 export type MinimapMarkerColors = {
   m1: string;
   m2: string;
@@ -506,6 +515,12 @@ export type MinimapConfig = {
   hideNormalTeammates: boolean;
   showBoss: boolean;
   showMarkers: boolean;
+  mapOrientation: MinimapMapOrientation;
+  mapRefreshRateMs: number;
+  alwaysShowPlayers: boolean;
+  playerWhitelist: MinimapPlayerWhitelistEntry[];
+  highlightSelfMechanics: boolean;
+  selfMechanicColor: string;
   showMapPanel: boolean;
   showInfoPanel: boolean;
   mapPanel: MinimapPanelRect;
@@ -1142,6 +1157,12 @@ export function createDefaultMinimapConfig(): MinimapConfig {
     hideNormalTeammates: true,
     showBoss: false,
     showMarkers: false,
+    mapOrientation: "north-up",
+    mapRefreshRateMs: 500,
+    alwaysShowPlayers: false,
+    playerWhitelist: [],
+    highlightSelfMechanics: true,
+    selfMechanicColor: "#facc15",
     showMapPanel: false,
     showInfoPanel: false,
     mapPanel: { x: 24, y: 24, width: 340, scale: 1 },
@@ -2144,6 +2165,12 @@ function normalizeStringRecord(value: unknown): Record<string, string> {
   return next;
 }
 
+function normalizeHexColor(value: unknown, fallback: string): string {
+  if (typeof value !== "string") return fallback;
+  const trimmed = value.trim();
+  return /^#[0-9a-fA-F]{6}$/.test(trimmed) ? trimmed : fallback;
+}
+
 function normalizeColumnAliasSettingsState(
   value: unknown,
   defaults: Record<string, string>,
@@ -2445,6 +2472,38 @@ function normalizeMinimapPanelRect(
   return next;
 }
 
+function normalizeMinimapPlayerWhitelist(
+  value: unknown,
+  fallbackColor = "#facc15",
+): MinimapPlayerWhitelistEntry[] {
+  if (!Array.isArray(value)) return [];
+
+  const seen = new Set<string>();
+  const entries: MinimapPlayerWhitelistEntry[] = [];
+  for (const item of value) {
+    if (!isMutableRecord(item)) continue;
+
+    const uid = String(item["uid"] ?? item["entityUuid"] ?? "")
+      .trim()
+      .slice(0, 64);
+    if (!uid || seen.has(uid)) continue;
+    seen.add(uid);
+
+    entries.push({
+      uid,
+      name: String(item["name"] ?? "")
+        .trim()
+        .slice(0, 80),
+      color: normalizeHexColor(item["color"], fallbackColor),
+      enabled: normalizeBooleanValue(item["enabled"], true),
+    });
+
+    if (entries.length >= 64) break;
+  }
+
+  return entries;
+}
+
 function normalizeMinimapSettingsState(value: unknown): MinimapConfig {
   const defaults = createDefaultMinimapConfig();
   const next = normalizeObjectWithDefaults(
@@ -2463,6 +2522,32 @@ function normalizeMinimapSettingsState(value: unknown): MinimapConfig {
   next.showMarkers = normalizeBooleanValue(
     next.showMarkers,
     defaults.showMarkers,
+  );
+  next.mapOrientation =
+    next.mapOrientation === "player-facing" || next.mapOrientation === "north-up"
+      ? next.mapOrientation
+      : defaults.mapOrientation;
+  next.mapRefreshRateMs = clampNumericSetting(
+    next.mapRefreshRateMs,
+    defaults.mapRefreshRateMs,
+    50,
+    2_000,
+  );
+  next.alwaysShowPlayers = normalizeBooleanValue(
+    next.alwaysShowPlayers,
+    defaults.alwaysShowPlayers,
+  );
+  next.playerWhitelist = normalizeMinimapPlayerWhitelist(
+    next.playerWhitelist,
+    defaults.entityColors.teammate,
+  );
+  next.highlightSelfMechanics = normalizeBooleanValue(
+    next.highlightSelfMechanics,
+    defaults.highlightSelfMechanics,
+  );
+  next.selfMechanicColor = normalizeHexColor(
+    next.selfMechanicColor,
+    defaults.selfMechanicColor,
   );
   next.showMapPanel = normalizeBooleanValue(
     next.showMapPanel,

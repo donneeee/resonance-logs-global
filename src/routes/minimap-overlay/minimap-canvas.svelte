@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { onDestroy } from "svelte";
   import type { MinimapEntity, MinimapSnapshot } from "$lib/api";
   import { SETTINGS } from "$lib/settings-store";
   import { slotColor } from "./colors";
@@ -13,6 +14,10 @@
   let { snapshot }: { snapshot: MinimapSnapshot | null } = $props();
 
   let canvas: HTMLCanvasElement | null = $state(null);
+  let displayedSnapshot: MinimapSnapshot | null = $state(snapshot);
+  let pendingSnapshot: MinimapSnapshot | null = snapshot;
+  let lastSnapshotDrawnAt = 0;
+  let refreshTimer: number | null = null;
 
   const PADDING = 10;
   // Radius of the upward triangle drawn for every non-team entity. Larger than
@@ -30,11 +35,11 @@
   }
 
   const sceneView = $derived.by<SceneView>(() => {
-    if (!snapshot) return emptySceneView();
-    const scene = resolveScene(snapshot.sceneId);
+    if (!displayedSnapshot) return emptySceneView();
+    const scene = resolveScene(displayedSnapshot.sceneId);
     return (
-      scene?.resolveView(snapshot, displayName, minimapSkillCasts()) ??
-      emptySceneView(snapshot.entities, snapshot.markers)
+      scene?.resolveView(displayedSnapshot, displayName, minimapSkillCasts()) ??
+      emptySceneView(displayedSnapshot.entities, displayedSnapshot.markers)
     );
   });
 
@@ -42,6 +47,57 @@
     const { halfForHeight, halfForWidth } = rotatedHalfExtents(sceneView);
     return halfForHeight / halfForWidth;
   });
+
+  function mapRefreshRateMs(): number {
+    const value = Number(minimapSettings.mapRefreshRateMs ?? 500);
+    return Number.isFinite(value) ? Math.max(50, Math.min(2000, value)) : 500;
+  }
+
+  function clearRefreshTimer() {
+    if (refreshTimer !== null) {
+      window.clearTimeout(refreshTimer);
+      refreshTimer = null;
+    }
+  }
+
+  function applyPendingSnapshot(now = Date.now()) {
+    clearRefreshTimer();
+    displayedSnapshot = pendingSnapshot;
+    lastSnapshotDrawnAt = now;
+  }
+
+  function queueSnapshotForMap(nextSnapshot: MinimapSnapshot | null) {
+    pendingSnapshot = nextSnapshot;
+    if (typeof window === "undefined") {
+      displayedSnapshot = nextSnapshot;
+      return;
+    }
+
+    if (nextSnapshot === null) {
+      clearRefreshTimer();
+      displayedSnapshot = null;
+      lastSnapshotDrawnAt = 0;
+      return;
+    }
+
+    const changedScene =
+      displayedSnapshot?.sceneId !== nextSnapshot.sceneId ||
+      displayedSnapshot?.localPlayerUuid !== nextSnapshot.localPlayerUuid;
+    if (lastSnapshotDrawnAt === 0 || changedScene) {
+      applyPendingSnapshot();
+      return;
+    }
+
+    const now = Date.now();
+    const remainingMs = mapRefreshRateMs() - (now - lastSnapshotDrawnAt);
+    if (remainingMs <= 0) {
+      applyPendingSnapshot(now);
+      return;
+    }
+
+    clearRefreshTimer();
+    refreshTimer = window.setTimeout(() => applyPendingSnapshot(), remainingMs);
+  }
 
   function normalizedRotationQuarters(rotationQuarters: number): number {
     return ((Math.trunc(rotationQuarters) % 4) + 4) % 4;
@@ -72,21 +128,63 @@
     }
   }
 
+  function localEntityFor(view: SceneView): MinimapEntity | null {
+    const localUuid = displayedSnapshot?.localPlayerUuid;
+    return (
+      view.entities.find((entity) => entity.kind === "local") ??
+      view.entities.find((entity) => entity.entityUuid === localUuid) ??
+      null
+    );
+  }
+
+  function mapScreenRotationRad(view: SceneView): number {
+    if (minimapSettings.mapOrientation !== "player-facing") return 0;
+
+    const localEntity = localEntityFor(view);
+    const facing = localEntity?.facing;
+    if (facing === null || facing === undefined || !Number.isFinite(facing)) {
+      return 0;
+    }
+
+    const rad = (facing * Math.PI) / 180;
+    const facingVector = rotateMapPoint(
+      Math.sin(rad),
+      Math.cos(rad),
+      view.rotationQuarters,
+    );
+    const screenDx = -facingVector.z;
+    const screenDy = -facingVector.x;
+    if (screenDx === 0 && screenDy === 0) return 0;
+    return -Math.PI / 2 - Math.atan2(screenDy, screenDx);
+  }
+
   function makeProjector(
     w: number,
     h: number,
     view: SceneView,
   ): { project: Projector; scale: number } {
     const { halfForWidth, halfForHeight } = rotatedHalfExtents(view);
-    const scaleX = (w - PADDING * 2) / (halfForWidth * 2);
-    const scaleY = (h - PADDING * 2) / (halfForHeight * 2);
+    const screenRotation = mapScreenRotationRad(view);
+    const cos = Math.cos(screenRotation);
+    const sin = Math.sin(screenRotation);
+    const absCos = Math.abs(cos);
+    const absSin = Math.abs(sin);
+    const rotatedHalfForWidth = absCos * halfForWidth + absSin * halfForHeight;
+    const rotatedHalfForHeight = absSin * halfForWidth + absCos * halfForHeight;
+    const scaleX = (w - PADDING * 2) / (rotatedHalfForWidth * 2);
+    const scaleY = (h - PADDING * 2) / (rotatedHalfForHeight * 2);
     const scale = Math.min(scaleX, scaleY);
     const cx = w / 2;
     const cy = h / 2;
     return {
       project: (x, z) => {
         const point = rotateMapPoint(x, z, view.rotationQuarters);
-        return [cx - point.z * scale, cy - point.x * scale];
+        const baseX = -point.z * scale;
+        const baseY = -point.x * scale;
+        return [
+          cx + baseX * cos - baseY * sin,
+          cy + baseX * sin + baseY * cos,
+        ];
       },
       scale,
     };
@@ -96,6 +194,25 @@
     const colors = minimapSettings.entityColors;
     if (entity.kind === "boss") return colors.boss ?? DEFAULT_BOSS_COLOR;
     return entity.kind === "local" ? colors.local : colors.teammate;
+  }
+
+  function whitelistEntryFor(entity: MinimapEntity) {
+    if (entity.kind !== "teammate" && entity.kind !== "local") return null;
+    const entityUid = entity.entityUuid.trim();
+    if (!entityUid) return null;
+    return (
+      minimapSettings.playerWhitelist?.find(
+        (entry) => entry.enabled !== false && entry.uid.trim() === entityUid,
+      ) ?? null
+    );
+  }
+
+  function shouldForceShowPlayer(
+    entity: MinimapEntity,
+    whitelistEntry: ReturnType<typeof whitelistEntryFor>,
+  ): boolean {
+    if (entity.kind !== "teammate" && entity.kind !== "local") return false;
+    return minimapSettings.alwaysShowPlayers === true || whitelistEntry !== null;
   }
 
   function radiusFor(): number {
@@ -195,6 +312,19 @@
     ctx.fill();
   }
 
+  function traceProjectedPolygon(
+    ctx: CanvasRenderingContext2D,
+    points: [number, number][],
+  ) {
+    const [firstX, firstY] = points[0] ?? [0, 0];
+    ctx.beginPath();
+    ctx.moveTo(firstX, firstY);
+    for (const [x, y] of points.slice(1)) {
+      ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+  }
+
   function draw() {
     const el = canvas;
     if (!el) return;
@@ -227,8 +357,13 @@
       ctx.strokeStyle = "rgba(148, 163, 184, 0.45)";
       ctx.lineWidth = 1;
       for (const half of view.layout.squares) {
-        const s = half * scale;
-        ctx.strokeRect(ox - s, oy - s, s * 2, s * 2);
+        traceProjectedPolygon(ctx, [
+          project(-half, -half),
+          project(half, -half),
+          project(half, half),
+          project(-half, half),
+        ]);
+        ctx.stroke();
       }
     }
 
@@ -266,10 +401,12 @@
 
       const colorSlot = view.entityColorSlots.get(entity.entityUuid);
       const hasMechanic = colorSlot !== undefined;
+      const whitelistEntry = whitelistEntryFor(entity);
       if (
         minimapSettings.hideNormalTeammates &&
         entity.kind === "teammate" &&
-        !hasMechanic
+        !hasMechanic &&
+        !shouldForceShowPlayer(entity, whitelistEntry)
       ) {
         continue;
       }
@@ -277,16 +414,18 @@
       const [sx, sy] = project(entity.x, entity.z);
       const team = isTeamMember(entity);
       const dotColor =
-        colorSlot === undefined ? colorFor(entity) : slotColor(colorSlot);
+        colorSlot === undefined
+          ? whitelistEntry?.color ?? colorFor(entity)
+          : slotColor(colorSlot);
 
       ctx.globalAlpha = entity.isDead
         ? 0.35
         : hasMechanic || entity.kind !== "other"
           ? 1
           : 0.45;
-      if (hasMechanic) {
+      if (hasMechanic || whitelistEntry) {
         ctx.shadowColor = dotColor;
-        ctx.shadowBlur = 12;
+        ctx.shadowBlur = hasMechanic ? 12 : 8;
       } else {
         ctx.shadowBlur = 0;
       }
@@ -359,19 +498,20 @@
     halfZ: number,
     color: string,
   ) {
-    const [ax, ay] = project(cx - halfX, cz - halfZ);
-    const [bx, by] = project(cx + halfX, cz + halfZ);
-    const x = Math.min(ax, bx);
-    const y = Math.min(ay, by);
-    const w = Math.abs(bx - ax);
-    const h = Math.abs(by - ay);
+    const points = [
+      project(cx - halfX, cz - halfZ),
+      project(cx + halfX, cz - halfZ),
+      project(cx + halfX, cz + halfZ),
+      project(cx - halfX, cz + halfZ),
+    ];
     ctx.globalAlpha = 0.22;
     ctx.fillStyle = color;
-    ctx.fillRect(x, y, w, h);
+    traceProjectedPolygon(ctx, points);
+    ctx.fill();
     ctx.globalAlpha = 0.9;
     ctx.strokeStyle = color;
     ctx.lineWidth = 1.5;
-    ctx.strokeRect(x, y, w, h);
+    ctx.stroke();
     ctx.globalAlpha = 1;
   }
 
@@ -568,12 +708,21 @@
   }
 
   $effect(() => {
+    void minimapSettings.mapRefreshRateMs;
+    queueSnapshotForMap(snapshot);
+  });
+
+  $effect(() => {
+    void displayedSnapshot;
     void snapshot;
     void aspect;
     void sceneView;
+    void minimapSettings.mapOrientation;
     void minimapSettings.hideNormalTeammates;
     void minimapSettings.showBoss;
     void minimapSettings.showMarkers;
+    void minimapSettings.alwaysShowPlayers;
+    void minimapSettings.playerWhitelist;
     void minimapSettings.markerColors;
     void minimapSettings.entityColors.local;
     void minimapSettings.entityColors.teammate;
@@ -585,6 +734,12 @@
     if (typeof window === "undefined") return;
     const id = window.requestAnimationFrame(draw);
     return () => window.cancelAnimationFrame(id);
+  });
+
+  onDestroy(() => {
+    if (typeof window !== "undefined") {
+      clearRefreshTimer();
+    }
   });
 </script>
 
