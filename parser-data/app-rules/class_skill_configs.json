@@ -843,7 +843,11 @@
       {
         "skillId": 2235,
         "name": "威慑射击",
-        "imagePath": "/images/marksman/skill/weapon_gj-01_kx06_-2317352080954752334.png"
+        "imagePath": "/images/marksman/skill/weapon_gj-01_kx06_-2317352080954752334.png",
+        "activeEffectBuffIds": [
+          55226
+        ],
+        "activeEffectGlow": "blue"
       },
       {
         "skillId": 2237,

@@ -17,6 +17,7 @@
 - Improved live parser/runtime refresh behavior for hidden live windows, scene changes, and equipped-imagine changes so overlay/live metadata is less dependent on the meter being visible.
 - Fixed character-panel stat updates so local panel attributes also refresh through the generic character-attribute stream, covering polarity/factor stat changes and packet IDs that collide with named internal attrs.
 - Changed the Overlay tool enable notice into a first-run helper that only appears while Skill Monitor or Monster Monitor is disabled.
+- Localized shared-damage death recap rows and the Detershot mitigation buff, and added a blue Skill Monitor glow while Detershot: Damage Mitigation is active.
 
 ## v1.1.2 - Global
 

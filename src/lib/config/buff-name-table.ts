@@ -456,7 +456,23 @@ const MOONLIGHT_SOLACE_SHIELD_NAMES: MultiLangValue = {
   design: MOONLIGHT_SOLACE_SHIELD_DESIGN_NAME,
 };
 
+const DETERSHOT_DAMAGE_MITIGATION_NAMES: MultiLangValue = {
+  en: "Detershot: Damage Mitigation",
+  "zh-CN": "\u5a01\u6151\u5c04\u51fb\uff1a\u4f24\u5bb3\u51cf\u514d",
+  "zh-TW": "\u5a01\u61fe\u5c04\u64ca\uff1a\u50b7\u5bb3\u6e1b\u514d",
+  ja: "\u30c7\u30a3\u30b9\u30e9\u30d7\u30c8\u30b7\u30e7\u30c3\u30c8: \u30c0\u30e1\u30fc\u30b8\u8efd\u6e1b",
+  "ko-KR": "\uc704\ud611 \uc0ac\uaca9: \ud53c\ud574 \uac10\uc18c",
+  fr: "Tir dissuasif : reduction des degats",
+  de: "Abschreckungsschuss: Schadensminderung",
+  es: "Tiro disuasorio: mitigacion de dano",
+  "pt-BR": "Tiro de Afastamento: mitigacao de dano",
+  th: "Detershot: \u0e25\u0e14\u0e04\u0e27\u0e32\u0e21\u0e40\u0e2a\u0e35\u0e22\u0e2b\u0e32\u0e22",
+  id: "Intimidate Shot: Mitigasi Damage",
+  design: "\u7269\u7406\u514d\u75abBUFF",
+};
+
 const BUFF_ID_NAME_FALLBACKS: Record<number, MultiLangValue> = {
+  55226: DETERSHOT_DAMAGE_MITIGATION_NAMES,
   9901: S3_ONE_HAND_FACTOR_TRIGGER_NAMES,
   9902: S3_TWO_HAND_FACTOR_TRIGGER_NAMES,
   9903: S3_LEFT_HAND_FACTOR_TRIGGER_NAMES,

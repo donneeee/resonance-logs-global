@@ -31,6 +31,8 @@ export type SkillDisplayInfo = {
   maxCharges?: number;
   maxValidCdTime?: number;
   effectDurationMs?: number;
+  activeEffectBuffIds?: number[];
+  activeEffectGlow?: "blue" | "gold";
   resourceRequirement?: ResourceRequirement;
 };
 

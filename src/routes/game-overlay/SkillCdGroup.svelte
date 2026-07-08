@@ -13,6 +13,7 @@
     startResize,
   } from "./overlay-state.svelte.js";
   import { uiT } from "$lib/i18n";
+  import { resolveBuffOverlayDisplayName } from "$lib/config/buff-name-table";
   import { SETTINGS } from "$lib/settings-store";
   import {
     findAnySkillByBaseId,
@@ -72,6 +73,15 @@
         ? getResourceValue(requirementResourceId(skill.resourceRequirement)) <
           skill.resourceRequirement.amount
         : false}
+      {@const activeEffectBuffId = skill?.activeEffectBuffIds?.find((buffId) =>
+        activeIds.has(buffId),
+      )}
+      {@const activeEffectGlow = activeEffectBuffId
+        ? skill?.activeEffectGlow ?? "blue"
+        : ""}
+      {@const activeEffectName = activeEffectBuffId
+        ? resolveBuffOverlayDisplayName(activeEffectBuffId)
+        : ""}
       {@const isOnCd = effectiveDisplay?.isActive ?? false}
       {@const isUsable = effectiveDisplay?.usable ?? true}
       {@const isUnavailable = !isUsable || resourceBlocked}
@@ -82,10 +92,14 @@
       {@const chargesAvailable = effectiveDisplay?.chargesAvailable}
       {@const maxCharges = effectiveDisplay?.maxCharges}
       {@const chargesText = effectiveDisplay?.chargesText}
-      {@const hoverTitle =
+      {@const hoverTitle = [
         showAcceleration && effectiveDisplay?.debugTitle
           ? effectiveDisplay.debugTitle
-          : displaySkill?.name ?? ""}
+          : displaySkill?.name ?? "",
+        activeEffectName,
+      ]
+        .filter(Boolean)
+        .join("\n")}
 
       <div
         class="skill-cell"
@@ -94,6 +108,8 @@
         class:derived-active={isDerivedActive}
         class:usable-recharging={isRechargingUsable}
         class:enhanced-glow={isDerivedActive && showEnhancedGlow}
+        class:active-effect-glow={Boolean(activeEffectGlow) && showEnhancedGlow}
+        class:active-effect-blue={activeEffectGlow === "blue" && showEnhancedGlow}
         title={hoverTitle}
       >
         {#if displaySkill?.imagePath}
@@ -216,7 +232,29 @@
       0 0 6px rgba(255, 246, 150, 0.82);
   }
 
-  .skill-cd-grid.no-slot-outline .skill-cell:not(.enhanced-glow),
+  .skill-cell.active-effect-glow.active-effect-blue {
+    border-color: rgba(75, 205, 255, 0.98);
+    box-shadow:
+      0 0 0 2px rgba(52, 168, 255, 0.92),
+      0 0 12px rgba(74, 207, 255, 0.92),
+      0 0 24px rgba(32, 126, 255, 0.74),
+      inset 0 0 12px rgba(91, 220, 255, 0.46);
+  }
+
+  .skill-cell.active-effect-glow.active-effect-blue::after {
+    content: "";
+    position: absolute;
+    inset: 1px;
+    z-index: 5;
+    pointer-events: none;
+    border-radius: 5px;
+    border: 1px solid rgba(174, 238, 255, 0.92);
+    box-shadow:
+      inset 0 0 8px rgba(126, 229, 255, 0.56),
+      0 0 6px rgba(152, 236, 255, 0.84);
+  }
+
+  .skill-cd-grid.no-slot-outline .skill-cell:not(.enhanced-glow):not(.active-effect-glow),
   .skill-cd-grid.no-slot-outline .skill-cell.empty {
     border-color: transparent;
     box-shadow: none;

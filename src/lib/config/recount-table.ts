@@ -549,6 +549,76 @@ const RADIANCE_BARRAGE_NAMES: LocalizedTextMap = {
   id: "Light Bombard",
 };
 
+const SHARED_DAMAGE_NAMES: LocalizedTextMap = {
+  en: "Shared Damage",
+  "zh-CN": "\u5206\u644a",
+  "zh-TW": "\u5206\u64d4",
+  ja: "Shared Damage",
+  "ko-KR": "Shared Damage",
+  fr: "Degats partages",
+  de: "Geteilter Schaden",
+  es: "Dano compartido",
+  "pt-BR": "Dano compartilhado",
+  th: "Shared Damage",
+  id: "Damage Terbagi",
+};
+
+const SHARED_DAMAGE_NORMAL_NAMES: LocalizedTextMap = {
+  en: "Shared Damage - Normal",
+  "zh-CN": "\u5206\u644a\u00b7\u666e",
+  "zh-TW": "\u5206\u64d4\u00b7\u666e",
+  ja: "Shared Damage - Normal",
+  "ko-KR": "Shared Damage - Normal",
+  fr: "Degats partages - normal",
+  de: "Geteilter Schaden - normal",
+  es: "Dano compartido - normal",
+  "pt-BR": "Dano compartilhado - normal",
+  th: "Shared Damage - Normal",
+  id: "Damage Terbagi - Normal",
+};
+
+const SHARED_DAMAGE_ILLUSION_NAMES: LocalizedTextMap = {
+  en: "Shared Damage - Illusion",
+  "zh-CN": "\u5206\u644a\u00b7\u5e7b",
+  "zh-TW": "\u5206\u64d4\u00b7\u5e7b",
+  ja: "Shared Damage - Illusion",
+  "ko-KR": "Shared Damage - Illusion",
+  fr: "Degats partages - illusion",
+  de: "Geteilter Schaden - Illusion",
+  es: "Dano compartido - ilusion",
+  "pt-BR": "Dano compartilhado - ilusao",
+  th: "Shared Damage - Illusion",
+  id: "Damage Terbagi - Ilusi",
+};
+
+const SHARED_DAMAGE_SUNFIRE_NAMES: LocalizedTextMap = {
+  en: "Shared Damage - Sunfire",
+  "zh-CN": "\u5206\u644a-\u708e\u5149",
+  "zh-TW": "\u5206\u64d4-\u708e\u5149",
+  ja: "Shared Damage - Sunfire",
+  "ko-KR": "Shared Damage - Sunfire",
+  fr: "Degats partages - feu solaire",
+  de: "Geteilter Schaden - Sonnenfeuer",
+  es: "Dano compartido - fuego solar",
+  "pt-BR": "Dano compartilhado - fogo solar",
+  th: "Shared Damage - Sunfire",
+  id: "Damage Terbagi - Sunfire",
+};
+
+const SHARED_DAMAGE_MOONSTRIKE_NAMES: LocalizedTextMap = {
+  en: "Shared Damage - Moonstrike",
+  "zh-CN": "\u5206\u644a-\u5e7b\u534e",
+  "zh-TW": "\u5206\u64d4-\u5e7b\u83ef",
+  ja: "Shared Damage - Moonstrike",
+  "ko-KR": "Shared Damage - Moonstrike",
+  fr: "Degats partages - frappe lunaire",
+  de: "Geteilter Schaden - Mondschlag",
+  es: "Dano compartido - golpe lunar",
+  "pt-BR": "Dano compartilhado - golpe lunar",
+  th: "Shared Damage - Moonstrike",
+  id: "Damage Terbagi - Moonstrike",
+};
+
 const EFFECT_SOURCE_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
   "buff-source:2203531": PHANTOM_FALCON_AOE_NAMES,
   "buff-source:2202705": MOONLIGHT_SOLACE_SHIELD_NAMES,
@@ -562,6 +632,12 @@ const DAMAGE_ID_NAME_OVERRIDES: Record<string, LocalizedTextMap> = {
   "2220353101": PHANTOM_FALCON_AOE_NAMES,
   "2220270501": MOONLIGHT_SOLACE_SHIELD_NAMES,
   "2240427101": S2_SET_4B_SHIELD_NAMES,
+  "282713602": SHARED_DAMAGE_SUNFIRE_NAMES,
+  "282713702": SHARED_DAMAGE_MOONSTRIKE_NAMES,
+  "282911503": SHARED_DAMAGE_NAMES,
+  "282911603": SHARED_DAMAGE_ILLUSION_NAMES,
+  "282930403": SHARED_DAMAGE_NORMAL_NAMES,
+  "282930503": SHARED_DAMAGE_ILLUSION_NAMES,
 };
 
 const RUNTIME_DAMAGE_ID_ALIASES: Record<string, number> = {

@@ -73,6 +73,7 @@ import {
   enabledPanelAttrs,
   monitoredBuffCategories,
   monitoredBuffIds,
+  monitoredSkillIds,
   monitoredSkillDurationIds,
   resolvedUserCounterRules,
   selectedClassKey,
@@ -297,6 +298,13 @@ function getPromotedBuffCandidateIds(): Set<number> {
   for (const group of _normalizedBuffGroups) {
     if (group.monitorAll) continue;
     for (const buffId of getGroupSelectedBuffIdSet(group)) {
+      result.add(buffId);
+    }
+  }
+  const classKey = selectedClassKey();
+  for (const skillId of monitoredSkillIds()) {
+    const skill = findAnySkillByBaseId(classKey, skillId);
+    for (const buffId of skill?.activeEffectBuffIds ?? []) {
       result.add(buffId);
     }
   }
