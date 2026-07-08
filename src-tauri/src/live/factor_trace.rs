@@ -105,6 +105,18 @@ where
     });
 }
 
+pub fn record_lazy<T, F>(category: &str, action: &str, build_payload: F)
+where
+    T: Serialize,
+    F: FnOnce() -> T,
+{
+    if !trace_enabled().load(Ordering::Relaxed) {
+        return;
+    }
+
+    record(category, action, build_payload());
+}
+
 pub fn export_to_path(destination_path: &str) -> Result<String, String> {
     let path = Path::new(destination_path);
     if let Some(parent) = path

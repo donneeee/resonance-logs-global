@@ -54,7 +54,7 @@
   }
 
   function getLanguageLabel(locale: string): string {
-    return languageOptions.find((option) => option.value === locale)?.label ?? "CN";
+    return languageOptions.find((option) => option.value === locale)?.label ?? "EN";
   }
 
   function formatAppVersion(version: string): string {

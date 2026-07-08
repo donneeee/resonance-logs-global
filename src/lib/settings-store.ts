@@ -1634,7 +1634,7 @@ const DEFAULT_GENERAL_SETTINGS: {
   autoHideOverlaysWithLiveWindow: false,
   autoHideLiveWindowDelaySeconds: 5,
   modifierReportsEnabled: false,
-  language: 'zh-CN',
+  language: 'en',
   skillIdDisplayMode: 'off',
   showHoverDescriptions: true,
 };

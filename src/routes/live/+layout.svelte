@@ -36,6 +36,7 @@
     onPauseEncounter,
     onTrainingDummyUpdate,
     onDeathReplay,
+    onSkillCdUpdate,
   } from "$lib/api";
   import type { LiveDataPayload, RawCombatStats, RawSkillStats, SceneChangePayload } from "$lib/api";
   import { applyCustomFonts } from "$lib/font-loader";
@@ -65,6 +66,7 @@
     setLiveDisplayNowMs,
     isCrowdedLiveSession,
     setDeathRecords,
+    setSkillCooldowns,
     setTrainingDummyState,
     clearMeterData,
     cleanupStores,
@@ -923,6 +925,23 @@ t("live.resumeToast", "战斗已继续"),
         return;
       }
 
+      const skillCdUnlisten = await onSkillCdUpdate((event) => {
+        if (isDestroyed) return;
+        setSkillCooldowns(event.payload.skillCds);
+      });
+
+      if (isDestroyed) {
+        playersUnlisten();
+        resetUnlisten();
+        encounterUnlisten();
+        sceneChangeUnlisten();
+        trainingDummyUnlisten();
+        deathReplayUnlisten();
+        skillCdUnlisten();
+        listenersSetupInProgress = false;
+        return;
+      }
+
       // Listen for explicit pause/resume events as a keep-alive as well
       const pauseUnlisten = await onPauseEncounter((event) => {
         if (isDestroyed) return;
@@ -939,6 +958,7 @@ t("live.resumeToast", "战斗已继续"),
         sceneChangeUnlisten();
         trainingDummyUnlisten();
         deathReplayUnlisten();
+        skillCdUnlisten();
         pauseUnlisten();
         listenersSetupInProgress = false;
         return;
@@ -973,6 +993,11 @@ t("live.resumeToast", "战斗已继续"),
         }
         try {
           deathReplayUnlisten();
+        } catch {
+          // Best-effort cleanup.
+        }
+        try {
+          skillCdUnlisten();
         } catch {
           // Best-effort cleanup.
         }

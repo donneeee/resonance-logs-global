@@ -10,14 +10,23 @@
     resolvePlayerImagineName,
     type PlayerImagineInfo,
   } from "$lib/player-imagines";
+  import {
+    computePlayerImagineCooldown,
+    type PlayerImagineCooldownState,
+  } from "$lib/player-imagine-cooldowns";
+  import type { SkillCdState } from "$lib/api";
 
   let {
     imagines = [],
     size = 24,
+    cooldownBySkillId = null,
+    nowMs = Date.now(),
     class: classAttr = "",
   }: {
     imagines?: PlayerImagineInfo[] | null;
     size?: number;
+    cooldownBySkillId?: ReadonlyMap<number, SkillCdState> | null;
+    nowMs?: number;
     class?: string;
   } = $props();
 
@@ -36,9 +45,34 @@
   let tooltipElement: HTMLSpanElement | null = null;
   let hideTooltipTimer: number | null = null;
 
-  function tooltipText(imagine: PlayerImagineInfo): string {
+  function cooldownForImagine(imagine: PlayerImagineInfo): PlayerImagineCooldownState | null {
+    return computePlayerImagineCooldown(imagine, cooldownBySkillId, nowMs);
+  }
+
+  function cooldownTooltip(cooldown: PlayerImagineCooldownState | null): string {
+    if (!cooldown || cooldown.solidFraction >= 1) return "";
+    const parts: string[] = [];
+    if (cooldown.chargesText) parts.push(`Charges ${cooldown.chargesText}`);
+    if (cooldown.remainingText) {
+      parts.push(cooldown.usable ? `Next charge ${cooldown.remainingText}` : `Cooldown ${cooldown.remainingText}`);
+    } else {
+      parts.push("On cooldown");
+    }
+    return parts.join(" - ");
+  }
+
+  function tooltipText(
+    imagine: PlayerImagineInfo,
+    cooldown: PlayerImagineCooldownState | null,
+  ): string {
     const name = resolvePlayerImagineName(imagine, locale);
-    return `${name} T${imagine.tier}`;
+    const cooldownText = cooldownTooltip(cooldown);
+    return cooldownText ? `${name} T${imagine.tier} - ${cooldownText}` : `${name} T${imagine.tier}`;
+  }
+
+  function cooldownBadgeStyle(cooldown: PlayerImagineCooldownState | null): string {
+    const solidPercent = Math.round(Math.max(0, Math.min(1, cooldown?.solidFraction ?? 1)) * 100);
+    return `${badgeStyle} --player-imagine-ready-pct: ${solidPercent}%;`;
   }
 
   function missingSecondImagineLabel(): string {
@@ -56,7 +90,11 @@
     }
   }
 
-  function showBadgeTooltip(imagine: PlayerImagineInfo, element: HTMLElement) {
+  function showBadgeTooltip(
+    imagine: PlayerImagineInfo,
+    cooldown: PlayerImagineCooldownState | null,
+    element: HTMLElement,
+  ) {
     clearHideTooltipTimer();
     if (!tooltipElement) {
       tooltipElement = document.createElement("span");
@@ -66,7 +104,7 @@
     }
 
     const rect = element.getBoundingClientRect();
-    tooltipElement.textContent = tooltipText(imagine);
+    tooltipElement.textContent = tooltipText(imagine, cooldown);
     tooltipElement.style.left = `${Math.min(Math.max(rect.left + rect.width / 2, 12), window.innerWidth - 12)}px`;
     tooltipElement.style.top = `${Math.max(rect.top - 8, 12)}px`;
     tooltipElement.dataset["visible"] = "true";
@@ -92,20 +130,51 @@
 {#if visibleImagines.length > 0}
   <span class={wrapperClass} data-tauri-drag-region="false">
     {#each visibleImagines as imagine (`${imagine.slot ?? "remote"}:${imagine.skillId}`)}
+      {@const cooldown = cooldownForImagine(imagine)}
+      {@const isCooldownVisual = cooldown !== null && cooldown.solidFraction < 1}
       <span
         class={`player-imagine-badge tier-${imagine.tier}`}
-        style={badgeStyle}
-        aria-label={tooltipText(imagine)}
+        class:cooldown-active={isCooldownVisual}
+        style={cooldownBadgeStyle(cooldown)}
+        aria-label={tooltipText(imagine, cooldown)}
         data-tauri-drag-region="false"
-        onpointerenter={(event) => showBadgeTooltip(imagine, event.currentTarget)}
+        onpointerenter={(event) => showBadgeTooltip(imagine, cooldown, event.currentTarget)}
         onpointerleave={scheduleHideBadgeTooltip}
-        onfocus={(event) => showBadgeTooltip(imagine, event.currentTarget)}
+        onfocus={(event) => showBadgeTooltip(imagine, cooldown, event.currentTarget)}
         onblur={scheduleHideBadgeTooltip}
       >
         {#if imagine.iconUrl}
-          <img src={imagine.iconUrl} alt="" draggable="false" />
+          <span class="player-imagine-icon-frame" aria-hidden="true">
+            <img
+              src={imagine.iconUrl}
+              alt=""
+              draggable="false"
+              class="player-imagine-icon-base"
+              class:faded={isCooldownVisual}
+            />
+            {#if cooldown && cooldown.solidFraction > 0 && cooldown.solidFraction < 1}
+              <span class="player-imagine-ready-slice">
+                <img
+                  src={imagine.iconUrl}
+                  alt=""
+                  draggable="false"
+                  class="player-imagine-icon-solid"
+                />
+              </span>
+            {/if}
+          </span>
         {:else}
-          <span class="player-imagine-fallback">T{imagine.tier}</span>
+          <span class="player-imagine-fallback" class:faded={isCooldownVisual}>T{imagine.tier}</span>
+        {/if}
+        {#if cooldown?.chargesText && cooldown.maxCharges && cooldown.maxCharges > 1}
+          <span
+            class="player-imagine-charge-badge"
+            class:charges-empty={cooldown.chargesAvailable === 0}
+            class:charges-partial={(cooldown.chargesAvailable ?? 0) > 0 &&
+              (cooldown.chargesAvailable ?? 0) < cooldown.maxCharges}
+          >
+            {cooldown.chargesText}
+          </span>
         {/if}
       </span>
     {/each}
@@ -149,16 +218,88 @@
     z-index: 2;
   }
 
-  .player-imagine-badge img {
+  .player-imagine-icon-frame {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+
+  .player-imagine-icon-frame img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    max-width: none;
+    pointer-events: none;
+  }
+
+  .player-imagine-icon-base {
+    z-index: 0;
+  }
+
+  .player-imagine-icon-base.faded,
+  .player-imagine-fallback.faded {
+    opacity: 0.54;
+    filter: grayscale(45%) brightness(0.46);
+  }
+
+  .player-imagine-ready-slice {
+    position: absolute;
+    inset: 0 auto 0 0;
+    z-index: 2;
+    width: var(--player-imagine-ready-pct, 100%);
+    overflow: hidden;
+  }
+
+  .player-imagine-ready-slice img {
+    width: var(--player-imagine-badge-size, 24px);
+    height: var(--player-imagine-badge-size, 24px);
+  }
+
+  .player-imagine-badge.cooldown-active::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.22);
+    pointer-events: none;
   }
 
   .player-imagine-fallback {
+    position: relative;
+    z-index: 3;
     font-size: 0.55rem;
     font-weight: 800;
     line-height: 1;
+  }
+
+  .player-imagine-charge-badge {
+    position: absolute;
+    z-index: 4;
+    right: 1px;
+    top: 1px;
+    min-width: calc(var(--player-imagine-badge-size, 24px) * 0.42);
+    padding: 0 2px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.72);
+    color: #e5e7eb;
+    font-size: calc(var(--player-imagine-badge-size, 24px) * 0.25);
+    font-weight: 800;
+    line-height: 1.2;
+    text-align: center;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.95);
+    pointer-events: none;
+  }
+
+  .player-imagine-charge-badge.charges-partial {
+    color: #fbbf24;
+  }
+
+  .player-imagine-charge-badge.charges-empty {
+    color: #cbd5e1;
   }
 
   .player-imagine-missing-slot {

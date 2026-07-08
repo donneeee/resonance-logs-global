@@ -204,6 +204,8 @@ pub struct AppState {
     pub last_overlay_teammate_buffs_signature: Option<String>,
     /// Last monster-overlay stun snapshot signature emitted to the frontend.
     pub last_overlay_stun_signature: Option<String>,
+    /// Set when local-player buff state changed and the overlay needs a fresh snapshot.
+    pub local_buff_snapshot_dirty: bool,
     /// Set after a new death replay record is appended and cleared after the next frontend emit.
     pub death_snapshot_dirty: bool,
     /// Runtime state from GrpcTeamNtf packets, keyed by canonical player UUID.
@@ -354,6 +356,7 @@ impl AppState {
             last_overlay_boss_buffs_signature: None,
             last_overlay_teammate_buffs_signature: None,
             last_overlay_stun_signature: None,
+            local_buff_snapshot_dirty: false,
             death_snapshot_dirty: false,
             team: TeamRuntimeState::default(),
             pending_minimap_skill_casts: Vec::new(),
@@ -430,6 +433,7 @@ fn emit_local_buff_update_snapshot(state: &mut AppState) {
         .build_update_payload(state.server_clock_offset)
         .unwrap_or_default();
     state.event_manager.emit_buff_update(payload);
+    state.local_buff_snapshot_dirty = false;
 }
 
 fn emit_boss_buff_update_snapshot(state: &mut AppState) {
@@ -549,16 +553,14 @@ fn emit_season_cultivate_factor_counter_update(state: &mut AppState) {
         &state.attr_store,
         current_local_player_uuid(&state.encounter),
     );
-    factor_trace::record(
-        "factor-counter",
-        "counter-update",
+    factor_trace::record_lazy("factor-counter", "counter-update", || {
         json!({
             "selectedItemIds": selected_item_ids,
             "selection": &selection,
             "snapshot": &snapshot,
             "counters": &counters,
-        }),
-    );
+        })
+    });
     state
         .event_manager
         .emit_season_cultivate_factor_counter_update(selection, snapshot, counters);
@@ -597,16 +599,14 @@ fn apply_skill_lifecycle_outputs(
         }
         counter_dirty |= counter_changed;
         factor_counter_dirty |= factor_counter_changed;
-        factor_trace::record(
-            "factor-input",
-            "skill-lifecycle-output",
+        factor_trace::record_lazy("factor-input", "skill-lifecycle-output", || {
             json!({
                 "output": output_kind,
                 "skillId": skill_id,
                 "counterChanged": counter_changed,
                 "factorCounterChanged": factor_counter_changed,
-            }),
-        );
+            })
+        });
     }
     (counter_dirty, factor_counter_dirty)
 }
@@ -666,15 +666,13 @@ fn apply_skill_cast_counter_signal(
         .local_monitor
         .factor_counter_tracker
         .on_skill_lifecycle_output(output);
-    factor_trace::record(
-        "factor-input",
-        source,
+    factor_trace::record_lazy("factor-input", source, || {
         json!({
             "skillId": skill_id.get(),
             "counterChanged": counter_changed,
             "factorCounterChanged": factor_counter_changed,
-        }),
-    );
+        })
+    });
     (counter_changed, factor_counter_changed)
 }
 
@@ -686,26 +684,30 @@ fn apply_attr_skill_id_counter_signal(state: &mut AppState, attr_skill_id: i32) 
     };
     let now = now_ms();
     if !is_equipped_profession_skill(state, skill_id) {
-        factor_trace::record(
+        factor_trace::record_lazy(
             "factor-input",
             "attr-skill-id-counter-signal-skipped",
-            json!({
-                "reason": "skill-not-equipped",
-                "rawSkillId": attr_skill_id,
-                "skillId": skill_id.get(),
-            }),
+            || {
+                json!({
+                    "reason": "skill-not-equipped",
+                    "rawSkillId": attr_skill_id,
+                    "skillId": skill_id.get(),
+                })
+            },
         );
         return (false, false);
     }
     if is_recent_skill_cast_counter_signal(state, skill_id, now) {
-        factor_trace::record(
+        factor_trace::record_lazy(
             "factor-input",
             "attr-skill-id-counter-signal-skipped",
-            json!({
-                "reason": "recent-skill-cast",
-                "rawSkillId": attr_skill_id,
-                "skillId": skill_id.get(),
-            }),
+            || {
+                json!({
+                    "reason": "recent-skill-cast",
+                    "rawSkillId": attr_skill_id,
+                    "skillId": skill_id.get(),
+                })
+            },
         );
         return (false, false);
     }
@@ -777,47 +779,41 @@ fn apply_skill_cd_counter_edges(
         }
 
         if !emitted_skill_ids.insert(skill_id.get()) {
-            factor_trace::record(
-                "factor-input",
-                "skill-cd-counter-edge-skipped",
+            factor_trace::record_lazy("factor-input", "skill-cd-counter-edge-skipped", || {
                 json!({
                     "reason": "duplicate-skill-in-packet",
                     "rawSkillId": raw_skill_id,
                     "skillId": skill_id.get(),
                     "beginTime": begin_time,
                     "validCdTime": valid_cd_time,
-                }),
-            );
+                })
+            });
             continue;
         }
 
         if is_recent_skill_cast_counter_signal(state, skill_id, now) {
-            factor_trace::record(
-                "factor-input",
-                "skill-cd-counter-edge-skipped",
+            factor_trace::record_lazy("factor-input", "skill-cd-counter-edge-skipped", || {
                 json!({
                     "reason": "recent-client-cast",
                     "rawSkillId": raw_skill_id,
                     "skillId": skill_id.get(),
                     "beginTime": begin_time,
                     "validCdTime": valid_cd_time,
-                }),
-            );
+                })
+            });
             continue;
         }
 
         if !is_equipped_profession_skill(state, skill_id) {
-            factor_trace::record(
-                "factor-input",
-                "skill-cd-counter-edge-skipped",
+            factor_trace::record_lazy("factor-input", "skill-cd-counter-edge-skipped", || {
                 json!({
                     "reason": "skill-not-equipped",
                     "rawSkillId": raw_skill_id,
                     "skillId": skill_id.get(),
                     "beginTime": begin_time,
                     "validCdTime": valid_cd_time,
-                }),
-            );
+                })
+            });
             continue;
         }
 
@@ -1042,29 +1038,25 @@ fn refresh_season_cultivate_factor_rules(state: &mut AppState) {
             .active_item_ids,
         rules.len()
     );
-    factor_trace::record(
-        "factor-counter",
-        "rules-refreshed",
+    factor_trace::record_lazy("factor-counter", "rules-refreshed", || {
         json!({
             "selectedObserved": state.selected_factor_selection_observed,
             "selectedItemIds": selected_item_ids,
             "activeSnapshot": state.local_monitor.season_cultivate.active_snapshot(),
             "rules": &rules,
-        }),
-    );
+        })
+    });
     state.local_monitor.factor_counter_tracker.set_rules(rules);
 }
 
 fn reset_season_cultivate_factor_counters(state: &mut AppState) {
     state.local_monitor.factor_counter_tracker.reset_counts();
-    factor_trace::record(
-        "factor-counter",
-        "counters-reset",
+    factor_trace::record_lazy("factor-counter", "counters-reset", || {
         json!({
             "selectedItemIds": season_cultivate_factor_counter_item_ids(state),
             "activeSnapshot": state.local_monitor.season_cultivate.active_snapshot(),
-        }),
-    );
+        })
+    });
     emit_season_cultivate_factor_counter_update(state);
 }
 
@@ -1884,49 +1876,79 @@ fn monster_buff_source_allowed_for_self_monitor(
     true
 }
 
-fn build_monster_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdateState>> {
-    let local_player_uuid = current_local_player_uuid(&state.encounter);
-    let local_owned_source_uids = state.local_owned_source_uids.clone();
-    let local_owned_source_uuids = state.local_owned_source_uuids.clone();
-    let local_owned_source_config_ids = state.local_owned_source_config_ids.clone();
-    let (known_other_source_uids, known_other_source_uuids) = known_other_player_sources(state);
-
-    state.entity_buff_monitors.build_snapshots_for_kind(
-        BuffTargetKind::Monster,
-        &state.entity_buff_config,
-        local_player_uuid,
-        state.server_clock_offset,
-        |entity_uuid| classify_buff_snapshot_target(state, entity_uuid),
-        |_, buff| {
-            monster_buff_source_allowed_for_self_monitor(
-                buff.source_uuid,
-                buff.source_config_id,
-                local_player_uuid,
-                &local_owned_source_uids,
-                &local_owned_source_uuids,
-                &local_owned_source_config_ids,
-                &known_other_source_uids,
-                &known_other_source_uuids,
-            )
-        },
-    )
+#[derive(Default)]
+struct OverlayBuffSnapshots {
+    monster_buffs: HashMap<i64, Vec<BuffUpdateState>>,
+    teammate_buffs: HashMap<i64, Vec<BuffUpdateState>>,
 }
 
-fn build_teammate_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdateState>> {
+fn build_overlay_buff_snapshots(state: &AppState) -> OverlayBuffSnapshots {
     let local_player_uuid = current_local_player_uuid(&state.encounter);
-    state.entity_buff_monitors.build_snapshots_for_kind(
-        BuffTargetKind::Teammate,
-        &state.entity_buff_config,
-        local_player_uuid,
-        state.server_clock_offset,
-        |entity_uuid| {
-            if entity_uuid == local_player_uuid {
-                return None;
+    let local_owned_source_uids = &state.local_owned_source_uids;
+    let local_owned_source_uuids = &state.local_owned_source_uuids;
+    let local_owned_source_config_ids = &state.local_owned_source_config_ids;
+    let (known_other_source_uids, known_other_source_uuids) = known_other_player_sources(state);
+    let monster_profile = state
+        .entity_buff_config
+        .profile_for(BuffTargetKind::Monster);
+    let teammate_profile = state
+        .entity_buff_config
+        .profile_for(BuffTargetKind::Teammate);
+    let mut snapshots = OverlayBuffSnapshots::default();
+
+    if !monster_profile.enabled && !teammate_profile.enabled {
+        return snapshots;
+    }
+
+    for (&entity_uuid, monitor) in &state.entity_buff_monitors.monitors {
+        match classify_buff_snapshot_target(state, entity_uuid) {
+            Some(BuffTargetKind::Monster) if monster_profile.enabled => {
+                let buffs = monitor.build_update_payload_for_profile(
+                    entity_uuid,
+                    monster_profile,
+                    state.server_clock_offset,
+                    |buff| {
+                        if local_player_uuid != 0 && buff.source_uuid == Some(local_player_uuid) {
+                            return true;
+                        }
+                        monster_buff_source_allowed_for_self_monitor(
+                            buff.source_uuid,
+                            buff.source_config_id,
+                            local_player_uuid,
+                            local_owned_source_uids,
+                            local_owned_source_uuids,
+                            local_owned_source_config_ids,
+                            &known_other_source_uids,
+                            &known_other_source_uuids,
+                        )
+                    },
+                );
+                if !buffs.is_empty() {
+                    snapshots.monster_buffs.insert(entity_uuid, buffs);
+                }
             }
-            classify_buff_snapshot_target(state, entity_uuid)
-        },
-        |_, _| true,
-    )
+            Some(BuffTargetKind::Teammate)
+                if teammate_profile.enabled && entity_uuid != local_player_uuid =>
+            {
+                let buffs = monitor.build_update_payload_for_profile(
+                    entity_uuid,
+                    teammate_profile,
+                    state.server_clock_offset,
+                    |_| true,
+                );
+                if !buffs.is_empty() {
+                    snapshots.teammate_buffs.insert(entity_uuid, buffs);
+                }
+            }
+            _ => {}
+        }
+    }
+
+    snapshots
+}
+
+fn build_monster_buff_snapshots(state: &AppState) -> HashMap<i64, Vec<BuffUpdateState>> {
+    build_overlay_buff_snapshots(state).monster_buffs
 }
 
 fn emit_training_dummy_update_if_changed(state: &mut AppState, previous: TrainingDummyState) {
@@ -2176,6 +2198,7 @@ fn resolve_current_scene_line_from_guid(state: &mut AppState, source: &str) -> b
 }
 
 fn emit_scene_context_live_update(state: &mut AppState, reason: &str) {
+    state.encounter.refresh_latched_combat_scene_from_current();
     emit_current_scene_change_boundary(state, reason);
     let live_data = crate::live::event_manager::generate_live_data_payload(
         &state.encounter,
@@ -2244,6 +2267,19 @@ fn build_encounter_metadata(
         .time_last_combat_packet_ms
         .saturating_sub(encounter.time_fight_start_ms);
     let active_combat_time_ms = encounter.active_combat_time_ms.min(elapsed_ms);
+    let scene_id = encounter.combat_scene_id.or(encounter.current_scene_id);
+    let scene_name = encounter
+        .combat_scene_name
+        .as_deref()
+        .or(encounter.current_scene_name.as_deref())
+        .map(|name| {
+            crate::live::scene_names::with_difficulty(
+                name,
+                encounter
+                    .combat_dungeon_difficulty
+                    .or(encounter.current_dungeon_difficulty),
+            )
+        });
 
     EncounterMetadata {
         started_at_ms: encounter.time_fight_start_ms as i64,
@@ -2251,10 +2287,8 @@ fn build_encounter_metadata(
         local_player_id: Some(encounter.local_player_uid),
         total_dmg: encounter.total_dmg.min(i64::MAX as u128) as i64,
         total_heal: encounter.total_heal.min(i64::MAX as u128) as i64,
-        scene_id: encounter.current_scene_id,
-        scene_name: encounter.current_scene_name.as_deref().map(|name| {
-            crate::live::scene_names::with_difficulty(name, encounter.current_dungeon_difficulty)
-        }),
+        scene_id,
+        scene_name,
         duration: (elapsed_ms as f64) / 1000.0,
         active_combat_duration: Some(active_combat_time_ms as f64 / 1000.0),
         is_manually_reset: is_manual,
@@ -5143,6 +5177,7 @@ impl AppStateManager {
             state
                 .attr_store
                 .set_skill_cast_recording(crate::live::minimap::scene::is_minimap_scene(scene_id));
+            state.encounter.refresh_latched_combat_scene_from_current();
 
             info!("Scene changed to: {} (ID: {})", scene_name, scene_id);
 
@@ -5286,6 +5321,7 @@ impl AppStateManager {
         }
         state.attr_store.clear_all_entities();
         state.local_monitor.clear_runtime_state();
+        state.local_buff_snapshot_dirty = true;
         state.modifier_buff_monitor.active_buffs.clear();
         state.entity_buff_monitors.clear();
         state.event_manager.emit_teammate_fantasy_clear();
@@ -5540,6 +5576,7 @@ impl AppStateManager {
             }
 
             if should_emit && state.event_manager.should_emit_events() {
+                state.encounter.refresh_latched_combat_scene_from_current();
                 state.event_manager.emit_scene_change(
                     Some(scene_id),
                     scene_name.clone(),
@@ -5720,15 +5757,13 @@ impl AppStateManager {
                         .on_fight_resource_update(&new_state.entries);
                     counter_dirty |= counter_changed;
                     factor_counter_dirty |= factor_counter_changed;
-                    factor_trace::record(
-                        "factor-input",
-                        "fight-resource-update",
+                    factor_trace::record_lazy("factor-input", "fight-resource-update", || {
                         json!({
                             "entries": &new_state.entries,
                             "counterChanged": counter_changed,
                             "factorCounterChanged": factor_counter_changed,
-                        }),
-                    );
+                        })
+                    });
                     state.local_monitor.fight_res_state = Some(new_state.clone());
                     state.event_manager.emit_fight_resource_update(new_state);
                 }
@@ -5751,17 +5786,15 @@ impl AppStateManager {
                 );
             counter_dirty |= counter_changed;
             factor_counter_dirty |= factor_counter_changed;
-            factor_trace::record(
-                "factor-input",
-                "local-damage-events",
+            factor_trace::record_lazy("factor-input", "local-damage-events", || {
                 json!({
                     "localPlayerUuid": local_player_uuid,
                     "eventCount": result.local_damage_events.len(),
                     "events": &result.local_damage_events,
                     "counterChanged": counter_changed,
                     "factorCounterChanged": factor_counter_changed,
-                }),
-            );
+                })
+            });
         }
 
         if !result.local_damage_taken_events.is_empty() {
@@ -5776,28 +5809,24 @@ impl AppStateManager {
                 .on_damage_taken_events(&result.local_damage_taken_events, local_player_uuid);
             counter_dirty |= counter_changed;
             factor_counter_dirty |= factor_counter_changed;
-            factor_trace::record(
-                "factor-input",
-                "local-damage-taken-events",
+            factor_trace::record_lazy("factor-input", "local-damage-taken-events", || {
                 json!({
                     "localPlayerUuid": local_player_uuid,
                     "eventCount": result.local_damage_taken_events.len(),
                     "events": &result.local_damage_taken_events,
                     "counterChanged": counter_changed,
                     "factorCounterChanged": factor_counter_changed,
-                }),
-            );
+                })
+            });
         }
 
         if let Some(skill_base_id) = result.attr_skill_id {
-            factor_trace::record(
-                "factor-input",
-                "attr-skill-id",
+            factor_trace::record_lazy("factor-input", "attr-skill-id", || {
                 json!({
                     "skillBaseId": skill_base_id,
                     "modifierCaptureEnabled": state.modifier_capture_enabled,
-                }),
-            );
+                })
+            });
             if state.modifier_capture_enabled {
                 record_local_skill_cast_event(state, skill_base_id);
             }
@@ -5849,8 +5878,8 @@ impl AppStateManager {
             if buff_changes_affect_skill_cd(&buff_process_result.changes) {
                 state.attr_store.mark_cd_dirty();
             }
-            if let Some(payload) = buff_process_result.update_payload {
-                state.event_manager.emit_buff_update(payload);
+            if !buff_process_result.changes.is_empty() {
+                state.local_buff_snapshot_dirty = true;
             }
             if state.modifier_capture_enabled {
                 apply_modifier_buff_changes(
@@ -5888,9 +5917,7 @@ impl AppStateManager {
             counter_dirty |= counter_buff_changed || counter_external_changed;
             factor_counter_dirty |= factor_buff_changed || factor_external_changed;
             if !buff_process_result.changes.is_empty() {
-                factor_trace::record(
-                    "factor-input",
-                    "buff-changes",
+                factor_trace::record_lazy("factor-input", "buff-changes", || {
                     json!({
                         "localPlayerUuid": local_player_uuid,
                         "changeCount": buff_process_result.changes.len(),
@@ -5899,8 +5926,8 @@ impl AppStateManager {
                         "counterExternalChanged": counter_external_changed,
                         "factorBuffChanged": factor_buff_changed,
                         "factorExternalChanged": factor_external_changed,
-                    }),
-                );
+                    })
+                });
             }
         }
 
@@ -5916,15 +5943,13 @@ impl AppStateManager {
         counter_dirty |= counter_movement_changed;
         factor_counter_dirty |= factor_movement_changed;
         if counter_movement_changed || factor_movement_changed {
-            factor_trace::record(
-                "factor-input",
-                "movement-sample",
+            factor_trace::record_lazy("factor-input", "movement-sample", || {
                 json!({
                     "localPlayerUuid": local_player_uuid,
                     "counterChanged": counter_movement_changed,
                     "factorCounterChanged": factor_movement_changed,
-                }),
-            );
+                })
+            });
         }
 
         (counter_dirty, factor_counter_dirty)
@@ -6051,17 +6076,15 @@ impl AppStateManager {
                 );
             counter_dirty |= counter_changed;
             factor_counter_dirty |= factor_counter_changed;
-            factor_trace::record(
-                "factor-input",
-                "aggregated-damage-events",
+            factor_trace::record_lazy("factor-input", "aggregated-damage-events", || {
                 json!({
                     "localPlayerUuid": local_player_uuid,
                     "eventCount": aggregated_damage_events.len(),
                     "events": &aggregated_damage_events,
                     "counterChanged": counter_changed,
                     "factorCounterChanged": factor_counter_changed,
-                }),
-            );
+                })
+            });
         }
 
         let local_player_uuid = current_local_player_uuid(&state.encounter);
@@ -6076,15 +6099,13 @@ impl AppStateManager {
         counter_dirty |= counter_movement_changed;
         factor_counter_dirty |= factor_movement_changed;
         if counter_movement_changed || factor_movement_changed {
-            factor_trace::record(
-                "factor-input",
-                "movement-sample",
+            factor_trace::record_lazy("factor-input", "movement-sample", || {
                 json!({
                     "localPlayerUuid": local_player_uuid,
                     "counterChanged": counter_movement_changed,
                     "factorCounterChanged": factor_movement_changed,
-                }),
-            );
+                })
+            });
         }
 
         (counter_dirty, factor_counter_dirty)
@@ -6172,7 +6193,7 @@ impl AppStateManager {
             let filtered = state
                 .local_monitor
                 .skill_cd_monitor
-                .build_filtered_skill_cds();
+                .build_filtered_skill_cds(&active_profession_skills);
             emit_skill_cd_update_if_needed(state, filtered);
         }
 
@@ -6228,10 +6249,17 @@ impl AppStateManager {
             return;
         }
 
+        let local_buff_count_before_wipe_check =
+            state.local_monitor.buff_monitor.active_buffs.len();
         if let Some(reason) = state
             .battle_state
             .check_for_wipe(&mut state.local_monitor.buff_monitor.active_buffs)
         {
+            if state.local_monitor.buff_monitor.active_buffs.len()
+                != local_buff_count_before_wipe_check
+            {
+                state.local_buff_snapshot_dirty = true;
+            }
             self.apply_reset_reason(state, reason);
         }
     }
@@ -6402,6 +6430,10 @@ impl AppStateManager {
 
         state.event_manager.emit_live_data(payload);
 
+        if state.local_buff_snapshot_dirty {
+            emit_local_buff_update_snapshot(state);
+        }
+
         if state.death_snapshot_dirty {
             let mut records: Vec<DeathRecord> = state
                 .encounter
@@ -6413,8 +6445,7 @@ impl AppStateManager {
             state.death_snapshot_dirty = false;
         }
         let current_target_uuid = current_attack_target_uuid(state);
-        let raw_boss_buff_snapshot = build_monster_buff_snapshots(state);
-        let raw_teammate_buff_snapshot = build_teammate_buff_snapshots(state);
+        let raw_buff_snapshots = build_overlay_buff_snapshots(state);
 
         let mut boss_buff_snapshot = HashMap::new();
         let mut teammate_buff_snapshot = HashMap::new();
@@ -6425,7 +6456,7 @@ impl AppStateManager {
         let mut monster_ids = HashMap::new();
         let force_identity_resend = should_resend_overlay_identity_names(state);
 
-        for (&entity_uuid, buffs) in &raw_boss_buff_snapshot {
+        for (&entity_uuid, buffs) in &raw_buff_snapshots.monster_buffs {
             if entity_uuid == 0
                 || current_target_uuid != Some(entity_uuid)
                 || buffs.is_empty()
@@ -6619,7 +6650,7 @@ impl AppStateManager {
             }
         }
 
-        for (&teammate_uuid, buffs) in &raw_teammate_buff_snapshot {
+        for (&teammate_uuid, buffs) in &raw_buff_snapshots.teammate_buffs {
             if teammate_uuid == 0
                 || teammate_uuid == current_local_player_uuid(&state.encounter)
                 || !state.team.members.contains(&teammate_uuid)

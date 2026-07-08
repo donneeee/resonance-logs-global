@@ -797,6 +797,13 @@ pub fn process_sync_near_entities(
             target_entity_type,
             EEntityType::EntChar | EEntityType::EntMonster
         ) {
+            if target_entity_type == EEntityType::EntChar {
+                if let Some(entity) = encounter.entity_uuid_to_entity.get_mut(&target_uuid) {
+                    entity
+                        .active_profession_skills
+                        .retain(|skill| skill.source_kind != "remote-skill-level");
+                }
+            }
             attr_store.clear_transient_attrs(target_uuid);
         } else {
             encounter.entity_uuid_to_entity.remove(&target_uuid);
@@ -2906,6 +2913,7 @@ pub fn process_aoi_sync_delta(
     if had_allowed_combat {
         if encounter.time_fight_start_ms == Default::default() {
             encounter.time_fight_start_ms = timestamp_ms;
+            encounter.latch_current_scene_for_combat();
         }
 
         encounter.time_last_combat_packet_ms = timestamp_ms;

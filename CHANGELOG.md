@@ -12,6 +12,11 @@
 - Added DBM map controls for north-fixed vs player-facing orientation and configurable map refresh rate.
 - Added DBM player visibility controls, including always-show players, UID allowlist entries, quick-add from recent players, and per-player minimap colors.
 - Added a configurable DBM mechanic-call self highlight so your name flashes and uses a chosen color when a mechanic targets you.
+- Made English the default language for fresh installs before any saved language setting exists.
+- Shared local and CN fantasy/imagine evidence in the live player badge pipeline, keeping Global's battle-imagine naming while adding cooldown and charge-state dimming on live DPS, Healing, and Tanked rows.
+- Improved live parser/runtime refresh behavior for hidden live windows, scene changes, and equipped-imagine changes so overlay/live metadata is less dependent on the meter being visible.
+- Fixed character-panel stat updates so local panel attributes also refresh through the generic character-attribute stream, covering polarity/factor stat changes and packet IDs that collide with named internal attrs.
+- Changed the Overlay tool enable notice into a first-run helper that only appears while Skill Monitor or Monster Monitor is disabled.
 
 ## v1.1.2 - Global
 

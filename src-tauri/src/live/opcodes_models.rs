@@ -51,6 +51,14 @@ pub struct Encounter {
     pub current_scene_guid: Option<String>,
     pub current_dungeon_difficulty: Option<i32>,
     #[serde(default)]
+    pub combat_scene_id: Option<i32>,
+    #[serde(default)]
+    pub combat_scene_name: Option<String>,
+    #[serde(default)]
+    pub combat_scene_line_id: Option<i32>,
+    #[serde(default)]
+    pub combat_dungeon_difficulty: Option<i32>,
+    #[serde(default)]
     pub markers: HashMap<i32, MarkerFact>,
 }
 
@@ -1154,6 +1162,53 @@ impl Encounter {
         self.entity_uid_to_entity.clear();
     }
 
+    pub fn latch_current_scene_for_combat(&mut self) {
+        if self.combat_scene_id.is_some()
+            || self.combat_scene_name.is_some()
+            || self.combat_scene_line_id.is_some()
+        {
+            return;
+        }
+
+        self.combat_scene_id = self.current_scene_id;
+        self.combat_scene_name = self.current_scene_name.clone();
+        self.combat_scene_line_id = self.current_scene_line_id;
+        self.combat_dungeon_difficulty = self.current_dungeon_difficulty;
+    }
+
+    pub fn refresh_latched_combat_scene_from_current(&mut self) {
+        if self.time_fight_start_ms == 0 {
+            return;
+        }
+
+        if self.combat_scene_id.is_none()
+            && self.combat_scene_name.is_none()
+            && self.combat_scene_line_id.is_none()
+        {
+            return;
+        }
+
+        if self.combat_scene_id.is_some()
+            && self.current_scene_id.is_some()
+            && self.combat_scene_id != self.current_scene_id
+        {
+            return;
+        }
+
+        if self.current_scene_id.is_some() {
+            self.combat_scene_id = self.current_scene_id;
+        }
+        if self.current_scene_name.is_some() {
+            self.combat_scene_name = self.current_scene_name.clone();
+        }
+        if self.current_scene_line_id.is_some() {
+            self.combat_scene_line_id = self.current_scene_line_id;
+        }
+        if self.current_dungeon_difficulty.is_some() {
+            self.combat_dungeon_difficulty = self.current_dungeon_difficulty;
+        }
+    }
+
     pub fn legacy_uid_entity_map(&self) -> HashMap<EntityUid, Entity> {
         if self.entity_uuid_to_entity.is_empty() {
             return self.entity_uid_to_entity.clone();
@@ -1211,6 +1266,10 @@ impl Encounter {
         self.active_combat_time_ms = 0;
         self.last_combat_timestamp_ms = None;
         self.dps_display_paused = false;
+        self.combat_scene_id = None;
+        self.combat_scene_name = None;
+        self.combat_scene_line_id = None;
+        self.combat_dungeon_difficulty = None;
         self.total_dmg = 0;
         self.total_dmg_boss_only = 0;
         self.total_heal = 0;
@@ -1246,6 +1305,9 @@ impl Encounter {
             entity.active_effect_sources.clear();
             entity.active_factor_items.clear();
             entity.active_passive_skills.clear();
+            entity
+                .active_profession_skills
+                .retain(|skill| skill.source_kind != "remote-skill-level");
             entity.recent_taken_events.clear();
             entity.deaths.clear();
         }

@@ -5,6 +5,7 @@
   import {
     getLiveData,
     getLiveDisplayNowMs,
+    getSkillCooldownMap,
   } from "$lib/stores/live-meter-store.svelte";
   import { computePlayerRows } from "$lib/live-derived";
   import {
@@ -38,6 +39,7 @@
 
   let liveData = $derived(getLiveData());
   let liveDisplayNowMs = $derived(getLiveDisplayNowMs());
+  let skillCooldownMap = $derived(getSkillCooldownMap());
   let forbiddenDamageIds = $derived(
     new Set(SETTINGS.challengeWatch.state.forbiddenDamageIds),
   );
@@ -788,6 +790,8 @@ function pinnedSelfRowStyle(placement: PinnedSelfRowPlacement): string {
                   {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                     <PlayerImagineBadges
                       imagines={player.playerImagines}
+                      cooldownBySkillId={skillCooldownMap}
+                      nowMs={liveDisplayNowMs}
                       size={scaledBadgeSize(
                         Math.max(28, Math.round(tableSettings.playerIconSize * 1.4)),
                         SETTINGS.live.general.state.playerImagineBadgeScale,
@@ -912,6 +916,8 @@ function pinnedSelfRowStyle(placement: PinnedSelfRowPlacement): string {
               {#if SETTINGS.live.general.state.showPlayerImagineBadges !== false}
                 <PlayerImagineBadges
                   imagines={player.playerImagines}
+                  cooldownBySkillId={skillCooldownMap}
+                  nowMs={liveDisplayNowMs}
                   size={scaledBadgeSize(
                     Math.max(26, Math.round(tableSettings.playerIconSize * 1.22)),
                     SETTINGS.live.general.state.playerImagineBadgeScale,

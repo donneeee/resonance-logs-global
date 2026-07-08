@@ -1,11 +1,30 @@
-import type { DeathRecord, LiveDataPayload, TrainingDummyState } from "$lib/api";
+import type {
+  DeathRecord,
+  LiveDataPayload,
+  SkillCdState,
+  TrainingDummyState,
+} from "$lib/api";
 
 let liveData = $state<LiveDataPayload | null>(null);
 let trainingDummyState = $state<TrainingDummyState | null>(null);
 let deathRecords = $state<DeathRecord[]>([]);
+let skillCooldownsBySkillId = $state(new Map<number, SkillCdState>());
 let liveDisplayNowMs = $state(Date.now());
 let crowdedLiveSession = $state(false);
 let trainingDummyStateKey = "";
+
+function setCooldownIndex(
+  target: Map<number, SkillCdState>,
+  skillId: number,
+  cd: SkillCdState,
+): void {
+  if (!Number.isFinite(skillId) || skillId <= 0) return;
+  const normalizedId = Math.trunc(skillId);
+  const existing = target.get(normalizedId);
+  if (!existing || (cd.receivedAt ?? 0) >= (existing.receivedAt ?? 0)) {
+    target.set(normalizedId, cd);
+  }
+}
 
 function keyTrainingDummyState(data: TrainingDummyState): string {
   return `${data.phase}:${data.durationMs}:${data.remainingMs}`;
@@ -36,6 +55,19 @@ export function setLiveDisplayNowMs(nowMs = Date.now()) {
 
 export function getLiveDisplayNowMs() {
   return liveDisplayNowMs;
+}
+
+export function setSkillCooldowns(skillCds: SkillCdState[] | null | undefined) {
+  const next = new Map<number, SkillCdState>();
+  for (const cd of skillCds ?? []) {
+    setCooldownIndex(next, cd.skillLevelId, cd);
+    setCooldownIndex(next, Math.trunc(cd.skillLevelId / 100), cd);
+  }
+  skillCooldownsBySkillId = next;
+}
+
+export function getSkillCooldownMap() {
+  return skillCooldownsBySkillId;
 }
 
 export function isCrowdedLiveSession() {
@@ -73,13 +105,19 @@ export function clearDeathRecords() {
   deathRecords = [];
 }
 
+export function clearSkillCooldowns() {
+  skillCooldownsBySkillId = new Map();
+}
+
 export function clearMeterData() {
   clearLiveData();
   clearDeathRecords();
+  clearSkillCooldowns();
 }
 
 export function cleanupStores() {
   clearLiveData();
   clearTrainingDummyState();
   clearDeathRecords();
+  clearSkillCooldowns();
 }

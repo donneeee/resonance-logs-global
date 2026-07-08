@@ -4,16 +4,21 @@ import type { LocaleCode, MultiLangValue } from "$lib/i18n";
 
 export type ActiveProfessionSkillLike = {
   skillId?: number | null;
+  baseSkillId?: number | null;
+  skillLevelId?: number | null;
   level?: number | null;
   remodelLevel?: number | null;
   slot?: number | null;
   equipped?: boolean | null;
   sourceKind?: string;
+  replaceSkillIds?: number[];
   runtimeSource?: string;
 };
 
 export type PlayerImagineInfo = {
   skillId: number;
+  baseSkillId: number | null;
+  skillLevelId: number | null;
   level: number | null;
   tier: number;
   names: MultiLangValue;
@@ -24,6 +29,7 @@ export type PlayerImagineInfo = {
   slot: number | null;
   equipped: boolean | null;
   sourceKind: string;
+  replaceSkillIds: number[];
   runtimeSource: string;
 };
 
@@ -61,6 +67,12 @@ function normalizeSlot(slot: number | null | undefined): number | null {
   const value = Number(slot ?? 0);
   if (!Number.isFinite(value) || value <= 0) return null;
   return Math.trunc(value);
+}
+
+function normalizePositiveId(value: number | null | undefined): number | null {
+  const normalized = Number(value ?? 0);
+  if (!Number.isFinite(normalized) || normalized <= 0) return null;
+  return Math.trunc(normalized);
 }
 
 function normalizeNames(row: AoyiIconRow): MultiLangValue {
@@ -103,6 +115,8 @@ export function derivePlayerImagines(
 
     out.push({
       skillId,
+      baseSkillId: normalizePositiveId(skill.baseSkillId),
+      skillLevelId: normalizePositiveId(skill.skillLevelId),
       level: normalizeLevel(skill.level),
       tier: normalizeTier(skill.remodelLevel),
       names,
@@ -113,6 +127,9 @@ export function derivePlayerImagines(
       slot,
       equipped: skill.equipped ?? null,
       sourceKind: skill.sourceKind ?? "",
+      replaceSkillIds: (skill.replaceSkillIds ?? [])
+        .map((id) => normalizePositiveId(id))
+        .filter((id): id is number => id !== null),
       runtimeSource: skill.runtimeSource ?? "",
     });
   }

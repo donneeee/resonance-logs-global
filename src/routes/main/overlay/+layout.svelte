@@ -13,6 +13,9 @@
 
   const tShell = uiT("shell", () => SETTINGS.live.general.state.language);
   const tSkill = uiT("overlay/skill-monitor/general", () => SETTINGS.live.general.state.language);
+  let showOverlayEnableNotice = $derived(
+    !SETTINGS.skillMonitor.state.enabled || !SETTINGS.monsterMonitor.state.enabled,
+  );
 
   function isActiveTab(tabPath: string): boolean {
     const pathname = page.url.pathname;
@@ -58,22 +61,24 @@
     </div>
   </div>
 
-  <Alert.Root class="border-primary/30 bg-primary/5 text-foreground">
-    <InfoIcon />
-    <Alert.Description class="text-xs text-muted-foreground">
-      {tShell(
-        "tool.overlayEnableNotice",
-        "Enable Skill Monitor and Monster Monitor in Settings before using overlay panels.",
-      )}
-      <a
-        href="/main/settings/overlay"
-        onclick={(event) => navigate(event, "/main/settings/overlay")}
-        class="ml-1 font-medium text-primary underline-offset-4 hover:underline"
-      >
-        {tShell("tool.overlayEnableNoticeLink", "Open Overlay Settings")}
-      </a>
-    </Alert.Description>
-  </Alert.Root>
+  {#if showOverlayEnableNotice}
+    <Alert.Root class="border-primary/30 bg-primary/5 text-foreground">
+      <InfoIcon />
+      <Alert.Description class="text-xs text-muted-foreground">
+        {tShell(
+          "tool.overlayEnableNotice",
+          "Enable Skill Monitor and Monster Monitor in Settings before using overlay panels.",
+        )}
+        <a
+          href="/main/settings/overlay"
+          onclick={(event) => navigate(event, "/main/settings/overlay")}
+          class="ml-1 font-medium text-primary underline-offset-4 hover:underline"
+        >
+          {tShell("tool.overlayEnableNoticeLink", "Open Overlay Settings")}
+        </a>
+      </Alert.Description>
+    </Alert.Root>
+  {/if}
 
   <div class="border-b border-border/60">
     <nav class="flex gap-1 -mb-px">

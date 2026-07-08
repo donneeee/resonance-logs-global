@@ -176,7 +176,6 @@ pub struct BuffChangeEvent {
 
 #[derive(Debug, Default)]
 pub struct BuffProcessResult {
-    pub update_payload: Option<Vec<BuffUpdateState>>,
     pub changes: Vec<BuffChangeEvent>,
 }
 
@@ -258,24 +257,16 @@ impl BuffMonitor {
         &mut self,
         raw_bytes: &[u8],
         server_clock_offset: &mut i64,
-        local_player_uuid: i64,
+        _local_player_uuid: i64,
     ) -> BuffProcessResult {
-        self.process_buff_effect_bytes_with_self_source_filter(
-            raw_bytes,
-            server_clock_offset,
-            |_, source_uuid, _, _| local_player_uuid != 0 && source_uuid == Some(local_player_uuid),
-        )
+        self.process_buff_effect_bytes_raw(raw_bytes, server_clock_offset)
     }
 
-    pub(crate) fn process_buff_effect_bytes_with_self_source_filter<F>(
+    fn process_buff_effect_bytes_raw(
         &mut self,
         raw_bytes: &[u8],
         server_clock_offset: &mut i64,
-        mut is_self_source: F,
-    ) -> BuffProcessResult
-    where
-        F: FnMut(i32, Option<i64>, Option<i32>, Option<i32>) -> bool,
-    {
+    ) -> BuffProcessResult {
         let mut changes = Vec::new();
         let Ok(buff_effect_sync) = BuffEffectSync::decode(raw_bytes) else {
             return BuffProcessResult::default();
@@ -454,19 +445,7 @@ impl BuffMonitor {
             }
         }
 
-        let update_payload =
-            self.build_update_payload_with_self_source_filter(*server_clock_offset, |buff| {
-                is_self_source(
-                    buff.base_id,
-                    buff.source_uuid,
-                    buff.source_config_id,
-                    buff.fight_source_type,
-                )
-            });
-        BuffProcessResult {
-            update_payload,
-            changes,
-        }
+        BuffProcessResult { changes }
     }
 
     pub(crate) fn build_update_payload(
@@ -580,54 +559,7 @@ impl EntityBuffMonitors {
         server_clock_offset: &mut i64,
     ) -> BuffProcessResult {
         self.monitor_for(entity_uuid)
-            .process_buff_effect_bytes_with_self_source_filter(
-                raw_bytes,
-                server_clock_offset,
-                |_, _, _, _| true,
-            )
-    }
-
-    pub(crate) fn build_snapshots_for_kind<F, G>(
-        &self,
-        kind: BuffTargetKind,
-        config: &EntityBuffMonitorConfig,
-        local_player_uuid: EntityUuid,
-        server_clock_offset: i64,
-        mut classify: F,
-        mut is_local_source: G,
-    ) -> HashMap<i64, Vec<BuffUpdateState>>
-    where
-        F: FnMut(EntityUuid) -> Option<BuffTargetKind>,
-        G: FnMut(EntityUuid, &ActiveBuff) -> bool,
-    {
-        let profile = config.profile_for(kind);
-        if !profile.enabled {
-            return HashMap::new();
-        }
-
-        let mut snapshots = HashMap::with_capacity(self.monitors.len());
-        for (&entity_uuid, monitor) in &self.monitors {
-            if classify(entity_uuid) != Some(kind) {
-                continue;
-            }
-
-            let buffs = monitor.build_update_payload_for_profile(
-                entity_uuid,
-                profile,
-                server_clock_offset,
-                |buff| {
-                    if local_player_uuid != 0 && buff.source_uuid == Some(local_player_uuid) {
-                        return true;
-                    }
-                    is_local_source(entity_uuid, buff)
-                },
-            );
-            if !buffs.is_empty() {
-                snapshots.insert(entity_uuid, buffs);
-            }
-        }
-
-        snapshots
+            .process_buff_effect_bytes_raw(raw_bytes, server_clock_offset)
     }
 }
 

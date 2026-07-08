@@ -269,12 +269,16 @@ impl SkillCdMonitor {
         }
     }
 
-    pub(crate) fn build_filtered_skill_cds(&self) -> Vec<SkillCdState> {
-        if self.monitored_skill_ids.is_empty() {
+    pub(crate) fn build_filtered_skill_cds(
+        &self,
+        active_profession_skills: &[ObservedProfessionSkill],
+    ) -> Vec<SkillCdState> {
+        let monitored_skill_ids = self.effective_monitored_skill_ids(active_profession_skills);
+        if monitored_skill_ids.is_empty() {
             return Vec::new();
         }
-        let mut filtered = Vec::with_capacity(self.monitored_skill_ids.len());
-        for monitored_skill_id in &self.monitored_skill_ids {
+        let mut filtered = Vec::with_capacity(monitored_skill_ids.len());
+        for monitored_skill_id in &monitored_skill_ids {
             if let Some(cd) = self
                 .skill_cd_map
                 .values()
@@ -296,12 +300,12 @@ impl SkillCdMonitor {
         runtime: SkillCdRuntimeSnapshot<'_>,
     ) {
         let now = now_ms();
+        let monitored_skill_ids = self.effective_monitored_skill_ids(runtime.active_profession_skills);
         for cd in skill_cds {
             let Some(id) = cd.skill_level_id else {
                 continue;
             };
-            let Some(base_id) = monitored_base_id_for_skill_cd(id, &self.monitored_skill_ids)
-            else {
+            let Some(base_id) = monitored_base_id_for_skill_cd(id, &monitored_skill_ids) else {
                 continue;
             };
 
@@ -386,10 +390,57 @@ impl SkillCdMonitor {
             );
         }
     }
+
+    fn effective_monitored_skill_ids(
+        &self,
+        active_profession_skills: &[ObservedProfessionSkill],
+    ) -> Vec<i32> {
+        let mut ids = self.monitored_skill_ids.clone();
+        for skill in active_profession_skills {
+            push_active_battle_imagine_skill_ids(&mut ids, skill);
+        }
+        ids.sort_unstable();
+        ids.dedup();
+        ids
+    }
 }
 
 fn skill_cd_matches_monitored(skill_id: i32, monitored_skill_id: i32) -> bool {
     skill_id == monitored_skill_id || skill_id / 100 == monitored_skill_id
+}
+
+fn push_positive_skill_id(target: &mut Vec<i32>, skill_id: i32) {
+    if skill_id > 0 {
+        target.push(skill_id);
+    }
+}
+
+fn push_skill_level_and_base_id(target: &mut Vec<i32>, skill_level_id: i32) {
+    push_positive_skill_id(target, skill_level_id);
+    push_positive_skill_id(target, skill_level_id / 100);
+}
+
+fn push_active_battle_imagine_skill_ids(
+    target: &mut Vec<i32>,
+    skill: &ObservedProfessionSkill,
+) {
+    if skill.source_kind != "battle-imagine" {
+        return;
+    }
+    if skill.equipped != Some(true) && skill.slot.is_none() {
+        return;
+    }
+
+    push_positive_skill_id(target, skill.skill_id);
+    if let Some(base_skill_id) = skill.base_skill_id {
+        push_positive_skill_id(target, base_skill_id);
+    }
+    if let Some(skill_level_id) = skill.skill_level_id {
+        push_skill_level_and_base_id(target, skill_level_id);
+    }
+    for replace_skill_id in &skill.replace_skill_ids {
+        push_positive_skill_id(target, *replace_skill_id);
+    }
 }
 
 fn monitored_base_id_for_skill_cd(skill_id: i32, monitored_skill_ids: &[i32]) -> Option<i32> {

@@ -84,6 +84,11 @@ impl EntityAttrStore {
 
     pub fn set_attr(&mut self, uid: i64, attr_type: AttrType, value: AttrValue) -> bool {
         let was_dead = matches!(attr_type, AttrType::ActorState) && self.is_dead(uid);
+        let mirrored_panel_attr = if uid == self.local_player_uuid {
+            local_panel_attr_value(attr_type, &value)
+        } else {
+            None
+        };
         let changed = self
             .attrs
             .entry(uid)
@@ -113,6 +118,9 @@ impl EntityAttrStore {
                     timestamp_ms,
                 });
             }
+        }
+        if let Some((panel_attr_id, panel_value)) = mirrored_panel_attr {
+            let _ = self.set_panel_attr(panel_attr_id, panel_value);
         }
         true
     }
@@ -381,4 +389,107 @@ fn panel_attr_affects_skill_cd(attr_id: i32) -> bool {
             | attr_type::ATTR_PANEL_LUCKY_DAMAGE_MULTIPLIER
             | attr_type::ATTR_PANEL_BLOCK_DAMAGE_REDUCTION
     )
+}
+
+fn is_character_panel_attr(attr_id: i32) -> bool {
+    matches!(
+        attr_id,
+        attr_type::ATTR_PANEL_STRENGTH
+            | attr_type::ATTR_PANEL_INTELLIGENCE
+            | attr_type::ATTR_PANEL_AGILITY
+            | attr_type::ATTR_PANEL_PHYSICAL_ATTACK
+            | attr_type::ATTR_PANEL_MAGIC_ATTACK
+            | attr_type::ATTR_PANEL_CRIT_RATE
+            | attr_type::ATTR_PANEL_ATTACK_SPEED
+            | attr_type::ATTR_PANEL_CAST_SPEED
+            | attr_type::ATTR_PANEL_LUCKY
+            | attr_type::ATTR_PANEL_HASTE
+            | attr_type::ATTR_PANEL_MASTERY
+            | attr_type::ATTR_PANEL_VERSATILITY
+            | attr_type::ATTR_SKILL_CD_PCT
+            | attr_type::ATTR_CD_ACCELERATE_PCT
+            | attr_type::ATTR_PANEL_CRIT_DAMAGE
+            | attr_type::ATTR_PANEL_LUCKY_DAMAGE_MULTIPLIER
+            | attr_type::ATTR_PANEL_BLOCK_DAMAGE_REDUCTION
+            | attr_type::ATTR_PANEL_BLOCK
+    )
+}
+
+fn local_panel_attr_id(attr_type: AttrType) -> Option<i32> {
+    match attr_type {
+        AttrType::Unknown(attr_id) if is_character_panel_attr(attr_id) => Some(attr_id),
+        // These packet IDs collide with named AttrType entries, but in the
+        // character-panel stream they are displayed panel attributes.
+        AttrType::MinEnergy => Some(attr_type::ATTR_PANEL_PHYSICAL_ATTACK),
+        AttrType::SkillCdPct => Some(attr_type::ATTR_SKILL_CD_PCT),
+        AttrType::CdAcceleratePct => Some(attr_type::ATTR_CD_ACCELERATE_PCT),
+        _ => None,
+    }
+}
+
+fn local_panel_attr_value(attr_type: AttrType, value: &AttrValue) -> Option<(i32, i32)> {
+    let panel_attr_id = local_panel_attr_id(attr_type)?;
+    let value = value.as_int().and_then(|value| i32::try_from(value).ok())?;
+    Some((panel_attr_id, value))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn local_unknown_panel_attr_updates_panel_cache() {
+        let mut store = EntityAttrStore::default();
+        store.set_local_uuid(42);
+
+        assert!(store.set_attr(
+            42,
+            AttrType::Unknown(attr_type::ATTR_PANEL_HASTE),
+            AttrValue::Int(1234),
+        ));
+
+        assert_eq!(
+            store.panel_attr_value(attr_type::ATTR_PANEL_HASTE),
+            Some(1234)
+        );
+        let changes = store.drain_changes();
+        assert_eq!(changes.panel_dirty_attrs.len(), 1);
+        assert_eq!(changes.panel_dirty_attrs[0].attr_id, attr_type::ATTR_PANEL_HASTE);
+        assert_eq!(changes.panel_dirty_attrs[0].value, 1234);
+    }
+
+    #[test]
+    fn local_colliding_panel_attr_updates_panel_cache() {
+        let mut store = EntityAttrStore::default();
+        store.set_local_uuid(42);
+
+        assert!(store.set_attr(42, AttrType::MinEnergy, AttrValue::Int(9876)));
+
+        assert_eq!(
+            store.panel_attr_value(attr_type::ATTR_PANEL_PHYSICAL_ATTACK),
+            Some(9876)
+        );
+        let changes = store.drain_changes();
+        assert_eq!(changes.panel_dirty_attrs.len(), 1);
+        assert_eq!(
+            changes.panel_dirty_attrs[0].attr_id,
+            attr_type::ATTR_PANEL_PHYSICAL_ATTACK
+        );
+        assert_eq!(changes.panel_dirty_attrs[0].value, 9876);
+    }
+
+    #[test]
+    fn non_local_panel_attr_does_not_update_panel_cache() {
+        let mut store = EntityAttrStore::default();
+        store.set_local_uuid(42);
+
+        assert!(store.set_attr(
+            99,
+            AttrType::Unknown(attr_type::ATTR_PANEL_HASTE),
+            AttrValue::Int(1234),
+        ));
+
+        assert_eq!(store.panel_attr_value(attr_type::ATTR_PANEL_HASTE), None);
+        assert!(store.drain_changes().panel_dirty_attrs.is_empty());
+    }
 }
