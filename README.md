@@ -1,6 +1,6 @@
 # Resonance Logs - Global
 
-A desktop combat data analysis app for [Blue Protocol: Star Resonance](https://www.starresonance.com/), featuring real-time DPS tracking, Buff monitoring, skill cooldown display, and more.
+A desktop combat data analysis app for [Blue Protocol: Star Resonance](https://www.playbpsr.com/), featuring real-time DPS tracking, Buff monitoring, skill cooldown display, and more.
 
 This project is modified from [resonance-logs](https://github.com/resonance-logs/resonance-logs)
 
